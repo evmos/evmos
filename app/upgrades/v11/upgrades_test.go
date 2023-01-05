@@ -162,6 +162,21 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			true,
 		},
 		{
+			"Mainnet - even validator count - success",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				v11.Validators = append(
+					v11.Validators, 
+					"evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
+					"evmosvaloper17vze0tk7q7gwpd6jt69p4m5svrty40yw9a88e3",
+					"evmosvaloper19fxanpnjlggzuur3m3x0puk5ez7j9lrttexwsw",
+					"evmosvaloper1hyytyjxr02j72cx0cgjl24s3nn2yrdqqaslk84",
+					"evmosvaloper1mtwvpdd57gpkyejd566s24afr9zm5ryq8gwpvj",
+				)
+			},
+			true,
+		},
+		{
 			"Testnet - no-op",
 			evmostypes.TestnetChainID + "-4",
 			func() {},
@@ -172,6 +187,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(tc.chainID)
+			tc.malleate()
 			suite.setValidators(v11.Validators)
 			suite.fundTestnetRewardsAcc(balance)
 
@@ -227,7 +243,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					delTokens := suite.getDelegatedTokens([]string{v})
 					exp := expectedValDel
 					// First validator gets the remainder delegation
-					if i == 0 {
+					if totalRem.IsPositive() && i == 0 {
 						exp = expectedValDel.Add(totalRem)
 					}
 					suite.Require().Equal(exp, delTokens)
