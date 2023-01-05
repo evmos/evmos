@@ -171,14 +171,18 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			"Mainnet - even validator count - success",
 			evmostypes.MainnetChainID + "-4",
 			func() {
-				v11.Validators = append(
-					v11.Validators,
+				v11.Validators = []string{
+					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
+					"evmosvaloper1mx9nqk5agvlsvt2yc8259nwztmxq7zjqep5khu",
+					"evmosvaloper1f35jtt5m68zlxkpxn75403vv82cchahqvfsrup",
+					"evmosvaloper14zatq4jagqtm9ejgvglnv0t364d88u80futp65",
+					"evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
 					"evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
 					"evmosvaloper17vze0tk7q7gwpd6jt69p4m5svrty40yw9a88e3",
 					"evmosvaloper19fxanpnjlggzuur3m3x0puk5ez7j9lrttexwsw",
 					"evmosvaloper1hyytyjxr02j72cx0cgjl24s3nn2yrdqqaslk84",
 					"evmosvaloper1mtwvpdd57gpkyejd566s24afr9zm5ryq8gwpvj",
-				)
+				}
 			},
 			true,
 		},
@@ -186,12 +190,44 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			"Mainnet - different validator count (11) - success",
 			evmostypes.MainnetChainID + "-4",
 			func() {
-				v11.Validators = append(
-					v11.Validators,
+				v11.Validators = []string{
+					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
+					"evmosvaloper1mx9nqk5agvlsvt2yc8259nwztmxq7zjqep5khu",
+					"evmosvaloper1f35jtt5m68zlxkpxn75403vv82cchahqvfsrup",
+					"evmosvaloper14zatq4jagqtm9ejgvglnv0t364d88u80futp65",
+					"evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
+					"evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
+					"evmosvaloper17vze0tk7q7gwpd6jt69p4m5svrty40yw9a88e3",
+					"evmosvaloper19fxanpnjlggzuur3m3x0puk5ez7j9lrttexwsw",
+					"evmosvaloper1hyytyjxr02j72cx0cgjl24s3nn2yrdqqaslk84",
+					"evmosvaloper1mtwvpdd57gpkyejd566s24afr9zm5ryq8gwpvj",
 					"evmosvaloper1k96y0w5wf089nuvvym3s324c8umd3vvm4yh578",
-				)
+				}
 			},
 			true,
+		},
+		{
+			"Mainnet - insufficient funds on reward account - fail",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				suite.app.BankKeeper.SendCoins(
+					suite.ctx,
+					sdk.MustAccAddressFromBech32(v11.FundingAccount),
+					noRewardAddr,
+					sdk.NewCoins(
+						sdk.NewCoin(evmostypes.BaseDenom, balance.Quo(math.NewInt(2))),
+					),
+				)
+			},
+			false,
+		},
+		{
+			"Mainnet - invalid reward amount - fail",
+			evmostypes.MainnetChainID + "-4",
+			func() {
+				v11.Accounts[0][1] = "a0151as2021231a"
+			},
+			false,
 		},
 		{
 			"Testnet - no-op",
@@ -204,9 +240,9 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(tc.chainID)
+			suite.fundTestnetRewardsAcc(balance)
 			tc.malleate()
 			suite.setValidators(v11.Validators)
-			suite.fundTestnetRewardsAcc(balance)
 
 			valCount := math.NewInt(int64(len(v11.Validators)))
 
@@ -216,6 +252,10 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 			if evmostypes.IsMainnet(tc.chainID) {
 				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
+				if !tc.expectedSuccess {
+					suite.Require().Error(err)
+					return
+				}
 				suite.Require().NoError(err)
 			}
 
