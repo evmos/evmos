@@ -155,8 +155,8 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 	}
 
 	// transfer all remaining tokens after distribution to the community pool
-	remainingFunds := bk.GetAllBalances(ctx, sdk.AccAddress(FundingAccount))
-	err := dk.FundCommunityPool(ctx, remainingFunds, sdk.AccAddress(FundingAccount))
+	remainingFunds := bk.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(FundingAccount))
+	err := dk.FundCommunityPool(ctx, remainingFunds, sdk.MustAccAddressFromBech32(FundingAccount))
 	if err != nil {
 		return fmt.Errorf(
 			"unable to send coins from fund account to community pool",
