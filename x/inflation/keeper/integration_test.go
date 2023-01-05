@@ -59,7 +59,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to usage incentives", func() {
 					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.UsageIncentives
 					expected := (provision.Mul(distribution)).TruncateInt()
@@ -70,7 +70,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				It("should allocate funds to the community pool", func() {
 					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 
-					provision, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
 					distribution := params.InflationDistribution.CommunityPool
 					expected := provision.Mul(distribution)
@@ -159,19 +159,19 @@ var _ = Describe("Inflation", Ordered, func() {
 							skipped := s.app.InflationKeeper.GetSkippedEpochs(s.ctx)
 							s.Require().Equal(epochNumber, epochsPerPeriod+int64(skipped))
 
-							provision, found = s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-							s.Require().True(found)
+							provision = s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+
 							fmt.Println(provision)
 
 							s.CommitAfter(time.Hour * 23) // commit before next full epoch
-							provisionAfter, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							s.Require().Equal(provisionAfter, provision)
 
 							s.CommitAfter(time.Hour * 2) // commit after next full epoch
 						})
 
 						It("should recalculate the EpochMintProvision", func() {
-							provisionAfter, _ := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							Expect(provisionAfter).ToNot(Equal(provision))
 							Expect(provisionAfter).To(Equal(sdk.MustNewDecFromStr("159375000000000000000000000")))
 						})
