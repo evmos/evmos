@@ -91,14 +91,6 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 		expInflationRate sdk.Dec
 	}{
 		{
-			"no mint provision",
-			400_000_000,
-			func() {
-				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, sdk.ZeroDec())
-			},
-			sdk.ZeroDec(),
-		},
-		{
 			"no epochs per period",
 			400_000_000,
 			func() {
@@ -118,6 +110,12 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			func() {},
 			sdk.MustNewDecFromStr("154.687500000000000000"),
 		},
+		{
+			"zero circulating supply",
+			200_000_000,
+			func() {},
+			sdk.ZeroDec(),
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
@@ -128,18 +126,62 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			tc.malleate()
 
 			// Mint coins to increase supply
-			coin := sdk.NewCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(tc.bankSupply, ethermint.PowerReduction))
+			coin := sdk.NewCoin(
+				types.DefaultInflationDenom,
+				sdk.TokensFromConsensusPower(tc.bankSupply, ethermint.PowerReduction),
+			)
 			decCoin := sdk.NewDecCoinFromCoin(coin)
 			err := suite.app.InflationKeeper.MintCoins(suite.ctx, coin)
 			suite.Require().NoError(err)
 
-			teamAlloc := sdk.NewDecCoin(types.DefaultInflationDenom, sdk.TokensFromConsensusPower(int64(200_000_000), ethermint.PowerReduction))
+			teamAlloc := sdk.NewDecCoin(
+				types.DefaultInflationDenom,
+				sdk.TokensFromConsensusPower(int64(200_000_000), ethermint.PowerReduction),
+			)
 			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx)
 
 			suite.Require().Equal(decCoin.Sub(teamAlloc).Amount, circulatingSupply)
 
 			inflationRate := s.app.InflationKeeper.GetInflationRate(suite.ctx)
 			suite.Require().Equal(tc.expInflationRate, inflationRate)
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestBondedRatio() {
+	testCases := []struct {
+		name         string
+		isMainnet    bool
+		malleate     func()
+		expBondRatio sdk.Dec
+	}{
+		{
+			"is mainnet",
+			true,
+			func() {},
+			sdk.ZeroDec(),
+		},
+		{
+			"not mainnet",
+			false,
+			func() {},
+			sdk.MustNewDecFromStr("0.999900009999000099"),
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			// Team allocation is only set on mainnet
+			if tc.isMainnet {
+				suite.ctx = suite.ctx.WithChainID("evmos_9001-1")
+			} else {
+				suite.ctx = suite.ctx.WithChainID("evmos_9999-666")
+			}
+			tc.malleate()
+
+			bondRatio := suite.app.InflationKeeper.BondedRatio(suite.ctx)
+			suite.Require().Equal(tc.expBondRatio, bondRatio)
 		})
 	}
 }

@@ -5,8 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v10/x/inflation/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -27,10 +25,7 @@ func (k Keeper) EpochMintProvision(
 	_ *types.QueryEpochMintProvisionRequest,
 ) (*types.QueryEpochMintProvisionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	if !found {
-		return nil, status.Error(codes.NotFound, "epoch mint provision not found")
-	}
+	epochMintProvision := k.GetEpochMintProvision(ctx)
 
 	mintDenom := k.GetParams(ctx).MintDenom
 	coin := sdk.NewDecCoinFromDec(mintDenom, epochMintProvision)

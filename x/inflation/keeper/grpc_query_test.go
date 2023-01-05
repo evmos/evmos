@@ -87,18 +87,6 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 			},
 			true,
 		},
-		{
-			"set epochMintProvision",
-			func() {
-				epochMintProvision := sdk.NewDec(1_000_000)
-				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, epochMintProvision)
-				suite.Commit()
-
-				req = &types.QueryEpochMintProvisionRequest{}
-				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, epochMintProvision)}
-			},
-			true,
-		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
