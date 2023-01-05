@@ -220,7 +220,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			}
 
 			if tc.expectedSuccess {
-				// total remainder that was not delegated
+				// total remainder that is delegated to first validator
 				totalRem := math.NewInt(0)
 				expectedValDel := math.NewInt(0)
 
@@ -248,11 +248,11 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				}
 
 				// account not in list should NOT get rewards
-				// balance should be 0 - all reward tokens are delegated
+				// balance should be 0
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, evmostypes.BaseDenom)
 				suite.Require().Equal(sdk.NewInt(0), balance.Amount)
 
-				// get staked (delegated) tokens
+				// get staked (delegated) tokens - no delegations expected
 				d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
 				suite.Require().Empty(d)
 
