@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/big"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
