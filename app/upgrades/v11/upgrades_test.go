@@ -151,11 +151,13 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest(evmostypes.MainnetChainID)
+			suite.SetupTest(tc.chainID)
 			suite.fundTestnetRewardsAcc(balance)
 
-			err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper)
-			suite.Require().NoError(err)
+			if evmostypes.IsMainnet(tc.chainID) {
+				logger := suite.ctx.Logger().With("upgrade", "Test v11 Upgrade")
+				v11.HandleRewardDistribution(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper, logger)
+			}
 
 			if tc.expectedSuccess {
 				for i := range v11.Accounts {

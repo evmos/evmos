@@ -2,7 +2,6 @@ package v11
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -90,21 +89,22 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 
 // DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
 func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper) error {
+	// TODO check the remaining rewards on each iteration to avoid sending more/less than supposed to (similar to v9.1 upgrade)
 	for _, currentDistribute := range Accounts {
 
 		// move rewards to the receiving account
 		receivingAccount := sdk.MustAccAddressFromBech32(currentDistribute[0])
-		receivingAmount, err := strconv.ParseInt(currentDistribute[1], 10, 64)
-		if err != nil {
+		receivingAmount, ok := sdk.NewIntFromString(currentDistribute[1])
+		if !ok {
 			return fmt.Errorf(
 				"reward distribution to address %s failed due to invalid parsing",
 				currentDistribute[0],
 			)
 		}
 		currentRewards := sdk.Coins{
-			sdk.NewInt64Coin("aevmos", receivingAmount),
+			sdk.NewCoin(types.BaseDenom, receivingAmount),
 		}
-		err = bk.SendCoins(ctx, sdk.AccAddress(FundingAccount), receivingAccount, currentRewards)
+		err := bk.SendCoins(ctx, sdk.MustAccAddressFromBech32(FundingAccount), receivingAccount, currentRewards)
 		if err != nil {
 			return fmt.Errorf(
 				"unable to send coins from fund account to participant account",
@@ -113,7 +113,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 
 		// stake from the receiving account to all validators equally
 		numValidators := len(Validators)
-		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf("aevmos")
+		currentStakeAmount := (currentRewards.QuoInt(sdk.NewInt(int64(numValidators)))).AmountOf(types.BaseDenom)
 		for _, validatorBech32 := range Validators {
 			validatorAddress, err := sdk.ValAddressFromBech32(validatorBech32)
 			if err != nil {
