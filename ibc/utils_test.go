@@ -229,7 +229,6 @@ func TestGetTransferAmount(t *testing.T) {
 }
 
 func TestGetReceivedCoin(t *testing.T) {
-
 	testCases := []struct {
 		name       string
 		srcPort    string
