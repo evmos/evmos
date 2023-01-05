@@ -39,17 +39,43 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (inflation) [\#1193] Remove EpochMintProvision setters and getters to calculate on the fly
-- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
+- (inflation) [#1193](https://github.com/evmos/evmos/pull/1193) Remove EpochMintProvision setters and getters to calculate on the fly
 - (erc20) [#1100](https://github.com/evmos/evmos/pull/1100) Deprecate usage of x/params in x/erc20
 - (inflation) [#1107](https://github.com/evmos/evmos/pull/1107) Deprecate usage of x/params in x/inflation
 - (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
 - (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
 - (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
+
+### API Breaking
+
+### Features
+
+### Improvements
+
+- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
+- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
+- (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
+- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new TypedEvent
+
+### Bug Fixes
+
+- (ibc) [#1156](https://github.com/evmos/evmos/pull/1156) Migrate IBC transfer escrow accounts to `ModuleAccount` type.
+
+## [v10.0.1] - 2023-01-03
+
+### Improvements
+
+- (deps) [#1201](https://github.com/evmos/evmos/pull/1201) Bump `ics23/go` to v0.9.0
+
+## [v10.0.0] - 2022-12-28
+
+### State Machine Breaking
+
 - (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5)
+- (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
+- (vesting) [\#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
-- (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ics23 dragonberry replace in go.mod as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
-- (feat) [\#1070](https://github.com/evmos/evmos/pull/1070) Add amino support to the vesting module, it enables signing the module messages using EIP-712.
+- (deps) [\#1041](https://github.com/evmos/evmos/pull/1041) Add ICS-23 dragon-berry replace in `go.mod` as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4)
 
 ### API Breaking
 
@@ -57,41 +83,35 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
-- (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
-- (app) [\#1114](https://github.com/evmos/evmos/pull/1114) Set default File store listener for application from [ADR38](https://docs.cosmos.network/v0.47/architecture/adr-038-state-listening)
+- (app) [\#1114](https://github.com/evmos/evmos/pull/1114) Add default File store listener for application from [ADR38](https://docs.cosmos.network/v0.47/architecture/adr-038-state-listening)
+- (transfer, erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ICS-20 `transfer` to automatically convert ERC-20 tokens to native Cosmos coins.
 
 ### Improvements
 
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
-- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
-- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
-- (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
-- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new TypedEvent
-- (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
+- (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
+- (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
+- (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
+- (ibc) [\#1081](https://github.com/evmos/evmos/pull/1081) Added utils functions for ibc denoms.
 - (erc20) [\#1059](https://github.com/evmos/evmos/pull/1059) Add util functions (iterator and params) for ERC20 module.
 - (go) [\#1039](https://github.com/evmos/evmos/pull/1039) Bump go v1.19
+- (test) [#1028](https://github.com/evmos/evmos/pull/1028) Add node upgrade end-to-end test suite.
+- (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
 - (ante) [\#993](https://github.com/evmos/evmos/pull/993) Re-order AnteHandlers for better performance
-- (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#985](https://github.com/evmos/evmos/pull/985) Specify repo branch name on markdown-link-check configuration.
+- (docs) [\#883](https://github.com/evmos/evmos/pull/883) Add Ethereum tx indexer documentation.
 - (docs) [\#980](https://github.com/evmos/evmos/pull/980) Fix documentation links to cosmos-sdk docs.
 - (cmd) [\#974](https://github.com/evmos/evmos/pull/974) Add `prune` command.
-- (cli) [\#816](https://github.com/evmos/evmos/pull/816) Add Ledger CLI support.
-- (cmd) [\#1027](https://github.com/evmos/evmos/pull/1027) Apply Google CLI Syntax for required and optional args.
-- (ibc) [\#1081](https://github.com/evmos/evmos/pull/1081) Added utils functions for ibc denoms.
-- (ibc/erc20) [\#1085](https://github.com/evmos/evmos/pull/1085) Added wrapper for ibc transfer to automatically convert erc20 tokens to cosmos coins.
-- (vesting) [\#1087](https://github.com/evmos/evmos/pull/1087) Add new `MsgUpdateVestingFunder` that updates the `Funder` field of a given clawback vesting account
-- (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
-- (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix evmosd version to show either tag or last commit.
+- (cli) [#816](https://github.com/evmos/evmos/pull/816) Add Ledger CLI support.
 
 ### Bug Fixes
 
 - (app) [#1165](https://github.com/evmos/evmos/pull/1165) Update Ledger supported algorithms to only consist of `EthSecp256k1`
 - (cmd) [#1172](https://github.com/evmos/evmos/pull/1172) Update default node snapshot interval to `5000`
+- (cmd) [\#1121](https://github.com/evmos/evmos/pull/1121) Fix `evmosd version` to show either tag or last commit.
 - (cmd) [\#1120](https://github.com/evmos/evmos/pull/1120) Fix snapshot configuration
 - (app) [\#1118](https://github.com/evmos/evmos/pull/1118) Setup gRPC node service with the application.
 - (analytics) [\#1094](https://github.com/evmos/evmos/pull/1094) Fix unbound metrics and remove labels that keep increasing.
-- (ibc) [\#1156](https://github.com/evmos/evmos/pull/1156) Migrate IBC transfer escrow accounts to `ModuleAccount` type.
-
 
 ## [v9.1.0] - 2022-10-25
 
