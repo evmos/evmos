@@ -31,6 +31,10 @@ func (suite *KeeperTestSuite) TestMigrations() {
 			"Run Migrate1to2",
 			migrator.Migrate1to2,
 		},
+		{
+			"Run Migrate2to3",
+			migrator.Migrate2to3,
+		},
 	}
 
 	for _, tc := range testCases {
