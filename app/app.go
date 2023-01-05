@@ -1155,6 +1155,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
 		// no store upgrades in v10
+	case v11.UpgradeName:
 	}
 
 	if storeUpgrades != nil {
