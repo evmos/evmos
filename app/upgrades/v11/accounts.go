@@ -11,8 +11,8 @@
 
 package v11
 
-// Accounts to be rewarded.
-var Accounts = [1183][2]string{
+// Allocations are rewards by participant address.
+var Allocations = [1183][2]string{
 	{"evmos1az0eeqw5222en0enxz9ect3s8xy4kayz7khcn2", "72296498740000000000000"},
 	{"evmos1ksanxvyylh26sdl8ps07y9czmrsg5gmagemgf6", "49028660070000000000000"},
 	{"evmos1sh9hnwuv8l7x4zvjq0l6erhsrxa9pdr7qw3xke", "46535677350000000000000"},

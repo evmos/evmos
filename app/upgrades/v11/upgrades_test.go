@@ -144,7 +144,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	suite.Require().True(ok, "error converting rewards")
 
 	actualRewards := math.NewInt(0)
-	for _, currentElem := range v11.Accounts {
+	for _, currentElem := range v11.Allocations {
 		res, _ := sdk.NewIntFromString(currentElem[1])
 		actualRewards = actualRewards.Add(res)
 	}
@@ -168,7 +168,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			true,
 		},
 		{
-			"Mainnet - even validator count - success",
+			"Mainnet - even validator count (no remainder) - success",
 			evmostypes.MainnetChainID + "-4",
 			func() {
 				v11.Validators = []string{
@@ -187,7 +187,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			true,
 		},
 		{
-			"Mainnet - different validator count (11) - success",
+			"Mainnet - different validator count (remainder > 0) - success",
 			evmostypes.MainnetChainID + "-4",
 			func() {
 				v11.Validators = []string{
@@ -225,7 +225,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			"Mainnet - invalid reward amount - fail",
 			evmostypes.MainnetChainID + "-4",
 			func() {
-				v11.Accounts[0][1] = "a0151as2021231a"
+				v11.Allocations[0][1] = "a0151as2021231a"
 			},
 			false,
 		},
@@ -264,9 +264,9 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				totalRem := math.NewInt(0)
 				expectedValDel := math.NewInt(0)
 
-				for i := range v11.Accounts {
-					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
-					res, _ := sdk.NewIntFromString(v11.Accounts[i][1])
+				for i := range v11.Allocations {
+					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
+					res, _ := sdk.NewIntFromString(v11.Allocations[i][1])
 
 					// the remainder of reward_tokens/validators_count is delegated only to the
 					// first validator. Keep track to validate delegated amt on validators
@@ -320,8 +320,8 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.FundingAccount), evmostypes.BaseDenom)
 				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
 			} else { // no-op
-				for i := range v11.Accounts {
-					addr := sdk.MustAccAddressFromBech32(v11.Accounts[i][0])
+				for i := range v11.Allocations {
+					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
 					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
 					suite.Require().Equal(sdk.NewInt(0), balance.Amount)
 

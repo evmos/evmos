@@ -95,30 +95,30 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 
 // DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
 func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper) error {
-	fundingAccountAddress := sdk.MustAccAddressFromBech32(FundingAccount)
+	funder := sdk.MustAccAddressFromBech32(FundingAccount)
 	numValidators := sdk.NewInt(int64(len(Validators)))
 
-	for _, currentDistribute := range Accounts {
+	for _, allocation := range Allocations {
 
 		// send rewards to receivers
-		receivingAccount := sdk.MustAccAddressFromBech32(currentDistribute[0])
-		receivingAmount, ok := sdk.NewIntFromString(currentDistribute[1])
+		receiver := sdk.MustAccAddressFromBech32(allocation[0])
+		receivingAmount, ok := sdk.NewIntFromString(allocation[1])
 		if !ok {
 			return errorsmod.Wrapf(errortypes.ErrInvalidType,
 				"cannot retrieve allocation from string for address %s",
-				currentDistribute[0])
+				allocation[0])
 		}
-		currentRewards := sdk.Coins{
+		reward := sdk.Coins{
 			sdk.NewCoin(types.BaseDenom, receivingAmount),
 		}
-		err := bk.SendCoins(ctx, fundingAccountAddress, receivingAccount, currentRewards)
+		err := bk.SendCoins(ctx, funder, receiver, reward)
 		if err != nil {
 			return err
 		}
 
-		// delegate receiver's rewards to validators selected validators equally 
-		currentStakeAmount := (currentRewards.QuoInt(numValidators)[0]).Amount // only one coin in slice
-		remainderAmount := (currentRewards[0].Amount).Mod(numValidators)
+		// delegate receiver's rewards to validators selected validators equally
+		delegationAmt := reward.QuoInt(numValidators)[0].Amount
+		remainderAmount := (reward[0].Amount).Mod(numValidators)
 		for i, validatorBech32 := range Validators {
 			validatorAddress, err := sdk.ValAddressFromBech32(validatorBech32)
 			if err != nil {
@@ -130,25 +130,23 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 					"validator address %s cannot be found",
 					validatorAddress)
 			}
-			// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
-			_, err = sk.Delegate(ctx, receivingAccount, currentStakeAmount, 1, validator, true)
-			if err != nil {
-				return err
-			}
 			// we delegate the remainder to the first validator, for the sake of testing consistency
 			// this remainder is in the order of 10^-18 evmos, and at most 10^-15 evmos after all rewards are allocated
 			if remainderAmount.IsPositive() && i == 0 {
-				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
-				if err != nil {
-					return err
-				}
+				_, err = sk.Delegate(ctx, receiver, delegationAmt.Add(remainderAmount), 1, validator, true)
+			} else {
+				// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
+				_, err = sk.Delegate(ctx, receiver, delegationAmt, 1, validator, true)
+			}
+			if err != nil {
+				return err
 			}
 		}
 	}
 
-	// transfer all remaining tokens after distribution to the community pool
+	// transfer all remaining tokens (1.775M = 7.4M - 5.625M) after rewards distribution to the community pool
 	remainingFunds := bk.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(FundingAccount))
-	err := dk.FundCommunityPool(ctx, remainingFunds, fundingAccountAddress)
+	err := dk.FundCommunityPool(ctx, remainingFunds, funder)
 	if err != nil {
 		return err
 	}
