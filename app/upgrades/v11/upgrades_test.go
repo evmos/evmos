@@ -282,7 +282,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					// get staked (delegated) tokens
 					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
 
-					// sum of all delegations should be equal to rewards - remainder
+					// sum of all delegations should be equal to rewards
 					delegatedAmt := suite.sumDelegations(d)
 					suite.Require().Equal(res, delegatedAmt)
 				}
@@ -300,12 +300,12 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				totalDelegations := math.NewInt(0)
 				for i, v := range v11.Validators {
 					delTokens := suite.getDelegatedTokens([]string{v})
-					exp := expectedValDel
 					// First validator gets the remainder delegation
 					if totalRem.IsPositive() && i == 0 {
-						exp = expectedValDel.Add(totalRem)
+						suite.Require().Equal(expectedValDel.Add(totalRem), delTokens)
+					} else {
+						suite.Require().Equal(expectedValDel, delTokens)
 					}
-					suite.Require().Equal(exp, delTokens)
 					totalDelegations = totalDelegations.Add(delTokens)
 				}
 
