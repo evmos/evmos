@@ -37,7 +37,6 @@ func MigrateStore(
 	var params v2types.V2Params
 
 	legacySubspace.GetParamSetIfExists(ctx, &params)
-
 	if err := params.Validate(); err != nil {
 		return err
 	}
