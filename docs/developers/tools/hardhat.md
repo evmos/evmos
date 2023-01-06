@@ -125,6 +125,7 @@ $ npx hardhat accounts
 0x90F79bf6EB2c4f870365E785982E1f101E93b906
 ...
 ```
+
 * To make `accounts` command work in recent hardhat (`npx hardhat --version // 2.12.5`)
 add this to `hardhat.config.js`
 
