@@ -95,7 +95,7 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 	}
 }
 
-// HandleMainnetUpgrade handles the logic for the reward distribution, it only commits to the db if successful
+// HandleRewardDistribution handles the logic for the reward distribution, it only commits to the db if successful
 func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper, logger log.Logger) {
 	// use a cache context as a rollback mechanism in case
 	// the distrbution fails
