@@ -36,5 +36,4 @@ func (suite *KeeperTestSuite) TestParams() {
 			suite.Require().Equal(tc.expParams, params)
 		})
 	}
-
 }

@@ -17,9 +17,8 @@ well as updating it:
    of skipped epochs and return without proceeding to the next steps.
 2. A block is committed, that signalizes that an `epoch` has ended (block
    `header.Time` has surpassed `epoch_start` + `epochIdentifier`).
-3. Mint coin in amount of `epochMintProvision` and allocate according to
+3. Mint coin in amount of calculated `epochMintProvision` and allocate according to
    inflation distribution to staking rewards, usage incentives and community
    pool.
 4. If a period ends with current epoch,
     1. increment the period by 1 and set to store and
-    2. recalculate epochMintProvision and set to store.

@@ -153,12 +153,9 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	}
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
-
 }
 
-var (
-	timeoutHeight = clienttypes.NewHeight(1000, 1000)
-)
+var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
