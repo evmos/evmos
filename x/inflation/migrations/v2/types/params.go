@@ -31,10 +31,10 @@ var _ types.LegacyParams = &V2Params{}
 
 var (
 	ParamsKey                           = []byte("Params")
-	ParamStoreKeyMintDenom              = []byte("MintDenom")
-	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
-	ParamStoreKeyInflationDistribution  = []byte("InflationDistribution")
-	ParamStoreKeyEnableInflation        = []byte("EnableInflation")
+	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
 )
 
 var (
