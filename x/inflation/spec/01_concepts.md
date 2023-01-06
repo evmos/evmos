@@ -55,7 +55,7 @@ Inflation is minted in daily epochs. During a period of 365 epochs (one year), a
 daily provision (`epochProvison`) of Evmos tokens is minted and allocated to staking rewards,
 usage incentives and the community pool. The epoch provision depends on parameters and is calculated every day.
 
-At the end of each epoch, the epoch provision is recalculated with the calculation below:
+The calculation of the epoch provision is done according to the following formula:
 
 ```latex
 periodProvision = exponentialDecay       *  bondingIncentive
