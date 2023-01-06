@@ -95,8 +95,10 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 	}
 }
 
-// HandleRewardDistribution handles the logic for the reward distribution, it only commits to the db if successful
-func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper, logger log.Logger) {
+// HandleRewardDistribution handles the logic for the reward distribution,
+// it only commits to the db if successful
+func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper,
+	sk stakingkeeper.Keeper, dk distributionkeeper.Keeper, logger log.Logger) {
 	// use a cache context as a rollback mechanism in case
 	// the distrbution fails
 	cacheCtx, writeFn := ctx.CacheContext()
@@ -109,8 +111,10 @@ func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingk
 	}
 }
 
-// DistributeRewards distributes the token allocations from the Olympus Mons incentivized testnet
-func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, dk distributionkeeper.Keeper) error {
+// DistributeRewards distributes the token allocations from the Olympus Mons
+// incentivized testnet for completing the Mars Meteor Missions
+func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper,
+	dk distributionkeeper.Keeper) error {
 	funder := sdk.MustAccAddressFromBech32(FundingAccount)
 	numValidators := sdk.NewInt(int64(len(Validators)))
 
@@ -144,12 +148,15 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 					"validator address %s cannot be found",
 					validatorAddress)
 			}
-			// we delegate the remainder to the first validator, for the sake of testing consistency
-			// this remainder is in the order of 10^-18 evmos, and at most 10^-15 evmos after all rewards are allocated
+			// we delegate the remainder to the first validator, for the sake of testing
+			// consistency. this remainder is in the order of 10^-18 evmos, and at most
+			// 10^-15 evmos after all rewards are allocated
 			if remainderAmount.IsPositive() && i == 0 {
-				_, err = sk.Delegate(ctx, receiver, delegationAmt.Add(remainderAmount), 1, validator, true)
+				_, err = sk.Delegate(ctx, receiver, delegationAmt.Add(remainderAmount), 1,
+					validator, true)
 			} else {
-				// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
+				// 1 signifies unbonded tokens, subtractAccount being true means
+				// delegation, not redelegation
 				_, err = sk.Delegate(ctx, receiver, delegationAmt, 1, validator, true)
 			}
 			if err != nil {
@@ -158,7 +165,8 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		}
 	}
 
-	// transfer all remaining tokens (1.775M = 7.4M - 5.625M) after rewards distribution to the community pool
+	// transfer all remaining tokens (1.775M = 7.4M - 5.625M) after rewards distribution
+	// to the community pool
 	remainingFunds := bk.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(FundingAccount))
 	err := dk.FundCommunityPool(ctx, remainingFunds, funder)
 	if err != nil {
