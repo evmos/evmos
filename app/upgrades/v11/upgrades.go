@@ -100,7 +100,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 
 	for _, currentDistribute := range Accounts {
 
-		// move rewards to the receiving account
+		// send rewards to receivers
 		receivingAccount := sdk.MustAccAddressFromBech32(currentDistribute[0])
 		receivingAmount, ok := sdk.NewIntFromString(currentDistribute[1])
 		if !ok {
@@ -116,9 +116,9 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			return err
 		}
 
-		// stake from the receiving account to all validators equally
+		// delegate receiver's rewards to validators selected validators equally 
 		currentStakeAmount := (currentRewards.QuoInt(numValidators)[0]).Amount // only one coin in slice
-		remainderAmount := (currentRewards[0].Amount).Mod(numValidators)       // same as above
+		remainderAmount := (currentRewards[0].Amount).Mod(numValidators)
 		for i, validatorBech32 := range Validators {
 			validatorAddress, err := sdk.ValAddressFromBech32(validatorBech32)
 			if err != nil {
@@ -136,7 +136,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 				return err
 			}
 			// we delegate the remainder to the first validator, for the sake of testing consistency
-			// this remainder is on the order of 10^-18 evmos,  is at most 10^-15 evmos after all rewards allocated
+			// this remainder is in the order of 10^-18 evmos, and at most 10^-15 evmos after all rewards are allocated
 			if remainderAmount.IsPositive() && i == 0 {
 				_, err = sk.Delegate(ctx, receivingAccount, remainderAmount, 1, validator, true)
 				if err != nil {
