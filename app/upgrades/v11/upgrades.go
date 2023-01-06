@@ -121,7 +121,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		if !ok {
 			return errorsmod.Wrapf(errortypes.ErrInvalidType,
 				"cannot retrieve allocation from string for address %s",
-				allocation[0]
+				allocation[0],
 			)
 		}
 		reward := sdk.Coins{sdk.NewCoin(types.BaseDenom, receivingAmount)}
@@ -147,10 +147,11 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			// we delegate the remainder to the first validator, for the sake of testing consistency
 			// this remainder is in the order of 10^-18 evmos, and at most 10^-15 evmos after all rewards are allocated
 			if remainderAmount.IsPositive() && i == 0 {
-				delegatioAmt = delegationAmt.Add(remainderAmount)
+				_, err = sk.Delegate(ctx, receiver, delegationAmt.Add(remainderAmount), 1, validator, true)
+			} else {
+				// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
+				_, err = sk.Delegate(ctx, receiver, delegationAmt, 1, validator, true)
 			}
-			// 1 signifies unbonded tokens, subtractAccount being true means delegation, not redelegation
-			_, err = sk.Delegate(ctx, receiver, delegationAmt, 1, validator, true)
 			if err != nil {
 				return err
 			}
