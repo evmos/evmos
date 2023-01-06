@@ -184,7 +184,7 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
-	s.T().Log("node started! waiting for node to produce 25 blocks")
+	s.T().Log("node started! waiting for node to produce 10 blocks")
 	// make sure node produce blocks after upgrade
 	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+10)
 	s.Require().NoError(err, "node not produce blocks")
