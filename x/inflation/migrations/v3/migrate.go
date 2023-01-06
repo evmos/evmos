@@ -14,34 +14,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 
-package keeper
+package v3
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
 )
 
-// GetParams returns the total set of inflation parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKey)
-	if len(bz) == 0 {
-		return params
-	}
+// prefix bytes for the inflation persistent store
+const prefixEpochMintProvision = 2
 
-	k.cdc.MustUnmarshal(bz, &params)
-	return params
-}
+// KeyPrefixEpochMintProvision key prefix
+var KeyPrefixEpochMintProvision = []byte{prefixEpochMintProvision}
 
-// SetParams sets the inflation params in a single key
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
-	store := ctx.KVStore(k.storeKey)
-	bz, err := k.cdc.Marshal(&params)
-	if err != nil {
-		return err
-	}
-
-	store.Set(types.ParamsKey, bz)
-
+// MigrateStore migrates the x/inflation module state from the consensus version 2 to
+// version 3. Specifically, it deletes the EpochMintProvision from the store
+func MigrateStore(store sdk.KVStore) error {
+	store.Delete(KeyPrefixEpochMintProvision)
 	return nil
 }
