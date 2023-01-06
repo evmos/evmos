@@ -66,6 +66,7 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 		"--deposit=500000aevmos",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
+		"--upgrade-info=\"\"",
 		"--no-validate",
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--from=mykey",
