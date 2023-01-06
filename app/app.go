@@ -43,6 +43,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
+
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
@@ -102,6 +103,12 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
+	v3claimstypes "github.com/evmos/evmos/v10/x/claims/migrations/v3/types"
+	v3erc20types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
+	v2incentivestypes "github.com/evmos/evmos/v10/x/incentives/migrations/v2/types"
+	v2inflationtypes "github.com/evmos/evmos/v10/x/inflation/migrations/v2/types"
+	v2recoverytypes "github.com/evmos/evmos/v10/x/recovery/migrations/v2/types"
+	v2revenuetypes "github.com/evmos/evmos/v10/x/revenue/migrations/v2/types"
 
 	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
 	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
@@ -636,14 +643,20 @@ func NewEvmos(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
-		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, app.GetSubspace(inflationtypes.ModuleName)),
-		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
-		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper, app.GetSubspace(incentivestypes.ModuleName)),
+		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper,
+			app.GetSubspace(inflationtypes.ModuleName).WithKeyTable(v2inflationtypes.ParamKeyTable())),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
+			app.GetSubspace(erc20types.ModuleName).WithKeyTable(v3erc20types.ParamKeyTable())),
+		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper,
+			app.GetSubspace(incentivestypes.ModuleName).WithKeyTable(v2incentivestypes.ParamKeyTable())),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
-		claims.NewAppModule(appCodec, *app.ClaimsKeeper, app.GetSubspace(claimstypes.ModuleName)),
+		claims.NewAppModule(appCodec, *app.ClaimsKeeper,
+			app.GetSubspace(claimstypes.ModuleName).WithKeyTable(v3claimstypes.ParamKeyTable())),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		recovery.NewAppModule(*app.RecoveryKeeper, app.GetSubspace(recoverytypes.ModuleName)),
-		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper, app.GetSubspace(revenuetypes.ModuleName)),
+		recovery.NewAppModule(*app.RecoveryKeeper,
+			app.GetSubspace(recoverytypes.ModuleName).WithKeyTable(v2recoverytypes.ParamKeyTable())),
+		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
+			app.GetSubspace(revenuetypes.ModuleName).WithKeyTable(v2revenuetypes.ParamKeyTable())),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
