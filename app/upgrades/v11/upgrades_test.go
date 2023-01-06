@@ -135,6 +135,7 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 }
 
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
+	const mainnetChainID = evmostypes.MainnetChainID + "-4"
 	communityPoolAccountAddress := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
 
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
@@ -163,13 +164,13 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	}{
 		{
 			"Mainnet - success",
-			evmostypes.MainnetChainID + "-4",
+			mainnetChainID,
 			func() {},
 			true,
 		},
 		{
 			"Mainnet - even validator count (no remainder) - success",
-			evmostypes.MainnetChainID + "-4",
+			mainnetChainID,
 			func() {
 				v11.Validators = []string{
 					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
@@ -188,7 +189,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 		},
 		{
 			"Mainnet - different validator count (remainder > 0) - success",
-			evmostypes.MainnetChainID + "-4",
+			mainnetChainID,
 			func() {
 				v11.Validators = []string{
 					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
@@ -208,7 +209,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 		},
 		{
 			"Mainnet - insufficient funds on reward account - fail",
-			evmostypes.MainnetChainID + "-4",
+			mainnetChainID,
 			func() {
 				suite.app.BankKeeper.SendCoins(
 					suite.ctx,
@@ -223,7 +224,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 		},
 		{
 			"Mainnet - invalid reward amount - fail",
-			evmostypes.MainnetChainID + "-4",
+			mainnetChainID,
 			func() {
 				v11.Allocations[0][1] = "a0151as2021231a"
 			},
