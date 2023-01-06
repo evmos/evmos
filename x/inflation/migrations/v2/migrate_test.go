@@ -40,10 +40,10 @@ func TestMigrate(t *testing.T) {
 	store := ctx.KVStore(storeKey)
 
 	legacySubspace := newMockSubspace(v2types.DefaultParams())
-	require.NoError(t, v2.MigrateStore(ctx, store, legacySubspace, cdc))
+	require.NoError(t, v2.MigrateStore(ctx, storeKey, legacySubspace, cdc))
 
 	legacySubspaceEmpty := newMockSubspaceEmpty()
-	require.Error(t, v2.MigrateStore(ctx, store, legacySubspaceEmpty, cdc))
+	require.Error(t, v2.MigrateStore(ctx, storeKey, legacySubspaceEmpty, cdc))
 
 	var params v2types.V2Params
 	paramsBz := store.Get(v2types.ParamsKey)

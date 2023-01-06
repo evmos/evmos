@@ -57,17 +57,25 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
-		"tx", "gov", "submit-proposal",
-		"software-upgrade", targetVersion,
+		"tx",
+		"gov",
+		"submit-legacy-proposal",
+		"software-upgrade",
+		targetVersion,
 		"--title=\"TEST\"",
+		"--deposit=500000aevmos",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
 		"--upgrade-info=\"\"",
+		"--no-validate",
 		fmt.Sprintf("--chain-id=%s", chainID),
-		"--from=mykey", "-b=block",
-		"--yes", "--keyring-backend=test",
-		"--log_format=json", "--fees=20aevmos",
-		"--gas=auto",
+		"--from=mykey",
+		"-b=block",
+		"--yes",
+		"--keyring-backend=test",
+		"--log_format=json",
+		"--fees=500aevmos",
+		"--gas=500000",
 	}
 	// increment proposal counter to use proposal number for deposit && voting
 	m.proposalCounter++
@@ -88,8 +96,9 @@ func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 		"-b=block",
 		"--yes",
 		"--keyring-backend=test",
-		"--fees=20aevmos",
-		"--gas=auto",
+		"--log_format=json",
+		"--fees=500aevmos",
+		"--gas=500000",
 	}
 
 	return m.CreateExec(cmd, m.ContainerID())
@@ -109,8 +118,9 @@ func (m *Manager) CreateVoteProposalExec(chainID string) (string, error) {
 		"-b=block",
 		"--yes",
 		"--keyring-backend=test",
-		"--fees=20aevmos",
-		"--gas=auto",
+		"--log_format=json",
+		"--fees=500aevmos",
+		"--gas=500000",
 	}
 	return m.CreateExec(cmd, m.ContainerID())
 }
