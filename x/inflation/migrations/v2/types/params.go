@@ -54,6 +54,11 @@ var (
 	}
 )
 
+// ParamKeyTable returns the parameter key table.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
+}
+
 func NewParams(
 	mintDenom string,
 	exponentialCalculation V2ExponentialCalculation,
