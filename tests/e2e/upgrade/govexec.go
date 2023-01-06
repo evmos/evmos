@@ -24,9 +24,6 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
-// default upgrade info to fill necessary flag value
-const upgradeInfo = `{"binaries":{"darwin/arm64":"https://github.com/evmos/evmos/releases/download/v10.0.1/evmos_10.0.1_Darwin_arm64.tar.gz?checksum=5ab0035078f04afccfa0a6c37aed6ddea2198e02b8dd084f004c393d9d04d0f0"}}`
-
 // RunExec runs the provided docker exec call
 func (m *Manager) RunExec(ctx context.Context, exec string) (outBuf bytes.Buffer, errBuf bytes.Buffer, err error) {
 	err = m.pool.Client.StartExec(exec, docker.StartExecOptions{
@@ -60,17 +57,23 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
 	cmd := []string{
 		"evmosd",
-		"tx", "gov", "submit-legacy-proposal",
-		"software-upgrade", targetVersion,
+		"tx",
+		"gov",
+		"submit-legacy-proposal",
+		"software-upgrade",
+		targetVersion,
 		"--title=\"TEST\"",
 		"--deposit=500000aevmos",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
 		"--no-validate",
 		fmt.Sprintf("--chain-id=%s", chainID),
-		"--from=mykey", "-b=block",
-		"--yes", "--keyring-backend=test",
-		"--log_format=json", "--fees=500aevmos",
+		"--from=mykey",
+		"-b=block",
+		"--yes",
+		"--keyring-backend=test",
+		"--log_format=json",
+		"--fees=500aevmos",
 		"--gas=500000",
 	}
 	// increment proposal counter to use proposal number for deposit && voting
