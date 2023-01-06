@@ -52,18 +52,15 @@ The inflation distribution for staking, usage incentives and community pool is
 implemented through an exponential formula, a.k.a. the Half Life.
 
 Inflation is minted in daily epochs. During a period of 365 epochs (one year), a
-daily provision of Evmos tokens is minted and allocated to staking rewards,
-usage incentives and the community pool (`epochProvison`). The epoch provision
-doesn’t change within a period and its cumulated amount per period is equal
-total inflation per period (`epochProvision * epochsPerPeriod =
-periodProvision`).
+daily provision (`epochProvison`) of Evmos tokens is minted and allocated to staking rewards,
+usage incentives and the community pool. The epoch provision depends on module parameters and is recalculated at the end of every epoch.
 
-At the end of each period , the epoch provision is recalculated with the
-calculation below:
+The calculation of the epoch provision is done according to the following formula:
 
 ```latex
 periodProvision = exponentialDecay       *  bondingIncentive
 f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance * (1 - bondedRatio / bondingTarget))
+
 
 epochProvision = periodProvision / epochsPerPeriod
 
@@ -74,7 +71,7 @@ r = 0.5         = decay factor
 c = 9,375,000   = long term supply
 
 bondedRatio   = variable  = fraction of the staking tokens which are currently bonded
-maxVariance   = 0.4       = the max amount to increase inflation
+maxVariance   = 0.0       = the max amount to increase inflation
 bondingTarget = 0.66      = our optimal bonded ratio
 ```
 
