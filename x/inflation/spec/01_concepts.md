@@ -62,7 +62,7 @@ periodProvision = exponentialDecay       *  bondingIncentive
 f(x)            = (a * (1 - r) ^ x + c)  *  (1 + maxVariance * (1 - bondedRatio / bondingTarget))
 
 
-epochProvision = (periodProvision / epochsPerPeriod) * powerReduction
+epochProvision = periodProvision / epochsPerPeriod
 
 where (with default values):
 x = variable    = year
