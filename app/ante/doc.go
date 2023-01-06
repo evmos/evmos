@@ -13,8 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
-/*
 
+/*
 Package ante defines the SDK auth module's AnteHandler as well as an internal
 AnteHandler for an Ethereum transaction (i.e MsgEthereumTx).
 
