@@ -150,13 +150,13 @@ func (k Keeper) OnRecvPacket(
 		// Recover the tokens to the bech32 prefixed address of the source chain
 
 		packetTransfer := &transfertypes.MsgTransfer{
-			SourcePort:       packet.DestinationPort,
-			SourceChannel:    packet.DestinationChannel,
-			Token:            coin,
-			Sender:           recipient.String(),
-			Receiver:         senderBech32,
-			TimeoutHeight:    clienttypes.ZeroHeight(),
-			TimeoutTimestamp: timeout,
+			SourcePort:       packet.DestinationPort,    // packet destination port is now the source
+			SourceChannel:    packet.DestinationChannel, // packet destination channel is now the source
+			Token:            coin,                      // balance of the coin
+			Sender:           recipient.String(),        // recipient is the address in the Evmos chain
+			Receiver:         senderBech32,              // transfer to your own account address on the source chain
+			TimeoutHeight:    clienttypes.ZeroHeight(),  // timeout height disabled
+			TimeoutTimestamp: timeout,                   // timeout timestamp is 4 hours from now
 			Memo:             "",
 		}
 
