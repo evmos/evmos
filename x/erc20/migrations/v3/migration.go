@@ -35,6 +35,8 @@ func MigrateStore(
 ) error {
 	store := ctx.KVStore(storeKey)
 	var params v3types.V3Params
+
+	legacySubspace = legacySubspace.WithKeyTable(v3types.ParamKeyTable())
 	legacySubspace.GetParamSet(ctx, &params)
 
 	if err := params.Validate(); err != nil {
