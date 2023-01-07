@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
@@ -149,13 +165,13 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 
 // GetInflationRate returns the inflation rate for the current period.
 func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
-	epochMintProvision, _ := k.GetEpochMintProvision(ctx)
-	if epochMintProvision.IsZero() {
+	epp := k.GetEpochsPerPeriod(ctx)
+	if epp == 0 {
 		return sdk.ZeroDec()
 	}
 
-	epp := k.GetEpochsPerPeriod(ctx)
-	if epp == 0 {
+	epochMintProvision := k.GetEpochMintProvision(ctx)
+	if epochMintProvision.IsZero() {
 		return sdk.ZeroDec()
 	}
 
@@ -168,4 +184,15 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 
 	// EpochMintProvision * 365 / circulatingSupply * 100
 	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
+}
+
+// GetEpochMintProvision retireves necessary params KV storage
+// and calculate EpochMintProvision
+func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
+	return types.CalculateEpochMintProvision(
+		k.GetParams(ctx),
+		k.GetPeriod(ctx),
+		k.GetEpochsPerPeriod(ctx),
+		k.BondedRatio(ctx),
+	)
 }

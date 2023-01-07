@@ -131,12 +131,10 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 		Context("perform bank send", func() {
 			Context("with keyring functions calling", func() {
 				BeforeEach(func() {
-
 					s.ledger = mocks.NewSECP256K1(s.T())
 
 					mocks.MClose(s.ledger)
 					mocks.MGetPublicKeySECP256K1(s.ledger, s.pubKey)
-
 				})
 				It("should return valid signature", func() {
 					mocks.MSignSECP256K1(s.ledger, signOkMock, nil)
