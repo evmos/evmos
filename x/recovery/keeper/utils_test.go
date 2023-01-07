@@ -34,7 +34,7 @@ func (m *MockTransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbyt
 func (m *MockTransferKeeper) Transfer(goCtx context.Context, msg *transfertypes.MsgTransfer) (*transfertypes.MsgTransferResponse, error) {
 	args := m.Called(
 		mock.Anything,
-		msg,
+		mock.Anything,
 	)
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
@@ -47,5 +47,5 @@ func (m *MockTransferKeeper) Transfer(goCtx context.Context, msg *transfertypes.
 		return nil, err
 	}
 
-	return args.Get(0).(*transfertypes.MsgTransferResponse), args.Error(0)
+	return nil, args.Error(1)
 }

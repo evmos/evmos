@@ -315,7 +315,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			}
 
 			mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
-			mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, nil)
 
 			suite.app.RecoveryKeeper = keeper.NewKeeper(
 				suite.app.GetKey(types.StoreKey),
@@ -526,7 +526,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			"Fail to retrieve ibc denom trace",
 			func() {
 				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(transfertypes.DenomTrace{}, false)
-				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, nil)
 			},
 		},
 		{
@@ -539,7 +539,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				}
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
-				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, nil)
 			},
 		},
 
@@ -553,7 +553,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				}
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
-				mockTransferKeeper.On("SendTransfer", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("Fail to transfer"))
+				mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, nil)
 			},
 		},
 	}
