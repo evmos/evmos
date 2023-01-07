@@ -553,7 +553,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				}
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, denomTrace)
 				mockTransferKeeper.On("GetDenomTrace", mock.Anything, mock.Anything).Return(denomTrace, true)
-				mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, nil)
+				mockTransferKeeper.On("Transfer", mock.Anything, mock.Anything).Return(nil, fmt.Errorf("Fail to transfer"))
 			},
 		},
 	}

@@ -160,7 +160,7 @@ func (k Keeper) OnRecvPacket(
 			Memo:             "",
 		}
 
-		_, err := k.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), packetTransfer)
+		_, err = k.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), packetTransfer)
 
 		if err != nil {
 			return true // stop iteration
@@ -169,7 +169,6 @@ func (k Keeper) OnRecvPacket(
 		balances = balances.Add(coin)
 		return false
 	})
-
 	// check error from the iteration above
 	if err != nil {
 		logger.Error(
@@ -180,7 +179,6 @@ func (k Keeper) OnRecvPacket(
 			"source-channel", packet.SourceChannel,
 			"error", err.Error(),
 		)
-
 		return channeltypes.NewErrorAcknowledgement(
 			errorsmod.Wrapf(
 				err,
