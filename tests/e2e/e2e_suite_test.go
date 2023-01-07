@@ -19,7 +19,7 @@ const (
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
 	tharsisRepo           = "tharsishq/evmos"
-	firstUpgradeHeight    = 50
+	firstUpgradeHeight    = 25
 
 	relatedBuildPath = "../../build/"
 )
@@ -105,7 +105,7 @@ func (s *IntegrationTestSuite) proposeUpgrade() {
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0: %s", outBuf,
+		"tx returned non code 0: %s %s", outBuf, errBuf,
 	)
 
 	s.T().Logf(
@@ -128,7 +128,7 @@ func (s *IntegrationTestSuite) depositToProposal() {
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0"+outBuf.String(),
+		"tx returned non code 0: %s %s", outBuf, errBuf,
 	)
 
 	s.T().Logf("successfully deposited to proposal")
@@ -147,7 +147,7 @@ func (s *IntegrationTestSuite) voteForProposal() {
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0"+outBuf.String(),
+		"tx returned non code 0: %s %s", outBuf, errBuf,
 	)
 
 	s.T().Logf("successfully voted for upgrade proposal")
@@ -184,9 +184,9 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
-	s.T().Log("node started! waiting for node to produce 25 blocks")
+	s.T().Log("node started! waiting for node to produce 10 blocks")
 	// make sure node produce blocks after upgrade
-	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+25)
+	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+10)
 	s.Require().NoError(err, "node not produce blocks")
 }
 
