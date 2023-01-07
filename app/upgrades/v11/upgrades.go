@@ -70,6 +70,10 @@ func CreateUpgradeHandler(
 
 		MigrateEscrowAccounts(ctx, ak)
 
+		// Register the consensus version in the version map to avoid the SDK from triggering the default
+		// InitGenesis function.
+		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
+
 		// cast ica module (stored as AppModule type in module manager) to ica.AppModule type in order
 		// to use the InitModule method. This is an alternative to InitGenesis, and has the advantage,
 		// that the used parameters for the ica controller and host can directly be passed in.
