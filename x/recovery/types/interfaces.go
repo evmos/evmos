@@ -17,6 +17,8 @@
 package types
 
 import (
+	context "context"
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
@@ -24,7 +26,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 
 	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
@@ -45,13 +46,7 @@ type AccountKeeper interface {
 // TransferKeeper defines the expected IBC transfer keeper.
 type TransferKeeper interface {
 	GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool)
-	SendTransfer(
-		ctx sdk.Context,
-		sourcePort, sourceChannel string,
-		token sdk.Coin,
-		sender sdk.AccAddress, receiver string,
-		timeoutHeight clienttypes.Height, timeoutTimestamp uint64,
-	) error
+	Transfer(context.Context, *transfertypes.MsgTransfer) (*transfertypes.MsgTransferResponse, error)
 }
 
 // ChannelKeeper defines the expected IBC channel keeper.

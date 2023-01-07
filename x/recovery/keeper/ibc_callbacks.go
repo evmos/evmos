@@ -148,16 +148,19 @@ func (k Keeper) OnRecvPacket(
 		timeout := uint64(ctx.BlockTime().Add(params.PacketTimeoutDuration).UnixNano())
 
 		// Recover the tokens to the bech32 prefixed address of the source chain
-		err = k.transferKeeper.SendTransfer(
-			ctx,
-			packet.DestinationPort,    // packet destination port is now the source
-			packet.DestinationChannel, // packet destination channel is now the source
-			coin,                      // balance of the coin
-			recipient,                 // recipient is the address in the Evmos chain
-			senderBech32,              // transfer to your own account address on the source chain
-			clienttypes.ZeroHeight(),  // timeout height disabled
-			timeout,                   // timeout timestamp is 4 hours from now
-		)
+
+		packetTransfer := &transfertypes.MsgTransfer{
+			SourcePort:       packet.DestinationPort,
+			SourceChannel:    packet.DestinationChannel,
+			Token:            coin,
+			Sender:           recipient.String(),
+			Receiver:         senderBech32,
+			TimeoutHeight:    clienttypes.ZeroHeight(),
+			TimeoutTimestamp: timeout,
+			Memo:             "",
+		}
+
+		_, err := k.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), packetTransfer)
 
 		if err != nil {
 			return true // stop iteration
