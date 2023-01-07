@@ -423,7 +423,7 @@ func NewEvmos(
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
 		nil, geth.NewEVM, tracer,
 	)
@@ -617,7 +617,7 @@ func NewEvmos(
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		// Ethermint app modules
-		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 		// Evmos app modules
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper, app.GetSubspace(inflationtypes.ModuleName)),

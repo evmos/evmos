@@ -11,10 +11,10 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	host "github.com/cosmos/ibc-go/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
