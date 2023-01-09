@@ -20,5 +20,4 @@ well as updating it:
 3. Mint coin in amount of calculated `epochMintProvision` and allocate according to
    inflation distribution to staking rewards, usage incentives and community
    pool.
-4. If a period ends with current epoch,
-    1. increment the period by 1 and set to store and
+4. If a period ends with the current epoch, increment the period by `1` and set new value to the store.
