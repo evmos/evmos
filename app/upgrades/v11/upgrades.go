@@ -172,7 +172,11 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			)
 		}
 		reward := sdk.Coins{sdk.NewCoin(types.BaseDenom, receivingAmount)}
-		err := bk.SendCoins(ctx, funder, receiver, reward)
+		err := reward.Validate()
+		if err != nil {
+			return err
+		}
+		err = bk.SendCoins(ctx, funder, receiver, reward)
 		if err != nil {
 			return err
 		}
