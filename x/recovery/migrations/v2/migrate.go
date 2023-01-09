@@ -37,6 +37,7 @@ func MigrateStore(
 	store := ctx.KVStore(storeKey)
 	var params v2types.V2Params
 
+	legacySubspace = legacySubspace.WithKeyTable(v2types.ParamKeyTable())
 	legacySubspace.GetParamSetIfExists(ctx, &params)
 
 	if err := params.Validate(); err != nil {

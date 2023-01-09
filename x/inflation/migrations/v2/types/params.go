@@ -31,10 +31,10 @@ var _ types.LegacyParams = &V2Params{}
 
 var (
 	ParamsKey                           = []byte("Params")
-	ParamStoreKeyMintDenom              = []byte("MintDenom")
-	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
-	ParamStoreKeyInflationDistribution  = []byte("InflationDistribution")
-	ParamStoreKeyEnableInflation        = []byte("EnableInflation")
+	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
 )
 
 var (
@@ -53,6 +53,11 @@ var (
 		CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 	}
 )
+
+// ParamKeyTable returns the parameter key table.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
+}
 
 func NewParams(
 	mintDenom string,
