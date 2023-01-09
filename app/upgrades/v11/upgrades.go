@@ -19,12 +19,21 @@ package v11
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
+	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
+	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v11
@@ -38,7 +47,41 @@ func CreateUpgradeHandler(
 
 		MigrateEscrowAccounts(ctx, ak)
 
-		// Leave modules are as-is to avoid running InitGenesis.
+		// create ICS27 Controller submodule params, with the controller module NOT enabled
+		gs := &icatypes.GenesisState{
+			ControllerGenesisState: icatypes.ControllerGenesisState{},
+			HostGenesisState: icatypes.HostGenesisState{
+				Port: icatypes.PortID,
+				Params: icahosttypes.Params{
+					HostEnabled: true,
+					AllowMessages: []string{
+						sdk.MsgTypeURL(&banktypes.MsgSend{}),
+						sdk.MsgTypeURL(&banktypes.MsgMultiSend{}),
+						sdk.MsgTypeURL(&distrtypes.MsgSetWithdrawAddress{}),
+						sdk.MsgTypeURL(&distrtypes.MsgWithdrawDelegatorReward{}),
+						sdk.MsgTypeURL(&govtypes.MsgVote{}),
+						sdk.MsgTypeURL(&govtypes.MsgVoteWeighted{}),
+						sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
+						sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
+						sdk.MsgTypeURL(&stakingtypes.MsgCancelUnbondingDelegation{}),
+						sdk.MsgTypeURL(&stakingtypes.MsgBeginRedelegate{}),
+						sdk.MsgTypeURL(&transfertypes.MsgTransfer{}),
+					},
+				},
+			},
+		}
+
+		bz, err := icatypes.ModuleCdc.MarshalJSON(gs)
+		if err != nil {
+			return nil, errorsmod.Wrapf(err, "failed to marshal %s genesis state", icatypes.ModuleName)
+		}
+
+		// Register the consensus version in the version map to avoid the SDK from triggering the default
+		// InitGenesis function.
+		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
+
+		_ = mm.Modules[icatypes.ModuleName].InitGenesis(ctx, icatypes.ModuleCdc, bz)
+
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
@@ -48,7 +91,7 @@ func CreateUpgradeHandler(
 func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 	for i := 0; i <= openChannels; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
-		address := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
+		address := transfertypes.GetEscrowAddress(transfertypes.PortID, channelID)
 
 		// check if account exists
 		existingAcc := ak.GetAccount(ctx, address)
@@ -63,10 +106,10 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 			continue
 		}
 
-		// account name based on the address derived by the ibctypes.GetEscrowAddress
+		// account name based on the address derived by the transfertypes.GetEscrowAddress
 		// this function appends the current IBC transfer module version to the provided port and channel IDs
 		// To pass account validation, need to have address derived from account name
-		accountName := fmt.Sprintf("%s\x00%s/%s", ibctypes.Version, ibctypes.PortID, channelID)
+		accountName := fmt.Sprintf("%s\x00%s/%s", transfertypes.Version, transfertypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
 
 		// no special permissions defined for the module account
