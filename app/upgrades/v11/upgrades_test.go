@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/exp/slices"
+
 	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -135,13 +137,15 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 }
 
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
+	// define constants
 	const mainnetChainID = evmostypes.MainnetChainID + "-4"
 	communityPoolAccountAddress := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
 
+	// checks on reward amounts
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
 	suite.Require().True(ok, "error converting rewards account balance")
 
-	expRewards, ok := sdk.NewIntFromString("5625000000302600000000000")
+	expRewards, ok := sdk.NewIntFromString("5625000000302600187543552")
 	suite.Require().True(ok, "error converting rewards")
 
 	actualRewards := math.NewInt(0)
@@ -150,6 +154,28 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 		actualRewards = actualRewards.Add(res)
 	}
 	suite.Require().Equal(expRewards, actualRewards)
+
+	// get unique validator addresses in allocations
+	var validatorAddresses []string
+	for _, allocation := range v11.Allocations {
+		if !slices.Contains(validatorAddresses, allocation[2]) {
+			validatorAddresses = append(validatorAddresses, allocation[2])
+		}
+	}
+
+	// create map of validator addresses to expected delegations (have to sum)
+	validatorDelegations := make(map[string]sdk.Int)
+	for _, allocation := range v11.Allocations {
+		tokenAmount, ok := sdk.NewIntFromString(allocation[1])
+		suite.Require().True(ok, "error converting token allocations")
+
+		totalTokens, ok := validatorDelegations[allocation[2]]
+		if !ok {
+			validatorDelegations[allocation[2]] = tokenAmount
+		} else {
+			validatorDelegations[allocation[2]] = totalTokens.Add(tokenAmount)
+		}
+	}
 
 	var (
 		expCommPoolBalance = balance.Sub(expRewards)
@@ -166,45 +192,6 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			"Mainnet - success",
 			mainnetChainID,
 			func() {},
-			true,
-		},
-		{
-			"Mainnet - even validator count (no remainder) - success",
-			mainnetChainID,
-			func() {
-				v11.Validators = []string{
-					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
-					"evmosvaloper1mx9nqk5agvlsvt2yc8259nwztmxq7zjqep5khu",
-					"evmosvaloper1f35jtt5m68zlxkpxn75403vv82cchahqvfsrup",
-					"evmosvaloper14zatq4jagqtm9ejgvglnv0t364d88u80futp65",
-					"evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
-					"evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
-					"evmosvaloper17vze0tk7q7gwpd6jt69p4m5svrty40yw9a88e3",
-					"evmosvaloper19fxanpnjlggzuur3m3x0puk5ez7j9lrttexwsw",
-					"evmosvaloper1hyytyjxr02j72cx0cgjl24s3nn2yrdqqaslk84",
-					"evmosvaloper1mtwvpdd57gpkyejd566s24afr9zm5ryq8gwpvj",
-				}
-			},
-			true,
-		},
-		{
-			"Mainnet - different validator count (remainder > 0) - success",
-			mainnetChainID,
-			func() {
-				v11.Validators = []string{
-					"evmosvaloper1fy7l4avx0laq5w7me3kt4vlwlha8zwzgdjcvv0",
-					"evmosvaloper1mx9nqk5agvlsvt2yc8259nwztmxq7zjqep5khu",
-					"evmosvaloper1f35jtt5m68zlxkpxn75403vv82cchahqvfsrup",
-					"evmosvaloper14zatq4jagqtm9ejgvglnv0t364d88u80futp65",
-					"evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
-					"evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
-					"evmosvaloper17vze0tk7q7gwpd6jt69p4m5svrty40yw9a88e3",
-					"evmosvaloper19fxanpnjlggzuur3m3x0puk5ez7j9lrttexwsw",
-					"evmosvaloper1hyytyjxr02j72cx0cgjl24s3nn2yrdqqaslk84",
-					"evmosvaloper1mtwvpdd57gpkyejd566s24afr9zm5ryq8gwpvj",
-					"evmosvaloper1k96y0w5wf089nuvvym3s324c8umd3vvm4yh578",
-				}
-			},
 			true,
 		},
 		{
@@ -243,12 +230,12 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			suite.SetupTest(tc.chainID)
 			suite.fundTestnetRewardsAcc(balance)
 			tc.malleate()
-			suite.setValidators(v11.Validators)
 
-			valCount := math.NewInt(int64(len(v11.Validators)))
+			// create validators
+			suite.setValidators(validatorAddresses)
 
-			// Check No delegations for validators initially
-			initialDel := suite.getDelegatedTokens(v11.Validators)
+			// check no delegations for validators initially
+			initialDel := suite.getDelegatedTokens(validatorAddresses)
 			suite.Require().Equal(math.NewInt(0), initialDel)
 
 			if evmostypes.IsMainnet(tc.chainID) {
@@ -261,21 +248,11 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			}
 
 			if tc.expectedSuccess {
-				// total remainder that is delegated to first validator
-				totalRem := math.NewInt(0)
-				expectedValDel := math.NewInt(0)
 
+				// do allocations
 				for i := range v11.Allocations {
 					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
-					res, _ := sdk.NewIntFromString(v11.Allocations[i][1])
-
-					// the remainder of reward_tokens/validators_count is delegated only to the
-					// first validator. Keep track to validate delegated amt on validators
-					rem := res.Mod(valCount)
-					totalRem = totalRem.Add(rem)
-
-					valShare := res.Quo(valCount)
-					expectedValDel = expectedValDel.Add(valShare)
+					valShare, _ := sdk.NewIntFromString(v11.Allocations[i][1])
 
 					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
 					suite.Require().Equal(math.NewInt(0), balance.Amount)
@@ -285,7 +262,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 					// sum of all delegations should be equal to rewards
 					delegatedAmt := suite.sumDelegations(d)
-					suite.Require().Equal(res, delegatedAmt)
+					suite.Require().Equal(valShare, delegatedAmt)
 				}
 
 				// account not in list should NOT get rewards
@@ -299,14 +276,12 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 				// check delegation for each validator
 				totalDelegations := math.NewInt(0)
-				for i, v := range v11.Validators {
+				for _, v := range validatorAddresses {
 					delTokens := suite.getDelegatedTokens([]string{v})
-					// First validator gets the remainder delegation
-					if totalRem.IsPositive() && i == 0 {
-						suite.Require().Equal(expectedValDel.Add(totalRem), delTokens)
-					} else {
-						suite.Require().Equal(expectedValDel, delTokens)
-					}
+
+					// amount delegated should be equal to sums calculated pre-tests
+					suite.Require().Equal(validatorDelegations[v], delTokens)
+
 					totalDelegations = totalDelegations.Add(delTokens)
 				}
 
@@ -320,7 +295,9 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				// Funding acc balance should be 0 after the rewards distribution
 				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.FundingAccount), evmostypes.BaseDenom)
 				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
+
 			} else { // no-op
+
 				for i := range v11.Allocations {
 					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
 					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
@@ -330,8 +307,9 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
 					suite.Require().Empty(d)
 				}
+
 				// check delegation for validators
-				delTokens := suite.getDelegatedTokens(v11.Validators)
+				delTokens := suite.getDelegatedTokens(validatorAddresses)
 				suite.Require().Equal(math.NewInt(0), delTokens)
 
 				// check community pool balance
