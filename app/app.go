@@ -305,8 +305,8 @@ type Evmos struct {
 	TransferKeeper   transferkeeper.Keeper
 
 	// make scoped keepers public for test purposes
-	ScopedIBCKeeper           capabilitykeeper.ScopedKeeper
-	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
+	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
@@ -684,7 +684,7 @@ func NewEvmos(
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
-	// there is nothing left over in the validator fee pool, so as to keep the
+	// there is nothing left over in the validator fee pool, to keep the
 	// CanWithdrawInvariant invariant.
 	// NOTE: upgrade module must go first to handle software upgrades.
 	// NOTE: staking module is required if HistoricalEntries param > 0.
@@ -847,7 +847,6 @@ func NewEvmos(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedICAHostKeeper = scopedICAHostKeeper
 
 	// Finally start the tpsCounter.
 	app.tpsCounter = newTPSCounter(logger)
@@ -877,7 +876,7 @@ func (app *Evmos) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.Res
 	return app.mm.EndBlock(ctx, req)
 }
 
-// We are intentionally decomposing the DeliverTx method so as to calculate the transactions per second.
+// The DeliverTx method is intentionally decomposed to calculate the transactions per second.
 func (app *Evmos) DeliverTx(req abci.RequestDeliverTx) (res abci.ResponseDeliverTx) {
 	defer func() {
 		// TODO: Record the count along with the code and or reason so as to display
@@ -1046,7 +1045,7 @@ func (app *Evmos) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
-// GetStakingKeeper implements the TestingApp interface.
+// GetStakingKeeperSDK implements the TestingApp interface.
 func (app *Evmos) GetStakingKeeperSDK() stakingkeeper.Keeper {
 	return app.StakingKeeper
 }
