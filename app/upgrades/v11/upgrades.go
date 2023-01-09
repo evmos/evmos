@@ -48,7 +48,6 @@ func CreateUpgradeHandler(
 		MigrateEscrowAccounts(ctx, ak)
 
 		// create ICS27 Controller submodule params, with the controller module NOT enabled
-
 		gs := &icatypes.GenesisState{
 			ControllerGenesisState: icatypes.ControllerGenesisState{},
 			HostGenesisState: icatypes.HostGenesisState{
@@ -72,14 +71,14 @@ func CreateUpgradeHandler(
 			},
 		}
 
-		// Register the consensus version in the version map to avoid the SDK from triggering the default
-		// InitGenesis function.
-		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
-
 		bz, err := icatypes.ModuleCdc.MarshalJSON(gs)
 		if err != nil {
 			return nil, errorsmod.Wrapf(err, "failed to marshal %s genesis state", icatypes.ModuleName)
 		}
+		
+		// Register the consensus version in the version map to avoid the SDK from triggering the default
+		// InitGenesis function.
+		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
 
 		_ = mm.Modules[icatypes.ModuleName].InitGenesis(ctx, icatypes.ModuleCdc, bz)
 
