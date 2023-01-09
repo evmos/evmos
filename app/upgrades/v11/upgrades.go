@@ -19,7 +19,6 @@ package v11
 import (
 	"fmt"
 
-
 	"github.com/tendermint/tendermint/libs/log"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -31,7 +30,6 @@ import (
 	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
@@ -42,7 +40,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
 	errorsmod "cosmossdk.io/errors"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
