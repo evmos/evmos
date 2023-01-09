@@ -81,9 +81,6 @@ func CreateUpgradeHandler(
 			return nil, errorsmod.Wrapf(err, "failed to marshal %s genesis state", icatypes.ModuleName)
 		}
 
-		// cast ica module (stored as AppModule type in module manager) to ica.AppModule type in order
-		// to use the InitModule method. This is an alternative to InitGenesis, and has the advantage,
-		// that the used parameters for the ica controller and host can directly be passed in.
 		_ = mm.Modules[icatypes.ModuleName].InitGenesis(ctx, icatypes.ModuleCdc, bz)
 
 		logger.Debug("running module migrations ...")
