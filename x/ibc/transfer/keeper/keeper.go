@@ -25,7 +25,6 @@ import (
 	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
 	"github.com/evmos/evmos/v10/x/ibc/transfer/types"
 )
@@ -38,9 +37,6 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	erc20Keeper   types.ERC20Keeper
 	accountKeeper types.AccountKeeper
-	channelKeeper transfertypes.ChannelKeeper
-	scopedKeeper  exported.ScopedKeeper
-	ics4Wrapper   porttypes.ICS4Wrapper
 }
 
 // NewKeeper creates a new IBC transfer Keeper instance
