@@ -112,8 +112,8 @@ module.exports = {
 </CodeGroupItem>
 </CodeGroup>
 
-* To get value for privateKey. 
-  * MetaMask -> Account Details -> Export Private Key -> add '0x' as prefix -> `privateKey1`
+* To get the value for privateKey:
+    * MetaMask -> Account Details -> Export Private Key -> add '0x' as prefix -> `privateKey1`
 
 To ensure you are targeting the correct network, you can query for a list of accounts available to you from your default network provider:
 
