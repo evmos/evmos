@@ -2,9 +2,11 @@ name: Upgrade Test
 on:
   pull_request:
     branches:
+      - main
       - release/**
   push:
     branches:
+      - main
       - release/**
 
 jobs:
@@ -27,3 +29,4 @@ jobs:
         run: |
           make test-upgrade
         if: env.GIT_DIFF
+
