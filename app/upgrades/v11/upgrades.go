@@ -37,7 +37,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
@@ -61,7 +60,7 @@ func CreateUpgradeHandler(
 
 		if types.IsMainnet(ctx.ChainID()) {
 			logger.Debug("distributing incentivized testnet rewards...")
-			HandleRewardDistribution(ctx, bk, sk, dk, logger)
+			HandleRewardDistribution(ctx, logger, bk, sk, dk)
 		}
 
 		MigrateEscrowAccounts(ctx, ak)
@@ -139,8 +138,12 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 
 // HandleRewardDistribution handles the logic for the reward distribution,
 // it only commits to the db if successful
-func HandleRewardDistribution(ctx sdk.Context, bk bankkeeper.Keeper,
-	sk stakingkeeper.Keeper, dk distributionkeeper.Keeper, logger log.Logger,
+func HandleRewardDistribution(
+	ctx sdk.Context,
+	logger log.Logger,
+	bk bankkeeper.Keeper,
+	sk stakingkeeper.Keeper,
+	dk distributionkeeper.Keeper,
 ) {
 	// use a cache context as a rollback mechanism in case
 	// the distrbution fails
@@ -164,21 +167,22 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 	for _, allocation := range Allocations {
 		// send reward to receiver
 		receiver := sdk.MustAccAddressFromBech32(allocation[0])
+
 		receivingAmount, ok := sdk.NewIntFromString(allocation[1])
 		if !ok {
-			return errorsmod.Wrapf(errortypes.ErrInvalidType,
-				"cannot retrieve allocation from string for address %s",
+			return errorsmod.Wrapf(
+				errortypes.ErrInvalidType,
+				"cannot retrieve allocation amount from string for address %s",
 				allocation[0],
 			)
 		}
-		reward := sdk.Coins{sdk.NewCoin(types.BaseDenom, receivingAmount)}
-		err := reward.Validate()
-		if err != nil {
-			return err
-		}
-		err = bk.SendCoins(ctx, funder, receiver, reward)
-		if err != nil {
-			return err
+
+		if !receivingAmount.IsPositive() {
+			return errorsmod.Wrapf(
+				errortypes.ErrInvalidCoins,
+				"amount cannot be zero negative for address %s, got %s",
+				allocation[0], allocation[1],
+			)
 		}
 
 		// delegate receiver's rewards to selected validator
@@ -186,13 +190,19 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		if err != nil {
 			return err
 		}
+
+		reward := sdk.Coins{{Denom: types.BaseDenom, Amount: receivingAmount}}
+
+		if err := bk.SendCoins(ctx, funder, receiver, reward); err != nil {
+			return err
+		}
+
 		validator, found := sk.GetValidator(ctx, validatorAddress)
 		if !found {
-			return errorsmod.Wrapf(slashingtypes.ErrBadValidatorAddr,
-				"validator address %s cannot be found",
-				validatorAddress)
+			return errorsmod.Wrap(stakingtypes.ErrNoValidatorFound, allocation[2])
 		}
-		_, err = sk.Delegate(ctx, receiver, receivingAmount, 1, validator, true)
+
+		_, err = sk.Delegate(ctx, receiver, receivingAmount, stakingtypes.Unbonded, validator, true)
 		if err != nil {
 			return err
 		}
@@ -200,11 +210,10 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 
 	// transfer all remaining tokens (1.775M = 7.4M - 5.625M) after rewards distribution
 	// to the community pool
-	remainingFunds := bk.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(FundingAccount))
-	err := dk.FundCommunityPool(ctx, remainingFunds, funder)
-	if err != nil {
-		return err
+	remainingFunds := bk.GetBalance(ctx, funder, types.BaseDenom)
+	if !remainingFunds.Amount.IsPositive() {
+		return nil
 	}
 
-	return nil
+	return dk.FundCommunityPool(ctx, sdk.Coins{remainingFunds}, funder)
 }
