@@ -168,7 +168,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		// send reward to receiver
 		receiver := sdk.MustAccAddressFromBech32(allocation[0])
 
-		receivingAmount, ok := sdk.NewIntFromString(allocation[1])
+		amount, ok := sdk.NewIntFromString(allocation[1])
 		if !ok {
 			return errorsmod.Wrapf(
 				errortypes.ErrInvalidType,
@@ -177,7 +177,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			)
 		}
 
-		if !receivingAmount.IsPositive() {
+		if !amount.IsPositive() {
 			return errorsmod.Wrapf(
 				errortypes.ErrInvalidCoins,
 				"amount cannot be zero negative for address %s, got %s",
@@ -191,7 +191,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			return err
 		}
 
-		reward := sdk.Coins{{Denom: types.BaseDenom, Amount: receivingAmount}}
+		reward := sdk.Coins{{Denom: types.BaseDenom, Amount: amount}}
 
 		if err := bk.SendCoins(ctx, funder, receiver, reward); err != nil {
 			return err
@@ -202,7 +202,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			return errorsmod.Wrap(stakingtypes.ErrNoValidatorFound, allocation[2])
 		}
 
-		_, err = sk.Delegate(ctx, receiver, receivingAmount, stakingtypes.Unbonded, validator, true)
+		_, err = sk.Delegate(ctx, receiver, amount, stakingtypes.Unbonded, validator, true)
 		if err != nil {
 			return err
 		}

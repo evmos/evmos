@@ -144,7 +144,7 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	// define constants
 	mainnetChainID := evmostypes.MainnetChainID + "-4"
-	communityPoolAccountAddress, err := sdk.AccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
+	communityPool, err := sdk.AccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
 	suite.Require().NoError(err)
 
 	// checks on reward amounts
@@ -290,7 +290,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.Require().Equal(expRewards, totalDelegations)
 
 				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPoolAccountAddress, evmostypes.BaseDenom)
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
 				suite.Require().Equal(expCommPoolBalance, commPoolFinalBalance.Amount)
 
 				// Funding acc balance should be 0 after the rewards distribution
@@ -314,7 +314,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.Require().Equal(math.NewInt(0), delTokens)
 
 				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPoolAccountAddress, evmostypes.BaseDenom)
+				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
 
 				suite.Require().Equal(sdk.NewInt(0), commPoolFinalBalance.Amount)
 			}
