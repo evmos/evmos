@@ -53,6 +53,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Features
 
+- (upgrade) [#1209](https://github.com/evmos/evmos/pull/1209) Incentivized testnet reward distribution logic.
+
 ### Improvements
 
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
