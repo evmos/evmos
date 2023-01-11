@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	"math/big"
 	"testing"
 	"time"
@@ -213,15 +214,22 @@ func (b *MockChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channel
 	return 1, true
 }
 
-var _ transfertypes.ICS4Wrapper = &MockICS4Wrapper{}
+var _ porttypes.ICS4Wrapper = &MockICS4Wrapper{}
 
 type MockICS4Wrapper struct {
 	mock.Mock
 }
 
-func (b *MockICS4Wrapper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet ibcexported.PacketI) error {
-	// _ = b.Called(mock.Anything, mock.Anything, mock.Anything)
+func (b *MockICS4Wrapper) SendPacket(ctx sdk.Context, chanCap *capabilitytypes.Capability, sourcePort string, sourceChannel string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, data []byte) (sequence uint64, err error) {
+	return 0, nil
+}
+
+func (b *MockICS4Wrapper) WriteAcknowledgement(ctx sdk.Context, chanCap *capabilitytypes.Capability, packet ibcexported.PacketI, ack ibcexported.Acknowledgement) error {
 	return nil
+}
+
+func (b *MockICS4Wrapper) GetAppVersion(ctx sdk.Context, portID, channelID string) (string, bool) {
+	return "", false
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.

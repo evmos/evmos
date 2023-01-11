@@ -26,8 +26,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	icagenesistypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/genesis/types"
 	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -66,10 +68,10 @@ func CreateUpgradeHandler(
 		MigrateEscrowAccounts(ctx, ak)
 
 		// create ICS27 Controller submodule params, with the controller module NOT enabled
-		gs := &icatypes.GenesisState{
-			ControllerGenesisState: icatypes.ControllerGenesisState{},
-			HostGenesisState: icatypes.HostGenesisState{
-				Port: icatypes.PortID,
+		gs := &icagenesistypes.GenesisState{
+			ControllerGenesisState: icagenesistypes.ControllerGenesisState{},
+			HostGenesisState: icagenesistypes.HostGenesisState{
+				Port: icatypes.HostPortID,
 				Params: icahosttypes.Params{
 					HostEnabled: true,
 					AllowMessages: []string{

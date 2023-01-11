@@ -152,7 +152,8 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// send on endpointA
-			err := path.EndpointA.SendPacket(packet)
+			_, err := path.EndpointA.SendPacket(packet.TimeoutHeight, packet.TimeoutTimestamp, packet.Data)
+
 			suite.Require().NoError(err)
 
 			// receive on endpointB
@@ -387,7 +388,7 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
 			// send on endpointA
-			path.EndpointA.SendPacket(packet)
+			path.EndpointA.SendPacket(packet.TimeoutHeight, packet.TimeoutTimestamp, packet.Data)
 
 			// receive on endpointB
 			err := path.EndpointB.RecvPacket(packet)
