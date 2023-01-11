@@ -70,5 +70,6 @@ type (
 	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
 	Subspace interface {
 		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
+		WithKeyTable(table paramtypes.KeyTable) paramtypes.Subspace
 	}
 )

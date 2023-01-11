@@ -19,7 +19,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.6.0
-	github.com/onsi/ginkgo/v2 v2.6.1
+	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.2
 	github.com/ory/dockertest/v3 v3.9.1
 	github.com/pkg/errors v0.9.1
@@ -218,6 +218,8 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	// use Cosmos-SDK fork to enable Ledger functionality
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.7-ledger
+	// use Evmos geth fork
+	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
