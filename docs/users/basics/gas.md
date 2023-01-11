@@ -14,11 +14,13 @@ Learn about the differences between `Gas` and `Fees` in Ethereum and Cosmos. {sy
 ## Basics
 
 ### 1. Why do Transactions Need Fees?
+
 If anyone can submit transactions to a network at no cost, the network can be overrun by a handful of actors sending large numbers of fraudulent transactions to clog up the network and stop it from working.
 
 The solution to this is a concept called “gas”, which is a resource consumed throughout transaction execution. In practice, a small amount of gas is spent on each step of code execution, thus effectively charging for use of a validator’s resources and preventing malicious actors from halting a network at will.
 
 ### 2. What is Gas?
+
 In general, gas is a unit that measures the computational intensity of a particular transaction—in other words, how much work would be required to evaluate and perform the job. Complex, multi-step transactions, such as a Cosmos transaction that delegates to a dozen validators, require more gas than simple, single-step transactions, such as a Cosmos transaction to send tokens to another address.
 
 When referring to a transaction, “gas” refers to the total quantity of gas required for the transaction. For example, a transaction may require 300,000 units of gas to be executed.
@@ -26,19 +28,23 @@ When referring to a transaction, “gas” refers to the total quantity of gas r
 Gas can be thought of as electricity (kWh) within a house or factory, or fuel for automobiles. The idea is that it costs something to get somewhere.
 
 More on Gas:
+
 - [Cosmos Gas Fees](https://docs.cosmos.network/main/basics/gas-fees)
 - [Cosmos Tx Lifecycle](https://docs.cosmos.network/main/basics/tx-lifecycle.html)
 - [Ethereum Gas](https://ethereum.org/en/developers/docs/gas/)
 
 ### 3. How is Gas Calculated?
+
 In general, there’s no way to know exactly how much gas a transaction will cost without simply running it. Using the Cosmos SDK, this can be done by [simulating the Tx](https://docs.cosmos.network/main/run-node/txs#simulating-a-transaction). Otherwise, there are ways to estimate the amount of gas a transaction will require, based on the details of the transaction fields, and data. In the case of the EVM, for example, each bytecode operation has a [corresponding amount of gas](https://ethereum.org/en/developers/docs/evm/opcodes/).
 
 More on Gas Calculations:
+
 - [Estimate Gas](https://docs.ethers.org/v5/api/providers/provider/#Provider-estimateGas)
 - [Executing EVM Bytecode](https://ethereum.org/en/developers/docs/evm/opcodes/)
 - [Simulate a Cosmos SDK Tx](https://docs.cosmos.network/main/run-node/txs#simulating-a-transaction)
 
 ### 4. How does Gas Relate to Fees?
+
 While gas refers to the computational work required for execution, fees refer to the amount of the tokens you actually spend to execute the transaction. They are derived using the following formula:
 
 ```markdown
@@ -48,10 +54,12 @@ Total Fees = Gas * Gas Price (the price per unit of gas)
 If “gas” was measured in kWh, the “gas price” would be the rate (in dollars per kWh) determined by your energy provider, and the “fees” would be your bill. Just as with electricity, gas price is liable to fluctuate over a given day, depending on network traffic.
 
 More on Gas vs. Fees:
+
 - [Cosmos Gas and Fees](https://docs.cosmos.network/main/basics/gas-fees)
 - [Ethereum Gas and Fees](https://ethereum.org/en/developers/docs/gas/)
 
 ### 5. How are Fees Handled on Cosmos?
+
 Gas fees on Cosmos are relatively straightforward. As a user, you specify two fields:
 
 1. A `GasLimit` corresponding to an upper bound on execution gas
@@ -64,6 +72,7 @@ Validators for Cosmos SDK-based chains can specify the `min-transaction-fee` tha
 At the beginning of each block, fees from the previous block are [allocated to validators and delegators](https://docs.cosmos.network/main/modules/distribution), and they can be withdrawn and spent.
 
 ### 6. How are Fees Handled on Ethereum?
+
 Fees on Ethereum include multiple implementations that were introduced over time.
 
 Originally, a user would specify a `GasPrice` and `GasLimit` within a transaction—much like a Cosmos SDK transaction. A block proposer would receive the entire gas fee from each transaction in the block, and they would select transactions to include accordingly.
@@ -84,22 +93,25 @@ More on Ethereum Fees:
 ## Implementation
 
 ### How are Gas and Fees Handled on Evmos?
+
 Fundamentally, Evmos is a Cosmos SDK chain that enables EVM compatibility as part of a Cosmos SDK module. As a result of this architecture, all EVM transactions are ultimately encoded as Cosmos SDK transactions and update a Cosmos SDK-managed state.
 
 Since all transactions are represented as Cosmos SDK transactions, transaction fees can be treated identically across execution layers. In practice, dealing with fees includes standard Cosmos SDK logic, some Ethereum logic, and custom Evmos logic. For the most part, fees are collected by the `fee_collector` module, then paid out to validators and delegators. A few key distinctions are as follows:
 
 1. Fee Market Module
-    
+
     In order to support EIP-1559 gas and fee calculation on Evmos’ EVM layer, Evmos tracks the gas supplied for each block and uses that to calculate a base fee for future EVM transactions, thus enabling EVM priority fees and transaction prioritization as specified by EIP-1559.
-    
+
 2. EVM Gas Refunds
-    
+
     Evmos refunds a fraction (at least 50% by default) of the unused gas for EVM transactions to approximate the current behavior on Ethereum. [Why not always 100%?](https://github.com/evmos/ethermint/issues/1085)
-    
+
 3. Revenue Module
-    
+
     Evmos developed the Revenue Module as a way to reward developers for creating useful dApps—any contract that is registered with Evmos’ Revenue Module rewards a fraction of the transaction fee (currently 95%) from each transaction that interacts with the contract to the contract developer. Validators and delegators earn the remaining portion.
+
 ### Detailed Timeline
+
 1. Nodes execute the previous block and run the `EndBlock` hook
     1. As part of this hook, the FeeMarket (EIP-1559) module tracks the total `TransientGasWanted` from the transactions on this block. This will be used for the next block’s `BaseFee`.
 2. Nodes receive transactions for a subsequent block and gossip these transactions to peers
@@ -113,7 +125,7 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
         2. Verifies the fees provided are greater than the global and local minimum validator values *and* greater than the `BaseFee` calculated
         3. (For Ethereum transactions) Preemptively consumes gas for the EVM transaction
         4. Deducts the transaction fees from the user and transfers them to the `fee_collector` module
-        5. Increments the `TransientGasWanted` in the current block, to be used to calculate the next block’s `BaseFee`    
+        5. Increments the `TransientGasWanted` in the current block, to be used to calculate the next block’s `BaseFee`
     2. Then, for standard Cosmos Transactions, nodes:
         1. Execute the transaction and update the state
         2. Consume gas for the transaction
@@ -123,8 +135,8 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
         3. Send a fraction of the fees used as revenue to contract developers as part of the Revenue Module, if the transaction interacted with a registered smart contract
 5. Nodes run `EndBlock` for this block and store the block’s `GasWanted`
 
-
 ## Mechanics
+
 ### Cosmos `Gas`
 
 In the Cosmos SDK, gas is tracked in the main `GasMeter` and the `BlockGasMeter`:
@@ -194,7 +206,7 @@ For Cosmos Tx's, we can use Cosmos SDK's [transaction simulation](https://docs.c
 
 Let’s say a user transfers tokens from Chain A to Evmos via IBC-transfer and wants to execute an Evmos transaction—however, they don’t have any Evmos tokens to cover fees. The Cosmos SDK introduced `Tips` as a solution to this issue; a user can cover fees using a different token—in this case, tokens from Chain A.
 
-To cover transaction fees using a tip, this user can sign a transaction with a tip and no fees, then send the transaction to a fee relayer. The fee relayer will then cover the fee in the native currency (Evmos in this case), and receive the tip in payment, behaving as an intermediary exchange. 
+To cover transaction fees using a tip, this user can sign a transaction with a tip and no fees, then send the transaction to a fee relayer. The fee relayer will then cover the fee in the native currency (Evmos in this case), and receive the tip in payment, behaving as an intermediary exchange.
 
 More on Cosmos Tips:
 
