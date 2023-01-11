@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"context"
 	"github.com/stretchr/testify/mock"
 
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
@@ -9,8 +10,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-
 	"github.com/evmos/evmos/v10/x/recovery/types"
 )
 
@@ -30,22 +29,21 @@ func (m *MockTransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbyt
 	return args.Get(0).(transfertypes.DenomTrace), args.Bool(1)
 }
 
-func (m *MockTransferKeeper) SendTransfer(
-	ctx sdk.Context,
-	sourcePort,
-	sourceChannel string,
-	token sdk.Coin,
-	sender sdk.AccAddress,
-	receiver string,
-	timeoutHeight clienttypes.Height,
-	timeoutTimestamp uint64,
-) error {
-	args := m.Called(mock.Anything, sourcePort, sourceChannel, token, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+func (m *MockTransferKeeper) Transfer(
+	ctx context.Context,
+	msgTransfer *transfertypes.MsgTransfer,
+) (*transfertypes.MsgTransferResponse, error) {
+	args := m.Called(mock.Anything, msgTransfer.SourcePort, msgTransfer.SourceChannel, msgTransfer.Token, mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 
-	err := m.SendCoinsFromAccountToModule(ctx, sender, transfertypes.ModuleName, sdk.Coins{token})
+	accAddr, err := sdk.AccAddressFromBech32(msgTransfer.Sender)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return args.Error(0)
+	err = m.SendCoinsFromAccountToModule(ctx.(sdk.Context), accAddr, transfertypes.ModuleName, sdk.Coins{msgTransfer.Token})
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, args.Error(0)
 }
