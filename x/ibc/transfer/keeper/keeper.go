@@ -25,7 +25,7 @@ import (
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v10/x/ibc/transfer/types"
+	"github.com/evmos/evmos/v11/x/ibc/transfer/types"
 )
 
 // Keeper defines the modified IBC transfer keeper that embeds the original one.

@@ -25,16 +25,16 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v10/app"
-	"github.com/evmos/evmos/v10/testutil"
-	incentivestypes "github.com/evmos/evmos/v10/x/incentives/types"
-	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/testutil"
+	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/ethermint/server/config"
 	evm "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v10/contracts"
-	"github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/x/claims/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

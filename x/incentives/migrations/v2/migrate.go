@@ -20,8 +20,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v2types "github.com/evmos/evmos/v10/x/incentives/migrations/v2/types"
-	"github.com/evmos/evmos/v10/x/incentives/types"
+	v2types "github.com/evmos/evmos/v11/x/incentives/migrations/v2/types"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 // MigrateStore migrates the x/incentives module state from the consensus version 1 to

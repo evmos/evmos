@@ -31,7 +31,7 @@ import (
 	ethante "github.com/evmos/ethermint/app/ante"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
