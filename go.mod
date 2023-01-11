@@ -220,7 +220,7 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.7-ledger
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
-	github.com/evmos/ethermint v0.20.0 => github.com/notional-labs/ethermint v0.6.1-0.20230107054512-4e67a8e3ddff
+	github.com/evmos/ethermint v0.20.0 => github.com/notional-labs/ethermint v0.6.1-0.20230111132015-5323312f2ff2
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
