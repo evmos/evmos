@@ -21,9 +21,10 @@ import (
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 
+	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
@@ -33,7 +34,7 @@ import (
 )
 
 var (
-	_ transfertypes.ICS4Wrapper = Keeper{}
+	_ porttypes.ICS4Wrapper     = Keeper{}
 	_ evmtypes.EvmHooks         = Hooks{}
 	_ govtypes.GovHooks         = Hooks{}
 	_ stakingtypes.StakingHooks = Hooks{}
@@ -198,8 +199,19 @@ func (h Hooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, f
 // calls the underlying SendPacket function directly to move down the middleware
 // stack. Without SendPacket, this module would be skipped, when sending packages
 // from the transferKeeper to core IBC.
-func (k Keeper) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, packet exported.PacketI) error {
-	return k.ics4Wrapper.SendPacket(ctx, channelCap, packet)
+func (k Keeper) SendPacket(ctx sdk.Context,
+	chanCap *capabilitytypes.Capability,
+	sourcePort string,
+	sourceChannel string,
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	data []byte,
+) (sequence uint64, err error) {
+	return k.ics4Wrapper.SendPacket(
+		ctx, chanCap, sourcePort, sourceChannel,
+		timeoutHeight, timeoutTimestamp,
+		data,
+	)
 }
 
 // WriteAcknowledgement implements the ICS4Wrapper interface from the transfer module.

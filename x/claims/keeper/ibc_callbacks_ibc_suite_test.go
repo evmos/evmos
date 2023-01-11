@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v10/app"
@@ -147,7 +147,7 @@ func (suite *IBCTestingSuite) TestOnAcknowledgementPacketIBC() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", sender, receiver, "")
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 
@@ -382,7 +382,7 @@ func (suite *IBCTestingSuite) TestOnRecvPacketIBC() {
 
 			tc.malleate(tc.claimableAmount)
 
-			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData("aevmos", triggerAmt, sender, receiver, "")
 			bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 			packet := channeltypes.NewPacket(bz, 1, path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, path.EndpointB.ChannelConfig.PortID, path.EndpointB.ChannelID, timeoutHeight, 0)
 

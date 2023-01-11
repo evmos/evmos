@@ -22,8 +22,8 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 
 	"github.com/evmos/evmos/v10/x/ibc/transfer/types"
 )
