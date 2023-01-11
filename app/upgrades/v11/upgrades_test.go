@@ -145,8 +145,8 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	// define constants
 	mainnetChainID := evmostypes.MainnetChainID + "-4"
-	communityPool, err := sdk.AccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
-	suite.Require().NoError(err)
+	communityPool := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
+	fundingAcc := sdk.MustAccAddressFromBech32(v11.FundingAccount)
 
 	// checks on reward amounts
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
@@ -202,7 +202,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			func() {
 				err := suite.app.BankKeeper.SendCoins(
 					suite.ctx,
-					sdk.MustAccAddressFromBech32(v11.FundingAccount),
+					fundingAcc,
 					sdk.AccAddress(tests.GenerateAddress().Bytes()),
 					sdk.NewCoins(
 						sdk.NewCoin(evmostypes.BaseDenom, balance.Quo(math.NewInt(2))),
@@ -286,17 +286,17 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				if tc.expectedSuccess {
 					// amount delegated should be equal to sums calculated pre-tests
 					suite.Require().Equal(validatorDelegations[v], delTokens)
-					totalDelegations = totalDelegations.Add(delTokens)
-					// sum of all delegations should be equal to rewards
-					suite.Require().Equal(expRewards, totalDelegations)
 				} else {
 					suite.Require().Equal(math.ZeroInt(), delTokens)
 				}
+				totalDelegations = totalDelegations.Add(delTokens)
 			}
 
 			if tc.expectedSuccess {
+				// sum of all delegations should be equal to rewards
+				suite.Require().Equal(expRewards, totalDelegations)
 				// Funding acc balance should be 0 after the rewards distribution
-				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.FundingAccount), evmostypes.BaseDenom)
+				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, fundingAcc, evmostypes.BaseDenom)
 				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
 			}
 		})
