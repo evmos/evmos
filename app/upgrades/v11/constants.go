@@ -25,4 +25,8 @@ const (
 	// at the time of this migration, on mainnet, channels 0 to 36 were open
 	// so this migration covers those channels only
 	openChannels = 36
+
+	// FundingAccount is the account which holds the rewards for the incentivized testnet.
+	// It contains ~7.4M tokens, of which ~5.6M are to be distributed.
+	FundingAccount = "evmos1f7vxxvmd544dkkmyxan76t76d39k7j3gr8d45y"
 )
