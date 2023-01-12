@@ -22,8 +22,9 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 
 	"github.com/evmos/evmos/v11/x/ibc/transfer/types"
 )
@@ -44,7 +45,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
 
-	ics4Wrapper transfertypes.ICS4Wrapper,
+	ics4Wrapper porttypes.ICS4Wrapper,
 	channelKeeper transfertypes.ChannelKeeper,
 	portKeeper transfertypes.PortKeeper,
 	accountKeeper types.AccountKeeper,
