@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	"github.com/evmos/evmos/v10/testutil"
-	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
-	"github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v11/testutil"
+	erc20types "github.com/evmos/evmos/v11/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
 

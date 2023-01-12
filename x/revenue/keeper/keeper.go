@@ -24,7 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 // Keeper of this module maintains collections of revenues for contracts

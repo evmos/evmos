@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
+	"github.com/evmos/evmos/v11/x/erc20/keeper"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v10/testutil"
+	"github.com/evmos/evmos/v11/testutil"
 
 	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
@@ -23,11 +23,11 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
 	ibcmock "github.com/cosmos/ibc-go/v5/testing/mock"
 
-	"github.com/evmos/evmos/v10/contracts"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
-	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
+	"github.com/evmos/evmos/v11/contracts"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
+	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 var erc20Denom = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"

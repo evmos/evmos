@@ -19,9 +19,9 @@ import (
 
 	evm "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v10/app"
-	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/evmos/evmos/v11/app"
+	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 var denomMint = types.DefaultInflationDenom

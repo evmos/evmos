@@ -12,11 +12,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v5/testing/simapp"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v10/contracts"
-	"github.com/evmos/evmos/v10/testutil"
-	teststypes "github.com/evmos/evmos/v10/types/tests"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/testutil"
+	teststypes "github.com/evmos/evmos/v11/types/tests"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
 )
 
