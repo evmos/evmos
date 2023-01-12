@@ -357,11 +357,9 @@ func (suite *UpgradeTestSuite) getDelegatedTokens(valAddrs ...string) math.Int {
 }
 
 func (suite *UpgradeTestSuite) TestNoDuplicateAddress() {
-	type void struct{}
-	var member void
-	participants := make(map[string]void)
+	participants := make(map[string]bool)
 	for _, allocation := range v11.Allocations {
-		participants[allocation[0]] = member
+		suite.Require().False(participants[allocation[0]], "duplicated allocation entry")
+		participants[allocation[0]] = true
 	}
-	suite.Require().Equal(len(v11.Allocations), len(participants))
 }
