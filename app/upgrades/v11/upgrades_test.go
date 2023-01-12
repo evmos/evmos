@@ -355,3 +355,13 @@ func (suite *UpgradeTestSuite) getDelegatedTokens(valAddrs ...string) math.Int {
 	}
 	return delTokens
 }
+
+func (suite *UpgradeTestSuite) TestNoDuplicateAddress() {
+	type void struct{}
+	var member void
+	participants := make(map[string]void)
+	for _, allocation := range v11.Allocations {
+		participants[allocation[0]] = member
+	}
+	suite.Require().Equal(len(v11.Allocations), len(participants))
+}
