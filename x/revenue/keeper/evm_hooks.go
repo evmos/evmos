@@ -97,16 +97,17 @@ func (k Keeper) PostTxProcessing(
 		)
 	}
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventDistributeRevenue{
-		Sender:            msg.From().String(),
-		Contract:          contract.String(),
-		WithdrawerAddress: withdrawer.String(),
-		Amount:            developerFee.String(),
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeDistributeDevRevenue,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
+				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, withdrawer.String()),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, developerFee.String()),
+			),
+		},
+	)
 
 	return nil
 }
