@@ -131,14 +131,16 @@ func (k Keeper) RegisterRevenue(
 		"withdraw", effectiveWithdrawer,
 	)
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventRegisterRevenue{
-		DeployerAddress:     msg.DeployerAddress,
-		ContractAddress:     msg.ContractAddress,
-		EffectiveWithdrawer: effectiveWithdrawer,
-	})
-	if err != nil {
-		return nil, err
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeRegisterRevenue,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, effectiveWithdrawer),
+			),
+		},
+	)
 
 	return &types.MsgRegisterRevenueResponse{}, nil
 }
@@ -204,14 +206,16 @@ func (k Keeper) UpdateRevenue(
 	revenue.WithdrawerAddress = msg.WithdrawerAddress
 	k.SetRevenue(ctx, revenue)
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventUpdateRevenue{
-		ContractAddress:   msg.ContractAddress,
-		DeployerAddress:   msg.DeployerAddress,
-		WithdrawerAddress: msg.WithdrawerAddress,
-	})
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeUpdateRevenue,
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, msg.WithdrawerAddress),
+			),
+		},
+	)
 
 	return &types.MsgUpdateRevenueResponse{}, nil
 }
@@ -261,13 +265,15 @@ func (k Keeper) CancelRevenue(
 		)
 	}
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventCancelRevenue{
-		DeployerAddress: msg.DeployerAddress,
-		ContractAddress: msg.ContractAddress,
-	})
-	if err != nil {
-		return nil, err
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCancelRevenue,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.DeployerAddress),
+				sdk.NewAttribute(types.AttributeKeyContract, msg.ContractAddress),
+			),
+		},
+	)
 
 	return &types.MsgCancelRevenueResponse{}, nil
 }
