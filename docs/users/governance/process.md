@@ -63,5 +63,3 @@ Though a simple majority `Yes` vote (ie. 50% of participating voting power) is r
 ### How is quorum determined?
 
 Voting power, whether backing a vote of `Yes`, `Abstain`, `No`, or `NoWithVeto`, counts toward quorum. Quorum is required for the outcome of a governance proposal vote to be considered valid and for deposit contributors to recover their deposit amounts. If the proposal vote does not reach quorum (ie. less than 33.4% of the network's voting power is participating) within 5 days, any deposit amounts will be burned and the proposal outcome will not be considered to be valid.
-
-
