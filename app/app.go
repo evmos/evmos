@@ -102,23 +102,25 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibctransfer "github.com/cosmos/ibc-go/v5/modules/apps/transfer"
-	ibctransfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v5/modules/core"
-	ibcclient "github.com/cosmos/ibc-go/v5/modules/core/02-client"
-	ibcclientclient "github.com/cosmos/ibc-go/v5/modules/core/02-client/client"
-	ibcclienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	porttypes "github.com/cosmos/ibc-go/v5/modules/core/05-port/types"
-	ibchost "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	ibckeeper "github.com/cosmos/ibc-go/v5/modules/core/keeper"
-	ibctesting "github.com/cosmos/ibc-go/v5/testing"
-	ibctestingtypes "github.com/cosmos/ibc-go/v5/testing/types"
 
-	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icahost "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host"
-	icahostkeeper "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/keeper"
-	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
+	ibctestingtypes "github.com/cosmos/ibc-go/v6/testing/types"
+
+	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
+	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v6/modules/core"
+	ibcclient "github.com/cosmos/ibc-go/v6/modules/core/02-client"
+	ibcclientclient "github.com/cosmos/ibc-go/v6/modules/core/02-client/client"
+	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
+	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+
+	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	icahost "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host"
+	icahostkeeper "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/keeper"
+	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/ethereum/eip712"
@@ -133,46 +135,46 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v10/client/docs/statik"
+	_ "github.com/evmos/evmos/v11/client/docs/statik"
 
-	"github.com/evmos/evmos/v10/app/ante"
-	v10 "github.com/evmos/evmos/v10/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v10/app/upgrades/v11"
-	v8 "github.com/evmos/evmos/v10/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v10/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v10/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v10/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v10/x/claims"
-	claimskeeper "github.com/evmos/evmos/v10/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v10/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
-	"github.com/evmos/evmos/v10/x/erc20"
-	erc20client "github.com/evmos/evmos/v10/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v10/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
-	"github.com/evmos/evmos/v10/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v10/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v10/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v10/x/incentives/types"
-	"github.com/evmos/evmos/v10/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v10/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
-	"github.com/evmos/evmos/v10/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v10/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v10/x/recovery/types"
-	"github.com/evmos/evmos/v10/x/revenue"
-	revenuekeeper "github.com/evmos/evmos/v10/x/revenue/keeper"
-	revenuetypes "github.com/evmos/evmos/v10/x/revenue/types"
-	"github.com/evmos/evmos/v10/x/vesting"
-	vestingkeeper "github.com/evmos/evmos/v10/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v10/x/vesting/types"
+	"github.com/evmos/evmos/v11/app/ante"
+	v10 "github.com/evmos/evmos/v11/app/upgrades/v10"
+	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
+	v8 "github.com/evmos/evmos/v11/app/upgrades/v8"
+	v81 "github.com/evmos/evmos/v11/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v11/app/upgrades/v8_2"
+	v9 "github.com/evmos/evmos/v11/app/upgrades/v9"
+	v91 "github.com/evmos/evmos/v11/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v11/x/claims"
+	claimskeeper "github.com/evmos/evmos/v11/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v11/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
+	"github.com/evmos/evmos/v11/x/erc20"
+	erc20client "github.com/evmos/evmos/v11/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v11/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v11/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/incentives"
+	incentivesclient "github.com/evmos/evmos/v11/x/incentives/client"
+	incentiveskeeper "github.com/evmos/evmos/v11/x/incentives/keeper"
+	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v11/x/inflation"
+	inflationkeeper "github.com/evmos/evmos/v11/x/inflation/keeper"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
+	"github.com/evmos/evmos/v11/x/recovery"
+	recoverykeeper "github.com/evmos/evmos/v11/x/recovery/keeper"
+	recoverytypes "github.com/evmos/evmos/v11/x/recovery/types"
+	"github.com/evmos/evmos/v11/x/revenue"
+	revenuekeeper "github.com/evmos/evmos/v11/x/revenue/keeper"
+	revenuetypes "github.com/evmos/evmos/v11/x/revenue/types"
+	"github.com/evmos/evmos/v11/x/vesting"
+	vestingkeeper "github.com/evmos/evmos/v11/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v10/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v11/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v11/x/ibc/transfer/keeper"
 )
 
 func init() {
@@ -447,13 +449,13 @@ func NewEvmos(
 
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
-		appCodec, app.GetSubspace(feemarkettypes.ModuleName), keys[feemarkettypes.StoreKey], tkeys[feemarkettypes.TransientKey],
+		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName), keys[feemarkettypes.StoreKey], tkeys[feemarkettypes.TransientKey], app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
-		nil, geth.NewEVM, tracer,
+		nil, geth.NewEVM, tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
 	// Create IBC Keeper
@@ -664,8 +666,8 @@ func NewEvmos(
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		transferModule,
 		// Ethermint app modules
-		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper),
-		feemarket.NewAppModule(app.FeeMarketKeeper),
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 		// Evmos app modules
 		inflation.NewAppModule(app.InflationKeeper, app.AccountKeeper, app.StakingKeeper,
 			app.GetSubspace(inflationtypes.ModuleName)),

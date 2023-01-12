@@ -31,7 +31,7 @@ import (
 
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.

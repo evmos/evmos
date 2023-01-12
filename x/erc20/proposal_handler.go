@@ -23,8 +23,8 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/erc20/keeper"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
@@ -64,14 +64,13 @@ func handleRegisterCoinProposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
-			Denom:        pair.Denom,
-			Erc20Address: pair.Erc20Address,
-		})
-
-		if err != nil {
-			k.Logger(ctx).Error(err.Error())
-		}
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterCoin,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
 	}
 
 	return nil
@@ -90,14 +89,13 @@ func handleRegisterERC20Proposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
-			Denom:        pair.Denom,
-			Erc20Address: pair.Erc20Address,
-		})
-
-		if err != nil {
-			k.Logger(ctx).Error(err.Error())
-		}
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterERC20,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
 	}
 
 	return nil
@@ -114,14 +112,13 @@ func handleToggleConversionProposal(
 		return err
 	}
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventToggleTokenConversion{
-		Denom:        pair.Denom,
-		Erc20Address: pair.Erc20Address,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeToggleTokenConversion,
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+		),
+	)
 
 	return nil
 }

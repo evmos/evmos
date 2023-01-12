@@ -20,9 +20,9 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v10/app"
-	"github.com/evmos/evmos/v10/testutil"
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
@@ -756,7 +756,10 @@ func registerFee(
 
 	if res.IsOK() {
 		registerEvent := res.GetEvents()[8]
-		Expect(registerEvent.Type).To(Equal("evmos.revenue.v1.EventRegisterRevenue"))
+		Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterRevenue))
+		Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
+		Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
+		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
 }

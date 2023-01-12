@@ -24,9 +24,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 
-	erc20types "github.com/evmos/evmos/v10/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
