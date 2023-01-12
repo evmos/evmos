@@ -17,7 +17,7 @@
 package tests
 
 import (
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 )
 
 var (

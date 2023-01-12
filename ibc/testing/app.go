@@ -33,7 +33,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 
-	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
 	ethermint "github.com/evmos/ethermint/types"
 	evmosapp "github.com/evmos/evmos/v11/app"

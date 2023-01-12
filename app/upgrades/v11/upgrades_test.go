@@ -11,7 +11,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ibctypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
