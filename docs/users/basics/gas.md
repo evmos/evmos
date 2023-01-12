@@ -62,12 +62,12 @@ More on Gas vs. Fees:
 
 Gas fees on Cosmos are relatively straightforward. As a user, you specify two fields:
 
-1. A `GasLimit` corresponding to an upper bound on execution gas
-2. Either `Fees` or `GasPrice`, which will be used to specify or calculate the transaction fees
+1. A `GasLimit` corresponding to an upper bound on execution gas, defined as `GasWanted`
+2. One of `Fees` or `GasPrice`, which will be used to specify or calculate the transaction fees
 
 The node will entirely consume the fees provided, then begin to execute the transaction. If the `GasLimit` is found to be insufficient during execution, the transaction will fail and roll back any changes made, without refunding the fees provided.
 
-Validators for Cosmos SDK-based chains can specify the `min-transaction-fee` that they will enforce when selecting transactions to include in blocks. Thus, transactions with insufficient fees will encounter delays or fail outright.
+Validators for Cosmos SDK-based chains can specify their `min-gas-prices` that they will enforce when selecting transactions to include in blocks. Thus, transactions with insufficient fees will encounter delays or fail outright.
 
 At the beginning of each block, fees from the previous block are [allocated to validators and delegators](https://docs.cosmos.network/main/modules/distribution), and they can be withdrawn and spent.
 
@@ -101,6 +101,10 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
 1. Fee Market Module
 
     In order to support EIP-1559 gas and fee calculation on Evmos’ EVM layer, Evmos tracks the gas supplied for each block and uses that to calculate a base fee for future EVM transactions, thus enabling EVM priority fees and transaction prioritization as specified by EIP-1559.
+
+    For EVM transactions, each node bypasses their local `min-gas-prices` configuration, and instead applies EIP-1559 fee logic——the gas price simply must be greater than both the global `min-gas-price` and the block's `BaseFee`, and the surplus is considered a priority tip.
+
+    Unlike on Ethereum, the `BaseFee` on Evmos is not burned, and instead is distributed to validators and delegators.
 
 2. EVM Gas Refunds
 
