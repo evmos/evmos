@@ -17,8 +17,9 @@
 package types
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // erc20 events
@@ -47,5 +48,3 @@ type LogTransfer struct {
 	To     common.Address
 	Tokens *big.Int
 }
-
-
