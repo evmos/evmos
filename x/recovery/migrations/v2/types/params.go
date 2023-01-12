@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v10/x/recovery/types"
+	"github.com/evmos/evmos/v11/x/recovery/types"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )

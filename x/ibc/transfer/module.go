@@ -20,10 +20,11 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v10/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v11/x/ibc/transfer/keeper"
 )
 
 var (

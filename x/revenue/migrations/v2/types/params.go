@@ -19,7 +19,7 @@ package types
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"

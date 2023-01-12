@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/evmos/ethermint/encoding"
-	v2 "github.com/evmos/evmos/v10/x/revenue/migrations/v2"
-	v2types "github.com/evmos/evmos/v10/x/revenue/migrations/v2/types"
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	v2 "github.com/evmos/evmos/v11/x/revenue/migrations/v2"
+	v2types "github.com/evmos/evmos/v11/x/revenue/migrations/v2/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"

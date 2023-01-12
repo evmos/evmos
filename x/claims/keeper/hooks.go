@@ -30,7 +30,7 @@ import (
 
 	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	"github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
 var (

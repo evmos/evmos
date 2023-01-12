@@ -30,7 +30,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v10/x/vesting/types"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
