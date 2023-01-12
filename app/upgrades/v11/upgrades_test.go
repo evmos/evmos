@@ -13,6 +13,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/tests"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
@@ -144,8 +145,8 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	// define constants
 	mainnetChainID := evmostypes.MainnetChainID + "-4"
-	communityPool, err := sdk.AccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
-	suite.Require().NoError(err)
+	communityPool := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
+	fundingAcc := sdk.MustAccAddressFromBech32(v11.FundingAccount)
 
 	// checks on reward amounts
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
@@ -182,16 +183,18 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	noRewardAddr := sdk.MustAccAddressFromBech32("evmos1009egsf8sk3puq3aynt8eymmcqnneezkkvceav")
 
 	testCases := []struct {
-		name            string
-		chainID         string
-		malleate        func()
-		expectedSuccess bool
+		name               string
+		chainID            string
+		malleate           func()
+		expectedSuccess    bool
+		expCommPoolBalance math.Int
 	}{
 		{
 			"Mainnet - success",
 			mainnetChainID,
 			func() {},
 			true,
+			expCommPoolBalance,
 		},
 		{
 			"Mainnet - insufficient funds on reward account - fail",
@@ -199,8 +202,8 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			func() {
 				err := suite.app.BankKeeper.SendCoins(
 					suite.ctx,
-					sdk.MustAccAddressFromBech32(v11.FundingAccount),
-					noRewardAddr,
+					fundingAcc,
+					sdk.AccAddress(tests.GenerateAddress().Bytes()),
 					sdk.NewCoins(
 						sdk.NewCoin(evmostypes.BaseDenom, balance.Quo(math.NewInt(2))),
 					),
@@ -208,6 +211,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.NoError(err)
 			},
 			false,
+			math.ZeroInt(),
 		},
 		{
 			"Mainnet - invalid reward amount - fail",
@@ -216,12 +220,14 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				v11.Allocations[0][1] = "a0151as2021231a"
 			},
 			false,
+			math.ZeroInt(),
 		},
 		{
 			"Testnet - no-op",
 			evmostypes.TestnetChainID + "-4",
 			func() {},
 			false,
+			math.ZeroInt(),
 		},
 	}
 
@@ -236,87 +242,62 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 
 			// check no delegations for validators initially
 			initialDel := suite.getDelegatedTokens(validatorAddresses...)
-			suite.Require().Equal(math.NewInt(0), initialDel)
+			suite.Require().Equal(math.ZeroInt(), initialDel)
 
 			if evmostypes.IsMainnet(tc.chainID) {
-				err := v11.DistributeRewards(suite.ctx, suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
-				if !tc.expectedSuccess {
-					suite.Require().Error(err)
-					return
+				v11.HandleRewardDistribution(suite.ctx, suite.app.Logger(), suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
+			}
+
+			// account not in list should NOT get rewards
+			// balance should be 0
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, evmostypes.BaseDenom)
+			suite.Require().Equal(math.ZeroInt(), balance.Amount)
+
+			// get staked (delegated) tokens - no delegations expected
+			delegated := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
+			suite.Require().Empty(delegated)
+
+			commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
+			suite.Require().Equal(tc.expCommPoolBalance, commPoolFinalBalance.Amount)
+
+			// do allocations
+			for i := range v11.Allocations {
+				addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
+				valShare, _ := sdk.NewIntFromString(v11.Allocations[i][1])
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
+				suite.Require().Equal(math.ZeroInt(), balance.Amount)
+
+				// get staked (delegated) tokens
+				delegated := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
+				if tc.expectedSuccess {
+					// sum of all delegations should be equal to rewards
+					delegatedAmt := suite.sumDelegatorDelegations(delegated...)
+					suite.Require().Equal(valShare, delegatedAmt)
+				} else {
+					suite.Require().Empty(delegated)
 				}
-				suite.Require().NoError(err)
+			}
+
+			// check delegation for each validator
+			totalDelegations := math.ZeroInt()
+			for _, v := range validatorAddresses {
+				delTokens := suite.getDelegatedTokens(v)
+				if tc.expectedSuccess {
+					// amount delegated should be equal to sums calculated pre-tests
+					suite.Require().Equal(validatorDelegations[v], delTokens)
+				} else {
+					suite.Require().Equal(math.ZeroInt(), delTokens)
+				}
+				totalDelegations = totalDelegations.Add(delTokens)
 			}
 
 			if tc.expectedSuccess {
-
-				// do allocations
-				for i := range v11.Allocations {
-					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
-					valShare, _ := sdk.NewIntFromString(v11.Allocations[i][1])
-
-					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
-					suite.Require().Equal(math.NewInt(0), balance.Amount)
-
-					// get staked (delegated) tokens
-					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
-
-					// sum of all delegations should be equal to rewards
-					delegatedAmt := suite.sumDelegatorDelegations(d...)
-					suite.Require().Equal(valShare, delegatedAmt)
-				}
-
-				// account not in list should NOT get rewards
-				// balance should be 0
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, evmostypes.BaseDenom)
-				suite.Require().Equal(sdk.NewInt(0), balance.Amount)
-
-				// get staked (delegated) tokens - no delegations expected
-				d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
-				suite.Require().Empty(d)
-
-				// check delegation for each validator
-				totalDelegations := math.NewInt(0)
-
-				for _, v := range validatorAddresses {
-					delTokens := suite.getDelegatedTokens(v)
-
-					// amount delegated should be equal to sums calculated pre-tests
-					suite.Require().Equal(validatorDelegations[v], delTokens)
-
-					totalDelegations = totalDelegations.Add(delTokens)
-				}
-
 				// sum of all delegations should be equal to rewards
 				suite.Require().Equal(expRewards, totalDelegations)
-
-				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
-				suite.Require().Equal(expCommPoolBalance, commPoolFinalBalance.Amount)
-
 				// Funding acc balance should be 0 after the rewards distribution
-				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.MustAccAddressFromBech32(v11.FundingAccount), evmostypes.BaseDenom)
+				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, fundingAcc, evmostypes.BaseDenom)
 				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
-
-			} else { // no-op
-
-				for i := range v11.Allocations {
-					addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
-					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
-					suite.Require().Equal(sdk.NewInt(0), balance.Amount)
-
-					// get staked (delegated) tokens
-					d := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
-					suite.Require().Empty(d)
-				}
-
-				// check delegation for validators
-				delTokens := suite.getDelegatedTokens(validatorAddresses...)
-				suite.Require().Equal(math.NewInt(0), delTokens)
-
-				// check community pool balance
-				commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
-
-				suite.Require().Equal(sdk.NewInt(0), commPoolFinalBalance.Amount)
 			}
 		})
 	}
@@ -373,4 +354,12 @@ func (suite *UpgradeTestSuite) getDelegatedTokens(valAddrs ...string) math.Int {
 		delTokens = delTokens.Add(delegatedAmt)
 	}
 	return delTokens
+}
+
+func (suite *UpgradeTestSuite) TestNoDuplicateAddress() {
+	participants := make(map[string]bool)
+	for _, allocation := range v11.Allocations {
+		suite.Require().False(participants[allocation[0]], "duplicated allocation entry")
+		participants[allocation[0]] = true
+	}
 }
