@@ -25,10 +25,11 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ica "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts"
-	icahosttypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v5/modules/apps/27-interchain-accounts/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
+	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
+	genesistypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/genesis/types"
+	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -66,10 +67,10 @@ func CreateUpgradeHandler(
 		MigrateEscrowAccounts(ctx, ak)
 
 		// create ICS27 Controller submodule params, with the controller module NOT enabled
-		gs := &icatypes.GenesisState{
-			ControllerGenesisState: icatypes.ControllerGenesisState{},
-			HostGenesisState: icatypes.HostGenesisState{
-				Port: icatypes.PortID,
+		gs := &genesistypes.GenesisState{
+			ControllerGenesisState: genesistypes.ControllerGenesisState{},
+			HostGenesisState: genesistypes.HostGenesisState{
+				Port: icatypes.HostPortID,
 				Params: icahosttypes.Params{
 					HostEnabled: true,
 					AllowMessages: []string{
