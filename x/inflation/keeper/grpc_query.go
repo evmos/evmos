@@ -59,7 +59,7 @@ func (k Keeper) SkippedEpochs(
 	return &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}, nil
 }
 
-// InflationRate returns the number of skipped Epochs of the inflation module.
+// InflationRate returns the inflation rate for the current period.
 func (k Keeper) InflationRate(
 	c context.Context,
 	_ *types.QueryInflationRateRequest,

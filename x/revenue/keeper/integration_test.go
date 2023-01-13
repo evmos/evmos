@@ -756,7 +756,10 @@ func registerFee(
 
 	if res.IsOK() {
 		registerEvent := res.GetEvents()[8]
-		Expect(registerEvent.Type).To(Equal("evmos.revenue.v1.EventRegisterRevenue"))
+		Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterRevenue))
+		Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
+		Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
+		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
 }
