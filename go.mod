@@ -12,7 +12,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.3
 	github.com/cosmos/ibc-go/v6 v6.1.0
 	github.com/ethereum/go-ethereum v1.10.26
-	github.com/evmos/ethermint v0.20.0
+	github.com/evmos/ethermint v0.21.0-rc1
 	github.com/evmos/evmos-ledger-go v0.2.1
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
@@ -71,7 +71,6 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.4 // indirect
-	github.com/cosmos/ibc-go/v6 v6.1.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.1 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -221,8 +220,6 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.7-ledger
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
-	// use main branch of Ethermint
-	github.com/evmos/ethermint v0.20.0 => github.com/evmos/ethermint v0.6.1-0.20230112085255-5f7ee9bfad07
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
