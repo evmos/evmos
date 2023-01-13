@@ -50,7 +50,7 @@ var Allocations = [1183][3]string{
 	{"evmos1fhfkklmv764r3u6kqkeflmddr6rlzhf4wtsdc8", "16619884770000000516096", "evmosvaloper1lwfuc2lc27mk8yys2zcd0qttcwmnd6x7gks5m5"},
 	{"evmos1n85q8mhmej8u68lz8gdhfk6v59zsfx9uyqekw3", "16619884770000000516096", "evmosvaloper182d5yfc5wwaphwjm5wqj9xmsf0vmp30qrtjllu"},
 	{"evmos1qdrlk86jah6p8u37qv9jh67pk7l97kckj0sv8s", "16619884770000000516096", "evmosvaloper1rvsmc4k7ay8hc6nlz50lw8hskygvdptmwr3rdl"},
-	{"evmos1vw76ju5rwt9us7kz8tg42t6yfmq2jftyqj39a8", "16619884770000000516096", "evmosvaloper1vdvflras2n3h7fjhe95h86wsy0z2nlsktngrp8"},
+	{"evmos1q2r0ljt3zd59fnxvk6amfdddqg7y806ghhxkct", "16619884770000000516096", "evmosvaloper1vdvflras2n3h7fjhe95h86wsy0z2nlsktngrp8"},
 	{"evmos1zk0sx2e677293wfmhxngpexu50vps3sdr2keyh", "16619884770000000516096", "evmosvaloper1n4kuugnh2z5dsug7egamma7chnjcdfu4jwhq76"},
 	{"evmos139694lezyzwl64up7m800prwsqhxs5h2ac3rpu", "15788890529999999729664", "evmosvaloper1c55g6u7q2uzgks9gjp80sle8n6qcyg64vk64g2"},
 	{"evmos13zd9uwl0qm65ufvszyn9h68mutvvda6emfycv3", "15788890529999999729664", "evmosvaloper1kw03prf96w5rrj53pvhdnmsnr469dn9gqmsqwg"},
