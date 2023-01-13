@@ -104,7 +104,7 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
 
     For EVM transactions, each node bypasses their local `min-gas-prices` configuration, and instead applies EIP-1559 fee logic——the gas price simply must be greater than both the global `min-gas-price` and the block's `BaseFee`, and the surplus is considered a priority tip.
 
-    Unlike on Ethereum, the `BaseFee` on Evmos is not burned, and instead is distributed to validators and delegators.
+    Unlike on Ethereum, the `BaseFee` on Evmos is not burned, and instead is distributed to validators and delegators. Furthermore, the `BaseFee` is lower-bounded by the global `min-gas-price`.
 
 2. EVM Gas Refunds
 
@@ -121,7 +121,7 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
 2. Nodes receive transactions for a subsequent block and gossip these transactions to peers
     1. These can be sorted and prioritized by the included fee price (using EIP-1559 fee priority mechanics for EVM transactions - [code snippet](https://github.com/evmos/ethermint/blob/57ed355c985d9f3116aba6aabfa2ee0f3f38e966/app/ante/eth.go#L137)), to be included in the next block
 3. Nodes run `BeginBlock` for the subsequent block
-    1. The FeeMarket module calculates the `BaseFee` ([code snippet](https://github.com/evmos/ethermint/blob/89fdd1984826ea524cb9b8feb089a99b6cfe8ace/x/feemarket/keeper/abci.go#L14)) to be applied for this block using the total `GasWanted` from the previous block
+    1. The FeeMarket module calculates the `BaseFee` ([code snippet](https://github.com/evmos/ethermint/blob/89fdd1984826ea524cb9b8feb089a99b6cfe8ace/x/feemarket/keeper/abci.go#L14)) to be applied for this block using the total `GasWanted` from the previous block.
     2. The Distribution module [distributes](https://docs.cosmos.network/main/modules/distribution#begin-block) the previous block’s fee rewards to validators and delegators
 4. For each valid transaction that will be included in this block, nodes perform the following:
     1. They run an `AnteHandler` corresponding to the transaction type. This process:
