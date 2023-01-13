@@ -449,7 +449,10 @@ func NewEvmos(
 
 	// Create Ethermint keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
-		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName), keys[feemarkettypes.StoreKey], tkeys[feemarkettypes.TransientKey], app.GetSubspace(feemarkettypes.ModuleName),
+		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		keys[feemarkettypes.StoreKey],
+		tkeys[feemarkettypes.TransientKey],
+		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
@@ -1107,8 +1110,8 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName)
-	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable())
+	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
