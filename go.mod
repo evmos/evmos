@@ -222,4 +222,6 @@ replace (
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	// Informal Tendermint fork
+	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.24
 )
