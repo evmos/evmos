@@ -2,8 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
-	"github.com/evmos/evmos/v11/x/inflation/types"
 	"time"
+
+	"github.com/evmos/evmos/v11/x/inflation/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	. "github.com/onsi/ginkgo/v2"

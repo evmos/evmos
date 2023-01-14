@@ -1,9 +1,10 @@
 package v2_test
 
 import (
+	"testing"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"testing"
 
 	v2 "github.com/evmos/evmos/v11/x/inflation/migrations/v2"
 	"github.com/evmos/evmos/v11/x/inflation/types"
