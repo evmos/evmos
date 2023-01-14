@@ -77,7 +77,7 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 				suite.Require().True(found)
 			},
 		},
-		{
+		{ //nolint:dupl
 			expCurrentEpochStartHeight: 3,
 			expCurrentEpochStartTime:   now.Add(time.Hour * 24 * 31),
 			expCurrentEpoch:            2,
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) TestEpochInfoChangesBeginBlockerAndInitGenesis() {
 				suite.Require().True(found)
 			},
 		},
-		{
+		{ //nolint:dupl
 			expCurrentEpochStartHeight: 3,
 			expCurrentEpochStartTime:   now.Add(time.Hour * 24 * 31),
 			expCurrentEpoch:            2,

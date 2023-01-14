@@ -23,8 +23,6 @@ import (
 	"github.com/evmos/evmos/v11/x/epochs/types"
 )
 
-var denomMint = evm.DefaultEVMDenom
-
 type KeeperTestSuite struct {
 	suite.Suite
 
@@ -106,7 +104,7 @@ func (suite *KeeperTestSuite) Commit() {
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
-	header.Height += 1
+	header.Height++
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,

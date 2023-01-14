@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 		},
 		{
-			name: "no-op - reciever is module account",
+			name: "no-op - receiver is module account",
 			malleate: func() {
 				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
 				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String(), "")
@@ -248,7 +248,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			malleate: func() {
 				claimsParams := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				claimsParams.EVMChannels = []string{evmosChannel}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, claimsParams) //nolint:errcheck
 
 				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
 				prefixedDenom := sourcePrefix + registeredDenom
@@ -362,7 +362,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			if tc.disableERC20 {
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				suite.app.Erc20Keeper.SetParams(suite.ctx, params) //nolint:errcheck
 			}
 
 			if tc.disableTokenPair {
@@ -424,7 +424,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				_ = suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")
 			},
 			expPass: true,

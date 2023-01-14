@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
-func (suite KeeperTestSuite) TestRegisterIncentive() {
+func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can copy locks here because it is a test
 	testCases := []struct {
 		name                string
 		malleate            func()
@@ -21,7 +21,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 			func() {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			[]sdk.DecCoin{},
 			false,
@@ -65,7 +65,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// decrease allocation limit
 				params := types.DefaultParams()
 				params.AllocationLimit = sdk.NewDecWithPrec(1, 2)
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			[]sdk.DecCoin{},
 			false,
@@ -84,7 +84,8 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 				// increase allocation limit
 				params := types.DefaultParams()
 				params.AllocationLimit = sdk.NewDecWithPrec(100, 2)
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				err = suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				// Add incentive which takes up 100% of the allocation
 				_, err = suite.app.IncentivesKeeper.RegisterIncentive(
@@ -150,7 +151,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() {
 	}
 }
 
-func (suite KeeperTestSuite) TestCancelIncentive() {
+func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can copy locks here because it is a test
 	testCases := []struct {
 		name                string
 		malleate            func()
@@ -162,7 +163,7 @@ func (suite KeeperTestSuite) TestCancelIncentive() {
 			func() {
 				params := types.DefaultParams()
 				params.EnableIncentives = false
-				suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
+				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			[]sdk.DecCoin{},
 			false,

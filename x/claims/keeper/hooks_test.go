@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
 
 				suite.app.ClaimsKeeper.AfterProposalVote(suite.ctx, 1, addr)
@@ -49,7 +49,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionVote)
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
@@ -76,7 +76,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
@@ -108,7 +108,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 		{
 			"no claim record",
 			func() {
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -160,10 +160,10 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -180,10 +180,10 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionDelegate)
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 			},
 		},
 		{
@@ -197,7 +197,8 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -205,10 +206,11 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
-				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
+				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				err = suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
 				suite.Require().True(found)
@@ -232,12 +234,12 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2)
+				suite.app.ClaimsKeeper.AfterDelegationModified(suite.ctx, addr, addr2) //nolint:errcheck
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
 				suite.Require().True(found)
@@ -290,10 +292,11 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
+				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -311,10 +314,11 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionEVM)
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
-				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
+				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 			},
 		},
@@ -329,7 +333,8 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -337,7 +342,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
-				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
+				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
@@ -365,12 +370,13 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				}
 				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				err := suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
+				err = suite.app.ClaimsKeeper.PostTxProcessing(suite.ctx, msg, &receipt)
 				suite.Require().NoError(err)
 
 				newClaimRec, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
