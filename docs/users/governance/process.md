@@ -6,19 +6,19 @@ order: 2
 
 ## Deposit Period
 
-The deposit period lasts either 3 days or until the proposal deposit totals 192 EVMOS, whichever happens first.
+The deposit period lasts either 3 days or until the proposal deposit totals 3500 EVMOS, whichever happens first.
 
 ### Deposits
 
-Deposit amounts are at risk of being burned. Prior to a governance proposal entering the voting period (ie. for the proposal to be voted upon), there must be at least a minimum number of EVMOS deposited (192). Anyone may contribute to this deposit. Deposits of passed and failed proposals are returned to the contributors.
+Deposit amounts are at risk of being burned. Prior to a governance proposal entering the voting period (ie. for the proposal to be voted upon), there must be at least a minimum number of EVMOS deposited (3500). Anyone may contribute to this deposit. Deposits of passed and failed proposals are returned to the contributors.
 
-In the past, different people have considered contributions amounts differently. There is some consensus that this should be a personal choice. There is also some consensus that this can be an opportunity for supporters to signal their support by adding to the deposit amount, so a proposer may choose to leave contribution room (ie. a deposit below 192 EVMOS) so that others may participate. It is important to remember that any contributed EVMOS are at risk of being burned.
+In the past, different people have considered contributions amounts differently. There is some consensus that this should be a personal choice. There is also some consensus that this can be an opportunity for supporters to signal their support by adding to the deposit amount, so a proposer may choose to leave contribution room (ie. a deposit below 3500 EVMOS) so that others may participate. It is important to remember that any contributed EVMOS are at risk of being burned.
 
 ### Burned deposits
 
 Deposits are burned when proposals:
 
-1. **Expire** - deposits will be burned if the deposit period ends before reaching the minimum deposit (192 EVMOS)
+1. **Expire** - deposits will be burned if the deposit period ends before reaching the minimum deposit (3500 EVMOS)
 2. **Fail to reach quorum** - deposits will be burned for proposals that do not reach quorum ie. 33.4% of all staked EVMOS must vote
 3. **Are vetoed** - deposits for proposals with 33.4% of voting power backing the `NoWithVeto` option are also burned
 
@@ -37,11 +37,13 @@ As accepted by the community in [Proposal 6](https://www.mintscan.io/cosmos/prop
 
 Voting `NoWithVeto` provides a mechanism for a minority group representing a *third* of the participating voting power to reject a proposal that would otherwise pass. This makes explicit an aspect of the consensus protocol: it works as long as only up to [a third of nodes fail](https://docs.tendermint.com/v0.35/introduction/what-is-tendermint.html). In other words, greater than a third of validators are always in a position to cause a proposal to fail outside the formalized governance process and the network's norms, such as by censoring transactions. The purpose of internalizing this aspect of the consensus protocol into the governance process is to discourage validators from relying on collusion and censorship tactics to influence voting outcomes.
 
+[Proposal #103](https://www.mintscan.io/evmos/proposals/103) was passed in January 2023 by the Evmos network to formally define and adopt the meanings of each voting options aforementioned.
+
 ## What determines whether or not a governance proposal passes?
 
 There are four criteria:
 
-1. A minimum deposit of 192 EVMOS is required for the proposal to enter the voting period
+1. A minimum deposit of 3500 EVMOS is required for the proposal to enter the voting period
    - anyone may contribute to this deposit
    - the deposit must be reached within 3 days (this is the deposit period)
 2. A minimum of 33.4% of the network's voting power (quorum) is required to participate to make the proposal valid
