@@ -85,8 +85,10 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	sender := sdk.AccAddress(address.Bytes())
 	res, _ := sdk.NewIntFromString(v9.MaxRecover)
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
-	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	suite.Require().NoError(err)
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
 

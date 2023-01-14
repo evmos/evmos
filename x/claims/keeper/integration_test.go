@@ -24,7 +24,6 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/testutil"
 	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
@@ -56,7 +55,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(claimsDenom, initClaimsAmount),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
 	)
 
 	// account for creating the governance proposals
@@ -64,7 +63,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(claimsDenom, initClaimsAmount0),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
 	)
 
 	var (
@@ -73,7 +72,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		addr0              sdk.AccAddress
 		claimsRecords      []types.ClaimsRecord
 		params             types.Params
-		proposalId         uint64
+		proposalID         uint64
 		totalClaimed       sdk.Coin
 		remainderUnclaimed sdk.Coin
 	)
@@ -84,12 +83,13 @@ var _ = Describe("Claiming", Ordered, func() {
 		params = s.app.ClaimsKeeper.GetParams(s.ctx)
 		params.EnableClaims = true
 		params.AirdropStartTime = s.ctx.BlockTime()
-		s.app.ClaimsKeeper.SetParams(s.ctx, params)
+		err := s.app.ClaimsKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
 
 		// mint coins for claiming and send them to the claims module
 		coins := sdk.NewCoins(totalClaimsAmount)
 
-		err := testutil.FundModuleAccount(s.ctx, s.app.BankKeeper, inflationtypes.ModuleName, coins)
+		err = testutil.FundModuleAccount(s.ctx, s.app.BankKeeper, inflationtypes.ModuleName, coins)
 		s.Require().NoError(err)
 		err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, types.ModuleName, coins)
 		s.Require().NoError(err)
@@ -97,13 +97,15 @@ var _ = Describe("Claiming", Ordered, func() {
 		// fund testing accounts and create claim records
 		priv0, _ = ethsecp256k1.GenerateKey()
 		addr0 = getAddr(priv0)
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, addr0, initBalance0)
+		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, addr0, initBalance0)
+		s.Require().NoError(err)
 
 		for i := 0; i < accountCount; i++ {
 			priv, _ := ethsecp256k1.GenerateKey()
 			privs = append(privs, priv)
 			addr := getAddr(priv)
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, initBalance)
+			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, initBalance)
+			s.Require().NoError(err)
 			claimsRecord := types.NewClaimsRecord(claimValue)
 			s.app.ClaimsKeeper.SetClaimsRecord(s.ctx, addr, claimsRecord)
 			acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, addr)
@@ -124,7 +126,7 @@ var _ = Describe("Claiming", Ordered, func() {
 
 		s.Commit()
 
-		proposalId = govProposal(priv0)
+		proposalID = govProposal(priv0)
 	})
 
 	Context("before decay duration", func() {
@@ -152,7 +154,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[1], proposalId)
+			vote(privs[1], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
 		})
@@ -183,7 +185,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			// create another proposal to vote for
 			testTime := s.ctx.BlockHeader().Time.Add(duration)
 			s.CommitAfter(duration - time.Hour)
-			proposalId = govProposal(priv0)
+			proposalID = govProposal(priv0)
 			s.CommitAfter(testTime.Sub(s.ctx.BlockHeader().Time))
 		})
 
@@ -208,7 +210,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[0], proposalId)
+			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
 		})
@@ -232,7 +234,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("cannot claim ActionVote a second time", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			vote(privs[0], proposalId)
+			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance))
 		})
@@ -331,7 +333,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 		"test",
 		"description",
 		contractAddress.String(),
-		sdk.DecCoins{sdk.NewDecCoinFromDec(evmtypes.DefaultEVMDenom, sdk.NewDecWithPrec(5, 2))},
+		sdk.DecCoins{sdk.NewDecCoinFromDec(evm.DefaultEVMDenom, sdk.NewDecWithPrec(5, 2))},
 		1000,
 	)
 
@@ -344,10 +346,10 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	Expect(submitEvent.Type).To(Equal("submit_proposal"))
 	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
 
-	proposalId, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	proposalID, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
 	s.Require().NoError(err)
 
-	return proposalId
+	return proposalID
 }
 
 func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
@@ -362,7 +364,7 @@ func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	msgEthereumTx := evm.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 	performEthTx(priv, msgEthereumTx)
 }
@@ -375,7 +377,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "Test", "TTT", uint8(18))
 	s.Require().NoError(err)
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &s.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -385,11 +387,11 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	ctx := sdk.WrapSDKContext(s.ctx)
 	res, err := s.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	s.Require().NoError(err)
 
-	msgEthereumTx := evmtypes.NewTxContract(chainID, nonce, nil, res.Gas, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
+	msgEthereumTx := evm.NewTxContract(chainID, nonce, nil, res.Gas, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), data, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 
 	performEthTx(priv, msgEthereumTx)
@@ -402,7 +404,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	return contractAddress
 }
 
-func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) {
+func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) {
 	// Sign transaction
 	err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
 	s.Require().NoError(err)
@@ -410,7 +412,7 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	// Assemble transaction from fields
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, evmtypes.DefaultEVMDenom)
+	tx, err := msgEthereumTx.BuildTx(txBuilder, evm.DefaultEVMDenom)
 	s.Require().NoError(err)
 
 	// Encode transaction by default Tx encoder and broadcasted over the network

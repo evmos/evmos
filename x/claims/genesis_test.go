@@ -62,7 +62,8 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 	params := types.DefaultParams()
 	params.AirdropStartTime = suite.ctx.BlockTime()
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = params.GetClaimsDenom()
@@ -77,7 +78,6 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 var (
-	now  = time.Now().UTC()
 	acc1 = sdk.MustAccAddressFromBech32("evmos1qxx0fdsmruzuar2fay88lfw6sce6emamyu2s8h4d")
 	acc2 = sdk.MustAccAddressFromBech32("evmos1nsrs4t7dngkdltehkm3p6n8dp22sz3mct9uhc8")
 )

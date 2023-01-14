@@ -116,7 +116,7 @@ func (k Keeper) Params(
 
 // DeployerRevenues returns all contracts that have been registered for fee
 // distribution by a given deployer
-func (k Keeper) DeployerRevenues( // nolint: dupl
+func (k Keeper) DeployerRevenues( //nolint: dupl
 	c context.Context,
 	req *types.QueryDeployerRevenuesRequest,
 ) (*types.QueryDeployerRevenuesResponse, error) {
@@ -162,7 +162,7 @@ func (k Keeper) DeployerRevenues( // nolint: dupl
 }
 
 // WithdrawerRevenues returns all fees for a given withdraw address
-func (k Keeper) WithdrawerRevenues( // nolint: dupl
+func (k Keeper) WithdrawerRevenues( //nolint: dupl
 	c context.Context,
 	req *types.QueryWithdrawerRevenuesRequest,
 ) (*types.QueryWithdrawerRevenuesResponse, error) {

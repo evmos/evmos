@@ -156,7 +156,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	suite.Require().True(ok, "error converting rewards")
 
 	var validatorAddresses []string
-	validatorDelegations := make(map[string]sdk.Int)
+	validatorDelegations := make(map[string]math.Int)
 	actualRewards := math.ZeroInt()
 
 	for _, allocation := range v11.Allocations {

@@ -26,7 +26,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 		},
 		{
@@ -34,7 +34,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = true
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 		},
 		{
@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 				params.AirdropStartTime = time.Time{}
 				params.DurationUntilDecay = time.Hour
 				params.DurationOfDecay = time.Hour
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 		},
 	}

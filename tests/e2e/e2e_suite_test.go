@@ -80,7 +80,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// wait untill node starts and produce some blocks
+	// wait until node starts and produce some blocks
 	err = s.upgradeManager.WaitForHeight(ctx, 5)
 	s.Require().NoError(err)
 

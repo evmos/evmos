@@ -41,7 +41,6 @@ import (
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/ethermint/x/evm/statedb"
 	evm "github.com/evmos/ethermint/x/evm/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
@@ -68,7 +67,7 @@ type KeeperTestSuite struct {
 	queryClient      types.QueryClient
 	address          common.Address
 	consAddress      sdk.ConsAddress
-	clientCtx        client.Context
+	clientCtx        client.Context //nolint:unused
 	ethSigner        ethtypes.Signer
 	validator        stakingtypes.Validator
 	signer           keyring.Signer
@@ -163,7 +162,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 
@@ -218,7 +218,7 @@ func (suite *KeeperTestSuite) SendAndReceiveMessage(path *ibcgotesting.Path, ori
 }
 
 // Send back coins (from path endpoint B to A). In case of IBC coins need to provide ibcCoinMetadata (<port>/<channel>/<denom>, e.g.: "transfer/channel-0/aevmos") as input parameter.
-// We need this to instanciate properly a FungibleTokenPacketData https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
+// We need this to instantiate properly a FungibleTokenPacketData https://github.com/cosmos/ibc-go/blob/main/docs/architecture/adr-001-coin-source-tracing.md
 func (suite *KeeperTestSuite) SendBackCoins(path *ibcgotesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender, receiver string, seq uint64, ibcCoinMetadata string) {
 	// Send coin from B to A
 	suite.sendAndReceiveMessage(path, path.EndpointB, path.EndpointA, origin, coin, amount, sender, receiver, seq, ibcCoinMetadata)
@@ -256,7 +256,8 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	s.app = suite.EvmosChain.App.(*app.Evmos)
 	evmParams := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
 	evmParams.EvmDenom = "aevmos"
-	s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+	err := s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+	suite.Require().NoError(err)
 
 	// Increase max gas
 	ibcgotestinghelpers.DefaultGenTxGas = uint64(1000000000)
@@ -307,11 +308,13 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	claimparams := claimstypes.DefaultParams()
 	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
 	claimparams.EnableClaims = true
-	s.app.ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
+	err = s.app.ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
+	suite.Require().NoError(err)
 
 	params := types.DefaultParams()
 	params.EnableErc20 = true
-	s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
+	err = s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
+	suite.Require().NoError(err)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
 	suite.pathCosmosEvmos = ibctesting.NewTransferPath(suite.IBCCosmosChain, suite.EvmosChain)
@@ -352,7 +355,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 		return common.Address{}, err
 	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -363,7 +366,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	if err != nil {
 		return common.Address{}, err
@@ -398,14 +401,14 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 	return crypto.CreateAddress(suite.address, nonce), nil
 }
 
-func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address {
+func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address { //nolint:dupl
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", big.NewInt(1000000000000000000))
 	suite.Require().NoError(err)
 
-	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -414,7 +417,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	suite.Require().NoError(err)
 
@@ -441,14 +444,14 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 	return crypto.CreateAddress(suite.address, nonce)
 }
 
-func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address {
+func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address { //nolint:dupl
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	ctorArgs, err := contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("", big.NewInt(1000000000000000000))
 	suite.Require().NoError(err)
 
-	data := append(contracts.ERC20DirectBalanceManipulationContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20DirectBalanceManipulationContract.Bin, ctorArgs...) //nolint:gocritic
 	args, err := json.Marshal(&evm.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -457,7 +460,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	suite.Require().NoError(err)
 
@@ -499,7 +502,7 @@ func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
 	header := suite.ctx.BlockHeader()
 	_ = suite.app.Commit()
 
-	header.Height += 1
+	header.Height++
 	header.Time = header.Time.Add(t)
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
@@ -525,9 +528,9 @@ func (suite *KeeperTestSuite) TransferERC20TokenToModule(contractAddr, from comm
 	return suite.sendTx(contractAddr, from, transferData)
 }
 
-func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, role_string string) *evm.MsgEthereumTx {
+func (suite *KeeperTestSuite) GrantERC20Token(contractAddr, from, to common.Address, roleString string) *evm.MsgEthereumTx {
 	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
-	role := crypto.Keccak256([]byte(role_string))
+	role := crypto.Keccak256([]byte(roleString))
 	// needs to be an array not a slice
 	var v [32]byte
 	copy(v[:], role)
@@ -545,7 +548,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	suite.Require().NoError(err)
 	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
 		Args:   args,
-		GasCap: uint64(config.DefaultGasCap),
+		GasCap: config.DefaultGasCap,
 	})
 	suite.Require().NoError(err)
 
@@ -585,6 +588,9 @@ func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) interf
 	}
 
 	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
+	if err != nil {
+		return nil
+	}
 	if len(unpacked) == 0 {
 		return nil
 	}
@@ -618,9 +624,9 @@ type MockEVMKeeper struct {
 	mock.Mock
 }
 
-func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evmtypes.Params {
+func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evm.Params {
 	args := m.Called(mock.Anything)
-	return args.Get(0).(evmtypes.Params)
+	return args.Get(0).(evm.Params)
 }
 
 func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account {
@@ -631,21 +637,21 @@ func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Ad
 	return args.Get(0).(*statedb.Account)
 }
 
-func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evmtypes.EthCallRequest) (*evmtypes.EstimateGasResponse, error) {
+func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evm.EthCallRequest) (*evm.EstimateGasResponse, error) {
 	args := m.Called(mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*evmtypes.EstimateGasResponse), args.Error(1)
+	return args.Get(0).(*evm.EstimateGasResponse), args.Error(1)
 }
 
-func (m *MockEVMKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error) {
+func (m *MockEVMKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evm.MsgEthereumTxResponse, error) {
 	args := m.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*evmtypes.MsgEthereumTxResponse), args.Error(1)
+	return args.Get(0).(*evm.MsgEthereumTxResponse), args.Error(1)
 }
 
 var _ types.BankKeeper = &MockBankKeeper{}
@@ -713,7 +719,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		return common.Address{}, err
 	}
 
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	nonce := s.app.EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
 	erc20DeployTx := evm.NewTxContract(

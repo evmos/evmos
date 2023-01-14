@@ -152,7 +152,8 @@ func NewConvertERC20Cmd() *cobra.Command {
 }
 
 // NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
-// nolint:staticcheck
+//
+//nolint:staticcheck
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin METADATA_FILE",
@@ -250,7 +251,8 @@ Where metadata.json contains (example):
 }
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
-// nolint:staticcheck
+//
+//nolint:staticcheck
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-erc20 ERC20_ADDRESS...",
@@ -317,7 +319,8 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 }
 
 // NewToggleTokenConversionProposalCmd implements the command to submit a community-pool-spend proposal
-// nolint:staticcheck
+//
+//nolint:staticcheck
 func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "toggle-token-conversion TOKEN",
