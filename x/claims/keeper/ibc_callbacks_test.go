@@ -60,8 +60,8 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 		{
 			"no-op: error Ack",
 			func() {
-				err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-				suite.Require().Error(err)
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
+				suite.Require().NoError(err)
 				_ = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
 			},
 		},
