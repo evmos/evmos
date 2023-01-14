@@ -181,10 +181,11 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
 			// Burn the 10 tokens of suite.address (owner)
 			_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(tc.reconvert))
 
-			_ = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
+			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
 
 			if tc.result {
+				suite.Require().Equal(balance, big.NewInt(tc.burn-tc.reconvert))
 				// Check if the execution was successful
 				suite.Require().NoError(err)
 				suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.mint-tc.burn+tc.reconvert))
