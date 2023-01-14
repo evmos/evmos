@@ -424,7 +424,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 
 				params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 				params.EnableErc20 = false
-				suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+				_ = suite.app.Erc20Keeper.SetParams(suite.ctx, params)
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")
 			},
 			expPass: true,

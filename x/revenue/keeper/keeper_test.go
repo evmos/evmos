@@ -126,7 +126,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
-	suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	err = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	require.NoError(t, err)
 
 	inflationParams := suite.app.InflationKeeper.GetParams(suite.ctx)
 	inflationParams.EnableInflation = false

@@ -256,7 +256,8 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	s.app = suite.EvmosChain.App.(*app.Evmos)
 	evmParams := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
 	evmParams.EvmDenom = "aevmos"
-	s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+	err := s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
+	suite.Require().NoError(err)
 
 	// Increase max gas
 	ibcgotestinghelpers.DefaultGenTxGas = uint64(1000000000)

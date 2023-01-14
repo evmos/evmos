@@ -73,7 +73,7 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 	suite.denom = claimstypes.DefaultClaimsDenom
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
-	suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	_ = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 }
 
 func TestAnteTestSuite(t *testing.T) {

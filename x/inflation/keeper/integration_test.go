@@ -18,7 +18,6 @@ var (
 	epochNumber int64
 	skipped     uint64
 	provision   sdk.Dec
-	found       bool
 )
 
 var _ = Describe("Inflation", Ordered, func() {
@@ -40,7 +39,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 					MaxVariance:   sdk.ZeroDec(),             // 0%
 				}
-				s.app.InflationKeeper.SetParams(s.ctx, params)
+				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
 			})
 
 			Context("before an epoch ends", func() {
@@ -59,7 +58,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() {
+			Context("after an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
@@ -100,7 +99,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					StakingRewards:  sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 					CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 				}
-				s.app.InflationKeeper.SetParams(s.ctx, params)
+				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
 			})
 
 			Context("before an epoch ends", func() {
@@ -120,7 +119,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() {
+			Context("after an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
@@ -175,7 +174,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() {
+			Context("after an epoch ends", func() { //nolint:dupl
 				BeforeEach(func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
