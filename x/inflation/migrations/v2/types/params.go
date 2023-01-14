@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package types
 
 import (
@@ -8,43 +24,48 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evm "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V2Params{}
 
 var (
 	ParamsKey                           = []byte("Params")
-	ParamStoreKeyMintDenom              = []byte("MintDenom")
-	ParamStoreKeyExponentialCalculation = []byte("ExponentialCalculation")
-	ParamStoreKeyInflationDistribution  = []byte("InflationDistribution")
-	ParamStoreKeyEnableInflation        = []byte("EnableInflation")
+	ParamStoreKeyMintDenom              = []byte("ParamStoreKeyMintDenom")
+	ParamStoreKeyExponentialCalculation = []byte("ParamStoreKeyExponentialCalculation")
+	ParamStoreKeyInflationDistribution  = []byte("ParamStoreKeyInflationDistribution")
+	ParamStoreKeyEnableInflation        = []byte("ParamStoreKeyEnableInflation")
 )
 
 var (
 	DefaultInflationDenom         = evm.DefaultEVMDenom
 	DefaultInflation              = true
-	DefaultExponentialCalculation = ExponentialCalculation{
+	DefaultExponentialCalculation = V2ExponentialCalculation{
 		A:             sdk.NewDec(int64(300_000_000)),
 		R:             sdk.NewDecWithPrec(50, 2), // 50%
 		C:             sdk.NewDec(int64(9_375_000)),
 		BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 		MaxVariance:   sdk.ZeroDec(),             // 0%
 	}
-	DefaultInflationDistribution = InflationDistribution{
+	DefaultInflationDistribution = V2InflationDistribution{
 		StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
 		UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
 		CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 	}
 )
 
+// ParamKeyTable returns the parameter key table.
+func ParamKeyTable() paramtypes.KeyTable {
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
+}
+
 func NewParams(
 	mintDenom string,
-	exponentialCalculation ExponentialCalculation,
-	inflationDistribution InflationDistribution,
+	exponentialCalculation V2ExponentialCalculation,
+	inflationDistribution V2InflationDistribution,
 	enableInflation bool,
-) Params {
-	return Params{
+) V2Params {
+	return V2Params{
 		MintDenom:              mintDenom,
 		ExponentialCalculation: exponentialCalculation,
 		InflationDistribution:  inflationDistribution,
@@ -52,8 +73,8 @@ func NewParams(
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V2Params {
+	return V2Params{
 		MintDenom:              DefaultInflationDenom,
 		ExponentialCalculation: DefaultExponentialCalculation,
 		InflationDistribution:  DefaultInflationDistribution,
@@ -62,7 +83,7 @@ func DefaultParams() Params {
 }
 
 // Implements params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V2Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyMintDenom, &p.MintDenom, validateMintDenom),
 		paramtypes.NewParamSetPair(ParamStoreKeyExponentialCalculation, &p.ExponentialCalculation, validateExponentialCalculation),
@@ -88,7 +109,7 @@ func validateMintDenom(i interface{}) error {
 }
 
 func validateExponentialCalculation(i interface{}) error {
-	v, ok := i.(ExponentialCalculation)
+	v, ok := i.(V2ExponentialCalculation)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -130,7 +151,7 @@ func validateExponentialCalculation(i interface{}) error {
 }
 
 func validateInflationDistribution(i interface{}) error {
-	v, ok := i.(InflationDistribution)
+	v, ok := i.(V2InflationDistribution)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -164,7 +185,7 @@ func validateBool(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V2Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
 	}

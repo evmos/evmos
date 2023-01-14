@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
@@ -12,8 +28,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v10/contracts"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -170,17 +186,18 @@ func (k Keeper) convertCoinNativeCoin(
 		}
 	}()
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventConvertCoin{
-		Sender:       msg.Sender,
-		Receiver:     msg.Receiver,
-		Amount:       msg.Coin.Amount.String(),
-		Denom:        msg.Coin.Denom,
-		Erc20Address: pair.Erc20Address,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertCoin,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Coin.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, msg.Coin.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		},
+	)
 
 	return &types.MsgConvertCoinResponse{}, nil
 }
@@ -267,17 +284,18 @@ func (k Keeper) convertERC20NativeCoin(
 		}
 	}()
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventConvertERC20{
-		Sender:          msg.Sender,
-		Receiver:        msg.Receiver,
-		Amount:          msg.Amount.String(),
-		Denom:           pair.Denom,
-		ContractAddress: msg.ContractAddress,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertERC20,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+			),
+		},
+	)
 
 	return &types.MsgConvertERC20Response{}, nil
 }
@@ -392,17 +410,18 @@ func (k Keeper) convertERC20NativeToken(
 		}
 	}()
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventConvertERC20{
-		Sender:          msg.Sender,
-		Receiver:        msg.Receiver,
-		Amount:          msg.Amount.String(),
-		Denom:           pair.Denom,
-		ContractAddress: msg.ContractAddress,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertERC20,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, msg.ContractAddress),
+			),
+		},
+	)
 
 	return &types.MsgConvertERC20Response{}, nil
 }
@@ -499,18 +518,18 @@ func (k Keeper) convertCoinNativeERC20(
 		}
 	}()
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventConvertCoin{
-		Sender:       msg.Sender,
-		Receiver:     msg.Receiver,
-		Amount:       msg.Coin.Amount.String(),
-		Denom:        pair.Denom,
-		Erc20Address: pair.Erc20Address,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
-
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeConvertCoin,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
+				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Coin.Amount.String()),
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, msg.Coin.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		},
+	)
 	return &types.MsgConvertCoinResponse{}, nil
 }
 

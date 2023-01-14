@@ -43,19 +43,19 @@ import (
 	evm "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v10/app"
-	"github.com/evmos/evmos/v10/contracts"
-	ibctesting "github.com/evmos/evmos/v10/ibc/testing"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/contracts"
+	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v5/testing"
-	ibcgotestinghelpers "github.com/cosmos/ibc-go/v5/testing/simapp/helpers"
-	teststypes "github.com/evmos/evmos/v10/types/tests"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
+	ibcgotestinghelpers "github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
+	teststypes "github.com/evmos/evmos/v11/types/tests"
 )
 
 type KeeperTestSuite struct {
@@ -196,15 +196,15 @@ func (suite *KeeperTestSuite) sendAndReceiveMessage(
 	seq uint64,
 	ibcCoinMetadata string,
 ) {
-	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0)
+	transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0, "")
 	_, err := originChain.SendMsgs(transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent
 	var transfer transfertypes.FungibleTokenPacketData
 	if ibcCoinMetadata == "" {
-		transfer = transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver)
+		transfer = transfertypes.NewFungibleTokenPacketData(coin, strconv.Itoa(int(amount)), sender, receiver, "")
 	} else {
-		transfer = transfertypes.NewFungibleTokenPacketData(ibcCoinMetadata, strconv.Itoa(int(amount)), sender, receiver)
+		transfer = transfertypes.NewFungibleTokenPacketData(ibcCoinMetadata, strconv.Itoa(int(amount)), sender, receiver, "")
 	}
 	packet := channeltypes.NewPacket(transfer.GetBytes(), seq, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, 0)
 	// Receive message on the counterparty side, and send ack

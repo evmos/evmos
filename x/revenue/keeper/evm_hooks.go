@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
@@ -9,7 +25,7 @@ import (
 
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}
@@ -81,16 +97,17 @@ func (k Keeper) PostTxProcessing(
 		)
 	}
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventDistributeRevenue{
-		Sender:            msg.From().String(),
-		Contract:          contract.String(),
-		WithdrawerAddress: withdrawer.String(),
-		Amount:            developerFee.String(),
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeDistributeDevRevenue,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.From().String()),
+				sdk.NewAttribute(types.AttributeKeyContract, contract.String()),
+				sdk.NewAttribute(types.AttributeKeyWithdrawerAddress, withdrawer.String()),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, developerFee.String()),
+			),
+		},
+	)
 
 	return nil
 }

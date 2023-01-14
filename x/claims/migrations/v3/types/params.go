@@ -1,20 +1,36 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package types
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v11/x/claims/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V3Params{}
 
 var (
 	// DefaultClaimsDenom is aevmos
@@ -49,15 +65,15 @@ var (
 	ParamStoreKeyEVMChannels        = []byte("EVMChannels")
 )
 
-var _ paramtypes.ParamSet = &Params{}
+var _ paramtypes.ParamSet = &V3Params{}
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&V3Params{})
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V3Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableClaims, &p.EnableClaims, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAirdropStartTime, &p.AirdropStartTime, validateStartDate),
@@ -78,8 +94,8 @@ func NewParams(
 	durationOfDecay time.Duration,
 	authorizedChannels,
 	evmChannels []string,
-) Params {
-	return Params{
+) V3Params {
+	return V3Params{
 		EnableClaims:       enableClaim,
 		ClaimsDenom:        claimsDenom,
 		AirdropStartTime:   airdropStartTime,
@@ -92,8 +108,8 @@ func NewParams(
 
 // DefaultParams creates a parameter instance with default values
 // for the claims module.
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V3Params {
+	return V3Params{
 		EnableClaims:       DefaultEnableClaims,
 		ClaimsDenom:        DefaultClaimsDenom,
 		AirdropStartTime:   DefaultAirdropStartTime,
@@ -161,7 +177,7 @@ func ValidateChannels(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V3Params) Validate() error {
 	if p.DurationOfDecay <= 0 {
 		return fmt.Errorf("duration of decay must be positive: %d", p.DurationOfDecay)
 	}
@@ -178,12 +194,12 @@ func (p Params) Validate() error {
 }
 
 // DecayStartTime returns the time at which the Decay period starts
-func (p Params) DecayStartTime() time.Time {
+func (p V3Params) DecayStartTime() time.Time {
 	return p.AirdropStartTime.Add(p.DurationUntilDecay)
 }
 
 // AirdropEndTime returns the time at which no further claims will be processed.
-func (p Params) AirdropEndTime() time.Time {
+func (p V3Params) AirdropEndTime() time.Time {
 	return p.AirdropStartTime.Add(p.DurationUntilDecay).Add(p.DurationOfDecay)
 }
 
@@ -191,7 +207,7 @@ func (p Params) AirdropEndTime() time.Time {
 // - claims are enabled AND
 // - block time is equal or after the airdrop start time AND
 // - block time is before or equal the airdrop end time
-func (p Params) IsClaimsActive(blockTime time.Time) bool {
+func (p V3Params) IsClaimsActive(blockTime time.Time) bool {
 	if !p.EnableClaims || blockTime.Before(p.AirdropStartTime) || blockTime.After(p.AirdropEndTime()) {
 		return false
 	}
@@ -200,7 +216,7 @@ func (p Params) IsClaimsActive(blockTime time.Time) bool {
 
 // IsAuthorizedChannel returns true if the channel provided is in the list of
 // authorized channels
-func (p Params) IsAuthorizedChannel(channel string) bool {
+func (p V3Params) IsAuthorizedChannel(channel string) bool {
 	for _, authorizedChannel := range p.AuthorizedChannels {
 		if channel == authorizedChannel {
 			return true
@@ -212,7 +228,7 @@ func (p Params) IsAuthorizedChannel(channel string) bool {
 
 // IsEVMChannel returns true if the channel provided is in the list of
 // EVM channels
-func (p Params) IsEVMChannel(channel string) bool {
+func (p V3Params) IsEVMChannel(channel string) bool {
 	for _, evmChannel := range p.EVMChannels {
 		if channel == evmChannel {
 			return true

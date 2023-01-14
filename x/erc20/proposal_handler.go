@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package erc20
 
 import (
@@ -7,8 +23,8 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/erc20/keeper"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 // NewErc20ProposalHandler creates a governance handler to manage new proposal types.
@@ -48,14 +64,13 @@ func handleRegisterCoinProposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
-			Denom:        pair.Denom,
-			Erc20Address: pair.Erc20Address,
-		})
-
-		if err != nil {
-			k.Logger(ctx).Error(err.Error())
-		}
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterCoin,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
 	}
 
 	return nil
@@ -74,14 +89,13 @@ func handleRegisterERC20Proposal(
 			return err
 		}
 
-		err = ctx.EventManager().EmitTypedEvent(&types.EventRegisterPair{
-			Denom:        pair.Denom,
-			Erc20Address: pair.Erc20Address,
-		})
-
-		if err != nil {
-			k.Logger(ctx).Error(err.Error())
-		}
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRegisterERC20,
+				sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+			),
+		)
 	}
 
 	return nil
@@ -98,14 +112,13 @@ func handleToggleConversionProposal(
 		return err
 	}
 
-	err = ctx.EventManager().EmitTypedEvent(&types.EventToggleTokenConversion{
-		Denom:        pair.Denom,
-		Erc20Address: pair.Erc20Address,
-	})
-
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeToggleTokenConversion,
+			sdk.NewAttribute(types.AttributeKeyCosmosCoin, pair.Denom),
+			sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
+		),
+	)
 
 	return nil
 }

@@ -1,12 +1,14 @@
 package v2_test
 
 import (
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"testing"
 
 	"github.com/evmos/ethermint/encoding"
-	v2 "github.com/evmos/evmos/v10/x/revenue/migrations/v2"
-	v2types "github.com/evmos/evmos/v10/x/revenue/migrations/v2/types"
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	v2 "github.com/evmos/evmos/v11/x/revenue/migrations/v2"
+	v2types "github.com/evmos/evmos/v11/x/revenue/migrations/v2/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,32 +17,45 @@ import (
 )
 
 type mockSubspace struct {
-	ps v2types.Params
+	ps           v2types.V2Params
+	storeKey     storetypes.StoreKey
+	transientKey storetypes.StoreKey
 }
 
-func newMockSubspace(ps v2types.Params) mockSubspace {
-	return mockSubspace{ps: ps}
+func newMockSubspace(ps v2types.V2Params, storeKey, transientKey storetypes.StoreKey) mockSubspace {
+	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
 func (ms mockSubspace) GetParamSetIfExists(ctx sdk.Context, ps types.LegacyParams) {
-	*ps.(*v2types.Params) = ms.ps
+	*ps.(*v2types.V2Params) = ms.ps
+}
+
+func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Subspace {
+	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	cdc := encCfg.Codec
+	return paramtypes.NewSubspace(cdc, encCfg.Amino, ms.storeKey, ms.transientKey, "test").WithKeyTable(keyTable)
 }
 
 func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
-
 	storeKey := sdk.NewKVStoreKey(types.ModuleName)
 	tKey := sdk.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
-	kvStore := ctx.KVStore(storeKey)
+	store := ctx.KVStore(storeKey)
 
-	legacySubspace := newMockSubspace(v2types.DefaultParams())
-	require.NoError(t, v2.MigrateStore(ctx, storeKey, legacySubspace, cdc))
+	var outputParams v2types.V2Params
+	inputParams := v2types.DefaultParams()
+	legacySubspace := newMockSubspace(v2types.DefaultParams(), storeKey, tKey).WithKeyTable(v2types.ParamKeyTable())
+	legacySubspace.SetParamSet(ctx, &inputParams)
+	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
 
-	paramsBz := kvStore.Get(v2types.ParamsKey)
-	var params v2types.Params
+	mockSubspace := newMockSubspace(v2types.DefaultParams(), storeKey, tKey)
+	require.NoError(t, v2.MigrateStore(ctx, storeKey, mockSubspace, cdc))
+
+	paramsBz := store.Get(v2types.ParamsKey)
+	var params v2types.V2Params
 	cdc.MustUnmarshal(paramsBz, &params)
 
-	require.Equal(t, params, legacySubspace.ps)
+	require.Equal(t, params, outputParams)
 }

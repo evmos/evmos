@@ -8,15 +8,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	"github.com/cosmos/ibc-go/v5/testing/simapp"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v6/testing/simapp"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v10/contracts"
-	"github.com/evmos/evmos/v10/testutil"
-	teststypes "github.com/evmos/evmos/v10/types/tests"
-	claimstypes "github.com/evmos/evmos/v10/x/claims/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/testutil"
+	teststypes "github.com/evmos/evmos/v11/types/tests"
+	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
 )
 
@@ -545,8 +545,8 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			destEndpoint := path.EndpointA
 			originChain := s.EvmosChain
 			coin := pair.Denom
-			transfer := transfertypes.NewFungibleTokenPacketData(pair.Denom, strconv.Itoa(int(amount*2)), sender, receiver)
-			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0)
+			transfer := transfertypes.NewFungibleTokenPacketData(pair.Denom, strconv.Itoa(int(amount*2)), sender, receiver, "")
+			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
@@ -683,7 +683,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			originEndpoint := path.EndpointB
 			originChain := s.EvmosChain
 			coin := pair.Denom
-			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0)
+			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
@@ -805,7 +805,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			currentTime := s.EvmosChain.Coordinator.CurrentTime
 			timeout := uint64(currentTime.Unix() * 1000000000)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
-				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout)
+				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 			_, _, err = simapp.SignAndDeliver(
@@ -837,7 +837,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.IBCOsmosisChain.Coordinator.CommitBlock(s.IBCOsmosisChain)
 
 			// Recreate the packet that was sent
-			transfer := transfertypes.NewFungibleTokenPacketData(teststypes.UosmoDenomtrace.GetFullDenomPath(), strconv.Itoa(int(amount)), sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData(teststypes.UosmoDenomtrace.GetFullDenomPath(), strconv.Itoa(int(amount)), sender, receiver, "")
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, timeout)
 
 			// need to update evmos chain to prove missing ack
@@ -886,13 +886,13 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			coin := pair.Denom
 			timeout := uint64(0)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
-				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout)
+				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
 
 			_, err = originChain.SendMsgs(transferMsg)
 			s.Require().NoError(err) // message committed
 
 			// Recreate the packet that was sent
-			transfer := transfertypes.NewFungibleTokenPacketData(teststypes.UosmoDenomtrace.GetFullDenomPath(), strconv.Itoa(int(amount)), sender, receiver)
+			transfer := transfertypes.NewFungibleTokenPacketData(teststypes.UosmoDenomtrace.GetFullDenomPath(), strconv.Itoa(int(amount)), sender, receiver, "")
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 1, originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, destEndpoint.ChannelConfig.PortID, destEndpoint.ChannelID, timeoutHeight, 0)
 
 			// Receive message on the counterparty side, and send ack

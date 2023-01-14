@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package types
 
 import (
@@ -6,12 +22,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v10/x/incentives/types"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 
-	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 )
 
-var _ types.LegacyParams = &Params{}
+var _ types.LegacyParams = &V2Params{}
 
 // Parameter store key
 var (
@@ -24,7 +40,7 @@ var (
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+	return paramtypes.NewKeyTable().RegisterParamSet(&V2Params{})
 }
 
 var (
@@ -40,8 +56,8 @@ func NewParams(
 	allocationLimit sdk.Dec,
 	epochIdentifier string,
 	rewardScaler sdk.Dec,
-) Params {
-	return Params{
+) V2Params {
+	return V2Params{
 		EnableIncentives:          enableIncentives,
 		AllocationLimit:           allocationLimit,
 		IncentivesEpochIdentifier: epochIdentifier,
@@ -49,8 +65,8 @@ func NewParams(
 	}
 }
 
-func DefaultParams() Params {
-	return Params{
+func DefaultParams() V2Params {
+	return V2Params{
 		EnableIncentives:          DefaultEnableIncentives,
 		AllocationLimit:           DefaultAllocationLimit,
 		IncentivesEpochIdentifier: DefaultIncentivesEpochIdentifier,
@@ -59,7 +75,7 @@ func DefaultParams() Params {
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (p *V2Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(ParamStoreKeyEnableIncentives, &p.EnableIncentives, validateBool),
 		paramtypes.NewParamSetPair(ParamStoreKeyAllocationLimit, &p.AllocationLimit, validatePercentage),
@@ -110,7 +126,7 @@ func validateUncappedPercentage(i interface{}) error {
 	return nil
 }
 
-func (p Params) Validate() error {
+func (p V2Params) Validate() error {
 	if err := validateBool(p.EnableIncentives); err != nil {
 		return err
 	}

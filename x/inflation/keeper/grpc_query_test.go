@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethermint "github.com/evmos/ethermint/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
@@ -84,18 +84,6 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 				expRes = &types.QueryEpochMintProvisionResponse{
 					EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, defaultEpochMintProvision),
 				}
-			},
-			true,
-		},
-		{
-			"set epochMintProvision",
-			func() {
-				epochMintProvision := sdk.NewDec(1_000_000)
-				suite.app.InflationKeeper.SetEpochMintProvision(suite.ctx, epochMintProvision)
-				suite.Commit()
-
-				req = &types.QueryEpochMintProvisionRequest{}
-				expRes = &types.QueryEpochMintProvisionResponse{EpochMintProvision: sdk.NewDecCoinFromDec(types.DefaultInflationDenom, epochMintProvision)}
 			},
 			true,
 		},

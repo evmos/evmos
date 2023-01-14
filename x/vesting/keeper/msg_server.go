@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
@@ -14,7 +30,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v10/x/vesting/types"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -128,16 +144,18 @@ func (k Keeper) CreateClawbackVestingAccount(
 		return nil, err
 	}
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventCreateClawbackVestingAccount{
-		Sender:    msg.FromAddress,
-		Coins:     vestingCoins.String(),
-		StartTime: msg.StartTime.UTC().String(),
-		Merge:     strconv.FormatBool(msg.Merge),
-		Account:   msg.ToAddress,
-	})
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeCreateClawbackVestingAccount,
+				sdk.NewAttribute(sdk.AttributeKeySender, msg.FromAddress),
+				sdk.NewAttribute(types.AttributeKeyCoins, vestingCoins.String()),
+				sdk.NewAttribute(types.AttributeKeyStartTime, msg.StartTime.String()),
+				sdk.NewAttribute(types.AttributeKeyMerge, strconv.FormatBool(msg.Merge)),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.ToAddress),
+			),
+		},
+	)
 
 	return &types.MsgCreateClawbackVestingAccountResponse{}, nil
 }
@@ -196,14 +214,16 @@ func (k Keeper) Clawback(
 		return nil, err
 	}
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventClawback{
-		Account:     msg.AccountAddress,
-		Funder:      msg.FunderAddress,
-		Destination: msg.DestAddress,
-	})
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeClawback,
+				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
+				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
+			),
+		},
+	)
 
 	return &types.MsgClawbackResponse{}, nil
 }
@@ -251,14 +271,16 @@ func (k Keeper) UpdateVestingFunder(
 	// set the account with the updated funder
 	ak.SetAccount(ctx, va)
 
-	err := ctx.EventManager().EmitTypedEvent(&types.EventUpdateVestingFunder{
-		Funder:    msg.FunderAddress,
-		Account:   msg.VestingAddress,
-		NewFunder: msg.NewFunderAddress,
-	})
-	if err != nil {
-		k.Logger(ctx).Error(err.Error())
-	}
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeUpdateVestingFunder,
+				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.VestingAddress),
+				sdk.NewAttribute(types.AttributeKeyNewFunder, msg.NewFunderAddress),
+			),
+		},
+	)
 
 	return &types.MsgUpdateVestingFunderResponse{}, nil
 }
