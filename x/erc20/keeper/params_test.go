@@ -3,12 +3,12 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.Erc20Keeper.GetParams(suite.ctx)
-	suite.app.Erc20Keeper.SetParams(suite.ctx, params)
+	suite.app.Erc20Keeper.SetParams(suite.ctx, params) //nolint:errcheck
 
 	testCases := []struct {
 		name      string

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	epochstypes "github.com/evmos/evmos/v10/x/epochs/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
+	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
@@ -31,7 +31,8 @@ func (suite *KeeperTestSuite) TestEpochIdentifierAfterEpochEnd() {
 
 			params := suite.app.InflationKeeper.GetParams(suite.ctx)
 			params.EnableInflation = true
-			suite.app.InflationKeeper.SetParams(suite.ctx, params)
+			err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			futureCtx := suite.ctx.WithBlockTime(time.Now().Add(time.Hour))
 			newHeight := suite.app.LastBlockHeight() + 1
@@ -186,12 +187,14 @@ func (suite *KeeperTestSuite) TestPeriodChangesSkippedEpochsAfterEpochEnd() {
 
 			params := suite.app.InflationKeeper.GetParams(suite.ctx)
 			params.EnableInflation = true
-			suite.app.InflationKeeper.SetParams(suite.ctx, params)
+			err := suite.app.InflationKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			// Before hook
 			if !tc.enableInflation {
 				params.EnableInflation = false
-				suite.app.InflationKeeper.SetParams(suite.ctx, params)
+				err = suite.app.InflationKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			}
 
 			suite.app.InflationKeeper.SetSkippedEpochs(suite.ctx, tc.skippedEpochs)

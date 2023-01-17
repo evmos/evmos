@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "evmos/incentives/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v10/x/incentives/types";
+option go_package = "github.com/evmos/evmos/v11/x/incentives/types";
 
 // Msg defines the incentives Msg service.
 service Msg {

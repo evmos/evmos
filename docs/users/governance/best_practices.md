@@ -155,7 +155,7 @@ Remember to provide links to the relevant [Commonwealth Evmos community](https:/
 
 ### Begin with a well-considered draft proposal
 
-The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMd](https://hackmd.io/). Markdown
+The ideal format for a proposal is as a Markdown file (ie. `.md`) in a Github repo or [HackMD](https://hackmd.io/). Markdown
 is a simple and accessible format for writing plain text files that is easy to
 <!-- markdown-link-check-disable-next-line -->
 learn. See the [Github Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for details on
@@ -187,7 +187,7 @@ See the [submitting guide](./submitting.md) for more on submitting proposals.
 
 ### The Deposit Period
 
-The deposit period currently lasts 3 days. If you submitted your transaction with the minimum deposit (192 EVMOS), your proposal will immediately enter the voting period. If you didn't submit the minimum deposit amount (currently 192 EVMOS), then this may be an opportunity for others to show their support by contributing (and risking) their EVMOS as a bond for your proposal. You can request contributions openly and also contact stakeholders directly (particularly stakeholders who are enthusiastic about your proposal). Remember that each contributor is risking their funds, and you can [read more about the conditions for burning deposits here](./process.md#burned-deposits).
+The deposit period currently lasts 3 days. If you submitted your transaction with the minimum deposit (3500 EVMOS), your proposal will immediately enter the voting period. If you didn't submit the minimum deposit amount (currently 3500 EVMOS), then this may be an opportunity for others to show their support by contributing (and risking) their EVMOS as a bond for your proposal. You can request contributions openly and also contact stakeholders directly (particularly stakeholders who are enthusiastic about your proposal). Remember that each contributor is risking their funds, and you can [read more about the conditions for burning deposits here](./process.md#burned-deposits).
 
 This is a stage where proposals may begin to get broader attention. Most popular explorers currently display proposals that are in the deposit period, but due to proposal spamming, this may change.
 

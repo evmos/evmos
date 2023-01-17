@@ -5,8 +5,8 @@ import (
 
 	"github.com/evmos/ethermint/tests"
 
-	"github.com/evmos/evmos/v10/testutil"
-	"github.com/evmos/evmos/v10/x/claims/types"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestClaimsInvariant() {
@@ -18,7 +18,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 		{
 			"claims inactive",
 			func() {
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, types.DefaultParams())
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, types.DefaultParams()) //nolint:errcheck
 			},
 			false,
 		},

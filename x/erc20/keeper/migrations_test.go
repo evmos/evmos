@@ -8,10 +8,10 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v10/app"
-	erc20keeper "github.com/evmos/evmos/v10/x/erc20/keeper"
-	v3types "github.com/evmos/evmos/v10/x/erc20/migrations/v3/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/app"
+	erc20keeper "github.com/evmos/evmos/v11/x/erc20/keeper"
+	v3types "github.com/evmos/evmos/v11/x/erc20/migrations/v3/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 type mockSubspace struct {

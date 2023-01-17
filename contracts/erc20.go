@@ -23,12 +23,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 var (
 	//go:embed compiled_contracts/ERC20MinterBurnerDecimals.json
-	ERC20MinterBurnerDecimalsJSON []byte // nolint: golint
+	ERC20MinterBurnerDecimalsJSON []byte //nolint: golint
 
 	// ERC20MinterBurnerDecimalsContract is the compiled erc20 contract
 	ERC20MinterBurnerDecimalsContract evmtypes.CompiledContract

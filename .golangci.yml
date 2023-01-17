@@ -1,11 +1,10 @@
 run:
-  tests: false
-  # timeout for analysis, e.g. 30s, 5m, default is 1m
-  # timeout: 5m
+  tests: true
+  timeout: 5m
+  concurrency: 4
 
 linters:
   enable:
-    # - bodyclose
     - depguard
     - dogsled
     - dupl
@@ -20,39 +19,22 @@ linters:
     - ineffassign
     # - lll TODO: enable
     - misspell
-    # - maligned
     - nakedret
     - prealloc
     - exportloopref
     - staticcheck
-    # - structcheck
     - stylecheck
     - typecheck
     - unconvert
-    # - unparam
+    - unparam
     - unused
-    # - nolintlint
+    - nolintlint
     - asciicheck
-    # - exhaustive
     - exportloopref
     - gofumpt
     - gomodguard
-    # - nestif
-    # - nlreturn
-    # - noctx
-    # - rowserrcheck
-    # - whitespace
-    # - wsl
 
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gosec
-    - linters:
-        - lll
-      source: "https://"
-  max-same-issues: 50
+
 
 linters-settings:
   dogsled:
@@ -72,10 +54,10 @@ linters-settings:
     lang-version: "1.19"
   gomodguard:
     blocked:
-      versions: # List of blocked module version constraints
-        - https://github.com/etcd-io/etcd: # Blocked module with version constraint
-            version: ">= 3.4.10 || ~3.3.23" # Version constraint, see https://github.com/Masterminds/semver#basic-comparisons
-            reason: "CVE-2020-15114; CVE-2020-15136; CVE-2020-15115" # Reason why the version constraint exists. (Optional)
-        - https://github.com/dgrijalva/jwt-go: # Blocked module with version constraint
-            version: ">= 4.0.0-preview1" # Version constraint, see https://github.com/Masterminds/semver#basic-comparisons
-            reason: "CVE-2020-26160" # Reason why the version constraint exists. (Optional)
+      versions:                                                         # List of blocked module version constraints
+        - https://github.com/etcd-io/etcd:                              # Blocked module with version constraint
+            version: ">= 3.4.10 || ~3.3.23"                             # Version constraint, see https://github.com/Masterminds/semver#basic-comparisons
+            reason: "CVE-2020-15114; CVE-2020-15136; CVE-2020-15115"    # Reason why the version constraint exists. (Optional)
+        - https://github.com/dgrijalva/jwt-go:                          # Blocked module with version constraint
+            version: ">= 4.0.0-preview1"                                # Version constraint, see https://github.com/Masterminds/semver#basic-comparisons
+            reason: "CVE-2020-26160"                                    # Reason why the version constraint exists. (Optional)

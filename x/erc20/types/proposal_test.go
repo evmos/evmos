@@ -172,7 +172,7 @@ func createFullMetadata(denom, symbol, name string) banktypes.Metadata {
 	}
 }
 
-func createMetadata(denom, symbol string) banktypes.Metadata {
+func createMetadata(denom, symbol string) banktypes.Metadata { //nolint:unparam
 	return createFullMetadata(denom, symbol, denom)
 }
 
@@ -249,7 +249,7 @@ func (suite *ProposalTestSuite) TestToggleTokenConversionProposal() {
 		expectPass  bool
 	}{
 		{msg: "Enable token conversion proposal - valid denom", title: "test", description: "test desc", token: "test", expectPass: true},
-		{msg: "Enable token conversion proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true},
+		{msg: "Enable token conversion proposal - valid address", title: "test", description: "test desc", token: "0x5dCA2483280D9727c80b5518faC4556617fb194F", expectPass: true}, //gitleaks:allow
 		{msg: "Enable token conversion proposal - invalid address", title: "test", description: "test desc", token: "0x123", expectPass: false},
 
 		// Invalid missing params

@@ -17,10 +17,10 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	"github.com/evmos/evmos/v10/app"
-	v9 "github.com/evmos/evmos/v10/app/upgrades/v9"
-	evmostypes "github.com/evmos/evmos/v10/types"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/app"
+	v9 "github.com/evmos/evmos/v11/app/upgrades/v9"
+	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 type UpgradeTestSuite struct {
@@ -85,8 +85,10 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	sender := sdk.AccAddress(address.Bytes())
 	res, _ := sdk.NewIntFromString(v9.MaxRecover)
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
-	suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-	suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
+	suite.Require().NoError(err)
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
 

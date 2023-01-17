@@ -18,9 +18,9 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/ethermint/types"
 
-	"github.com/evmos/evmos/v10/app"
-	"github.com/evmos/evmos/v10/testutil"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
@@ -30,7 +30,8 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		params := s.app.Erc20Keeper.GetParams(s.ctx)
 		params.EnableEVMHook = true
 		params.EnableErc20 = true
-		s.app.Erc20Keeper.SetParams(s.ctx, params)
+		err := s.app.Erc20Keeper.SetParams(s.ctx, params)
+		Expect(err).To(BeNil())
 	})
 
 	// Epoch mechanism for triggering allocation and distribution
@@ -39,7 +40,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = false
 			params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
@@ -51,7 +52,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableErc20 = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
@@ -63,7 +64,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = false
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)

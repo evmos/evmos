@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v10/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v11/tests/e2e/upgrade"
 )
 
 const (
@@ -80,7 +80,7 @@ func (s *IntegrationTestSuite) runInitialNode() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// wait untill node starts and produce some blocks
+	// wait until node starts and produce some blocks
 	err = s.upgradeManager.WaitForHeight(ctx, 5)
 	s.Require().NoError(err)
 
