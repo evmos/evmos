@@ -29,7 +29,7 @@ import (
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clientkeys "github.com/evmos/ethermint/client/keys"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	evmoskeyring "github.com/evmos/evmos/v11/crypto/keyring"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
