@@ -177,7 +177,7 @@ and to signal that your proposal is about to go live on the mainnet.
 
 Submitting your proposal to the testnet
 increases the likelihood of engagement
-and the possibility that you will be alert to a flaw 
+and the possibility that you will be alert to a flaw
 before deploying your proposal to mainnet.
 
 ## The On-Chain ERC-20 Proposal
