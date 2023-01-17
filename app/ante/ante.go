@@ -22,7 +22,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 
-	ethante "github.com/evmos/ethermint/app/ante"
+	"github.com/evmos/evmos/v11/app/ethante"
 )
 
 // NewAnteHandler returns an ante handler responsible for attempting to route an
