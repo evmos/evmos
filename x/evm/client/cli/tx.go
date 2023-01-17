@@ -18,6 +18,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	etherminttypes "github.com/evmos/ethermint/x/evm/types"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -70,7 +71,7 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &types.QueryParamsRequest{})
+			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &etherminttypes.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
