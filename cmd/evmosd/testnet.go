@@ -58,7 +58,7 @@ import (
 	srvflags "github.com/evmos/ethermint/server/flags"
 
 	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	cmdcfg "github.com/evmos/evmos/v11/cmd/config"
 	evmoskr "github.com/evmos/evmos/v11/crypto/keyring"

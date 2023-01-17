@@ -31,9 +31,9 @@ import (
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/ethermint/server/config"
-	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/x/claims/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

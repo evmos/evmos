@@ -46,7 +46,7 @@ import (
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
 	"github.com/evmos/ethermint/server"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func startInProcess(cfg Config, val *Validator) error {
