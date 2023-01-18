@@ -71,7 +71,7 @@ In this simple example (below), a network explorer will list the governance prop
 
 The `amount` is `1000000000000000000aevmos`. This is equal to 1 EVMOS, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVMOS if this proposal is passed.
 
-The `deposit` of `192000000000000000000aevmos` results in 192 EVMOS being used from the proposal submitter's account. A minimum deposit is required for a proposal to enter the voting period, and anyone may contribute to this deposit within 3 days. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if the quorum isn't met in the vote or the proposal is vetoed.
+The `deposit` of `3500000000000000000000aevmos` results in 3500 EVMOS being used from the proposal submitter's account. A minimum deposit is required for a proposal to enter the voting period, and anyone may contribute to this deposit within 3 days. If the minimum deposit isn't reached before this time, the deposit amounts will be burned. Deposit amounts will also be burned if the quorum isn't met in the vote or the proposal is vetoed.
 
 ```json
 {
@@ -145,12 +145,12 @@ Users can query the proposal details with the evmosd command-line interface usin
 ```json
 {
   "title": "Increase the minimum deposit for governance proposals",
-  "description": "If successful, this parameter-change governance proposal will change the minimum deposit for future proposals from 10 evmos tokens to 64.",
+  "description": "If successful, this parameter-change governance proposal will change the minimum deposit for future proposals from 10 evmos tokens to 3500.",
   "changes": [
     {
       "subspace": "gov",
       "key": "depositparams",
-      "value": {"mindeposit":[{"denom":"aevmos","amount":"64000000000000000000"}],
+      "value": {"mindeposit":[{"denom":"aevmos","amount":"3500000000000000000000"}],
       "max_deposit_period":"1209600000000000"}
     }
   ],
@@ -158,7 +158,7 @@ Users can query the proposal details with the evmosd command-line interface usin
 }
 ```
 
-The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefore, a deposit of 20.1 EVMOS will be included with this proposal. At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed). The minimum deposit amount is currently 192 EVMOS. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 3-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
+The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`. Therefore, a deposit of 20.1 EVMOS will be included with this proposal. At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed). The minimum deposit amount is currently 3500 EVMOS. There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 3-day period. If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
 
 ## Sending the transaction that submits your governance proposal
 
@@ -169,7 +169,7 @@ For information on how to use `evmosd` binary to submit an on-chain proposal thr
 This is the command format for using `evmosd` (the command-line interface) to submit your proposal on-chain:
 
 ```bash
-evmosd tx gov submit-proposal \
+evmosd tx gov submit-legacy-proposal \
   --title=<title> \
   --description=<description> \
   --type="Text" \
@@ -184,7 +184,7 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
 :::
 
 1. `evmosd` is the command-line interface client that is used to send transactions and query Evmos
-2. `tx gov submit-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
+2. `tx gov submit-legacy-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
 3. `--from dev0` is the account key that pays the transaction fee and deposit amount
 4. `--gas 500000` is the maximum amount of gas permitted to be used to process the transaction
    - the more content there is in the description of your proposal, the more gas your transaction will consume

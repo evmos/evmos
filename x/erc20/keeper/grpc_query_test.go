@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/evmos/ethermint/tests"
 
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestTokenPairs() {
@@ -127,7 +127,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 			true,
 		},
 		{
-			"token pair not found - with erc20 existant",
+			"token pair not found - with erc20 existent",
 			func() {
 				addr := tests.GenerateAddress()
 				pair := types.NewTokenPair(addr, "coin", true, types.OWNER_MODULE)

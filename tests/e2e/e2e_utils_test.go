@@ -55,7 +55,6 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	mountPath := os.Getenv("MOUNT_PATH")
 	if mountPath == "" {
-
 		mountPath = s.upgradeParams.WDRoot + "/build/:/root/"
 	}
 	s.upgradeParams.MountPath = mountPath

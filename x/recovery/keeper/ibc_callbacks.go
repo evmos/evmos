@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
@@ -10,15 +26,15 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 
-	transfertypes "github.com/cosmos/ibc-go/v5/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v5/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v5/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v5/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v5/modules/core/exported"
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
-	"github.com/evmos/evmos/v10/ibc"
-	evmos "github.com/evmos/evmos/v10/types"
-	"github.com/evmos/evmos/v10/x/recovery/types"
+	"github.com/evmos/evmos/v11/ibc"
+	evmos "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/x/recovery/types"
 )
 
 // OnRecvPacket performs an IBC receive callback. It returns the tokens that
@@ -132,16 +148,19 @@ func (k Keeper) OnRecvPacket(
 		timeout := uint64(ctx.BlockTime().Add(params.PacketTimeoutDuration).UnixNano())
 
 		// Recover the tokens to the bech32 prefixed address of the source chain
-		err = k.transferKeeper.SendTransfer(
-			ctx,
-			packet.DestinationPort,    // packet destination port is now the source
-			packet.DestinationChannel, // packet destination channel is now the source
-			coin,                      // balance of the coin
-			recipient,                 // recipient is the address in the Evmos chain
-			senderBech32,              // transfer to your own account address on the source chain
-			clienttypes.ZeroHeight(),  // timeout height disabled
-			timeout,                   // timeout timestamp is 4 hours from now
-		)
+
+		packetTransfer := &transfertypes.MsgTransfer{
+			SourcePort:       packet.DestinationPort,    // packet destination port is now the source
+			SourceChannel:    packet.DestinationChannel, // packet destination channel is now the source
+			Token:            coin,                      // balance of the coin
+			Sender:           recipient.String(),        // recipient is the address in the Evmos chain
+			Receiver:         senderBech32,              // transfer to your own account address on the source chain
+			TimeoutHeight:    clienttypes.ZeroHeight(),  // timeout height disabled
+			TimeoutTimestamp: timeout,                   // timeout timestamp is 4 hours from now
+			Memo:             "",
+		}
+
+		_, err = k.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), packetTransfer)
 
 		if err != nil {
 			return true // stop iteration
@@ -150,7 +169,6 @@ func (k Keeper) OnRecvPacket(
 		balances = balances.Add(coin)
 		return false
 	})
-
 	// check error from the iteration above
 	if err != nil {
 		logger.Error(
@@ -161,7 +179,6 @@ func (k Keeper) OnRecvPacket(
 			"source-channel", packet.SourceChannel,
 			"error", err.Error(),
 		)
-
 		return channeltypes.NewErrorAcknowledgement(
 			errorsmod.Wrapf(
 				err,

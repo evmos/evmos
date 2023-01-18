@@ -1,12 +1,26 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package keeper
 
 import (
 	"context"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v10/x/inflation/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 var _ types.QueryServer = Keeper{}
@@ -27,10 +41,7 @@ func (k Keeper) EpochMintProvision(
 	_ *types.QueryEpochMintProvisionRequest,
 ) (*types.QueryEpochMintProvisionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	epochMintProvision, found := k.GetEpochMintProvision(ctx)
-	if !found {
-		return nil, status.Error(codes.NotFound, "epoch mint provision not found")
-	}
+	epochMintProvision := k.GetEpochMintProvision(ctx)
 
 	mintDenom := k.GetParams(ctx).MintDenom
 	coin := sdk.NewDecCoinFromDec(mintDenom, epochMintProvision)
@@ -48,7 +59,7 @@ func (k Keeper) SkippedEpochs(
 	return &types.QuerySkippedEpochsResponse{SkippedEpochs: skippedEpochs}, nil
 }
 
-// InflationRate returns the number of skipped Epochs of the inflation module.
+// InflationRate returns the inflation rate for the current period.
 func (k Keeper) InflationRate(
 	c context.Context,
 	_ *types.QueryInflationRateRequest,
