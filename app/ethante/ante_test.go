@@ -3,6 +3,8 @@ package ethante_test
 import (
 	"errors"
 	"fmt"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 	"strings"
 	"time"
@@ -28,7 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v11/app/ethante"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite AnteTestSuite) TestAnteHandler() {
@@ -1331,7 +1333,7 @@ func (suite *AnteTestSuite) TestConsumeSignatureVerificationGas() {
 			Data:     tt.args.sig,
 			Sequence: 0, // Arbitrary account sequence
 		}
-		err := ante.DefaultSigVerificationGasConsumer(tt.args.meter, sigV2, tt.args.params)
+		err := ethante.DefaultSigVerificationGasConsumer(tt.args.meter, sigV2, tt.args.params)
 
 		if tt.shouldErr {
 			suite.Require().NotNil(err)

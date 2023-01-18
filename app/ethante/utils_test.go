@@ -3,6 +3,7 @@ package ethante_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v11/app"
 	"math"
 	"math/big"
 	"testing"
@@ -47,7 +48,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	ante "github.com/evmos/evmos/v11/app/ethante"
@@ -62,7 +62,7 @@ type AnteTestSuite struct {
 	suite.Suite
 
 	ctx             sdk.Context
-	app             *app.EthermintApp
+	app             *app.Evmos
 	clientCtx       client.Context
 	anteHandler     sdk.AnteHandler
 	ethSigner       ethtypes.Signer
@@ -80,7 +80,7 @@ func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = app.Setup(checkTx, func(app *app.EthermintApp, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()

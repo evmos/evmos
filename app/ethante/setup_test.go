@@ -1,6 +1,7 @@
 package ethante_test
 
 import (
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -9,7 +10,7 @@ import (
 )
 
 func (suite AnteTestSuite) TestEthSetupContextDecorator() {
-	dec := ante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
+	dec := ethante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 
 	testCases := []struct {
