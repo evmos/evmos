@@ -129,8 +129,8 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 	// Run migrations
 	v11.MigrateEscrowAccounts(suite.ctx, suite.app.Logger(), suite.app.AccountKeeper)
 
-	// check account types for channels 0 to 36
-	for i := 0; i <= 36; i++ {
+	// check account types for channels 0 to 37
+	for i := 0; i <= v11.OpenChannels; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 		acc := suite.app.AccountKeeper.GetAccount(suite.ctx, addr)

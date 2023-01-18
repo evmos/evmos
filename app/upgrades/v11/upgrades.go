@@ -108,7 +108,7 @@ func CreateUpgradeHandler(
 
 // MigrateEscrowAccounts updates the IBC transfer escrow accounts type to ModuleAccount
 func MigrateEscrowAccounts(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper) {
-	for i := 0; i <= openChannels; i++ {
+	for i := 0; i <= OpenChannels; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		address := transfertypes.GetEscrowAddress(transfertypes.PortID, channelID)
 

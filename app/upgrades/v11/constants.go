@@ -22,9 +22,9 @@ const (
 	// UpgradeInfo defines the binaries that will be used for the upgrade
 	UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/evmos/evmos/releases/download/v11.0.0/evmos_11.0.0_Darwin_arm64.tar.gz","darwin/amd64":"https://github.com/evmos/evmos/releases/download/v11.0.0/evmos_11.0.0_Darwin_amd64.tar.gz","linux/arm64":"https://github.com/evmos/evmos/releases/download/v11.0.0/evmos_11.0.0_Linux_arm64.tar.gz","linux/amd64":"https://github.com/evmos/evmos/releases/download/v11.0.0/evmos_11.0.0_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evmos/evmos/releases/download/v11.0.0/evmos_11.0.0_Windows_x86_64.zip"}}'`
 
-	// at the time of this migration, on mainnet, channels 0 to 36 were open
+	// at the time of this migration, on mainnet, channels 0 to 37 were open
 	// so this migration covers those channels only
-	openChannels = 36
+	OpenChannels = 37
 
 	// FundingAccount is the account which holds the rewards for the incentivized testnet.
 	// It contains ~7.4M tokens, of which ~5.6M are to be distributed.
