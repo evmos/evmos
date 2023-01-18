@@ -82,6 +82,8 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
+var expAccNum = make(map[int]uint64)
+
 func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 	for i := 0; i <= accCount; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
@@ -89,6 +91,9 @@ func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
+		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
+		suite.Require().NoError(err)
+		expAccNum[i] = baseAcc.AccountNumber
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 	}
 }
@@ -122,10 +127,10 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 	suite.setupEscrowAccounts(existingAccounts)
 
 	// Run migrations
-	v11.MigrateEscrowAccounts(suite.ctx, suite.app.AccountKeeper)
+	v11.MigrateEscrowAccounts(suite.ctx, suite.app.Logger(), suite.app.AccountKeeper)
 
-	// check account types for channels 0 to 36
-	for i := 0; i <= 36; i++ {
+	// check account types for channels 0 to 37
+	for i := 0; i <= v11.OpenChannels; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 		acc := suite.app.AccountKeeper.GetAccount(suite.ctx, addr)
@@ -139,6 +144,9 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 		moduleAcc, isModuleAccount := acc.(*authtypes.ModuleAccount)
 		suite.Require().True(isModuleAccount)
 		suite.Require().NoError(moduleAcc.Validate(), "account validation failed")
+
+		// Check account number
+		suite.Require().Equal(expAccNum[i], moduleAcc.GetAccountNumber())
 	}
 }
 
