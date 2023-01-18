@@ -89,7 +89,8 @@ func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
-		baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
+		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
+		suite.Require().NoError(err)
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 	}
 }
@@ -123,7 +124,7 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 	suite.setupEscrowAccounts(existingAccounts)
 
 	// Run migrations
-	v11.MigrateEscrowAccounts(suite.ctx, suite.app.AccountKeeper)
+	v11.MigrateEscrowAccounts(suite.ctx, suite.app.Logger(), suite.app.AccountKeeper)
 
 	// check account types for channels 0 to 36
 	for i := 0; i <= 36; i++ {
