@@ -82,6 +82,8 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
+var expAccNum = make(map[int]uint64)
+
 func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 	for i := 0; i <= accCount; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
@@ -91,6 +93,7 @@ func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
 		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
 		suite.Require().NoError(err)
+		expAccNum[i] = baseAcc.AccountNumber
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 	}
 }
@@ -142,8 +145,8 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 		suite.Require().True(isModuleAccount)
 		suite.Require().NoError(moduleAcc.Validate(), "account validation failed")
 
-		// Check account number is not default "0"
-		suite.Require().Greater(moduleAcc.GetAccountNumber(), uint64(0))
+		// Check account number
+		suite.Require().Equal(expAccNum[i], moduleAcc.GetAccountNumber())
 	}
 }
 
