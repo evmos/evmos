@@ -2,7 +2,6 @@ syntax = "proto3";
 package evmos.feemarket.v1;
 
 import "gogoproto/gogo.proto";
-// import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/feemarket/v1/feemarket.proto";
 import "google/api/annotations.proto";
 
