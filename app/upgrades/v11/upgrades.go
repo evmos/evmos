@@ -131,6 +131,10 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 		accountName := fmt.Sprintf("%s\x00%s/%s", transfertypes.Version, transfertypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
 
+		// Set same account number and sequence as the existing account
+		baseAcc.SetAccountNumber(existingAcc.GetAccountNumber())
+		baseAcc.SetSequence(existingAcc.GetSequence())
+
 		// no special permissions defined for the module account
 		acc := authtypes.NewModuleAccount(baseAcc, accountName)
 		ak.SetModuleAccount(ctx, acc)

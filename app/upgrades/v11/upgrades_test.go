@@ -11,6 +11,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
@@ -82,13 +83,14 @@ func TestUpgradeTestSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
+func (suite *UpgradeTestSuite) setupEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper,accCount int) {
 	for i := 0; i <= accCount; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		addr := ibctypes.GetEscrowAddress(ibctypes.PortID, channelID)
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
+		baseAcc.SetAccountNumber(ak.GetNextAccountNumber(ctx))
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 	}
 }
@@ -119,7 +121,7 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 
 	// fund some escrow accounts
 	existingAccounts := 30
-	suite.setupEscrowAccounts(existingAccounts)
+	suite.setupEscrowAccounts(suite.ctx, suite.app.AccountKeeper, existingAccounts)
 
 	// Run migrations
 	v11.MigrateEscrowAccounts(suite.ctx, suite.app.AccountKeeper)
@@ -139,6 +141,9 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 		moduleAcc, isModuleAccount := acc.(*authtypes.ModuleAccount)
 		suite.Require().True(isModuleAccount)
 		suite.Require().NoError(moduleAcc.Validate(), "account validation failed")
+
+		// Check account number is not default "0"
+		suite.Require().Greater(moduleAcc.GetAccountNumber(), uint64(0))
 	}
 }
 
