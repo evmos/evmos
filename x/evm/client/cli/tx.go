@@ -16,13 +16,19 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
+	etherminttypes "github.com/evmos/ethermint/x/evm/types"
+	"os"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
+	rpctypes "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -60,60 +66,59 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			_, err = client.GetClientTxContext(cmd)
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-			return nil
 
-			//rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &etherminttypes.QueryParamsRequest{})
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), rsp.Params.EvmDenom)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//if clientCtx.GenerateOnly {
-			//	json, err := clientCtx.TxConfig.TxJSONEncoder()(tx)
-			//	if err != nil {
-			//		return err
-			//	}
-			//
-			//	return clientCtx.PrintString(fmt.Sprintf("%s\n", json))
-			//}
-			//
-			//if !clientCtx.SkipConfirm {
-			//	out, err := clientCtx.TxConfig.TxJSONEncoder()(tx)
-			//	if err != nil {
-			//		return err
-			//	}
-			//
-			//	_, _ = fmt.Fprintf(os.Stderr, "%s\n\n", out)
-			//
-			//	buf := bufio.NewReader(os.Stdin)
-			//	ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting", buf, os.Stderr)
-			//
-			//	if err != nil || !ok {
-			//		_, _ = fmt.Fprintf(os.Stderr, "%s\n", "canceled transaction")
-			//		return err
-			//	}
-			//}
-			//
-			//txBytes, err := clientCtx.TxConfig.TxEncoder()(tx)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//// broadcast to a Tendermint node
-			//res, err := clientCtx.BroadcastTx(txBytes)
-			//if err != nil {
-			//	return err
-			//}
-			//
-			//return clientCtx.PrintProto(res)
+			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &etherminttypes.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), rsp.Params.EvmDenom)
+			if err != nil {
+				return err
+			}
+
+			if clientCtx.GenerateOnly {
+				json, err := clientCtx.TxConfig.TxJSONEncoder()(tx)
+				if err != nil {
+					return err
+				}
+
+				return clientCtx.PrintString(fmt.Sprintf("%s\n", json))
+			}
+
+			if !clientCtx.SkipConfirm {
+				out, err := clientCtx.TxConfig.TxJSONEncoder()(tx)
+				if err != nil {
+					return err
+				}
+
+				_, _ = fmt.Fprintf(os.Stderr, "%s\n\n", out)
+
+				buf := bufio.NewReader(os.Stdin)
+				ok, err := input.GetConfirmation("confirm transaction before signing and broadcasting", buf, os.Stderr)
+
+				if err != nil || !ok {
+					_, _ = fmt.Fprintf(os.Stderr, "%s\n", "canceled transaction")
+					return err
+				}
+			}
+
+			txBytes, err := clientCtx.TxConfig.TxEncoder()(tx)
+			if err != nil {
+				return err
+			}
+
+			// broadcast to a Tendermint node
+			res, err := clientCtx.BroadcastTx(txBytes)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
 
