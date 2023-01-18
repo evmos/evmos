@@ -7,7 +7,7 @@ order: 1
 Some modules have their own module account. Think of this as a wallet that can only be controlled by that module.
 Below is a table of modules, their respective wallet addresses and permissions.
 
-Additionally, there are module accounts associated with IBC transfers. 
+Additionally, there are module accounts associated with IBC transfers.
 For each IBC connection, there's an account of type `ModuleAccount` used to escrow the transferred coins when Evmos is the source chain.
 Their addresses are derived using the first 20 bytes of the SHA256 checksum of the account name and following the format as outlined in [ADR 028](https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-028-public-key-addresses.md):
 
@@ -24,9 +24,11 @@ This can be calculated with the [`GetEscrowAccount` function on IBC-go](https://
 
 ::: tip
 **Note**: These escrow accounts are not listed when performing the query:
+
 ```shell
 evmosd q auth module-accounts
 ```
+
 This happens because the [`GetModuleAccount` function](https://github.com/cosmos/cosmos-sdk/blob/74d7a0dfcd9f47d8a507205f82c264a269ef0612/x/auth/keeper/keeper.go#L194-L224) used on the query considers only the accounts on the [`permAddrs` map of the `AccountKeeper`](https://github.com/cosmos/cosmos-sdk/blob/74d7a0dfcd9f47d8a507205f82c264a269ef0612/x/auth/keeper/keeper.go#L54-L68).
 This address map is set at compile time and cannot be changed on runtime.
 :::
