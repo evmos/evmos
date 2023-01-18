@@ -64,7 +64,7 @@ func CreateUpgradeHandler(
 			HandleRewardDistribution(ctx, logger, bk, sk, dk)
 		}
 
-		MigrateEscrowAccounts(ctx, ak)
+		MigrateEscrowAccounts(ctx, logger, ak)
 
 		// create ICS27 Controller submodule params, with the controller module NOT enabled
 		gs := &genesistypes.GenesisState{
@@ -107,8 +107,8 @@ func CreateUpgradeHandler(
 }
 
 // MigrateEscrowAccounts updates the IBC transfer escrow accounts type to ModuleAccount
-func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
-	for i := 0; i <= openChannels; i++ {
+func MigrateEscrowAccounts(ctx sdk.Context, logger log.Logger, ak authkeeper.AccountKeeper) {
+	for i := 0; i <= OpenChannels; i++ {
 		channelID := fmt.Sprintf("channel-%d", i)
 		address := transfertypes.GetEscrowAddress(transfertypes.PortID, channelID)
 
@@ -130,6 +130,16 @@ func MigrateEscrowAccounts(ctx sdk.Context, ak authkeeper.AccountKeeper) {
 		// To pass account validation, need to have address derived from account name
 		accountName := fmt.Sprintf("%s\x00%s/%s", transfertypes.Version, transfertypes.PortID, channelID)
 		baseAcc := authtypes.NewBaseAccountWithAddress(address)
+
+		// Set same account number and sequence as the existing account
+		if err := baseAcc.SetAccountNumber(existingAcc.GetAccountNumber()); err != nil {
+			// log error instead of aborting the upgrade
+			logger.Error("failed to set escrow account number for account", accountName, "error", err.Error())
+		}
+		if err := baseAcc.SetSequence(existingAcc.GetSequence()); err != nil {
+			// log error instead of aborting the upgrade
+			logger.Error("failed to set escrow account sequence for account", accountName, "error", err.Error())
+		}
 
 		// no special permissions defined for the module account
 		acc := authtypes.NewModuleAccount(baseAcc, accountName)
