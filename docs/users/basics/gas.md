@@ -17,7 +17,7 @@ Learn about the differences between `Gas` and `Fees` in Ethereum and Cosmos. {sy
 
 If anyone can submit transactions to a network at no cost, the network can be overrun by a handful of actors sending large numbers of fraudulent transactions to clog up the network and stop it from working.
 
-The solution to this is a concept called “gas”, which is a resource consumed throughout transaction execution. In practice, a small amount of gas is spent on each step of code execution, thus effectively charging for use of a validator’s resources and preventing malicious actors from halting a network at will.
+The solution to this is a concept called “gas," which is a resource consumed throughout transaction execution. In practice, a small amount of gas is spent on each step of code execution, thus effectively charging for use of a validator’s resources and preventing malicious actors from halting a network at will.
 
 ### What is Gas?
 
@@ -69,7 +69,7 @@ The node will entirely consume the fees provided, then begin to execute the tran
 
 Validators for Cosmos SDK-based chains can specify their `min-gas-prices` that they will enforce when selecting transactions to include in blocks. Thus, transactions with insufficient fees will encounter delays or fail outright.
 
-At the beginning of each block, fees from the previous block are [allocated to validators and delegators](https://docs.cosmos.network/main/modules/distribution), and they can be withdrawn and spent.
+At the beginning of each block, fees from the previous block are [allocated to validators and delegators](https://docs.cosmos.network/main/modules/distribution), after which they can be withdrawn and spent.
 
 ### How are Fees Handled on Ethereum?
 
@@ -77,7 +77,7 @@ Fees on Ethereum include multiple implementations that were introduced over time
 
 Originally, a user would specify a `GasPrice` and `GasLimit` within a transaction—much like a Cosmos SDK transaction. A block proposer would receive the entire gas fee from each transaction in the block, and they would select transactions to include accordingly.
 
-With proposal EIP-1559 and the London Hard fork, gas calculation changed. The `GasPrice` from above is now split into two separate components: a `BaseFee` and `PriorityFee`. The `BaseFee` is calculated automatically based on the block size and is burned once the block is mined. The `PriorityFee` goes to the proposer and represents a tip, or an incentive for a proposer to include the transaction in a block.
+With proposal EIP-1559 and the London Hard fork, gas calculation changed. The `GasPrice` from above has now been split into two separate components: a `BaseFee` and `PriorityFee`. The `BaseFee` is calculated automatically based on the block size and is burned once the block is mined. The `PriorityFee` goes to the proposer and represents a tip, or an incentive for a proposer to include the transaction in a block.
 
 ```markdown
 Gas Price = Base Fee + Priority Fee
@@ -100,11 +100,11 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
 
 1. Fee Market Module
 
-    In order to support EIP-1559 gas and fee calculation on Evmos’ EVM layer, Evmos tracks the gas supplied for each block and uses that to calculate a base fee for future EVM transactions, thus enabling EVM priority fees and transaction prioritization as specified by EIP-1559.
+    In order to support EIP-1559 gas and fee calculation on Evmos’ EVM layer, Evmos tracks the gas supplied for each block and uses that to calculate a base fee for future EVM transactions, thus enabling EVM dynamic fees and transaction prioritization as specified by EIP-1559.
 
-    For EVM transactions, each node bypasses their local `min-gas-prices` configuration, and instead applies EIP-1559 fee logic——the gas price simply must be greater than both the global `min-gas-price` and the block's `BaseFee`, and the surplus is considered a priority tip.
+    For EVM transactions, each node bypasses their local `min-gas-prices` configuration, and instead applies EIP-1559 fee logic—the gas price simply must be greater than both the global `min-gas-price` and the block's `BaseFee`, and the surplus is considered a priority tip. This allows validators to compute Ethereum fees without applying Cosmos SDK fee logic.
 
-    Unlike on Ethereum, the `BaseFee` on Evmos is not burned, and instead is distributed to validators and delegators. Furthermore, the `BaseFee` is lower-bounded by the global `min-gas-price`.
+    Unlike on Ethereum, the `BaseFee` on Evmos is not burned, and instead is distributed to validators and delegators. Furthermore, the `BaseFee` is lower-bounded by the global `min-gas-price` (currently, the global `min-gas-price` parameter is set to zero, although it can be updated via Governance).
 
 2. EVM Gas Refunds
 
@@ -117,23 +117,23 @@ Since all transactions are represented as Cosmos SDK transactions, transaction f
 ### Detailed Timeline
 
 1. Nodes execute the previous block and run the `EndBlock` hook
-    1. As part of this hook, the FeeMarket (EIP-1559) module tracks the total `TransientGasWanted` from the transactions on this block. This will be used for the next block’s `BaseFee`.
+    * As part of this hook, the FeeMarket (EIP-1559) module tracks the total `TransientGasWanted` from the transactions on this block. This will be used for the next block’s `BaseFee`.
 2. Nodes receive transactions for a subsequent block and gossip these transactions to peers
-    1. These can be sorted and prioritized by the included fee price (using EIP-1559 fee priority mechanics for EVM transactions - [code snippet](https://github.com/evmos/ethermint/blob/57ed355c985d9f3116aba6aabfa2ee0f3f38e966/app/ante/eth.go#L137)), to be included in the next block
+    * These can be sorted and prioritized by the included fee price (using EIP-1559 fee priority mechanics for EVM transactions - [code snippet](https://github.com/evmos/ethermint/blob/57ed355c985d9f3116aba6aabfa2ee0f3f38e966/app/ante/eth.go#L137)), to be included in the next block
 3. Nodes run `BeginBlock` for the subsequent block
-    1. The FeeMarket module calculates the `BaseFee` ([code snippet](https://github.com/evmos/ethermint/blob/89fdd1984826ea524cb9b8feb089a99b6cfe8ace/x/feemarket/keeper/abci.go#L14)) to be applied for this block using the total `GasWanted` from the previous block.
-    2. The Distribution module [distributes](https://docs.cosmos.network/main/modules/distribution#begin-block) the previous block’s fee rewards to validators and delegators
+    * The FeeMarket module calculates the `BaseFee` ([code snippet](https://github.com/evmos/ethermint/blob/89fdd1984826ea524cb9b8feb089a99b6cfe8ace/x/feemarket/keeper/abci.go#L14)) to be applied for this block using the total `GasWanted` from the previous block.
+    * The Distribution module [distributes](https://docs.cosmos.network/main/modules/distribution#begin-block) the previous block’s fee rewards to validators and delegators
 4. For each valid transaction that will be included in this block, nodes perform the following:
-    1. They run an `AnteHandler` corresponding to the transaction type. This process:
+    * They run an `AnteHandler` corresponding to the transaction type. This process:
         1. Performs basic transaction validation
         2. Verifies the fees provided are greater than the global and local minimum validator values *and* greater than the `BaseFee` calculated
         3. (For Ethereum transactions) Preemptively consumes gas for the EVM transaction
         4. Deducts the transaction fees from the user and transfers them to the `fee_collector` module
         5. Increments the `TransientGasWanted` in the current block, to be used to calculate the next block’s `BaseFee`
-    2. Then, for standard Cosmos Transactions, nodes:
+    * Then, for standard Cosmos Transactions, nodes:
         1. Execute the transaction and update the state
         2. Consume gas for the transaction
-    3. For Ethereum Transactions, nodes:
+    * For Ethereum Transactions, nodes:
         1. Execute the transaction and update the state
         2. Calculate the gas used and compare it to the gas supplied, then refund a designated portion of the surplus
         3. Send a fraction of the fees used as revenue to contract developers as part of the Revenue Module, if the transaction interacted with a registered smart contract
@@ -150,7 +150,7 @@ In the Cosmos SDK, gas is tracked in the main `GasMeter` and the `BlockGasMeter`
 
 Since gas is priced per-byte, the same interaction is more gas-intensive with larger parameter values than smaller (unlike Ethereum's `uint256` values, Cosmos SDK numericals are represented using [Big.Int](https://pkg.go.dev/math/big#Int) types, which are dynamically sized).
 
-More information regarding gas in Cosmos SDK can be found [here](https://docs.cosmos.network/main/basics/gas-fees.html).
+More information regarding gas as part of the Cosmos SDK can be found [here](https://docs.cosmos.network/main/basics/gas-fees.html).
 
 ### Matching EVM Gas consumption
 
@@ -204,7 +204,7 @@ A cache context will be used during the whole execution to avoid changes be pers
 
 +++ https://github.com/evmos/ethermint/blob/098da6d0cc0e0c4cefbddf632df1057383973e4a/x/evm/keeper/grpc_query.go#L100
 
-For Cosmos Tx's, we can use Cosmos SDK's [transaction simulation](https://docs.cosmos.network/main/run-node/txs#simulating-a-transaction) to create an accurate estimate.
+For Cosmos Tx's, developers can use Cosmos SDK's [transaction simulation](https://docs.cosmos.network/main/run-node/txs#simulating-a-transaction) to create an accurate estimate.
 
 ### Cross-Chain Gas and Fees
 
