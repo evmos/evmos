@@ -28,6 +28,7 @@ import (
 )
 
 const (
+	// It is necessary to start from 100 to avoid overlap with Ethermint
 	codeErrInvalidState      = uint32(iota) + 100 // NOTE: code 1 is reserved for internal errors
 	codeErrExecutionReverted                      // IMPORTANT: Do not move this error as it complies with the JSON-RPC error standard
 	codeErrChainConfigNotFound
