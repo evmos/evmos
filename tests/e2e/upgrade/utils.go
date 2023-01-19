@@ -36,7 +36,7 @@ func (s byVersion) Len() int { return len(s) }
 
 func (s byVersion) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
-// The Less method compares semver versions strings properly
+// Less compares semver versions strings properly
 func (s byVersion) Less(i, j int) bool {
 	v1, err := version.NewVersion(s[i])
 	if err != nil {

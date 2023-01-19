@@ -148,7 +148,7 @@ func (m *Manager) RunNode(node *Node) error {
 }
 
 // WaitForHeight queries the Evmos node every second until the node will reach the specified height.
-// After 5 minutes this functions times out and returns an error
+// After 5 minutes this function times out and returns an error
 func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	var currentHeight int
 	var err error
