@@ -20,8 +20,8 @@ import "github.com/ory/dockertest/v3"
 
 const jrpcPort = "8545"
 
-// Node defines evmos node params for running container
-// of specific version with custom docker run arguments
+// Node defines evmos node params for running a container
+// of a specific version with custom docker run arguments
 type Node struct {
 	repository string
 	version    string
@@ -30,7 +30,8 @@ type Node struct {
 	withRunOptions bool
 }
 
-// NewNode creates new instance of the node and setups default dockertest RunOptions
+// NewNode creates a new instance of the node with a set of sensible default RunOptions
+// for dockertest
 func NewNode(repository, version string) *Node {
 	return &Node{
 		repository: repository,
@@ -44,8 +45,8 @@ func NewNode(repository, version string) *Node {
 	}
 }
 
-// SetEnvVars allows to set addition container environment variables in format
-// []string{ "VAR_NAME=valaue" }
+// SetEnvVars allows to set additional container environment variables in format
+// []string{ "VAR_NAME=value" }
 func (n *Node) SetEnvVars(vars []string) {
 	n.RunOptions.Env = vars
 	n.UseRunOptions()
