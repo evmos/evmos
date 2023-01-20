@@ -36,7 +36,7 @@ func (s byVersion) Len() int { return len(s) }
 
 func (s byVersion) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
-// Compare semver versions strings properly
+// Less compares semver versions strings properly
 func (s byVersion) Less(i, j int) bool {
 	v1, err := version.NewVersion(s[i])
 	if err != nil {
@@ -49,8 +49,8 @@ func (s byVersion) Less(i, j int) bool {
 	return v1.LessThan(v2)
 }
 
-// RetrieveUpgradeVersion parses app/upgrades folder and returns slice of semver upgrade versions
-// ascending order, e.g ["v1.0.0", "v1.0.1", "v1.1.0", ... , "v10.0.0"]
+// RetrieveUpgradesList parses the app/upgrades folder and returns a slice of semver upgrade versions
+// in ascending order, e.g ["v1.0.0", "v1.0.1", "v1.1.0", ... , "v10.0.0"]
 func (m *Manager) RetrieveUpgradesList() ([]string, error) {
 	dirs, err := os.ReadDir(upgradesPath)
 	if err != nil {
