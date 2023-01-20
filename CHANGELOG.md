@@ -54,6 +54,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (upgrade) [#1209](https://github.com/evmos/evmos/pull/1209) Incentivized testnet reward distribution logic.
 
+### Improvements
+
+- (inflation) [#1258](https://github.com/evmos/evmos/pull/1258) Remove unnecessary `Coin` validation and store calls for `Params`
+
 ### Bug Fixes
 
 - (upgrade) [#1257](https://github.com/evmos/evmos/pull/1257) Add `recovery` module store to `StoreUpgrades`

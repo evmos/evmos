@@ -1,12 +1,13 @@
 package v3_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v3 "github.com/evmos/evmos/v11/x/inflation/migrations/v3"
 	"github.com/evmos/evmos/v11/x/inflation/types"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestMigrate(t *testing.T) {
@@ -20,8 +21,5 @@ func TestMigrate(t *testing.T) {
 	require.Equal(t, epochMintProvision, []byte{0x01})
 
 	require.NoError(t, v3.MigrateStore(store))
-
-	epochMintProvision = store.Get(v3.KeyPrefixEpochMintProvision)
-	require.Equal(t, len(epochMintProvision), 0)
-
+	require.False(t, store.Has(v3.KeyPrefixEpochMintProvision))
 }
