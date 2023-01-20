@@ -34,7 +34,11 @@ var KeyPrefixEpochMintProvision = []byte{prefixEpochMintProvision}
 func MigrateStore(store sdk.KVStore) error {
 	store.Delete(KeyPrefixEpochMintProvision)
 
-	period, _ := strconv.ParseUint("365", 10, 64)
+	periodBz := store.Get(types.KeyPrefixEpochsPerPeriod)
+	period, err := strconv.ParseUint(string(periodBz), 10, 64)
+	if err != nil {
+		panic(err)
+	}
 	store.Set(types.KeyPrefixEpochsPerPeriod, sdk.Uint64ToBigEndian(period))
 
 	return nil
