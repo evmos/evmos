@@ -65,7 +65,8 @@ func (k Keeper) InflationRate(
 	_ *types.QueryInflationRateRequest,
 ) (*types.QueryInflationRateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	inflationRate := k.GetInflationRate(ctx)
+	mintDenom := k.GetParams(ctx).MintDenom
+	inflationRate := k.GetInflationRate(ctx, mintDenom)
 
 	return &types.QueryInflationRateResponse{InflationRate: inflationRate}, nil
 }
@@ -77,9 +78,9 @@ func (k Keeper) CirculatingSupply(
 	_ *types.QueryCirculatingSupplyRequest,
 ) (*types.QueryCirculatingSupplyResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	circulatingSupply := k.GetCirculatingSupply(ctx)
-
 	mintDenom := k.GetParams(ctx).MintDenom
+
+	circulatingSupply := k.GetCirculatingSupply(ctx, mintDenom)
 	coin := sdk.NewDecCoinFromDec(mintDenom, circulatingSupply)
 
 	return &types.QueryCirculatingSupplyResponse{CirculatingSupply: coin}, nil
