@@ -105,6 +105,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	}
 
 	defer func() {
+		stakingAmt := staking.AmountOfNoDenomValidation(mintedCoin.Denom)
+		incentivesAmt := incentives.AmountOfNoDenomValidation(mintedCoin.Denom)
+		cpAmt := communityPool.AmountOfNoDenomValidation(mintedCoin.Denom)
+
 		if mintedCoin.Amount.IsInt64() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "total"},
@@ -112,24 +116,24 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if staking.AmountOf(mintedCoin.Denom).IsInt64() {
+		if stakingAmt.IsInt64() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "staking", "total"},
-				float32(staking.AmountOf(mintedCoin.Denom).Int64()),
+				float32(stakingAmt.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if incentives.AmountOf(mintedCoin.Denom).IsInt64() {
+		if incentivesAmt.IsInt64() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "incentives", "total"},
-				float32(incentives.AmountOf(mintedCoin.Denom).Int64()),
+				float32(incentivesAmt.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if communityPool.AmountOf(mintedCoin.Denom).IsInt64() {
+		if cpAmt.IsInt64() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "community_pool", "total"},
-				float32(communityPool.AmountOf(mintedCoin.Denom).Int64()),
+				float32(cpAmt.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}

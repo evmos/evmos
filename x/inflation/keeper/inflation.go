@@ -38,6 +38,11 @@ func (k Keeper) MintAndAllocateInflation(
 	staking, incentives, communityPool sdk.Coins,
 	err error,
 ) {
+	// skip as no coins need to be minted
+	if coin.Amount.IsNil() || !coin.Amount.IsPositive() {
+		return nil, nil, nil, nil
+	}
+
 	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
 		return nil, nil, nil, err
@@ -51,11 +56,6 @@ func (k Keeper) MintAndAllocateInflation(
 // MintCoins implements an alias call to the underlying supply keeper's
 // MintCoins to be used in BeginBlocker.
 func (k Keeper) MintCoins(ctx sdk.Context, coin sdk.Coin) error {
-	// skip as no coins need to be minted
-	if coin.Amount.IsNil() || !coin.Amount.IsPositive() {
-		return nil
-	}
-
 	coins := sdk.Coins{coin}
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 }
