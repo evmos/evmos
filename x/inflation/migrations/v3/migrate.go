@@ -17,7 +17,10 @@
 package v3
 
 import (
+	"strconv"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 // prefix bytes for the inflation persistent store
@@ -30,5 +33,9 @@ var KeyPrefixEpochMintProvision = []byte{prefixEpochMintProvision}
 // version 3. Specifically, it deletes the EpochMintProvision from the store
 func MigrateStore(store sdk.KVStore) error {
 	store.Delete(KeyPrefixEpochMintProvision)
+
+	period, _ := strconv.ParseUint("365", 10, 64)
+	store.Set(types.KeyPrefixEpochsPerPeriod, sdk.Uint64ToBigEndian(period))
+
 	return nil
 }
