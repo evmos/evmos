@@ -20,8 +20,12 @@ func TestMigrate(t *testing.T) {
 	require.Equal(t, epochMintProvision, []byte{0x01})
 
 	require.NoError(t, v3.MigrateStore(store))
+<<<<<<< HEAD
 
 	epochMintProvision = store.Get(v3.KeyPrefixEpochMintProvision)
 	require.Equal(t, len(epochMintProvision), 0)
 
+=======
+	require.False(t, store.Has(v3.KeyPrefixEpochMintProvision))
+>>>>>>> 76dcaf8 (imp(inflation): remove dup store calls and improve perf (#1258))
 }
