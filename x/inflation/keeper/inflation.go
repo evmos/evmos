@@ -33,10 +33,16 @@ var teamAlloc = sdk.NewInt(200_000_000).Mul(ethermint.PowerReduction)
 func (k Keeper) MintAndAllocateInflation(
 	ctx sdk.Context,
 	coin sdk.Coin,
+	params types.Params,
 ) (
 	staking, incentives, communityPool sdk.Coins,
 	err error,
 ) {
+	// skip as no coins need to be minted
+	if coin.Amount.IsNil() || !coin.Amount.IsPositive() {
+		return nil, nil, nil, nil
+	}
+
 	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
 		return nil, nil, nil, err
@@ -44,19 +50,13 @@ func (k Keeper) MintAndAllocateInflation(
 
 	// Allocate minted coins according to allocation proportions (staking, usage
 	// incentives, community pool)
-	return k.AllocateExponentialInflation(ctx, coin)
+	return k.AllocateExponentialInflation(ctx, coin, params)
 }
 
 // MintCoins implements an alias call to the underlying supply keeper's
 // MintCoins to be used in BeginBlocker.
 func (k Keeper) MintCoins(ctx sdk.Context, coin sdk.Coin) error {
-	coins := sdk.NewCoins(coin)
-
-	// skip as no coins need to be minted
-	if coins.Empty() {
-		return nil
-	}
-
+	coins := sdk.Coins{coin}
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, coins)
 }
 
@@ -68,44 +68,45 @@ func (k Keeper) MintCoins(ctx sdk.Context, coin sdk.Coin) error {
 func (k Keeper) AllocateExponentialInflation(
 	ctx sdk.Context,
 	mintedCoin sdk.Coin,
+	params types.Params,
 ) (
 	staking, incentives, communityPool sdk.Coins,
 	err error,
 ) {
-	params := k.GetParams(ctx)
-	proportions := params.InflationDistribution
+	distribution := params.InflationDistribution
 
 	// Allocate staking rewards into fee collector account
-	staking = sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.StakingRewards))
-	err = k.bankKeeper.SendCoinsFromModuleToModule(
+	staking = sdk.Coins{k.GetProportions(ctx, mintedCoin, distribution.StakingRewards)}
+
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		types.ModuleName,
 		k.feeCollectorName,
 		staking,
-	)
-	if err != nil {
+	); err != nil {
 		return nil, nil, nil, err
 	}
 
 	// Allocate usage incentives to incentives module account
-	incentives = sdk.NewCoins(k.GetProportions(ctx, mintedCoin, proportions.UsageIncentives))
-	err = k.bankKeeper.SendCoinsFromModuleToModule(
+	incentives = sdk.Coins{k.GetProportions(ctx, mintedCoin, distribution.UsageIncentives)}
+
+	if err = k.bankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		types.ModuleName,
 		incentivestypes.ModuleName,
 		incentives,
-	)
-	if err != nil {
+	); err != nil {
 		return nil, nil, nil, err
 	}
 
 	// Allocate community pool amount (remaining module balance) to community
 	// pool address
 	moduleAddr := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	communityPool = k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+	inflationBalance := k.bankKeeper.GetAllBalances(ctx, moduleAddr)
+
 	err = k.distrKeeper.FundCommunityPool(
 		ctx,
-		communityPool,
+		inflationBalance,
 		moduleAddr,
 	)
 	if err != nil {
@@ -122,10 +123,10 @@ func (k Keeper) GetProportions(
 	coin sdk.Coin,
 	distribution sdk.Dec,
 ) sdk.Coin {
-	return sdk.NewCoin(
-		coin.Denom,
-		sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
-	)
+	return sdk.Coin{
+		Denom:  coin.Denom,
+		Amount: sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
+	}
 }
 
 // BondedRatio the fraction of the staking tokens which are currently bonded
@@ -149,9 +150,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
 // team allocation in the first year
-func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
-	mintDenom := k.GetParams(ctx).MintDenom
-
+func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec {
 	circulatingSupply := sdk.NewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
@@ -164,7 +163,7 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context) sdk.Dec {
 }
 
 // GetInflationRate returns the inflation rate for the current period.
-func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
+func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) sdk.Dec {
 	epp := k.GetEpochsPerPeriod(ctx)
 	if epp == 0 {
 		return sdk.ZeroDec()
@@ -177,7 +176,7 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 
 	epochsPerPeriod := sdk.NewDec(epp)
 
-	circulatingSupply := k.GetCirculatingSupply(ctx)
+	circulatingSupply := k.GetCirculatingSupply(ctx, mintDenom)
 	if circulatingSupply.IsZero() {
 		return sdk.ZeroDec()
 	}
@@ -186,7 +185,7 @@ func (k Keeper) GetInflationRate(ctx sdk.Context) sdk.Dec {
 	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
 }
 
-// GetEpochMintProvision retireves necessary params KV storage
+// GetEpochMintProvision retrieves necessary params KV storage
 // and calculate EpochMintProvision
 func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
 	return types.CalculateEpochMintProvision(
