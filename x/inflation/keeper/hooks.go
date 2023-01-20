@@ -71,8 +71,12 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		bondedRatio,
 	)
 
-	mintedCoin := sdk.NewCoin(params.MintDenom, epochMintProvision.TruncateInt())
-	staking, incentives, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin)
+	mintedCoin := sdk.Coin{
+		Denom:  params.MintDenom,
+		Amount: epochMintProvision.TruncateInt(),
+	}
+
+	staking, incentives, communityPool, err := k.MintAndAllocateInflation(ctx, mintedCoin, params)
 	if err != nil {
 		panic(err)
 	}
