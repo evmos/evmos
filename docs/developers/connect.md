@@ -50,6 +50,10 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://evmos-api.validatrium.club`           | `Tendermint` `API`        | [Validatrium](https://validatrium.com/) |
 | `https://evmos-rpc.validatrium.club`           | `Tendermint` `RPC`        | [Validatrium](https://validatrium.com/) |
 | `https://evmos-rpc.gateway.pokt.network`      | `Ethereum` `JSON-RPC`  | [PocketNetwork](https://www.pokt.network/)  |
+| `https://api-evmos.mms.team:443`              | `Cosmos` `REST`        | [MMS](https://mms.team/) |
+| `https://grpc-evmos.mms.team:443`             | `Cosmos` `gRPC`        | [MMS](https://mms.team/) |
+| `https://rpc-evmos.mms.team:443`              | `Tendermint` `RPC`     | [MMS](https://mms.team/) |
+| `https://jsonrpc-evmos.mms.team:443`          | `Ethereum` `JSON-RPC`  | [MMS](https://mms.team/) |
 
 ### Testnet
 <!-- markdown-link-check-disable -->

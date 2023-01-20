@@ -71,7 +71,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			func() {
 				params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 				params.EnableRecovery = false
-				suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+				suite.app.RecoveryKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			true,
 			false,
@@ -284,7 +284,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			// Enable Recovery
 			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 			params.EnableRecovery = true
-			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			err := suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			tc.malleate()
 
@@ -308,7 +309,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			suite.app.IBCKeeper.ChannelKeeper.SetNextSequenceSend(suite.ctx, transfertypes.PortID, evmosChannel, 1)
 
 			// Mock the Transferkeeper to always return nil on SendTransfer(), as this
-			// method requires a successfull handshake with the counterparty chain.
+			// method requires a successful handshake with the counterparty chain.
 			// This, however, exceeds the requirements of the unit tests.
 			mockTransferKeeper := &MockTransferKeeper{
 				Keeper: suite.app.BankKeeper,
@@ -324,7 +325,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.IBCKeeper.ChannelKeeper, mockTransferKeeper, suite.app.ClaimsKeeper)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
-			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 			suite.Require().NoError(err)
 
 			// Perform IBC callback
@@ -564,7 +565,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 			// Enable Recovery
 			params := suite.app.RecoveryKeeper.GetParams(suite.ctx)
 			params.EnableRecovery = true
-			suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			err := suite.app.RecoveryKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			transfer := transfertypes.NewFungibleTokenPacketData(denom, "100", secpAddrCosmos, secpAddrEvmos, "")
 			packet := channeltypes.NewPacket(transfer.GetBytes(), 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
@@ -586,7 +588,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
 				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
 			)
-			err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
+			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 			suite.Require().NoError(err)
 
 			// Perform IBC callback

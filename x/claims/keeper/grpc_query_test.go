@@ -112,7 +112,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 		if tc.expErr {
 			suite.Require().Error(err)
 		} else {
-			if tc.recordsAmount == 0 {
+			if tc.recordsAmount == 0 { //nolint:gocritic
 				suite.Require().NoError(err)
 			} else if tc.recordsAmount == 1 {
 				suite.Require().NoError(err)
@@ -190,7 +190,7 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 				req = &types.QueryClaimsRecordRequest{
@@ -204,7 +204,8 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.AirdropStartTime = time.Now().Add(time.Hour * 24)
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				claimsRecord := types.NewClaimsRecord(sdk.NewInt(1_000_000_000_000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimsRecord)
 				req = &types.QueryClaimsRecordRequest{

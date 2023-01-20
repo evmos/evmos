@@ -24,7 +24,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 
 		params := s.app.Erc20Keeper.GetParams(s.ctx)
 		params.EnableEVMHook = false
-		s.app.Erc20Keeper.SetParams(s.ctx, params)
+		s.app.Erc20Keeper.SetParams(s.ctx, params) //nolint:errcheck
 	})
 
 	// Epoch mechanism for triggering allocation and distribution
@@ -39,7 +39,8 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 		BeforeEach(func() {
 			params := s.app.Erc20Keeper.GetParams(s.ctx)
 			params.EnableEVMHook = true
-			s.app.Erc20Keeper.SetParams(s.ctx, params)
+			err := s.app.Erc20Keeper.SetParams(s.ctx, params)
+			Expect(err).To(BeNil())
 		})
 		It("should be successful", func() {
 			_, err := s.DeployContract("coin", "token", erc20Decimals)
@@ -62,7 +63,8 @@ var _ = Describe("Distribution", Ordered, func() {
 		// Enable Inflation
 		params := s.app.InflationKeeper.GetParams(s.ctx)
 		params.EnableInflation = true
-		s.app.InflationKeeper.SetParams(s.ctx, params)
+		err := s.app.InflationKeeper.SetParams(s.ctx, params)
+		s.Require().NoError(err)
 
 		// set a EOA account for the address
 		eoa := &ethermint.EthAccount{
@@ -83,7 +85,7 @@ var _ = Describe("Distribution", Ordered, func() {
 		moduleAcc = s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
 		participantAcc = acc.GetAddress()
 		// Create incentive
-		_, err := s.app.IncentivesKeeper.RegisterIncentive(
+		_, err = s.app.IncentivesKeeper.RegisterIncentive(
 			s.ctx,
 			contractAddr,
 			mintAllocations,
@@ -105,7 +107,7 @@ var _ = Describe("Distribution", Ordered, func() {
 	})
 
 	// Epoch mechanism for triggering allocation and distribution
-	Describe("Commiting a block", func() {
+	Describe("Committing a block", func() {
 		Context("before a weekly epoch ends", func() {
 			BeforeEach(func() {
 				s.CommitAfter(time.Minute)                // Start Epoch

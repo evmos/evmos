@@ -36,9 +36,10 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
+				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
 				suite.Require().NoError(err)
 			},
 		},
@@ -59,9 +60,9 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 		{
 			"no-op: error Ack",
 			func() {
-				err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "cannot unmarshal ICS-20 transfer packet data")
-				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
+				err := suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
 				suite.Require().NoError(err)
+				_ = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ackFail.Acknowledgement())
 			},
 		},
 		{
@@ -171,7 +172,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			func() {
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, mockpacket, ack)
 				suite.Require().Equal(ack, resAck)
@@ -450,7 +452,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				params.AuthorizedChannels = []string{
 					"channel-2", // Injective
 				}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err = suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos, "")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
@@ -480,7 +483,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 					"channel-0", // Osmosis
 					"channel-3", // Cosmos Hub
 				}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, secpAddrEvmos, "")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)

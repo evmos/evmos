@@ -14,7 +14,7 @@ import (
 // a predefined C is given a massive allowance on B.
 var (
 	//go:embed compiled_contracts/ERC20MaliciousDelayed.json
-	ERC20MaliciousDelayedJSON []byte // nolint: golint
+	ERC20MaliciousDelayedJSON []byte //nolint: golint
 
 	// ERC20MaliciousDelayedContract is the compiled erc20 contract
 	ERC20MaliciousDelayedContract evmtypes.CompiledContract

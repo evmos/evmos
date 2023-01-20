@@ -58,6 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (fix)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint fork
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
 - (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
@@ -66,6 +67,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (ibc) [#1156](https://github.com/evmos/evmos/pull/1156) Migrate IBC transfer escrow accounts to `ModuleAccount` type.
+- (upgrade) [#1252](https://github.com/evmos/evmos/pull/1252) Add account number and sequence to migrated IBC transfer escrow accounts.
+- (upgrade) [#1257](https://github.com/evmos/evmos/pull/1257) Add `recovery` module store to `StoreUpgrades`
 
 ## [v10.0.1] - 2023-01-03
 
@@ -94,6 +97,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (tests) [\1194](https://github.com/evmos/evmos/pull/1194) Lint tests so they are consistent with non-test code.
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos SDK to [`v0.46.7`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.7)
 - (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
 - (docs) [\#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.

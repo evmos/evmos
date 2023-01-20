@@ -73,7 +73,7 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 	suite.denom = claimstypes.DefaultClaimsDenom
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
-	suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	_ = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 }
 
 func TestAnteTestSuite(t *testing.T) {
@@ -102,7 +102,7 @@ func (suite *AnteTestSuite) CommitAfter(t time.Duration) {
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 }
 
-func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice math.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestTxBuilder(gasPrice math.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	gasLimit := uint64(1000000)
 
@@ -116,7 +116,7 @@ func (s *AnteTestSuite) CreateTestTxBuilder(gasPrice math.Int, denom string, msg
 	return txBuilder
 }
 
-func (s *AnteTestSuite) CreateEthTestTxBuilder(msgEthereumTx *evmtypes.MsgEthereumTx) client.TxBuilder {
+func (suite *AnteTestSuite) CreateEthTestTxBuilder(msgEthereumTx *evmtypes.MsgEthereumTx) client.TxBuilder {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	s.Require().NoError(err)
@@ -139,7 +139,7 @@ func (s *AnteTestSuite) CreateEthTestTxBuilder(msgEthereumTx *evmtypes.MsgEthere
 	return txBuilder
 }
 
-func (s *AnteTestSuite) BuildTestEthTx(
+func (suite *AnteTestSuite) BuildTestEthTx(
 	from common.Address,
 	to common.Address,
 	gasPrice *big.Int,
