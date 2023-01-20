@@ -56,11 +56,12 @@ func GetPeriod() *cobra.Command {
 		Use:   "period",
 		Short: "Query the current inflation period",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			params := &types.QueryPeriodRequest{}
@@ -85,15 +86,16 @@ func GetEpochMintProvision() *cobra.Command {
 		Use:   "epoch-mint-provision",
 		Short: "Query the current inflation epoch provisions value",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryEpochMintProvisionRequest{}
-			res, err := queryClient.EpochMintProvision(context.Background(), params)
+			req := &types.QueryEpochMintProvisionRequest{}
+			res, err := queryClient.EpochMintProvision(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -114,15 +116,16 @@ func GetSkippedEpochs() *cobra.Command {
 		Use:   "skipped-epochs",
 		Short: "Query the current number of skipped epochs",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QuerySkippedEpochsRequest{}
-			res, err := queryClient.SkippedEpochs(context.Background(), params)
+			req := &types.QuerySkippedEpochsRequest{}
+			res, err := queryClient.SkippedEpochs(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -142,15 +145,16 @@ func GetCirculatingSupply() *cobra.Command {
 		Use:   "circulating-supply",
 		Short: "Query the current supply of tokens in circulation",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryCirculatingSupplyRequest{}
-			res, err := queryClient.CirculatingSupply(context.Background(), params)
+			req := &types.QueryCirculatingSupplyRequest{}
+			res, err := queryClient.CirculatingSupply(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -170,15 +174,16 @@ func GetInflationRate() *cobra.Command {
 		Use:   "inflation-rate",
 		Short: "Query the inflation rate of the current period",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryInflationRateRequest{}
-			res, err := queryClient.InflationRate(context.Background(), params)
+			req := &types.QueryInflationRateRequest{}
+			res, err := queryClient.InflationRate(context.Background(), req)
 			if err != nil {
 				return err
 			}
@@ -199,15 +204,16 @@ func GetParams() *cobra.Command {
 		Use:   "params",
 		Short: "Query the current inflation parameters",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.QueryParamsRequest{}
-			res, err := queryClient.Params(context.Background(), params)
+			req := &types.QueryParamsRequest{}
+			res, err := queryClient.Params(context.Background(), req)
 			if err != nil {
 				return err
 			}

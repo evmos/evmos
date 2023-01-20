@@ -58,11 +58,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (fix)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint fork
-- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to TypedEvent
-- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to TypedEvent
+- (inflation) [#1258](https://github.com/evmos/evmos/pull/1258) Remove unnecessary `Coin` validation and store calls for `Params`
+- (deps)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
+- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
+- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to `TypedEvent`
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
-- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new TypedEvent
+- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new `TypedEvent`
 
 ### Bug Fixes
 
