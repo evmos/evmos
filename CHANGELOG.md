@@ -56,11 +56,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-<<<<<<< HEAD
-- (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) Fix Ethermint params upgrade
-=======
 - (inflation) [#1259](https://github.com/evmos/evmos/pull/1259) Re-add missing key to not disrupt order in store
->>>>>>> 127ac76 (fix(inflation): re-add missing key to avoid keys shift (#1259))
+- (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) Fix Ethermint params upgrade
 - (ibc) [#1156](https://github.com/evmos/evmos/pull/1156) Migrate IBC transfer escrow accounts to `ModuleAccount` type.
 
 ## [v10.0.1] - 2023-01-03
