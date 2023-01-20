@@ -31,6 +31,7 @@ const (
 // prefix bytes for the inflation persistent store
 const (
 	prefixPeriod = iota + 1
+	prefixEpochMintProvision
 	prefixEpochIdentifier
 	prefixEpochsPerPeriod
 	prefixSkippedEpochs
