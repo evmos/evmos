@@ -71,6 +71,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		bondedRatio,
 	)
 
+	if !epochMintProvision.IsPositive() {
+		k.Logger(ctx).Error(
+			"SKIPPING INFLATION: negative epoch mint provision",
+			"value", epochMintProvision.String(),
+		)
+		return
+	}
+
 	mintedCoin := sdk.Coin{
 		Denom:  params.MintDenom,
 		Amount: epochMintProvision.TruncateInt(),
