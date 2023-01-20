@@ -57,7 +57,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (inflation) [#1258](https://github.com/evmos/evmos/pull/1258) Remove unnecessary `Coin` validation and store calls for `Params`
-- (deps)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
 
 ### Bug Fixes
 
