@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 
 			tc.malleate()
 
-			_, _, _, err := suite.app.InflationKeeper.MintAndAllocateInflation(suite.ctx, tc.mintCoin)
+			_, _, _, err := suite.app.InflationKeeper.MintAndAllocateInflation(suite.ctx, tc.mintCoin, types.DefaultParams())
 
 			// Get balances
 			balanceModule := suite.app.BankKeeper.GetBalance(
@@ -138,11 +138,11 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 				types.DefaultInflationDenom,
 				sdk.TokensFromConsensusPower(int64(200_000_000), ethermint.PowerReduction),
 			)
-			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx)
+			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx, types.DefaultInflationDenom)
 
 			suite.Require().Equal(decCoin.Sub(teamAlloc).Amount, circulatingSupply)
 
-			inflationRate := s.app.InflationKeeper.GetInflationRate(suite.ctx)
+			inflationRate := s.app.InflationKeeper.GetInflationRate(suite.ctx, types.DefaultInflationDenom)
 			suite.Require().Equal(tc.expInflationRate, inflationRate)
 		})
 	}

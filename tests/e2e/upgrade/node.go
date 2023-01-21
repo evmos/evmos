@@ -20,8 +20,9 @@ import "github.com/ory/dockertest/v3"
 
 const jrpcPort = "8545"
 
-// Node defines evmos node params for running container
-// of specific version with custom docker run arguments
+// Node represents an Evmos node in the context of the upgrade tests. It contains
+// fields to store the used repository, version as well as custom run options for
+// dockertest.
 type Node struct {
 	repository string
 	version    string
@@ -30,7 +31,8 @@ type Node struct {
 	withRunOptions bool
 }
 
-// NewNode creates new instance of the node and setups default dockertest RunOptions
+// NewNode creates a new instance of the node with a set of sensible default RunOptions
+// for dockertest.
 func NewNode(repository, version string) *Node {
 	return &Node{
 		repository: repository,
@@ -44,14 +46,14 @@ func NewNode(repository, version string) *Node {
 	}
 }
 
-// SetEnvVars allows to set addition container environment variables in format
-// []string{ "VAR_NAME=valaue" }
+// SetEnvVars allows to set additional container environment variables by passing a slice
+// of strings that each fit the pattern "VAR_NAME=value".
 func (n *Node) SetEnvVars(vars []string) {
 	n.RunOptions.Env = vars
 	n.UseRunOptions()
 }
 
-// Mount sets the container mount point, which is used as the value for 'docker run --volume'
+// Mount sets the container mount point, which is used as the value for 'docker run --volume'.
 //
 // See https://docs.docker.com/engine/reference/builder/#volume
 func (n *Node) Mount(mountPath string) {
@@ -59,7 +61,7 @@ func (n *Node) Mount(mountPath string) {
 	n.UseRunOptions()
 }
 
-// SetCmd sets the container entry command and overrides the image CMD instruction
+// SetCmd sets the container entry command and overrides the image CMD instruction.
 //
 // See https://docs.docker.com/engine/reference/builder/#cmd
 func (n *Node) SetCmd(cmd []string) {
@@ -67,7 +69,7 @@ func (n *Node) SetCmd(cmd []string) {
 	n.UseRunOptions()
 }
 
-// UseRunOptions sets a flag to allow the node Manager to run the container with additional run options
+// UseRunOptions sets a flag to allow the node Manager to run the container with additional run options.
 func (n *Node) UseRunOptions() {
 	n.withRunOptions = true
 }

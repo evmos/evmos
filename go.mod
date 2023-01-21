@@ -21,7 +21,7 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/holiman/uint256 v1.2.1
 	github.com/onsi/ginkgo/v2 v2.7.0
-	github.com/onsi/gomega v1.24.2
+	github.com/onsi/gomega v1.25.0
 	github.com/ory/dockertest/v3 v3.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
