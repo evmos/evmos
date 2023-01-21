@@ -1,6 +1,7 @@
 package ethante_test
 
 import (
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -121,7 +122,7 @@ func (s AnteTestSuite) TestMinGasPriceDecorator() {
 			s.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
 				ctx := s.ctx.WithIsReCheckTx(et.isCheckTx)
-				dec := ante.NewMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
+				dec := ethante.NewMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, NextFn)
 
 				if tc.expPass || (et.simulate && tc.allowPassOnSimulate) {
@@ -331,7 +332,7 @@ func (s AnteTestSuite) TestEthMinGasPriceDecorator() {
 			s.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
 				s.SetupTest()
-				dec := ante.NewEthMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
+				dec := ethante.NewEthMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
 				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, NextFn)
 
 				if tc.expPass {

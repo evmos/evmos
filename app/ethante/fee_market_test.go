@@ -1,6 +1,7 @@
 package ethante_test
 
 import (
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -14,7 +15,7 @@ import (
 func (suite AnteTestSuite) TestGasWantedDecorator() {
 	suite.enableFeemarket = true
 	suite.SetupTest()
-	dec := ante.NewGasWantedDecorator(suite.app.EvmKeeper, suite.app.FeeMarketKeeper)
+	dec := ethante.NewGasWantedDecorator(suite.app.EvmKeeper, suite.app.FeeMarketKeeper)
 	from, fromPrivKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
 

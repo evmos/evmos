@@ -1,6 +1,7 @@
 package ethante_test
 
 import (
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,7 +50,7 @@ func (suite AnteTestSuite) TestEthSigVerificationDecorator() {
 				params.AllowUnprotectedTxs = tc.allowUnprotectedTxs
 			}
 			suite.SetupTest()
-			dec := ante.NewEthSigVerificationDecorator(suite.app.EvmKeeper)
+			dec := ethante.NewEthSigVerificationDecorator(suite.app.EvmKeeper)
 			_, err := dec.AnteHandle(suite.ctx.WithIsReCheckTx(tc.reCheckTx), tc.tx, false, NextFn)
 
 			if tc.expPass {
