@@ -277,7 +277,7 @@ func (suite *ScheduleTestSuite) TestDisjunctPeriods() {
 			expPeriods:   sdkvesting.Periods{period(100, 25), period(100, 25), period(100, 35), period(100, 35), period(100, 10), period(100, 10)},
 		},
 	}
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		suite.Run(tc.name, func() {
 			// Function is commutative in its arguments, so get two tests
 			// for the price of one.  TODO: sub-t.Run() for distinct names.
@@ -387,7 +387,7 @@ func (suite *ScheduleTestSuite) TestConjunctPeriods() {
 			expPeriods:   sdkvesting.Periods{period(10, 1), period(10, 1), period(10, 1)},
 		},
 	}
-	for _, tc := range testCases {
+	for _, tc := range testCases { //nolint:dupl
 		suite.Run(tc.name, func() {
 			// Function is commutative in its arguments, so get two tests
 			// for the price of one.  TODO: sub-t.Run() for distinct names.

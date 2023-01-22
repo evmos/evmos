@@ -57,5 +57,5 @@ For each request, the faucet transfers 1 {{ $themeConfig.project.testnet_denom }
 
 The public faucet addresses for the testnet are:
 
+- **Bech32**: [`evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth`](https://testnet.mintscan.io/evmos-testnet/account/evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth)
 - **Hex**: [`0xBaE9A7A2210F94511F5050348251d0d7113E2cE3`](https://evm.evmos.dev/address/0xBaE9A7A2210F94511F5050348251d0d7113E2cE3/transactions)
-- **Bech32**: [`evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth`](https://testnet.mintscan.io/evmos/account/evmos1ht560g3pp729z86s2q6gy5ws6ugnut8r4uhyth)

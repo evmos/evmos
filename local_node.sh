@@ -19,6 +19,7 @@ TRACE=""
 
 # Path variables
 CONFIG=$HOMEDIR/config/config.toml
+APP_TOML=$HOMEDIR/config/app.toml
 GENESIS=$HOMEDIR/config/genesis.json
 TMP_GENESIS=$HOMEDIR/config/tmp_genesis.json
 
@@ -42,6 +43,7 @@ if [ -d "$HOMEDIR" ]; then
 else
 	overwrite="Y"
 fi
+
 
 # Setup local node if overwrite is set to Yes, otherwise skip setup
 if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
@@ -110,6 +112,17 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		fi
 	fi
 
+    # enable prometheus metrics
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' 's/prometheus = false/prometheus = true/' "$CONFIG"
+        sed -i '' 's/prometheus-retention-time = 0/prometheus-retention-time  = 1000000000000/g' "$APP_TOML"
+        sed -i '' 's/enabled = false/enabled = true/g' "$APP_TOML"
+    else
+        sed -i 's/prometheus = false/prometheus = true/' "$CONFIG"
+        sed -i 's/prometheus-retention-time  = "0"/prometheus-retention-time  = "1000000000000"/g' "$APP_TOML"
+        sed -i 's/enabled = false/enabled = true/g' "$APP_TOML"
+    fi
+
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
 		evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING --home "$HOMEDIR"
@@ -140,4 +153,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
+evmosd start --metrics --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"

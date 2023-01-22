@@ -12,7 +12,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/evmos/v10/x/vesting/types"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 var (
@@ -443,7 +443,7 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 
 			va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
 
-			if tc.expDelegationPanic {
+			if tc.expDelegationPanic { //nolint:gocritic
 				suite.Require().Panics(func() {
 					tc.delegate(va)
 				})

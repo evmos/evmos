@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -11,7 +14,7 @@ import (
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/ethermint/x/evm/statedb"
 
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterRevenue() {
@@ -152,7 +155,7 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 					[]uint64{1},
 				)
 				ctx := sdk.WrapSDKContext(suite.ctx)
-				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
+				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg) //nolint:errcheck
 			},
 			false,
 			types.ErrRevenueAlreadyRegistered.Error(),
@@ -320,7 +323,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",
@@ -388,7 +391,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 			"",
 		},
 		{
-			"fail - previously cancelled contract",
+			"fail - previously canceled contract",
 			deployerAddr,
 			withdrawer,
 			withdrawer,
@@ -483,7 +486,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 		errorMessage string
 	}{
 		{
-			"ok - cancelled",
+			"ok - canceled",
 			deployerAddr,
 			contract1,
 			[]uint64{1},
@@ -505,7 +508,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 			"",
 		},
 		{
-			"ok - cancelled - no withdrawer",
+			"ok - canceled - no withdrawer",
 			deployerAddr,
 			contract1,
 			[]uint64{1},
@@ -546,7 +549,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",
@@ -626,6 +629,40 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 			} else {
 				suite.Require().Error(err, tc.name)
 				suite.Require().Contains(err.Error(), tc.errorMessage)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestUpdateParams() {
+	testCases := []struct {
+		name      string
+		request   *types.MsgUpdateParams
+		expectErr bool
+	}{
+		{
+			name:      "fail - invalid authority",
+			request:   &types.MsgUpdateParams{Authority: "foobar"},
+			expectErr: true,
+		},
+		{
+			name: "pass - valid Update msg",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params:    types.DefaultParams(),
+			},
+			expectErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		suite.Run("MsgUpdateParams", func() {
+			_, err := suite.app.RevenueKeeper.UpdateParams(suite.ctx, tc.request)
+			if tc.expectErr {
+				suite.Require().Error(err)
+			} else {
+				suite.Require().NoError(err)
 			}
 		})
 	}

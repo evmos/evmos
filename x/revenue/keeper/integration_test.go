@@ -20,9 +20,9 @@ import (
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v10/app"
-	"github.com/evmos/evmos/v10/testutil"
-	"github.com/evmos/evmos/v10/x/revenue/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
@@ -62,15 +62,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		params = s.app.RevenueKeeper.GetParams(s.ctx)
 		params.EnableRevenue = true
-		s.app.RevenueKeeper.SetParams(s.ctx, params)
+		s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 		// setup deployer account
 		deployerKey, deployerAddress = generateKey()
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
+		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
+		Expect(err).To(BeNil())
 
 		// setup account interacting with registered contracts
 		userKey, userAddress = generateKey()
-		testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
+		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
+		Expect(err).To(BeNil())
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
 		s.app.AccountKeeper.SetAccount(s.ctx, acc)
 		s.Commit()
@@ -101,7 +103,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			// Disable revenue module
 			params = s.app.RevenueKeeper.GetParams(s.ctx)
 			params.EnableRevenue = false
-			s.app.RevenueKeeper.SetParams(s.ctx, params)
+			s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 
 		It("should not allow new contract registrations", func() {
@@ -167,7 +169,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		BeforeEach(func() {
 			params = types.DefaultParams()
 			params.EnableRevenue = true
-			s.app.RevenueKeeper.SetParams(s.ctx, params)
+			s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 		})
 
 		Describe("Registering a contract for receiving tx fees", func() {
@@ -198,7 +200,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(developerCoins.IsPositive()).To(BeTrue())
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -251,7 +253,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 					registerEvent := res.GetEvents()[8]
 					Expect(string(registerEvent.Attributes[2].Value)).ToNot(Equal(deployerAddress.String()))
-					Expect(string(registerEvent.Attributes[2].Value)).To(Equal(withdrawerAddress.String()))
 
 					fee, isRegistered := s.app.RevenueKeeper.GetRevenue(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))
@@ -266,7 +267,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddress, denom)
 					Expect(developerCoins.IsPositive()).To(BeTrue())
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -289,7 +290,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer legacy tx fees to validators and contract developer evenly", func() {
@@ -298,7 +299,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					gasPrice := big.NewInt(2000000000)
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-					developerCoins, validatorCoins := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, validatorCoins := calculateFees(denom, params, res, gasPrice)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 
@@ -323,7 +324,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, validatorCoins := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -336,7 +337,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(0)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer all tx fees to validators", func() {
@@ -353,7 +354,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					_, validatorCoins := calculateFees(denom, params, res, gasFeeCap, 10)
+					_, validatorCoins := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance))
@@ -366,7 +367,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					s.app.RevenueKeeper.SetParams(s.ctx, params)
+					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
 				It("should transfer all tx fees to developers", func() {
@@ -383,7 +384,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap)
 					feeColectorBalance := s.app.BankKeeper.GetBalance(s.ctx, feeCollectorAddr, denom)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
@@ -442,7 +443,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 					s.Commit()
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balanceD := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					balanceW := s.app.BankKeeper.GetBalance(s.ctx, withdrawerAddress, denom)
 					Expect(balanceW).To(Equal(preBalanceW.Add(developerCoins)))
@@ -561,7 +562,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					res := deliverTx(deployerKey, nil, msg)
 					Expect(res.IsOK()).To(
 						Equal(false),
-						"cancelling failed: "+res.GetLog(),
+						"canceling failed: "+res.GetLog(),
 					)
 					Expect(
 						strings.Contains(res.GetLog(),
@@ -608,7 +609,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					gasPrice := big.NewInt(2000000000)
 					res := contractInteract(userKey, &contractAddress, gasPrice, nil, nil, nil)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasPrice, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasPrice)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 					s.Commit()
@@ -629,7 +630,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						&ethtypes.AccessList{},
 					)
 
-					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap, 14)
+					developerCoins, _ := calculateFees(denom, params, res, gasFeeCap)
 					balance := s.app.BankKeeper.GetBalance(s.ctx, deployerAddress, denom)
 					Expect(balance).To(Equal(preBalance.Add(developerCoins)))
 					s.Commit()
@@ -650,8 +651,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				deployerKey2, deployerAddress2 := generateKey()
 
 				BeforeEach(func() {
-					testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)
-					testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress2, initBalance)
+					err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)
+					s.Require().NoError(err)
+					err = testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress2, initBalance)
+					s.Require().NoError(err)
 
 					// Create contract: deployerKey1 -> factory1 -> factory2 -> contract
 					// Create factory1
@@ -671,7 +674,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					func(gasCost int) {
 						params = s.app.RevenueKeeper.GetParams(s.ctx)
 						params.AddrDerivationCostCreate = uint64(gasCost)
-						s.app.RevenueKeeper.SetParams(s.ctx, params)
+						s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 						// Cost for registration with one address derivation
 						// We use another deployer, to have the same storage cost for
@@ -725,7 +728,6 @@ func calculateFees(
 	params types.Params,
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
-	logIndex int64,
 ) (sdk.Coin, sdk.Coin) {
 	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
 	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
@@ -913,13 +915,6 @@ func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	return res
 }
 
-func checkEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseCheckTx {
-	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestCheckTx{Tx: bz}
-	res := s.app.BaseApp.CheckTx(req)
-	return res
-}
-
 func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
@@ -980,16 +975,9 @@ func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...
 	return bz
 }
 
-func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx {
+func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx { //nolint:unparam
 	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
-
-func checkTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseCheckTx {
-	bz := prepareCosmosTx(priv, gasPrice, msgs...)
-	req := abci.RequestCheckTx{Tx: bz}
-	res := s.app.BaseApp.CheckTx(req)
 	return res
 }

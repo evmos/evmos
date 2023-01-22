@@ -17,10 +17,10 @@ This logic utilizes parameters that can be set manually(if necessary):
 # should be set true with make test-e2e command if you need access to the node after upgrade
 E2E_SKIP_CLEANUP := false
 
-# version of initial evmos node that will be upgraded, tag e.g. 'v9.0.0'
+# version of initial evmos node that will be upgraded, tag e.g. 'v9.1.0'
 INITIAL_VERSION
 
-# version of upgraded evmos node that will replace the initial node, tag e.g. 'v9.1.0'
+# version of upgraded evmos node that will replace the initial node, tag e.g. 'v10.0.0'
 TARGET_VERSION
 
 # mount point for upgraded node container, to mount new node version to previous node state folder
@@ -43,7 +43,7 @@ make test-e2e E2E_SKIP_CLEANUP=true INITIAL_VERSION=<tag> TARGET_VERSION=<tag>
 
 Testing a chain upgrade is a multi-step process:
 
-1. Build a docker image for the evmos target version (local repo by default, if no explicit `TARGET_VERSION` provided as argument) (e.g. `v9.1.0`)
+1. Build a docker image for the evmos target version (local repo by default, if no explicit `TARGET_VERSION` provided as argument) (e.g. `v10.0.0`)
 2. Run tests
 3. The e2e test will first run an `INITIAL_VERSION` node container.
 4. The node will submit, deposit and vote for an upgrade proposal for upgrading to the `TARGET_VERSION`.

@@ -3,14 +3,17 @@ package keeper_test
 import (
 	"fmt"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/tests"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/evmos/v10/contracts"
-	"github.com/evmos/evmos/v10/x/erc20/keeper"
-	"github.com/evmos/evmos/v10/x/erc20/types"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/x/erc20/keeper"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -88,9 +91,10 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		mockEVMKeeper = &MockEVMKeeper{}
-		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-		suite.Require().True(found)
-		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper, suite.app.BankKeeper,
+		suite.app.Erc20Keeper = keeper.NewKeeper(
+			suite.app.GetKey("erc20"), suite.app.AppCodec(),
+			authtypes.NewModuleAddress(govtypes.ModuleName),
+			suite.app.AccountKeeper, suite.app.BankKeeper,
 			mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()
@@ -198,7 +202,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			types.ModuleAddress,
 			func() ([]byte, *common.Address) {
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
-				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 				return data, nil
 			},
 			true,
@@ -209,9 +213,9 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			func() ([]byte, *common.Address) {
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
-				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...)
+				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 				return data, nil
 			},
 			false,
@@ -276,9 +280,9 @@ func (suite *KeeperTestSuite) TestForceFail() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 			mockEVMKeeper = &MockEVMKeeper{}
-			sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-			suite.Require().True(found)
-			suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+			suite.app.Erc20Keeper = keeper.NewKeeper(
+				suite.app.GetKey("erc20"), suite.app.AppCodec(),
+				authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
 				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 			tc.malleate()
@@ -365,9 +369,9 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 		mockEVMKeeper = &MockEVMKeeper{}
-		sp, found := suite.app.ParamsKeeper.GetSubspace(types.ModuleName)
-		suite.Require().True(found)
-		suite.app.Erc20Keeper = keeper.NewKeeper(suite.app.GetKey("erc20"), suite.app.AppCodec(), sp, suite.app.AccountKeeper,
+		suite.app.Erc20Keeper = keeper.NewKeeper(
+			suite.app.GetKey("erc20"), suite.app.AppCodec(),
+			authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
 			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
 
 		tc.malleate()

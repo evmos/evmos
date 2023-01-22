@@ -1,3 +1,19 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package types
 
 import (
@@ -26,6 +42,7 @@ const (
 	cancelRevenueName   = "evmos/MsgCancelRevenue"
 	registerRevenueName = "evmos/MsgRegisterRevenue"
 	updateRevenueName   = "evmos/MsgUpdateRevenue"
+	updateParamsName    = "evmos/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -41,6 +58,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgRegisterRevenue{},
 		&MsgCancelRevenue{},
 		&MsgUpdateRevenue{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -50,6 +68,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 // concrete types on the provided LegacyAmino codec. These types are used for
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParamsName, nil)
 	cdc.RegisterConcrete(&MsgCancelRevenue{}, cancelRevenueName, nil)
 	cdc.RegisterConcrete(&MsgRegisterRevenue{}, registerRevenueName, nil)
 	cdc.RegisterConcrete(&MsgUpdateRevenue{}, updateRevenueName, nil)

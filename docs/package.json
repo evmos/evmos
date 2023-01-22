@@ -4,10 +4,10 @@
   "description": "Evmos Documentation",
   "main": "index.js",
   "scripts": {
-    "preserve": "./pre.sh",
     "serve": "trap 'exit 0' SIGINT; vuepress dev --no-cache",
     "build": "trap 'exit 0' SIGINT; vuepress build  --no-cache",
     "docs:build": "vuepress build .",
+    "preserve": "./pre.sh",
     "postserve": "./post.sh",
     "prebuild": "./pre.sh",
     "postbuild": "./post.sh"
