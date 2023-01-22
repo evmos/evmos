@@ -38,13 +38,15 @@ type AnteTestSuite struct {
 	denom string
 }
 
-func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
+func (suite *AnteTestSuite) SetupTest() {
 	t := suite.T()
 	privCons, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 
+	isCheckTx := false
 	suite.app = app.Setup(isCheckTx, feemarkettypes.DefaultGenesisState())
+	suite.Require().NotNil(suite.app.AppCodec())
 	suite.ctx = suite.app.BaseApp.NewContext(isCheckTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "evmos_9001-1",

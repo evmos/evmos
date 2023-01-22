@@ -824,7 +824,7 @@ func NewEvmos(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.setAnteHandler(appCodec, encodingConfig.TxConfig, maxGasWanted)
+	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 	app.setupUpgradeHandlers()
@@ -852,9 +852,9 @@ func NewEvmos(
 // Name returns the name of the App
 func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
-func (app *Evmos) setAnteHandler(cdc codec.BinaryCodec, txConfig client.TxConfig, maxGasWanted uint64) {
+func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 	options := ante.HandlerOptions{
-		Cdc:                    cdc,
+		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
 		ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
