@@ -81,9 +81,6 @@ func (options HandlerOptions) Validate() error {
 	if options.SignModeHandler == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "sign mode handler is required for AnteHandler")
 	}
-	if options.TxFeeChecker == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "tx fee checker is required for AnteHandler")
-	}
 	if options.MaxTxGasWanted == 0 {
 		return errorsmod.Wrap(errortypes.ErrLogic, "positive max tx gas wanted required for AnteHandler")
 	}
