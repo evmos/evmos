@@ -116,14 +116,14 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			err := performEthTx(clawbackAccount)
+			err := performEthTx(clawbackAccount, nil)
 			Expect(err).ToNot(BeNil())
 		})
 	})
 
 	Context("after first vesting period and before lockup", func() {
 		BeforeEach(func() {
-			// Surpass cliff but not lockup duration
+			// Surpass cliff but none of lockup duration
 			cliffDuration := time.Duration(cliffLength)
 			s.CommitAfter(cliffDuration * time.Second)
 
@@ -155,7 +155,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot perform Ethereum tx", func() {
-			err := performEthTx(clawbackAccount)
+			err := performEthTx(clawbackAccount, nil)
 			Expect(err).ToNot(BeNil())
 		})
 	})
@@ -205,7 +205,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can perform ethereum tx", func() {
-			err := performEthTx(clawbackAccount)
+			err := performEthTx(clawbackAccount, nil)
 			Expect(err).To(BeNil())
 		})
 	})
@@ -537,14 +537,14 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	return err
 }
 
-func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
+func performEthTx(clawbackAccount *types.ClawbackVestingAccount, amount *big.Int) error {
 	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
 	s.Require().NoError(err)
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(addr.Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, amount, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
 	msgEthereumTx.From = from.String()
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)

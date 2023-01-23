@@ -21,10 +21,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -46,10 +48,12 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTran
 // This AnteHandler decorator will fail if:
 //   - the message is not a MsgEthereumTx
 //   - sender account cannot be found
-//   - sender account is not a ClawbackvestingAccount
-//   - blocktime is before surpassing vesting cliff end (with zero vested coins) AND
-//   - blocktime is before surpassing all lockup periods (with non-zero locked coins)
+//   - tx values are in excess of the user's spendable balances
+//   - blocktime is before surpassing vesting cliff end (with zero vested coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	// Track the total balance of tokens requested for each account
+	cumulativeValues := make(map[string]*sdk.Coin)
+
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -80,11 +84,30 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 			)
 		}
 
-		// Error if account has locked coins (before surpassing all lockup periods)
-		islocked := clawbackAccount.HasLockedCoins(ctx.BlockTime())
-		if islocked {
-			return ctx, errorsmod.Wrapf(vestingtypes.ErrVestingLockup,
-				"cannot perform Ethereum tx with clawback vesting account, that has locked coins: %s", vested,
+		msgValue := math.NewIntFromBigInt(msgEthTx.AsTransaction().Value())
+		address := acc.GetAddress().String()
+
+		// Set or update the running total value for the account
+		totalValue, ok := cumulativeValues[address]
+		if !ok {
+			c := sdk.NewCoin(evmostypes.BaseDenom, msgValue)
+			totalValue = &c
+			cumulativeValues[address] = totalValue
+		} else {
+			totalValue.Amount = totalValue.Amount.Add(msgValue)
+		}
+
+		// Make sure the clawbackAccount has suffient unlocked tokens to cover all transactions
+		ok, spendable := clawbackAccount.GetUnlockedOnly(ctx.BlockTime()).Find(evmostypes.BaseDenom)
+		if !ok {
+			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
+				"clawback vesting account has no unlocked %s tokens", evmostypes.BaseDenom,
+			)
+		}
+
+		if totalValue.Amount.GT(spendable.Amount) {
+			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s", spendable,
 			)
 		}
 	}
