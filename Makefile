@@ -6,6 +6,7 @@ TMVERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::'
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
 BINDIR ?= $(GOPATH)/bin
+TMP_DIR=./third_party/cosmos_tmp
 EVMOS_BINARY = evmosd
 EVMOS_DIR = evmos
 BUILDDIR ?= $(CURDIR)/build
@@ -451,10 +452,14 @@ proto-gen:
 
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
+	make proto-update-swagger-deps
+	make proto-cosmos-swagger-gen
 	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+	rm -rf ./third_party
+	rm -rf ./tmp-swagger-gen
 
 proto-cosmos-swagger-gen:
-	@echo "Generating Cosmos Protobuf Swagger"
+	# @echo "Generating Cosmos Protobuf Swagger"
 	$(protoCosmosImage) sh ./scripts/protoc-cosmos-swagger-gen.sh
 
 proto-format:
@@ -475,20 +480,19 @@ proto-update-swagger-deps:
 	rm -rf ./third_party
 	mkdir ./third_party
 
-	mkdir ./third_party/cosmos_tmp && \
-	cd ./third_party/cosmos_tmp && \
+	mkdir $(TMP_DIR) && \
+	cd $(TMP_DIR) && \
 	git init && \
 	git remote add origin "https://github.com/cosmos/cosmos-sdk.git" && \
 	git config core.sparseCheckout true && \
 	printf "proto\nthird_party\n" > .git/info/sparse-checkout && \
 	git pull origin main
 
-	go run ./scripts/delete_unused_proto_folders/. ./third_party/cosmos_tmp/proto
+	go run ./scripts/delete_unused_proto_folders/. $(TMP_DIR)/proto
 
-	rm -rf ./third_party/proto
-	rm -rf ./third_party/cosmos_tmp/.git
-	mv ./third_party/cosmos_tmp/proto ./third_party
-	rm -rf ./third_party/cosmos_tmp
+	mv $(TMP_DIR)/proto ./third_party
+	cp ./buf.cosmos.work.yaml ./third_party/buf.work.yaml
+	rm -rf $(TMP_DIR)
 
 
 .PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-update-swagger-deps proto-swagger-gen proto-swagger-gen-cosmos

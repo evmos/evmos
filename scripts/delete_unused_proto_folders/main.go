@@ -1,11 +1,9 @@
-// This script aims to delete all proto folders, that do not contain
-// query.proto or service.proto files which have the option go_package
-// defined in them.
+// This script aims to delete all proto files, that do not have
+// the option go_package defined in them.
 package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -14,26 +12,16 @@ import (
 
 func main() {
 	folder := os.Args[1]
-	fmt.Println("Folder: ", folder)
 
 	err := filepath.Walk(folder,
 		func(path string, info os.FileInfo, err error) error {
-			fmt.Println("Path: ", path)
 			if err != nil {
 				return err
 			}
 
-			if info.IsDir() {
+			if !strings.Contains(path, ".proto") {
 				return nil
 			}
-
-			//if !(strings.Contains(path, "query.proto") || strings.Contains(path, "service.proto")) {
-			//	if err = os.Remove(path); err != nil {
-			//		return err
-			//	}
-			//	fmt.Println(" --> removed")
-			//	return nil
-			//}
 
 			optionSet, err := checkIfGoPackageSet(path)
 			if err != nil {
