@@ -457,10 +457,6 @@ proto-cosmos-swagger-gen:
 	@echo "Generating Cosmos Protobuf Swagger"
 	$(protoCosmosImage) sh ./scripts/protoc-cosmos-swagger-gen.sh
 
-proto-swagger-gen-cosmos:
-	@echo "Generating Cosmos Protobuf Swagger"
-	$(protoImage) buf generate --template ./proto/buf.gen.swagger.yaml "buf.build/cosmos/cosmos-sdk"
-
 proto-format:
 	@echo "Formatting Protobuf files"
 	$(protoCosmosImage) find ./ -name *.proto -exec clang-format -i {} \;
