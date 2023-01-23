@@ -13,15 +13,16 @@ for dir in $proto_dirs; do
   if [[ -n "$query_file" ]]; then
     echo "Generating $query_file"
 #    buf generate -v --debug --template proto/buf.gen.cosmos-swagger.yaml "$query_file"
-    buf generate --template ../../proto/buf.gen.cosmos-swagger.yaml "$query_file"
+#    buf generate --template ../../proto/buf.gen.cosmos-swagger.yaml "$query_file"
+    buf generate --template buf.gen.cosmos-swagger.yaml "$query_file"
   fi
 done
 cd ../..
 
-# combine swagger files
-# uses nodejs package `swagger-combine`.
-# all the individual swagger files need to be configured in `config.json` for merging
-swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
+# # combine swagger files
+# # uses nodejs package `swagger-combine`.
+# # all the individual swagger files need to be configured in `config.json` for merging
+# swagger-combine ./client/docs/config.json -o ./client/docs/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
 
-# clean swagger files
-rm -rf ./tmp-swagger-gen
+# # clean swagger files
+# rm -rf ./tmp-swagger-gen
