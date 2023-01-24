@@ -86,17 +86,14 @@ func UpgradeStoreLoader(upgradeHeight int64, storeUpgrades *StoreUpgrades) basea
 				copy(storeUpgradeReplace.Renamed, storeUpgrades.Renamed)
 
 				for _, s := range storeUpgrades.Replaced {
-					storeUpgrade.Deleted = append(storeUpgrade.Deleted, s.OldKey)
+					storeUpgradeReplace.Deleted = append(storeUpgrade.Deleted, s.OldKey)
+					storeUpgrade.Added = append(storeUpgrade.Added, s.NewKey)
 				}
 
 				if err := ms.LoadLatestVersionAndUpgrade(storeUpgradeReplace); err != nil {
 					return err
 				}
 
-				for _, s := range storeUpgrades.Replaced {
-					storeUpgrade.Added = append(storeUpgrade.Added, s.NewKey)
-				}
-				
 				// add all the Replaced[i].NewKeys to the Added slice
 				// storeUpgrade.Added = ...
 			}
