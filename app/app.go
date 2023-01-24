@@ -1230,14 +1230,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v10
 	case v11.UpgradeNameRC3:
 		// rename recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Renamed: []storetypes.StoreRename{
-				{
-					OldKey: "recovery",
-					NewKey: "recovery",
-				},
-			},
-		}
+		// TODO: Not sure what goes here
 	case v11.UpgradeName:
 		// add ica host submodule
 		// initialize recovery store
