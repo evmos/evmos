@@ -45,9 +45,7 @@ func (suite *KeeperTestSuite) TestEthereumTx() {
 			func() {
 				msg, _, err = newEthMsgTx(
 					vmdb.GetNonce(suite.address),
-					suite.ctx.BlockHeight(),
 					suite.address,
-					chainCfg,
 					suite.signer,
 					signer,
 					ethtypes.AccessListTxType,
