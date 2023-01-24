@@ -663,7 +663,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 }
 
 func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
-	ethMsg, err := suite.createContractMsgTx(nonce, signer, cfg, gasPrice)
+	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
 	if err != nil {
 		return nil, err
 	}
@@ -672,7 +672,7 @@ func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtype
 	return ethMsg.AsMessage(msgSigner, nil)
 }
 
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
 	contractCreateTx := &ethtypes.AccessListTx{
 		GasPrice: gasPrice,
 		Gas:      params.TxGasContractCreation,
