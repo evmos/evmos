@@ -99,7 +99,7 @@ func UpgradeStoreLoader(upgradeHeight int64, storeUpgrades *StoreUpgrades) basea
 			}
 
 			// Check if the current commit version and upgrade height matches
-			if len(storeUpgrades.Renamed) > 0 || len(storeUpgrades.Deleted) > 0 || len(storeUpgrades.Added) > 0 {
+			if len(storeUpgrade.Renamed) > 0 || len(storeUpgrade.Deleted) > 0 || len(storeUpgrade.Added) > 0 {
 				return ms.LoadLatestVersionAndUpgrade(storeUpgrade)
 			}
 		}
