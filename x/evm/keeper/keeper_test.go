@@ -49,8 +49,6 @@ import (
 	"github.com/tendermint/tendermint/version"
 )
 
-var testTokens = sdkmath.NewIntWithDecimal(1000, 18)
-
 type KeeperTestSuite struct {
 	suite.Suite
 
@@ -234,7 +232,7 @@ func (suite *KeeperTestSuite) EvmDenom() string {
 func (suite *KeeperTestSuite) Commit() {
 	_ = suite.app.Commit()
 	header := suite.ctx.BlockHeader()
-	header.Height += 1
+	header.Height++
 	suite.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
@@ -261,7 +259,8 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	data := append(evmtypes.ERC20Contract.Bin, ctorArgs...)
+	data := evmtypes.ERC20Contract.Bin
+	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
@@ -269,7 +268,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	require.NoError(t, err)
 	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: suite.ctx.BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
@@ -377,7 +376,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: suite.ctx.BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
