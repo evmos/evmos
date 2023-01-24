@@ -8,7 +8,8 @@ import (
 
 func (suite *KeeperTestSuite) TestSetGetParams() {
 	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-	suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+	err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 	testCases := []struct {
 		name      string
 		paramsFun func() interface{}
@@ -29,7 +30,8 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 			"success - Check ElasticityMultiplier is set to 3 and can be retrieved correctly",
 			func() interface{} {
 				params.ElasticityMultiplier = 3
-				suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.ElasticityMultiplier
 			},
 			func() interface{} {
@@ -40,7 +42,8 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 		{
 			"success - Check BaseFeeEnabled is computed with its default params and can be retrieved correctly",
 			func() interface{} {
-				suite.app.FeeMarketKeeper.SetParams(suite.ctx, types.DefaultParams())
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, types.DefaultParams())
+				suite.Require().NoError(err)
 				return true
 			},
 			func() interface{} {
@@ -53,7 +56,8 @@ func (suite *KeeperTestSuite) TestSetGetParams() {
 			func() interface{} {
 				params.NoBaseFee = true
 				params.EnableHeight = 5
-				suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return true
 			},
 			func() interface{} {

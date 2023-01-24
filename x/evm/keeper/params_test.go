@@ -8,7 +8,8 @@ import (
 
 func (suite *KeeperTestSuite) TestParams() {
 	params := suite.app.EvmKeeper.GetParams(suite.ctx)
-	suite.app.EvmKeeper.SetParams(suite.ctx, params)
+	err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 	testCases := []struct {
 		name      string
 		paramsFun func() interface{}
@@ -29,7 +30,8 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - EvmDenom param is set to \"inj\" and can be retrieved correctly",
 			func() interface{} {
 				params.EvmDenom = "inj"
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.EvmDenom
 			},
 			func() interface{} {
@@ -41,7 +43,8 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check EnableCreate param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.EnableCreate
 			},
 			func() interface{} {
@@ -53,7 +56,8 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check EnableCall param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.EnableCall = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.EnableCall
 			},
 			func() interface{} {
@@ -65,7 +69,8 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check AllowUnprotectedTxs param is set to false and can be retrieved correctly",
 			func() interface{} {
 				params.AllowUnprotectedTxs = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.AllowUnprotectedTxs
 			},
 			func() interface{} {
@@ -77,7 +82,8 @@ func (suite *KeeperTestSuite) TestParams() {
 			"success - Check ChainConfig param is set to the default value and can be retrieved correctly",
 			func() interface{} {
 				params.ChainConfig = types.DefaultChainConfig()
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return params.ChainConfig
 			},
 			func() interface{} {
