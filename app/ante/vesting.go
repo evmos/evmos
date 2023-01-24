@@ -21,12 +21,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	evmostypes "github.com/evmos/evmos/v11/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -34,13 +32,11 @@ import (
 // permitted to perform Ethereum Tx.
 type EthVestingTransactionDecorator struct {
 	ak evmtypes.AccountKeeper
-	bk evmtypes.BankKeeper
 }
 
-func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper) EthVestingTransactionDecorator {
+func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
-		bk: bk,
 	}
 }
 
@@ -53,10 +49,6 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 //   - tx values are in excess of any account's spendable balances
 //   - blocktime is before surpassing vesting cliff end (with zero vested coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// Track the total `value` to be spent by each address across all messages and ensure
-	// that no cumulative `value` exceeds any account's spendable balance.
-	totalValueByAddress := make(map[string]sdk.Coin)
-
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -84,33 +76,6 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		if len(vested) == 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientVestedCoins,
 				"cannot perform Ethereum tx with clawback vesting account, that has no vested coins: %s", vested,
-			)
-		}
-
-		msgValue := sdk.NewCoin(evmostypes.BaseDenom, math.NewIntFromBigInt(msgEthTx.AsTransaction().Value()))
-		address := acc.GetAddress()
-
-		// Since there can be multiple transactions from different accounts, we track each account's total
-		// requested value to compare against its unlocked balances.
-		totalValue, ok := totalValueByAddress[address.String()]
-		if !ok {
-			totalValue = msgValue
-		} else {
-			totalValue = totalValue.Add(msgValue)
-		}
-		totalValueByAddress[address.String()] = totalValue
-
-		// Check that the clawbackAccount has suffient unlocked tokens to cover all requested spending
-		// lockedBalance defaults to zero if not found.
-		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmostypes.BaseDenom)
-		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmostypes.BaseDenom).SafeSub(lockedBalance)
-		if err != nil {
-			spendableBalance = sdk.NewCoin(evmostypes.BaseDenom, sdk.ZeroInt())
-		}
-
-		if totalValue.Amount.GT(spendableBalance.Amount) {
-			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s", spendableBalance,
 			)
 		}
 	}
