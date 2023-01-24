@@ -335,6 +335,7 @@ func (suite *KeeperTestSuite) TestGasToRefund() {
 
 			if tc.expPanic {
 				panicF := func() {
+					//nolint:all
 					keeper.GasToRefund(vmdb.GetRefund(), tc.gasconsumed, tc.refundQuotient)
 				}
 				suite.Require().Panics(panicF)
@@ -682,8 +683,8 @@ func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.
 	}
 	ethTx := ethtypes.NewTx(contractCreateTx)
 	ethMsg := &types.MsgEthereumTx{}
-    err := ethMsg.FromEthereumTx(ethTx)
-    suite.Require().NoError(err)
+	err := ethMsg.FromEthereumTx(ethTx)
+	suite.Require().NoError(err)
 	ethMsg.From = suite.address.Hex()
 
 	return ethMsg, ethMsg.Sign(signer, suite.signer)
