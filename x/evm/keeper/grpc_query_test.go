@@ -680,7 +680,8 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 				}
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			false,
 			0,
@@ -917,7 +918,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
@@ -1175,14 +1177,14 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
 	_, err = suite.queryClient.EstimateGas(sdk.WrapSDKContext(suite.ctx), &types.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: proposerAddress,
 	})
 	suite.Require().NoError(err)
 
 	_, err = suite.queryClient.EthCall(sdk.WrapSDKContext(suite.ctx), &types.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: proposerAddress,
 	})
 	suite.Require().NoError(err)
@@ -1282,7 +1284,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 		{
 			"invalid args",
 			func() {
-				req = &types.EthCallRequest{Args: []byte("invalid args"), GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
@@ -1297,7 +1299,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				})
 
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
@@ -1310,11 +1312,12 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				})
 
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			false,
 		},

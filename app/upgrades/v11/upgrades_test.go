@@ -14,10 +14,10 @@ import (
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
 	"github.com/evmos/evmos/v11/testutil"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -48,7 +48,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 
 	// NOTE: this is the new binary, not the old one.
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
@@ -73,7 +73,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
 
-	cp := suite.app.BaseApp.GetConsensusParams(suite.ctx)
+	cp := suite.app.GetConsensusParams(suite.ctx)
 	suite.ctx = suite.ctx.WithConsensusParams(cp)
 }
 

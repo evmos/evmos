@@ -113,7 +113,7 @@ func (suite *StateDBTestSuite) TestAccountOverride() {
 	// test balance carry over when overwritten
 	amount := big.NewInt(1)
 
-	// init an EOA account, account overriden only happens on EOA account.
+	// init an EOA account, account overridden only happens on EOA account.
 	db.AddBalance(address, amount)
 	db.SetNonce(address, 1)
 
@@ -557,20 +557,26 @@ func (suite *StateDBTestSuite) TestIterateStorage() {
 
 	// break early iteration
 	storage = make(statedb.Storage)
-	db.ForEachStorage(address, func(k, v common.Hash) bool {
+	err := db.ForEachStorage(address, func(k, v common.Hash) bool {
 		storage[k] = v
 		// return false to break early
 		return false
 	})
+	suite.Require().NoError(err)
 	suite.Require().Equal(1, len(storage))
 }
 
 func CollectContractStorage(db vm.StateDB) statedb.Storage {
 	storage := make(statedb.Storage)
-	db.ForEachStorage(address, func(k, v common.Hash) bool {
+	err := db.ForEachStorage(address, func(k, v common.Hash) bool {
 		storage[k] = v
 		return true
 	})
+
+	if err != nil {
+		return nil
+	}
+
 	return storage
 }
 

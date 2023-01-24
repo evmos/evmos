@@ -59,7 +59,7 @@ func TestParamsEIPs(t *testing.T) {
 	params := NewParams("ara", false, true, true, DefaultChainConfig(), extraEips)
 	actual := params.EIPs()
 
-	require.Equal(t, []int([]int{2929, 1884, 1344}), actual)
+	require.Equal(t, []int{2929, 1884, 1344}, actual)
 }
 
 func TestParamsValidatePriv(t *testing.T) {
