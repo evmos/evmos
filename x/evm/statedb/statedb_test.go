@@ -572,7 +572,6 @@ func CollectContractStorage(db vm.StateDB) statedb.Storage {
 		storage[k] = v
 		return true
 	})
-
 	if err != nil {
 		return nil
 	}

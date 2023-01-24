@@ -18,8 +18,9 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	etherminttypes "github.com/evmos/ethermint/x/evm/types"
 	"os"
+
+	etherminttypes "github.com/evmos/ethermint/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

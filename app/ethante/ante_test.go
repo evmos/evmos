@@ -3,11 +3,12 @@ package ethante_test
 import (
 	"errors"
 	"fmt"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 	"strings"
 	"time"
+
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	sdkmath "cosmossdk.io/math"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"

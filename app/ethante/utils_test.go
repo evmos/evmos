@@ -3,11 +3,12 @@ package ethante_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v11/app"
 	"math"
 	"math/big"
 	"testing"
 	"time"
+
+	"github.com/evmos/evmos/v11/app"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"

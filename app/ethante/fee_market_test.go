@@ -1,8 +1,9 @@
 package ethante_test
 
 import (
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
+
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
