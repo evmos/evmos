@@ -1231,8 +1231,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v11.UpgradeNameRC3:
 		// initialize recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added:   []string{revenuetypes.ModuleName},
-			Deleted: []string{"revenue"},
+			Added:   []string{recoverytypes.ModuleName},
+			Deleted: []string{"recovery"},
 		}
 	case v11.UpgradeName:
 		// add ica host submodule

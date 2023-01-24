@@ -21,7 +21,7 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 // constants
 const (
 	// module name
-	ModuleName = "revenuev1"
+	ModuleName = "revenue"
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
