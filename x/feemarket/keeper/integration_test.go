@@ -40,6 +40,7 @@ var _ = Describe("Feemarket", func() {
 	)
 
 	Describe("Performing Cosmos transactions", func() {
+		//nolint:all
 		Context("with min-gas-prices (local) < MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
 				privKey, msg = setupTestWithContext("1", sdk.NewDec(3), sdk.ZeroInt())
@@ -82,6 +83,7 @@ var _ = Describe("Feemarket", func() {
 			})
 		})
 
+		//nolint:all
 		Context("with min-gas-prices (local) == MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
 				privKey, msg = setupTestWithContext("3", sdk.NewDec(3), sdk.ZeroInt())
@@ -128,6 +130,8 @@ var _ = Describe("Feemarket", func() {
 			BeforeEach(func() {
 				privKey, msg = setupTestWithContext("5", sdk.NewDec(3), sdk.NewInt(5))
 			})
+
+			//nolint:all
 			Context("during CheckTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(2)
@@ -156,6 +160,7 @@ var _ = Describe("Feemarket", func() {
 				})
 			})
 
+			//nolint:all
 			Context("during DeliverTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(2)
@@ -169,7 +174,7 @@ var _ = Describe("Feemarket", func() {
 
 				It("should reject transactions with MinGasPrices < gasPrice < baseFee", func() {
 					gasPrice := sdkmath.NewInt(4)
-					res := checkTx(privKey, &gasPrice, &msg)
+					res := deliverTx(privKey, &gasPrice, &msg)
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
@@ -443,12 +448,13 @@ var _ = Describe("Feemarket", func() {
 })
 
 // setupTestWithContext sets up a test chain with an example Cosmos send msg,
-// given a local (validator config) and a gloabl (feemarket param) minGasPrice
+// given a local (validator config) and a global (feemarket param) minGasPrice
 func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	privKey, msg := setupTest(valMinGasPrice + s.denom)
 	params := types.DefaultParams()
 	params.MinGasPrice = minGasPrice
-	s.app.FeeMarketKeeper.SetParams(s.ctx, params)
+	err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
+	s.Require().NoError(err)
 	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, baseFee.BigInt())
 	s.Commit()
 
@@ -465,7 +471,8 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	testutil.FundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	err := testutil.FundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
 		FromAddress: address.String(),

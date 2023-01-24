@@ -226,10 +226,8 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 				} else {
 					gasTipCap = tc.gasTipCap
 				}
-			} else {
-				if tc.gasPrice != nil {
-					gasPrice = tc.gasPrice.BigInt()
-				}
+			} else if tc.gasPrice != nil {
+				gasPrice = tc.gasPrice.BigInt()
 			}
 
 			tx := evmtypes.NewTx(zeroInt.BigInt(), 1, &to, amount, tc.gasLimit, gasPrice, gasFeeCap, gasTipCap, nil, tc.accessList)
