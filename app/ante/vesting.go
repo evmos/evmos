@@ -34,11 +34,13 @@ import (
 // permitted to perform Ethereum Tx.
 type EthVestingTransactionDecorator struct {
 	ak evmtypes.AccountKeeper
+	bk evmtypes.BankKeeper
 }
 
-func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTransactionDecorator {
+func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
+		bk: bk,
 	}
 }
 
@@ -48,11 +50,12 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper) EthVestingTran
 // This AnteHandler decorator will fail if:
 //   - the message is not a MsgEthereumTx
 //   - sender account cannot be found
-//   - tx values are in excess of the user's spendable balances
+//   - tx values are in excess of any account's spendable balances
 //   - blocktime is before surpassing vesting cliff end (with zero vested coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// Track the total balance of tokens requested for each account
-	cumulativeValues := make(map[string]*sdk.Coin)
+	// Track the total `value` to be spent by each address across all messages and ensure
+	// that no cumulative `value` exceeds any account's spendable balance.
+	totalValueByAddress := make(map[string]sdk.Coin)
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
@@ -84,30 +87,30 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 			)
 		}
 
-		msgValue := math.NewIntFromBigInt(msgEthTx.AsTransaction().Value())
-		address := acc.GetAddress().String()
+		msgValue := sdk.NewCoin(evmostypes.BaseDenom, math.NewIntFromBigInt(msgEthTx.AsTransaction().Value()))
+		address := acc.GetAddress()
 
-		// Set or update the running total value for the account
-		totalValue, ok := cumulativeValues[address]
+		// Since there can be multiple transactions from different accounts, we track each account's total
+		// requested value to compare against its unlocked balances.
+		totalValue, ok := totalValueByAddress[address.String()]
 		if !ok {
-			c := sdk.NewCoin(evmostypes.BaseDenom, msgValue)
-			totalValue = &c
-			cumulativeValues[address] = totalValue
+			totalValue = msgValue
 		} else {
-			totalValue.Amount = totalValue.Amount.Add(msgValue)
+			totalValue = totalValue.Add(msgValue)
+		}
+		totalValueByAddress[address.String()] = totalValue
+
+		// Check that the clawbackAccount has suffient unlocked tokens to cover all requested spending
+		// lockedBalance defaults to zero if not found.
+		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmostypes.BaseDenom)
+		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmostypes.BaseDenom).SafeSub(lockedBalance)
+		if err != nil {
+			spendableBalance = sdk.NewCoin(evmostypes.BaseDenom, sdk.ZeroInt())
 		}
 
-		// Make sure the clawbackAccount has suffient unlocked tokens to cover all transactions
-		ok, spendable := clawbackAccount.GetUnlockedOnly(ctx.BlockTime()).Find(evmostypes.BaseDenom)
-		if !ok {
+		if totalValue.Amount.GT(spendableBalance.Amount) {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has no unlocked %s tokens", evmostypes.BaseDenom,
-			)
-		}
-
-		if totalValue.Amount.GT(spendable.Amount) {
-			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s", spendable,
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s", spendableBalance,
 			)
 		}
 	}

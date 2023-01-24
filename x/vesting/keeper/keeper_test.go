@@ -37,6 +37,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -147,6 +148,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		epoch.CurrentEpochStartHeight = suite.ctx.BlockHeight()
 		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
 	}
+
+	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+	evmParams.EvmDenom = evmostypes.BaseDenom
+	_ = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 
 	acc := &ethermint.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),

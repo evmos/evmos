@@ -20,6 +20,7 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -34,6 +35,12 @@ import (
 	"github.com/evmos/ethermint/encoding"
 
 	"github.com/evmos/evmos/v11/app"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/ethermint/tests"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.
@@ -162,14 +169,77 @@ func DeliverTx(
 		return abci.ResponseDeliverTx{}, err
 	}
 
+	return broadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+}
+
+func DeliverEthTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	msgs ...sdk.Msg,
+) (abci.ResponseDeliverTx, error) {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	denom := appEvmos.ClaimsKeeper.GetParams(ctx).ClaimsDenom
+
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
+	txFee := sdk.Coins{}
+	txGasLimit := uint64(0)
+
+	// Sign messages and compute gas/fees.
+	for _, m := range msgs {
+		msg, ok := m.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errorsmod.Error{}, "cannot mix Ethereum and Cosmos messages in one Tx")
+		}
+
+		if priv != nil {
+			err := msg.Sign(signer, tests.NewSigner(priv))
+			if err != nil {
+				return abci.ResponseDeliverTx{}, err
+			}
+		}
+
+		msg.From = ""
+
+		txGasLimit += msg.GetGas()
+		txFee = txFee.Add(sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(msg.GetFee())})
+	}
+
+	if err := txBuilder.SetMsgs(msgs...); err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	// Set the extension
+	var option *codectypes.Any
+	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
+	if !ok {
+		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errorsmod.Error{}, "could not set extensions for Ethereum tx")
+	}
+
+	builder.SetExtensionOptions(option)
+
+	txBuilder.SetGasLimit(txGasLimit)
+	txBuilder.SetFeeAmount(txFee)
+
+	return broadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+}
+
+func broadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseDeliverTx, error) {
 	// bz are bytes to be broadcasted over the network
-	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
+	bz, err := txEncoder(tx)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
 
 	req := abci.RequestDeliverTx{Tx: bz}
-	res := appEvmos.BaseApp.DeliverTx(req)
+	res := app.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
 		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
