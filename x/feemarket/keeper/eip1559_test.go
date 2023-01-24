@@ -89,8 +89,8 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 			params.NoBaseFee = tc.NoBaseFee
 			params.MinGasPrice = tc.minGasPrice
-            err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
-            suite.Require().NoError(err)
+			err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			// Set block height
 			suite.ctx = suite.ctx.WithBlockHeight(tc.blockHeight)

@@ -36,8 +36,8 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 			suite.SetupTest() // reset
 			params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 			params.NoBaseFee = tc.NoBaseFee
-            err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
-            suite.Require().NoError(err)
+			err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+			suite.Require().NoError(err)
 
 			tc.malleate()
 			suite.app.FeeMarketKeeper.EndBlock(suite.ctx, types.RequestEndBlock{Height: 1})

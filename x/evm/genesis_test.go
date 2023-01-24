@@ -144,8 +144,8 @@ func (suite *EvmTestSuite) TestInitGenesis() {
 			vmdb = suite.StateDB()
 
 			tc.malleate()
-            err := vmdb.Commit()
-            suite.Require().NoError(err)
+			err := vmdb.Commit()
+			suite.Require().NoError(err)
 
 			if tc.expPanic {
 				suite.Require().Panics(
