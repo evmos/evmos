@@ -19,7 +19,7 @@ package types
 // constants
 const (
 	// ModuleName defines the recovery module name
-	ModuleName = "recovery"
+	ModuleName = "recoveryv1"
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName

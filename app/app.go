@@ -1207,7 +1207,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 	}
 
 	var storeUpgrades *storetypes.StoreUpgrades
-	var customStoreUpgrades *StoreUpgrades
 
 	switch upgradeInfo.Name {
 	case v8.UpgradeName:
@@ -1231,13 +1230,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades in v10
 	case v11.UpgradeNameRC3:
 		// rename recovery store
-		customStoreUpgrades = &StoreUpgrades{
-			Replaced: []storetypes.StoreRename{
-				{
-					OldKey: "recovery",
-					NewKey: "recovery",
-				},
-			},
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"recovery"},
+			Added:   []string{recoverytypes.StoreKey},
 		}
 	case v11.UpgradeName:
 		// add ica host submodule
@@ -1245,10 +1240,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
 		}
-	}
-
-	if customStoreUpgrades != nil {
-		app.SetStoreLoader(UpgradeStoreLoader(upgradeInfo.Height, customStoreUpgrades))
 	}
 
 	if storeUpgrades != nil {
