@@ -682,7 +682,8 @@ func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.
 	}
 	ethTx := ethtypes.NewTx(contractCreateTx)
 	ethMsg := &types.MsgEthereumTx{}
-	ethMsg.FromEthereumTx(ethTx)
+    err := ethMsg.FromEthereumTx(ethTx)
+    suite.Require().NoError(err)
 	ethMsg.From = suite.address.Hex()
 
 	return ethMsg, ethMsg.Sign(signer, suite.signer)
