@@ -320,8 +320,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evmos/cosmos-sdk v0.46.7-ledger h1:IuhUWAN5BgZlHxT3MbfHF9ImKSPYmqe+cNQ1/ycIxR0=
 github.com/evmos/cosmos-sdk v0.46.7-ledger/go.mod h1:fqKqz39U5IlEFb4nbQ72951myztsDzFKKDtffYJ63nk=
-github.com/evmos/ethermint v0.21.0-rc1 h1:HSGGxCiG2pwinBFEhVWb7mLZT9PO17JIFimdP20HBXI=
-github.com/evmos/ethermint v0.21.0-rc1/go.mod h1:JQAVa5MTxOqD446eOo8nr8G5gQC7qltvI3vmGL/URu8=
+github.com/evmos/ethermint v0.21.0-rc2 h1:K6GKKn9mlij8Vhd0q33EKKFhABb9O3rfNfiYA4b17/Q=
+github.com/evmos/ethermint v0.21.0-rc2/go.mod h1:KJwIgGVkT8l/rREHvBV7c1/DhyoHzeAiJKvwrlK3IDI=
 github.com/evmos/evmos-ledger-go v0.2.1 h1:bUXA6/frc7FvN+z6GTaOcnprFCshUGh7Hd1mFmRe39s=
 github.com/evmos/evmos-ledger-go v0.2.1/go.mod h1:7Go/1+QmM0xw5VYK3nOUfluNFL4iy5BWxDwh1x3bUFs=
 github.com/evmos/go-ethereum v1.10.26 h1:7wlczxUWTwhzJJUyh3Kkqt3/5fdSJzh8c42boc9GuII=
