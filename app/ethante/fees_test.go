@@ -21,7 +21,7 @@ var execTypes = []struct {
 	{"deliverTxSimulate", false, true},
 }
 
-func (s *AnteTestSuite) TestMinGasPriceDecorator() {
+func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	denom := evmtypes.DefaultEVMDenom
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
@@ -48,12 +48,12 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -63,12 +63,12 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice > 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -78,12 +78,12 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 10, gasPrice = 10",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -93,12 +93,12 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx with MinGasPrices = 10, gasPrice = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -108,12 +108,12 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx with wrong denom",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -124,24 +124,24 @@ func (s *AnteTestSuite) TestMinGasPriceDecorator() {
 
 	for _, et := range execTypes {
 		for _, tc := range testCases {
-			s.Run(et.name+"_"+tc.name, func() {
+			suite.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
-				ctx := s.ctx.WithIsReCheckTx(et.isCheckTx)
-				dec := ethante.NewMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
+				ctx := suite.ctx.WithIsReCheckTx(et.isCheckTx)
+				dec := ethante.NewMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
 				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, NextFn)
 
 				if tc.expPass || (et.simulate && tc.allowPassOnSimulate) {
-					s.Require().NoError(err, tc.name)
+					suite.Require().NoError(err, tc.name)
 				} else {
-					s.Require().Error(err, tc.name)
-					s.Require().Contains(err.Error(), tc.errMsg, tc.name)
+					suite.Require().Error(err, tc.name)
+					suite.Require().Contains(err.Error(), tc.errMsg, tc.name)
 				}
 			})
 		}
 	}
 }
 
-func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
+func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 	denom := evmtypes.DefaultEVMDenom
 	from, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
@@ -156,10 +156,10 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"invalid tx type",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				return &invalidTx{}
 			},
@@ -169,16 +169,16 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"wrong tx type",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := s.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -187,10 +187,10 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid: invalid tx type with MinGasPrices = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				return &invalidTx{}
 			},
 			true,
@@ -199,13 +199,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid legacy tx with MinGasPrices = 0, gasPrice = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -213,13 +213,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid legacy tx with MinGasPrices = 0, gasPrice > 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -227,13 +227,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid legacy tx with MinGasPrices = 10, gasPrice = 10",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -241,13 +241,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"invalid legacy tx with MinGasPrices = 10, gasPrice = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			false,
 			"provided fee < minimum global fee",
@@ -255,13 +255,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid dynamic tx with MinGasPrices = 0, EffectivePrice = 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -269,13 +269,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid dynamic tx with MinGasPrices = 0, EffectivePrice > 0",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.ZeroDec()
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(50), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(50), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -283,13 +283,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid dynamic tx with MinGasPrices < EffectivePrice",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(100), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(100), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -297,13 +297,13 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"invalid dynamic tx with MinGasPrices > EffectivePrice",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			false,
 			"provided fee < minimum global fee",
@@ -311,18 +311,18 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"invalid dynamic tx with MinGasPrices > BaseFee, MinGasPrices > EffectivePrice",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(100)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				feemarketParams := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				feemarketParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				feemarketParams.BaseFee = sdkmath.NewInt(10)
-				err = s.app.FeeMarketKeeper.SetParams(s.ctx, feemarketParams)
-				s.Require().NoError(err)
+				err = suite.app.FeeMarketKeeper.SetParams(suite.ctx, feemarketParams)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(0), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(0), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			false,
 			"provided fee < minimum global fee",
@@ -330,18 +330,18 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 		{
 			"valid dynamic tx with MinGasPrices > BaseFee, MinGasPrices < EffectivePrice (big GasTipCap)",
 			func() sdk.Tx {
-				params := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(100)
-				err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
-				s.Require().NoError(err)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
-				feemarketParams := s.app.FeeMarketKeeper.GetParams(s.ctx)
+				feemarketParams := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				feemarketParams.BaseFee = sdkmath.NewInt(10)
-				err = s.app.FeeMarketKeeper.SetParams(s.ctx, feemarketParams)
-				s.Require().NoError(err)
+				err = suite.app.FeeMarketKeeper.SetParams(suite.ctx, feemarketParams)
+				suite.Require().NoError(err)
 
-				msg := s.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(101), &emptyAccessList)
-				return s.CreateTestTx(msg, privKey, 1, false)
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(101), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
 			true,
 			"",
@@ -350,23 +350,23 @@ func (s *AnteTestSuite) TestEthMinGasPriceDecorator() {
 
 	for _, et := range execTypes {
 		for _, tc := range testCases {
-			s.Run(et.name+"_"+tc.name, func() {
+			suite.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
-				s.SetupTest()
-				dec := ethante.NewEthMinGasPriceDecorator(s.app.FeeMarketKeeper, s.app.EvmKeeper)
-				_, err := dec.AnteHandle(s.ctx, tc.malleate(), et.simulate, NextFn)
+				suite.SetupTest()
+				dec := ethante.NewEthMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
+				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, NextFn)
 
 				if tc.expPass {
-					s.Require().NoError(err, tc.name)
+					suite.Require().NoError(err, tc.name)
 				} else {
-					s.Require().Error(err, tc.name)
-					s.Require().Contains(err.Error(), tc.errMsg, tc.name)
+					suite.Require().Error(err, tc.name)
+					suite.Require().Contains(err.Error(), tc.errMsg, tc.name)
 				}
 			})
 		}
 	}
 }
 
-func (s *AnteTestSuite) TestEthMempoolFeeDecorator() {
+func (suite *AnteTestSuite) TestEthMempoolFeeDecorator() {
 	// TODO: add test
 }
