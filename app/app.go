@@ -1229,7 +1229,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v10.UpgradeName:
 		// no store upgrades in v10
 	case v11.UpgradeNameRC3:
-		// initialize recovery store
+		// rename recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Renamed: []storetypes.StoreRename{
 				{
