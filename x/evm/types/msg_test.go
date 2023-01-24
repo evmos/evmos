@@ -114,6 +114,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 	hundredInt := big.NewInt(100)
 	zeroInt := big.NewInt(0)
 	minusOneInt := big.NewInt(-1)
+	//nolint:all
 	exp_2_255 := new(big.Int).Exp(big.NewInt(2), big.NewInt(255), nil)
 
 	testCases := []struct {
@@ -573,13 +574,14 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Getters() {
 		if strings.Contains(tc.name, "nil data") {
 			tc.tx.Data = nil
 		}
-		if strings.Contains(tc.name, "get fee") {
+		switch {
+		case strings.Contains(tc.name, "get fee"):
 			fee = tc.tx.GetFee()
 			suite.Require().Equal(tc.exp, fee)
-		} else if strings.Contains(tc.name, "get effective fee") {
+		case strings.Contains(tc.name, "get effective fee"):
 			effFee = tc.tx.GetEffectiveFee(big.NewInt(0))
 			suite.Require().Equal(tc.exp, effFee)
-		} else if strings.Contains(tc.name, "get gas") {
+		case strings.Contains(tc.name, "get gas"):
 			gas := tc.tx.GetGas()
 			suite.Require().Equal(tc.exp.Uint64(), gas)
 		}
@@ -592,6 +594,7 @@ func (suite *MsgsTestSuite) TestFromEthereumTx() {
 	suite.Require().NoError(err)
 
 	// 10^80 is more than 256 bits
+	//nolint:all
 	exp_10_80 := new(big.Int).Mul(big.NewInt(1), new(big.Int).Exp(big.NewInt(10), big.NewInt(80), nil))
 
 	testCases := []struct {
