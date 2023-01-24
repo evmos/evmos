@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"time"
 
@@ -581,7 +580,7 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 		}
 	}
 
-	granteeGasCoverage := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e17)))
+	granteeGasStipend := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e17)))
 
 	funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
 	dest := sdk.AccAddress(tests.GenerateAddress().Bytes())
@@ -614,7 +613,7 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 
 			acc := s.app.AccountKeeper.GetAccount(s.ctx, grantee)
 			clawbackAccount, _ := acc.(*types.ClawbackVestingAccount)
-			// Set clawbackAccount ptr in granteeAccounts
+			// Set reference to clawbackAccount
 			granteeAccounts[i].clawbackAccount = clawbackAccount
 
 			// Check if all tokens are unvested and locked at vestingStart
@@ -637,11 +636,11 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 
 			clawbackAccounts[i] = clawbackAccount
 
-			// Now, grant balance to cover EVM fees
-			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), granteeGasCoverage)
+			// Grant gas stipend to cover EVM fees
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), granteeGasStipend)
 			s.Require().NoError(err)
 			balanceGrantee = s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			s.Require().Equal(balanceGrantee, granteeGasCoverage[0].Add(vestingAmtTotal[0]))
+			s.Require().Equal(balanceGrantee, granteeGasStipend[0].Add(vestingAmtTotal[0]))
 		}
 	})
 
@@ -664,7 +663,6 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 		})
 
 		It("should enable access to unlocked EVM tokens (single-account)", func() {
-			fmt.Printf("Suite blockheight: %v\n", s.ctx.BlockHeight())
 			clawbackAccount := granteeAccounts[0].clawbackAccount
 			grantee := granteeAccounts[0].address
 
@@ -691,7 +689,6 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 		})
 
 		It("should enable access to unlocked EVM tokens (single-account, multiple-msgs)", func() {
-			fmt.Printf("Suite blockheight: %v\n", s.ctx.BlockHeight())
 			clawbackAccount := clawbackAccounts[0]
 			grantee := granteeAccounts[0].address
 
@@ -794,13 +791,13 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 		It("should not enable access to locked EVM tokens (single-account)", func() {
 			clawbackAccount := clawbackAccounts[0]
 
-			// Check AnteHandler on Tx with entire balance
+			// Run Tx spending entire balance
 			txAmount := vestingAmtTotal[0].Amount
 			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
 			Expect(err).To(BeNil())
 
-			// Deliver Eth Tx (Fails)
+			// Delivery Fails
 			err = deliverEthTxs(nil, msg)
 			Expect(err).ToNot(BeNil())
 		})
@@ -819,7 +816,7 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 			err := validateAnteForEthTxs(msgs...)
 			Expect(err).To(BeNil())
 
-			// Deliver Eth Tx (Fails)
+			// Delivery Fails
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
 		})
@@ -838,7 +835,7 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 			err := validateAnteForEthTxs(msgs...)
 			Expect(err).To(BeNil())
 
-			// Deliver Eth Tx (Fails)
+			// Delivery Fails
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
 		})
@@ -860,7 +857,7 @@ var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, fun
 			err := validateAnteForEthTxs(msgs...)
 			Expect(err).To(BeNil())
 
-			// Deliver Eth Tx (Fails)
+			// Delivery Fails
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
 		})
