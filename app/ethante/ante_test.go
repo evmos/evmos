@@ -33,7 +33,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-func (suite AnteTestSuite) TestAnteHandler() {
+func (suite *AnteTestSuite) TestAnteHandler() {
 	var acc authtypes.AccountI
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
@@ -530,7 +530,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 					},
 					Sequence: nonce - 1,
 				}
-				txBuilder.SetSignatures(sigsV2)
+				err = txBuilder.SetSignatures(sigsV2)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
 		},
@@ -897,7 +898,7 @@ func (suite AnteTestSuite) TestAnteHandler() {
 	}
 }
 
-func (suite AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
+func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
 
@@ -1165,7 +1166,7 @@ func (suite AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	suite.enableLondonHF = true
 }
 
-func (suite AnteTestSuite) TestAnteHandlerWithParams() {
+func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
 
@@ -1310,6 +1311,7 @@ func (suite *AnteTestSuite) TestConsumeSignatureVerificationGas() {
 	expectedCost1 := expectedGasCostByKeys(pkSet1)
 
 	for i := 0; i < len(pkSet1); i++ {
+		//nolint:staticcheck
 		stdSig := legacytx.StdSignature{PubKey: pkSet1[i], Signature: sigSet1[i]}
 		sigV2, err := legacytx.StdSignatureToSignatureV2(cdc, stdSig)
 		suite.Require().NoError(err)
