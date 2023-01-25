@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) fix Ethermint params upgrade 
+- (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) fix Ethermint params upgrade
 - (ica) [#1101](https://github.com/evmos/evmos/pull/1101) Add ICA host submodule
 - (inflation) [#1210](https://github.com/evmos/evmos/pull/1210) Delete `EpochMintProvision` from `KVStore` in a migration
 - (deps) [\#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0)
@@ -49,6 +49,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of x/params in x/incentives
 - (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of x/params in x/claims
 - (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of x/params in x/revenue
+- (vesting) [#1268](https://github.com/evmos/evmos/pull/1268) Allow usage of vested and unlocked tokens in EVM interactions
 
 ### API Breaking
 
