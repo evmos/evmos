@@ -98,7 +98,7 @@ func CreateUpgradeHandler(
 		// Register the consensus version in the version map to avoid the SDK from triggering the default
 		// InitGenesis function.
 		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
-		
+
 		_ = mm.Modules[icatypes.ModuleName].InitGenesis(ctx, icatypes.ModuleCdc, bz)
 
 		logger.Debug("running module migrations ...")
