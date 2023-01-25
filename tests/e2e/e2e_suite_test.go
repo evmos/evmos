@@ -103,10 +103,24 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	s.Require().NoError(err, "can't get block height from running node")
 	s.upgradeManager.UpgradeHeight = uint(nodeHeight + upgradeHeightDelta)
 
+	// if Evmos is lower than v10.x.x no need to use the legacy proposal
+	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
+	s.Require().NoError(err, "can't get evmosd version from running node")
+	currentVersion = strings.TrimSpace(currentVersion)
+	if !strings.HasPrefix(currentVersion, "v") {
+		currentVersion = "v" + currentVersion
+	}
+	s.T().Logf("current version: '%s'", currentVersion)
+	cmp := upgrade.ByVersion([]string{currentVersion, "v10.0.0"})
+	legacyProposal := !cmp.Less(0, 1)
+	s.T().Logf("legacy proposal: %v", legacyProposal)
+
+	// create the proposal
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
 		name,
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
+		legacyProposal,
 	)
 	s.Require().NoErrorf(
 		err,
