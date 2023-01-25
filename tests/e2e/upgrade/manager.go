@@ -185,7 +185,14 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	for {
 		select {
 		case <-ticker.C:
-			return fmt.Errorf("can't reach height %d, due to: %w", height, err)
+			stdOut, stdErr, errLogs := m.GetLogs(m.ContainerID())
+			if errLogs != nil {
+				return fmt.Errorf("eeror while getting logs: %s", errLogs.Error())
+			}
+			return fmt.Errorf(
+				"can't reach height %d, due to: %s\nerror logs: %s\nout logs: %s",
+				height, err.Error(), stdOut, stdErr,
+			)
 		default:
 			currentHeight, err = m.GetNodeHeight(ctx)
 			if currentHeight >= height {
@@ -218,6 +225,23 @@ func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
 	}
 	return h, nil
+}
+
+// GetNodeVersion calls the Evmos CLI in the current node container to get the
+// current node version
+func (m *Manager) GetNodeVersion(ctx context.Context) (string, error) {
+	exec, err := m.CreateExec([]string{"evmosd", "version"}, m.ContainerID())
+	if err != nil {
+		return "", fmt.Errorf("create exec error: %w", err)
+	}
+	outBuff, errBuff, err := m.RunExec(ctx, exec)
+	if err != nil {
+		return "", fmt.Errorf("run exec error: %w", err)
+	}
+	if errBuff.String() != "" {
+		return "", fmt.Errorf("evmos version error: %s", errBuff.String())
+	}
+	return outBuff.String(), nil
 }
 
 // ContainerID returns the docker container ID of the currently running Node
