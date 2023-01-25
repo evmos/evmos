@@ -106,7 +106,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		}
 		totalSpendByAddress[address.String()] = totalSpend
 
-		// Check that the clawbackAccount has suffient unlocked tokens to cover all requested spending.
+		// Check that the clawbackAccount has sufficient unlocked tokens to cover all requested spending.
 		// lockedBalance defaults to zero if not found.
 		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
 		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmDenom).SafeSub(lockedBalance)
