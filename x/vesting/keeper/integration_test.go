@@ -28,7 +28,7 @@ import (
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
-type GranteeSignerAccount struct {
+type TestClawbackAccount struct {
 	privKey         *ethsecp256k1.PrivKey
 	address         sdk.AccAddress
 	clawbackAccount *types.ClawbackVestingAccount
@@ -46,7 +46,7 @@ type GranteeSignerAccount struct {
 var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	// Monthly vesting period
 	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
-	amt := sdk.NewInt(1)
+	amt := sdk.NewInt(1e17)
 	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
 	vestingPeriod := sdkvesting.Period{Length: vestingLength, Amount: vestingAmt}
@@ -62,15 +62,35 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	cliffPeriod := sdkvesting.Period{Length: cliffLength, Amount: cliffAmt}
 
 	// 12 month lockup
-	lockup := int64(12) // 12 year
+	lockup := int64(12) // 12 month
 	lockupLength := vestingLength * lockup
-	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: vestingAmtTotal}
-	lockupPeriods := sdkvesting.Periods{lockupPeriod}
+	// Unlock at 12 and 24 months
+	numLockupPeriods := int64(2)
+	// Unlock 1/4th of the vest in each unlock event
+	unlockedPerLockup := vestingAmtTotal.QuoInt(math.NewInt(4))
+	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: unlockedPerLockup}
+	lockupPeriods := make(sdkvesting.Periods, numLockupPeriods)
+	for i := range lockupPeriods {
+		lockupPeriods[i] = lockupPeriod
+	}
 
 	// Create vesting periods with initial cliff
 	vestingPeriods := sdkvesting.Periods{cliffPeriod}
 	for p := int64(1); p <= periodsTotal-cliff; p++ {
 		vestingPeriods = append(vestingPeriods, vestingPeriod)
+	}
+
+	// Create test accounts with private keys for signing
+	numTestAccounts := 4
+	testAccounts := make([]TestClawbackAccount, numTestAccounts)
+	for i := range testAccounts {
+		address, privKey := tests.NewAddrKey()
+		testAccounts[i] = TestClawbackAccount{
+			privKey: &ethsecp256k1.PrivKey{
+				Key: privKey.Bytes(),
+			},
+			address: address.Bytes(),
+		}
 	}
 
 	var (
@@ -79,43 +99,61 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		vested          sdk.Coins
 	)
 
+	dest := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+
 	BeforeEach(func() {
 		s.SetupTest()
 
-		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime()
-		baseAccount := authtypes.NewBaseAccountWithAddress(addr)
-		funder := sdk.AccAddress(types.ModuleName)
-		clawbackAccount = types.NewClawbackVestingAccount(
-			baseAccount,
-			funder,
-			vestingAmtTotal,
-			vestingStart,
-			lockupPeriods,
-			vestingPeriods,
-		)
-		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, addr, vestingAmtTotal)
-		s.Require().NoError(err)
-		acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
-		s.app.AccountKeeper.SetAccount(s.ctx, acc)
+		gasCoverage := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e16)))
 
-		// Check if all tokens are unvested at vestingStart
-		unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
-		vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-		s.Require().Equal(vestingAmtTotal, unvested)
-		s.Require().True(vested.IsZero())
+		// Initialize all test accounts
+		for i, account := range testAccounts {
+			// Create and fund periodic vesting account
+			vestingStart := s.ctx.BlockTime()
+			baseAccount := authtypes.NewBaseAccountWithAddress(account.address)
+			clawbackAccount = types.NewClawbackVestingAccount(
+				baseAccount,
+				funder,
+				vestingAmtTotal,
+				vestingStart,
+				lockupPeriods,
+				vestingPeriods,
+			)
+			testAccounts[i].clawbackAccount = clawbackAccount
+
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, vestingAmtTotal)
+			s.Require().NoError(err)
+			acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
+			s.app.AccountKeeper.SetAccount(s.ctx, acc)
+
+			// Check if all tokens are unvested at vestingStart
+			unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			s.Require().Equal(vestingAmtTotal, unvested)
+			s.Require().True(vested.IsZero())
+
+			// Grant gas stipend to cover EVM fees
+			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), gasCoverage)
+			s.Require().NoError(err)
+			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
+			s.Require().Equal(granteeBalance, gasCoverage[0].Add(vestingAmtTotal[0]))
+		}
+
+		// Set clawbackAccount to the first account
+		clawbackAccount = testAccounts[0].clawbackAccount
 	})
 
 	Context("before first vesting period", func() {
 		It("cannot delegate tokens", func() {
-			err := delegate(clawbackAccount, 100)
+			err := delegate(clawbackAccount, math.NewInt(100))
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot transfer tokens", func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
-				addr,
+				clawbackAccount.GetAddress(),
 				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				unvested,
 			)
@@ -142,19 +180,19 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
+			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom))
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("cannot transfer vested tokens", func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
-				addr,
+				clawbackAccount.GetAddress(),
 				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				vested,
 			)
@@ -167,34 +205,245 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("after first vesting period and lockup", func() {
+	Context("After quarter of vesting and first lockup period", func() {
+		BeforeEach(func() {
+			// Surpass first lockup
+			vestDuration := time.Duration(lockupLength)
+			s.CommitAfter(vestDuration * time.Second)
+
+			// Check if some, but not all tokens are vested and unlocked
+			for _, account := range testAccounts {
+				vested := account.clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+				unlocked := account.clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
+				expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
+
+				s.Require().NotEqual(vestingAmtTotal, vested)
+				s.Require().Equal(expVested, vested)
+				s.Require().Equal(unlocked, unlockedPerLockup)
+			}
+		})
+
+		It("should enable access to unlocked EVM tokens (single-account, single-msg)", func() {
+			clawbackAccount := testAccounts[0].clawbackAccount
+			grantee := testAccounts[0].address
+
+			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			txAmount := unlockedPerLockup[0].Amount
+			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
+			err := validateAnteForEthTxs(msg)
+			Expect(err).To(BeNil())
+
+			// Expect delivery to succeed, then compare balances
+			err = deliverEthTxs(testAccounts[0].privKey, msg)
+			Expect(err).To(BeNil())
+
+			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			gb := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			s.Require().Equal(funderBalance, fb)
+			s.Require().GreaterOrEqual(granteeBalance.Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
+			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Uint64(), db.Amount.Uint64())
+		})
+
+		It("should enable access to unlocked EVM tokens (single-account, multiple-msgs)", func() {
+			account := testAccounts[0]
+
+			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
+			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			// Split the total unlocked amount into numMsgs equally sized tx's
+			numMsgs := 3
+			msgs := make([]sdk.Msg, numMsgs)
+			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+
+			for i := 0; i < numMsgs; i++ {
+				msgs[i] = createEthTx(nil, account.clawbackAccount, dest, txAmount.BigInt(), i)
+			}
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			// Expect delivery to succeed, then compare balances
+			err = deliverEthTxs(testAccounts[0].privKey, msgs...)
+			Expect(err).To(BeNil())
+
+			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
+			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			s.Require().Equal(funderBalance, fb)
+			s.Require().GreaterOrEqual(granteeBalance.Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
+			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Uint64(), db.Amount.Uint64())
+		})
+
+		It("should enable access to unlocked EVM tokens (multi-account, single-msg)", func() {
+			txAmount := unlockedPerLockup[0].Amount
+
+			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			granteeBalances := make(sdk.Coins, numTestAccounts)
+			msgs := make([]sdk.Msg, numTestAccounts)
+			for i, grantee := range testAccounts {
+				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
+				msgs[i] = createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), 0)
+			}
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			// Expect delivery to succeed, then compare balances
+			err = deliverEthTxs(nil, msgs...)
+			Expect(err).To(BeNil())
+
+			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			s.Require().Equal(funderBalance, fb)
+			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Mul(math.NewInt(int64(numTestAccounts))), db.Amount)
+
+			for i, account := range testAccounts {
+				gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
+				s.Require().GreaterOrEqual(granteeBalances[i].Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
+			}
+		})
+
+		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
+			numMsgs := 3
+			msgs := []sdk.Msg{}
+			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+
+			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			granteeBalances := make(sdk.Coins, numTestAccounts)
+			for i, grantee := range testAccounts {
+				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
+				for j := 0; j < numMsgs; j++ {
+					msgs = append(msgs, createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), j))
+				}
+			}
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			// Expect delivery to succeed, then compare balances
+			err = deliverEthTxs(nil, msgs...)
+			Expect(err).To(BeNil())
+
+			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			s.Require().Equal(funderBalance, fb)
+			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Mul(math.NewInt(int64(numTestAccounts))), db.Amount)
+
+			for i, account := range testAccounts {
+				gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
+				s.Require().GreaterOrEqual(granteeBalances[i].Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
+			}
+		})
+
+		It("should not enable access to locked EVM tokens (single-account, single-msg)", func() {
+			// Attempt to spend entire balance
+			txAmount := vestingAmtTotal[0].Amount
+			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
+			err := validateAnteForEthTxs(msg)
+			Expect(err).To(BeNil())
+
+			err = deliverEthTxs(nil, msg)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("should not enable access to locked EVM tokens (single-account, multiple-msgs)", func() {
+			numMsgs := 3
+			msgs := make([]sdk.Msg, numMsgs+1)
+			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+
+			// Add additional message that exceeds unlocked balance
+			for i := 0; i < numMsgs+1; i++ {
+				msgs[i] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), i)
+			}
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			err = deliverEthTxs(nil, msgs...)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("should not enable access to locked EVM tokens (multi-account, single-msg)", func() {
+			msgs := make([]sdk.Msg, numTestAccounts+1)
+			txAmount := unlockedPerLockup[0].Amount
+
+			for i, account := range testAccounts {
+				msgs[i] = createEthTx(account.privKey, account.clawbackAccount, dest, txAmount.BigInt(), 0)
+			}
+
+			// Add additional message that exceeds unlocked balance
+			msgs[numTestAccounts] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 1)
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			err = deliverEthTxs(nil, msgs...)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
+			numMsgs := 3
+			msgs := []sdk.Msg{}
+			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+
+			for _, account := range testAccounts {
+				for j := 0; j < numMsgs; j++ {
+					msgs = append(msgs, createEthTx(account.privKey, account.clawbackAccount, dest, txAmount.BigInt(), j))
+				}
+			}
+
+			// Add additional message that exceeds unlocked balance
+			msgs = append(msgs, createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), numMsgs))
+
+			err := validateAnteForEthTxs(msgs...)
+			Expect(err).To(BeNil())
+
+			err = deliverEthTxs(nil, msgs...)
+			Expect(err).ToNot(BeNil())
+		})
+	})
+
+	Context("after half of vesting period and both lockups", func() {
 		BeforeEach(func() {
 			// Surpass lockup duration
-			lockupDuration := time.Duration(lockupLength)
+			lockupDuration := time.Duration(lockupLength * numLockupPeriods)
 			s.CommitAfter(lockupDuration * time.Second)
 
 			// Check if some, but not all tokens are vested
 			unvested = clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
 			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup*numLockupPeriods))))
 			s.Require().NotEqual(vestingAmtTotal, vested)
 			s.Require().Equal(expVested, vested)
 		})
 
 		It("can delegate vested tokens", func() {
-			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom).Int64())
+			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom))
 			Expect(err).ToNot(BeNil())
 		})
 
 		It("can transfer vested tokens", func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
-				addr,
+				clawbackAccount.GetAddress(),
 				sdk.AccAddress(tests.GenerateAddress().Bytes()),
 				vested,
 			)
@@ -204,9 +453,9 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("cannot transfer unvested tokens", func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
-				addr,
+				clawbackAccount.GetAddress(),
 				sdk.AccAddress(tests.GenerateAddress().Bytes()),
-				unvested,
+				vestingAmtTotal,
 			)
 			Expect(err).ToNot(BeNil())
 		})
@@ -351,7 +600,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
 		Expect(err).To(BeNil())
 
 		// Perform clawback
@@ -398,7 +647,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
 		Expect(err).To(BeNil())
 
 		// Perform clawback
@@ -443,7 +692,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom).Int64())
+		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
 		Expect(err).To(BeNil())
 
 		// Perform clawback
@@ -521,354 +770,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 	})
 })
 
-// Ensure the vesting account has access to unlocked tokens in EVM interactions
-var _ = Describe("Clawback Vesting Accounts - Unlocked EVM Tokens", Ordered, func() {
-	// Monthly vesting period
-	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
-	amt := sdk.NewInt(1e18)
-	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
-	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
-	vestingPeriod := sdkvesting.Period{Length: vestingLength, Amount: vestingAmt}
-
-	// 2 years vesting total
-	periodsTotal := int64(24)
-	vestingTotal := amt.Mul(sdk.NewInt(periodsTotal))
-	vestingAmtTotal := sdk.NewCoins(sdk.NewCoin(stakeDenom, vestingTotal))
-
-	// 6 month cliff
-	cliff := int64(6)
-	cliffLength := vestingLength * cliff
-	cliffAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(cliff))))
-	cliffPeriod := sdkvesting.Period{Length: cliffLength, Amount: cliffAmt}
-
-	// 12-month and 24-month lockups
-	lockup := int64(12) // 12 months
-	lockupLength := vestingLength * lockup
-	numLockupPeriods := 2
-	// Unlock the corresponding fraction of the total in each period
-	unlockedPerLockup := vestingAmtTotal.QuoInt(math.NewInt(int64(numLockupPeriods)))
-	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: unlockedPerLockup}
-	lockupPeriods := sdkvesting.Periods{}
-	for i := 0; i < numLockupPeriods; i++ {
-		lockupPeriods = append(lockupPeriods, lockupPeriod)
-	}
-
-	// Create vesting periods with initial cliff
-	vestingPeriods := sdkvesting.Periods{cliffPeriod}
-	for p := int64(1); p <= periodsTotal-cliff; p++ {
-		vestingPeriods = append(vestingPeriods, vestingPeriod)
-	}
-
-	var (
-		vesting  sdk.Coins
-		vested   sdk.Coins
-		unlocked sdk.Coins
-	)
-
-	// Test with multiple accounts to ensure that none of them exceed the locked total
-	numAccounts := 2
-	clawbackAccounts := make([]*types.ClawbackVestingAccount, numAccounts)
-
-	granteeAccounts := make([]GranteeSignerAccount, numAccounts)
-	for i := range granteeAccounts {
-		address, privKey := tests.NewAddrKey()
-		granteeAccounts[i] = GranteeSignerAccount{
-			privKey: &ethsecp256k1.PrivKey{
-				Key: privKey.Bytes(),
-			},
-			address: address.Bytes(),
-		}
-	}
-
-	granteeGasStipend := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e17)))
-
-	funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	dest := sdk.AccAddress(tests.GenerateAddress().Bytes())
-
-	BeforeEach(func() {
-		s.SetupTest()
-		ctx := sdk.WrapSDKContext(s.ctx)
-
-		// Create and fund periodic vesting account
-		vestingStart := s.ctx.BlockTime()
-		funderTotalBalance := vestingAmtTotal.MulInt(sdk.NewInt(int64(numAccounts)))
-		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, funder, funderTotalBalance)
-		s.Require().NoError(err)
-
-		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-		s.Require().True(balanceFunder.IsGTE(vestingAmtTotal[0]))
-		s.Require().Equal(balanceDest, sdk.NewInt64Coin(stakeDenom, 0))
-
-		// Initialize all ClawbackVestingAccounts
-		for i := 0; i < numAccounts; i++ {
-			grantee := granteeAccounts[i].address
-			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			s.Require().Equal(balanceGrantee, sdk.NewInt64Coin(stakeDenom, 0))
-
-			msg := types.NewMsgCreateClawbackVestingAccount(funder, grantee, vestingStart, lockupPeriods, vestingPeriods, true)
-
-			_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
-			s.Require().NoError(err)
-
-			acc := s.app.AccountKeeper.GetAccount(s.ctx, grantee)
-			clawbackAccount, _ := acc.(*types.ClawbackVestingAccount)
-			// Set reference to clawbackAccount
-			granteeAccounts[i].clawbackAccount = clawbackAccount
-
-			// Check if all tokens are unvested and locked at vestingStart
-			vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
-			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-			unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
-			s.Require().Equal(vestingAmtTotal, vesting)
-			s.Require().True(vested.IsZero())
-			s.Require().True(unlocked.IsZero())
-
-			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			balanceGrantee = s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			balanceDest = s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			totalSpentByFunder := vestingAmtTotal[0].Amount.Mul(math.NewInt(int64(i + 1)))
-
-			s.Require().True(bF.IsGTE(balanceFunder.SubAmount(totalSpentByFunder)))
-			s.Require().True(balanceGrantee.IsGTE(vestingAmtTotal[0]))
-			s.Require().Equal(balanceDest, sdk.NewInt64Coin(stakeDenom, 0))
-
-			clawbackAccounts[i] = clawbackAccount
-
-			// Grant gas stipend to cover EVM fees
-			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), granteeGasStipend)
-			s.Require().NoError(err)
-			balanceGrantee = s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			s.Require().Equal(balanceGrantee, granteeGasStipend[0].Add(vestingAmtTotal[0]))
-		}
-	})
-
-	Context("After first unlock", func() {
-		BeforeEach(func() {
-			// Surpass cliff and first lockup
-			vestDuration := time.Duration(lockupLength)
-			s.CommitAfter(vestDuration * time.Second)
-
-			// Check if some, but not all tokens are vested and unlocked
-			for _, clawbackAccount := range clawbackAccounts {
-				vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
-				unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
-				expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup))))
-
-				s.Require().NotEqual(vestingAmtTotal, vested)
-				s.Require().Equal(expVested, vested)
-				s.Require().Equal(unlocked, unlockedPerLockup)
-			}
-		})
-
-		It("should enable access to unlocked EVM tokens (single-account)", func() {
-			clawbackAccount := granteeAccounts[0].clawbackAccount
-			grantee := granteeAccounts[0].address
-
-			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			txAmount := unlockedPerLockup[0].Amount
-			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
-			err := validateAnteForEthTxs(msg)
-			Expect(err).To(BeNil())
-
-			// Deliver Eth Tx
-			err = deliverEthTxs(granteeAccounts[0].privKey, msg)
-			Expect(err).To(BeNil())
-
-			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			gb := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			s.Require().Equal(funderBalance, fb)
-			s.Require().GreaterOrEqual(granteeBalance.Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
-			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Uint64(), db.Amount.Uint64())
-		})
-
-		It("should enable access to unlocked EVM tokens (single-account, multiple-msgs)", func() {
-			clawbackAccount := clawbackAccounts[0]
-			grantee := granteeAccounts[0].address
-
-			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			// Split the total unlocked amount into numMsgs tx's
-			numMsgs := 3
-			msgs := make([]sdk.Msg, numMsgs)
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
-
-			for i := 0; i < numMsgs; i++ {
-				msgs[i] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), i)
-			}
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Deliver Eth Tx
-			err = deliverEthTxs(granteeAccounts[0].privKey, msgs...)
-			Expect(err).To(BeNil())
-
-			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			gb := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
-			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			s.Require().Equal(funderBalance, fb)
-			s.Require().GreaterOrEqual(granteeBalance.Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
-			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Uint64(), db.Amount.Uint64())
-		})
-
-		It("should enable access to unlocked EVM tokens (multi-account)", func() {
-			txAmount := unlockedPerLockup[0].Amount
-
-			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			granteeBalances := make(sdk.Coins, numAccounts)
-			msgs := make([]sdk.Msg, numAccounts)
-			for i, grantee := range granteeAccounts {
-				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
-				msgs[i] = createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), 0)
-			}
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Deliver Eth Tx
-			err = deliverEthTxs(nil, msgs...)
-			Expect(err).To(BeNil())
-
-			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			s.Require().Equal(funderBalance, fb)
-			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Mul(math.NewInt(int64(numAccounts))), db.Amount)
-
-			for i, clawbackAccount := range clawbackAccounts {
-				gb := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), stakeDenom)
-				s.Require().GreaterOrEqual(granteeBalances[i].Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
-			}
-		})
-
-		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
-			numMsgs := 3
-			msgs := []sdk.Msg{}
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
-
-			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			granteeBalances := make(sdk.Coins, numAccounts)
-			for i, grantee := range granteeAccounts {
-				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
-				for j := 0; j < numMsgs; j++ {
-					msgs = append(msgs, createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), j))
-				}
-			}
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Deliver Eth Tx
-			err = deliverEthTxs(nil, msgs...)
-			Expect(err).To(BeNil())
-
-			fb := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
-			db := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-			s.Require().Equal(funderBalance, fb)
-			s.Require().Equal(destBalance.Add(unlockedPerLockup[0]).Amount.Mul(math.NewInt(int64(numAccounts))), db.Amount)
-
-			for i, clawbackAccount := range clawbackAccounts {
-				gb := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), stakeDenom)
-				s.Require().GreaterOrEqual(granteeBalances[i].Sub(unlockedPerLockup[0]).Amount.Uint64(), gb.Amount.Uint64())
-			}
-		})
-
-		It("should not enable access to locked EVM tokens (single-account)", func() {
-			clawbackAccount := clawbackAccounts[0]
-
-			// Run Tx spending entire balance
-			txAmount := vestingAmtTotal[0].Amount
-			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
-			err := validateAnteForEthTxs(msg)
-			Expect(err).To(BeNil())
-
-			// Delivery Fails
-			err = deliverEthTxs(nil, msg)
-			Expect(err).ToNot(BeNil())
-		})
-
-		It("should not enable access to locked EVM tokens (single-account, multiple-msgs)", func() {
-			clawbackAccount := clawbackAccounts[0]
-			numMsgs := 3
-			msgs := make([]sdk.Msg, numMsgs+1)
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
-
-			// Add message that exceeds unlocked balance
-			for i := 0; i < numMsgs+1; i++ {
-				msgs[i] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), i)
-			}
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Delivery Fails
-			err = deliverEthTxs(nil, msgs...)
-			Expect(err).ToNot(BeNil())
-		})
-
-		It("should not enable access to locked EVM tokens (multi-account)", func() {
-			msgs := make([]sdk.Msg, numAccounts+1)
-			txAmount := unlockedPerLockup[0].Amount
-
-			for i, grantee := range granteeAccounts {
-				msgs[i] = createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), 0)
-			}
-
-			// Add message that exceeds unlocked balance
-			msgs[numAccounts] = createEthTx(nil, clawbackAccounts[0], dest, txAmount.BigInt(), 1)
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Delivery Fails
-			err = deliverEthTxs(nil, msgs...)
-			Expect(err).ToNot(BeNil())
-		})
-
-		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
-			numMsgs := 3
-			msgs := []sdk.Msg{}
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
-
-			for _, grantee := range granteeAccounts {
-				for j := 0; j < numMsgs; j++ {
-					msgs = append(msgs, createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), j))
-				}
-			}
-
-			// Add message that exceeds unlocked balance
-			msgs = append(msgs, createEthTx(nil, clawbackAccounts[0], dest, txAmount.BigInt(), numMsgs))
-
-			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
-
-			// Delivery Fails
-			err = deliverEthTxs(nil, msgs...)
-			Expect(err).ToNot(BeNil())
-		})
-	})
-})
-
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
 
-func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error {
+func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) error {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
@@ -877,7 +783,7 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	//
 	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
 	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(amount)))
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, amount))
 	err = txBuilder.SetMsgs(delegateMsg)
 	s.Require().NoError(err)
 	tx := txBuilder.GetTx()
