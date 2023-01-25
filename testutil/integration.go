@@ -172,6 +172,9 @@ func DeliverTx(
 	return broadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
 }
 
+// DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
+// If a private key is provided, it will attempt to sign all messages with the given private key,
+// otherwise, it will assume the messages have already been signed.
 func DeliverEthTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,

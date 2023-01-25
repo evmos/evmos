@@ -97,7 +97,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		address := acc.GetAddress()
 
 		// Since there can be multiple transactions from different accounts, we track each account's total
-		// requested value to compare against its unlocked balances.
+		// spend to compare against its unlocked balances.
 		totalSpend, ok := totalSpendByAddress[address.String()]
 		if !ok {
 			totalSpend = msgValue
@@ -109,6 +109,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// Check that the clawbackAccount has sufficient unlocked tokens to cover all requested spending.
 		// lockedBalance defaults to zero if not found.
 		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
+
 		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmDenom).SafeSub(lockedBalance)
 		if err != nil {
 			spendableBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())

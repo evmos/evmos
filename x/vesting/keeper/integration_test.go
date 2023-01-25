@@ -66,7 +66,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	lockupLength := vestingLength * lockup
 	// Unlock at 12 and 24 months
 	numLockupPeriods := int64(2)
-	// Unlock 1/4th of the vest in each unlock event
+	// Unlock 1/4th of the total vest in each unlock event
 	unlockedPerLockup := vestingAmtTotal.QuoInt(math.NewInt(4))
 	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: unlockedPerLockup}
 	lockupPeriods := make(sdkvesting.Periods, numLockupPeriods)
@@ -91,6 +91,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		}
 	}
 
+	accountGasCoverage := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e16)))
+
 	var (
 		clawbackAccount *types.ClawbackVestingAccount
 		unvested        sdk.Coins
@@ -102,8 +104,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
-
-		gasCoverage := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e16)))
 
 		// Initialize all test accounts
 		for i, account := range testAccounts {
@@ -118,7 +118,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 				lockupPeriods,
 				vestingPeriods,
 			)
-			testAccounts[i].clawbackAccount = clawbackAccount
 
 			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, vestingAmtTotal)
 			s.Require().NoError(err)
@@ -132,14 +131,14 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			s.Require().True(vested.IsZero())
 
 			// Grant gas stipend to cover EVM fees
-			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), gasCoverage)
+			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
 			s.Require().NoError(err)
 			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, account.address, stakeDenom)
-			s.Require().Equal(granteeBalance, gasCoverage[0].Add(vestingAmtTotal[0]))
-		}
+			s.Require().Equal(granteeBalance, accountGasCoverage[0].Add(vestingAmtTotal[0]))
 
-		// Set clawbackAccount to the first account
-		clawbackAccount = testAccounts[0].clawbackAccount
+			// Update testAccounts clawbackAccount reference
+			testAccounts[i].clawbackAccount = clawbackAccount
+		}
 	})
 
 	Context("before first vesting period", func() {
@@ -152,7 +151,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				dest,
 				unvested,
 			)
 			Expect(err).ToNot(BeNil())
@@ -191,7 +190,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				dest,
 				vested,
 			)
 			Expect(err).ToNot(BeNil())
@@ -203,7 +202,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 	})
 
-	Context("After quarter of vesting and first lockup period", func() {
+	Context("Between first and second lockup periods", func() {
 		BeforeEach(func() {
 			// Surpass first lockup
 			vestDuration := time.Duration(lockupLength)
@@ -228,7 +227,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
 			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
-			txAmount := unlockedPerLockup[0].Amount
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom)
 			msg := createEthTx(nil, grantee, dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
 			Expect(err).To(BeNil())
@@ -256,7 +255,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// Split the total unlocked amount into numMsgs equally sized tx's
 			numMsgs := 3
 			msgs := make([]sdk.Msg, numMsgs)
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom).QuoRaw(int64(numMsgs))
 
 			for i := 0; i < numMsgs; i++ {
 				msgs[i] = createEthTx(nil, account.address, dest, txAmount.BigInt(), i)
@@ -279,16 +278,16 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (multi-account, single-msg)", func() {
-			txAmount := unlockedPerLockup[0].Amount
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom)
 
 			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
 			granteeBalances := make(sdk.Coins, numTestAccounts)
+
 			msgs := make([]sdk.Msg, numTestAccounts)
 			for i, grantee := range testAccounts {
-				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
 				msgs[i] = createEthTx(grantee.privKey, grantee.address, dest, txAmount.BigInt(), 0)
+				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
 			}
 
 			err := validateAnteForEthTxs(msgs...)
@@ -313,17 +312,17 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
 			numMsgs := 3
 			msgs := []sdk.Msg{}
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom).QuoRaw(int64(numMsgs))
 
 			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
 			granteeBalances := make(sdk.Coins, numTestAccounts)
+
 			for i, grantee := range testAccounts {
-				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
 				for j := 0; j < numMsgs; j++ {
 					msgs = append(msgs, createEthTx(grantee.privKey, grantee.address, dest, txAmount.BigInt(), j))
 				}
+				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
 			}
 
 			err := validateAnteForEthTxs(msgs...)
@@ -347,7 +346,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not enable access to locked EVM tokens (single-account, single-msg)", func() {
 			// Attempt to spend entire balance
-			txAmount := vestingAmtTotal[0].Amount
+			txAmount := vestingAmtTotal.AmountOf(stakeDenom)
 			msg := createEthTx(nil, clawbackAccount.GetAddress(), dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
 			Expect(err).ToNot(BeNil())
@@ -359,7 +358,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens (single-account, multiple-msgs)", func() {
 			numMsgs := 3
 			msgs := make([]sdk.Msg, numMsgs+1)
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom).QuoRaw(int64(numMsgs))
 
 			// Add additional message that exceeds unlocked balance
 			for i := 0; i < numMsgs+1; i++ {
@@ -375,7 +374,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not enable access to locked EVM tokens (multi-account, single-msg)", func() {
 			msgs := make([]sdk.Msg, numTestAccounts+1)
-			txAmount := unlockedPerLockup[0].Amount
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom)
 
 			for i, account := range testAccounts {
 				msgs[i] = createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), 0)
@@ -394,7 +393,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens (multi-account, multiple-msgs)", func() {
 			numMsgs := 3
 			msgs := []sdk.Msg{}
-			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
+			txAmount := unlockedPerLockup.AmountOf(stakeDenom).QuoRaw(int64(numMsgs))
 
 			for _, account := range testAccounts {
 				for j := 0; j < numMsgs; j++ {
@@ -416,7 +415,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			account := testAccounts[0]
 			address, privKey := createAddressKey()
 
-			txAmount := vestingAmtTotal[0].Amount
+			txAmount := vestingAmtTotal.AmountOf(stakeDenom)
 
 			// Fund a normal account to try to short-circuit the AnteHandler
 			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, vestingAmtTotal.MulInt(sdk.NewInt(2)))
