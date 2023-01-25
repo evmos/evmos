@@ -133,28 +133,6 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	)
 }
 
-// depositToProposal deposits tokens to the upgrade proposal with the given id.
-//
-// TODO: Remove deposit to proposal and deposit during the proposal creation.
-func (s *IntegrationTestSuite) depositToProposal(id int) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	exec, err := s.upgradeManager.CreateDepositProposalExec(s.upgradeParams.ChainID, id)
-	s.Require().NoError(err, "can't create deposit to proposal tx exec")
-	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-	s.Require().NoErrorf(
-		err,
-		"failed to submit deposit to proposal tx;\nstdout: %s,\nstderr: %s", outBuf, errBuf,
-	)
-
-	s.Require().Truef(
-		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
-	)
-
-	s.T().Logf("successfully deposited to proposal")
-}
-
 // voteForProposal votes for the upgrade proposal with the given id.
 func (s *IntegrationTestSuite) voteForProposal(id int) {
 	ctx, cancel := context.WithCancel(context.Background())

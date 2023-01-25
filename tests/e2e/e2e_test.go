@@ -14,7 +14,6 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 		}
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, upgrade.version, upgrade.name)
 		s.proposeUpgrade(upgrade.name, upgrade.version)
-		s.depositToProposal(idx)
 		s.voteForProposal(idx)
 		s.upgrade(upgrade.repo, upgrade.version)
 	}
