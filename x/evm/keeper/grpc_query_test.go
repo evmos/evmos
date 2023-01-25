@@ -569,7 +569,9 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() {
 				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
-				data := append(types.ERC20Contract.Bin, ctorArgs...)
+
+				data := types.ERC20Contract.Bin
+				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
 					Data: (*hexutil.Bytes)(&data),
@@ -645,7 +647,8 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() {
 				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
-				data := append(types.ERC20Contract.Bin, ctorArgs...)
+				data := types.ERC20Contract.Bin
+				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
 					Data: (*hexutil.Bytes)(&data),
@@ -673,14 +676,16 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() {
 				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &suite.address, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
-				data := append(types.ERC20Contract.Bin, ctorArgs...)
+				data := types.ERC20Contract.Bin
+				data = append(data, ctorArgs...)
 				args = types.TransactionArgs{
 					From: &suite.address,
 					Data: (*hexutil.Bytes)(&data),
 				}
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			false,
 			0,
@@ -917,7 +922,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
@@ -1166,7 +1172,8 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
 	suite.Require().NoError(err)
 
-	data := append(types.ERC20Contract.Bin, ctorArgs...)
+	data := types.ERC20Contract.Bin
+	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&types.TransactionArgs{
 		From: &address,
 		Data: (*hexutil.Bytes)(&data),
@@ -1175,14 +1182,14 @@ func (suite *KeeperTestSuite) TestNonceInQuery() {
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
 	_, err = suite.queryClient.EstimateGas(sdk.WrapSDKContext(suite.ctx), &types.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: proposerAddress,
 	})
 	suite.Require().NoError(err)
 
 	_, err = suite.queryClient.EthCall(sdk.WrapSDKContext(suite.ctx), &types.EthCallRequest{
 		Args:            args,
-		GasCap:          uint64(config.DefaultGasCap),
+		GasCap:          config.DefaultGasCap,
 		ProposerAddress: proposerAddress,
 	})
 	suite.Require().NoError(err)
@@ -1272,7 +1279,8 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
 	suite.Require().NoError(err)
 
-	data := append(types.ERC20Contract.Bin, ctorArgs...)
+	data := types.ERC20Contract.Bin
+	data = append(data, ctorArgs...)
 
 	testCases := []struct {
 		name     string
@@ -1282,7 +1290,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 		{
 			"invalid args",
 			func() {
-				req = &types.EthCallRequest{Args: []byte("invalid args"), GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
@@ -1297,7 +1305,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				})
 
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
@@ -1310,11 +1318,12 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				})
 
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: uint64(config.DefaultGasCap)}
+				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EnableCreate = false
-				suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			false,
 		},

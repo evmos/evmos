@@ -75,7 +75,7 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Evmos, simapp.GenesisStat
 		simapp.EmptyAppOptions{})
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
-		genesisState := newTestGenesisState(app.AppCodec())
+		genesisState := NewTestGenesisState(app.AppCodec())
 		if patchGenesis != nil {
 			genesisState = patchGenesis(app, genesisState)
 		}
@@ -99,8 +99,8 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Evmos, simapp.GenesisStat
 	return app
 }
 
-// newTestGenesisState generate genesis state with single validator
-func newTestGenesisState(codec codec.Codec) simapp.GenesisState {
+// NewTestGenesisState generate genesis state with single validator
+func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()
 	if err != nil {

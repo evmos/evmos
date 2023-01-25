@@ -62,27 +62,28 @@ func TestUnwrapEthererumMsg(t *testing.T) {
 
 	msg := evmtypes.NewTx(big.NewInt(1), 0, &common.Address{}, big.NewInt(0), 0, big.NewInt(0), nil, nil, []byte{}, nil)
 	err = builder.SetMsgs(msg)
+	require.NotNil(t, err)
 
 	tx = builder.GetTx().(sdk.Tx)
-	msg_, err := evmtypes.UnwrapEthereumMsg(&tx, msg.AsTransaction().Hash())
+	unwrappedMsg, err := evmtypes.UnwrapEthereumMsg(&tx, msg.AsTransaction().Hash())
 	require.Nil(t, err)
-	require.Equal(t, msg_, msg)
+	require.Equal(t, unwrappedMsg, msg)
 }
 
 func TestBinSearch(t *testing.T) {
-	success_executable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
+	successExecutable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
 		target := uint64(21000)
 		return gas < target, nil, nil
 	}
-	failed_executable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
+	failedExecutable := func(gas uint64) (bool, *evmtypes.MsgEthereumTxResponse, error) {
 		return true, nil, errors.New("contract failed")
 	}
 
-	gas, err := evmtypes.BinSearch(20000, 21001, success_executable)
+	gas, err := evmtypes.BinSearch(20000, 21001, successExecutable)
 	require.NoError(t, err)
 	require.Equal(t, gas, uint64(21000))
 
-	gas, err = evmtypes.BinSearch(20000, 21001, failed_executable)
+	gas, err = evmtypes.BinSearch(20000, 21001, failedExecutable)
 	require.Error(t, err)
 	require.Equal(t, gas, uint64(0))
 }

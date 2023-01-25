@@ -3,11 +3,12 @@ package ethante_test
 import (
 	"errors"
 	"fmt"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
 	"strings"
 	"time"
+
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	sdkmath "cosmossdk.io/math"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
@@ -33,7 +34,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-func (suite AnteTestSuite) TestAnteHandler() {
+func (suite *AnteTestSuite) TestAnteHandler() {
 	var acc authtypes.AccountI
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
@@ -46,7 +47,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 		suite.Require().NoError(acc.SetSequence(1))
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
-		suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt(10000000000))
+		err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt(10000000000))
+		suite.Require().NoError(err)
 
 		suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
 	}
@@ -508,7 +510,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(100*int64(gas))))
 				txBuilder := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "ethermint_9001-1", gas, amount)
 				sigsV2 := signing.SignatureV2{}
-				txBuilder.SetSignatures(sigsV2)
+				err := txBuilder.SetSignatures(sigsV2)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
 		},
@@ -528,7 +531,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 					},
 					Sequence: nonce - 1,
 				}
-				txBuilder.SetSignatures(sigsV2)
+				err = txBuilder.SetSignatures(sigsV2)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
 		},
@@ -548,7 +552,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 					},
 					Sequence: nonce,
 				}
-				txBuilder.SetSignatures(sigsV2)
+				err = txBuilder.SetSignatures(sigsV2)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
 		},
@@ -802,7 +807,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 				)
 
 				msg.Amount[0].Amount = sdk.NewInt(5)
-				txBuilder.SetMsgs(msg)
+				err := txBuilder.SetMsgs(msg)
+				suite.Require().NoError(err)
 
 				return txBuilder.GetTx()
 			}, false, false, false,
@@ -835,7 +841,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 				)
 
 				// Duplicate
-				txBuilder.SetMsgs(msg, msg)
+				err := txBuilder.SetMsgs(msg, msg)
+				suite.Require().NoError(err)
 
 				return txBuilder.GetTx()
 			}, false, false, false,
@@ -863,7 +870,8 @@ func (suite AnteTestSuite) TestAnteHandler() {
 					"EIP-712",
 				)
 
-				txBuilder.SetMsgs(msg, msg)
+				err := txBuilder.SetMsgs(msg, msg)
+				suite.Require().NoError(err)
 
 				return txBuilder.GetTx()
 			}, false, false, false,
@@ -891,7 +899,7 @@ func (suite AnteTestSuite) TestAnteHandler() {
 	}
 }
 
-func (suite AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
+func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
 
@@ -1145,8 +1153,9 @@ func (suite AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 			suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx).WithIsReCheckTx(tc.reCheckTx)
-			suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
-			_, err := suite.anteHandler(suite.ctx, tc.txFn(), false)
+			err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
+			suite.Require().NoError(err)
+			_, err = suite.anteHandler(suite.ctx, tc.txFn(), false)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {
@@ -1158,7 +1167,7 @@ func (suite AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	suite.enableLondonHF = true
 }
 
-func (suite AnteTestSuite) TestAnteHandlerWithParams() {
+func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := tests.NewAddrKey()
 	to := tests.GenerateAddress()
 
@@ -1274,8 +1283,9 @@ func (suite AnteTestSuite) TestAnteHandlerWithParams() {
 			suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 			suite.ctx = suite.ctx.WithIsCheckTx(true)
-			suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
-			_, err := suite.anteHandler(suite.ctx, tc.txFn(), false)
+			err := suite.app.EvmKeeper.SetBalance(suite.ctx, addr, big.NewInt((ethparams.InitialBaseFee+10)*100000))
+			suite.Require().NoError(err)
+			_, err = suite.anteHandler(suite.ctx, tc.txFn(), false)
 			if tc.expErr == nil {
 				suite.Require().NoError(err)
 			} else {
@@ -1302,6 +1312,7 @@ func (suite *AnteTestSuite) TestConsumeSignatureVerificationGas() {
 	expectedCost1 := expectedGasCostByKeys(pkSet1)
 
 	for i := 0; i < len(pkSet1); i++ {
+		//nolint:staticcheck
 		stdSig := legacytx.StdSignature{PubKey: pkSet1[i], Signature: sigSet1[i]}
 		sigV2, err := legacytx.StdSignatureToSignatureV2(cdc, stdSig)
 		suite.Require().NoError(err)

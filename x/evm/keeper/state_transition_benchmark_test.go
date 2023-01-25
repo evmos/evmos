@@ -59,7 +59,7 @@ func newSignedEthTx(
 		txData.Nonce = nonce
 		ethTx = ethtypes.NewTx(txData)
 	default:
-		return nil, errors.New("unknown transaction type!")
+		return nil, errors.New("unknown transaction type")
 	}
 
 	sig, _, err := krSigner.SignByAddress(addr, ethTx.Hash().Bytes())
@@ -77,9 +77,7 @@ func newSignedEthTx(
 
 func newEthMsgTx(
 	nonce uint64,
-	blockHeight int64,
 	address common.Address,
-	cfg *params.ChainConfig,
 	krSigner keyring.Signer,
 	ethSigner ethtypes.Signer,
 	txType byte,
@@ -123,7 +121,11 @@ func newEthMsgTx(
 	}
 
 	msg := &evmtypes.MsgEthereumTx{}
-	msg.FromEthereumTx(ethTx)
+	err := msg.FromEthereumTx(ethTx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	msg.From = address.Hex()
 
 	return msg, baseFee, msg.Sign(ethSigner, krSigner)
@@ -142,7 +144,7 @@ func newNativeMessage(
 ) (core.Message, error) {
 	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(blockHeight))
 
-	msg, baseFee, err := newEthMsgTx(nonce, blockHeight, address, cfg, krSigner, ethSigner, txType, data, accessList)
+	msg, baseFee, err := newEthMsgTx(nonce, address, krSigner, ethSigner, txType, data, accessList)
 	if err != nil {
 		return nil, err
 	}
@@ -236,6 +238,7 @@ func BenchmarkApplyTransactionWithDynamicFeeTx(b *testing.B) {
 	}
 }
 
+//nolint:all
 func BenchmarkApplyMessage(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTestWithT(b)
@@ -271,6 +274,7 @@ func BenchmarkApplyMessage(b *testing.B) {
 	}
 }
 
+//nolint:all
 func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTestWithT(b)

@@ -1,8 +1,9 @@
 package ethante_test
 
 import (
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
+
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +13,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-func (suite AnteTestSuite) TestGasWantedDecorator() {
+func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	suite.enableFeemarket = true
 	suite.SetupTest()
 	dec := ethante.NewGasWantedDecorator(suite.app.EvmKeeper, suite.app.FeeMarketKeeper)

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
@@ -29,11 +30,9 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
 	ethermint "github.com/evmos/ethermint/types"
@@ -53,8 +52,7 @@ type EvmTestSuite struct {
 
 	ctx     sdk.Context
 	handler sdk.Handler
-	app     *app.EthermintApp
-	codec   codec.Codec
+	app     *app.Evmos
 	chainID *big.Int
 
 	signer    keyring.Signer
@@ -80,7 +78,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = app.Setup(checkTx, func(app *app.EthermintApp, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.dynamicTxFee {
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
 			feemarketGenesis.Params.EnableHeight = 1
@@ -123,7 +121,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 		},
 	)
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         "ethermint_9000-1",
 		Time:            time.Now().UTC(),
@@ -240,11 +238,9 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest() // reset
-			//nolint
 			tc.malleate()
 			res, err := suite.handler(suite.ctx, tx)
 
-			//nolint
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
@@ -297,58 +293,58 @@ func (suite *EvmTestSuite) TestHandlerLogs() {
 
 func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	// Test contract:
-	//http://remix.ethereum.org/#optimize=false&evmVersion=istanbul&version=soljson-v0.5.15+commit.6a57276f.js
-	//2_Owner.sol
+	// http://remix.ethereum.org/#optimize=false&evmVersion=istanbul&version=soljson-v0.5.15+commit.6a57276f.js
+	// 2_Owner.sol
 	//
-	//pragma solidity >=0.4.22 <0.7.0;
+	// pragma solidity >=0.4.22 <0.7.0;
 	//
-	///**
-	// * @title Owner
-	// * @dev Set & change owner
-	// */
-	//contract Owner {
+	// /**
+	//  * @title Owner
+	//  * @dev Set & change owner
+	//  */
+	// contract Owner {
 	//
-	//	address private owner;
+	// 	address private owner;
 	//
-	//	// event for EVM logging
-	//	event OwnerSet(address indexed oldOwner, address indexed newOwner);
+	// 	// event for EVM logging
+	// 	event OwnerSet(address indexed oldOwner, address indexed newOwner);
 	//
-	//	// modifier to check if caller is owner
-	//	modifier isOwner() {
-	//	// If the first argument of 'require' evaluates to 'false', execution terminates and all
-	//	// changes to the state and to Ether balances are reverted.
-	//	// This used to consume all gas in old EVM versions, but not anymore.
-	//	// It is often a good idea to use 'require' to check if functions are called correctly.
-	//	// As a second argument, you can also provide an explanation about what went wrong.
-	//	require(msg.sender == owner, "Caller is not owner");
-	//	_;
-	//}
+	// 	// modifier to check if caller is owner
+	// 	modifier isOwner() {
+	// 	// If the first argument of 'require' evaluates to 'false', execution terminates and all
+	// 	// changes to the state and to Ether balances are reverted.
+	// 	// This used to consume all gas in old EVM versions, but not anymore.
+	// 	// It is often a good idea to use 'require' to check if functions are called correctly.
+	// 	// As a second argument, you can also provide an explanation about what went wrong.
+	// 	require(msg.sender == owner, "Caller is not owner");
+	// 	_;
+	// }
 	//
-	//	/**
-	//	 * @dev Set contract deployer as owner
-	//	 */
-	//	constructor() public {
-	//	owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
-	//	emit OwnerSet(address(0), owner);
-	//}
+	// 	/**
+	// 	 * @dev Set contract deployer as owner
+	// 	 */
+	// 	constructor() public {
+	// 	owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
+	// 	emit OwnerSet(address(0), owner);
+	// }
 	//
-	//	/**
-	//	 * @dev Change owner
-	//	 * @param newOwner address of new owner
-	//	 */
-	//	function changeOwner(address newOwner) public isOwner {
-	//	emit OwnerSet(owner, newOwner);
-	//	owner = newOwner;
-	//}
+	// 	/**
+	// 	 * @dev Change owner
+	// 	 * @param newOwner address of new owner
+	// 	 */
+	// 	function changeOwner(address newOwner) public isOwner {
+	// 	emit OwnerSet(owner, newOwner);
+	// 	owner = newOwner;
+	// }
 	//
-	//	/**
-	//	 * @dev Return owner address
-	//	 * @return address of owner
-	//	 */
-	//	function getOwner() external view returns (address) {
-	//	return owner;
-	//}
-	//}
+	// 	/**
+	// 	 * @dev Return owner address
+	// 	 * @return address of owner
+	// 	 */
+	// 	function getOwner() external view returns (address) {
+	// 	return owner;
+	// }
+	// }
 
 	// Deploy contract - Owner.sol
 	gasLimit := uint64(100000000)
@@ -416,58 +412,58 @@ func (suite *EvmTestSuite) TestSendTransaction() {
 
 func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 	// Test contract:
-	//http://remix.ethereum.org/#optimize=false&evmVersion=istanbul&version=soljson-v0.5.15+commit.6a57276f.js
-	//2_Owner.sol
+	// http://remix.ethereum.org/#optimize=false&evmVersion=istanbul&version=soljson-v0.5.15+commit.6a57276f.js
+	// 2_Owner.sol
 	//
-	//pragma solidity >=0.4.22 <0.7.0;
+	// pragma solidity >=0.4.22 <0.7.0;
 	//
-	///**
-	// * @title Owner
-	// * @dev Set & change owner
-	// */
-	//contract Owner {
+	// /**
+	//  * @title Owner
+	//  * @dev Set & change owner
+	//  */
+	// contract Owner {
 	//
-	//	address private owner;
+	// 	address private owner;
 	//
-	//	// event for EVM logging
-	//	event OwnerSet(address indexed oldOwner, address indexed newOwner);
+	// 	// event for EVM logging
+	// 	event OwnerSet(address indexed oldOwner, address indexed newOwner);
 	//
-	//	// modifier to check if caller is owner
-	//	modifier isOwner() {
-	//	// If the first argument of 'require' evaluates to 'false', execution terminates and all
-	//	// changes to the state and to Ether balances are reverted.
-	//	// This used to consume all gas in old EVM versions, but not anymore.
-	//	// It is often a good idea to use 'require' to check if functions are called correctly.
-	//	// As a second argument, you can also provide an explanation about what went wrong.
-	//	require(msg.sender == owner, "Caller is not owner");
-	//	_;
-	//}
+	// 	// modifier to check if caller is owner
+	// 	modifier isOwner() {
+	// 	// If the first argument of 'require' evaluates to 'false', execution terminates and all
+	// 	// changes to the state and to Ether balances are reverted.
+	// 	// This used to consume all gas in old EVM versions, but not anymore.
+	// 	// It is often a good idea to use 'require' to check if functions are called correctly.
+	// 	// As a second argument, you can also provide an explanation about what went wrong.
+	// 	require(msg.sender == owner, "Caller is not owner");
+	// 	_;
+	// }
 	//
-	//	/**
-	//	 * @dev Set contract deployer as owner
-	//	 */
-	//	constructor() public {
-	//	owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
-	//	emit OwnerSet(address(0), owner);
-	//}
+	// 	/**
+	// 	 * @dev Set contract deployer as owner
+	// 	 */
+	// 	constructor() public {
+	// 	owner = msg.sender; // 'msg.sender' is sender of current call, contract deployer for a constructor
+	// 	emit OwnerSet(address(0), owner);
+	// }
 	//
-	//	/**
-	//	 * @dev Change owner
-	//	 * @param newOwner address of new owner
-	//	 */
-	//	function changeOwner(address newOwner) public isOwner {
-	//	emit OwnerSet(owner, newOwner);
-	//	owner = newOwner;
-	//}
+	// 	/**
+	// 	 * @dev Change owner
+	// 	 * @param newOwner address of new owner
+	// 	 */
+	// 	function changeOwner(address newOwner) public isOwner {
+	// 	emit OwnerSet(owner, newOwner);
+	// 	owner = newOwner;
+	// }
 	//
-	//	/**
-	//	 * @dev Return owner address
-	//	 * @return address of owner
-	//	 */
-	//	function getOwner() external view returns (address) {
-	//	return owner;
-	//}
-	//}
+	// 	/**
+	// 	 * @dev Return owner address
+	// 	 * @return address of owner
+	// 	 */
+	// 	function getOwner() external view returns (address) {
+	// 	return owner;
+	// }
+	// }
 
 	// Deploy contract - Owner.sol
 	gasLimit := uint64(1)
@@ -486,7 +482,8 @@ func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 		}
 	}()
 
-	suite.handler(suite.ctx, tx)
+	_, err := suite.handler(suite.ctx, tx)
+	suite.Require().NoError(err)
 	suite.Require().Fail("panic did not happen")
 }
 
@@ -572,7 +569,8 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 			k.SetHooks(tc.hooks)
 
 			// add some fund to pay gas fee
-			k.SetBalance(suite.ctx, suite.from, big.NewInt(1000000000000000))
+			err := k.SetBalance(suite.ctx, suite.from, big.NewInt(1000000000000000))
+			suite.Require().NoError(err)
 
 			contract := suite.deployERC20Contract()
 

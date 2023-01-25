@@ -1,8 +1,9 @@
 package ethante_test
 
 import (
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math/big"
+
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -10,7 +11,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-func (suite AnteTestSuite) TestEthSigVerificationDecorator() {
+func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := tests.NewAddrKey()
 
 	signedTx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)

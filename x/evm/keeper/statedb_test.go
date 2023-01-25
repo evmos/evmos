@@ -425,7 +425,8 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 
 	vmdb := suite.StateDB()
 	vmdb.SetState(suite.address, key, value1)
-	vmdb.Commit()
+	err := vmdb.Commit()
+	suite.Require().NoError(err)
 
 	vmdb = suite.StateDB()
 	vmdb.SetState(suite.address, key, value2)
@@ -433,7 +434,8 @@ func (suite *KeeperTestSuite) TestCommittedState() {
 	suite.Require().Equal(value2, tmp)
 	tmp = vmdb.GetCommittedState(suite.address, key)
 	suite.Require().Equal(value1, tmp)
-	vmdb.Commit()
+	err = vmdb.Commit()
+	suite.Require().NoError(err)
 
 	vmdb = suite.StateDB()
 	tmp = vmdb.GetCommittedState(suite.address, key)
@@ -635,9 +637,6 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg2 := types.NewTx(big.NewInt(1), 1, &suite.address, big.NewInt(1), 100000, big.NewInt(1), nil, nil, []byte("test"), nil)
 	msg2.From = addr.Hex()
 
-	tx2 := suite.CreateTestTx(msg2, privKey)
-	msg2, _ = tx2.GetMsgs()[0].(*types.MsgEthereumTx)
-
 	msg3 := types.NewTx(big.NewInt(1), 0, &suite.address, big.NewInt(1), 100000, nil, big.NewInt(1), big.NewInt(1), []byte("test"), nil)
 	msg3.From = addr.Hex()
 
@@ -647,9 +646,6 @@ func (suite *KeeperTestSuite) TestAddLog() {
 
 	msg4 := types.NewTx(big.NewInt(1), 1, &suite.address, big.NewInt(1), 100000, nil, big.NewInt(1), big.NewInt(1), []byte("test"), nil)
 	msg4.From = addr.Hex()
-
-	tx4 := suite.CreateTestTx(msg4, privKey)
-	msg4, _ = tx4.GetMsgs()[0].(*types.MsgEthereumTx)
 
 	testCases := []struct {
 		name        string
@@ -775,74 +771,74 @@ func (suite *KeeperTestSuite) AddSlotToAccessList() {
 }
 
 // FIXME skip for now
-func (suite *KeeperTestSuite) _TestForEachStorage() {
-	var storage types.Storage
-
-	testCase := []struct {
-		name      string
-		malleate  func(vm.StateDB)
-		callback  func(key, value common.Hash) (stop bool)
-		expValues []common.Hash
-	}{
-		{
-			"aggregate state",
-			func(vmdb vm.StateDB) {
-				for i := 0; i < 5; i++ {
-					vmdb.SetState(suite.address, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
-				}
-			},
-			func(key, value common.Hash) bool {
-				storage = append(storage, types.NewState(key, value))
-				return true
-			},
-			[]common.Hash{
-				common.BytesToHash([]byte("value0")),
-				common.BytesToHash([]byte("value1")),
-				common.BytesToHash([]byte("value2")),
-				common.BytesToHash([]byte("value3")),
-				common.BytesToHash([]byte("value4")),
-			},
-		},
-		{
-			"filter state",
-			func(vmdb vm.StateDB) {
-				vmdb.SetState(suite.address, common.BytesToHash([]byte("key")), common.BytesToHash([]byte("value")))
-				vmdb.SetState(suite.address, common.BytesToHash([]byte("filterkey")), common.BytesToHash([]byte("filtervalue")))
-			},
-			func(key, value common.Hash) bool {
-				if value == common.BytesToHash([]byte("filtervalue")) {
-					storage = append(storage, types.NewState(key, value))
-					return false
-				}
-				return true
-			},
-			[]common.Hash{
-				common.BytesToHash([]byte("filtervalue")),
-			},
-		},
-	}
-
-	for _, tc := range testCase {
-		suite.Run(tc.name, func() {
-			suite.SetupTest() // reset
-			vmdb := suite.StateDB()
-			tc.malleate(vmdb)
-
-			err := vmdb.ForEachStorage(suite.address, tc.callback)
-			suite.Require().NoError(err)
-			suite.Require().Equal(len(tc.expValues), len(storage), fmt.Sprintf("Expected values:\n%v\nStorage Values\n%v", tc.expValues, storage))
-
-			vals := make([]common.Hash, len(storage))
-			for i := range storage {
-				vals[i] = common.HexToHash(storage[i].Value)
-			}
-
-			// TODO: not sure why Equals fails
-			suite.Require().ElementsMatch(tc.expValues, vals)
-		})
-		storage = types.Storage{}
-	}
-}
+// func (suite *KeeperTestSuite) _TestForEachStorage() {
+// 	var storage types.Storage
+//
+// 	testCase := []struct {
+// 		name      string
+// 		malleate  func(vm.StateDB)
+// 		callback  func(key, value common.Hash) (stop bool)
+// 		expValues []common.Hash
+// 	}{
+// 		{
+// 			"aggregate state",
+// 			func(vmdb vm.StateDB) {
+// 				for i := 0; i < 5; i++ {
+// 					vmdb.SetState(suite.address, common.BytesToHash([]byte(fmt.Sprintf("key%d", i))), common.BytesToHash([]byte(fmt.Sprintf("value%d", i))))
+// 				}
+// 			},
+// 			func(key, value common.Hash) bool {
+// 				storage = append(storage, types.NewState(key, value))
+// 				return true
+// 			},
+// 			[]common.Hash{
+// 				common.BytesToHash([]byte("value0")),
+// 				common.BytesToHash([]byte("value1")),
+// 				common.BytesToHash([]byte("value2")),
+// 				common.BytesToHash([]byte("value3")),
+// 				common.BytesToHash([]byte("value4")),
+// 			},
+// 		},
+// 		{
+// 			"filter state",
+// 			func(vmdb vm.StateDB) {
+// 				vmdb.SetState(suite.address, common.BytesToHash([]byte("key")), common.BytesToHash([]byte("value")))
+// 				vmdb.SetState(suite.address, common.BytesToHash([]byte("filterkey")), common.BytesToHash([]byte("filtervalue")))
+// 			},
+// 			func(key, value common.Hash) bool {
+// 				if value == common.BytesToHash([]byte("filtervalue")) {
+// 					storage = append(storage, types.NewState(key, value))
+// 					return false
+// 				}
+// 				return true
+// 			},
+// 			[]common.Hash{
+// 				common.BytesToHash([]byte("filtervalue")),
+// 			},
+// 		},
+// 	}
+//
+// 	for _, tc := range testCase {
+// 		suite.Run(tc.name, func() {
+// 			suite.SetupTest() // reset
+// 			vmdb := suite.StateDB()
+// 			tc.malleate(vmdb)
+//
+// 			err := vmdb.ForEachStorage(suite.address, tc.callback)
+// 			suite.Require().NoError(err)
+// 			suite.Require().Equal(len(tc.expValues), len(storage), fmt.Sprintf("Expected values:\n%v\nStorage Values\n%v", tc.expValues, storage))
+//
+// 			vals := make([]common.Hash, len(storage))
+// 			for i := range storage {
+// 				vals[i] = common.HexToHash(storage[i].Value)
+// 			}
+//
+// 			// TODO: not sure why Equals fails
+// 			suite.Require().ElementsMatch(tc.expValues, vals)
+// 		})
+// 		storage = types.Storage{}
+// 	}
+// }
 
 func (suite *KeeperTestSuite) TestSetBalance() {
 	amount := big.NewInt(-10)
