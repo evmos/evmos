@@ -1174,16 +1174,24 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	v11Handler := v11.CreateUpgradeHandler(
+		app.mm, app.configurator,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+	)
+
+	// v11-rc3 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v11.UpgradeNameRC3,
+		v11Handler,
+	)
+
 	// v11 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v11.UpgradeName,
-		v11.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.DistrKeeper,
-		),
+		v11Handler,
 	)
 
 	// When a planned update height is reached, the old binary will panic
@@ -1220,8 +1228,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
 		// no store upgrades in v10
+	case v11.UpgradeNameRC3:
+		// rename recovery store
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"recovery"},
+			Added:   []string{recoverytypes.StoreKey},
+		}
 	case v11.UpgradeName:
-		// add ica host submodule in v11
+		// add ica host submodule
 		// initialize recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
