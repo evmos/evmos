@@ -25,8 +25,8 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	ethante "github.com/evmos/ethermint/app/ante"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/evmos/v11/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -35,12 +35,14 @@ import (
 type EthVestingTransactionDecorator struct {
 	ak evmtypes.AccountKeeper
 	bk evmtypes.BankKeeper
+	ek ethante.EVMKeeper
 }
 
-func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper) EthVestingTransactionDecorator {
+func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek ethante.EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
 		bk: bk,
+		ek: ek,
 	}
 }
 
@@ -56,6 +58,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
 	totalSpendByAddress := make(map[string]sdk.Coin)
+	evmDenom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
@@ -74,7 +77,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// Check that this decorator only applies to clawback vesting accounts
 		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
 		if !isClawback {
-			return next(ctx, tx, simulate)
+			continue
 		}
 
 		// Error if vesting cliff has not passed (with zero vested coins). This
@@ -90,7 +93,7 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// Check to make sure that the account does not exceed its spendable balances.
 		// This transaction would fail in processing, so we should prevent it from
 		// moving past the AnteHandler.
-		msgValue := sdk.NewCoin(types.BaseDenom, math.NewIntFromBigInt(msgEthTx.AsTransaction().Value()))
+		msgValue := sdk.NewCoin(evmDenom, math.NewIntFromBigInt(msgEthTx.AsTransaction().Value()))
 		address := acc.GetAddress()
 
 		// Since there can be multiple transactions from different accounts, we track each account's total
@@ -105,10 +108,10 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 
 		// Check that the clawbackAccount has suffient unlocked tokens to cover all requested spending.
 		// lockedBalance defaults to zero if not found.
-		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(types.BaseDenom)
-		spendableBalance, err := vtd.bk.GetBalance(ctx, address, types.BaseDenom).SafeSub(lockedBalance)
+		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
+		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmDenom).SafeSub(lockedBalance)
 		if err != nil {
-			spendableBalance = sdk.NewCoin(types.BaseDenom, sdk.ZeroInt())
+			spendableBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
 		}
 
 		if totalSpend.Amount.GT(spendableBalance.Amount) {

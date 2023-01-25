@@ -84,12 +84,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	numTestAccounts := 4
 	testAccounts := make([]TestClawbackAccount, numTestAccounts)
 	for i := range testAccounts {
-		address, privKey := tests.NewAddrKey()
+		address, privKey := createAddressKey()
 		testAccounts[i] = TestClawbackAccount{
-			privKey: &ethsecp256k1.PrivKey{
-				Key: privKey.Bytes(),
-			},
-			address: address.Bytes(),
+			privKey: privKey,
+			address: address,
 		}
 	}
 
@@ -224,7 +222,6 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("should enable access to unlocked EVM tokens (single-account, single-msg)", func() {
-			clawbackAccount := testAccounts[0].clawbackAccount
 			grantee := testAccounts[0].address
 
 			funderBalance := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -232,7 +229,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			destBalance := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
 			txAmount := unlockedPerLockup[0].Amount
-			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
+			msg := createEthTx(nil, grantee, dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
 			Expect(err).To(BeNil())
 
@@ -262,7 +259,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
 
 			for i := 0; i < numMsgs; i++ {
-				msgs[i] = createEthTx(nil, account.clawbackAccount, dest, txAmount.BigInt(), i)
+				msgs[i] = createEthTx(nil, account.address, dest, txAmount.BigInt(), i)
 			}
 
 			err := validateAnteForEthTxs(msgs...)
@@ -291,7 +288,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs := make([]sdk.Msg, numTestAccounts)
 			for i, grantee := range testAccounts {
 				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
-				msgs[i] = createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), 0)
+				msgs[i] = createEthTx(grantee.privKey, grantee.address, dest, txAmount.BigInt(), 0)
 			}
 
 			err := validateAnteForEthTxs(msgs...)
@@ -325,7 +322,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			for i, grantee := range testAccounts {
 				granteeBalances[i] = s.app.BankKeeper.GetBalance(s.ctx, grantee.address, stakeDenom)
 				for j := 0; j < numMsgs; j++ {
-					msgs = append(msgs, createEthTx(grantee.privKey, grantee.clawbackAccount, dest, txAmount.BigInt(), j))
+					msgs = append(msgs, createEthTx(grantee.privKey, grantee.address, dest, txAmount.BigInt(), j))
 				}
 			}
 
@@ -351,7 +348,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("should not enable access to locked EVM tokens (single-account, single-msg)", func() {
 			// Attempt to spend entire balance
 			txAmount := vestingAmtTotal[0].Amount
-			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
+			msg := createEthTx(nil, clawbackAccount.GetAddress(), dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
 			Expect(err).ToNot(BeNil())
 
@@ -366,7 +363,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// Add additional message that exceeds unlocked balance
 			for i := 0; i < numMsgs+1; i++ {
-				msgs[i] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), i)
+				msgs[i] = createEthTx(nil, clawbackAccount.GetAddress(), dest, txAmount.BigInt(), i)
 			}
 
 			err := validateAnteForEthTxs(msgs...)
@@ -381,11 +378,11 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := unlockedPerLockup[0].Amount
 
 			for i, account := range testAccounts {
-				msgs[i] = createEthTx(account.privKey, account.clawbackAccount, dest, txAmount.BigInt(), 0)
+				msgs[i] = createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), 0)
 			}
 
 			// Add additional message that exceeds unlocked balance
-			msgs[numTestAccounts] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 1)
+			msgs[numTestAccounts] = createEthTx(nil, clawbackAccount.GetAddress(), dest, txAmount.BigInt(), 1)
 
 			err := validateAnteForEthTxs(msgs...)
 			Expect(err).ToNot(BeNil())
@@ -394,24 +391,43 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).ToNot(BeNil())
 		})
 
-		It("should enable access to unlocked EVM tokens (multi-account, multiple-msgs)", func() {
+		It("should not enable access to locked EVM tokens (multi-account, multiple-msgs)", func() {
 			numMsgs := 3
 			msgs := []sdk.Msg{}
 			txAmount := unlockedPerLockup[0].Amount.QuoRaw(int64(numMsgs))
 
 			for _, account := range testAccounts {
 				for j := 0; j < numMsgs; j++ {
-					msgs = append(msgs, createEthTx(account.privKey, account.clawbackAccount, dest, txAmount.BigInt(), j))
+					msgs = append(msgs, createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), j))
 				}
 			}
 
 			// Add additional message that exceeds unlocked balance
-			msgs = append(msgs, createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), numMsgs))
+			msgs = append(msgs, createEthTx(nil, clawbackAccount.GetAddress(), dest, txAmount.BigInt(), numMsgs))
 
 			err := validateAnteForEthTxs(msgs...)
 			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msgs...)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("should not short-circuit the AnteHandler with a normal account", func() {
+			account := testAccounts[0]
+			address, privKey := createAddressKey()
+
+			txAmount := vestingAmtTotal[0].Amount
+
+			// Fund a normal account to try to short-circuit the AnteHandler
+			testutil.FundAccount(s.ctx, s.app.BankKeeper, address, vestingAmtTotal.MulInt(sdk.NewInt(2)))
+			normalAccMsg := createEthTx(privKey, address, dest, txAmount.BigInt(), 0)
+
+			// Attempt to spend entire balance
+			msg := createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), 0)
+			err := validateAnteForEthTxs(normalAccMsg, msg)
+			Expect(err).ToNot(BeNil())
+
+			err = deliverEthTxs(nil, msg)
 			Expect(err).ToNot(BeNil())
 		})
 	})
@@ -770,6 +786,11 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 	})
 })
 
+func createAddressKey() (sdk.AccAddress, *ethsecp256k1.PrivKey) {
+	address, privKey := tests.NewAddrKey()
+	return address.Bytes(), &ethsecp256k1.PrivKey{Key: privKey.Bytes()}
+}
+
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
@@ -793,9 +814,9 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) er
 	return err
 }
 
-func createEthTx(privKey *ethsecp256k1.PrivKey, clawbackAccount *types.ClawbackVestingAccount, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) *evmtypes.MsgEthereumTx {
+func createEthTx(privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) *evmtypes.MsgEthereumTx {
 	toAddr := common.BytesToAddress(dest.Bytes())
-	fromAddr := common.BytesToAddress(clawbackAccount.GetAddress().Bytes())
+	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := s.app.EvmKeeper.ChainID()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
@@ -822,7 +843,7 @@ func validateAnteForEthTxs(msgs ...sdk.Msg) error {
 	tx := txBuilder.GetTx()
 
 	// Call Ante decorator
-	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper)
+	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
@@ -834,7 +855,8 @@ func deliverEthTxs(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) error {
 
 // validateAnteForEthTx checks a simple single-message Ethereum transaction against the EVM Vesting AnteHandler
 func validateAnteForEthTx(clawbackAccount *types.ClawbackVestingAccount, amount *big.Int) error {
-	msg := createEthTx(nil, clawbackAccount, clawbackAccount.GetAddress(), amount, 0)
+	address := clawbackAccount.GetAddress()
+	msg := createEthTx(nil, address, address, amount, 0)
 
 	return validateAnteForEthTxs(msg)
 }
