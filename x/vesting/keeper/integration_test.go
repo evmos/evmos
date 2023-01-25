@@ -419,12 +419,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := vestingAmtTotal[0].Amount
 
 			// Fund a normal account to try to short-circuit the AnteHandler
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, address, vestingAmtTotal.MulInt(sdk.NewInt(2)))
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, vestingAmtTotal.MulInt(sdk.NewInt(2)))
+			Expect(err).To(BeNil())
 			normalAccMsg := createEthTx(privKey, address, dest, txAmount.BigInt(), 0)
 
 			// Attempt to spend entire balance
 			msg := createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), 0)
-			err := validateAnteForEthTxs(normalAccMsg, msg)
+			err = validateAnteForEthTxs(normalAccMsg, msg)
 			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msg)
