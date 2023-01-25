@@ -223,7 +223,10 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 	}
 	s.T().Log("tearing down e2e integration test suite...")
 
-	s.Require().NoError(s.upgradeManager.KillCurrentNode(), "can't kill current node")
+	err := s.upgradeManager.KillCurrentNode()
+	if err != nil && !strings.Contains(err.Error(), "is not running") {
+		s.Require().NoError(err, "can't kill current node")
+	}
 
 	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
 
