@@ -29,7 +29,7 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	// upgradesList contains the available upgrades in the app/upgrades folder
 	var upgradesList []string
 	// upgrades contains the slice of all upgrades that shall be executed
-	var upgrades []upgradeConfig
+	var upgrades []upgradeConfig //nolint:prealloc
 	// version defines the version to run the Evmos node with
 	var version string
 	// versions contains the slice of all versions that are run during the upgrade tests
