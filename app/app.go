@@ -1174,7 +1174,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	v1Handler := v11.CreateUpgradeHandler(
+	v11Handler := v11.CreateUpgradeHandler(
 		app.mm, app.configurator,
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -1185,13 +1185,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// v11-rc3 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v11.UpgradeNameRC3,
-		v1Handler,
+		v11Handler,
 	)
 
 	// v11 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v11.UpgradeName,
-		v1Handler,
+		v11Handler,
 	)
 
 	// When a planned update height is reached, the old binary will panic
