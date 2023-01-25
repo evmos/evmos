@@ -3,7 +3,6 @@
 "MD004": false
 "MD007":
   "indent": 4
-"MD013": false
 "MD024":
   "siblings_only": true
 "MD025": false
@@ -18,4 +17,7 @@
 "MD051": false
 "MD049":
   "style": "asterisk"
+"MD013":
+  "line_length": 80
+  "code_block_line_length": 120
 "no-hard-tabs": false
