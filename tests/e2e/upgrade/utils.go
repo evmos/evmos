@@ -29,15 +29,15 @@ import (
 
 var upgradesPath = "../../app/upgrades"
 
-// Custom comparator for sorting semver version strings
-type byVersion []string
+// ByVersion is a custom comparator for sorting semver version strings
+type ByVersion []string
 
-func (s byVersion) Len() int { return len(s) }
+func (s ByVersion) Len() int { return len(s) }
 
-func (s byVersion) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+func (s ByVersion) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
 // Less compares semver versions strings properly
-func (s byVersion) Less(i, j int) bool {
+func (s ByVersion) Less(i, j int) bool {
 	v1, err := version.NewVersion(s[i])
 	if err != nil {
 		log.Fatal(err)
@@ -57,12 +57,13 @@ func (m *Manager) RetrieveUpgradesList() ([]string, error) {
 		return nil, err
 	}
 
-	versions := []string{}
+	// preallocate slice to store versions
+	versions := make([]string, len(dirs))
 
 	// pattern to find quoted string(upgrade version) in a file e.g. "v10.0.0"
 	pattern := regexp.MustCompile(`"(.*?)"`)
 
-	for _, d := range dirs {
+	for i, d := range dirs {
 		// creating path to upgrade dir file with constant upgrade version
 		constantsPath := fmt.Sprintf("%s/%s/constants.go", upgradesPath, d.Name())
 		f, err := os.ReadFile(constantsPath)
@@ -70,11 +71,11 @@ func (m *Manager) RetrieveUpgradesList() ([]string, error) {
 			return nil, err
 		}
 		v := pattern.FindString(string(f))
-		// v[1:len(v)-1] subslice used to remove quotes from version string
-		versions = append(versions, v[1:len(v)-1])
+		// v[1 : len(v)-1] subslice used to remove quotes from version string
+		versions[i] = v[1 : len(v)-1]
 	}
 
-	sort.Sort(byVersion(versions))
+	sort.Sort(ByVersion(versions))
 
 	return versions, nil
 }
