@@ -55,12 +55,12 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 
 // CreateSubmitProposalExec creates a gov tx to submit an upgrade proposal to the chain
 func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint, legacy bool) (string, error) {
-	var noValidate, proposalType string
+	var upgradeInfo, proposalType string
 	if legacy {
-		noValidate = " --no-validate"
+		upgradeInfo = "--no-validate"
 		proposalType = "submit-legacy-proposal"
 	} else {
-		noValidate = ""
+		upgradeInfo = "--upgrade-info=\"\""
 		proposalType = "submit-proposal"
 	}
 	cmd := []string{
@@ -74,7 +74,7 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 		"--deposit=10000000aevmos",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
-		"--upgrade-info=\"\"" + noValidate,
+		upgradeInfo,
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--from=mykey",
 		"-b=block",
