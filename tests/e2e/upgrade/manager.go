@@ -37,8 +37,18 @@ type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network
 
-	CurrentNode     *dockertest.Resource
+	// CurrentNode stores the currently running docker container
+	CurrentNode *dockertest.Resource
+
+	// HeightBeforeStop stores the last block height that was reached before the last running node container
+	// was stopped
+	HeightBeforeStop int
+
+	// proposalCounter keeps track of the number of proposals that have been submitted
 	proposalCounter uint
+
+	// UpgradeHeight stores the upgrade height for the latest upgrade proposal that was submitted
+	UpgradeHeight uint
 }
 
 // NewManager creates new docker pool and network and returns a populated Manager instance
@@ -97,7 +107,7 @@ func (m *Manager) RunNode(node *Node) error {
 	}
 
 	if err != nil {
-		return err
+		return fmt.Errorf("can't run container: %s", err.Error())
 	}
 
 	// trying to get JSON-RPC server, to make sure node started properly
@@ -158,7 +168,7 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 		case <-ticker.C:
 			return fmt.Errorf("can't reach height %d, due to: %w", height, err)
 		default:
-			currentHeight, err = m.nodeHeight(ctx)
+			currentHeight, err = m.GetNodeHeight(ctx)
 			if currentHeight >= height {
 				return nil
 			}
@@ -167,8 +177,8 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	}
 }
 
-// nodeHeight calls the Evmos CLI in the current node container to get the current block height
-func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
+// GetNodeHeight calls the Evmos CLI in the current node container to get the current block height
+func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
 	if err != nil {
 		return 0, fmt.Errorf("create exec error: %w", err)
@@ -208,5 +218,10 @@ func (m *Manager) RemoveNetwork() error {
 
 // KillCurrentNode stops the execution of the currently used docker container
 func (m *Manager) KillCurrentNode() error {
+	heightBeforeStop, err := m.GetNodeHeight(context.Background())
+	if err != nil {
+		return err
+	}
+	m.HeightBeforeStop = heightBeforeStop
 	return m.pool.Client.StopContainer(m.ContainerID(), 5)
 }

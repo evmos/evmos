@@ -82,14 +82,14 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// CreateDepositProposalExec creates a gov tx to deposit for the current upgrade proposal
-func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
+// CreateDepositProposalExec creates a gov tx to deposit for the proposal with the given id
+func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
 		"gov",
 		"deposit",
-		fmt.Sprint(m.proposalCounter),
+		fmt.Sprint(id),
 		"10000000aevmos",
 		"--from=mykey",
 		fmt.Sprintf("--chain-id=%s", chainID),
@@ -104,14 +104,14 @@ func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// CreateVoteProposalExec creates gov tx to vote 'yes' on the current upgrade proposal
-func (m *Manager) CreateVoteProposalExec(chainID string) (string, error) {
+// CreateVoteProposalExec creates gov tx to vote 'yes' on the proposal with the given id
+func (m *Manager) CreateVoteProposalExec(chainID string, id int) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
 		"gov",
 		"vote",
-		fmt.Sprint(m.proposalCounter),
+		fmt.Sprint(id),
 		"yes",
 		"--from=mykey",
 		fmt.Sprintf("--chain-id=%s", chainID),
