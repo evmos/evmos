@@ -353,7 +353,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := vestingAmtTotal[0].Amount
 			msg := createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 0)
 			err := validateAnteForEthTxs(msg)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msg)
 			Expect(err).ToNot(BeNil())
@@ -370,7 +370,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			}
 
 			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
@@ -388,7 +388,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs[numTestAccounts] = createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), 1)
 
 			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
@@ -409,7 +409,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msgs = append(msgs, createEthTx(nil, clawbackAccount, dest, txAmount.BigInt(), numMsgs))
 
 			err := validateAnteForEthTxs(msgs...)
-			Expect(err).To(BeNil())
+			Expect(err).ToNot(BeNil())
 
 			err = deliverEthTxs(nil, msgs...)
 			Expect(err).ToNot(BeNil())
@@ -822,7 +822,7 @@ func validateAnteForEthTxs(msgs ...sdk.Msg) error {
 	tx := txBuilder.GetTx()
 
 	// Call Ante decorator
-	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
