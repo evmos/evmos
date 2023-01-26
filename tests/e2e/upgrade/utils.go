@@ -30,22 +30,24 @@ import (
 
 var upgradesPath = "../../app/upgrades"
 
-// EvmosVersion is a custom comparator for sorting semver version strings
-type EvmosVersion []string
+// EvmosVersions is a custom comparator for sorting semver version strings.
+type EvmosVersions []string
 
-func (v EvmosVersion) Len() int { return len(v) }
+// Len is the number of stored versions..
+func (v EvmosVersions) Len() int { return len(v) }
 
-func (v EvmosVersion) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
+// Swap swaps the elements with indexes i and j. It is needed to sort the slice.
+func (v EvmosVersions) Swap(i, j int) { v[i], v[j] = v[j], v[i] }
 
 // Less compares semver versions strings properly
-func (v EvmosVersion) Less(i, j int) bool {
+func (v EvmosVersions) Less(i, j int) bool {
 	v1, err := version.NewVersion(v[i])
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("couldn't interpret version as SemVer string: %s: %s", v[i], err.Error())
 	}
 	v2, err := version.NewVersion(v[j])
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("couldn't interpret version as SemVer string: %s: %s", v[j], err.Error())
 	}
 	return v1.LessThan(v2)
 }
@@ -58,10 +60,10 @@ func CheckLegacyProposal(version string) bool {
 	}
 
 	// check if the version is lower than v10.x.x
-	cmp := EvmosVersion([]string{version, "v10.0.0"})
-	islegacyProposal := !cmp.Less(0, 1)
+	cmp := EvmosVersions([]string{version, "v10.0.0"})
+	isLegacyProposal := !cmp.Less(0, 1)
 
-	return islegacyProposal
+	return isLegacyProposal
 }
 
 // RetrieveUpgradesList parses the app/upgrades folder and returns a slice of semver upgrade versions
@@ -90,7 +92,7 @@ func (m *Manager) RetrieveUpgradesList() ([]string, error) {
 		versions[i] = v[1 : len(v)-1]
 	}
 
-	sort.Sort(EvmosVersion(versions))
+	sort.Sort(EvmosVersions(versions))
 
 	return versions, nil
 }

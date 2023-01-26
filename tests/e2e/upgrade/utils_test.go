@@ -26,6 +26,16 @@ func TestCheckLegacyProposal(t *testing.T) {
 			Ver:  "v9.1.0",
 			Exp:  false,
 		},
+		{
+			Name: "normal proposal - version with whitespace - v9.1.0",
+			Ver:  "\tv9.1.0 ",
+			Exp:  false,
+		},
+		{
+			Name: "normal proposal - version without v - 9.1.0",
+			Ver:  "9.1.0",
+			Exp:  false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -36,9 +46,9 @@ func TestCheckLegacyProposal(t *testing.T) {
 	}
 }
 
-// TestByVersion tests the EvmosVersion type with different version strings
+// TestByVersion tests the EvmosVersions type with different version strings
 func TestByVersion(t *testing.T) {
-	var version EvmosVersion
+	var version EvmosVersions
 
 	testCases := []struct {
 		Name string
