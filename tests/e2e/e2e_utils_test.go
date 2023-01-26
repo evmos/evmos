@@ -10,47 +10,50 @@ import (
 // environment vars
 const versionSeparator = "/"
 
-// upgradeConfig defines a struct that contains the version and the source repository for an upgrade
-type upgradeConfig struct {
-	name    string
-	version string
-	repo    string
+// versionConfig defines a struct that contains the version and the source repository for an upgrade
+type versionConfig struct {
+	name string
+	tag  string
+	repo string
 }
 
 // loadUpgradeParams loads the parameters for the upgrade test suite from the environment
 // variables
 func (s *IntegrationTestSuite) loadUpgradeParams() {
-	var err error
-	// name defines the upgrade name to use in the proposal
-	var name string
-	// targetRepo is assigned to the remote repository by default and is changed to local if no
-	// target version is given
-	targetRepo := tharsisRepo
-	// upgradesList contains the available upgrades in the app/upgrades folder
-	var upgradesList []string
-	// upgrades contains the slice of all upgrades that shall be executed
-	var upgrades []upgradeConfig //nolint:prealloc
-	// version defines the version to run the Evmos node with
-	var version string
-	// versions contains the slice of all versions that are run during the upgrade tests
-	var versions []string
+	var (
+		err error
+		// name defines the upgrade name to use in the proposal
+		name string
+		// targetRepo is assigned to the remote repository by default and is changed to local if no
+		// target version is given
+		targetRepo = tharsisRepo
+		// upgradesList contains the available upgrades in the app/upgrades folder
+		upgradesList []string
+		// versionTag is a string to store the processed version tags (e.g. v10.0.1)
+		versionTag string
+		// versionTags contains the slice of all version tags that are run during the upgrade tests
+		versionTags []string
+	)
 
 	initialV := os.Getenv("INITIAL_VERSION")
 	if initialV == "" {
 		upgradesList, err = s.upgradeManager.RetrieveUpgradesList()
 		s.Require().NoError(err)
 		// set the second-to-last upgrade as initial version
-		versions = []string{upgradesList[len(upgradesList)-2]}
+		versionTags = []string{upgradesList[len(upgradesList)-2]}
 	} else {
-		versions = strings.Split(initialV, versionSeparator)
+		versionTags = strings.Split(initialV, versionSeparator)
 	}
 
+	// versions contains the slice of all versions that shall be executed
+	versions := make([]versionConfig, 0, len(versionTags))
+
 	// for all initial versions define the docker hub repo as the source
-	for _, version := range versions {
-		upgrades = append(upgrades, upgradeConfig{
-			version,
-			version,
-			targetRepo,
+	for _, versionTag = range versionTags {
+		versions = append(versions, versionConfig{
+			name: versionTag,
+			tag:  versionTag,
+			repo: targetRepo,
 		})
 	}
 
@@ -63,19 +66,19 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 			s.Require().NoError(err)
 		}
 		name = upgradesList[len(upgradesList)-1]
-		version = localVersionTag
+		versionTag = localVersionTag
 	} else {
 		name = targetV
-		version = targetV
+		versionTag = targetV
 	}
 
-	// Add the target version to the upgrades slice
-	upgrades = append(upgrades, upgradeConfig{
+	// Add the target version to the versions slice
+	versions = append(versions, versionConfig{
 		name,
-		version,
+		versionTag,
 		targetRepo,
 	})
-	s.upgradeParams.Upgrades = upgrades
+	s.upgradeParams.Versions = versions
 
 	// If chain ID is not specified, 'evmos_9000-1' will be used in upgrade-init.sh
 	chID := os.Getenv("CHAIN_ID")

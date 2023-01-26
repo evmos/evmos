@@ -6,16 +6,16 @@ package e2e
 // and finally upgrades the chain.
 // If the chain can be restarted after the upgrade(s), the test passes.
 func (s *IntegrationTestSuite) TestUpgrade() {
-	for idx, upgrade := range s.upgradeParams.Upgrades {
+	for idx, version := range s.upgradeParams.Versions {
 		if idx == 0 {
 			// start initial node
-			s.runInitialNode(upgrade.version)
+			s.runInitialNode(version.tag)
 			continue
 		}
-		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, upgrade.version, upgrade.name)
-		s.proposeUpgrade(upgrade.name, upgrade.version)
+		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.tag, version.name)
+		s.proposeUpgrade(version.name, version.tag)
 		s.voteForProposal(idx)
-		s.upgrade(upgrade.repo, upgrade.version)
+		s.upgrade(version.repo, version.tag)
 	}
 	s.T().Logf("SUCCESS")
 }

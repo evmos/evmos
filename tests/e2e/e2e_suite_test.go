@@ -32,7 +32,7 @@ const (
 
 type upgradeParams struct {
 	MountPath string
-	Upgrades  []upgradeConfig
+	Versions  []versionConfig
 
 	ChainID     string
 	TargetRepo  string
