@@ -74,6 +74,8 @@ type AnteTestSuite struct {
 
 const TestGasLimit uint64 = 100000
 
+const ChainID = "evmos_9000-1"
+
 func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
 	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
 }
@@ -110,7 +112,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		return genesis
 	})
 
-	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: "ethermint_9000-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: ChainID, Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)

@@ -121,9 +121,9 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 		},
 	)
 
-	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "ethermint_9000-1",
+		ChainID:         "evmos_9000-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 		Version: tmversion.Consensus{
@@ -565,7 +565,7 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 			k.SetHooks(tc.hooks)
 
 			// add some fund to pay gas fee
@@ -652,7 +652,7 @@ func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 
 			// test with different hooks scenarios
 			k.SetHooks(tc.hooks)

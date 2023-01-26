@@ -62,7 +62,7 @@ func TestUnwrapEthererumMsg(t *testing.T) {
 
 	msg := evmtypes.NewTx(big.NewInt(1), 0, &common.Address{}, big.NewInt(0), 0, big.NewInt(0), nil, nil, []byte{}, nil)
 	err = builder.SetMsgs(msg)
-	require.NotNil(t, err)
+	require.Nil(t, err)
 
 	tx = builder.GetTx().(sdk.Tx)
 	unwrappedMsg, err := evmtypes.UnwrapEthereumMsg(&tx, msg.AsTransaction().Hash())

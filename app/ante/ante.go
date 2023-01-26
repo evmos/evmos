@@ -42,7 +42,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			opts := txWithExtensions.GetExtensionOptions()
 			if len(opts) > 0 {
 				switch typeURL := opts[0].GetTypeUrl(); typeURL {
-				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
+				case "/evmos.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = newEthAnteHandler(options)
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":

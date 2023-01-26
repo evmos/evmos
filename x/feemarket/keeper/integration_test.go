@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"strings"
 
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+
 	sdkmath "cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -21,7 +23,6 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/ethermint/testutil"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
 
@@ -174,7 +175,7 @@ var _ = Describe("Feemarket", func() {
 
 				It("should reject transactions with MinGasPrices < gasPrice < baseFee", func() {
 					gasPrice := sdkmath.NewInt(4)
-					res := deliverTx(privKey, &gasPrice, &msg)
+					res := checkTx(privKey, &gasPrice, &msg)
 					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
 					Expect(
 						strings.Contains(res.GetLog(),
@@ -471,7 +472,7 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	err := testutil.FundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	err := fundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
 	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
@@ -484,6 +485,16 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 	}
 	s.Commit()
 	return privKey, msg
+}
+
+// fundAccount is a utility function that funds an account by minting and
+// sending the coins to the address.
+func fundAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+	if err := bankKeeper.MintCoins(ctx, evmtypes.ModuleName, amounts); err != nil {
+		return err
+	}
+
+	return bankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, addr, amounts)
 }
 
 func setupChain(localMinGasPricesStr string) {
@@ -512,7 +523,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         "ethermint_9000-1",
+			ChainId:         "evmos_9000-1",
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,

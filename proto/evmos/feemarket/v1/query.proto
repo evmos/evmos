@@ -1,8 +1,8 @@
 syntax = "proto3";
 package evmos.feemarket.v1;
 
-import "gogoproto/gogo.proto";
 import "evmos/feemarket/v1/feemarket.proto";
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v11/x/feemarket/types";

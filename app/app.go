@@ -175,6 +175,10 @@ import (
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v11/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v11/x/ibc/transfer/keeper"
+
+	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
 func init() {
@@ -1019,14 +1023,14 @@ func (app *Evmos) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConf
 }
 
 func (app *Evmos) RegisterTxService(clientCtx client.Context) {
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+	authtx.RegisterTxService(app.GRPCQueryRouter(), clientCtx, app.Simulate, app.interfaceRegistry)
 }
 
 // RegisterTendermintService implements the Application.RegisterTendermintService method.
 func (app *Evmos) RegisterTendermintService(clientCtx client.Context) {
 	tmservice.RegisterTendermintService(
 		clientCtx,
-		app.BaseApp.GRPCQueryRouter(),
+		app.GRPCQueryRouter(),
 		app.interfaceRegistry,
 		app.Query,
 	)
