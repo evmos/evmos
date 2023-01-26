@@ -7,7 +7,7 @@ as it allows for initializing multiple Evmos chains with different versions.
 
 - [Quick Start](#quick-start)
 - [Upgrade Process](#upgrade-process)
-- [Structure](#structure)
+- [Test Suite Structure](#test-suite-structure)
     - [`e2e` Package](#e2e-package)
     - [`upgrade` Package](#upgrade-package)
     - [Version retrieve](#version-retrieve)
