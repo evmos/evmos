@@ -17,7 +17,8 @@ This logic utilizes parameters that can be set manually(if necessary):
 # should be set true with make test-e2e command if you need access to the node after upgrade
 E2E_SKIP_CLEANUP := false
 
-# version of initial evmos node that will be upgraded, tag e.g. 'v9.1.0'
+# version(s) of initial evmos node(s) that will be upgraded, tag e.g. 'v9.1.0'
+# to use multiple upgrades separate the versions with a forward slash, e.g. 'v10.0.1/v11.0.0-rc1'
 INITIAL_VERSION
 
 # version of upgraded evmos node that will replace the initial node, tag e.g. 'v10.0.0'
