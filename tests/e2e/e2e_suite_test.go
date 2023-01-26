@@ -141,7 +141,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	)
 
 	s.T().Logf(
-		"successfully submitted upgrade proposal:\nupgrade height: %d\nupgrade version: %s",
+		"successfully submitted upgrade proposal: height: %d, name: %s",
 		s.upgradeManager.UpgradeHeight,
 		target,
 	)
