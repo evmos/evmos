@@ -45,7 +45,7 @@ To test an upgrade to explicit target version
 and continue to run the upgraded node, use:
 
 ```shell
-make test-e2e E2E_SKIP_CLEANUP=true INITIAL_VERSION=<tag> TARGET_VERSION=<tag>
+make test-upgrade E2E_SKIP_CLEANUP=true INITIAL_VERSION=<tag> TARGET_VERSION=<tag>
 ```
 
 ### Upgrade Process
