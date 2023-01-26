@@ -9,6 +9,7 @@ LOGLEVEL="info"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
+PRUNING="custom"
 
 CHAINDIR="$HOME/.evmosd"
 GENESIS="$CHAINDIR/config/genesis.json"
@@ -76,9 +77,11 @@ total_supply=100000000000000000000010000
 jq -r --arg total_supply "$total_supply" '.app_state.bank.supply[0].amount=$total_supply' "$GENESIS" > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # set custom pruning settings
-sed -i 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
-sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
-sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+if [ "$PRUNING" = "custom" ]; then
+  sed -i 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+  sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+  sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+fi
 
 # Sign genesis transaction
 evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id "$CHAINID"
