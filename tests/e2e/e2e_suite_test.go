@@ -200,6 +200,19 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	// make sure node produce blocks after upgrade
 	err = s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	s.Require().NoError(err, "node does not produce blocks after upgrade")
+
+	if targetVersion != localVersionTag {
+		s.T().Log("checking node version...")
+		version, err := s.upgradeManager.GetNodeVersion(ctx)
+		s.Require().NoError(err, "can't get node version")
+
+		version = strings.TrimSpace(version)
+		targetVersion = strings.TrimPrefix(targetVersion, "v")
+		s.Require().Equal(targetVersion, version,
+			"unexpected node version after upgrade:\nexpected: %s\nactual: %s",
+			targetVersion, version,
+		)
+	}
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
