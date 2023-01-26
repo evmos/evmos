@@ -36,9 +36,9 @@ func TestCheckLegacyProposal(t *testing.T) {
 	}
 }
 
-// TestByVersion tests the ByVersion type with different version strings
+// TestByVersion tests the EvmosVersion type with different version strings
 func TestByVersion(t *testing.T) {
-	var version ByVersion
+	var version EvmosVersion
 
 	testCases := []struct {
 		Name string
