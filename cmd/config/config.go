@@ -57,8 +57,9 @@ func SetBech32Prefixes(config *sdk.Config) {
 // SetBip44CoinType sets the global coin type to be used in hierarchical deterministic wallets.
 func SetBip44CoinType(config *sdk.Config) {
 	config.SetCoinType(ethermint.Bip44CoinType)
-	config.SetPurpose(sdk.Purpose)                      // Shared
-	config.SetFullFundraiserPath(ethermint.BIP44HDPath) //nolint: staticcheck
+	config.SetPurpose(sdk.Purpose) // Shared
+	//nolint:staticcheck
+	config.SetFullFundraiserPath(ethermint.BIP44HDPath)
 }
 
 // RegisterDenoms registers the base and display denominations to the SDK.
