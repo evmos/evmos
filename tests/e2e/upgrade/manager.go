@@ -187,7 +187,7 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 		case <-ticker.C:
 			stdOut, stdErr, errLogs := m.GetLogs(m.ContainerID())
 			if errLogs != nil {
-				return fmt.Errorf("eeror while getting logs: %s", errLogs.Error())
+				return fmt.Errorf("error while getting logs: %s", errLogs.Error())
 			}
 			return fmt.Errorf(
 				"can't reach height %d, due to: %s\nerror logs: %s\nout logs: %s",

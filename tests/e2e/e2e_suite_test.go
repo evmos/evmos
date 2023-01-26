@@ -18,15 +18,16 @@ const (
 	localVersionTag       = "latest"
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
-	tharsisRepo           = "tharsishq/evmos"
 
 	// blocksAfterUpgrade defines how many blocks must be produced after an upgrade is
 	// considered successful
 	blocksAfterUpgrade = 5
+	// relatedBuildPath defines the path where the build data is stored
+	relatedBuildPath = "../../build/"
+	// tharsisRepo is the docker hub repository that contains the Evmos images pulled during tests
+	tharsisRepo = "tharsishq/evmos"
 	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
 	upgradeHeightDelta = 10
-
-	relatedBuildPath = "../../build/"
 )
 
 type upgradeParams struct {
@@ -211,10 +212,7 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 
 	s.T().Log("killing node...")
 	err := s.upgradeManager.KillCurrentNode()
-	s.T().Log("checking error...")
-	if err != nil && !strings.Contains(err.Error(), "is not running") {
-		s.Require().NoError(err, "can't kill current node")
-	}
+	s.Require().NoError(err, "can't kill current node")
 
 	s.T().Log("removing network...")
 	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
