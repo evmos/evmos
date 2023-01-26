@@ -23,6 +23,7 @@ import (
 	"os/exec"
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/go-version"
 )
@@ -47,6 +48,20 @@ func (s ByVersion) Less(i, j int) bool {
 		log.Fatal(err)
 	}
 	return v1.LessThan(v2)
+}
+
+// CheckLegacyProposal checks if the running node requires a legacy proposal
+func CheckLegacyProposal(version string) bool {
+	version = strings.TrimSpace(version)
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
+	}
+
+	// check if the version is lower than v10.x.x
+	cmp := ByVersion([]string{version, "v10.0.0"})
+	islegacyProposal := !cmp.Less(0, 1)
+
+	return islegacyProposal
 }
 
 // RetrieveUpgradesList parses the app/upgrades folder and returns a slice of semver upgrade versions

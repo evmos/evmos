@@ -105,22 +105,16 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 
 	// if Evmos is lower than v10.x.x no need to use the legacy proposal
 	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
-	s.Require().NoError(err, "can't get evmosd version from running node")
-	currentVersion = strings.TrimSpace(currentVersion)
-	if !strings.HasPrefix(currentVersion, "v") {
-		currentVersion = "v" + currentVersion
-	}
-	s.T().Logf("current version: '%s'", currentVersion)
-	cmp := upgrade.ByVersion([]string{currentVersion, "v10.0.0"})
-	legacyProposal := !cmp.Less(0, 1)
-	s.T().Logf("legacy proposal: %v", legacyProposal)
+	s.Require().NoError(err, "can't get current Evmos version")
+	islegacyProposal := upgrade.CheckLegacyProposal(currentVersion)
+	s.T().Logf("legacy proposal: %v", islegacyProposal)
 
 	// create the proposal
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
 		name,
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
-		legacyProposal,
+		islegacyProposal,
 	)
 	s.Require().NoErrorf(
 		err,
@@ -215,12 +209,16 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 	}
 	s.T().Log("tearing down e2e integration test suite...")
 
+	s.T().Log("killing node...")
 	err := s.upgradeManager.KillCurrentNode()
+	s.T().Log("checking error...")
 	if err != nil && !strings.Contains(err.Error(), "is not running") {
 		s.Require().NoError(err, "can't kill current node")
 	}
 
+	s.T().Log("removing network...")
 	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
 
+	s.T().Log("removing mount path...")
 	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
 }
