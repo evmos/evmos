@@ -86,13 +86,13 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
-	suite.app = app.Setup(checkTx, nil)
+	suite.app = app.EthSetup(checkTx, nil)
 	suite.SetupApp(checkTx)
 }
 
 func (suite *KeeperTestSuite) SetupTestWithT(t require.TestingT) {
 	checkTx := false
-	suite.app = app.Setup(checkTx, nil)
+	suite.app = app.EthSetup(checkTx, nil)
 	suite.SetupAppWithT(checkTx, t)
 }
 
@@ -163,7 +163,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 		// Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "ethermint_9000-1",
+				ChainId:         "evmos_9000-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: app.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -173,7 +173,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 
 	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "ethermint_9000-1",
+		ChainID:         "evmos_9000-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 		Version: tmversion.Consensus{
