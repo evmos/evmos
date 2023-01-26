@@ -13,6 +13,7 @@ TRACE=""
 CHAINDIR="$HOME/.evmosd"
 GENESIS="$CHAINDIR/config/genesis.json"
 TMP_GENESIS="$CHAINDIR/config/tmp_genesis.json"
+APP_TOML="$CHAINDIR/config/app.toml"
 CONFIG_TOML="$CHAINDIR/config/config.toml"
 
 # validate dependencies are installed
@@ -74,6 +75,11 @@ evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-back
 total_supply=100000000000000000000010000
 jq -r --arg total_supply "$total_supply" '.app_state.bank.supply[0].amount=$total_supply' "$GENESIS" > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# set custom pruning settings
+sed -i 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+
 # Sign genesis transaction
 evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis
@@ -90,4 +96,4 @@ evmosd collect-gentxs
 evmosd validate-genesis
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
+evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
