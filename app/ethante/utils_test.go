@@ -521,11 +521,6 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 		TypedDataChainID: ethChainID,
 		FeePayerSig:      signature,
 	})
-	option, err = codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
-		FeePayer:         from.String(),
-		TypedDataChainID: ethChainID,
-		FeePayerSig:      signature,
-	})
 	suite.Require().NoError(err)
 
 	suite.clientCtx.TxConfig.SignModeHandler()
