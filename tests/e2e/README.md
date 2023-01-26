@@ -5,6 +5,15 @@ for running end-to-end tests on Evmos.
 It is used for testing chain upgrades,
 as it allows for initializing multiple Evmos chains with different versions.
 
+- [Quick Start](#quick-start)
+- [Upgrade Process](#upgrade-process)
+- [Structure](#structure)
+    - [`e2e` Package](#e2e-package)
+    - [`upgrade` Package](#upgrade-package)
+    - [Version retrieve](#version-retrieve)
+    - [Testing Results](#testing-results)
+- [Running multiple upgrades](#running-multiple-upgrades)
+
 ### Quick Start
 
 To run a chain upgrade test, execute:
@@ -67,7 +76,7 @@ to the local `build/` dir and start the node.
 The node will get upgrade information from `upgrade-info.json`
 and will execute the upgrade.
 
-## Structure
+## Test Suite Structure
 
 ### `e2e` Package
 
@@ -212,4 +221,15 @@ the upgraded node container should be removed manually:
 ```shell
 docker kill <container-id>
 docker rm <container-id>
+```
+
+## Running multiple upgrades
+
+In order to run multiple upgrades,
+just combine the versions leading up to the last upgrade
+with a forward slash
+and pass them as the `INITIAL_VERSION`.
+
+```bash
+make test-upgrade INITIAL_VERSION=v10.0.1/v11.0.0-rc1 TARGET_VERSION=v11.0.0-rc3
 ```
