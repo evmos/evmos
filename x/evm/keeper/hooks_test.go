@@ -60,6 +60,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 
 	for _, tc := range testCases {
 		suite.SetupTest()
+		suite.app.EvmKeeper = suite.app.EvmKeeper.CleanHooks()
 		hook := tc.setupHook()
 		suite.app.EvmKeeper.SetHooks(keeper.NewMultiEvmHooks(hook))
 
