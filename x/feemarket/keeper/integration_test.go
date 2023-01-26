@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"encoding/json"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"math/big"
 	"strings"
+
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
