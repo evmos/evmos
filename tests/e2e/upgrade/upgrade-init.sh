@@ -63,35 +63,7 @@ jq '.app_state.claims.params.duration_until_decay="100000s"' "$GENESIS" > "$TMP_
 jq -r --arg amount_to_claim "$amount_to_claim" '.app_state.bank.balances += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # disable produce empty block
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
-  else
-    sed -i 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
-fi
-
-if [[ $1 == "pending" ]]; then
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_propose = "3s"/timeout_propose = "30s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_prevote = "1s"/timeout_prevote = "10s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_commit = "5s"/timeout_commit = "150s"/g' "$CONFIG_TOML"
-      sed -i '' 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' "$CONFIG_TOML"
-  else
-      sed -i 's/create_empty_blocks_interval = "0s"/create_empty_blocks_interval = "30s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_propose = "3s"/timeout_propose = "30s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_propose_delta = "500ms"/timeout_propose_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_prevote = "1s"/timeout_prevote = "10s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_prevote_delta = "500ms"/timeout_prevote_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_precommit = "1s"/timeout_precommit = "10s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_precommit_delta = "500ms"/timeout_precommit_delta = "5s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_commit = "5s"/timeout_commit = "150s"/g' "$CONFIG_TOML"
-      sed -i 's/timeout_broadcast_tx_commit = "10s"/timeout_broadcast_tx_commit = "150s"/g' "$CONFIG_TOML"
-  fi
-fi
+sed -i 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
 
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account $KEY 100000000000000000000000000aevmos --keyring-backend $KEYRING
@@ -116,10 +88,6 @@ evmosd collect-gentxs
 
 # Run this to ensure everything worked and that the genesis file is setup correctly
 evmosd validate-genesis
-
-if [[ $1 == "pending" ]]; then
-  echo "pending mode is on, please wait for the first block committed."
-fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
 evmosd start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3

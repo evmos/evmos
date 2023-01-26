@@ -107,15 +107,14 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	// if Evmos is lower than v10.x.x no need to use the legacy proposal
 	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
 	s.Require().NoError(err, "can't get current Evmos version")
-	islegacyProposal := upgrade.CheckLegacyProposal(currentVersion)
-	s.T().Logf("legacy proposal: %v", islegacyProposal)
+	isLegacyProposal := upgrade.CheckLegacyProposal(currentVersion)
 
 	// create the proposal
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
 		name,
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
-		islegacyProposal,
+		isLegacyProposal,
 	)
 	s.Require().NoErrorf(
 		err,
