@@ -13,7 +13,6 @@ package v11
 
 // Allocations are rewards by participant address, along with the randomized validator to stake to.
 var Allocations = [1183][3]string{
-
 	{
 		"evmos1az0eeqw5222en0enxz9ect3s8xy4kayz7khcn2",
 		"72232472320000001048576",
