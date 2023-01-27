@@ -14,7 +14,7 @@ import (
 // a predefined C is given a massive allowance on B.
 var (
 	//go:embed compiled_contracts/ERC20DirectBalanceManipulation.json
-	ERC20DirectBalanceManipulationJSON []byte // nolint: golint
+	ERC20DirectBalanceManipulationJSON []byte //nolint: golint
 
 	// ERC20DirectBalanceManipulationContract is the compiled erc20 contract
 	ERC20DirectBalanceManipulationContract evmtypes.CompiledContract

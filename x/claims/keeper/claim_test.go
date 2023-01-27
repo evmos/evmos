@@ -132,7 +132,8 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				cr := types.NewClaimsRecord(sdk.NewInt(100))
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.AirdropStartTime = suite.ctx.BlockTime().Add(-time.Minute)
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.NewInt(100),
@@ -143,7 +144,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				cr := types.NewClaimsRecord(sdk.NewInt(100))
 				params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 				params.EnableClaims = false
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.ZeroInt(),
@@ -156,7 +157,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 				params.AirdropStartTime = params.AirdropStartTime.Add(-time.Hour)
 				params.DurationUntilDecay = 30 * time.Minute
 				params.DurationOfDecay = time.Hour
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 			},
 			sdk.NewInt(100),
@@ -578,10 +579,11 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(50))}
-				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
+				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				_, err = suite.app.ClaimsKeeper.MergeClaimsRecords(suite.ctx, recipient, senderClaimsRecord, recipientClaimsRecord, params)
@@ -594,7 +596,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+			suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck // this will run through many test cases and we don't know if we want error or not
 
 			tc.test()
 		})
@@ -625,7 +627,8 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	airdropStartTime := suite.ctx.BlockTime().Add(time.Hour)
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	params.AirdropStartTime = airdropStartTime
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
 
@@ -754,7 +757,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	validator, err := stakingtypes.NewValidator(sdk.ValAddress(addrs[0]), pub1.PubKey(), stakingtypes.Description{})
 	suite.Require().NoError(err)
 	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	suite.Require().NoError(err)
 
 	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, ethermint.PowerReduction))
 	delAmount := sdk.TokensFromConsensusPower(1, ethermint.PowerReduction)
@@ -887,7 +891,8 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	params.AirdropStartTime = airdropStartTime
 	params.DurationUntilDecay = durationUntilDecay
 	params.DurationOfDecay = durationOfDecay
-	suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
+	suite.Require().NoError(err)
 
 	var claimsRecord types.ClaimsRecord
 
@@ -963,7 +968,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 			ActionsCompleted:       []bool{false, false, false, false},
 		}
 
-		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{
+		suite.app.ClaimsKeeper.SetParams(suite.ctx, types.Params{ //nolint:errcheck
 			AirdropStartTime:   airdropStartTime,
 			DurationUntilDecay: durationUntilDecay,
 			DurationOfDecay:    durationOfDecay,
@@ -1013,7 +1018,8 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 	suite.Require().Equal(coins.AmountOf(params.GetClaimsDenom()), escrow.Sub(claimedCoins))
 
 	// End the airdrop
-	suite.app.ClaimsKeeper.EndAirdrop(ctx, params)
+	err = suite.app.ClaimsKeeper.EndAirdrop(ctx, params)
+	suite.Require().NoError(err)
 
 	// Make sure no one can claim after airdrop ends
 	claimedCoinsAfter, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(ctx, addr1, claimsRecord, types.ActionDelegate, params)

@@ -155,7 +155,7 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 					[]uint64{1},
 				)
 				ctx := sdk.WrapSDKContext(suite.ctx)
-				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
+				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg) //nolint:errcheck
 			},
 			false,
 			types.ErrRevenueAlreadyRegistered.Error(),
@@ -323,7 +323,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",
@@ -391,7 +391,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 			"",
 		},
 		{
-			"fail - previously cancelled contract",
+			"fail - previously canceled contract",
 			deployerAddr,
 			withdrawer,
 			withdrawer,
@@ -486,7 +486,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 		errorMessage string
 	}{
 		{
-			"ok - cancelled",
+			"ok - canceled",
 			deployerAddr,
 			contract1,
 			[]uint64{1},
@@ -508,7 +508,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 			"",
 		},
 		{
-			"ok - cancelled - no withdrawer",
+			"ok - canceled - no withdrawer",
 			deployerAddr,
 			contract1,
 			[]uint64{1},
@@ -549,7 +549,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 
 				params := types.DefaultParams()
 				params.EnableRevenue = false
-				suite.app.RevenueKeeper.SetParams(suite.ctx, params)
+				suite.app.RevenueKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			false,
 			"",
