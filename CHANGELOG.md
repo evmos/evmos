@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (deps) [#1288](https://github.com/evmos/evmos/pull/1288) Bump Ethermint to [`v0.21.0`](https://github.com/evmos/ethermint/releases/v0.21.0)
 - (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) fix Ethermint params upgrade 
 - (ica) [#1101](https://github.com/evmos/evmos/pull/1101) Add ICA host submodule
 - (inflation) [#1210](https://github.com/evmos/evmos/pull/1210) Delete `EpochMintProvision` from `KVStore` in a migration
