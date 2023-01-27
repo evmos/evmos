@@ -28,8 +28,6 @@ import (
 	"github.com/hashicorp/go-version"
 )
 
-var upgradesPath = "../../app/upgrades"
-
 // EvmosVersions is a custom comparator for sorting semver version strings.
 type EvmosVersions []string
 
@@ -68,7 +66,7 @@ func CheckLegacyProposal(version string) bool {
 
 // RetrieveUpgradesList parses the app/upgrades folder and returns a slice of semver upgrade versions
 // in ascending order, e.g ["v1.0.0", "v1.0.1", "v1.1.0", ... , "v10.0.0"]
-func (m *Manager) RetrieveUpgradesList() ([]string, error) {
+func RetrieveUpgradesList(upgradesPath string) ([]string, error) {
 	dirs, err := os.ReadDir(upgradesPath)
 	if err != nil {
 		return nil, err

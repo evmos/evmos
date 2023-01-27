@@ -4,7 +4,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/evmos/evmos/v11/tests/e2e/upgrade"
 )
+
+// upgradesPath is the relative path from this file to the app/upgrades folder
+const upgradesPath = "../../app/upgrades"
 
 // versionSeparator is used to separate versions in the INITIAL_VERSION and TARGET_VERSION
 // environment vars
@@ -37,7 +42,7 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 
 	initialV := os.Getenv("INITIAL_VERSION")
 	if initialV == "" {
-		upgradesList, err = s.upgradeManager.RetrieveUpgradesList()
+		upgradesList, err = upgrade.RetrieveUpgradesList(upgradesPath)
 		s.Require().NoError(err)
 		// set the second-to-last upgrade as initial version
 		versionTags = []string{upgradesList[len(upgradesList)-2]}
@@ -62,7 +67,7 @@ func (s *IntegrationTestSuite) loadUpgradeParams() {
 	targetV := os.Getenv("TARGET_VERSION")
 	if targetV == "" {
 		if upgradesList == nil {
-			upgradesList, err = s.upgradeManager.RetrieveUpgradesList()
+			upgradesList, err = upgrade.RetrieveUpgradesList(upgradesPath)
 			s.Require().NoError(err)
 		}
 		name = upgradesList[len(upgradesList)-1]
