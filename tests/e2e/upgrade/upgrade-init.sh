@@ -9,7 +9,8 @@ LOGLEVEL="info"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
-PRUNING="custom"
+PRUNING="default"
+#PRUNING="custom"
 
 CHAINDIR="$HOME/.evmosd"
 GENESIS="$CHAINDIR/config/genesis.json"
