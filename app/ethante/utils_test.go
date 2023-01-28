@@ -1,8 +1,7 @@
 package ethante_test
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/evmos/evmos/v11/app/ethante"
 	"math"
 	"math/big"
 	"testing"
@@ -34,7 +33,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	sdkante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
@@ -51,7 +49,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/tests"
-	ante "github.com/evmos/evmos/v11/app/ethante"
+	ante "github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
@@ -127,7 +125,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	anteHandler, err := ante.NewAnteHandler(ante.HandlerOptions{
+	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
 		AccountKeeper:   suite.app.AccountKeeper,
 		BankKeeper:      suite.app.BankKeeper,
 		EvmKeeper:       suite.app.EvmKeeper,
@@ -135,9 +133,8 @@ func (suite *AnteTestSuite) SetupTest() {
 		IBCKeeper:       suite.app.IBCKeeper,
 		FeeMarketKeeper: suite.app.FeeMarketKeeper,
 		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:  ethante.DefaultSigVerificationGasConsumer,
 	})
-	suite.Require().NoError(err)
 
 	suite.anteHandler = anteHandler
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
@@ -430,44 +427,6 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleSignerMsgs(from sdk.AccAddre
 	msgSend1 := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
 	msgSend2 := banktypes.NewMsgSend(recipient, from, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
 	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend1, msgSend2})
-}
-
-// StdSignBytes returns the bytes to sign for a transaction.
-func StdSignBytes(cdc *codec.LegacyAmino, chainID string, accnum uint64, sequence uint64, timeout uint64, fee legacytx.StdFee, msgs []sdk.Msg, memo string, tip *txtypes.Tip) []byte {
-	msgsBytes := make([]json.RawMessage, 0, len(msgs))
-	for _, msg := range msgs {
-		legacyMsg, ok := msg.(legacytx.LegacyMsg)
-		if !ok {
-			panic(fmt.Errorf("expected %T when using amino JSON", (*legacytx.LegacyMsg)(nil)))
-		}
-
-		msgsBytes = append(msgsBytes, json.RawMessage(legacyMsg.GetSignBytes()))
-	}
-
-	var stdTip *legacytx.StdTip
-	if tip != nil {
-		if tip.Tipper == "" {
-			panic(fmt.Errorf("tipper cannot be empty"))
-		}
-
-		stdTip = &legacytx.StdTip{Amount: tip.Amount, Tipper: tip.Tipper}
-	}
-
-	bz, err := cdc.MarshalJSON(legacytx.StdSignDoc{
-		AccountNumber: accnum,
-		ChainID:       chainID,
-		Fee:           json.RawMessage(fee.Bytes()),
-		Memo:          memo,
-		Msgs:          msgsBytes,
-		Sequence:      sequence,
-		TimeoutHeight: timeout,
-		Tip:           stdTip,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	return sdk.MustSortJSON(bz)
 }
 
 func (suite *AnteTestSuite) CreateTestEIP712SingleMessageTxBuilder(
