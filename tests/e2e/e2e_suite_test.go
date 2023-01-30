@@ -18,17 +18,21 @@ const (
 	localVersionTag       = "latest"
 	defaultChainID        = "evmos_9000-1"
 	defaultManagerNetwork = "evmos-local"
-	tharsisRepo           = "tharsishq/evmos"
-	firstUpgradeHeight    = 25
 
+	// blocksAfterUpgrade defines how many blocks must be produced after an upgrade is
+	// considered successful
+	blocksAfterUpgrade = 5
+	// relatedBuildPath defines the path where the build data is stored
 	relatedBuildPath = "../../build/"
+	// tharsisRepo is the docker hub repository that contains the Evmos images pulled during tests
+	tharsisRepo = "tharsishq/evmos"
+	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
+	upgradeHeightDelta = 10
 )
 
 type upgradeParams struct {
-	InitialVersion         string
-	TargetVersion          string
-	SoftwareUpgradeVersion string
-	MountPath              string
+	MountPath string
+	Versions  []versionConfig
 
 	ChainID     string
 	TargetRepo  string
@@ -61,105 +65,111 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	}
 }
 
-func (s *IntegrationTestSuite) runInitialNode() {
+// runInitialNode builds a docker image capable of running an Evmos node with the given version.
+// After a successful build, it runs the container and checks if the node can produce blocks.
+func (s *IntegrationTestSuite) runInitialNode(version string) {
 	err := s.upgradeManager.BuildImage(
 		localRepository,
-		s.upgradeParams.InitialVersion,
+		version,
 		"./upgrade/Dockerfile.init",
 		".",
-		map[string]string{"INITIAL_VERSION": s.upgradeParams.InitialVersion},
+		map[string]string{"INITIAL_VERSION": version},
 	)
-	s.Require().NoError(err, "can't build initial container")
+	s.Require().NoError(err, "can't build container with Evmos version: %s", version)
 
-	node := upgrade.NewNode(localRepository, s.upgradeParams.InitialVersion)
+	node := upgrade.NewNode(localRepository, version)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
 
 	err = s.upgradeManager.RunNode(node)
-	s.Require().NoError(err, "can't run initial node")
+	s.Require().NoError(err, "can't run node with Evmos version: %s", version)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// wait until node starts and produce some blocks
-	err = s.upgradeManager.WaitForHeight(ctx, 5)
+	err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
 	s.Require().NoError(err)
 
-	s.T().Logf("successfully started initial node version: [%s]", s.upgradeParams.InitialVersion)
+	s.T().Logf("successfully started node with Evmos version: [%s]", version)
 }
 
-func (s *IntegrationTestSuite) proposeUpgrade() {
+// proposeUpgrade submits an upgrade proposal to the chain that schedules an upgrade to
+// the given target version.
+func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// calculate upgrade height for the proposal
+	nodeHeight, err := s.upgradeManager.GetNodeHeight(ctx)
+	s.Require().NoError(err, "can't get block height from running node")
+	s.upgradeManager.UpgradeHeight = uint(nodeHeight + upgradeHeightDelta)
+
+	// if Evmos is lower than v10.x.x no need to use the legacy proposal
+	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
+	s.Require().NoError(err, "can't get current Evmos version")
+	isLegacyProposal := upgrade.CheckLegacyProposal(currentVersion)
+
+	// create the proposal
 	exec, err := s.upgradeManager.CreateSubmitProposalExec(
-		s.upgradeParams.SoftwareUpgradeVersion,
+		name,
 		s.upgradeParams.ChainID,
-		firstUpgradeHeight,
+		s.upgradeManager.UpgradeHeight,
+		isLegacyProposal,
 	)
-	s.Require().NoError(err, "can't create submit proposal exec")
+	s.Require().NoErrorf(
+		err,
+		"can't create the proposal to upgrade Evmos to %s at height %d with name %s",
+		target, s.upgradeManager.UpgradeHeight, name,
+	)
+
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to submit upgrade proposal; stdout: %s, stderr: %s", outBuf, errBuf,
+		"failed to submit proposal to upgrade Evmos to %s at height %d\nstdout: %s,\nstderr: %s",
+		target, s.upgradeManager.UpgradeHeight, outBuf.String(), errBuf.String(),
 	)
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0: %s %s", outBuf, errBuf,
+		"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
 	)
 
 	s.T().Logf(
-		"successfully submitted upgrade proposal: upgrade height: [%d] upgrade version: [%s]",
-		firstUpgradeHeight,
-		s.upgradeParams.SoftwareUpgradeVersion,
+		"successfully submitted upgrade proposal: height: %d, name: %s",
+		s.upgradeManager.UpgradeHeight,
+		target,
 	)
 }
 
-func (s *IntegrationTestSuite) depositToProposal() {
+// voteForProposal votes for the upgrade proposal with the given id.
+func (s *IntegrationTestSuite) voteForProposal(id int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateDepositProposalExec(s.upgradeParams.ChainID)
-	s.Require().NoError(err, "can't create deposit to proposal tx exec")
-	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-	s.Require().NoErrorf(
-		err,
-		"failed to submit deposit to proposal tx; stdout: %s, stderr: %s", outBuf, errBuf,
-	)
-
-	s.Require().Truef(
-		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0: %s %s", outBuf, errBuf,
-	)
-
-	s.T().Logf("successfully deposited to proposal")
-}
-
-func (s *IntegrationTestSuite) voteForProposal() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID)
+	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id)
 	s.Require().NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
 		err,
-		"failed to vote for proposal tx; stdout: %s, stderr: %s", outBuf, errBuf,
+		"failed to vote for proposal tx;\nstdout: %s,\nstderr: %s", outBuf.String(), errBuf.String(),
 	)
 
 	s.Require().Truef(
 		strings.Contains(outBuf.String(), "code: 0"),
-		"tx returned non code 0: %s %s", outBuf, errBuf,
+		"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
 	)
 
 	s.T().Logf("successfully voted for upgrade proposal")
 }
 
-func (s *IntegrationTestSuite) upgrade() {
+// upgrade upgrades the node to the given version using the given repo. The repository
+// can either be a local path or a remote repository.
+func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	s.T().Log("wait for node to reach upgrade height...")
 	// wait for proposed upgrade height
-	err := s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight)
+	err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
 	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
 
@@ -168,37 +178,57 @@ func (s *IntegrationTestSuite) upgrade() {
 	err = s.upgradeManager.ExportState(buildDir)
 	s.Require().NoError(err, "can't export node container state to local")
 
-	s.T().Log("killing initial node...")
+	s.T().Log("killing node before upgrade...")
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
 
 	s.T().Logf(
-		"starting upgraded node: version: [%s] mount point: [%s]",
-		s.upgradeParams.TargetVersion,
+		"starting upgraded node: repo: [%s] version: [%s] mount point: [%s]",
+		targetRepo,
+		targetVersion,
 		s.upgradeParams.MountPath,
 	)
 
-	node := upgrade.NewNode(s.upgradeParams.TargetRepo, s.upgradeParams.TargetVersion)
+	node := upgrade.NewNode(targetRepo, targetVersion)
 	node.Mount(s.upgradeParams.MountPath)
 	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
-	s.T().Log("node started! waiting for node to produce 10 blocks")
+	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
 	// make sure node produce blocks after upgrade
-	err = s.upgradeManager.WaitForHeight(ctx, firstUpgradeHeight+10)
-	s.Require().NoError(err, "node not produce blocks")
+	err = s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	s.Require().NoError(err, "node does not produce blocks after upgrade")
+
+	if targetVersion != localVersionTag {
+		s.T().Log("checking node version...")
+		version, err := s.upgradeManager.GetNodeVersion(ctx)
+		s.Require().NoError(err, "can't get node version")
+
+		version = strings.TrimSpace(version)
+		targetVersion = strings.TrimPrefix(targetVersion, "v")
+		s.Require().Equal(targetVersion, version,
+			"unexpected node version after upgrade:\nexpected: %s\nactual: %s",
+			targetVersion, version,
+		)
+	}
 }
 
+// TearDownSuite kills the running container, removes the network and mount path
 func (s *IntegrationTestSuite) TearDownSuite() {
 	if s.upgradeParams.SkipCleanup {
+		s.T().Logf("skipping cleanup... container %s will be left running", s.upgradeManager.ContainerID())
 		return
 	}
 	s.T().Log("tearing down e2e integration test suite...")
 
-	s.Require().NoError(s.upgradeManager.KillCurrentNode())
+	s.T().Log("killing node...")
+	err := s.upgradeManager.KillCurrentNode()
+	s.Require().NoError(err, "can't kill current node")
 
-	s.Require().NoError(s.upgradeManager.RemoveNetwork())
+	s.T().Log("removing network...")
+	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
 
-	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]))
+	s.T().Log("removing mount path...")
+	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
 }
