@@ -189,7 +189,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1
 The IP address will be the public IP of the docker container.
 :::
 
-Additional instructions on how to interact with the WebSocket can be found on the [events documentation](./../json-rpc/events.md#ethereum-websocket).
+Additional instructions on how to interact with the WebSocket
+can be found on the [events documentation](./../json-rpc/events.md#ethereum-websocket).
 
 ### Keys & Accounts
 
@@ -204,12 +205,14 @@ Now that accounts exists, you may create new accounts and send those accounts
 funds!
 
 ::: tip
-**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json` and can be restored to the CLI using the `evmosd keys add --restore` command
+**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json`
+and can be restored to the CLI using the `evmosd keys add --restore` command
 :::
 
 ### Special Binaries
 
-If you have multiple binaries with different names, you can specify which one to run with the BINARY environment variable.
+If you have multiple binaries with different names,
+you can specify which one to run with the BINARY environment variable.
 The path of the binary is relative to the attached volume.
 For example:
 

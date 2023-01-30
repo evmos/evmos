@@ -39,24 +39,30 @@ For instance the link above would be:
 
 Share the URL with others and verify that your file is publicly accessible.
 
-The reason we use IPFS is that it is a decentralized means of storage, making it resistant to censorship or single points of failure.
+The reason we use IPFS is that it is a decentralized means of storage,
+making it resistant to censorship or single points of failure.
 This increases the likelihood that the file will remain available in the future.
 
 ## Formatting the JSON file for the governance proposal
 
 Many proposals allow for long form text to be included, usually under the key `description`.
-These provide the opportunity to include [markdown](https://www.markdownguide.org/) if formatted correctly as well as line breaks with `\n`.
-Beware, however, that if you are using the CLI to create a proposal, and setting `description` using a flag, the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects.
-If you're using markdown or line breaks it's recommended to put the proposal text into a json file and include that file as part of the CLI proposal, as opposed to individual fields in flags.
+These provide the opportunity to include [markdown](https://www.markdownguide.org/)
+if formatted correctly as well as line breaks with `\n`.
+Beware, however, that if you are using the CLI to create a proposal, and setting `description` using a flag,
+the text will be [escaped](https://en.wikipedia.org/wiki/Escape_sequences_in_C) which may have undesired effects.
+If you're using markdown or line breaks it's recommended to put the proposal text into a json file
+and include that file as part of the CLI proposal, as opposed to individual fields in flags.
 
 ### Text Proposals
 
-`TextProposal`s are used by delegators to agree to a certain strategy, plan, commitment, future upgrade, or any other statement in the form of text.
+`TextProposal`s are used by delegators to agree to a certain strategy, plan, commitment, future upgrade,
+or any other statement in the form of text.
 Aside from having a record of the proposal outcome on the Evmos chain, a text proposal has no direct effect on Evmos.
 
 #### Real Example
 
-[Proposal 1](https://commonwealth.im/evmos/proposal/1-airdrop-claim-mission) was representative of one of four core network activities that users had to participate in to claim tokens from the Evmos Rektdrop.
+[Proposal 1](https://commonwealth.im/evmos/proposal/1-airdrop-claim-mission) was representative of
+one of four core network activities that users had to participate in to claim tokens from the Evmos Rektdrop.
 
 ```json
 {
@@ -71,7 +77,8 @@ Aside from having a record of the proposal outcome on the Evmos chain, a text pr
 For community pool spend proposals, there are five components:
 
 1. **Title** - the distinguishing name of the proposal, typically the way the that explorers list proposals
-2. **Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
+2. **Description** - the body of the proposal that further describes what is being proposed
+   and details surrounding the proposal
 3. **Recipient** - the Evmos (bech32-based) address that will receive funding from the Community Pool
 4. **Amount** - the amount of funding that the recipient will receive in atto-EVMOS (`aevmos`)
 5. **Deposit** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
@@ -80,14 +87,18 @@ For community pool spend proposals, there are five components:
 
 In this simple example (below), a network explorer will list the governance proposal as a `CommunityPoolSpendProposal`.
 When an observer selects the proposal, they'll see the description.
-Not all explorers will show the recipient and amount, so ensure that you verify that the description aligns with the what the governance proposal is programmed to enact.
-If the description says that a certain address will receive a certain number of EVMOS, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
+Not all explorers will show the recipient and amount,
+so ensure that you verify that the description aligns with the what the governance proposal is programmed to enact.
+If the description says that a certain address will receive a certain number of EVMOS,
+it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
 
 The `amount` is `1000000000000000000aevmos`.
-This is equal to 1 EVMOS, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp` will receive 1 EVMOS if this proposal is passed.
+This is equal to 1 EVMOS, so `recipient` address `evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp`
+will receive 1 EVMOS if this proposal is passed.
 
 The `deposit` of `3500000000000000000000aevmos` results in 3500 EVMOS being used from the proposal submitter's account.
-A minimum deposit is required for a proposal to enter the voting period, and anyone may contribute to this deposit within 3 days.
+A minimum deposit is required for a proposal to enter the voting period,
+and anyone may contribute to this deposit within 3 days.
 If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
 Deposit amounts will also be burned if the quorum isn't met in the vote or the proposal is vetoed.
 
@@ -191,14 +202,17 @@ Users can query the proposal details with the evmosd command-line interface usin
 
 The deposit `denom` is `aevmos` and `amount` is `20100000000000000000`.
 Therefore, a deposit of 20.1 EVMOS will be included with this proposal.
-At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period (and subsequently passed).
+At the time, the EVMOS mainnet had a 10 EVMOS minimum deposit, so this proposal was put directly into the voting period
+(and subsequently passed).
 The minimum deposit amount is currently 3500 EVMOS.
-There is a minimum deposit required for a proposal to enter the voting period, and anyone may contribute to this deposit within a 3-day period.
+There is a minimum deposit required for a proposal to enter the voting period,
+and anyone may contribute to this deposit within a 3-day period.
 If the minimum deposit isn't reached before this time, the deposit amounts will be burned.
 
 ## Sending the transaction that submits your governance proposal
 
-For information on how to use `evmosd` binary to submit an on-chain proposal through the governance module, please refer to the [quickstart](../../validators/quickstart/binary.md) documentation.
+For information on how to use `evmosd` binary to submit an on-chain proposal through the governance module,
+please refer to the [quickstart](../../validators/quickstart/binary.md) documentation.
 
 ### CLI
 
@@ -235,7 +249,9 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
 
 ### Verifying your transaction
 
-After posting your transaction, your command line interface (`evmosd`) will provide you with the transaction's hash, which you can either query using `evmosd` or by searching the transaction hash using [Mintscan](https://www.mintscan.io/evmos) or any block explorer.
+After posting your transaction, your command line interface (`evmosd`) will provide you with the transaction's hash,
+which you can either query using `evmosd`
+or by searching the transaction hash using [Mintscan](https://www.mintscan.io/evmos) or any block explorer.
 
 ### Depositing funds after a proposal has been submitted
 
@@ -273,7 +289,8 @@ You may want to submit your proposal to the testnet chain before the mainnet for
 3. To share what the proposal will look like in advance with stakeholders
 4. To test the functionality of the governance features
 
-Submitting your proposal to the testnet increases the likelihood that you will discover a flaw before deploying your proposal on mainnet.
+Submitting your proposal to the testnet increases the likelihood that you will discover a flaw
+before deploying your proposal on mainnet.
 A few things to keep in mind:
 
 - you'll need testnet tokens for your proposal (ask around for a [faucet](./../../developers/testnet/faucet.md))

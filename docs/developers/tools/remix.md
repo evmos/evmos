@@ -6,13 +6,15 @@ order: 1
 
 Learn how to deploy a simple Solidity-based smart contract to Evmos using the Remix in-browser IDE {synopsis}
 
-[Remix](http://remix.ethereum.org/) is an in-browser IDE for [Solidity](https://github.com/ethereum/solidity) smart contracts.
+[Remix](http://remix.ethereum.org/) is an in-browser IDE
+for [Solidity](https://github.com/ethereum/solidity) smart contracts.
 In this guide, we will learn how to deploy a contract to a running Evmos network through Remix and interact with it.
 
 ## Connect to Remix
 
 ::: tip
-If you haven’t already, follow the steps in the [Metamask guide](./../../users/wallets/metamask.md) to import your Evmos private key into Metamask.
+If you haven’t already, follow the steps in the [Metamask guide](./../../users/wallets/metamask.md)
+to import your Evmos private key into Metamask.
 Start the Evmos daemon and REST server.
 :::
 
@@ -62,7 +64,9 @@ You should see a log for the deployment transaction in the Evmos daemon logs:
 I[2020-07-15|17:26:43.155] Added good transaction                       module=mempool tx=877A8E6600FA27EC2B2362719274314977B243671DC4E5F8796ED97FFC0CBE42 res="&{CheckTx:log:\"[]\" gas_wanted:121193 }" height=31 total=1
 ```
 
-Once the contract has been successfully deployed, you will see it show up in the `Deployed Contracts` section in the left-hand side, as well as a green check in the Remix console showing the transaction details.
+Once the contract has been successfully deployed,
+you will see it show up in the `Deployed Contracts` section in the left-hand side,
+as well as a green check in the Remix console showing the transaction details.
 
 ![deployed contract through remix](./../../img/remix_deployed.png)
 

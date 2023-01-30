@@ -73,27 +73,38 @@ There are four criteria:
    - anyone may contribute to this deposit
    - the deposit must be reached within 3 days (this is the deposit period)
 2. A minimum of 33.4% of the network's voting power (quorum) is required to participate to make the proposal valid
-3. A simple majority (greater than 50%) of the participating voting power must back the `Yes` vote during the 5-day voting period
+3. A simple majority (greater than 50%) of the participating voting power must back the `Yes` vote
+   during the 5-day voting period
 4. Less than 33.4% of participating voting power votes `NoWithVeto`
 
 Currently, the criteria for submitting and passing/failing all proposal types is the same.
 
 ### How is voting tallied?
 
-Voting power is determined by stake weight at the end of the 5-day voting period and is proportional to the number of total EVMOS participating in the vote.
+Voting power is determined by stake weight at the end of the 5-day voting period
+and is proportional to the number of total EVMOS participating in the vote.
 Only bonded EVMOS count towards the voting power for a governance proposal.
 Liquid EVMOS will not count toward a vote or quorum.
 
-Inactive validators can cast a vote, but their voting power (including the backing of their delegators) will not count toward the vote if they are not in the active set when the voting period ends.
-That means that if I delegate to a validator that is either jailed, tombstoned, or ranked lower than 150 in stake-backing at the time that the voting period ends, my stake-weight will not count in the vote.
+Inactive validators can cast a vote, but their voting power
+(including the backing of their delegators) will not count toward the vote
+if they are not in the active set when the voting period ends.
+That means that if I delegate to a validator
+that is either jailed, tombstoned, or ranked lower than 150 in stake-backing at the time that the voting period ends,
+my stake-weight will not count in the vote.
 
-Though a simple majority `Yes` vote (ie.
-50% of participating voting power) is required for a governance proposal vote to pass, a `NoWithVeto` vote of 33.4% of participating voting power or greater can override this outcome and cause the proposal to fail.
-This enables a minority group representing greater than 1/3 of voting power to fail a proposal that would otherwise pass.
+Though a simple majority `Yes` vote (i.e. 50% of participating voting power) is required
+for a governance proposal vote to pass,
+a `NoWithVeto` vote of 33.4% of participating voting power or greater can override this outcome
+and cause the proposal to fail.
+This enables a minority group representing greater than 1/3 of voting power
+to fail a proposal that would otherwise pass.
 
 ### How is quorum determined?
 
 Voting power, whether backing a vote of `Yes`, `Abstain`, `No`, or `NoWithVeto`, counts toward quorum.
-Quorum is required for the outcome of a governance proposal vote to be considered valid and for deposit contributors to recover their deposit amounts.
+Quorum is required for the outcome of a governance proposal vote to be considered valid
+and for deposit contributors to recover their deposit amounts.
 If the proposal vote does not reach quorum (ie.
-less than 33.4% of the network's voting power is participating) within 5 days, any deposit amounts will be burned and the proposal outcome will not be considered to be valid.
+less than 33.4% of the network's voting power is participating) within 5 days,
+any deposit amounts will be burned and the proposal outcome will not be considered to be valid.

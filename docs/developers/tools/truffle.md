@@ -6,7 +6,8 @@ order: 3
 
 Learn how to deploy a simple Solidity-based smart contract to Evmos using the Truffle environment {synopsis}
 
-[Truffle](https://www.trufflesuite.com/truffle) is a development framework for deploying and managing [Solidity](https://github.com/ethereum/solidity) smart contracts.
+[Truffle](https://www.trufflesuite.com/truffle) is a development framework
+for deploying and managing [Solidity](https://github.com/ethereum/solidity) smart contracts.
 
 ## Install Dependencies
 
@@ -105,7 +106,8 @@ In the Truffle terminal, migrate the contract using:
 truffle migrate --network development
 ```
 
-You should see incoming deployment logs in the Evmos daemon Terminal tab for each transaction (one to deploy `Migrations.sol` and the other to deploy `Counter.sol`).
+You should see incoming deployment logs in the Evmos daemon Terminal tab for each transaction
+(one to deploy `Migrations.sol` and the other to deploy `Counter.sol`).
 
 ```bash
 $ I[2020-07-15|17:35:59.934] Added good transaction                       module=mempool tx=22245B935689918D332F58E82690F02073F0453D54D5944B6D64AAF1F21974E2 res="&{CheckTx:log:\"[]\" gas_wanted:6721975 }" height=3 total=1
