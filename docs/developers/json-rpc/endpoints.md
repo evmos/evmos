@@ -976,9 +976,10 @@ Both passphrase and unlock duration are optional when using the JavaScript conso
 The unencrypted key will be held in memory until the unlock duration expires.
 If the unlock duration defaults to 300 seconds.
 An explicit duration of zero seconds unlocks the key until geth exits.
- <!-- markdown-link-check-disable-next-line -->
+ <!-- markdown-link-check-disable -->
 The account can be used with [`eth_sign`](#eth-sign)
 and [`eth_sendTransaction`](#eth-sendtransaction) while it is unlocked.
+ <!-- markdown-link-check-enable -->
 
 #### Parameters
 
