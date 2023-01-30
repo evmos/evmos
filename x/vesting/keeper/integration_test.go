@@ -829,7 +829,7 @@ func assertLocked(msgs ...sdk.Msg) {
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 }
 
-func assertUnlocked(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount sdk.Int, denom string, msgs ...sdk.Msg) {
+func assertUnlocked(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount math.Int, denom string, msgs ...sdk.Msg) {
 	numTestAccounts := len(testAccounts)
 
 	// Track starting balances for all accounts
