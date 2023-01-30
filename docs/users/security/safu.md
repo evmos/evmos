@@ -11,8 +11,8 @@ on Evmos {synopsis}
 
 <!-- markdown-link-check-disable-next-line -->
 The [Simple Arrangement for Funding Upload (the "SAFU")](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf)
-outlines the post-exploit policy for active vulnerabilities
-in the Evmos blockchain. The SAFU is intended for white hat hackers
+outlines the post-exploit policy for active vulnerabilities in the Evmos blockchain.
+The SAFU is intended for white hat hackers
 and outlines the process for returning funds and calculating rewards
 for vulnerabilities found in the network.
 In summary, the SAFU states the following:
@@ -21,13 +21,13 @@ In summary, the SAFU states the following:
   with the SAFU.
 * Hackers have 48 hours to return any exploited funds
   to a specified Dropbox address and can claim a reward of
-  5% of the total funds secured up to a maximum of 750,000 Tokens.
+  5% of the total funds secured up to a maximum of 750,000 tokens.
 * The rewards are distributed during the next upgrade of the network.
 * If the reward is valued above $100,000, white hat hackers should go through
   a Know Your Clients/Know Your Business (KYC/KYB) process.
 * Exploiting vulnerabilities for malicious purposes
   will make a hacker ineligible for any rewards.
-* White hat hackers are not entitled to any rewards from the Team or Network
+* White hat hackers are not entitled to any rewards from the team or network
   for funds from "Out of Scope Projects" (other projects that were exploited
   by hackers but do not have their own SAFU program).
 
@@ -43,7 +43,7 @@ the bounty for white hat hackers will be paid out
 from the account balance of this address.
 
 ::: tip
-The Dropbox address is not controlled by the Team
+The Dropbox address is not controlled by the team
 or any individual, it is controlled by the Evmos protocol.
 :::
 
@@ -74,7 +74,7 @@ address = shaSum256([]byte("safu"))[:20])
 ## How to secure vulnerable funds
 
 Within the first 48 hours of a hack,
-hackers should secure the funds by transferring them to the Dropbox address.
+white hats should secure the funds by transferring them to the Dropbox address.
 
 ## How to claim the reward
 
