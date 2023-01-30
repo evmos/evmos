@@ -3,13 +3,13 @@ on:
   pull_request:
     paths:
       - '**.md'
-      - '!docs/protocol/proto-docs.md'
+      - '!docs/protocol/proto-docs*'
   push:
     branches:
       - main
     paths:
       - '**.md'
-      - '!docs/protocol/proto-docs.md'
+      - '!docs/protocol/proto-docs*'
 
 jobs:
   markdown-link-check:
