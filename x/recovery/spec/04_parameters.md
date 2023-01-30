@@ -18,4 +18,5 @@ When the parameter is disabled, it will disable the recovery of stuck tokens to 
 
 ## Packet Timeout Duration
 
-The `PacketTimeoutDuration` parameter is the duration before the IBC packet timeouts and the transaction is reverted on the counter party chain.
+The `PacketTimeoutDuration` parameter is the duration before the IBC packet timeouts
+and the transaction is reverted on the counter party chain.

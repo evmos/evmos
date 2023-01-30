@@ -33,4 +33,6 @@ It is the interval at which incentive rewards are regularly distributed.
 ## Reward Scaler
 
 The `rewardScaler` parameter defines  each participant’s reward limit, relative to their gas used.
-An incentive allows users to earn rewards up to `rewards = k * sum(txFees)`, where `k` defines the reward scaler parameter that caps the incentives allocated to a single user by multiplying it to the sum of transaction fees that they’ve spent in the current epoch.
+An incentive allows users to earn rewards up to `rewards = k * sum(txFees)`,
+where `k` defines the reward scaler parameter that caps the incentives allocated to a single user
+by multiplying it to the sum of transaction fees that they’ve spent in the current epoch.

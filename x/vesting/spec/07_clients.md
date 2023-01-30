@@ -68,7 +68,8 @@ evmosd tx vesting create-clawback-vesting-account TO_ADDRESS [flags]
 **`clawback`**
 
 Allows users to create a transfer unvested amount out of a ClawbackVestingAccount.
-Must be requested by the original funder address (--from) and may provide a destination address (--dest), otherwise the coins return to the funder.
+Must be requested by the original funder address (--from) and may provide a destination address (--dest),
+otherwise the coins return to the funder.
 Delegated or undelegating staking tokens will be transferred in the delegated (undelegating) state.
 The recipient is vulnerable to slashing, and must act to unbond the tokens if desired.
 

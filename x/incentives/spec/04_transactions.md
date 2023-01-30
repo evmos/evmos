@@ -9,7 +9,8 @@ This section defines the `sdk.Msg` concrete types that result in the state trans
 ## `RegisterIncentiveProposal`
 
 A gov `Content` type to register an Incentive for a given contract for the duration of a certain number of epochs.
-Governance users vote on this proposal and it automatically executes the custom handler for `RegisterIncentiveProposal` when the vote passes.
+Governance users vote on this proposal
+and it automatically executes the custom handler for `RegisterIncentiveProposal` when the vote passes.
 
 ```go
 type RegisterIncentiveProposal struct {
@@ -39,7 +40,8 @@ The proposal content stateless validation fails if:
 ## `CancelIncentiveProposal`
 
 A gov `Content` type to remove an Incentive.
-Governance users vote on this proposal and it automatically executes the custom handler for `CancelIncentiveProposal` when the vote passes.
+Governance users vote on this proposal
+and it automatically executes the custom handler for `CancelIncentiveProposal` when the vote passes.
 
 ```go
 type CancelIncentiveProposal struct {
