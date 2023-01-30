@@ -10,8 +10,7 @@ on Evmos {synopsis}
 ## Overview
 
 <!-- markdown-link-check-disable-next-line -->
-The <a href="https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf" target="_blank">
-Simple Arrangement for Funding Upload (the "SAFU")</a><!-- markdown-link-check-disable-line -->
+The [Simple Arrangement for Funding Upload (the "SAFU")](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf)
 outlines the post-exploit policy for active vulnerabilities
 in the Evmos blockchain. The SAFU is intended for white hat hackers
 and outlines the process for returning funds and calculating rewards
@@ -33,8 +32,7 @@ In summary, the SAFU states the following:
   by hackers but do not have their own SAFU program).
 
 For more information,
-visit <a href="https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf" target="_blank"><!-- markdown-link-check-disable-line -->
-the SAFU agreement</a>.<!-- markdown-link-check-disable-line -->
+visit [the SAFU agreement](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf).<!-- markdown-link-check-disable-line -->
 
 ## Dropbox address
 
