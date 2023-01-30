@@ -85,7 +85,8 @@ In this way, you don't need to manually convert the incoming IBC coins into ERC-
 As a result, your users can use the IBC coins as ERC-20 tokens as soon as they arrive to their wallets.
 
 It should be considered that only registered token pairs are converted.
-If the token pair is not registered, users will receive the corresponding IBC coin on their wallet without any further changes.
+If the token pair is not registered,
+users will receive the corresponding IBC coin on their wallet without any further changes.
 
 :::tip
 **Note**: If your users have IBC coins on Evmos already,
@@ -109,7 +110,8 @@ Keep in mind that to perform this operation, you need to
 ### Can I send WEVMOS to other chains?
 
 WEVMOS transfers are not supported at the moment.
-However, you can unwrap manually the WEVMOS tokens using the [Evmos dashboard](https://app.evmos.org/assets) or [Diffusion](https://app.diffusion.fi/).
+However, you can unwrap manually the WEVMOS tokens
+using the [Evmos dashboard](https://app.evmos.org/assets) or [Diffusion](https://app.diffusion.fi/).
 Then you can perform a regular IBC transfer using the EVMOS tokens.
 
 ### Does automated coin conversion apply to all coins?

@@ -8,7 +8,8 @@ Learn how to run and setup the JSON-RPC server on Evmos. {synopsis}
 
 :::tip
 **Important**: You cannot use all JSON RPC methods unless your node stores the entire copy of the blockchain locally.
-Do you need archives/snapshots of our networks? Go to [this section](https://docs.evmos.org/validators/snapshots_archives.html).
+Do you need archives/snapshots of our networks?
+Go to [this section](https://docs.evmos.org/validators/snapshots_archives.html).
 :::
 
 ## Introduction
@@ -30,7 +31,8 @@ evmosd start --json-rpc.enable
 
 ## Defining Namespaces
 
-`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default, but for the JSON-RPC you need to add more namespaces.
+`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default,
+but for the JSON-RPC you need to add more namespaces.
 In order to enable other namespaces edit `app.toml` file.
 
 ```toml
@@ -104,7 +106,8 @@ Most modern browsers support Websocket which means it has good tooling.
 
 Because Websocket is bidirectional, servers can push events to clients.
 That makes Websocket a good choice for use-cases involving event subscription.
-Another benefit of Websocket is that after the handshake procedure, the overhead of individual messages is low, making it good for sending high number of requests.
+Another benefit of Websocket is that after the handshake procedure, the overhead of individual messages is low,
+making it good for sending high number of requests.
 The WebSocket Server can be enabled from the `app.toml`
 
 ```toml
@@ -127,7 +130,8 @@ evmosd start --json-rpc.enable-indexer
 
 ### Index Historical Transactions
 
-If the chain had already started and you need the ETH Indexer to catch up on old transactions, you could run the `index-eth-tx` command to index historical ETH transactions.
+If the chain had already started and you need the ETH Indexer to catch up on old transactions,
+you could run the `index-eth-tx` command to index historical ETH transactions.
 
 ```bash
 evmosd index-eth-tx backward
@@ -143,4 +147,5 @@ evmosd index-eth-tx forward
 
 ### Eth Tx Indexer and State sync
 
-If setting up a node with state sync, you need to first start the node and index at least one block before turning on the eth tx indexer.
+If setting up a node with state sync, you need to first start the node and index at least one block
+before turning on the eth tx indexer.

@@ -6,12 +6,17 @@ order: 6
 
 Use this guide to learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
-Go-ethereum responds to instructions encoded as JSON objects as defined in the [JSON-RPC-API](https://geth.ethereum.org/docs/rpc/server).
+Go-ethereum responds to instructions encoded as JSON objects as defined in the
+[JSON-RPC-API](https://geth.ethereum.org/docs/rpc/server).
 To perform and test these instructions, developers can use tools like curl.
 However, this is a low level and rather error-prone way to interact with the node.
-Most developers prefer to use convenient libraries that abstract away some of the more tedious and awkward tasks such as converting values from hexadecimal strings into numbers, or converting between denominations of ether (Wei, Gwei, etc).
+Most developers prefer to use convenient libraries that abstract away
+some of the more tedious and awkward tasks
+such as converting values from hexadecimal strings into numbers,
+or converting between denominations of ether (Wei, Gwei, etc).
 One such library is Web3.js.
-The purpose of Geth’s Javascript console is to provide a built-in environment to use a subset of the Web3.js libraries to interact with a Geth node.
+The purpose of Geth’s Javascript console is
+to provide a built-in environment to use a subset of the Web3.js libraries to interact with a Geth node.
 You can use this powerful tool to interact with an Evmos node too!
 
 ## Pre-requisite Readings
@@ -21,7 +26,8 @@ You can use this powerful tool to interact with an Evmos node too!
 
 ### Installing Go-Ethereum
 
-Install the Go-ethereum CLI (`geth`) following the procedure corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+Install the Go-ethereum CLI (`geth`) following the procedure
+corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
 This will include the Javascript console.
 
 Check that the installation was successful by running the following command:
@@ -47,7 +53,8 @@ GOROOT=/usr/local/go
 
 <!-- markdown-link-check-disable-next-line -->
 
-Make sure you have installed all the dependencies mentioned in the **[Pre-requisite Readings](#pre-requisite-readings)** section.
+Make sure you have installed all the dependencies
+mentioned in the **[Pre-requisite Readings](#pre-requisite-readings)** section.
 
 ## Run Evmos local node
 
@@ -83,7 +90,8 @@ To exit, press ctrl-d or type exit
 ## Use JSON-RPC methods
 
 Now we can use all implemented JSON-RPC methods.
-Find an exhaustive list of the supported JSON-RPC methods on [Evmos docs](https://docs.evmos.org/developers/json-rpc/endpoints.html).
+Find an exhaustive list of the supported JSON-RPC methods
+on the [Evmos docs](https://docs.evmos.org/developers/json-rpc/endpoints.html).
 
 Below are some examples of how to use the console.
 

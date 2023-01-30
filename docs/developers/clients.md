@@ -37,10 +37,12 @@ See the list of supported gRPC-Gateway API endpoints for the Evmos testnet [here
 
 <!-- TODO: Link JSON-RPC docs -->
 
-Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server.md) to connect with existing Ethereum-compatible web3 tooling.
+Evmos supports most of the standard [JSON-RPC APIs](./json-rpc/server.md)
+to connect with existing Ethereum-compatible web3 tooling.
 
 ::: tip
-Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints.md) and [namespaces](./json-rpc/namespaces.md).
+Check out the list of supported JSON-RPC API [endpoints](./json-rpc/endpoints.md)
+and [namespaces](./json-rpc/namespaces.md).
 :::
 
 ## Ethereum Websocket

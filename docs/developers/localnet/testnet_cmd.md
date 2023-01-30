@@ -4,10 +4,14 @@ order: 3
 
 # Testnet command
 
-The `{{ $themeConfig.project.binary }} testnet` subcommand makes it easy to initialize and start a simulated test network for testing purposes.
+The `{{ $themeConfig.project.binary }} testnet` subcommand makes it easy to initialize
+and start a simulated test network for testing purposes.
 {synopsis}
 
-In addition to the commands for [running a node](./../../validators/quickstart/run_node.md), the `{{ $themeConfig.project.binary }}` binary also includes a `testnet` command that allows you to start a simulated test network in-process or to initialize files for a simulated test network that runs in a separate process.
+In addition to the commands for [running a node](./../../validators/quickstart/run_node.md),
+the `{{ $themeConfig.project.binary }}` binary also includes a `testnet` command that allows you
+to start a simulated test network in-process
+or to initialize files for a simulated test network that runs in a separate process.
 
 ## Initialize Files
 
@@ -15,7 +19,10 @@ The `init-files` subcommand initializes the necessary files to run a test networ
 using a Docker container).
 Running this command is not a prerequisite for the `start` subcommand ([see below](#start-testnet)).
 
-This is similar to the `init` command when initializing a single node, but in this case we are initializing multiple nodes, generating the genesis transactions for each node, and then collecting those transactions.
+This is similar to the `init` command when initializing a single node,
+but in this case we are initializing multiple nodes,
+generating the genesis transactions for each node,
+and then collecting those transactions.
 
 In order to initialize the files for a test network, run the following command:
 
@@ -36,13 +43,15 @@ Let's take a look at the files created within the `.testnets` directory.
 
 The `gentxs` directory includes a genesis transaction for each validator node.
 Each file includes a JSON encoded genesis transaction used to register a validator node at the time of genesis.
-The genesis transactions are added to the `genesis.json` file within each node directory during the initialization process.
+The genesis transactions are added to the `genesis.json` file within each node directory
+during the initialization process.
 
 ## Nodes
 
 A node directory is created for each validator node.
 Within each node directory is a `{{ $themeConfig.project.binary }}` directory.
-The `{{ $themeConfig.project.binary }}` directory is the home directory for each node, which includes the configuration and data files for that node (i.e.
+The `{{ $themeConfig.project.binary }}` directory is the home directory for each node,
+which includes the configuration and data files for that node (i.e.
 the same files included in the default `~/.{{ $themeConfig.project.binary }}` directory when running a single node).
 
 ## Start Testnet
@@ -78,9 +87,11 @@ started test network
 press the Enter Key to terminate
 ```
 
-The first validator node is now running in-process, which means the test network will terminate once you either close the terminal window or you press the Enter key.
+The first validator node is now running in-process,
+which means the test network will terminate once you either close the terminal window or you press the Enter key.
 In the output, the mnemonic phrase for the first validator node is provided for testing purposes.
-The validator node is using the same default addresses being used when initializing and starting a single node (no need to provide a `--node` flag).
+The validator node is using the same default addresses being used
+when initializing and starting a single node (no need to provide a `--node` flag).
 
 Check the status of the first validator node:
 

@@ -119,7 +119,7 @@ configuration file that we can update with PRs.
    2. Edit API docs within the [Swagger Editor](https://editor.swagger.io/).
       Please refer to this [document](https://swagger.io/docs/specification/2-0/basic-structure/)
       for the correct structure in `.yaml`.
-   
+
 3. Download `swagger.yaml` and replace the old `swagger.yaml` under folder `client/lcd/swagger-ui`.
 
 4. Compile `evmosd`

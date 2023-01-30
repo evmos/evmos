@@ -12,7 +12,8 @@
 
 ## Abstract
 
-> "If you can't explain it simply, you don't understand it well enough." Provide a simplified and layman-accessible explanation of the ADR.
+> "If you can't explain it simply, you don't understand it well enough."
+Provide a simplified and layman-accessible explanation of the ADR.
 > A short (~200 word) description of the issue being addressed.
 
 ## Context
@@ -33,11 +34,13 @@ It should clearly explain the problem and motivation that the proposal aims to r
 
 > This section describes the resulting context, after applying the decision.
 All consequences should be listed here, not just the "positive" ones.
-A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future.
+A particular decision may have positive, negative, and neutral consequences,
+but all of them affect the team and project in the future.
 
 ### Backwards Compatibility
 
-> All ADRs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity.
+> All ADRs that introduce backwards incompatibilities must include a section
+describing these incompatibilities and their severity.
 The ADR must explain how the author proposes to deal with these incompatibilities.
 ADR submissions without a sufficient backwards compatibility treatise may be rejected outright.
 
@@ -55,8 +58,10 @@ ADR submissions without a sufficient backwards compatibility treatise may be rej
 
 ## Further Discussions
 
-While an ADR is in the DRAFT or PROPOSED stage, this section should contain a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
-Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR.
+While an ADR is in the DRAFT or PROPOSED stage, this section should contain
+a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
+Later, this section can optionally list ideas or improvements
+the author or reviewers found during the analysis of this ADR.
 
 ## Test Cases [optional]
 
