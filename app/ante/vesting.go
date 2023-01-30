@@ -58,7 +58,7 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	totalSpendByAddress := make(map[string]*big.Int)
+	totalValueByAddress := make(map[string]*big.Int)
 	evmDenom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
@@ -108,26 +108,28 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 
 		// Since there can be multiple transactions from different accounts, we track each account's total
 		// spend to compare against its unlocked balances.
-		totalSpend, ok := totalSpendByAddress[address.String()]
+		totalValue, ok := totalValueByAddress[address.String()]
 		if !ok {
-			totalSpend = msgValue
-			totalSpendByAddress[address.String()] = totalSpend
+			totalValue = msgValue
+			totalValueByAddress[address.String()] = totalValue
 		} else {
-			totalSpend.Add(totalSpend, msgValue)
+			totalValue.Add(totalValue, msgValue)
 		}
 
 		// Check that the clawbackAccount has sufficient unlocked tokens to cover all requested spending.
-		// lockedBalance defaults to zero if not found.
-		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
-
-		spendableBalance, err := balance.SafeSub(lockedBalance)
-		if err != nil {
-			spendableBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
+		ok, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
+		if !ok {
+			lockedBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
 		}
 
-		if totalSpend.Cmp(spendableBalance.Amount.BigInt()) > 0 {
+		spendableValue := big.NewInt(0)
+		if spendableBalance, err := balance.SafeSub(lockedBalance); err == nil {
+			spendableValue = spendableBalance.Amount.BigInt()
+		}
+
+		if totalValue.Cmp(spendableValue) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableBalance, totalSpend,
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableValue.String(), totalValue.String(),
 			)
 		}
 	}
