@@ -160,7 +160,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
 	suite.Require().True(ok, "error converting rewards account balance")
 
-	expRewards, ok := sdk.NewIntFromString("5625000000302600187543552")
+	expRewards, ok := sdk.NewIntFromString("5624999999983399933050880")
 	suite.Require().True(ok, "error converting rewards")
 
 	var validatorAddresses []string

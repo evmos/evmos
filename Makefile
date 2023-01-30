@@ -330,7 +330,9 @@ build-docs-versioned:
 
 test: test-unit
 test-all: test-unit test-race
-PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e')
+# For unit tests we don't want to execute the upgrade tests in tests/e2e but
+# we want to include all unit tests in the subfolders (tests/e2e/*)
+PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e$$')
 TEST_PACKAGES=./...
 TEST_TARGETS := test-unit test-unit-cover test-race
 
@@ -348,16 +350,13 @@ test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=a
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
-ifeq (, $(TARGET_VERSION))
-	@make build-docker
-endif
 	mkdir -p ./build
 	rm -rf build/.evmosd
 	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
 	E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
-	go test -v ./tests/e2e/...
+	go test -v ./tests/e2e
 
-run-tests: build-docker
+run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
 	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else
