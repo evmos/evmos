@@ -10,7 +10,7 @@ The [Security Policy on Evmos](https://github.com/evmos/evmos/security/policy)
 includes a vulnerability disclosure policy and guidelines for
 reporting vulnerabilities in the Evmos platform.
 It explains the process for reporting and disclosing vulnerabilities through
-the use of the [Immunefi Bug Bounty Program](https://immunefi.com/bounty/evmos/) and
+the use of the [Immunefi Bug Bounty Program](https://immunefi.com/bounty/evmos/) and <!-- markdown-link-check-disable-line -->
 how the Evmos team handles and resolves reported vulnerabilities.
 The policy includes guidelines for researchers to follow
 when reporting vulnerabilities, such as avoiding privacy violations
