@@ -1,5 +1,6 @@
 # Evmos Contributor Guidelines
 
+<!-- markdown-link-check-disable -->
 * [General Procedure](#general_procedure)
 * [Architecture Decision Records (ADR)](#adr)
 * [Forking](#forking)
@@ -15,6 +16,7 @@
     * [Process for reviewing PRs](#reviewing_prs)
     * [Pull Merge Procedure](#pull_merge_procedure)
     * [Release Procedure](#release_procedure)
+<!-- markdown-link-check-enable -->
 
 ## <span id="general_procedure">General Procedure</span>
 
