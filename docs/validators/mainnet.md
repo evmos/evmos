@@ -28,7 +28,8 @@ Note that, the displayed version might differ when an active Software Upgrade pr
 
 ## Install `evmosd`
 
-Follow the [installation](./quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
+Follow the [installation](./quickstart/installation.md) document
+to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
 Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
@@ -66,7 +67,8 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Download the `genesis.json` file from the [`archive`](https://archive.evmos.org/mainnet/genesis.json) and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
+Download the `genesis.json` file from the [`archive`](https://archive.evmos.org/mainnet/genesis.json)
+and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
 This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
@@ -113,7 +115,8 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 ### Add Persistent Peers
 
-We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with.
+We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer)
+field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with.
 You can retrieve them from the list of
 available peers on the [`mainnet`](https://github.com/evmos/mainnet) repo.
 
@@ -153,7 +156,8 @@ evmosd tx staking create-validator \
 
 ::: danger
 🚨 **DANGER**: <u>Never</u> create your validator keys using a [`test`](./../users/keys/keyring.md#testing) keying backend.
-Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+Doing so might result in a loss of funds by making your funds remotely accessible
+via the `eth_sendTransaction` JSON-RPC endpoint.
 
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
@@ -182,4 +186,5 @@ evmosd tendermint show-node-id
 
 ## State Syncing a Node
 
-If you want to join the network using State Sync (quick, but not applicable for archive nodes), check our [State Sync](https://docs.evmos.org/validators/setup/statesync.html) page
+If you want to join the network using State Sync (quick, but not applicable for archive nodes),
+check our [State Sync](https://docs.evmos.org/validators/setup/statesync.html) page

@@ -21,7 +21,8 @@ When the parameter is disabled, it will prevent all Incentive registration and c
 ## Allocation Limit
 
 The `AllocationLimit` parameter defines the maximum allocation that each incentive can define per denomination.
-For example, with an `AllocationLimit` of 5%, there can be at most 20 active incentives per denom if they all max out the limit.
+For example, with an `AllocationLimit` of 5%,
+there can be at most 20 active incentives per denom if they all max out the limit.
 
 There is a cap on how high the reward percentage can be per allocation.
 

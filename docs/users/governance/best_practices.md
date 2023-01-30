@@ -256,7 +256,9 @@ Solicit opinions in places with people who have established reputations first.
 :::
 
 You may want to submit your proposal to the testnet chain before the mainnet for a number of reasons,
-such as wanting to see what the proposal description will look like, to share what the proposal will look like in advance with stakeholders, and to signal that your proposal is about to go live on the mainnet.
+such as wanting to see what the proposal description will look like,
+to share what the proposal will look like in advance with stakeholders,
+and to signal that your proposal is about to go live on the mainnet.
 
 Perhaps most importantly, for parameter change proposals,
 you can test the parameter changes in advance (if you have enough support from the voting power on the testnet).

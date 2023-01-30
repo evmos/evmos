@@ -25,7 +25,8 @@ evmosd keys add --multisig=name1,name2,name3[...] --multisig-threshold=K new_key
 
 `K` is the minimum number of private keys that must have signed the transactions that carry the public key's address as signer.
 
-The `--multisig` flag must contain the name of public keys that will be combined into a public key that will be generated and stored as `new_key_name` in the local database.
+The `--multisig` flag must contain the name of public keys that will be combined into a public key
+that will be generated and stored as `new_key_name` in the local database.
 All names supplied through `--multisig` must already exist in the local database.
 
 Unless the flag `--nosort` is set, the order in which the keys are supplied on the command line does not matter, i.e.
