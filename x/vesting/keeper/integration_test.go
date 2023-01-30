@@ -441,7 +441,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// Drain account balance
 			err = s.app.BankKeeper.SendCoins(s.ctx, address, dest, balance)
-			Expect(err).ToNot(BeNil())
+			Expect(err).To(BeNil())
 
 			msg := createEthTx(privKey, address, dest, big.NewInt(0), 0)
 			err = validateAnteForEthTxs(msg)
