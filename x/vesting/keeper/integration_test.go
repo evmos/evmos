@@ -435,6 +435,15 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			assertUnlocked([]TestClawbackAccount{account}, funder, dest, txAmount, stakeDenom, msg)
 		})
+
+		It("cannot exceed balance", func() {
+			account := testAccounts[0]
+
+			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Mul(math.NewInt(2))
+			msg := createEthTx(account.privKey, account.address, dest, txAmount.BigInt(), 0)
+
+			assertLocked(msg)
+		})
 	})
 })
 
