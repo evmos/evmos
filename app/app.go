@@ -1182,12 +1182,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		app.DistrKeeper,
 	)
 
-	// v11-rc3 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v11.UpgradeNameRC3,
-		v11Handler,
-	)
-
 	// v11 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v11.UpgradeName,
@@ -1228,12 +1222,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
 		// no store upgrades in v10
-	case v11.UpgradeNameRC3:
-		// rename recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"recovery"},
-			Added:   []string{recoverytypes.StoreKey},
-		}
 	case v11.UpgradeName:
 		// add ica host submodule in v11
 		// initialize recovery store
