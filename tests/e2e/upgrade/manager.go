@@ -37,8 +37,18 @@ type Manager struct {
 	pool    *dockertest.Pool
 	network *dockertest.Network
 
-	CurrentNode     *dockertest.Resource
+	// CurrentNode stores the currently running docker container
+	CurrentNode *dockertest.Resource
+
+	// HeightBeforeStop stores the last block height that was reached before the last running node container
+	// was stopped
+	HeightBeforeStop int
+
+	// proposalCounter keeps track of the number of proposals that have been submitted
 	proposalCounter uint
+
+	// UpgradeHeight stores the upgrade height for the latest upgrade proposal that was submitted
+	UpgradeHeight uint
 }
 
 // NewManager creates new docker pool and network and returns a populated Manager instance
@@ -97,7 +107,12 @@ func (m *Manager) RunNode(node *Node) error {
 	}
 
 	if err != nil {
-		return err
+		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
+		return fmt.Errorf(
+			"can't run container\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
+			stdErr,
+			stdOut,
+		)
 	}
 
 	// trying to get JSON-RPC server, to make sure node started properly
@@ -108,25 +123,16 @@ func (m *Manager) RunNode(node *Node) error {
 			// does not update properly by default
 			c, err := m.Client().InspectContainer(resource.Container.ID)
 			if err != nil {
-				return err
+				return fmt.Errorf("can't inspect container: %s", err.Error())
 			}
 			// if node failed to start, i.e. ExitCode != 0, return container logs
 			if c.State.ExitCode != 0 {
-				var outBuf, errBuf bytes.Buffer
-				// no error check because we are in the process of returning an error here anyways
-				// the logs retrieved here just provide more information
-				_ = m.Client().Logs(docker.LogsOptions{
-					Container:    resource.Container.ID,
-					OutputStream: &outBuf,
-					ErrorStream:  &errBuf,
-					Stdout:       true,
-					Stderr:       true,
-				})
+				stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
 				return fmt.Errorf(
 					"can't start evmos node, container exit code: %d\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
 					c.State.ExitCode,
-					errBuf.String(),
-					outBuf.String(),
+					stdErr,
+					stdOut,
 				)
 			}
 			// get host:port for current container in local network
@@ -141,10 +147,33 @@ func (m *Manager) RunNode(node *Node) error {
 	)
 
 	if err != nil {
-		return err
+		stdOut, stdErr, _ := m.GetLogs(resource.Container.ID)
+		return fmt.Errorf(
+			"can't start node: %s\n\n[error stream]:\n\n%s\n\n[output stream]:\n\n%s",
+			err.Error(),
+			stdErr,
+			stdOut,
+		)
 	}
 	m.CurrentNode = resource
 	return nil
+}
+
+// GetLogs returns the logs of the container with the provided containerID
+func (m *Manager) GetLogs(containerID string) (stdOut, stdErr string, err error) {
+	var outBuf, errBuf bytes.Buffer
+	opts := docker.LogsOptions{
+		Container:    containerID,
+		OutputStream: &outBuf,
+		ErrorStream:  &errBuf,
+		Stdout:       true,
+		Stderr:       true,
+	}
+	err = m.Client().Logs(opts)
+	if err != nil {
+		return "", "", fmt.Errorf("can't get logs: %s", err)
+	}
+	return outBuf.String(), errBuf.String(), nil
 }
 
 // WaitForHeight queries the Evmos node every second until the node will reach the specified height.
@@ -156,9 +185,16 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	for {
 		select {
 		case <-ticker.C:
-			return fmt.Errorf("can't reach height %d, due to: %w", height, err)
+			stdOut, stdErr, errLogs := m.GetLogs(m.ContainerID())
+			if errLogs != nil {
+				return fmt.Errorf("error while getting logs: %s", errLogs.Error())
+			}
+			return fmt.Errorf(
+				"can't reach height %d, due to: %s\nerror logs: %s\nout logs: %s",
+				height, err.Error(), stdOut, stdErr,
+			)
 		default:
-			currentHeight, err = m.nodeHeight(ctx)
+			currentHeight, err = m.GetNodeHeight(ctx)
 			if currentHeight >= height {
 				return nil
 			}
@@ -167,8 +203,8 @@ func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
 	}
 }
 
-// nodeHeight calls the Evmos CLI in the current node container to get the current block height
-func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
+// GetNodeHeight calls the Evmos CLI in the current node container to get the current block height
+func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 	exec, err := m.CreateExec([]string{"evmosd", "q", "block"}, m.ContainerID())
 	if err != nil {
 		return 0, fmt.Errorf("create exec error: %w", err)
@@ -191,6 +227,23 @@ func (m *Manager) nodeHeight(ctx context.Context) (int, error) {
 	return h, nil
 }
 
+// GetNodeVersion calls the Evmos CLI in the current node container to get the
+// current node version
+func (m *Manager) GetNodeVersion(ctx context.Context) (string, error) {
+	exec, err := m.CreateExec([]string{"evmosd", "version"}, m.ContainerID())
+	if err != nil {
+		return "", fmt.Errorf("create exec error: %w", err)
+	}
+	outBuff, errBuff, err := m.RunExec(ctx, exec)
+	if err != nil {
+		return "", fmt.Errorf("run exec error: %w", err)
+	}
+	if errBuff.String() != "" {
+		return "", fmt.Errorf("evmos version error: %s", errBuff.String())
+	}
+	return outBuff.String(), nil
+}
+
 // ContainerID returns the docker container ID of the currently running Node
 func (m *Manager) ContainerID() string {
 	return m.CurrentNode.Container.ID
@@ -208,5 +261,10 @@ func (m *Manager) RemoveNetwork() error {
 
 // KillCurrentNode stops the execution of the currently used docker container
 func (m *Manager) KillCurrentNode() error {
+	heightBeforeStop, err := m.GetNodeHeight(context.Background())
+	if err != nil {
+		return err
+	}
+	m.HeightBeforeStop = heightBeforeStop
 	return m.pool.Client.StopContainer(m.ContainerID(), 5)
 }

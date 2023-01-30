@@ -54,20 +54,27 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 }
 
 // CreateSubmitProposalExec creates a gov tx to submit an upgrade proposal to the chain
-func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint) (string, error) {
+func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint, legacy bool) (string, error) {
+	var upgradeInfo, proposalType string
+	if legacy {
+		upgradeInfo = "--no-validate"
+		proposalType = "submit-legacy-proposal"
+	} else {
+		upgradeInfo = "--upgrade-info=\"\""
+		proposalType = "submit-proposal"
+	}
 	cmd := []string{
 		"evmosd",
 		"tx",
 		"gov",
-		"submit-legacy-proposal",
+		proposalType,
 		"software-upgrade",
 		targetVersion,
 		"--title=\"TEST\"",
-		"--deposit=500000aevmos",
+		"--deposit=10000000aevmos",
 		"--description=\"Test upgrade proposal\"",
 		fmt.Sprintf("--upgrade-height=%d", upgradeHeight),
-		"--upgrade-info=\"\"",
-		"--no-validate",
+		upgradeInfo,
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--from=mykey",
 		"-b=block",
@@ -82,14 +89,14 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// CreateDepositProposalExec creates a gov tx to deposit for the current upgrade proposal
-func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
+// CreateDepositProposalExec creates a gov tx to deposit for the proposal with the given id
+func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
 		"gov",
 		"deposit",
-		fmt.Sprint(m.proposalCounter),
+		fmt.Sprint(id),
 		"10000000aevmos",
 		"--from=mykey",
 		fmt.Sprintf("--chain-id=%s", chainID),
@@ -104,14 +111,14 @@ func (m *Manager) CreateDepositProposalExec(chainID string) (string, error) {
 	return m.CreateExec(cmd, m.ContainerID())
 }
 
-// CreateVoteProposalExec creates gov tx to vote 'yes' on the current upgrade proposal
-func (m *Manager) CreateVoteProposalExec(chainID string) (string, error) {
+// CreateVoteProposalExec creates gov tx to vote 'yes' on the proposal with the given id
+func (m *Manager) CreateVoteProposalExec(chainID string, id int) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
 		"gov",
 		"vote",
-		fmt.Sprint(m.proposalCounter),
+		fmt.Sprint(id),
 		"yes",
 		"--from=mykey",
 		fmt.Sprintf("--chain-id=%s", chainID),

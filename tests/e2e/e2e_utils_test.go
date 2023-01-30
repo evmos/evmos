@@ -4,36 +4,86 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/evmos/evmos/v11/tests/e2e/upgrade"
 )
 
+// upgradesPath is the relative path from this file to the app/upgrades folder
+const upgradesPath = "../../app/upgrades"
+
+// versionSeparator is used to separate versions in the INITIAL_VERSION and TARGET_VERSION
+// environment vars
+const versionSeparator = "/"
+
+// versionConfig defines a struct that contains the version and the source repository for an upgrade
+type versionConfig struct {
+	name string
+	tag  string
+	repo string
+}
+
+// loadUpgradeParams loads the parameters for the upgrade test suite from the environment
+// variables
 func (s *IntegrationTestSuite) loadUpgradeParams() {
-	var err error
+	var (
+		err error
+		// name defines the upgrade name to use in the proposal
+		name string
+		// targetRepo is assigned to the remote repository by default and is changed to local if no
+		// target version is given
+		targetRepo = tharsisRepo
+		// upgradesList contains the available upgrades in the app/upgrades folder
+		upgradesList []string
+		// versionTag is a string to store the processed version tags (e.g. v10.0.1)
+		versionTag string
+		// versionTags contains the slice of all version tags that are run during the upgrade tests
+		versionTags []string
+	)
 
 	initialV := os.Getenv("INITIAL_VERSION")
 	if initialV == "" {
-		upgradesList, err := s.upgradeManager.RetrieveUpgradesList()
+		upgradesList, err = upgrade.RetrieveUpgradesList(upgradesPath)
 		s.Require().NoError(err)
-		// set the pre-last upgrade is upgrade list
-		s.upgradeParams.InitialVersion = upgradesList[len(upgradesList)-2]
+		// set the second-to-last upgrade as initial version
+		versionTags = []string{upgradesList[len(upgradesList)-2]}
 	} else {
-		s.upgradeParams.InitialVersion = initialV
+		versionTags = strings.Split(initialV, versionSeparator)
+	}
+
+	// versions contains the slice of all versions that shall be executed
+	versions := make([]versionConfig, 0, len(versionTags))
+
+	// for all initial versions define the docker hub repo as the source
+	for _, versionTag = range versionTags {
+		versions = append(versions, versionConfig{
+			name: versionTag,
+			tag:  versionTag,
+			repo: targetRepo,
+		})
 	}
 
 	// Target version loading, if not specified manager gets the last one from app/upgrades folder
 	// and sets target repository to local, otherwise tharsishq repo will be used
 	targetV := os.Getenv("TARGET_VERSION")
 	if targetV == "" {
-		upgradesList, err := s.upgradeManager.RetrieveUpgradesList()
-		s.Require().NoError(err)
-		// set the last upgrade is upgrade list
-		s.upgradeParams.SoftwareUpgradeVersion = upgradesList[len(upgradesList)-1]
-		s.upgradeParams.TargetVersion = localVersionTag
-		s.upgradeParams.TargetRepo = tharsisRepo
+		if upgradesList == nil {
+			upgradesList, err = upgrade.RetrieveUpgradesList(upgradesPath)
+			s.Require().NoError(err)
+		}
+		name = upgradesList[len(upgradesList)-1]
+		versionTag = localVersionTag
 	} else {
-		s.upgradeParams.TargetVersion = targetV
-		s.upgradeParams.SoftwareUpgradeVersion = targetV
-		s.upgradeParams.TargetRepo = tharsisRepo
+		name = targetV
+		versionTag = targetV
 	}
+
+	// Add the target version to the versions slice
+	versions = append(versions, versionConfig{
+		name,
+		versionTag,
+		targetRepo,
+	})
+	s.upgradeParams.Versions = versions
 
 	// If chain ID is not specified, 'evmos_9000-1' will be used in upgrade-init.sh
 	chID := os.Getenv("CHAIN_ID")
