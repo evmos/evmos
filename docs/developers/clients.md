@@ -231,8 +231,7 @@ Look for a publicly available addresses for testnet and mainnet in the [Quick Co
       slashing                 Querying commands for the slashing module
       staking                  Querying commands for the staking module
       tendermint-validator-set Get the full tendermint validator set at given height
-      tx                       Query for a transaction by hash, "<addr>/<seq>" combination
-                               or comma-separated signatures in a committed block
+      tx                       Query for a transaction by hash, "<addr>/<seq>" combination or comma-separated signatures in a committed block
       txs                      Query for paginated transactions that match a set of events
       upgrade                  Querying commands for the upgrade module
       vesting                  Querying commands for the vesting module
