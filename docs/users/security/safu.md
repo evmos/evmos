@@ -20,7 +20,7 @@ In summary, the SAFU states the following:
 * Hackers are not at risk of legal action if they act in accordance
   with the SAFU.
 * Hackers have 48 hours to return any exploited funds
-  to a specified Dropbox address and can claim a reward of
+  to a specified dropbox address and can claim a reward of
   5% of the total funds secured up to a maximum of 750,000 tokens.
 * The rewards are distributed during the next upgrade of the network.
 * If the reward is valued above $100,000, white hat hackers should go through
@@ -36,18 +36,18 @@ visit [the SAFU agreement](https://github.com/evmos/evmos/tree/main/docs/users/s
 
 ## Dropbox address
 
-The Dropbox address is an address to which funds taken from
+The dropbox address is an address to which funds taken from
 the protocol should be deposited.
 In the event of a bounty distribution,
 the bounty for white hat hackers will be paid out
 from the account balance of this address.
 
 ::: tip
-The Dropbox address is not controlled by the team
+The dropbox address is not controlled by the team
 or any individual, it is controlled by the Evmos protocol.
 :::
 
-The following Dropbox address is available on the Evmos blockchain:
+The following dropbox address is available on the Evmos blockchain:
 
 **Dropbox Address in Bech32 Format**:
 
@@ -63,7 +63,7 @@ evmos1c6jdy4gy86s69auueqwfjs86vse7kz3grxm9h2
 
 ### Address Derivation
 
-The Dropbox address provided above is derived cryptographically from the
+The dropbox address provided above is derived cryptographically from the
 first 20 bytes of the SHA256 sum for the “safu” string,
 using the following algorithm:
 
@@ -74,7 +74,7 @@ address = shaSum256([]byte("safu"))[:20])
 ## How to secure vulnerable funds
 
 Within the first 48 hours of a hack,
-white hats should secure the funds by transferring them to the Dropbox address.
+white hats should secure the funds by transferring them to the dropbox address.
 
 ## How to claim the reward
 
