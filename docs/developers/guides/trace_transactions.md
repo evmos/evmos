@@ -18,7 +18,8 @@ Tracing a transaction means requesting an Evmos node to re-execute the desired t
 
 ### Tracing Prerequisites
 
-Re-executing a transaction has a few prerequisites to be met. All historical state accessed by the transaction must be available, including:
+Re-executing a transaction has a few prerequisites to be met.
+All historical state accessed by the transaction must be available, including:
 
 - Balance, nonce, bytecode, and storage of both the recipient as well as all internally invoked contracts
 - Block metadata referenced during execution of the outer as well as all internally created transactions
@@ -32,7 +33,9 @@ This means there are limits on the transactions that can be traced and imported 
 
 ### Basic Traces
 
-The simplest type of transaction trace that [Geth](https://geth.ethereum.org/) can generate are raw EVM opcode traces. For every VM instruction the transaction executes, a structured log entry is emitted, contained all contextual metadata deemed useful. This includes:
+The simplest type of transaction trace that [Geth](https://geth.ethereum.org/) can generate are raw EVM opcode traces.
+For every VM instruction the transaction executes, a structured log entry is emitted, contained all contextual metadata deemed useful.
+This includes:
 
 - program counter
 - opcode name & cost
@@ -80,18 +83,23 @@ An example log for a single opcode entry has the following format:
 
 ### Limits of Basic Traces
 
-Although raw opcode traces generated above are useful, having an individual log entry for every single opcode is too low level for most use cases, and will require developers to create additional tools to post-process the traces. Additionally, a single opcode trace can easily be hundreds of megabytes, making them very resource intensive to extract from the node and process extenally.
+Although raw opcode traces generated above are useful, having an individual log entry for every single opcode is too low level for most use cases, and will require developers to create additional tools to post-process the traces.
+Additionally, a single opcode trace can easily be hundreds of megabytes, making them very resource intensive to extract from the node and process extenally.
 
-To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evmos (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage. This means developers only have to gather data that they actually need, and do any processing at the source.
+To avoid these issues, [Geth](https://geth.ethereum.org/) supports running custom JavaScript traces *within* the Evmos (or any EVM-compatible) node, which have full access to the EVM stack, memory, and contract storage.
+This means developers only have to gather data that they actually need, and do any processing at the source.
 
 ## Filtered EVM Tracing with JS
 
-Basic traces can include the complete status of the EVM at every point in the transaction's execution, which is huge space-wise. Usually, developers are only interested in a small subset of this information, which can be obtained by specifying a JavaScript filter.
+Basic traces can include the complete status of the EVM at every point in the transaction's execution, which is huge space-wise.
+Usually, developers are only interested in a small subset of this information, which can be obtained by specifying a JavaScript filter.
 
 ### Running a Simple Trace
 
 :::warning
-**Note**: `debug.traceTransaction` must be invoked from within the [Geth](https://geth.ethereum.org/) console, although it can be invoked from outside the node using JSON-RPC (eg. using Curl), as seen in the [following section](#debugtrace-endpoints). If developers want to use `debug.traceTransaction` as it is used here, maintainence of a node is required, so see [this document](../../validators/quickstart/run_node.md).
+**Note**: `debug.traceTransaction` must be invoked from within the [Geth](https://geth.ethereum.org/) console, although it can be invoked from outside the node using JSON-RPC (eg.
+using Curl), as seen in the [following section](#debugtrace-endpoints).
+If developers want to use `debug.traceTransaction` as it is used here, maintainence of a node is required, so see [this document](../../validators/quickstart/run_node.md).
 :::
 
 1. Create a file, `filterTrace_1.js`, with this content:
@@ -139,11 +147,14 @@ Basic traces can include the complete status of the EVM at every point in the tr
     console.log(JSON.stringify(tracer("<hash of transaction>"), null, 2))
   ```
 
-  The JSON.stringify function's documentation is [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify). If we just return the output, we get `\n` for newlines, which is why we need to use `console.log`.
+  The JSON.stringify function's documentation is [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify).
+If we just return the output, we get `\n` for newlines, which is why we need to use `console.log`.
 
 ### How Does it Work?
 
-We call the same `debug.traceTransaction` function used for [basic traces](#basic-traces), but with a new parameter, `tracer`. This parameter is a string, which is the JavaScript object we use. In the case of the trace above, it is:
+We call the same `debug.traceTransaction` function used for [basic traces](#basic-traces), but with a new parameter, `tracer`.
+This parameter is a string, which is the JavaScript object we use.
+In the case of the trace above, it is:
 
 ```js
 {
@@ -160,13 +171,16 @@ This object has to have three member functions:
 - `fault`, called if there is a problem in the execution
 - `result`, called to produce the results that are returned by `debug.traceTransaction` after the execution is done
 
-It can have additional members. In this case, we use `retVal` to store the list of strings that we'll return in `result`.
+It can have additional members.
+In this case, we use `retVal` to store the list of strings that we'll return in `result`.
 
-The `step` function here adds to `retVal`: the program counter, and the name of the opcode there. Then, in `result`, we return this list to be sent to the caller.
+The `step` function here adds to `retVal`: the program counter, and the name of the opcode there.
+Then, in `result`, we return this list to be sent to the caller.
 
 ### Actual Filtering
 
-For actual filtered tracing, we need an `if` statement to only log revelant information. For example, if we are interested in the transaction's interaction with storage, we might use:
+For actual filtered tracing, we need an `if` statement to only log revelant information.
+For example, if we are interested in the transaction's interaction with storage, we might use:
 
 ```js
 tracer = function(tx) {
@@ -186,7 +200,8 @@ tracer = function(tx) {
 }   // tracer = function ...
 ```
 
-The `step` function here looks at the opcode number of the op, and only pushes an entry if the opcode is `SLOAD` or `SSTORE` ([here is a list of all EVM opcodes and their corresponding numbers](https://github.com/wolflo/evm-opcodes/)). We could have used `log.op.toString` instead, but it is faster to compare numbers rather than strings.
+The `step` function here looks at the opcode number of the op, and only pushes an entry if the opcode is `SLOAD` or `SSTORE` ([here is a list of all EVM opcodes and their corresponding numbers](https://github.com/wolflo/evm-opcodes/)).
+We could have used `log.op.toString` instead, but it is faster to compare numbers rather than strings.
 
 The output looks similar to this:
 
@@ -205,7 +220,11 @@ The output looks similar to this:
 
 ### Stack Information
 
-The trace above tells us the program counter and whether the program read from storage or wrote to it. To know more, you can use the `log.stack.peek` function to peek into the stack. `log.stack.peek(0)` is the stack top, `log.stack.peek(1)` is the entry beow it, etc. The values returned by `log.stack.peek` are Go `big.int` objects. By default they are converted to JavaScript floating point numbers, so you need toString(16) to get them as hexadecimals, which is how we normally represent 256-bit values such as storage cells and their content.
+The trace above tells us the program counter and whether the program read from storage or wrote to it.
+To know more, you can use the `log.stack.peek` function to peek into the stack.
+`log.stack.peek(0)` is the stack top, `log.stack.peek(1)` is the entry beow it, etc.
+The values returned by `log.stack.peek` are Go `big.int` objects.
+By default they are converted to JavaScript floating point numbers, so you need toString(16) to get them as hexadecimals, which is how we normally represent 256-bit values such as storage cells and their content.
 
 ```js
 tracer = function(tx) {
@@ -256,7 +275,8 @@ Evmos supports the following `debug_trace*` JSON-RPC Methods, which follow [Geth
 
 ### `debug_traceTransaction`
 
-The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network. It will replay any transaction that may have been executed prior to this one, before it will finally attempt to execute the transaction that corresponds to the given hash.
+The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network.
+It will replay any transaction that may have been executed prior to this one, before it will finally attempt to execute the transaction that corresponds to the given hash.
 
 **Parameters**:
 

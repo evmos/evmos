@@ -13,7 +13,8 @@ This guide will cover the following query methods:
 - [gRPC](#grpc)
 
 :::warning
-**Note**: In this document, the command line is used to interact with endpoints. For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evmosjs](../libraries/evmosjs.md) is recommended instead.
+**Note**: In this document, the command line is used to interact with endpoints.
+For dApp developers, using libraries such as [cosmjs](https://github.com/cosmos/cosmjs) and [evmosjs](../libraries/evmosjs.md) is recommended instead.
 :::
 
 ## `evmosd` & Tendermint RPC
@@ -38,7 +39,8 @@ where:
 - (optional) `$COUNTTOTAL` counts the total number of records in all balances to query for.
 - (optional) `$HEIGHT` is the specific height to query state at (can error if node is pruning state).
 - (optional) `$OUTPUT` is the output format (eg. `text`).
-- (optional if running local node) `$NODE` is the Tendermint RPC node information is requested from (eg. `https://tendermint.bd.evmos.org:26657`).
+- (optional if running local node) `$NODE` is the Tendermint RPC node information is requested from (eg.
+`https://tendermint.bd.evmos.org:26657`).
 
 Details of non-native currencies (ie. not `aevmos`) can be queried with the following CLI command:
 
@@ -71,7 +73,8 @@ where:
     Note that Evmos addresses (those beginning with `evmos1...`) can be converte.d to Ethereum addresses using libraries such as [evmosjs](../libraries/evmosjs.md).
 - `$BLOCK` is the block number or block hash (eg. `"0x0"`).
     The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
-- (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evmos.org:8545`).
+- (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg.
+`https://eth.bd.evmos.org:8545`).
 
 Developers can also query account balances of `x/erc20`-module registered coins using the [`eth_call`](../json-rpc/endpoints.md#ethcall) JSON-RPC method in conjunction with [`curl`](https://curl.se/):
 
@@ -88,10 +91,12 @@ where:
 - `$SENDERCONTRACTADDRESS` is the Ethereum hex-address this smart contract call is sent from.
 - `$ERCCONTRACTADDRESS` is the Ethereum hex-address of the ERC-20 contract corresponding to the coin denomination being queried.
 - `$DATA` is the hash of the [`balanceof`](https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20) method signature and encoded parameters.
-    `balanceOf` is a required method in every ERC-20 contract, and the encoded parameter is the address which is having its balance queried. For additional information, see the [Ethereum Contract ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html).
+    `balanceOf` is a required method in every ERC-20 contract, and the encoded parameter is the address which is having its balance queried.
+For additional information, see the [Ethereum Contract ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html).
 - `$BLOCK` is the block number or block hash (eg. `"0x0"`).
     The reasoning for this parameter is due to [EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md).
-- (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg. `https://eth.bd.evmos.org:8545`).
+- (optional if running local node) `$NODE` is the JSON-RPC node information is requested from (eg.
+`https://eth.bd.evmos.org:8545`).
 
 ## gRPC
 
@@ -121,7 +126,8 @@ where:
 - `$NODE` is the Cosmos gRPC node information is requested from (eg. `https://grpc.bd.evmos.org:9090`).
 - (optional) `$OUTPUT` is the output format (eg. `plaintext`).
 
-State can also be queried using gRPC within a Go program. The idea is to create a gRPC connection, then use the [Protobuf](https://developers.google.com/protocol-buffers)-generated client code to query the gRPC server.
+State can also be queried using gRPC within a Go program.
+The idea is to create a gRPC connection, then use the [Protobuf](https://developers.google.com/protocol-buffers)-generated client code to query the gRPC server.
 
 ```go
 import (

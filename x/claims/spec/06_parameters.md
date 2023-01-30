@@ -22,7 +22,8 @@ The `x/claims` module contains the parameters described below. All parameters ca
 
 ## Enable claim
 
-The `EnableClaim` parameter toggles all state transitions in the module. When the parameter is disabled, it will disable all the allocation of airdropped tokens to users.
+The `EnableClaim` parameter toggles all state transitions in the module.
+When the parameter is disabled, it will disable all the allocation of airdropped tokens to users.
 
 ## Claims Denom
 
@@ -38,7 +39,8 @@ The `DurationUntilDecay` parameter defines the duration from airdrop start time 
 
 ## Duration Of Decay
 
-The `DurationOfDecay` parameter refers to the duration from decay start time to claim end time. Users are not able to claim airdrop after this duration has ended.
+The `DurationOfDecay` parameter refers to the duration from decay start time to claim end time.
+Users are not able to claim airdrop after this duration has ended.
 
 ## Authorized Channels
 

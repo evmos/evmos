@@ -34,7 +34,8 @@ a smooth workflow for all contributors, the following general procedure for cont
     1. If the issue is a proposal, ensure that the proposal has been accepted by the Evmos team.
     2. Ensure that nobody else has already begun working on the same issue. If someone already has, please make sure to
        contact the individual to collaborate.
-    3. If nobody has been assigned the issue and you would like to work on it, make a comment on the issue to inform the
+    3.
+If nobody has been assigned the issue and you would like to work on it, make a comment on the issue to inform the
        community of your intentions to begin work. Ideally, wait for confirmation that no one has started it. However,
        if you are eager and do not get a prompt response, feel free to dive on in!
     4. Follow standard Github best practices:
@@ -49,7 +50,8 @@ a smooth workflow for all contributors, the following general procedure for cont
     7. Be sure to include a relevant change log entry in the `Unreleased` section of `CHANGELOG.md` (see file for log
        format).
     8. Please make sure to run `make format` before every commit - the easiest way to do this is having your editor run
-       it for you upon saving a file. Additionally, please ensure that your code is lint compliant by running `make lint`
+       it for you upon saving a file.
+Additionally, please ensure that your code is lint compliant by running `make lint`
        . There are CI tests built into the Evmos repository and all PR’s will require that these tests pass before
        they are able to be merged.
 
@@ -64,7 +66,8 @@ some [good first issues](https://github.com/evmos/evmos/issues?q=label%3A%22good
 
 When proposing an architecture decision for Evmos, please create
 an [ADR](https://github.com/evmos/evmos/blob/main/docs/architecture/README.md) so further discussions can be
-made. We are following this process so all involved parties are in agreement before any party begins coding the proposed
+made.
+We are following this process so all involved parties are in agreement before any party begins coding the proposed
 implementation. If you would like to see some examples of how these are written refer
 to [Tendermint ADRs](https://github.com/tendermint/tendermint/tree/master/docs/architecture).
 
@@ -195,7 +198,8 @@ For example, a new change to the `bank` module might have the following message:
 
 Ensure that you base and target your PR on the `development` branch.
 
-All feature additions should be targeted against `development`. Bug fixes for an outstanding release candidate should be
+All feature additions should be targeted against `development`.
+Bug fixes for an outstanding release candidate should be
 targeted against the release candidate branch.
 
 ### <span id="pull_requests">Pull Requests</span>
@@ -208,7 +212,8 @@ bug fixes/feature-additions.
 
 All PRs require two Reviews before merge. When reviewing PRs, please use the following review explanations:
 
-1. `LGTM` without an explicit approval means that the changes look good, but you haven't pulled down the code, run tests
+1.
+`LGTM` without an explicit approval means that the changes look good, but you haven't pulled down the code, run tests
    locally and thoroughly reviewed it.
 2. `Approval` through the GH UI means that you understand the code, documentation/spec is updated in the right places,
    you have pulled down and tested the code locally. In addition:

@@ -24,7 +24,8 @@ Governance practices and decisions are communicated through different types of d
 
 ### Decision-making and Discussion Venues
 
-Venues involve community members to different degrees and individuals often perform multiple roles in the Cosmos ecosystem (validators, users, developers and core-members of Evmos Team). Because technical direction setting and development is almost always happening in the open, involvement from members in the extended community occurs organically.
+Venues involve community members to different degrees and individuals often perform multiple roles in the Cosmos ecosystem (validators, users, developers and core-members of Evmos Team).
+Because technical direction setting and development is almost always happening in the open, involvement from members in the extended community occurs organically.
 
 - **[Evmos Discord](https://discord.gg/evmos)**
     - For ecosystem cross-pollination with an active developer presence.

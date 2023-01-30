@@ -17,7 +17,12 @@ performance, and document all the transaction and state cycles and flows.
 
 ## Context
 
-<!-- > This section describes the forces at play, including technological, political, social, and project local. These forces are probably in tension, and should be called out as such. The language in this section is value-neutral. It is simply describing facts. It should clearly explain the problem and motivation that the proposal aims to resolve. -->
+<!-- > This section describes the forces at play, including technological, political, social, and project local.
+These forces are probably in tension, and should be called out as such.
+The language in this section is value-neutral.
+It is simply describing facts.
+It should clearly explain the problem and motivation that the proposal aims to resolve.
+-->
 
 This ADR addresses the issues of 3 different components of the EVM state: the `StateDB` interface,
 the live `stateObject` accounts, and the `StateTransition` functionality. These issues are outlined
@@ -64,15 +69,20 @@ directly.
 
 A general EVM state transition is performed by calling the ethereum `vm.EVM` `Create` or `Call` functions, depending on whether the transaction creates a contract or performs a transfer or call to a given contract.
 
-In the case of the `x/evm` module, it currently uses a modified version of Geth's `TransitionDB`, that wraps these two `vm.EVM` methods. The reason for using this modified function, is due to several reasons:
+In the case of the `x/evm` module, it currently uses a modified version of Geth's `TransitionDB`, that wraps these two `vm.EVM` methods.
+The reason for using this modified function, is due to several reasons:
 
-  1. The use of `sdk.Msg` (`MsgEthereumTx`) instead of the ethereum `core.Message` type for the `vm.EVM` functions, preventing the direct use of the `core.ApplyMessage`.
-  2. The use of custom gas accounting through the transaction `GasMeter` available on the `sdk.Context` to consume the same amount of gas as on Ethereum.
+  1.
+The use of `sdk.Msg` (`MsgEthereumTx`) instead of the ethereum `core.Message` type for the `vm.EVM` functions, preventing the direct use of the `core.ApplyMessage`.
+  2.
+The use of custom gas accounting through the transaction `GasMeter` available on the `sdk.Context` to consume the same amount of gas as on Ethereum.
   3. Simulate logic via ABCI `CheckTx`, that prevents the state from being finalized.
 
 ## Decision
 
-<!-- > This section describes our response to these forces. It is stated in full sentences, with active voice. "We will ..." -->
+<!-- > This section describes our response to these forces.
+It is stated in full sentences, with active voice.
+"We will ..." -->
 
 ### `StateDB`
 
@@ -271,11 +281,17 @@ func (k *Keeper) NewEVM(msg core.Message, config *params.ChainConfig) *vm.EVM {
 
 ## Consequences
 
-<!-- > This section describes the resulting context, after applying the decision. All consequences should be listed here, not just the "positive" ones. A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future. -->
+<!-- > This section describes the resulting context, after applying the decision.
+All consequences should be listed here, not just the "positive" ones.
+A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future.
+-->
 
 ### Backwards Compatibility
 
-<!-- All ADRs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The ADR must explain how the author proposes to deal with these incompatibilities. ADR submissions without a sufficient backwards compatibility treatise may be rejected outright. -->
+<!-- All ADRs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity.
+The ADR must explain how the author proposes to deal with these incompatibilities.
+ADR submissions without a sufficient backwards compatibility treatise may be rejected outright.
+-->
 
 The proposed ADR is a breaking state machine change and will not have any backwards compatibility
 since no chain that uses this code is in a production ready-state (at the moment of writing).
@@ -302,11 +318,14 @@ since no chain that uses this code is in a production ready-state (at the moment
 ## Further Discussions
 
 <!-- While an ADR is in the DRAFT or PROPOSED stage, this section should contain a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
-Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR. -->
+Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR.
+-->
 
 ## Test Cases [optional]
 
-<!-- Test cases for an implementation are mandatory for ADRs that are affecting consensus changes. Other ADRs can choose to include links to test cases if applicable. -->
+<!-- Test cases for an implementation are mandatory for ADRs that are affecting consensus changes.
+Other ADRs can choose to include links to test cases if applicable.
+-->
 
 ## References
 

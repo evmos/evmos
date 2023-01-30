@@ -14,10 +14,14 @@ and queries:
 | **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |
 | **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
 | **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
-| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
-| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `26657`      |
-| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657`      |
-| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.                     | N/A          |
+| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.
+                   | `8586`       |
+| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.
+                   | `26657`      |
+| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.
+           | `26657`      |
+| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.
+                    | N/A          |
 
 ## Cosmos gRPC
 

@@ -37,7 +37,8 @@ You can also lookup the [EIP155](https://github.com/ethereum/EIPs/blob/master/EI
 ## The Chain Identifier
 
 Every chain must have a unique identifier or `chain-id`. Tendermint requires each application to
-define its own `chain-id` in the [genesis.json fields](https://docs.tendermint.com/master/spec/core/genesis.html#genesis-fields). However, in order to comply with both EIP155 and Cosmos standard for chain upgrades, Evmos-compatible chains must implement a special structure for their chain identifiers.
+define its own `chain-id` in the [genesis.json fields](https://docs.tendermint.com/master/spec/core/genesis.html#genesis-fields).
+However, in order to comply with both EIP155 and Cosmos standard for chain upgrades, Evmos-compatible chains must implement a special structure for their chain identifiers.
 
 ## Structure
 

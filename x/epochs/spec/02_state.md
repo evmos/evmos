@@ -17,7 +17,8 @@ The `x/epochs` module keeps the following `objects in state`:
 An `EpochInfo` defines several variables:
 
 1. `identifier` keeps an epoch identification string
-2. `start_time` keeps the start time for epoch counting: if block height passes `start_time`, then `epoch_counting_started` is set
+2.
+`start_time` keeps the start time for epoch counting: if block height passes `start_time`, then `epoch_counting_started` is set
 3. `duration` keeps the target epoch duration
 4. `current_epoch` keeps the current active epoch number
 5. `current_epoch_start_time` keeps the start time of the current epoch
@@ -54,7 +55,8 @@ The `epochs` module keeps these `EpochInfo` objects in state, which are initiali
 
 ### Genesis State
 
-The `x/epochs` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains a slice containing all the `EpochInfo` objects kept in state:
+The `x/epochs` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height.
+It contains a slice containing all the `EpochInfo` objects kept in state:
 
 ```go
 // Genesis State defines the epoch module's genesis state

@@ -14,7 +14,8 @@ Set up Tendermint KMS with the Tendermint Ledger app {synopsis}
 ## Checklist
 
 ::: warning
-🚧  The following instructions are a brief walkthrough and not a comprehensive guideline. You should consider and research more about the [security implications](./security.md) of activating an external KMS.
+🚧  The following instructions are a brief walkthrough and not a comprehensive guideline.
+You should consider and research more about the [security implications](./security.md) of activating an external KMS.
 :::
 
 - ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
@@ -25,7 +26,9 @@ Set up Tendermint KMS with the Tendermint Ledger app {synopsis}
 ## Tendermint Validator app (for Ledger devices)
 
 ::: danger
-🚨**IMPORTANT**: KMS and Ledger Tendermint app are currently work in progress. Details may vary. Use under **your own risk**
+🚨**IMPORTANT**: KMS and Ledger Tendermint app are currently work in progress.
+Details may vary.
+Use under **your own risk**
 :::
 
 You should be able to find the Tendermint app in Ledger Live.
@@ -94,7 +97,8 @@ Take note of the validator pubkey that appears in your screen. *We will use it i
 
 ## Evmos configuration
 
-You need to enable KMS access by editing `.evmosd/config/config.toml`. In this file, modify `priv_validator_laddr` to create a listening address/port or a unix socket in `evmosd`.
+You need to enable KMS access by editing `.evmosd/config/config.toml`.
+In this file, modify `priv_validator_laddr` to create a listening address/port or a unix socket in `evmosd`.
 
 For example:
 
@@ -106,7 +110,8 @@ priv_validator_laddr = "tcp://127.0.0.1:26658"
 ...
 ```
 
-Let's assume that you have set up your validator account and called it `kmsval`. You can tell evmosd the key that we've got in the previous section.
+Let's assume that you have set up your validator account and called it `kmsval`.
+You can tell evmosd the key that we've got in the previous section.
 
 ```bash
 evmosd gentx --name kmsval --pubkey <pub_key>

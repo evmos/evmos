@@ -13,7 +13,8 @@ The erc20 module contains the following parameters:
 
 ## Enable ERC20
 
-The `EnableErc20` parameter toggles all state transitions in the module. When the parameter is disabled, it will prevent all token pair registration and conversion functionality.
+The `EnableErc20` parameter toggles all state transitions in the module.
+When the parameter is disabled, it will prevent all token pair registration and conversion functionality.
 
 ## Enable EVM Hook
 

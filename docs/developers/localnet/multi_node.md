@@ -46,7 +46,8 @@ To update the binary, just rebuild it and restart the nodes
 make localnet-start
 ```
 
-The command above  command will run containers in the background using Docker compose. You will see the network being created:
+The command above  command will run containers in the background using Docker compose.
+You will see the network being created:
 
 ```bash
 ...
@@ -208,7 +209,9 @@ funds!
 
 ### Special Binaries
 
-If you have multiple binaries with different names, you can specify which one to run with the BINARY environment variable. The path of the binary is relative to the attached volume. For example:
+If you have multiple binaries with different names, you can specify which one to run with the BINARY environment variable.
+The path of the binary is relative to the attached volume.
+For example:
 
 ```bash
 # Run with custom binary

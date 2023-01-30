@@ -303,7 +303,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_protocolVersion","params":[]
 
 ### `eth_syncing`
 
-The sync status object may need to be different depending on the details of Tendermint's sync protocol. However, the 'synced' result is simply a boolean, and can easily be derived from Tendermint's internal sync state.
+The sync status object may need to be different depending on the details of Tendermint's sync protocol.
+However, the 'synced' result is simply a boolean, and can easily be derived from Tendermint's internal sync state.
 
 ```json
 // Request
@@ -459,7 +460,9 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getCode","params":["0x7bf7b1
 
 The `sign` method calculates an Ethereum specific signature with: `sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message)))`.
 
-By adding a prefix to the message makes the calculated signature recognizable as an Ethereum specific signature. This prevents misuse where a malicious DApp can sign arbitrary data (e.g. transaction) and use the signature to impersonate the victim.
+By adding a prefix to the message makes the calculated signature recognizable as an Ethereum specific signature.
+This prevents misuse where a malicious DApp can sign arbitrary data (e.g.
+transaction) and use the signature to impersonate the victim.
 
 ::: warning
 The address to sign with must be unlocked.
@@ -491,15 +494,18 @@ Sends transaction from given account to a given account.
 
     `to`: `DATA`, 20 Bytes - (optional when creating new contract) The address the transaction is directed to.
 
-    `gas`: QUANTITY - (optional, default: 90000) Integer of the gas provided for the transaction execution. It will return unused gas.
+    `gas`: QUANTITY - (optional, default: 90000) Integer of the gas provided for the transaction execution.
+It will return unused gas.
 
     `gasPrice`: QUANTITY - (optional, default: To-Be-Determined) Integer of the gasPrice used for each paid gas
 
     `value`: QUANTITY - value sent with this transaction
 
-    `data`: `DATA` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters. For details see Ethereum Contract ABI
+    `data`: `DATA` - The compiled code of a contract OR the hash of the invoked method signature and encoded parameters.
+For details see Ethereum Contract ABI
 
-    `nonce`: QUANTITY - (optional) Integer of a nonce. This allows to overwrite your own pending transactions that use the same nonce.
+    `nonce`: QUANTITY - (optional) Integer of a nonce.
+This allows to overwrite your own pending transactions that use the same nonce.
 
 ```json
 // Request
@@ -539,13 +545,15 @@ Executes a new message call immediately without creating a transaction on the bl
 
     `to`: `DATA`, 20 Bytes - The address the transaction is directed to.
 
-    `gas`: QUANTITY - gas provided for the transaction execution. eth_call consumes zero gas, but this parameter may be needed by some executions.
+    `gas`: QUANTITY - gas provided for the transaction execution.
+eth_call consumes zero gas, but this parameter may be needed by some executions.
 
     `gasPrice`: QUANTITY - gasPrice used for each paid gas
 
     `value`: QUANTITY - value sent with this transaction
 
-    `data`: `DATA` - (optional) Hash of the method signature and encoded parameters. For details see Ethereum Contract ABI in the Solidity documentation
+    `data`: `DATA` - (optional) Hash of the method signature and encoded parameters.
+For details see Ethereum Contract ABI in the Solidity documentation
 
 - Block number  or Block Hash ([EIP-1898](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1898.md))
 
@@ -773,9 +781,13 @@ Returns an array of all logs matching a given filter object.
 
     `address`: `DATA|Array`, 20 Bytes - (optional) Contract address or a list of addresses from which logs should originate.
 
-    `topics`: Array of `DATA`, - (optional) Array of 32 Bytes `DATA` topics. Topics are order-dependent. Each topic can also be an array of `DATA` with “or” options.
+    `topics`: Array of `DATA`, - (optional) Array of 32 Bytes `DATA` topics.
+Topics are order-dependent.
+Each topic can also be an array of `DATA` with “or” options.
 
-    `blockhash`: (optional, future) With the addition of [EIP-234](https://eips.ethereum.org/EIPS/eip-234), `blockHash` will be a new filter option which restricts the logs returned to the single block with the 32-byte hash `blockHash`. Using `blockHash` is equivalent to `fromBlock` = `toBlock` = the block number with hash `blockHash`. If `blockHash` is present in in the filter criteria, then neither `fromBlock` nor `toBlock` are allowed.
+    `blockhash`: (optional, future) With the addition of [EIP-234](https://eips.ethereum.org/EIPS/eip-234), `blockHash` will be a new filter option which restricts the logs returned to the single block with the 32-byte hash `blockHash`.
+Using `blockHash` is equivalent to `fromBlock` = `toBlock` = the block number with hash `blockHash`.
+If `blockHash` is present in in the filter criteria, then neither `fromBlock` nor `toBlock` are allowed.
 
 ```json
 // Request
@@ -825,7 +837,9 @@ Read about websockets in [events](./events.md)
 
 subscribe using JSON-RPC notifications. This allows clients to wait for events instead of polling for them.
 
-It works by subscribing to particular events. The node will return a subscription id. For each event that matches the subscription a notification with relevant data is send together with the subscription id.
+It works by subscribing to particular events.
+The node will return a subscription id.
+For each event that matches the subscription a notification with relevant data is send together with the subscription id.
 
 #### Parameters
 
@@ -927,7 +941,9 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_lockAccount","params":[
 **Private**: Requires authentication.
 :::
 
-Generates a new private key and stores it in the key store directory. The key file is encrypted with the given passphrase. Returns the address of the new account.
+Generates a new private key and stores it in the key store directory.
+The key file is encrypted with the given passphrase.
+Returns the address of the new account.
 
 #### Parameters
 
@@ -949,7 +965,10 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_newAccount","params":["
 
 Decrypts the key with the given address from the key store.
 
-Both passphrase and unlock duration are optional when using the JavaScript console. The unencrypted key will be held in memory until the unlock duration expires. If the unlock duration defaults to 300 seconds. An explicit duration of zero seconds unlocks the key until geth exits.
+Both passphrase and unlock duration are optional when using the JavaScript console.
+The unencrypted key will be held in memory until the unlock duration expires.
+If the unlock duration defaults to 300 seconds.
+An explicit duration of zero seconds unlocks the key until geth exits.
 
 <!-- markdown-link-check-disable-next-line -->
 The account can be used with [`eth_sign`](#eth-sign) and [`eth_sendTransaction`](#eth-sendtransaction) while it is unlocked.
@@ -979,7 +998,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_unlockAccount","params"
 Validate the given passphrase and submit transaction.
 
 <!-- markdown-link-check-disable-next-line -->
-The transaction is the same argument as for [`eth_sendTransaction`](#eth-sendtransaction) and contains the `from` address. If the passphrase can be used to decrypt the private key belonging to `tx.from` the transaction is verified, signed and send onto the network.
+The transaction is the same argument as for [`eth_sendTransaction`](#eth-sendtransaction) and contains the `from` address.
+If the passphrase can be used to decrypt the private key belonging to `tx.from` the transaction is verified, signed and send onto the network.
 
 :::warning
 The account is not unlocked globally in the node and cannot be used in other RPC calls.
@@ -1139,7 +1159,8 @@ personal.unpair(url,pin);
 
 ### `debug_traceTransaction`
 
-The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network. It will replay any transaction that may have been executed prior to this one before it will finally attempt to execute the transaction that corresponds to the given hash.
+The `traceTransaction` debugging method will attempt to run the transaction in the exact same manner as it was executed on the network.
+It will replay any transaction that may have been executed prior to this one before it will finally attempt to execute the transaction that corresponds to the given hash.
 
 #### Parameters
 
@@ -1221,7 +1242,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"miner_setExtra","params":["data"
 **Private**: Requires authentication.
 :::
 
-Sets the minimal gas price used to accept transactions. Any transaction below this limit is excluded from the validator block proposal process.
+Sets the minimal gas price used to accept transactions.
+Any transaction below this limit is excluded from the validator block proposal process.
 
 This method requires a `node` restart after being called because it changes the configuration file.
 
@@ -1286,7 +1308,9 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"miner_stop","params":[],"id":1}'
 **Private**: Requires authentication.
 :::
 
-Sets the gas limit the miner will target when mining. Note: on networks where [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559) is activated, this should be set to twice what you want the gas target (i.e. the effective gas used on average per block) to be.
+Sets the gas limit the miner will target when mining.
+Note: on networks where [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559) is activated, this should be set to twice what you want the gas target (i.e.
+the effective gas used on average per block) to be.
 
 ::: warning
 Unsupported. This endpoint always returns `false`
@@ -1366,7 +1390,8 @@ txpool.content();
 
 ### `txpool_inspect`
 
-Returns a list on text format to summarize all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only. This is a method specifically tailored to developers to quickly see the transactions in the pool and find any potential issues.
+Returns a list on text format to summarize all the transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
+This is a method specifically tailored to developers to quickly see the transactions in the pool and find any potential issues.
 
 #### Parameters (0)
 

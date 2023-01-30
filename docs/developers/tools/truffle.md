@@ -18,7 +18,8 @@ yarn install truffle -g
 
 ## Create Truffle Project
 
-In this step we will create a simple counter contract. Feel free to skip this step if you already have your own compiled contract.
+In this step we will create a simple counter contract.
+Feel free to skip this step if you already have your own compiled contract.
 
 Create a new directory to host the contracts and initialize it:
 

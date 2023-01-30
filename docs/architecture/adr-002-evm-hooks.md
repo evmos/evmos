@@ -15,7 +15,12 @@ specifically to support EVM contract calling native modules through logs.
 
 ## Context
 
-<!-- > This section describes the forces at play, including technological, political, social, and project local. These forces are probably in tension and should be called out as such. The language in this section is value-neutral. It is simply describing facts. It should clearly explain the problem and motivation that the proposal aims to resolve. -->
+<!-- > This section describes the forces at play, including technological, political, social, and project local.
+These forces are probably in tension and should be called out as such.
+The language in this section is value-neutral.
+It is simply describing facts.
+It should clearly explain the problem and motivation that the proposal aims to resolve.
+-->
 
 Currently, there are no way for EVM smart contracts to call cosmos native modules, one way to do this is by emitting
 specific logs from the contract, and recognize those logs in tx processing code and convert them to native module calls.
@@ -25,7 +30,9 @@ add custom logic to process transaction logs.
 
 ## Decision
 
-<!-- > This section describes our response to these forces. It is stated in full sentences, with an active voice. "We will ..." -->
+<!-- > This section describes our response to these forces.
+It is stated in full sentences, with an active voice.
+"We will ..." -->
 
 This ADR proposes to add an `EvmHooks` interface and a method to register hooks in the `EvmKeeper`:
 
@@ -176,11 +183,17 @@ evmKeeper.SetHooks(NewBankSendHook(bankKeeper));
 
 ## Consequences
 
-<!-- > This section describes the resulting context, after applying the decision. All consequences should be listed here, not just the "positive" ones. A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future. -->
+<!-- > This section describes the resulting context, after applying the decision.
+All consequences should be listed here, not just the "positive" ones.
+A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future.
+-->
 
 ### Backwards Compatibility
 
-<!-- All ADRs that introduce backward incompatibilities must include a section describing these incompatibilities and their severity. The ADR must explain how the author proposes to deal with these incompatibilities. ADR submissions without a sufficient backward compatibility treatise may be rejected outright. -->
+<!-- All ADRs that introduce backward incompatibilities must include a section describing these incompatibilities and their severity.
+The ADR must explain how the author proposes to deal with these incompatibilities.
+ADR submissions without a sufficient backward compatibility treatise may be rejected outright.
+-->
 
 The proposed ADR is backward compatible.
 
@@ -200,11 +213,14 @@ The proposed ADR is backward compatible.
 ## Further Discussions
 
 <!-- While an ADR is in the DRAFT or PROPOSED stage, this section should contain a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
-Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR. -->
+Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR.
+-->
 
 ## Test Cases [optional]
 
-<!-- Test cases for implementation are mandatory for ADRs that are affecting consensus changes. Other ADRs can choose to include links to test cases if applicable. -->
+<!-- Test cases for implementation are mandatory for ADRs that are affecting consensus changes.
+Other ADRs can choose to include links to test cases if applicable.
+-->
 
 ## References
 

@@ -41,7 +41,8 @@ ______
 
 ### Reviewers Checklist
 
-**All** items are required. Please add a note if the item is not applicable and please add your handle next to the items reviewed if you only reviewed selected items.
+**All** items are required.
+Please add a note if the item is not applicable and please add your handle next to the items reviewed if you only reviewed selected items.
 
 I have...
 

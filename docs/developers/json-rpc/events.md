@@ -35,10 +35,12 @@ This is done by calling the `subscribe` RPC method via Websocket:
 }
 ```
 
-These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
+These events are triggered after a block is committed.
+You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
 
 The `type` and `attribute` value of the `query` allow you to filter the specific `event` you are
-looking for. For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
+looking for.
+For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
 has `sender` and `recipient` as `attributes`. Subscribing to this `event` would be done like so:
 
 ```json

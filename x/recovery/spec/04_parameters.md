@@ -13,7 +13,8 @@ The `x/recovery` module contains the following parameters:
 
 ## Enable Recovery
 
-The `EnableRecovery` parameter toggles Recovery IBC middleware. When the parameter is disabled, it will disable the recovery of stuck tokens to users.
+The `EnableRecovery` parameter toggles Recovery IBC middleware.
+When the parameter is disabled, it will disable the recovery of stuck tokens to users.
 
 ## Packet Timeout Duration
 

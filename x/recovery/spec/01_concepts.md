@@ -6,9 +6,11 @@ order: 1
 
 ## Key generation
 
-`secp256k1` refers to the parameters of the elliptic curve used in generating cryptographic public keys. Like Bitcoin, IBC compatible chains like the Cosmos chain use `secp256k1` for public key generation.
+`secp256k1` refers to the parameters of the elliptic curve used in generating cryptographic public keys.
+Like Bitcoin, IBC compatible chains like the Cosmos chain use `secp256k1` for public key generation.
 
-Some chains use different elliptic curves for generating public keys. An example is the`eth_secp256k1`used by Ethereum and Evmos chain for generating public keys.
+Some chains use different elliptic curves for generating public keys.
+An example is the`eth_secp256k1`used by Ethereum and Evmos chain for generating public keys.
 
 ```go
 // Generate new random ethsecp256k1 private key and address
@@ -29,7 +31,10 @@ For more detailed info on accounts, please check the [accounts section](https://
 
 ## Stuck funds
 
-The primary use case of the `x/recovery` module is to enable the recovery of tokens, that were sent to unsupported Evmos addresses. These tokens are termed “stuck”, as the account’s owner cannot sign transactions that transfer the tokens to other accounts. The owner only holds the private key to sign transactions for its `eth_secp256k1` public keys on Evmos, not other unsupported keys (i.e. `secp256k1` keys) .They are unable to transfer the tokens using the keys of the accounts through which they were sent due to the incompatibility of their elliptic curves.
+The primary use case of the `x/recovery` module is to enable the recovery of tokens, that were sent to unsupported Evmos addresses.
+These tokens are termed “stuck”, as the account’s owner cannot sign transactions that transfer the tokens to other accounts.
+The owner only holds the private key to sign transactions for its `eth_secp256k1` public keys on Evmos, not other unsupported keys (i.e.
+`secp256k1` keys) .They are unable to transfer the tokens using the keys of the accounts through which they were sent due to the incompatibility of their elliptic curves.
 
 ## Recovery
 
@@ -62,9 +67,12 @@ After the initial Evmos launch (`v1.1.2`), tokens got stuck from accounts with a
 
 ### Middleware ordering
 
-The IBC middleware adds custom logic between the core IBC and the underlying application. Middlewares are implemented as stacks so that applications can define multiple layers of custom behavior.
+The IBC middleware adds custom logic between the core IBC and the underlying application.
+Middlewares are implemented as stacks so that applications can define multiple layers of custom behavior.
 
-The order of middleware matters. Function calls from IBC core to the application travel from top-level middleware to the bottom middleware and then to the application, whereas function calls from the application to IBC core go through the bottom middleware first and then in order to the top middleware and then to core IBC handlers. Thus, the same set of middleware put in different orders may produce different effects.
+The order of middleware matters.
+Function calls from IBC core to the application travel from top-level middleware to the bottom middleware and then to the application, whereas function calls from the application to IBC core go through the bottom middleware first and then in order to the top middleware and then to core IBC handlers.
+Thus, the same set of middleware put in different orders may produce different effects.
 
 During packet execution each middleware in the stack will be executed in the order defined on creation (from top to bottom).
 
@@ -74,7 +82,8 @@ For Evmos the middleware stack ordering is defined as follows (from top to botto
 2. Claims Middleware
 3. Recovery Middleware
 
-This means that the IBC transfer will be executed first, then the claim will be attempted and lastly the recovery will be executed. By performing the actions in this order we allow the users to receive back the coins used to trigger the recover.
+This means that the IBC transfer will be executed first, then the claim will be attempted and lastly the recovery will be executed.
+By performing the actions in this order we allow the users to receive back the coins used to trigger the recover.
 
 **Example execution order**
 
@@ -83,7 +92,8 @@ This means that the IBC transfer will be executed first, then the claim will be 
 3. Evmos receives the transaction, and goes through the IBC stack:
     1. **IBC transfer**: the `100uosmo` IBC vouchers are added to the user balance on evmos.
     2. **Claims Middleware**: since `sender=receiver` -> perform no-op
-    3. **Recovery Middleware**: since `sender=receiver` -> recover user balance (`1000aevmos` and `100uosmo`) by sending an IBC transfer from `receiver` to the `sender` on the Osmosis chain.
+    3.
+**Recovery Middleware**: since `sender=receiver` -> recover user balance (`1000aevmos` and `100uosmo`) by sending an IBC transfer from `receiver` to the `sender` on the Osmosis chain.
 4. User receives `100uosmo` and `1000aevmos` (IBC voucher) on Osmosis.
 
 ### Execution errors

@@ -32,7 +32,8 @@ Before transferring ERC-20 tokens via IBC, make sure you [register the ERC-20 to
 Under the hood, the protocol will automatically make the conversion from ERC-20 token to IBC coin and perform the transfer to the desired Cosmos chain.
 
 :::tip
-**Note**: In case Evmos is not the source chain of the sent IBC coin, you will have to specify the corresponding IBC denom (e.g. `ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
+**Note**: In case Evmos is not the source chain of the sent IBC coin, you will have to specify the corresponding IBC denom (e.g.
+`ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518`)
 :::
 
 ```go

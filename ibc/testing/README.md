@@ -114,7 +114,8 @@ It is assumed your application contains an embedded BaseApp and thus implements 
 
 ### Initialize TestingApp
 
-The testing package requires that you provide a function to initialize your TestingApp. This is how ibc-go implements the initialize function with its `SimApp`:
+The testing package requires that you provide a function to initialize your TestingApp.
+This is how ibc-go implements the initialize function with its `SimApp`:
 
 ```go
 func SetupTestingApp() (TestingApp, map[string]json.RawMessage) {

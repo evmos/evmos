@@ -41,7 +41,8 @@ tokenPairId = sha256(erc20 + "|" + denom)
 
 ### Token Origin
 
-The `ConvertCoin` and `ConvertERC20` functionalities use the owner field to check whether the token being used is a native Coin or a native ERC20. The field is based on the token registration proposal type (`RegisterCoinProposal` = 1, `RegisterERC20Proposal` = 2).
+The `ConvertCoin` and `ConvertERC20` functionalities use the owner field to check whether the token being used is a native Coin or a native ERC20.
+The field is based on the token registration proposal type (`RegisterCoinProposal` = 1, `RegisterERC20Proposal` = 2).
 
 The `Owner` enumerates the ownership of a ERC20 contract.
 
@@ -80,7 +81,8 @@ func (tp TokenPair) IsNativeERC20() bool {
 
 ## Genesis State
 
-The `x/erc20` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height. It contains the module parameters and the registered token pairs :
+The `x/erc20` module's `GenesisState` defines the state necessary for initializing the chain from a previous exported height.
+It contains the module parameters and the registered token pairs :
 
 ```go
 // GenesisState defines the module's genesis state.

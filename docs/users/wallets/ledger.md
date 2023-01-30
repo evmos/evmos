@@ -24,7 +24,8 @@ Get started with your Ledger hardware wallet on Evmos {synopsis}
 
 [Ledger](https://www.ledger.com/)'s hardware wallets are cryptocurrency wallets that are used to store private keys offline.
 
-> “Hardware wallets are a form of offline storage. A hardware wallet is a cryptocurrency wallet that stores the user's private keys (a critical piece of information used to authorize outgoing transactions on the blockchain network) in a secure hardware device.”
+> “Hardware wallets are a form of offline storage.
+A hardware wallet is a cryptocurrency wallet that stores the user's private keys (a critical piece of information used to authorize outgoing transactions on the blockchain network) in a secure hardware device.”
 > [Investopedia](https://www.investopedia.com/terms/l/ledger-wallet.asp)
 
 ## Installation
@@ -38,9 +39,12 @@ First, you will need to install the Ethereum Ledger app by following the instruc
 1. Open up Ledger Live app on your Desktop
 2. Select **Manager** from the menu
 3. Connect and unlock your device (this must be done before installation)
-4. In the **App catalog** search for `Ethereum (ETH)` and click **Install**. Your Ledger device will show **Processing** and once the installation is complete, the app will appear on your Ledger device
+4.
+In the **App catalog** search for `Ethereum (ETH)` and click **Install**.
+Your Ledger device will show **Processing** and once the installation is complete, the app will appear on your Ledger device
 
-In the Ledger Live app, you should see the Ethereum app listed under the **Apps installed** tab on the **Manager** page. After the app has been successfully installed, you can close out of Ledger Live.
+In the Ledger Live app, you should see the Ethereum app listed under the **Apps installed** tab on the **Manager** page.
+After the app has been successfully installed, you can close out of Ledger Live.
 
 ### Chain IDs
 
@@ -142,11 +146,13 @@ You can see the complete message to be signed
 
 4. **Validate the data before signing!**
 
-- `feePayer`: represents the wallet that is signing the message. So it MUST match yours, if it’s different your transaction will be invalid.
+- `feePayer`: represents the wallet that is signing the message.
+So it MUST match yours, if it’s different your transaction will be invalid.
 - `fee`: amount to be paid to send the transaction.
 - `gas`: max gas that can be spent by this transaction (aka gas limit).
 - `memo`: transaction note or comment.
-- `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds. Also, we can verify that we are actually sending *10000aevmos* to that wallet.
+- `msgs`: This is the content of the cosmos transaction, in this example, we need to make sure that we are using a MsgSend, and that the *to_address* is the one that we want to send the founds.
+Also, we can verify that we are actually sending *10000aevmos* to that wallet.
 
 ### Ledger signing
 
@@ -172,7 +178,8 @@ This step should be done automatically by the same service that generated the me
 
 ### Common errors
 
-- Make sure that the Ethereum Ledger app is installed. The Cosmos Ledger app is not supported on the Evmos chain at the moment (see [FAQ](#faq)).
+- Make sure that the Ethereum Ledger app is installed.
+The Cosmos Ledger app is not supported on the Evmos chain at the moment (see [FAQ](#faq)).
 - Make sure you have created at least one Ethereum address on the Ledger Ethereum app.
 - Make sure the Ledger device is unlocked and with the Ledger Ethereum app opened before starting the importing process.
 
@@ -189,11 +196,14 @@ This step should be done automatically by the same service that generated the me
 
 1. **How can I generate Cosmos `secp256k1` keys with Ledger?**
 
-Cosmos `secp256k1` keys are not supported on Evmos with Ledger. Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
+Cosmos `secp256k1` keys are not supported on Evmos with Ledger.
+Only Ethereum keys (`eth_secp256k1`) can be generated with Ledger.
 
 2. **My Ledger has trouble connecting or signing on the CLI**
 
-The Ledger's connection to the CLI can fail for a number of reasons. Make sure to close any other apps using the Ledger (such as Ledger Live or Metamask), unlock the Ledger, and open the Ethereum app. If this does not work, simply disconnecting and reconnecting the device often solves the issue.
+The Ledger's connection to the CLI can fail for a number of reasons.
+Make sure to close any other apps using the Ledger (such as Ledger Live or Metamask), unlock the Ledger, and open the Ethereum app.
+If this does not work, simply disconnecting and reconnecting the device often solves the issue.
 
 3. **I can’t use Metamask or Keplr with the Cosmos Ledger app**
 
@@ -201,4 +211,5 @@ Since Evmos only support Ethereum keys and uses the same HD path as Ethereum, th
 
 <!-- 4. **I can’t use Ledger for my validator**
 
-Validators can use [`EIP712`](#eip712-signing) with their Ethereum Ledger app to sign transactions. If you are using an existing Cosmos `secp256k1` key, it won't work -->
+Validators can use [`EIP712`](#eip712-signing) with their Ethereum Ledger app to sign transactions.
+If you are using an existing Cosmos `secp256k1` key, it won't work -->

@@ -27,12 +27,14 @@ This allows users to exchange assets interchangeably
 in two entirely different layers,
 the EVM and Cosmos.
 
-Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Evmos and the Cosmos ecosystem. Using the module, developers can build smart contracts on Evmos and use the generated ERC-20 tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
+Application-wise, the ERC-20 module allows DeFi protocols to seamlessly integrate with Evmos and the Cosmos ecosystem.
+Using the module, developers can build smart contracts on Evmos and use the generated ERC-20 tokens for other [applications on the Cosmos ecosystem](https://mapofzones.com), such as:
 
 - earning $OSMO staking rewards
 - taking part in governance proposals by voting with $ATOM
 
-Registering a native Cosmos Coin means registering a new mapping between a Cosmos Coin denomination and a new ERC-20 token contract, also known as a Token Pair. Token Pairs enable users to convert ERC-20 tokens into their native Cosmos Coin representation (and vice-versa), and can only be created via a governance proposal.
+Registering a native Cosmos Coin means registering a new mapping between a Cosmos Coin denomination and a new ERC-20 token contract, also known as a Token Pair.
+Token Pairs enable users to convert ERC-20 tokens into their native Cosmos Coin representation (and vice-versa), and can only be created via a governance proposal.
 
 More information can be found in [this blog post](https://medium.com/evmos/introducing-evmos-erc20-module-f40a61e05273), which introduced the ERC-20 Module on Evmos.
 
@@ -87,7 +89,8 @@ After the drafting process, the Cosmos Coin Proposal can be submitted.
 
 ### Formatting the Proposal's Text
 
-The ideal format for a proposal is as a Markdown file (`*.md`) in a Github repo or [HackMD](https://hackmd.io/). Markdown
+The ideal format for a proposal is as a Markdown file (`*.md`) in a Github repo or [HackMD](https://hackmd.io/).
+Markdown
 is a simple and accessible format for writing plain text files that is easy to learn.
 <!-- markdown-link-check-disable-next-line -->
 See the [Github Markdown Guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)

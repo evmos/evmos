@@ -8,7 +8,8 @@ A user can query the `x/incentives` module using the CLI, JSON-RPC, gRPC or REST
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/incentives` module. You can obtain the full list by using the `evmosd -h` command.
+Find below a list of `evmosd` commands added with the `x/incentives` module.
+You can obtain the full list by using the `evmosd -h` command.
 
 ### Queries
 

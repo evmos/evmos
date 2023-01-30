@@ -16,10 +16,12 @@ If running many nodes on a single VM, [ensure your open files limit is increased
 
 ## Prerequisites
 <!-- textlint-disable -->
-Before beginning, ensure you have an Evmos node running in the background of the same machine that you intend to relay on. Follow [this guide](quickstart/run_node.md) to set up an Evmos node if you have not already.
+Before beginning, ensure you have an Evmos node running in the background of the same machine that you intend to relay on.
+Follow [this guide](quickstart/run_node.md) to set up an Evmos node if you have not already.
 <!-- textlint-enable -->
 
-In this guide, we will be relaying between [Evmos (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers). When setting up your Evmos and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
+In this guide, we will be relaying between [Evmos (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers).
+When setting up your Evmos and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
 
 <!-- textlint-disable -->
 In this example, the default ports for Evmos will be used, and the ports of the Cosmos Hub node will be manually changed.
@@ -192,7 +194,8 @@ list = [
 
 Add your relayer wallet to Hermes' keyring (located in `$HOME/.hermes/keys`)
 
-The best practice is to use the same mnemonic over all networks. Do not use your relaying-addresses for anything else, because it will lead to account sequence errors.
+The best practice is to use the same mnemonic over all networks.
+Do not use your relaying-addresses for anything else, because it will lead to account sequence errors.
 
 ```bash
 hermes keys restore cosmoshub-4 -m "24-word mnemonic seed"
@@ -228,7 +231,8 @@ When your nodes are fully synced, you can start the hermes daemon:
 hermes start
 ```
 
-Watch hermes' output for successfully relayed packets, or any errors. It will try and clear any unrecieved packets after startup has completed.
+Watch hermes' output for successfully relayed packets, or any errors.
+It will try and clear any unrecieved packets after startup has completed.
 
 ## Helpful Commands
 

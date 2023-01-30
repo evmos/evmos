@@ -4,7 +4,8 @@ order: 2
 
 # `evmosd`
 
-`evmosd` is the all-in-one command-line interface. It supports wallet management, queries and transaction operations {synopsis}
+`evmosd` is the all-in-one command-line interface.
+It supports wallet management, queries and transaction operations {synopsis}
 
 ## Pre-requisite Readings
 
@@ -33,7 +34,9 @@ evmosd -h
 ```
 
 ::: tip
-You can also enable auto-completion with the `evmosd completion` command. For example, at the start of a bash session, run `. <(evmosd completion)`, and all `evmosd` subcommands will be auto-completed.
+You can also enable auto-completion with the `evmosd completion` command.
+For example, at the start of a bash session, run `.
+<(evmosd completion)`, and all `evmosd` subcommands will be auto-completed.
 :::
 
 ### Config and data directory
@@ -62,7 +65,8 @@ The Cosmos SDK automatically generates two configuration files inside `~/.evmosd
 
 Both files are heavily commented, please refer to them directly to tweak your node.
 
-One example config to tweak is the `minimum-gas-prices` field inside `app.toml`, which defines the minimum amount the validator node is willing to accept for processing a transaction. It is an anti spam mechanism and it will reject incoming transactions with less than the minimum gas prices.
+One example config to tweak is the `minimum-gas-prices` field inside `app.toml`, which defines the minimum amount the validator node is willing to accept for processing a transaction.
+It is an anti spam mechanism and it will reject incoming transactions with less than the minimum gas prices.
 
 If it's empty, make sure to edit the field with some value, for example `10token`, or else the node will halt on startup.
 
@@ -85,7 +89,8 @@ The following pruning state settings are available:
 - `custom`: Specify pruning settings with the `pruning-keep-recent`, `pruning-keep-every`, and `pruning-interval` parameters.
 
 By default, every node is in `default` mode which is the recommended setting for most environments.
-If you would like to change your nodes pruning strategy then you must do so when the node is initialized. Passing a flag when starting `evmos` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `evmosd start`.
+If you would like to change your nodes pruning strategy then you must do so when the node is initialized.
+Passing a flag when starting `evmos` will always override settings in the `app.toml` file, if you would like to change your node to the `everything` mode then you can pass the `---pruning everything` flag when you call `evmosd start`.
 
 ::: warning
 **IMPORTANT**:
@@ -125,7 +130,8 @@ evmosd config
 
 Other values can be changed in the same way.
 
-Alternatively, we can directly make the changes to the config values in one place at client.toml. It is under the path of `.evmos/config/client.toml` in the folder where we installed evmos:
+Alternatively, we can directly make the changes to the config values in one place at client.toml.
+It is under the path of `.evmos/config/client.toml` in the folder where we installed evmos:
 
 ```toml
 ############################################################################
@@ -154,7 +160,8 @@ node = "tcp://localhost:26657"
 broadcast-mode = "sync"
 ```
 
-After the necessary changes are made in the `client.toml`, then save. For example, if we directly change the chain-id from `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
+After the necessary changes are made in the `client.toml`, then save.
+For example, if we directly change the chain-id from `evmos_{{ $themeConfig.project.testnet_chain_id }}-2` to `evmostest_9000-1`, and output to number, it would change instantly as shown below.
 
 ```bash
 evmosd config

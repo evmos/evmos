@@ -4,13 +4,16 @@ order: 3
 
 # State Transitions
 
-The `x/revenue` module allows for three types of state transitions: `RegisterRevenue`, `UpdateRevenue` and `CancelRevenue`. The logic for distributing transaction fees is handled through [Hooks](./05_hooks.md).
+The `x/revenue` module allows for three types of state transitions: `RegisterRevenue`, `UpdateRevenue` and `CancelRevenue`.
+The logic for distributing transaction fees is handled through [Hooks](./05_hooks.md).
 
 ### Register Fee Split
 
-A developer registers a contract for receiving transaction fees, defining the contract address, an array of nonces for [address deriviation](01_concepts.md#address-derivation) and an optional withdraw address for receiving fees. If the withdraw address is not set, the fees are sent to the deployer address by default.
+A developer registers a contract for receiving transaction fees, defining the contract address, an array of nonces for [address deriviation](01_concepts.md#address-derivation) and an optional withdraw address for receiving fees.
+If the withdraw address is not set, the fees are sent to the deployer address by default.
 
-1. User submits a `RegisterRevenue` to register a contract address, along with a withdraw address that they would like to receive the fees to
+1.
+User submits a `RegisterRevenue` to register a contract address, along with a withdraw address that they would like to receive the fees to
 2. Check if the following conditions pass:
     1. `x/revenue` module is enabled
     2. the contract was not previously registered
@@ -31,7 +34,9 @@ A developer updates the withdraw address for a registered contract, defining the
     1. `x/revenue` module is enabled
     2. the contract is registered
     3. the signer of the transaction is the same as the contract deployer
-3. Update the fee with the new withdraw address. Note that if withdraw address is empty or the same as deployer address, then the withdraw address is set to `""`.
+3.
+Update the fee with the new withdraw address.
+Note that if withdraw address is empty or the same as deployer address, then the withdraw address is set to `""`.
 
 After this update, the developer receives the fees on the new withdraw address.
 

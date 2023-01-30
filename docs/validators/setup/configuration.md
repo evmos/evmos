@@ -6,7 +6,8 @@ order: 2
 
 ## Block Time
 
-The timeout-commit value in the node config defines how long we wait after committing a block, before starting on the new height (this gives us a chance to receive some more pre-commits, even though we already have +2/3). The current default value is `"1s"`.
+The timeout-commit value in the node config defines how long we wait after committing a block, before starting on the new height (this gives us a chance to receive some more pre-commits, even though we already have +2/3).
+The current default value is `"1s"`.
 
 ::: tip
 **Note**: From v6, this is handled automatically by the server when initializing the node.
