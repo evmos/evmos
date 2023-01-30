@@ -36,59 +36,6 @@ const (
 	secp256k1VerifyCost uint64 = 21000
 )
 
-// NewAnteHandler returns an ante handler responsible for attempting to route an
-// Ethereum or SDK transaction to an internal ante handler for performing
-// transaction-level processing (e.g. fee payment, signature verification) before
-// being passed onto it's respective handler.
-func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
-	if err := options.validate(); err != nil {
-		return nil, err
-	}
-
-	return func(
-		ctx sdk.Context, tx sdk.Tx, sim bool,
-	) (newCtx sdk.Context, err error) {
-		var anteHandler sdk.AnteHandler
-
-		defer Recover(ctx.Logger(), &err)
-
-		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
-		if ok {
-			opts := txWithExtensions.GetExtensionOptions()
-			if len(opts) > 0 {
-				switch typeURL := opts[0].GetTypeUrl(); typeURL {
-				case "/evmos.evm.v1.ExtensionOptionsEthereumTx":
-					// handle as *evmtypes.MsgEthereumTx
-					anteHandler = newEthAnteHandler(options)
-				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
-					// Deprecated: Handle as normal Cosmos SDK tx, except signature is checked for Legacy EIP712 representation
-					anteHandler = NewLegacyCosmosAnteHandlerEip712(options)
-				case "/evmos.types.v1.ExtensionOptionDynamicFeeTx":
-					// cosmos-sdk tx with dynamic fee extension
-					anteHandler = newCosmosAnteHandler(options)
-				default:
-					return ctx, errorsmod.Wrapf(
-						errortypes.ErrUnknownExtensionOptions,
-						"rejecting tx with unsupported extension option: %s", typeURL,
-					)
-				}
-
-				return anteHandler(ctx, tx, sim)
-			}
-		}
-
-		// handle as totally normal Cosmos SDK tx
-		switch tx.(type) {
-		case sdk.Tx:
-			anteHandler = newCosmosAnteHandler(options)
-		default:
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid transaction type: %T", tx)
-		}
-
-		return anteHandler(ctx, tx, sim)
-	}, nil
-}
-
 func Recover(logger tmlog.Logger, err *error) {
 	if r := recover(); r != nil {
 		*err = errorsmod.Wrapf(errortypes.ErrPanic, "%v", r)
@@ -107,8 +54,6 @@ func Recover(logger tmlog.Logger, err *error) {
 		}
 	}
 }
-
-var _ authante.SignatureVerificationGasConsumer = DefaultSigVerificationGasConsumer
 
 // DefaultSigVerificationGasConsumer is the default implementation of SignatureVerificationGasConsumer. It consumes gas
 // for signature verification based upon the public key type. The cost is fetched from the given params and is matched
