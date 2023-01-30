@@ -1,15 +1,20 @@
 # Updating the docs
 
-If you want to open a PR on the Cosmos SDK to update the documentation, please follow the guidelines in the [`CONTRIBUTING.md`](https://github.com/evmos/evmos/tree/main/CONTRIBUTING.md#updating-documentation)
+If you want to open a PR on the Cosmos SDK to update the documentation,
+please follow the guidelines in the
+[`CONTRIBUTING.md`](https://github.com/evmos/evmos/tree/main/CONTRIBUTING.md#updating-documentation)
 
 ## Translating
 
-- Docs translations live in a `docs/country-code/` folder, where `country-code` stands for the country code of the language used (`cn` for Chinese, `kr` for Korea, `fr` for France, ...).
+- Docs translations live in a `docs/country-code/` folder,
+  where `country-code` stands for the country code of the language used
+  (`cn` for Chinese, `kr` for Korea, `fr` for France, ...).
 - Always translate content living on `main`.
-- Only content under `/docs/intro/`, `/docs/basics/`, `/docs/core/`, `/docs/building-modules/` and `docs/interfaces` needs to be translated, as well as `docs/README.md`.
-It is also nice (but not mandatory) to translate `/docs/spec/`.
+- Only content under `/docs/intro/`, `/docs/basics/`, `/docs/core/`, `/docs/building-modules/` and `docs/interfaces`
+  needs to be translated, as well as `docs/README.md`.
+  It is also nice (but not mandatory) to translate `/docs/spec/`.
 - Specify the release/tag of the translation in the README of your translation folder.
-Update the release/tag each time you update the translation.
+  Update the release/tag each time you update the translation.
 
 ## Docs Build Workflow
 
@@ -96,7 +101,9 @@ You will find the website in `.vuepress/dist` directory.
 ## Search
 
 We are using [Algolia](https://www.algolia.com) to power full-text search.
-This uses a public API search-only key in the `config.js` as well as a [cosmos_network.json](https://github.com/algolia/docsearch-configs/blob/master/configs/cosmos-sdk.json) configuration file that we can update with PRs.
+This uses a public API search-only key in the `config.js`
+as well as a [cosmos_network.json](https://github.com/algolia/docsearch-configs/blob/master/configs/cosmos-sdk.json)
+configuration file that we can update with PRs.
 
 ### Update and Build the RPC docs
 
@@ -107,12 +114,15 @@ This uses a public API search-only key in the `config.js` as well as a [cosmos_n
    ```
 
 2. Edit API docs
+
    1. Directly Edit API docs manually: `client/lcd/swagger-ui/swagger.yaml`.
-   2.
-Edit API docs within the [Swagger Editor](https://editor.swagger.io/).
-Please refer to this [document](https://swagger.io/docs/specification/2-0/basic-structure/) for the correct structure in `.yaml`.
-3. Download `swagger.yaml` and replace the old `swagger.yaml` under fold `client/lcd/swagger-ui`.
-4. Compile evmosd
+   2. Edit API docs within the [Swagger Editor](https://editor.swagger.io/).
+      Please refer to this [document](https://swagger.io/docs/specification/2-0/basic-structure/)
+      for the correct structure in `.yaml`.
+   
+3. Download `swagger.yaml` and replace the old `swagger.yaml` under folder `client/lcd/swagger-ui`.
+
+4. Compile `evmosd`
 
    ```bash
    make install

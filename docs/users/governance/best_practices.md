@@ -113,8 +113,8 @@ However, it is important to provide in-depth information, so a few more pointers
 2. Solution - generally how changing the parameter(s) will address the problem or improve the network
    - the beneficiaries of the change(s) (ie. who will these changes impact and how?)
       - voters should understand the importance of the change(s) in a simple way
-3.
-Risks & Benefits - clearly describe how making this/these change(s) may expose stakeholders to new benefits and/or risks
+3. Risks & Benefits - clearly describe how making this/these change(s)
+   may expose stakeholders to new benefits and/or risks
 4. Supplementary materials - optional materials eg. models, graphs, tables, research, signed petition, etc
 
 #### Community Spend Proposal
@@ -132,8 +132,9 @@ Risks & Benefits - clearly describe how making this/these change(s) may expose s
    - your plan to fix the problem or deliver value
    - the beneficiaries of this plan (ie. who will your plan impact and how?)
      - follow the "as a user" template ie.
-write a short user story about the problem you are trying to solve and how users will interact with what you're proposing to deliver (eg.
-benefits and functionality from a user’s perspective)
+       write a short user story about the problem you are trying to solve
+       and how users will interact with what you're proposing to deliver
+       (e.g. benefits and functionality from a user’s perspective)
      - voters should understand the value of what you're providing in a simple way
    - your reasons for selecting this plan
    - your motivation for delivering this solution/value
@@ -154,7 +155,7 @@ benefits and functionality from a user’s perspective)
      - how can the community observe your progress?
      - how can the community provide feedback?
    - how should the quality of deliverables be assessed? eg. metrics
-5. Relationships and disclosures
+6. Relationships and disclosures
    - have you received or applied for grants or funding? for similar work? eg.
 from the [Evmos Grants Program](https://medium.com/evmos/announcing-evmos-grants-78aa28562db6)
    - how will you and/or your organization benefit?

@@ -39,11 +39,14 @@ You can start the local chain using:
 ```
 
 :::tip
-To avoid overwriting any data for a real node used in production, it was decided to store the automatically generated testing configuration at `~/.tmp-evmosd` instead of the default `~/.evmosd`.
+To avoid overwriting any data for a real node used in production,
+it was decided to store the automatically generated testing configuration at `~/.tmp-evmosd` instead of the default `~/.evmosd`.
 :::
 
-When working with the `local_node.sh` script, it is necessary to extend all `evmosd` commands, that target the local test node, with the `--home ~/.tmp-evmosd` flag.
-This is mandatory, because the `home` directory cannot be stored in the `evmosd` configuration, which can be seen in the output below.
+When working with the `local_node.sh` script, it is necessary to extend all `evmosd` commands,
+that target the local test node, with the `--home ~/.tmp-evmosd` flag.
+This is mandatory, because the `home` directory cannot be stored in the `evmosd` configuration,
+which can be seen in the output below.
 For ease of use, it might be sensible to export this directory path as an environment variable:
 
 ```
@@ -102,8 +105,9 @@ evmosd add-genesis-account my_validator 10000000000aevmos
 
 Now that your account has some tokens, you need to add a validator to your chain.
 
- For this guide, you will add your local node (created via the `init` command above) as a validator of your chain.
-Validators can be declared before a chain is first started via a special transaction included in the genesis file called a `gentx`:
+For this guide, you will add your local node (created via the `init` command above) as a validator of your chain.
+Validators can be declared before a chain is first started
+via a special transaction included in the genesis file called a `gentx`:
 
 ```bash
 # Create a gentx
@@ -114,12 +118,10 @@ evmosd add-genesis-account my_validator 1000000000stake,10000000000aevmos
 
 A `gentx` does three things:
 
-1.
-Registers the `validator` account you created as a validator operator account (i.e.
-the account that controls the validator).
+1. Registers the `validator` account you created as a validator operator account
+   (i.e. the account that controls the validator).
 2. Self-delegates the provided `amount` of staking tokens.
-3.
-Link the operator account with a Tendermint node pubkey that will be used for signing blocks.
+3. Link the operator account with a Tendermint node pubkey that will be used for signing blocks.
 If no `--pubkey` flag is provided, it defaults to the local node pubkey created via the `evmosd init` command above.
 
 For more information on `gentx`, use the following command:

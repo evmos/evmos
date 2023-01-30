@@ -18,8 +18,9 @@ Deposits of passed and failed proposals are returned to the contributors.
 
 In the past, different people have considered contributions amounts differently.
 There is some consensus that this should be a personal choice.
-There is also some consensus that this can be an opportunity for supporters to signal their support by adding to the deposit amount, so a proposer may choose to leave contribution room (ie.
-a deposit below 3500 EVMOS) so that others may participate.
+There is also some consensus that this can be an opportunity for supporters
+to signal their support by adding to the deposit amount, so a proposer may choose to leave contribution room
+(i.e. a deposit below 3500 EVMOS) so that others may participate.
 It is important to remember that any contributed EVMOS are at risk of being burned.
 
 ### Burned deposits
@@ -27,9 +28,8 @@ It is important to remember that any contributed EVMOS are at risk of being burn
 Deposits are burned when proposals:
 
 1. **Expire** - deposits will be burned if the deposit period ends before reaching the minimum deposit (3500 EVMOS)
-2.
-**Fail to reach quorum** - deposits will be burned for proposals that do not reach quorum ie.
-33.4% of all staked EVMOS must vote
+2. **Fail to reach quorum** - deposits will be burned for proposals that do not reach quorum,
+   i.e. 33.4% of all staked EVMOS must vote
 3. **Are vetoed** - deposits for proposals with 33.4% of voting power backing the `NoWithVeto` option are also burned
 
 ## Voting Period
@@ -43,19 +43,27 @@ Voters may change their vote at any time before the voting period ends.
 1. **`Abstain`**: indicates that the voter is impartial to the outcome of the proposal.
 2. **`Yes`**: indicates approval of the proposal in its current form.
 3. **`No`**: indicates disapproval of the proposal in its current form.
-4.
-**`NoWithVeto`**: indicates stronger opposition to the proposal than simply voting `No`.
-If the number of `NoWithVeto` votes is greater than a third of total votes excluding `Abstain` votes, the proposal is rejected and the deposits are [burned](#burned-deposits).
+4. **`NoWithVeto`**: indicates stronger opposition to the proposal than simply voting `No`.
+   If the number of `NoWithVeto` votes is greater than a third of total votes excluding `Abstain` votes,
+   the proposal is rejected and the deposits are [burned](#burned-deposits).
 
-As accepted by the community in [Proposal 6](https://www.mintscan.io/cosmos/proposals/6), voters are expected to vote `NoWithVeto` if a proposal leads to undesirable outcomes for the community.
-It states “if a proposal seems to be spam or is deemed to have caused a negative externality to Cosmos community, voters should vote `NoWithVeto`.”
+As accepted by the community in [Proposal 6](https://www.mintscan.io/cosmos/proposals/6),
+voters are expected to vote `NoWithVeto` if a proposal leads to undesirable outcomes for the community.
+It states “if a proposal seems to be spam or is deemed to have caused a negative externality to Cosmos community,
+voters should vote `NoWithVeto`.”
 
-Voting `NoWithVeto` provides a mechanism for a minority group representing a *third* of the participating voting power to reject a proposal that would otherwise pass.
-This makes explicit an aspect of the consensus protocol: it works as long as only up to [a third of nodes fail](https://docs.tendermint.com/v0.35/introduction/what-is-tendermint.html).
-In other words, greater than a third of validators are always in a position to cause a proposal to fail outside the formalized governance process and the network's norms, such as by censoring transactions.
-The purpose of internalizing this aspect of the consensus protocol into the governance process is to discourage validators from relying on collusion and censorship tactics to influence voting outcomes.
+Voting `NoWithVeto` provides a mechanism for a minority group representing a *third* of the participating voting power
+to reject a proposal that would otherwise pass.
+This makes explicit an aspect of the consensus protocol:
+it works as long as only up to
+[a third of nodes fail](https://docs.tendermint.com/v0.35/introduction/what-is-tendermint.html).
+In other words, greater than a third of validators are always in a position to cause a proposal to fail
+outside the formalized governance process and the network's norms, such as by censoring transactions.
+The purpose of internalizing this aspect of the consensus protocol into the governance process is
+to discourage validators from relying on collusion and censorship tactics to influence voting outcomes.
 
-[Proposal #103](https://www.mintscan.io/evmos/proposals/103) was passed in January 2023 by the Evmos network to formally define and adopt the meanings of each voting options aforementioned.
+[Proposal #103](https://www.mintscan.io/evmos/proposals/103) was passed in January 2023 by the Evmos network
+to formally define and adopt the meanings of each voting options aforementioned.
 
 ## What determines whether or not a governance proposal passes?
 
@@ -65,8 +73,7 @@ There are four criteria:
    - anyone may contribute to this deposit
    - the deposit must be reached within 3 days (this is the deposit period)
 2. A minimum of 33.4% of the network's voting power (quorum) is required to participate to make the proposal valid
-3.
-A simple majority (greater than 50%) of the participating voting power must back the `Yes` vote during the 5-day voting period
+3. A simple majority (greater than 50%) of the participating voting power must back the `Yes` vote during the 5-day voting period
 4. Less than 33.4% of participating voting power votes `NoWithVeto`
 
 Currently, the criteria for submitting and passing/failing all proposal types is the same.

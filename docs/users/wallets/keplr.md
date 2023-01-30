@@ -39,8 +39,7 @@ There are several ways to create a new account:
     - You can change the derivation path by clicking on **Advanced**, but this is optional (learn more in the [Keplr FAQ](https://faq.keplr.app/))
 3. Enter a name for your account (can change later)
 4. Once you have transcribed your 24 word seed/mnemonic phrase, click on **Next**
-5.
-To confirm the creation of the new account, click on the words on the right order in which they appear in your seed/mnemonic phrase, and press **Register**
+5. To confirm the creation of the new account, click on the words on the right order in which they appear in your seed/mnemonic phrase, and press **Register**
 6. If you have not used Keplr before, set a password for the Keplr extension, and click **Confirm**
 
 #### Create an Account with One-Click Login
@@ -64,8 +63,7 @@ There are several ways to import an existing account:
 
 1. In the initial pop-up window, choose **Import Existing Account**
     - If you have used Keplr before, click on the silhouette in the upper-right corner, then the blue box labeled **Add Account**, and select **Import Existing Account**
-2.
-Enter your mnemonic/seed phrase/private key in the appropriate slot, seperating the words with spaces and taking care to check they are spelled correctly
+2. Enter your mnemonic/seed phrase/private key in the appropriate slot, separating the words with spaces and taking care to check they are spelled correctly
 3. Make sure you have imported the account with the correct derivation path, viewable by clicking on **Advanced**
     - Normally, the derivation path should be `m/44'/…’/0/0/0`, but if you see that importing the account via mnemonic on Keplr, the Cosmos Mainnet address displayed is different than yours, it is possible the derivation path ends with 1 (or another number) instead of 0
     - If this is the case, you just have to start the process over, and replace the last 0 with 1
@@ -77,11 +75,9 @@ Enter your mnemonic/seed phrase/private key in the appropriate slot, seperating 
 1. In the initial pop-up window, choose **Import Ledger**
    - If you have used Keplr before, click on the silhouette in the upper-right corner, then the blue box labeled **Add Account**, and select **Import Ledger**
    - Be sure you have both the Cosmos and Ethereum Ledger apps downloaded on your Ledger device
-2.
-To complete the connection with your Ledger Nano Hard Wallet, follow the steps described in the pop-up that appears (a detailed tutorial can be found [here](https://medium.com/chainapsis/how-to-use-ledger-nano-hardware-wallet-with-keplr-9ea7f07826c2))
+2. To complete the connection with your Ledger Nano Hard Wallet, follow the steps described in the pop-up that appears (a detailed tutorial can be found [here](https://medium.com/chainapsis/how-to-use-ledger-nano-hardware-wallet-with-keplr-9ea7f07826c2))
 3. If you have not used Keplr before, set a password for the Keplr extension, and click **Confirm**
-4.
-Switch to the Ethereum app on the Ledger, then select “Evmos” from the Keplr chain registry to connect the public key
+4. Switch to the Ethereum app on the Ledger, then select “Evmos” from the Keplr chain registry to connect the public key
    - All signing from Keplr will use the Ledger Ethereum app, with either [EIP-712 transactions](https://eips.ethereum.org/EIPS/eip-712) or standard [Ethereum transactions](https://ethereum.org/en/developers/docs/transactions/).
 
 ## Connect Keplr to Mainnet

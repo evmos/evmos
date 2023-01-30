@@ -39,9 +39,8 @@ First, you will need to install the Ethereum Ledger app by following the instruc
 1. Open up Ledger Live app on your Desktop
 2. Select **Manager** from the menu
 3. Connect and unlock your device (this must be done before installation)
-4.
-In the **App catalog** search for `Ethereum (ETH)` and click **Install**.
-Your Ledger device will show **Processing** and once the installation is complete, the app will appear on your Ledger device
+4. In the **App catalog** search for `Ethereum (ETH)` and click **Install**.
+   Your Ledger device will show **Processing** and once the installation is complete, the app will appear on your Ledger device
 
 In the Ledger Live app, you should see the Ethereum app listed under the **Apps installed** tab on the **Manager** page.
 After the app has been successfully installed, you can close out of Ledger Live.

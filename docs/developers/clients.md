@@ -10,29 +10,26 @@ The Evmos supports different clients in order to support Cosmos and Ethereum tra
 and queries:
 
 |                                                        | Description                                                                          | Default Port |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------ |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------|--------------|
 | **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |
 | **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
 | **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
-| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.
-                   | `8586`       |
-| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.
-                   | `26657`      |
-| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.
-           | `26657`      |
-| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.
-                    | N/A          |
+| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
+| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `26657`      |
+| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657`      |
+| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.                     | N/A          |
 
 ## Cosmos gRPC
 
-Evmos exposes gRPC endpoints for all the integrated Cosmos SDK modules. This makes it easier for
-wallets and block explorers to interact with the Proof-of-Stake logic and native Cosmos transactions and queries.
+Evmos exposes gRPC endpoints for all the integrated Cosmos SDK modules.
+This makes it easier for wallets and block explorers to interact with the Proof-of-Stake logic
+and native Cosmos transactions and queries.
 
 ### Cosmos gRPC-Gateway (HTTP REST)
 
-[gRPC-Gateway](https://grpc-ecosystem.github.io/grpc-gateway/) reads a gRPC service definition and
-generates a reverse-proxy server which translates RESTful JSON API into gRPC. With gRPC-Gateway,
-users can use REST to interact with the Cosmos gRPC service.
+[gRPC-Gateway](https://grpc-ecosystem.github.io/grpc-gateway/) reads a gRPC service definition
+and generates a reverse-proxy server which translates RESTful JSON API into gRPC.
+With gRPC-Gateway, users can use REST to interact with the Cosmos gRPC service.
 
 See the list of supported gRPC-Gateway API endpoints for the Evmos testnet [here](https://api.evmos.dev/).
 
@@ -66,7 +63,8 @@ ws ws://localhost:8546/
 Tendermint Core provides a Websocket connection to subscribe or unsubscribe to Tendermint ABCI events.
 
 ::: tip
-For more info about how to subscribe to events, please refer to the official [Tendermint documentation](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
+For more info about how to subscribe to events, please refer to the official
+[Tendermint documentation](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
 :::
 
 ```json
@@ -90,14 +88,15 @@ The main events you can subscribe to are:
 
 ::: tip
 <!-- markdown-link-check-disable-next-line -->
-👉 The list of events types and values for each Cosmos SDK module can be found in the [Modules Specification](./../modules/README.md) section.
+👉 The list of events types and values for each Cosmos SDK module
+can be found in the [Modules Specification](./../modules/README.md) section.
 Check the `Events` page to obtain the event list of each supported module on Evmos.
 :::
 
 List of all Tendermint event keys:
 
 |                                                      | Event Type       | Categories  |
-| ---------------------------------------------------- | ---------------- | ----------- |
+|------------------------------------------------------|------------------|-------------|
 | Subscribe to a specific event                        | `"tm.event"`     | `block`     |
 | Subscribe to a specific transaction                  | `"tx.hash"`      | `block`     |
 | Subscribe to transactions at a specific block height | `"tx.height"`    | `block`     |
@@ -108,7 +107,7 @@ List of all Tendermint event keys:
 Below is a list of values that you can use to subscribe for the `tm.event` type:
 
 |                        | Event Value             | Categories  |
-| ---------------------- | ----------------------- | ----------- |
+|------------------------|-------------------------|-------------|
 | New block              | `"NewBlock"`            | `block`     |
 | New block header       | `"NewBlockHeader"`      | `block`     |
 | New Byzantine Evidence | `"NewEvidence"`         | `block`     |
@@ -230,7 +229,8 @@ Look for a publicly available addresses for testnet and mainnet in the [Quick Co
       slashing                 Querying commands for the slashing module
       staking                  Querying commands for the staking module
       tendermint-validator-set Get the full tendermint validator set at given height
-      tx                       Query for a transaction by hash, "<addr>/<seq>" combination or comma-separated signatures in a committed block
+      tx                       Query for a transaction by hash, "<addr>/<seq>" combination
+                               or comma-separated signatures in a committed block
       txs                      Query for paginated transactions that match a set of events
       upgrade                  Querying commands for the upgrade module
       vesting                  Querying commands for the vesting module

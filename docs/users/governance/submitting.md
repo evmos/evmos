@@ -7,12 +7,12 @@ order: 4
 If you have a final draft of your proposal ready to submit, you may want to push your proposal live on the testnet first.
 These are the three primary steps to getting your proposal live on-chain.
 
-1.
-(**Optional**) [Hosting supplementary materials](#hosting-supplementary-materials) for your proposal with IPFS (InterPlanetary File System)
-2.
-[Formatting the JSON file](#formatting-the-json-file-for-the-governance-proposal) for the governance proposal transaction that will be on-chain
-3.
-[Sending the transaction](#sending-the-transaction-that-submits-your-governance-proposal) that submits your governance proposal on-chain
+1. (**Optional**) [Hosting supplementary materials](#hosting-supplementary-materials)
+   for your proposal with IPFS (InterPlanetary File System)
+2. [Formatting the JSON file](#formatting-the-json-file-for-the-governance-proposal)
+   for the governance proposal transaction that will be on-chain
+3. [Sending the transaction](#sending-the-transaction-that-submits-your-governance-proposal)
+   that submits your governance proposal on-chain
 
 ## Hosting supplementary materials
 
@@ -71,12 +71,10 @@ Aside from having a record of the proposal outcome on the Evmos chain, a text pr
 For community pool spend proposals, there are five components:
 
 1. **Title** - the distinguishing name of the proposal, typically the way the that explorers list proposals
-2.
-**Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
+2. **Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
 3. **Recipient** - the Evmos (bech32-based) address that will receive funding from the Community Pool
 4. **Amount** - the amount of funding that the recipient will receive in atto-EVMOS (`aevmos`)
-5.
-**Deposit** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
+5. **Deposit** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
 
 #### Made-Up Example
 
@@ -96,8 +94,7 @@ Deposit amounts will also be burned if the quorum isn't met in the vote or the p
 ```json
 {
   "title": "Community Pool Spend",
-  "description": "This is the summary of the key information about this proposal.
-Include the URL to a PDF version of your full proposal.",
+  "description": "This is the summary of the key information about this proposal. Include the URL to a PDF version of your full proposal.",
   "recipient": "evmos1mx9nqk5agvlsvt2yc8259nwztmxq7zjq50mxkp",
   "amount": [
     {
@@ -112,7 +109,9 @@ Include the URL to a PDF version of your full proposal.",
 
 #### Real Example
 
-This is a governance protocol which [Flux Protocol](https://www.fluxprotocol.org/), the provider of a cross-chain oracle which provides smart contracts with access to economically secure data feeds, submitted to cover costs of the subsidizied FPO (First Party Oracle) solution which they deployed on the Evmos mainnet.
+This is a governance protocol which [Flux Protocol](https://www.fluxprotocol.org/),
+the provider of a cross-chain oracle which provides smart contracts with access to economically secure data feeds,
+submitted to cover costs of the subsidised FPO (First Party Oracle) solution which they deployed on the Evmos mainnet.
 
 Users can query the proposal details with the `evmosd` command-line interface using this command:
 
@@ -138,29 +137,35 @@ Users can query the proposal details with the `evmosd` command-line interface us
 ### Params-Change Proposals
 
 ::: tip
-Changes to the [`gov` module](./overview.md) are different from the other kinds of parameter changes because `gov` has subkeys, [as discussed here](https://github.com/cosmos/cosmos-sdk/issues/5800).
+Changes to the [`gov` module](./overview.md) are different from the other kinds of parameter changes
+because `gov` has subkeys, [as discussed here](https://github.com/cosmos/cosmos-sdk/issues/5800).
 Only the `key` part of the JSON file is different for `gov` parameter-change proposals.
 :::
 
 For parameter-change proposals, there are seven components:
 
 1. **Title** - the distinguishing name of the proposal, typically the way the that explorers list proposals
-2.
-**Description** - the body of the proposal that further describes what is being proposed and details surrounding the proposal
+2. **Description** - the body of the proposal that further describes what is being proposed
+   and details surrounding the proposal
 3. **Subspace** - the Evmos module with the parameter that is being changed
 4. **Key** - the parameter that will be changed
 5. **Value** - the value of the parameter that will be changed by the governance mechanism
 6. **Denom** - `aevmos` (atto-EVMOS) will be the type of asset used as the deposit
-7.
-**Amount** - the amount that will be contributed to the deposit (in `aevmos`) from the account submitting the proposal
+7. **Amount** - the amount that will be contributed to the deposit (in `aevmos`)
+   from the account submitting the proposal
 
 #### Real Example
 
-In the example below, a network explorer listed the governance proposal by its title: "Increase the minimum deposit for governance proposals." When a user selects the proposal, they'll see the proposal’s description.
-This proposal can be [found on the Evmos network here](https://commonwealth.im/evmos/proposal/7-increase-the-minimum-deposit-for-governance-proposals).
+In the example below, a network explorer listed the governance proposal by its title:
+"Increase the minimum deposit for governance proposals."
+When a user selects the proposal, they'll see the proposal’s description.
+This proposal can be found on the Evmos network
+[here](https://commonwealth.im/evmos/proposal/7-increase-the-minimum-deposit-for-governance-proposals).
 
-Not all explorers will show the proposed parameter changes that are coded into the proposal, so the delegator should verify that the description aligns with what the governance proposal is programmed to enact.
-If the description says that a certain parameter will be increased, it should also be programmed to do that, but it's possible that that's not the case (accidentally or otherwise).
+Not all explorers will show the proposed parameter changes that are coded into the proposal,
+so the delegator should verify that the description aligns with what the governance proposal is programmed to enact.
+If the description says that a certain parameter will be increased, it should also be programmed to do that,
+but it's possible that that's not the case (accidentally or otherwise).
 
 Users can query the proposal details with the evmosd command-line interface using this command:
 
@@ -215,19 +220,17 @@ Use the `evmos tx gov --help` flag to get more info about the governance command
 :::
 
 1. `evmosd` is the command-line interface client that is used to send transactions and query Evmos
-2.
-`tx gov submit-legacy-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
+2. `tx gov submit-legacy-proposal param-change` indicates that the transaction is submitting a parameter-change proposal
 3. `--from dev0` is the account key that pays the transaction fee and deposit amount
 4. `--gas 500000` is the maximum amount of gas permitted to be used to process the transaction
    - the more content there is in the description of your proposal, the more gas your transaction will consume
    - if this number isn't high enough and there isn't enough gas to process your transaction, the transaction will fail
    - the transaction will only use the amount of gas needed to process the transaction
 5. `--gas-prices` is the flat-rate per unit of gas value for a validator to process your transaction
-6.
-`--chain-id evmos_9001-2` is Evmos Mainnet.
-For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
+6. `--chain-id evmos_9001-2` is Evmos Mainnet.
+   For current and past chain-id's, please look at the [Chain ID](./../technical_concepts/chain_id.md) documentation.
    - the testnet chain ID is [evmos_9000-4](https://testnet.mintscan.io/evmos).
-For current and past testnet information, please look at the [testnet repository](https://github.com/evmos/testnets)
+   For current and past testnet information, please look at the [testnet repository](https://github.com/evmos/testnets)
 7. `--node` is using a full node to send the transaction to the Evmos Mainnet
 
 ### Verifying your transaction

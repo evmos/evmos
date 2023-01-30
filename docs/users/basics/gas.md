@@ -151,8 +151,8 @@ This will be used for the next block’s `BaseFee`.
 4. For each valid transaction that will be included in this block, nodes perform the following:
     * They run an `AnteHandler` corresponding to the transaction type. This process:
         1. Performs basic transaction validation
-        2.
-Verifies the fees provided are greater than the global and local minimum validator values *and* greater than the `BaseFee` calculated
+        2. Verifies the fees provided are greater than the global and local minimum validator values
+           *and* greater than the `BaseFee` calculated
         3. (For Ethereum transactions) Preemptively consumes gas for the EVM transaction
         4. Deducts the transaction fees from the user and transfers them to the `fee_collector` module
         5. Increments the `TransientGasWanted` in the current block, to be used to calculate the next block’s `BaseFee`
