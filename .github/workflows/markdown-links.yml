@@ -13,13 +13,7 @@ jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            **.md
-            !docs/protocol/proto-docs.md
+      - uses: actions/checkout@v3
       - uses: gaurav-nelson/github-action-markdown-link-check@master
         with:
           folder-path: "docs"

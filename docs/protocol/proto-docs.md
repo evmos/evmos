@@ -1,4 +1,5 @@
 <!-- This file is auto-generated. Please do not modify it yourself. -->
+<!-- markdown-link-check-disable -->
 # Protobuf Documentation
 <a name="top"></a>
 
@@ -2412,3 +2413,4 @@ More efficient than uint64 if values are often greater than 2^56.
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes.
 | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
 
+<!-- markdown-link-check-enable -->
