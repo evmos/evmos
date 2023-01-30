@@ -11,7 +11,7 @@ and queries:
 
 |                                                        | Description                                                                          | Default Port |
 |--------------------------------------------------------|--------------------------------------------------------------------------------------|--------------|
-| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |
+| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |<!-- markdown-link-check-disable-next-line -->
 | **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
 | **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
 | **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
@@ -25,7 +25,7 @@ Evmos exposes gRPC endpoints for all the integrated Cosmos SDK modules.
 This makes it easier for wallets and block explorers to interact with the Proof-of-Stake logic
 and native Cosmos transactions and queries.
 
-### Cosmos gRPC-Gateway (HTTP REST)
+### <span id="cosmos-grpc-gateway">Cosmos gRPC-Gateway (HTTP REST)</span>
 
 [gRPC-Gateway](https://grpc-ecosystem.github.io/grpc-gateway/) reads a gRPC service definition
 and generates a reverse-proxy server which translates RESTful JSON API into gRPC.
@@ -89,8 +89,7 @@ The main events you can subscribe to are:
 - `ValidatorSetUpdates`: Contains validator set updates for the block.
 
 ::: tip
-<!-- markdown-link-check-disable-next-line -->
-👉 The list of events types and values for each Cosmos SDK module
+👉 The list of events types and values for each Cosmos SDK module <!-- markdown-link-check-disable-next-line -->
 can be found in the [Modules Specification](./../modules/README.md) section.
 Check the `Events` page to obtain the event list of each supported module on Evmos.
 :::

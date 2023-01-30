@@ -7,7 +7,7 @@ order: 6
 Use this guide to learn how to set up and use the Geth JS console with an Evmos node. {synopsis}
 
 Go-ethereum responds to instructions encoded as JSON objects as defined in the
-[JSON-RPC-API](https://geth.ethereum.org/docs/rpc/server).
+[JSON-RPC-API](https://geth.ethereum.org/docs/interacting-with-geth/rpc).
 To perform and test these instructions, developers can use tools like curl.
 However, this is a low level and rather error-prone way to interact with the node.
 Most developers prefer to use convenient libraries that abstract away
@@ -21,13 +21,13 @@ You can use this powerful tool to interact with an Evmos node too!
 
 ## Pre-requisite Readings
 
-- [Go-ethereum CLI](https://geth.ethereum.org/docs/interface/javascript-console) {prereq}
+- [Go-ethereum CLI](https://geth.ethereum.org/docs/interacting-with-geth/javascript-console) {prereq}
 - [Evmos (local) node](https://docs.evmos.org/developers/localnet/single_node.html) {prereq}
 
 ### Installing Go-Ethereum
 
 Install the Go-ethereum CLI (`geth`) following the procedure
-corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/install-and-build/installing-geth).
+corresponding to your OS in the [geth docs](https://geth.ethereum.org/docs/getting-started/installing-geth).
 This will include the Javascript console.
 
 Check that the installation was successful by running the following command:

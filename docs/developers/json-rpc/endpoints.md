@@ -9,7 +9,7 @@ Check the JSON-RPC methods supported on Evmos. {synopsis}
 ## Pre-requisite Readings
 
 - [Ethereum JSON-RPC](https://eth.wiki/json-rpc/API) {prereq}
-- [Geth JSON-RPC APIs](https://geth.ethereum.org/docs/rpc/server) {prereq}
+- [Geth JSON-RPC APIs](https://geth.ethereum.org/docs/interacting-with-geth/rpc) {prereq}
 
 ## Endpoints
 <!-- markdown-link-check-disable -->
@@ -977,8 +977,7 @@ The unencrypted key will be held in memory until the unlock duration expires.
 If the unlock duration defaults to 300 seconds.
 An explicit duration of zero seconds unlocks the key until geth exits.
 
-<!-- markdown-link-check-disable-next-line -->
-The account can be used with [`eth_sign`](#eth-sign)
+The account can be used with [`eth_sign`](#eth-sign) <!-- markdown-link-check-disable-next-line -->
 and [`eth_sendTransaction`](#eth-sendtransaction) while it is unlocked.
 
 #### Parameters
@@ -1066,8 +1065,7 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"personal_sign","params":["0xdead
 **Private**: Requires authentication.
 :::
 
-<!-- markdown-link-check-disable-next-line -->
-`ecRecover` returns the address associated with the private key
+`ecRecover` returns the address associated with the private key <!-- markdown-link-check-disable-next-line -->
 that was used to calculate the signature in [`personal_sign`](#personal-sign).
 
 #### Parameters

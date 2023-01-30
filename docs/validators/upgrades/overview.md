@@ -31,7 +31,7 @@ as it automatically handles the state migration for the new release.
 ### Governance Proposal
 
 Governance Proposals are a mechanism for coordinating an upgrade at a given height or time
-using an [`SoftwareProposal`](https://docs.evmos.org/modules/upgrade/01_concepts.html#proposal).
+using an [`SoftwareProposal`](https://docs.evmos.org/modules/upgrade/#concepts).
 
 ::: tip
 All governance proposals, including software upgrades, need to wait for the voting period

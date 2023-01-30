@@ -8,7 +8,7 @@ Check the JSON-RPC namespaces supported on Evmos. {synopsis}
 
 ## Pre-requisite Readings
 
-- [Geth JSON-RPC Namespaces](https://geth.ethereum.org/docs/rpc/server) {prereq}
+- [Geth JSON-RPC Namespaces](https://geth.ethereum.org/docs/interacting-with-geth/rpc) {prereq}
 
 ## Ethereum Namespaces
 

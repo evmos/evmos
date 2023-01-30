@@ -91,8 +91,7 @@ Install the theme and all dependencies.
 yarn run serve
 ```
 
-<!-- markdown-link-check-disable-next-line -->
-Run `pre` and `post` hooks and start a hot-reloading web-server.
+Run `pre` and `post` hooks and start a hot-reloading web-server. <!-- markdown-link-check-disable-next-line -->
 See output of this command for the URL (it is often [https://localhost:8080](https://localhost:8080)).
 
 To build documentation as a static website run `yarn run build`.

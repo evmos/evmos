@@ -9,7 +9,7 @@ Learn how to trace transactions and blocks on Evmos. {synopsis}
 This guide will cover the following topics:
 
 - [basic EVM tracing with JS](#basic-evm-tracing-with-js)
-- [filtered EVM tracing with JS](#filtered-evm-tracing-with-js)
+- [filtered EVM tracing with JS](#filtered-evm-tracing-with-js) <!-- markdown-link-check-disable-next-line -->
 - [JSON-RPC `debug_trace*` endpoints](#json-rpc-debugtrace-endpoints)
 
 ## Basic EVM Tracing with JS
@@ -113,7 +113,7 @@ which can be obtained by specifying a JavaScript filter.
 :::warning
 **Note**: `debug.traceTransaction` must be invoked from within the [Geth](https://geth.ethereum.org/) console,
 although it can be invoked from outside the node using JSON-RPC (eg.
-using Curl), as seen in the [following section](#debugtrace-endpoints).
+using Curl), as seen in the [following section](#json-rpc-debugtrace-endpoints).
 If developers want to use `debug.traceTransaction` as it is used here, maintenance of a node is required,
 so see [this document](../../validators/quickstart/run_node.md).
 :::
@@ -133,7 +133,7 @@ so see [this document](../../validators/quickstart/run_node.md).
   }   // tracer = function ...
   ```
 
-2. Run the [JavaScript console](https://geth.ethereum.org/docs/interface/javascript-console).
+2. Run the [JavaScript console](https://geth.ethereum.org/docs/interacting-with-geth/javascript-console).
 
 3. Get a hash of a recent transaction.
 
@@ -287,12 +287,12 @@ There are several other facets of filtered EVM tracing, including:
 - accessing memory
 - using the `db` parameter to know the state of the chain at the time of execution
 
-This information is covered in [this reference](https://geth.ethereum.org/docs/rpc/ns-debug#javascript-based-tracing).
+This information is covered in [this reference](https://geth.ethereum.org/docs/developers/evm-tracing/custom-tracer#custom-javascript-tracing).
 
-## JSON-RPC `debug_trace*` Endpoints
+## <span id="json-rpc-debugtrace-endpoints">JSON-RPC `debug_trace*` Endpoints</span>
 
 Evmos supports the following `debug_trace*` JSON-RPC Methods,
-which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/rpc/ns-debug).
+which follow [Geth's debug API guidelines](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug).
 
 ### `debug_traceTransaction`
 
@@ -352,5 +352,5 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"debug_traceBlockByNumber","param
 See the sources below for details not covered above:
 
 - [JSON-RPC Methods on Evmos](../json-rpc/endpoints.md)
-- [Basic EVM Tracing](https://geth.ethereum.org/docs/dapp/tracing)
+- [Basic EVM Tracing](https://geth.ethereum.org/docs/developers/evm-tracing)
 - [Filtered EVM Tracing](https://web.archive.org/web/20211215184312/https://geth.ethereum.org/docs/dapp/tracing-filtered)

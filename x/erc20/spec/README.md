@@ -9,8 +9,8 @@ parent:
 
 ::: tip
 **Note:** Working on a governance proposal related to the ERC-20 Module?
-Make sure to look at [Evmos Governance](../../validators/governance/overview.md),
-and specifically the [best practices](../../validators/governance/best_practices#erc-20-proposal).
+Make sure to look at [Evmos Governance](../../../docs/users/governance/overview.md),
+and specifically the [best practices](../../../docs/users/governance/best_practices#erc-20-proposal).
 :::
 
 ## Abstract
@@ -33,8 +33,8 @@ Why is this important? Cosmos and the EVM are two runtimes that are not compatib
 The native Cosmos Coins cannot be used in applications that require the ERC-20 standard.
 Cosmos coins are held on the `x/bank` module (with access to module methods like querying the supply or balances)
 and ERC-20 Tokens live on smart contracts.
-This problem is similar to [wETH](https://weth.io/), with the difference,
-that it not only applies to gas tokens (like $EVMOS),
+This problem is similar to [wETH](https://coinmarketcap.com/alexandria/article/what-is-wrapped-ethereum-weth),
+with the difference, that it not only applies to gas tokens (like $EVMOS),
 but to all Cosmos Coins (IBC vouchers, staking and gov coins, etc.) as well.
 
 With the `x/erc20` users on Evmos can

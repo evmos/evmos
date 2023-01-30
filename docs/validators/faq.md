@@ -10,7 +10,7 @@ Check the FAQ for running a validator on Evmos {synopsis}
 
 ### What is a validator?
 
-Evmos is powered by [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) Core,
+Evmos is powered by [Tendermint](https://docs.tendermint.com/main/introduction/what-is-tendermint.html) Core,
 which relies on a set of validators to secure the network.
 Validators run a full node and participate in consensus by broadcasting votes
 which contain cryptographic signatures signed by their private key.

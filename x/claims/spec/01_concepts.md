@@ -79,7 +79,7 @@ All users that have an address with a corresponding `ClaimRecord` are eligible t
 
 ## Claiming Process
 
-As described in the [Action](#action) section, a user must submit transactions
+As described in the [Actions](#actions) section, a user must submit transactions
 to receive the allocated tokens from the airdrop.
 However, since Evmos only supports Ethereum keys and not default Tendermint keys,
 this process differs for Ethereum and Cosmos eligible users.

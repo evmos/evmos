@@ -6,7 +6,7 @@ order: 2
 
 ## Pre-requisite Readings
 
-- [Install Ignite CLI](https://docs.ignite.com/guide/install.html)  {prereq}
+- [Install Ignite CLI](https://docs.ignite.com/welcome/install)  {prereq}
 - [Install Docker](https://docs.docker.com/engine/installation/)  {prereq}
 - [Install docker-compose](https://docs.docker.com/compose/install/)  {prereq}
 
@@ -18,7 +18,7 @@ Once you have installed `ignite`, just run the localnet by using
 ignite chain serve 
 ```
 
-Detailed instructions can be found in the [Ignite CLI documentation](https://docs.ignite.com/kb/serve.html)
+Detailed instructions can be found in the [Ignite CLI documentation](https://docs.ignite.com/references/cli#ignite-chain-serve)
 
 ## Automated Localnet with Docker
 

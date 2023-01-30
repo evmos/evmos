@@ -23,10 +23,9 @@ and finally restart the node with the new binary.
 [here](https://docs.cosmos.network/main/tooling/cosmovisor).
 :::
 
-<!-- markdown-link-check-disable-next-line -->
 We highly recommend validators use Cosmovisor to run their nodes.
 This will make low-downtime upgrades smoother,
-as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade.
+as validators don't have to [manually upgrade](./manual.md) binaries during the upgrade. <!-- markdown-link-check-disable-next-line -->
 Instead users can [pre-install](#manual-download) new binaries,
 and Cosmovisor will automatically update them based on on-chain Software Upgrade proposals.
 
