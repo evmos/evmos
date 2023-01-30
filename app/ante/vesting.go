@@ -17,11 +17,12 @@
 package ante
 
 import (
+	"math/big"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -57,7 +58,7 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	totalSpendByAddress := make(map[string]sdk.Coin)
+	totalSpendByAddress := make(map[string]*big.Int)
 	evmDenom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
@@ -72,6 +73,16 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		if acc == nil {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
 				"account %s does not exist", acc)
+		}
+
+		address := acc.GetAddress()
+		balance := vtd.bk.GetBalance(ctx, address, evmDenom)
+		// Short-circuit if the balance is zero, since we require a non-zero balance to cover
+		// cover gas fees at a minimum (these are defined to be non-zero). Note that this check
+		// should be removed if the BaseFee definition is changed such that it can be zero.
+		if balance.IsZero() {
+			return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
+				"account has no balance to execute transaction: %s", address.String())
 		}
 
 		// Check that this decorator only applies to clawback vesting accounts
@@ -93,29 +104,28 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// Check to make sure that the account does not exceed its spendable balances.
 		// This transaction would fail in processing, so we should prevent it from
 		// moving past the AnteHandler.
-		msgValue := sdk.NewCoin(evmDenom, math.NewIntFromBigInt(msgEthTx.AsTransaction().Value()))
-		address := acc.GetAddress()
+		msgValue := msgEthTx.AsTransaction().Value()
 
 		// Since there can be multiple transactions from different accounts, we track each account's total
 		// spend to compare against its unlocked balances.
 		totalSpend, ok := totalSpendByAddress[address.String()]
 		if !ok {
 			totalSpend = msgValue
+			totalSpendByAddress[address.String()] = totalSpend
 		} else {
-			totalSpend = totalSpend.Add(msgValue)
+			totalSpend.Add(totalSpend, msgValue)
 		}
-		totalSpendByAddress[address.String()] = totalSpend
 
 		// Check that the clawbackAccount has sufficient unlocked tokens to cover all requested spending.
 		// lockedBalance defaults to zero if not found.
 		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
 
-		spendableBalance, err := vtd.bk.GetBalance(ctx, address, evmDenom).SafeSub(lockedBalance)
+		var spendableBalance, err = balance.SafeSub(lockedBalance)
 		if err != nil {
 			spendableBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
 		}
 
-		if totalSpend.Amount.GT(spendableBalance.Amount) {
+		if totalSpend.Cmp(spendableBalance.Amount.BigInt()) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
 				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableBalance, totalSpend,
 			)

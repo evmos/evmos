@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"math/big"
+	"strings"
 	"time"
 
 	"cosmossdk.io/math"
@@ -429,6 +430,22 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			err = deliverEthTxs(nil, msg)
 			Expect(err).ToNot(BeNil())
+		})
+
+		It("should short-circuit with zero balance", func() {
+			address, privKey := createAddressKey()
+			// Fund a normal account to create it in state
+			balance := vestingAmtTotal
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, balance)
+			Expect(err).To(BeNil())
+
+			// Drain account balance
+			s.app.BankKeeper.SendCoins(s.ctx, address, dest, balance)
+
+			msg := createEthTx(privKey, address, dest, big.NewInt(0), 0)
+			err = validateAnteForEthTxs(msg)
+			Expect(err).ToNot(BeNil())
+			Expect(strings.Contains(err.Error(), "no balance")).To(BeTrue())
 		})
 	})
 
