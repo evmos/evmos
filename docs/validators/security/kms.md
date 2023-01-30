@@ -6,7 +6,8 @@ order: 2
 
 Set up a Key Management System for Evmos {synopsis}
 
-[Tendermint KMS](https://github.com/iqlusioninc/tmkms) is a Key Management Service (KMS) that allows separating key management from Tendermint nodes.
+[Tendermint KMS](https://github.com/iqlusioninc/tmkms) is a Key Management Service (KMS)
+that allows separating key management from Tendermint nodes.
 In addition it provides other advantages such as:
 
 - Improved security and risk management policies
@@ -67,7 +68,8 @@ gh repo clone iqlusioninc/tmkms && cd tmkms
 cargo build --release --features=ledger
 ```
 
-Alternatively, substitute `--features=yubihsm` to enable [YubiHSM](https://www.yubico.com/products/hardware-security-module/) support.
+Alternatively, substitute `--features=yubihsm`
+to enable [YubiHSM](https://www.yubico.com/products/hardware-security-module/) support.
 
 If successful, it will produce the `tmkms` executable located at: `./target/release/tmkms`.
 
@@ -77,7 +79,8 @@ A KMS can be configured using the following HSMs
 
 ### YubiHSM
   
-Detailed information on how to setup a KMS with [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/) can be found [here](https://github.com/iqlusioninc/tmkms/blob/master/README.yubihsm.md).
+Detailed information on how to setup a KMS with [YubiHSM 2](https://www.yubico.com/products/hardware-security-module/)
+can be found [here](https://github.com/iqlusioninc/tmkms/blob/master/README.yubihsm.md).
 
 ### Ledger Tendermint app
 

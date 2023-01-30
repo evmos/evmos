@@ -36,7 +36,7 @@ or [Immunefi’s Vulnerability Severity Classification System v2.2](https://immu
 
     1. Two people from the affected project will review, replicate and acknowledge the report
        within 48-96 hours of the alert according to the table below:
-   
+
         | Security Level       | Hours to First Response (ACK) from Escalation |
         | -------------------- | --------------------------------------------- |
         | Critical             | 48                                            |
@@ -48,7 +48,7 @@ or [Immunefi’s Vulnerability Severity Classification System v2.2](https://immu
     2. If the report is not applicable or reproducible,
        the Security Lead (or Security Secondary) will revert to the reporter to request more info or close the report.
     3. The report is confirmed by the Security Lead to the reporter.
-   
+
 2. The team determines the vulnerability’s potential impact on Evmos.
 
     1. Vulnerabilities with `Informational` and `Low` categorization will result in creating a public issue.
@@ -60,7 +60,8 @@ Once the vulnerability severity is defined, the following steps apply:
 
 - For `High` and `Critical`:
     1. Patches are prepared for supported releases of Evmos in a
-       [temporary private fork](https://docs.github.com/en/code-security/repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability) of the repository.
+       [temporary private fork](https://docs.github.com/en/code-security/repository-security-advisories/collaborating-in-a-temporary-private-fork-to-resolve-a-repository-security-vulnerability)
+       of the repository.
     2. Only relevant parties will be notified about an upcoming upgrade.
        These being validators, the core developer team, and users directly affected by the vulnerability.
     3. 24 hours following this notification, relevant releases with the patch will be made public.

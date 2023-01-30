@@ -86,7 +86,8 @@ For more information about the Keyring and its backend options, click [here](./.
 
 ## Enable Tracing
 
- To enable tracing when running the node, modify the last line of the `local_node.sh` script to be the following command, where:
+ To enable tracing when running the node,
+ modify the last line of the `local_node.sh` script to be the following command, where:
 
 - `$TRACER` is the EVM tracer type to collect execution traces from the EVM transaction execution (eg.
 `json|struct|access_list|markdown`)
@@ -100,7 +101,8 @@ evmosd start --evm.tracer $TRACER --tracestore $TRACESTORE --pruning=nothing $TR
 
 ### Reset Data
 
-Alternatively, you can **reset** the blockchain database, remove the node's address book files, and reset the `priv_validator.json` to the genesis state.
+Alternatively, you can **reset** the blockchain database, remove the node's address book files,
+and reset the `priv_validator.json` to the genesis state.
 
 ::: danger
 If you are running a **validator node**, always be careful when doing `evmosd unsafe-reset-all`.
@@ -121,18 +123,22 @@ evmosd tendermint unsafe-reset-all --home $HOME/.evmosd
 ```
 
 Your node is now in a pristine state while keeping the original `priv_validator.json` and `config.toml`.
-If you had any sentry nodes or full nodes setup before, your node will still try to connect to them, but may fail if they haven't also been upgraded.
+If you had any sentry nodes or full nodes setup before,
+your node will still try to connect to them,
+but may fail if they haven't also been upgraded.
 
 ### Delete Data
 
-Data for the {{ $themeConfig.project.binary }} binary should be stored at `~/.{{ $themeConfig.project.binary }}`, respectively by default.
+Data for the {{ $themeConfig.project.binary }} binary should be stored at `~/.{{ $themeConfig.project.binary }}`,
+respectively by default.
 To **delete** the existing binaries and configuration, run:
 
 ```bash
 rm -rf ~/.evmosd
 ```
 
-To clear all data except key storage (if keyring backend chosen) and then you can rerun the full node installation commands from above to start the node again.
+To clear all data except key storage (if keyring backend chosen)
+and then you can rerun the full node installation commands from above to start the node again.
 
 ## Recording Transactions Per Second (TPS)
 
@@ -164,7 +170,8 @@ prometheus --config.file=prom_config.yaml
 ```
 
 <!-- markdown-link-check-disable-next-line -->
-and then visit the Prometheus dashboard at http://localhost:9090/ then navigate to the expression area and enter the following expression
+and then visit the Prometheus dashboard at http://localhost:9090/
+then navigate to the expression area and enter the following expression
 
 ```shell
 rate(evmosd_transactions_processed[1m])

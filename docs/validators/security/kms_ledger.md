@@ -18,7 +18,8 @@ Set up Tendermint KMS with the Tendermint Ledger app {synopsis}
 You should consider and research more about the [security implications](./security.md) of activating an external KMS.
 :::
 
-- ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x) or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
+- ✅ Ledger [Nano X](https://shop.ledger.com/pages/ledger-nano-x)
+  or [Nano S](https://shop.ledger.com/products/ledger-nano-s) device (compare [here](https://shop.ledger.com/pages/hardware-wallets-comparison))
 - ✅ [Ledger Live](https://www.ledger.com/ledger-live) installed
 - ✅ Tendermint app installed (only in `Developer Mode`)
 - ✅ Latest Versions (Firmware and Tendermint app)
@@ -61,7 +62,8 @@ You can find other configuration examples [here](https://github.com/iqlusioninc/
 
 - Edit `addr` to point to your `evmosd` instance.
 - Adjust `chain-id` to match your `.evmosd/config/config.toml` settings.
-- `provider.ledger` has not additional parameters at the moment, however, it is important that you keep that header to enable the feature.
+- `provider.ledger` has not additional parameters at the moment,
+however, it is important that you keep that header to enable the feature.
 
 *Plug your Ledger device and open the Tendermint validator app.*
 

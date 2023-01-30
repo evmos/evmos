@@ -28,7 +28,8 @@ make install
 ```
 
 ::: tip
-If you have issues at this step, please check that you have the latest stable version of [Golang](https://golang.org/dl/) installed.
+If you have issues at this step,
+please check that you have the latest stable version of [Golang](https://golang.org/dl/) installed.
 :::
 
 Verify that you've successfully installed Evmos on your system by using the `version` command:

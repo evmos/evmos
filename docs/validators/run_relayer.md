@@ -21,7 +21,9 @@ Follow [this guide](quickstart/run_node.md) to set up an Evmos node if you have 
 <!-- textlint-enable -->
 
 In this guide, we will be relaying between [Evmos (channel-3) and Cosmos Hub (channel-292)](https://www.mintscan.io/evmos/relayers).
-When setting up your Evmos and Cosmos full nodes, be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains (this process will be shown below).
+When setting up your Evmos and Cosmos full nodes,
+be sure to offset the ports being used in both the `app.toml` and `config.toml` files of the respective chains
+(this process will be shown below).
 
 <!-- textlint-disable -->
 In this example, the default ports for Evmos will be used, and the ports of the Cosmos Hub node will be manually changed.
@@ -45,7 +47,8 @@ enable = true
 address = "0.0.0.0:9090"
 ```
 
-Then, set the `pprof_laddr` to port `6060`, `rpc laddr` to port `26657`, and `prp laddr` to `26656` in the `config.toml` file from the `$HOME/.evmosd/config` directory:
+Then, set the `pprof_laddr` to port `6060`, `rpc laddr` to port `26657`, and `prp laddr` to `26656` in the `config.toml`
+file from the `$HOME/.evmosd/config` directory:
 
 ```bash
 vim $HOME/.evmosd/config/config.toml
@@ -88,7 +91,8 @@ enable = true
 address = "0.0.0.0:9092"
 ```
 
-Then, set the `pprof_laddr` to port `6062`, `rpc laddr` to port `26757`, and `prp laddr` to `26756` in the `config.toml` file from the `$HOME/.gaiad/config` directory:
+Then, set the `pprof_laddr` to port `6062`, `rpc laddr` to port `26757`, and `prp laddr` to `26756` in the `config.toml`
+file from the `$HOME/.gaiad/config` directory:
 
 ```bash
 vim $HOME/.gaiad/config/app.toml
@@ -132,7 +136,9 @@ sudo apt install librust-openssl-dev build-essential git
 
 ## Build & Setup Hermes
 
-Create the directory where the binary will be placed, clone the hermes source repository, and build it using the latest release.
+Create the directory where the binary will be placed,
+clone the hermes source repository,
+and build it using the latest release.
 
 ```bash
 mkdir -p $HOME/hermes
@@ -158,7 +164,8 @@ INFO ThreadId(01) using default configuration from '/home/relay/.hermes/config.t
 hermes 0.12.0
 ```
 
-Edit the hermes configuration (use ports according the port configuration set above, adding only chains that will be relayed):
+Edit the hermes configuration (use ports according the port configuration set above,
+adding only chains that will be relayed):
 
 ```bash
 vim $HOME/.hermes/config/config.toml
@@ -262,7 +269,9 @@ hermes clear packets cosmoshub-4 transfer channel-292
 hermes clear packets evmos_9001-2 transfer channel-3
 ```
 
-Clear unrecieved packets manually (experimental, will need to stop hermes daemon to prevent confusion with account sequences) with the following:
+Clear unrecieved packets manually
+(experimental, will need to stop hermes daemon to prevent confusion with account sequences)
+with the following:
 
 ```bash
 hermes tx raw packet-recv evmos_9001-2 cosmoshub-4 transfer channel-292

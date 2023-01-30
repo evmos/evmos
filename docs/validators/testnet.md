@@ -20,7 +20,8 @@ If you need more information about past networks, check our [testnets repo](http
 
 ## Install `evmosd`
 
-Follow the [installation](./quickstart/installation.md) document to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
+Follow the [installation](./quickstart/installation.md) document
+to install the {{ $themeConfig.project.name }} binary `{{ $themeConfig.project.binary }}`.
 
 :::warning
 Make sure you have the right version of `{{ $themeConfig.project.binary }}` installed.
@@ -58,7 +59,8 @@ In the `config` directory, the most important files for configuration are `app.t
 
 ### Copy the Genesis File
 
-Check the `genesis.json` file from the [`archive`](https://archive.evmos.dev/evmos_9000-4/genesis.json) and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
+Check the `genesis.json` file from the [`archive`](https://archive.evmos.dev/evmos_9000-4/genesis.json)
+and copy it over to the `config` directory: `~/.evmosd/config/genesis.json`.
 This is a genesis file with the chain-id and genesis accounts balances.
 
 ```bash
@@ -75,7 +77,8 @@ evmosd validate-genesis
 ### Add Seed Nodes
 
 Your node needs to know how to find [peers](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#peers).
-You'll need to add healthy [seed nodes](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#seed) to `$HOME/.evmosd/config/config.toml`.
+You'll need to add healthy [seed nodes](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#seed)
+to `$HOME/.evmosd/config/config.toml`.
 The [`testnets`](https://github.com/evmos/testnets) repo contains links to some seed nodes.
 
 Edit the file located in `~/.evmosd/config/config.toml` and the `seeds` to the following:
@@ -105,7 +108,8 @@ For more information on seeds and peers, you can the Tendermint [P2P documentati
 
 ### Add Persistent Peers
 
-We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer) field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with.
+We can set the [`persistent_peers`](https://docs.tendermint.com/v0.34/tendermint-core/using-tendermint.html#persistent-peer)
+field in `~/.evmosd/config/config.toml` to specify peers that your node will maintain persistent connections with.
 You can retrieve them from the list of
 available peers on the [`testnets`](https://github.com/evmos/testnets) repo.
 
@@ -124,7 +128,8 @@ sed -i.bak -e "s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" ~/.evmos
 
 ## Run a Testnet Validator
 
-Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./../developers/testnet/faucet.md) using your validator account address and submit your validator account address:
+Claim your testnet {{ $themeConfig.project.testnet_denom }} on the [faucet](./../developers/testnet/faucet.md)
+using your validator account address and submit your validator account address:
 
 ::: tip
 For more details on how to run your validator, follow [these](./setup/run_validator.md) instructions.
@@ -157,7 +162,8 @@ evmosd start
 ## Upgrading Your Node
 
 ::: tip
-These instructions are for full nodes that have ran on previous versions of and would like to upgrade to the latest testnet version.
+These instructions are for full nodes that have ran on previous versions of
+and would like to upgrade to the latest testnet version.
 :::
 
 ### Reset Data
@@ -208,4 +214,5 @@ evmosd tendermint show-node-id
 
 ## State Syncing a Node
 
-If you want to join the network using State Sync (quick, but not applicable for archive nodes), check our [State Sync](https://docs.evmos.org/validators/setup/statesync.html) page
+If you want to join the network using State Sync (quick, but not applicable for archive nodes),
+check our [State Sync](https://docs.evmos.org/validators/setup/statesync.html) page

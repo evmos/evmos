@@ -185,8 +185,8 @@ so a few more pointers for Parameter-Change, Community Spend, and ERC-20 Module 
      - how can the community provide feedback?
    - how should the quality of deliverables be assessed? eg. metrics
 6. Relationships and disclosures
-   - have you received or applied for grants or funding? for similar work? eg.
-from the [Evmos Grants Program](https://medium.com/evmos/announcing-evmos-grants-78aa28562db6)
+   - have you received or applied for grants or funding? for similar work?
+     (e.g. from the [Evmos Grants Program](https://medium.com/evmos/announcing-evmos-grants-78aa28562db6)
    - how will you and/or your organization benefit?
    - do you see this work continuing in the future and is there a plan?
    - what are the risks involved with this work?
@@ -215,8 +215,8 @@ from the [Evmos Grants Program](https://medium.com/evmos/announcing-evmos-grants
         or via [Sourcify](https://sourcify.dev))
       - the contracts are deployed open-source
       - the contracts do not extend the `IERC20.sol` interface through a malicious implementation
-      - the contracts use the main libraries for ERC-20s (eg.
-[OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
+      - the contracts use the main libraries for ERC-20s
+        (e.g. [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/erc20), [dapp.tools](https://dapp.tools/))
       - the transfer logic is not modified (i.e. transfer logic is not directly manipulated)
       - no malicious `Approve` events can directly manipulate users' balance through a delayed granted allowance
 
@@ -236,18 +236,15 @@ for details on writing markdown files.
 
 ### Engage the community with your draft proposal
 
-1.
-Post a discussion in the [Commonwealth Evmos community](https://commonwealth.im/evmos).
+1. Post a discussion in the [Commonwealth Evmos community](https://commonwealth.im/evmos).
 Ideally this should contain a link to this repository,
 either directly to your proposal if it has been merged,
 or else to a pull-request containing your proposal if it has not been merged yet.
-2.
-Directly engage key members of the community for feedback.
+2. Directly engage key members of the community for feedback.
 These could be large contributors, those likely to be most impacted by the proposal,
 and entities with high stake-backing (eg.
 high-ranked validators; large stakers).
-3.
-Target members of the community in a semi-public way before bringing the draft to a full public audience.
+3. Target members of the community in a semi-public way before bringing the draft to a full public audience.
 The burden of public scrutiny in a semi-anonymized environment (eg.
 Twitter) can be stressful and overwhelming without establishing support.
 Solicit opinions in places with people who have established reputations first.

@@ -44,8 +44,10 @@ Users are not able to claim airdrop after this duration has ended.
 
 ## Authorized Channels
 
-The `AuthorizedChannels` parameter describes the set of channels that users can perform the ibc callback with to claim coins for the ibc action.
+The `AuthorizedChannels` parameter describes the set of channels
+that users can perform the ibc callback with to claim coins for the ibc action.
 
 ## EVM Channels
 
-The `EVMChannels` parameter describes the list of Evmos channels that connected to EVM compatible chains and can be used during the ibc callback action.
+The `EVMChannels` parameter describes the list of Evmos channels
+that connected to EVM compatible chains and can be used during the ibc callback action.

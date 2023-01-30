@@ -26,8 +26,8 @@ block time on Cosmos chains is ~8s).
 However, this causes a
 few hiccups in terms of the Ethereum Web3-compatible queries that can be made to pending state.
 
-Another significant difference with Ethereum, is that blocks are produced by validators or block producers, who include transactions from their local mempool into blocks in a
-first-in-first-out (FIFO) fashion.
+Another significant difference with Ethereum, is that blocks are produced by validators or block producers,
+who include transactions from their local mempool into blocks in a first-in-first-out (FIFO) fashion.
 Transactions on Evmos cannot be ordered or cherry picked out from the Tendermint node [mempool](https://docs.tendermint.com/master/tendermint-core/mempool/).
 
 ## Pending State Queries

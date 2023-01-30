@@ -14,7 +14,7 @@ Learn about Tendermint Core state sync and support offered by the Cosmos SDK. {s
 
 State sync allows a new node to join a network by fetching a snapshot of the network state at a recent height,
 instead of fetching and replaying all historical blocks.
-Since application state is smaller than the combination of all blocks, 
+Since application state is smaller than the combination of all blocks,
 and restoring state is faster than replaying blocks,
 this reduces the time to sync with the network from days to minutes.
 
@@ -242,7 +242,8 @@ and the following pieces of information must be obtained for light client verifi
 
 The trusted hash must be obtained from a trusted source (eg.
 a block explorer), but the RPC servers do not need to be trusted.
-Tendermint will use the hash to obtain trusted app hashes from the blockchain in order to verify restored application snapshots.
+Tendermint will use the hash to obtain trusted app hashes from the blockchain
+in order to verify restored application snapshots.
 The app hash and corresponding height are the only pieces of information that can be trusted when restoring snapshots.
 Everything else can be forged by adversaries.
 
@@ -430,9 +431,10 @@ Committed state                height=3002 txs=25 appHash=40D12E4B3
 
 The node is now state synced, having joined the network in seconds
 
-### Switching off State Sync 
+### Switching off State Sync
 
-Use this command to switch off your State Sync mode, after node fully synced to avoid problems in future node restarts!
+Use this command to switch off your State Sync mode,
+after the node is fully synced to avoid problems in future node restarts!
 
 ```bash
 sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1false|" $HOME/.evmosd/config/config.toml

@@ -33,10 +33,12 @@ When using the prioritized mempool, transactions for the next produced block are
 by order of their priority (i.e. their fees) from highest to lowest.
 Should the mempool be full, the prioritized implementation allows
 to remove the transactions with the lowest priority until enough disk space is available for
-an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576) implementation for more details).
+an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576)
+implementation for more details).
 
 ::: tip
-Even though the transaction processing can be ordered by priority, the gossiping of transactions will always be according to FIFO.
+Even though the transaction processing can be ordered by priority,
+the gossiping of transactions will always be according to FIFO.
 :::
 
 ## Configuration

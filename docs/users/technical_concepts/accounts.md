@@ -13,15 +13,17 @@ This document describes the in-built accounts system of Evmos. {synopsis}
 
 ## Evmos Accounts
 
-Evmos defines its own custom `Account` type that uses Ethereum's ECDSA secp256k1 curve for keys. This
-satisfies the [EIP84](https://github.com/ethereum/EIPs/issues/84) for full [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) paths.
+Evmos defines its own custom `Account` type that uses Ethereum's ECDSA secp256k1 curve for keys.
+This satisfies the [EIP84](https://github.com/ethereum/EIPs/issues/84)
+for full [BIP44](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki) paths.
 The root HD path for Evmos-based accounts is `m/44'/60'/0'/0`.
 
 +++ https://github.com/evmos/ethermint/blob/main/types/account.pb.go#L28-L33
 
 ## Addresses and Public Keys
 
-[BIP-0173](https://github.com/satoshilabs/slips/blob/master/slip-0173.md) defines a new format for segregated witness output addresses that contains a human-readable part that identifies the Bech32 usage.
+[BIP-0173](https://github.com/satoshilabs/slips/blob/master/slip-0173.md) defines a new format
+for segregated witness output addresses that contains a human-readable part that identifies the Bech32 usage.
 Evmos uses the following HRP (human readable prefix) as the base HRP:
 
 | Network   | Mainnet | Testnet |
@@ -46,7 +48,8 @@ They are derived using the **`ed25519`** curve.
 
 ## Address formats for clients
 
-`EthAccount` can be represented in both [Bech32](https://en.bitcoin.it/wiki/Bech32) (`evmos1...`) and hex (`0x...`) formats for Ethereum's Web3 tooling compatibility.
+`EthAccount` can be represented in both [Bech32](https://en.bitcoin.it/wiki/Bech32) (`evmos1...`)
+and hex (`0x...`) formats for Ethereum's Web3 tooling compatibility.
 
 The Bech32 format is the default format for Cosmos-SDK queries and transactions through CLI and REST
 clients. The hex format on the other hand, is the Ethereum `common.Address` representation of a
@@ -163,7 +166,9 @@ curl -X GET "http://localhost:10337/cosmos/auth/v1beta1/accounts/evmos14au322k9m
 
 ### JSON-RPC
 
-To retrieve the Ethereum hex address using Web3, use the JSON-RPC [`eth_accounts`](./../../developers/json-rpc/endpoints.md#eth-accounts) or [`personal_listAccounts`](./../../developers/json-rpc/endpoints.md#personal-listAccounts) endpoints:
+To retrieve the Ethereum hex address using Web3,
+use the JSON-RPC [`eth_accounts`](./../../developers/json-rpc/endpoints.md#eth-accounts)
+or [`personal_listAccounts`](./../../developers/json-rpc/endpoints.md#personal-listAccounts) endpoints:
 
 ```bash
 # query against a local node
