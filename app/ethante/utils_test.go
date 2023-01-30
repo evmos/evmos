@@ -1,11 +1,12 @@
 package ethante_test
 
 import (
-	"github.com/evmos/evmos/v11/app/ethante"
 	"math"
 	"math/big"
 	"testing"
 	"time"
+
+	"github.com/evmos/evmos/v11/app/ethante"
 
 	"github.com/evmos/evmos/v11/app"
 
