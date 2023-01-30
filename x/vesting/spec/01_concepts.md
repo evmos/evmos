@@ -10,7 +10,7 @@ Vesting describes the process of converting `unvested` into `vested` tokens with
 
 ## Lockup
 
-The lockup describes the schedule by which tokens are converted from a  `locked` to an `unlocked` state. As long as all tokens are locked, the account cannot perform any Ethereum transactions using the `x/evm` module. Additionally, locked tokens cannot be transferred to other accounts. In the case in which tokens are both locked and vested at the same time, it is possible to delegate them to validators, but not transfer them to other accounts.
+The lockup describes the schedule by which tokens are converted from a `locked` to an `unlocked` state. While tokens are locked, they cannot be transferred to other accounts or used to interact with the EVM. In the case in which tokens are both locked and vested at the same time, it is possible to delegate them to validators, but not transfer them to other accounts.
 
 The following table summarizes the actions that are allowed for tokens that are subject to the combination of vesting and lockup:
 

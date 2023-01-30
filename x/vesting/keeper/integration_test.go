@@ -67,7 +67,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	lockupLength := vestingLength * lockup
 	// Unlock at 12 and 24 months
 	numLockupPeriods := int64(2)
-	// Unlock 1/4th of the total vest in each unlock event
+	// Unlock 1/4th of the total vest in each unlock event. By default, all tokens are
+	// unlocked after surpassing the final period.
 	unlockedPerLockup := vestingAmtTotal.QuoInt(math.NewInt(4))
 	unlockedPerLockupAmt := unlockedPerLockup[0].Amount
 	lockupPeriod := sdkvesting.Period{Length: lockupLength, Amount: unlockedPerLockup}
@@ -357,6 +358,40 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err = validateAnteForEthTxs(msg)
 			Expect(err).ToNot(BeNil())
 			Expect(strings.Contains(err.Error(), "no balance")).To(BeTrue())
+		})
+	})
+
+	Context("after first lockup and additional vest", func() {
+		BeforeEach(func() {
+			vestDuration := time.Duration(lockupLength + vestingLength)
+			s.CommitAfter(vestDuration * time.Second)
+
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(lockup+1))))
+
+			unlocked := clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
+			expUnlocked := unlockedPerLockup
+
+			s.Require().Equal(expVested, vested)
+			s.Require().Equal(expUnlocked, unlocked)
+		})
+
+		It("should enable access to unlocked EVM tokens", func() {
+			testAccount := testAccounts[0]
+
+			txAmount := unlockedPerLockupAmt.BigInt()
+			msg := createEthTx(testAccount.privKey, testAccount.address, dest, txAmount, 0)
+
+			assertUnlocked([]TestClawbackAccount{testAccount}, funder, dest, unlockedPerLockupAmt, stakeDenom, msg)
+		})
+
+		It("should not enable access to locked EVM tokens", func() {
+			testAccount := testAccounts[0]
+
+			txAmount := vested.AmountOf(stakeDenom).BigInt()
+			msg := createEthTx(testAccount.privKey, testAccount.address, dest, txAmount, 0)
+
+			assertLocked(msg)
 		})
 	})
 
