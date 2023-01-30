@@ -9,15 +9,15 @@ Learn about all the available services for clients {synopsis}
 The Evmos supports different clients in order to support Cosmos and Ethereum transactions
 and queries:
 
-|                                                        | Description                                                                          | Default Port |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------|--------------|
-| **Cosmos [gRPC](#cosmos-grpc)**                        | Query or send Evmos transactions using gRPC                                          | `9090`       |<!-- markdown-link-check-disable-next-line -->
-| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))** | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`       |
-| **Ethereum [JSON-RPC](#ethereum-json-rpc)**            | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`       |
-| **Ethereum [Websocket](#ethereum-websocket)**          | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`       |
-| **Tendermint [RPC](#tendermint-rpc)**                  | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `26657`      |
-| **Tendermint [Websocket](#tendermint-websocket)**      | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657`      |
-| **Command Line Interface ([CLI](#cli))**               | Query or send Evmos transactions using your Terminal or Console.                     | N/A          |
+|                                                              | Description                                                                          | Default Port      |
+|--------------------------------------------------------------|--------------------------------------------------------------------------------------|-------------------|
+| **Cosmos [gRPC](#cosmos-grpc)**                              | Query or send Evmos transactions using gRPC                                          | `9090`            |<!-- markdown-link-check-disable-next-line -->
+| **Cosmos REST ([gRPC-Gateway](#cosmos-grpc-gateway))**       | Query or send Evmos transactions using an HTTP RESTful API                           | `9091`            |
+| **Ethereum [JSON-RPC](#ethereum-json-rpc)**                  | Query Ethereum-formatted transactions and blocks or send Ethereum txs using JSON-RPC | `8545`            |
+| **Ethereum [Websocket](#ethereum-websocket)**                | Subscribe to Ethereum logs and events emitted in smart contracts.                    | `8586`            |
+| **Tendermint [RPC](https://docs.tendermint.com/v0.34/rpc/)** | Query transactions, blocks, consensus state, broadcast transactions, etc             | `26657`           |
+| **Tendermint [Websocket](#tendermint-websocket)**            | Query transactions, blocks, consensus state, broadcast transactions, etc.            | `26657/websocket` |
+| **Command Line Interface ([CLI](#cli))**                     | Query or send Evmos transactions using your Terminal or Console.                     | N/A               |
 
 ## Cosmos gRPC
 

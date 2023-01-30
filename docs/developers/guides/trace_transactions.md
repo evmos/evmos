@@ -112,8 +112,8 @@ which can be obtained by specifying a JavaScript filter.
 
 :::warning
 **Note**: `debug.traceTransaction` must be invoked from within the [Geth](https://geth.ethereum.org/) console,
-although it can be invoked from outside the node using JSON-RPC (eg.
-using Curl), as seen in the [following section](#json-rpc-debugtrace-endpoints).
+although it can be invoked from outside the node using JSON-RPC <!-- markdown-link-check-disable-next-line -->
+(e.g. using Curl), as seen in the [following section](#json-rpc-debugtrace-endpoints).
 If developers want to use `debug.traceTransaction` as it is used here, maintenance of a node is required,
 so see [this document](../../validators/quickstart/run_node.md).
 :::
