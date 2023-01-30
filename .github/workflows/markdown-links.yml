@@ -3,19 +3,23 @@ on:
   pull_request:
     paths:
       - '**.md'
-      - '!docs/protocol/proto-docs*'
   push:
     branches:
       - main
     paths:
       - '**.md'
-      - '!docs/protocol/proto-docs*'
 
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - uses: technote-space/get-diff-action@v6.1.2
+        with:
+          PATTERNS: |
+            **.md
+            !docs/protocol/proto-docs.md
       - uses: gaurav-nelson/github-action-markdown-link-check@master
         with:
           folder-path: "docs"
