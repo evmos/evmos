@@ -120,7 +120,8 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// lockedBalance defaults to zero if not found.
 		_, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
 
-		spendableBalance, err := balance.SafeSub(lockedBalance)
+		var spendableBalance sdk.Coin
+		spendableBalance, err = balance.SafeSub(lockedBalance)
 		if err != nil {
 			spendableBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
 		}
