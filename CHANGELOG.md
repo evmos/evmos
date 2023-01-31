@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+- (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate contracts directory to evmos
+- (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
+
 ### Improvements
 - (deps) [#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
