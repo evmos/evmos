@@ -22,8 +22,8 @@ Rejects Cosmos SDK transactions with transaction fees lower than `MinGasPrice * 
 
 Rejects EVM transactions with transactions fees lower than `MinGasPrice * GasLimit`.
 
-  - For `LegacyTx` and `AccessListTx`, the `GasPrice * GasLimit` is used.
-  - For EIP-1559 (*aka.* `DynamicFeeTx`), the `EffectivePrice * GasLimit` is used.
+- For `LegacyTx` and `AccessListTx`, the `GasPrice * GasLimit` is used.
+- For EIP-1559 (*aka.* `DynamicFeeTx`), the `EffectivePrice * GasLimit` is used.
 
 ::: tip
 **Note**: For dynamic transactions,
