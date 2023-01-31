@@ -12,12 +12,16 @@ The base fee is calculated at the beginning of each block.
 
 We introduce two parameters : `NoBaseFee`and `EnableHeight`
 
-`NoBaseFee` controls the feemarket base fee value. If set to true, no calculation is done and the base fee returned by the keeper is zero.
+`NoBaseFee` controls the feemarket base fee value.
+If set to true, no calculation is done and the base fee returned by the keeper is zero.
 
 `EnableHeight` controls the height we start the calculation.
 
-- If `NoBaseFee = false` and `height < EnableHeight`, the base fee value will be equal to `base_fee` defined in the genesis and the `BeginBlock` will return without further computation.
-- If `NoBaseFee = false` and `height >= EnableHeight`, the base fee is dynamically calculated upon each block at `BeginBlock`.
+- If `NoBaseFee = false` and `height < EnableHeight`,
+the base fee value will be equal to `base_fee` defined in the genesis
+and the `BeginBlock` will return without further computation.
+- If `NoBaseFee = false` and `height >= EnableHeight`,
+the base fee is dynamically calculated upon each block at `BeginBlock`.
 
 Those parameters allow us to introduce a static base fee or activate the base fee at a later stage.
 
@@ -26,8 +30,10 @@ Those parameters allow us to introduce a static base fee or activate the base fe
 To enable EIP1559 with the EVM, the following parameters should be set :
 
 - NoBaseFee should be false
-- EnableHeight should be set to a positive integer >= upgrade height. It defines at which height the chain starts the base fee adjustment
-- LondonBlock evm's param should be set to a positive integer >= upgrade height. It defines at which height the chain start to accept EIP1559 transactions
+- EnableHeight should be set to a positive integer >= upgrade height.
+It defines at which height the chain starts the base fee adjustment
+- LondonBlock evm's param should be set to a positive integer >= upgrade height.
+It defines at which height the chain start to accept EIP1559 transactions
 
 ### Calculation
 

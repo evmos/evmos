@@ -12,7 +12,9 @@ This supports EVM contracts to call native cosmos modules by
 2. recognizing those logs in the native tx processing code, and
 3. converting them to native module calls.
 
-To do this, the interface includes a  `PostTxProcessing` hook that registers custom `Tx` hooks in the `EvmKeeper`. These  `Tx` hooks are processed after the EVM state transition is finalized and doesn't fail. Note that there are no default hooks implemented in the EVM module.
+To do this, the interface includes a  `PostTxProcessing` hook that registers custom `Tx` hooks in the `EvmKeeper`.
+These  `Tx` hooks are processed after the EVM state transition is finalized and doesn't fail.
+Note that there are no default hooks implemented in the EVM module.
 
 ```go
 type EvmHooks interface {
@@ -23,7 +25,9 @@ type EvmHooks interface {
 
 ## `PostTxProcessing`
 
- `PostTxProcessing` is only called after a EVM transaction finished successfully and delegates the call to underlying hooks.  If no hook has been registered, this function returns with a `nil` error.
+ `PostTxProcessing` is only called after an EVM transaction finished successfully
+ and delegates the call to underlying hooks.
+ If no hook has been registered, this function returns with a `nil` error.
 
 ```go
 func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
@@ -34,13 +38,20 @@ func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *et
 }
 ```
 
-It's executed in the same cache context as the EVM transaction, if it returns an error, the whole EVM transaction is reverted, if the hook implementor doesn't want to revert the tx, they can always return `nil` instead.
+It's executed in the same cache context as the EVM transaction,
+if it returns an error, the whole EVM transaction is reverted,
+if the hook implementor doesn't want to revert the tx, they can always return `nil` instead.
 
-The error returned by the hooks is translated to a VM error `failed to process native logs`, the detailed error message is stored in the return value. The message is sent to native modules asynchronously, there's no way for the caller to catch and recover the error.
+The error returned by the hooks is translated to a VM error `failed to process native logs`,
+the detailed error message is stored in the return value.
+The message is sent to native modules asynchronously, there's no way for the caller to catch and recover the error.
 
 ## Use Case: Call Native ERC20 Module on Evmos
 
-Here is an example taken from the Evmos [erc20 module](https://docs.evmos.org/modules/erc20/) that shows how the `EVMHooks` supports a contract calling a native module to convert ERC-20 Tokens into Cosmos native Coins. Following the steps from above.
+Here is an example taken from the Evmos [erc20 module](https://docs.evmos.org/modules/erc20/)
+that shows how the `EVMHooks` supports a contract calling a native module
+to convert ERC-20 Tokens into Cosmos native Coins.
+Following the steps from above.
 
 You can define and emit a `Transfer` log signature in the smart contract like this:
 
@@ -59,7 +70,8 @@ function _transfer(address sender, address recipient, uint256 amount) internal v
 }
 ```
 
-The application will register a `BankSendHook` to the `EvmKeeper`. It recognizes the ethereum tx `Log` and converts it to a call to the bank module's `SendCoinsFromAccountToAccount` method:
+The application will register a `BankSendHook` to the `EvmKeeper`.
+It recognizes the ethereum tx `Log` and converts it to a call to the bank module's `SendCoinsFromAccountToAccount` method:
 
 ```go
 
@@ -73,7 +85,7 @@ func (k Keeper) PostTxProcessing(
 ) error {
  params := h.k.GetParams(ctx)
  if !params.EnableErc20 || !params.EnableEVMHook {
-  // no error is returned to allow for other post processing txs
+  // no error is returned to allow for other post-processing txs
   // to pass
   return nil
  }

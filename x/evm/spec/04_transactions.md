@@ -8,7 +8,12 @@ This section defines the `sdk.Msg` concrete types that result in the state tra
 
 ## `MsgEthereumTx`
 
-An EVM state transition can be achieved by using the `MsgEthereumTx`. This message encapsulates an Ethereum transaction data (`TxData`) as a `sdk.Msg`. It contains the necessary transaction data fields. Note, that the `MsgEthereumTx` implements both the [`sdk.Msg`](https://github.com/cosmos/cosmos-sdk/blob/v0.39.2/types/tx_msg.go#L7-L29) and [`sdk.Tx`](https://github.com/cosmos/cosmos-sdk/blob/v0.39.2/types/tx_msg.go#L33-L41) interfaces. Normally,  SDK messages only implement the former, while the latter is a group of messages bundled together.
+An EVM state transition can be achieved by using the `MsgEthereumTx`.
+This message encapsulates an Ethereum transaction data (`TxData`) as a `sdk.Msg`.
+It contains the necessary transaction data fields.
+Note, that the `MsgEthereumTx` implements both the [`sdk.Msg`](https://github.com/cosmos/cosmos-sdk/blob/v0.39.2/types/tx_msg.go#L7-L29)
+and [`sdk.Tx`](https://github.com/cosmos/cosmos-sdk/blob/v0.39.2/types/tx_msg.go#L33-L41) interfaces.
+Normally, SDK messages only implement the former, while the latter is a group of messages bundled together.
 
 ```go
 type MsgEthereumTx struct {
@@ -41,7 +46,8 @@ The transaction execution is expected to fail if:
 
 ### Conversion
 
-The `MsgEthreumTx` can be converted to the go-ethereum `Transaction` and `Message` types in order to create and call evm contracts.
+The `MsgEthreumTx` can be converted to the go-ethereum `Transaction` and `Message` types
+in order to create and call evm contracts.
 
 ```go
 // AsTransaction creates an Ethereum Transaction type from the msg fields
@@ -80,7 +86,12 @@ func (tx *Transaction) AsMessage(s Signer, baseFee *big.Int) (Message, error) {
 
 ### Signing
 
-In order for the signature verification to be valid, the  `TxData` must contain the `v | r | s` values from the `Signer`. Sign calculates a secp256k1 ECDSA signature and signs the transaction. It takes a keyring signer and the chainID to sign an Ethereum transaction according to EIP155 standard. This method mutates the transaction as it populates the V, R, S fields of the Transaction's Signature. The function will fail if the sender address is not defined for the msg or if the sender is not registered on the keyring.
+In order for the signature verification to be valid, the  `TxData` must contain the `v | r | s` values from the `Signer`.
+Sign calculates a secp256k1 ECDSA signature and signs the transaction.
+It takes a keyring signer and the chainID to sign an Ethereum transaction according to EIP155 standard.
+This method mutates the transaction as it populates the V, R, S fields of the Transaction's Signature.
+The function will fail if the sender address is not defined for the msg
+or if the sender is not registered on the keyring.
 
 ```go
 // Sign calculates a secp256k1 ECDSA signature and signs the transaction. It
@@ -116,11 +127,16 @@ func (msg *MsgEthereumTx) Sign(ethSigner ethtypes.Signer, keyringSigner keyring.
 
 ## TxData
 
-The `MsgEthereumTx` supports the 3 valid Ethereum transaction data types from go-ethereum: `LegacyTx`, `AccessListTx`  and `DynamicFeeTx`. These types are defined as protobuf messages and packed into a `proto.Any` interface type in the `MsgEthereumTx` field.
+The `MsgEthereumTx` supports the 3 valid Ethereum transaction data types from go-ethereum:
+`LegacyTx`, `AccessListTx`  and `DynamicFeeTx`.
+These types are defined as protobuf messages
+and packed into a `proto.Any` interface type in the `MsgEthereumTx` field.
 
 - `LegacyTx`: [EIP-155](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md) transaction type
-- `DynamicFeeTx`: [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559) transaction type. Enabled by London hard fork block
-- `AccessListTx`: [EIP-2930](https://eips.ethereum.org/EIPS/eip-2930) transaction type. Enabled by Berlin hard fork block
+- `DynamicFeeTx`: [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559) transaction type.
+Enabled by London hard fork block
+- `AccessListTx`: [EIP-2930](https://eips.ethereum.org/EIPS/eip-2930) transaction type.
+Enabled by Berlin hard fork block
 
 ### `LegacyTx`
 
@@ -151,9 +167,9 @@ type LegacyTx struct {
 
 This message field validation is expected to fail if:
 
-- `GasPrice` is invalid (`nil` , negaitve or out of int256 bound)
+- `GasPrice` is invalid (`nil` , negative or out of int256 bound)
 - `Fee` (gasprice * gaslimit) is invalid
-- `Amount` is invalid (negaitve or out of int256 bound)
+- `Amount` is invalid (negative or out of int256 bound)
 - `To` address is invalid (non valid ethereum hex address)
 
 ### `DynamicFeeTx`

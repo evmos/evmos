@@ -13,7 +13,9 @@ This document specifies the feemarket module which allows to define a global tra
 
 This module has been designed to support EIP1559 in cosmos-sdk.
 
-The `MempoolFeeDecorator` in `x/auth` module needs to be overrided to check the `baseFee` along with the `minimal-gas-prices` allowing to implement a global fee mechanism which vary depending on the network activity.
+The `MempoolFeeDecorator` in `x/auth` module needs to be overwritten
+to check the `baseFee` along with the `minimal-gas-prices` allowing
+to implement a global fee mechanism which vary depending on the network activity.
 
 For more reference to EIP1559:
 
@@ -29,4 +31,5 @@ For more reference to EIP1559:
 6. **[Events](06_events.md)**
 7. **[Params](07_params.md)**
 8. **[Client](08_client.md)**
-9. **[Future Improvements](09_future_improvements.md)**
+9. **[AnteHandlers](09_antehandlers.md)**
+10. **[Future Improvements](10_future_improvements.md)**
