@@ -34,9 +34,9 @@ In summary, the SAFU states the following:
 For more information,
 visit [the SAFU agreement](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf).<!-- markdown-link-check-disable-line -->
 
-## Dropbox address
+## Dropbox Address
 
-The dropbox address is an address to which funds taken from
+The Dropbox Address is an address to which funds are taken from
 the protocol should be deposited.
 In the event of a bounty distribution,
 the bounty for white hat hackers will be paid out
@@ -64,19 +64,19 @@ evmos1c6jdy4gy86s69auueqwfjs86vse7kz3grxm9h2
 ### Address Derivation
 
 The dropbox address provided above is derived cryptographically from the
-first 20 bytes of the SHA256 sum for the “safu” string,
+first 20 bytes of the SHA256 sum for the `“safu”` string,
 using the following algorithm:
 
 ```shell
 address = shaSum256([]byte("safu"))[:20])
 ```
 
-## How to secure vulnerable funds
+## How To Secure Vulnerable Funds
 
 Within the first 48 hours of a hack,
 white hats should secure the funds by transferring them to the dropbox address.
 
-## How to claim the reward
+## How To Claim The Reward
 
 Rewards distribution will be done manually on the next chain upgrade.
 If the reward is valued above $100,000,
