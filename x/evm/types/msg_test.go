@@ -22,7 +22,7 @@ import (
 
 	"github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/ethermint/x/evm/types"
 )
 
 const invalidFromAddress = "0x0000"

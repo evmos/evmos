@@ -11,7 +11,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/encoding"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	proto "github.com/gogo/protobuf/proto"
 
 	"github.com/evmos/ethermint/tests"
