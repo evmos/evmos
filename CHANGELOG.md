@@ -38,7 +38,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 ### State Machine Breaking
-- (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate contracts directory to evmos
+
+- (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate `contracts` directory to evmos repository
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 
 ### Improvements
