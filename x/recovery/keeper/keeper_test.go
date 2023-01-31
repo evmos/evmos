@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"

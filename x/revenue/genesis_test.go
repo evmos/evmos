@@ -13,7 +13,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/x/revenue"

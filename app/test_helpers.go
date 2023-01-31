@@ -39,7 +39,7 @@ import (
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 
 	"github.com/evmos/ethermint/encoding"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/cmd/config"
 	"github.com/evmos/evmos/v11/types"
