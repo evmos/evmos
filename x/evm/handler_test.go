@@ -505,35 +505,36 @@ func (suite *EvmTestSuite) TestErrorWhenDeployContract() {
 	// TODO: snapshot checking
 }
 
-func (suite *EvmTestSuite) deployERC20Contract() common.Address {
-	k := suite.app.EvmKeeper
-	nonce := k.GetNonce(suite.ctx, suite.from)
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", suite.from, big.NewInt(10000000000))
-	suite.Require().NoError(err)
-	msg := ethtypes.NewMessage(
-		suite.from,
-		nil,
-		nonce,
-		big.NewInt(0),
-		2000000,
-		big.NewInt(1),
-		nil,
-		nil,
-		append(types.ERC20Contract.Bin, ctorArgs...),
-		nil,
-		true,
-	)
-	rsp, err := k.ApplyMessage(suite.ctx, msg, nil, true)
-	suite.Require().NoError(err)
-	suite.Require().False(rsp.Failed())
-	return crypto.CreateAddress(suite.from, nonce)
-}
+// TODO: add back in once evm keeper from Freddy's PR is merged
+// func (suite *EvmTestSuite) deployERC20Contract() common.Address {
+//	k := suite.app.EvmKeeper
+//	nonce := k.GetNonce(suite.ctx, suite.from)
+//	ctorArgs, err := types.ERC20Contract.ABI.Pack("", suite.from, big.NewInt(10000000000))
+//	suite.Require().NoError(err)
+//	msg := ethtypes.NewMessage(
+//		suite.from,
+//		nil,
+//		nonce,
+//		big.NewInt(0),
+//		2000000,
+//		big.NewInt(1),
+//		nil,
+//		nil,
+//		append(types.ERC20Contract.Bin, ctorArgs...),
+//		nil,
+//		true,
+//	)
+//	rsp, err := k.ApplyMessage(suite.ctx, msg, nil, true)
+//	suite.Require().NoError(err)
+//	suite.Require().False(rsp.Failed())
+//	return crypto.CreateAddress(suite.from, nonce)
+//}
 
 // TODO: add back in once evm keeper from Freddy's PR is merged
 //// TestERC20TransferReverted checks:
 //// - when transaction reverted, gas refund works.
 //// - when transaction reverted, nonce is still increased.
-//func (suite *EvmTestSuite) TestERC20TransferReverted() {
+// func (suite *EvmTestSuite) TestERC20TransferReverted() {
 //	intrinsicGas := uint64(21572)
 //	// test different hooks scenarios
 //	testCases := []struct {
@@ -637,7 +638,7 @@ func (suite *EvmTestSuite) deployERC20Contract() common.Address {
 //}
 
 // TODO: Add this back in once evm keeper from Freddy's PR is merged
-//func (suite *EvmTestSuite) TestContractDeploymentRevert() {
+// func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 //	intrinsicGas := uint64(134180)
 //	testCases := []struct {
 //		msg      string
