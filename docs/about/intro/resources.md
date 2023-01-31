@@ -34,7 +34,8 @@ This documentation page is currently under work in progress.
 ### Ethermint
 
 ::: tip
-Note: most of these articles are outdated as they refer to the previous Ethermint projects (linked below). They are listed here for reference only.
+Note: most of these articles are outdated as they refer to the previous Ethermint projects (linked below).
+They are listed here for reference only.
 :::
 
 - [Ethermint Supports Web3 Personal API - Colin Schwarz](https://blog.cosmos.network/ethermint-supports-web3-personal-api-556adf75c24e)
@@ -48,8 +49,12 @@ Note: most of these articles are outdated as they refer to the previous Ethermin
 
 ## Previous Ethermint implementations
 
-- [Ethermint ABCI:](https://github.com/cosmos/ethermint_abci) This project was the first and original Tendermint ABCI application with EVM support. Not built with Cosmos SDK.
-- [Ethermint (archive):](https://github.com/cosmos/ethermint-archive) Precursor implementation of the current project, developed by [All in Bits Inc](https://tendermint.com/). It was aiming to implement [Erigon](https://github.com/ledgerwatch/erigon) as the EVM for scalability improvements.
+- [Ethermint ABCI:](https://github.com/cosmos/ethermint_abci)
+  This project was the first and original Tendermint ABCI application with EVM support.
+  Not built with Cosmos SDK.
+- [Ethermint (archive):](https://github.com/cosmos/ethermint-archive) Precursor implementation of the current project,
+  developed by [All in Bits Inc](https://tendermint.com/).
+  It was aiming to implement [Erigon](https://github.com/ledgerwatch/erigon) as the EVM for scalability improvements.
 
 ## Next {hide}
 

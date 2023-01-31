@@ -30,7 +30,9 @@ message ClaimsRecord {
 
 ## Genesis State
 
-The `x/claims` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters and a slice containing all the claim records by user address:
+The `x/claims` module's `GenesisState` defines the state necessary
+for initializing the chain from a previously exported height.
+It contains the module parameters and a slice containing all the claim records by user address:
 
 ```go
 // GenesisState defines the claims module's genesis state.
@@ -44,7 +46,10 @@ type GenesisState struct {
 
 ## Invariants
 
-The `x/claims` module registers an [`Invariant`](https://docs.cosmos.network/main/building-modules/invariants) to ensure that a property is true at any given time. These functions are useful to detect bugs early on and act upon them to limit their potential consequences (e.g. by halting the chain).
+The `x/claims` module registers an [`Invariant`](https://docs.cosmos.network/main/building-modules/invariants)
+to ensure that a property is true at any given time.
+These functions are useful to detect bugs early on and act upon them to limit their potential consequences (e.g.
+by halting the chain).
 
 ### ClaimsInvariant
 

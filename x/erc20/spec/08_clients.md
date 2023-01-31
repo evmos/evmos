@@ -6,7 +6,9 @@ order: 8
 
 ## CLI
 
-Find below a list of  `evmosd` commands added with the  `x/erc20` module. You can obtain the full list by using the `evmosd -h` command. A CLI command can look like this:
+Find below a list of  `evmosd` commands added with the  `x/erc20` module.
+You can obtain the full list by using the `evmosd -h` command.
+A CLI command can look like this:
 
 ```bash
 evmosd query erc20 params
@@ -33,7 +35,9 @@ The `tx gov submit-legacy-proposal` commands allow users to query create a propo
 
 **`register-coin`**
 
-Allows users to submit a `RegisterCoinProposal`. Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. Upon passing, the proposal details must be supplied via a JSON file.
+Allows users to submit a `RegisterCoinProposal`.
+Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit.
+Upon passing, the proposal details must be supplied via a JSON file.
 
 ```bash
 evmosd tx gov submit-legacy-proposal register-coin METADATA_FILE [flags]
@@ -68,7 +72,10 @@ Where METADATA_FILE contains (example):
 
 **`register-erc20`**
 
-Allows users to submit a `RegisterERC20Proposal`. Submit a proposal to register ERC20 tokens along with an initial deposit. To register multiple tokens in one proposal pass them after each other e.g. `register-erc20 <contract-address1> <contract-address2>`.
+Allows users to submit a `RegisterERC20Proposal`.
+Submit a proposal to register ERC20 tokens along with an initial deposit.
+To register multiple tokens in one proposal pass them after each other e.g.
+`register-erc20 <contract-address1> <contract-address2>`.
 
 ```bash
 evmosd tx gov submit-legacy-proposal register-erc20 ERC20_ADDRESS... [flags]

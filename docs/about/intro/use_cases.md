@@ -21,7 +21,8 @@ Evmos EVM and get the benefits of a fast-finality Proof-of-Stake (PoS) chain. De
 also benefit from highly-reliable clients from testnets can be used to test and deploy their
 contracts.
 
-Evmos also offers built-in interoperability functionalities with other Cosmos and BFT chains by using [IBC](https://cosmos.network/ibc). Developers can also benefit from using a bridge network to enable interoperability between mainnet Ethereum and Evmos.
+Evmos also offers built-in interoperability functionalities with other Cosmos and BFT chains by using [IBC](https://cosmos.network/ibc).
+Developers can also benefit from using a bridge network to enable interoperability between mainnet Ethereum and Evmos.
 
 ## Next {hide}
 

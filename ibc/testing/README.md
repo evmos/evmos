@@ -110,11 +110,13 @@ func (app *SimApp) AppCodec() codec.Codec {
 }
 ```
 
-It is assumed your application contains an embedded BaseApp and thus implements the abci.Application interface, `LastCommitID()` and `LastBlockHeight()`
+It is assumed your application contains an embedded BaseApp and thus implements the abci.Application interface,
+`LastCommitID()` and `LastBlockHeight()`
 
 ### Initialize TestingApp
 
-The testing package requires that you provide a function to initialize your TestingApp. This is how ibc-go implements the initialize function with its `SimApp`:
+The testing package requires that you provide a function to initialize your TestingApp.
+This is how ibc-go implements the initialize function with its `SimApp`:
 
 ```go
 func SetupTestingApp() (TestingApp, map[string]json.RawMessage) {
@@ -296,13 +298,16 @@ func GetTransferSimApp(chain *ibctesting.TestChain) *simapp.SimApp {
 ### Middleware Testing
 
 When writing IBC applications acting as middleware, it might be desirable to test integration points.
-This can be done by wiring a middleware stack in the app.go file using existing applications as middleware and IBC base applications.
-The mock module may also be leveraged to act as a base application in the instance that such an application is not available for testing or causes dependency concerns.
+This can be done by wiring a middleware stack in the app.go file
+using existing applications as middleware and IBC base applications.
+The mock module may also be leveraged to act as a base application in the instance
+that such an application is not available for testing or causes dependency concerns.
 
 The mock IBC module contains a `MockIBCApp`. This struct contains a function field for every IBC App Module callback.
 Each of these functions can be individually set to mock expected behavior of a base application.
 
-For example, if one wanted to test that the base application cannot affect the outcome of the `OnChanOpenTry` callback, the mock module base application callback could be updated as such:
+For example, if one wanted to test that the base application cannot affect the outcome of the `OnChanOpenTry` callback,
+the mock module base application callback could be updated as such:
 
 ```go
     mockModule.IBCApp.OnChanOpenTry = func(ctx sdk.Context, portID, channelID, version string) error {

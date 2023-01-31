@@ -148,6 +148,11 @@ module.exports = {
               directory: true,
               path: "/users/technical_concepts",
             },
+            {
+              title: "Security",
+              directory: true,
+              path: "/users/security",
+            },
           ],
         },
         {

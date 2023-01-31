@@ -14,10 +14,6 @@ deps:
     repository: gogo-proto
     commit: 34d970b699f84aa382f3c29773a60836
   - remote: buf.build
-    owner: evmos
-    repository: ethermint
-    commit: f0f1df1cd49a49d9b03eadd4235481af
-  - remote: buf.build
     owner: googleapis
     repository: googleapis
     commit: 783e4b5374fa488ab068d08af9658438
