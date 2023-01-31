@@ -16,8 +16,8 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/testutil"
-	"github.com/evmos/evmos/v11/x/claims/types"
 	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
 
