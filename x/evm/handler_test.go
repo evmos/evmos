@@ -565,7 +565,10 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper.CleanHooks()
+			// TODO: Add CleanHooks back in from Freddy's PR
+			//k := suite.app.EvmKeeper.CleanHooks()
+			k := suite.app.EvmKeeper
+			k.SetHooks(nil) // this basically does the same as CleanHooks
 			k.SetHooks(tc.hooks)
 
 			// add some fund to pay gas fee
@@ -595,7 +598,10 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 
 			before := k.GetBalance(suite.ctx, suite.from)
 
-			ethCfg := suite.app.EvmKeeper.GetChainConfig(suite.ctx).EthereumConfig(nil)
+			// TODO: Use this once evm keeper from Freddy's PR is merged
+			//ethCfg := suite.app.EvmKeeper.GetChainConfig(suite.ctx).EthereumConfig(nil)
+			evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+			ethCfg := evmParams.GetChainConfig().EthereumConfig(nil) // this basically does the same as GetChainConfig on Keeper
 			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
 
 			txData, err := types.UnpackTxData(tx.Data)
