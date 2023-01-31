@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"strings"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -34,7 +32,7 @@ func (s Storage) Validate() error {
 	seenStorage := make(map[string]bool)
 	for i, state := range s {
 		if seenStorage[state.Key] {
-			return errorsmod.Wrapf(evmtypes.ErrInvalidState, "duplicate state key %d: %s", i, state.Key)
+			return errorsmod.Wrapf(ErrInvalidState, "duplicate state key %d: %s", i, state.Key)
 		}
 
 		if err := state.Validate(); err != nil {
@@ -68,7 +66,7 @@ func (s Storage) Copy() Storage {
 // NOTE: state value can be empty
 func (s State) Validate() error {
 	if strings.TrimSpace(s.Key) == "" {
-		return errorsmod.Wrap(evmtypes.ErrInvalidState, "state key hash cannot be blank")
+		return errorsmod.Wrap(ErrInvalidState, "state key hash cannot be blank")
 	}
 
 	return nil
