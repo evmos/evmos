@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v6/testing"
 )
 
 // Path contains two endpoints representing two chains connected over IBC

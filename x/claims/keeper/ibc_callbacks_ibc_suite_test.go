@@ -64,8 +64,10 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 	evmParams := evmosChainA.EvmKeeper.GetParams(suite.chainA.GetContext())
 	evmParams.EvmDenom = types.DefaultClaimsDenom
-	evmosChainA.EvmKeeper.SetParams(suite.chainA.GetContext(), evmParams)
-	evmosChainB.EvmKeeper.SetParams(suite.chainB.GetContext(), evmParams)
+	err = evmosChainA.EvmKeeper.SetParams(suite.chainA.GetContext(), evmParams)
+	suite.Require().NoError(err)
+	err = evmosChainB.EvmKeeper.SetParams(suite.chainB.GetContext(), evmParams)
+	suite.Require().NoError(err)
 
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(10000))
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())

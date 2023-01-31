@@ -159,7 +159,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = evmostypes.BaseDenom
-	suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	err = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
+	require.NoError(t, err)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
