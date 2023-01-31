@@ -107,16 +107,16 @@ For further reading, please refer to:
 * [What is Ethereum](https://ethdocs.org/en/latest/introduction/what-is-ethereum.html#what-is-ethereum)
 * [Opcodes](https://www.ethervm.io/)
 
-## Ethermint as Geth implementation
+## Evmos as Geth implementation
 
-Ethermint is an implementation of the [Ethereum protocol in Golang](https://geth.ethereum.org/docs/getting-started) (Geth)
-as a Cosmos SDK module.
+Evmos contains an implementation of the [Ethereum protocol in Golang](https://geth.ethereum.org/docs/getting-started)
+(Geth) as a Cosmos SDK module.
 Geth includes an implementation of the EVM to compute state transitions.
 Have a look at the [go-ethereum source code](https://github.com/ethereum/go-ethereum/blob/master/core/vm/instructions.go)
 to see how the EVM opcodes are implemented.
 Just as Geth can be run as an Ethereum node,
-Ethermint can be run as a node to compute state transitions with the EVM.
-Ethermint supports Geth's standard [Ethereum JSON-RPC APIs](https://docs.evmos.org/developers/json-rpc/endpoints.html)
+Evmos can be run as a node to compute state transitions with the EVM.
+Evmos supports Geth's standard [Ethereum JSON-RPC APIs](https://docs.evmos.org/developers/json-rpc/endpoints.html)
 in order to be Web3 and EVM compatible.
 
 ### JSON-RPC
@@ -155,7 +155,7 @@ In the Geth implementation, calling the endpoint roughly goes through the follow
 7. [`Run()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/vm/interpreter.go#L116)
    performs a loop to execute the opcodes.
 
-The ethermint implementation is similar and makes use of the gRPC query client which is included in the Cosmos SDK:
+The Evmos implementation is similar and makes use of the gRPC query client which is included in the Cosmos SDK:
 
 1. `eth_call` request is transformed to call the `func (e *PublicAPI) Call` function using the `eth` namespace
 2. [`Call()`](https://github.com/evmos/ethermint/blob/main/rpc/namespaces/ethereum/eth/api.go#L639) calls `doCall()`
@@ -171,7 +171,7 @@ The ethermint implementation is similar and makes use of the gRPC query client w
 The `StateDB` interface from [go-ethereum](https://github.com/ethereum/go-ethereum/blob/master/core/vm/interface.go)
 represents an EVM database for full state querying.
 EVM state transitions are enabled by this interface, which in the `x/evm` module is implemented by the `Keeper`.
-The implementation of this interface is what makes Ethermint EVM compatible.
+The implementation of this interface is what makes Evmos EVM compatible.
 
 ## Consensus Engine
 

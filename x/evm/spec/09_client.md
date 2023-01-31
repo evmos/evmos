@@ -19,7 +19,7 @@ The `query` commands allow users to query `evm` state.
 
 Allows users to query the smart contract code at a given address.
 
-```go
+```bash
 evmosd query evm code ADDRESS [flags]
 ```
 
@@ -69,8 +69,8 @@ value: "0x0000000000000000000000000000000000000000000000000000000000000000"
 
 ## JSON-RPC
 
-For an overview on  the JSON-RPC methods and namespaces supported on Ethermint,
-please refer to [https://docs.ethermint.zone/basics/json_rpc.html](https://docs.ethermint.zone/basics/json_rpc.html)
+For an overview on the JSON-RPC methods and namespaces supported on Evmos,
+please refer to [https://docs.evmos.org/developers/json-rpc/endpoints.html](https://docs.evmos.org/developers/json-rpc/endpoints.html)
 
 ## gRPC
 

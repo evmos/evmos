@@ -211,9 +211,9 @@ This function also fills in the tx hash, block hash, tx index and log index fiel
 The EVM module `Keeper` grants access to the EVM module state
 and implements `statedb.Keeper` interface to support the `StateDB` implementation.
 The Keeper contains a store key that allows the DB
-to write to a concrete subtree of the multistore that is only accessible to the EVM module.
-Instead of using a trie and database for querying and persistence (the `StateDB` implementation on Ethermint),
-use the Cosmos `KVStore` (key-value store) and Cosmos SDK `Keeper` to facilitate state transitions.
+to write to a concrete subtree of the multistore that is only accessible by the EVM module.
+Instead of using a trie and database for querying and persistence (the `StateDB` implementation),
+Evmos uses the Cosmos `KVStore` (key-value store) and Cosmos SDK `Keeper` to facilitate state transitions.
 
 To support the interface functionality, it imports 4 module Keepers:
 
@@ -281,7 +281,7 @@ type GenesisState struct {
 The `GenesisAccount` type corresponds to an adaptation of the Ethereum `GenesisAccount` type.
 It defines an account to be initialized in the genesis state.
 
-Its main difference is that the one on Ethermint uses a custom `Storage` type
+Its main difference is that the one on Evmos uses a custom `Storage` type
 that uses a slice instead of maps for the evm `State` (due to non-determinism),
 and that it doesn't contain the private key field.
 
