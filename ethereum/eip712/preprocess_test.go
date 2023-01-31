@@ -27,7 +27,7 @@ import (
 
 // Testing Constants
 var (
-	chainId = "evmos_9000-1"
+	chainID = "evmos_9000-1"
 	ctx     = client.Context{}.WithTxConfig(
 		encoding.MakeConfig(app.ModuleBasics).TxConfig,
 	)
@@ -56,7 +56,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 	for _, tc := range testCases {
 		// Run pre-processing
 		err := eip712.PreprocessLedgerTx(
-			chainId,
+			chainID,
 			keyring.TypeLedger,
 			tc.txBuilder,
 		)
@@ -113,7 +113,7 @@ func TestBlankTxBuilder(t *testing.T) {
 	txBuilder := ctx.TxConfig.NewTxBuilder()
 
 	err := eip712.PreprocessLedgerTx(
-		chainId,
+		chainID,
 		keyring.TypeLedger,
 		txBuilder,
 	)
@@ -125,7 +125,7 @@ func TestNonLedgerTxBuilder(t *testing.T) {
 	txBuilder := ctx.TxConfig.NewTxBuilder()
 
 	err := eip712.PreprocessLedgerTx(
-		chainId,
+		chainID,
 		keyring.TypeLocal,
 		txBuilder,
 	)
@@ -169,7 +169,9 @@ func createBasicTestCase(t *testing.T) TestCaseStruct {
 		Sequence: 0,
 	}
 
-	txBuilder.SetSignatures(sigsV2)
+	err = txBuilder.SetSignatures(sigsV2)
+	require.NoError(t, err)
+
 	return TestCaseStruct{
 		txBuilder:              txBuilder,
 		expectedFeePayer:       feePayer.String(),
@@ -211,7 +213,8 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		),
 	}
 
-	txBuilder.SetMsgs(&msgSend)
+	err := txBuilder.SetMsgs(&msgSend)
+	require.NoError(t, err)
 
 	return TestCaseStruct{
 		txBuilder:              txBuilder,

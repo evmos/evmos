@@ -100,7 +100,7 @@ func (suite *EIP712TestSuite) TestEIP712SignatureVerification() {
 
 	testCases := []struct {
 		title         string
-		chainId       string
+		chainID       string
 		fee           txtypes.Fee
 		memo          string
 		msgs          []sdk.Msg
@@ -263,7 +263,7 @@ func (suite *EIP712TestSuite) TestEIP712SignatureVerification() {
 		},
 		{
 			title:   "Fails - Invalid ChainID",
-			chainId: "invalidchainid",
+			chainID: "invalidchainid",
 			fee: txtypes.Fee{
 				Amount:   suite.makeCoins(types.BaseDenom, math.NewInt(2000)),
 				GasLimit: 20000,
@@ -369,9 +369,9 @@ func (suite *EIP712TestSuite) TestEIP712SignatureVerification() {
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
 				suite.Require().NoError(err)
 
-				chainId := "evmos_9000-1"
-				if tc.chainId != "" {
-					chainId = tc.chainId
+				chainID := "evmos_9000-1"
+				if tc.chainID != "" {
+					chainID = tc.chainID
 				}
 
 				if tc.timeoutHeight != 0 {
@@ -380,7 +380,7 @@ func (suite *EIP712TestSuite) TestEIP712SignatureVerification() {
 
 				// Declare signerData
 				signerData := authsigning.SignerData{
-					ChainID:       chainId,
+					ChainID:       chainID,
 					AccountNumber: tc.accountNumber,
 					Sequence:      tc.sequence,
 					PubKey:        pubKey,
