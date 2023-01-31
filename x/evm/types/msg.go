@@ -18,8 +18,9 @@ package types
 import (
 	"errors"
 	"fmt"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"math/big"
+
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	sdkmath "cosmossdk.io/math"
 

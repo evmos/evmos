@@ -16,8 +16,9 @@
 package types
 
 import (
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"math/big"
+
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"

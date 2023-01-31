@@ -17,8 +17,9 @@ package types
 
 import (
 	"fmt"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"strings"
+
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"

@@ -16,9 +16,10 @@
 package types
 
 import (
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"math/big"
 	"strings"
+
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	sdkmath "cosmossdk.io/math"
 
