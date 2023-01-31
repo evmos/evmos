@@ -14,10 +14,10 @@ import (
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/tests"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
 	"github.com/evmos/evmos/v11/testutil"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
