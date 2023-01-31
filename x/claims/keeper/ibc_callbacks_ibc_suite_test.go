@@ -28,8 +28,8 @@ type IBCTestingSuite struct {
 	chainB      *ibcgotesting.TestChain // Evmos chain B
 	chainCosmos *ibcgotesting.TestChain // Cosmos chain
 
-	pathEVM    *ibcgotesting.Path // chainA (Evmos) <-->  chainB (Evmos)
-	pathCosmos *ibcgotesting.Path // chainA (Evmos) <--> chainCosmos
+	pathEVM    *ibctesting.Path // chainA (Evmos) <-->  chainB (Evmos)
+	pathCosmos *ibctesting.Path // chainA (Evmos) <--> chainCosmos
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
@@ -65,13 +65,13 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	suite.pathEVM = ibctesting.NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathEVM)                                 // clientID, connectionID, channelID filled
+	ibctesting.SetupPath(suite.coordinator, suite.pathEVM)                                 // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
 
 	suite.pathCosmos = ibctesting.NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathCosmos)                                      // clientID, connectionID, channelID filled
+	ibctesting.SetupPath(suite.coordinator, suite.pathCosmos)                                      // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
