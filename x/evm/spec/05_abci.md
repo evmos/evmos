@@ -6,7 +6,7 @@ order: 5
 
 The Application Blockchain Interface (ABCI) allows the application to interact with the Tendermint Consensus engine.
 The application maintains several ABCI connections with Tendermint.
-The most relevant for the  `x/evm` is the [Consensus connection at Commit](https://docs.tendermint.com/v0.35/spec/abci/apps.html#consensus-connection).
+The most relevant for the  `x/evm` is the [Consensus connection at Commit](https://docs.tendermint.com/v0.33/app-dev/app-development.html#consensus-connection).
 This connection is responsible for block execution and calls the functions `InitChain`
 (containing `InitGenesis`), `BeginBlock`, `DeliverTx`, `EndBlock`, `Commit` .
 `InitChain` is only called the first time a new blockchain is started

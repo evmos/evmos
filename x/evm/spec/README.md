@@ -28,7 +28,7 @@ A solution is required that eliminates these concerns for developers,
 who build applications within a familiar EVM environment.
 
 The `x/evm` module provides this EVM familiarity on a scalable, high-throughput Proof-of-Stake blockchain.
-It is built as a [Cosmos SDK module](https://docs.cosmos.network/master/building-modules/intro.html)
+It is built as a [Cosmos SDK module](https://docs.cosmos.network/main/building-modules/intro.html)
 which allows for the deployment of smart contracts,
 interaction with the EVM state machine (state transitions),
 and the use of EVM tooling.
@@ -54,7 +54,7 @@ The `x/evm` module is part of the [ethermint library](https://pkg.go.dev/github.
 ## Module Architecture
 
 > **NOTE:**: If you're not familiar with the overall module structure from
-the SDK modules, please check this [document](https://docs.cosmos.network/master/building-modules/structure.html) as
+the SDK modules, please check this [document](https://docs.cosmos.network/main/building-modules/structure.html) as
 prerequisite reading.
 
 ```shell

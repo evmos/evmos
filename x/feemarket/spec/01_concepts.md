@@ -19,7 +19,7 @@ fee = gasPrice * gasLimit
 
 where `gasPrice` is the price per gas and `gasLimit` describes the amount of gas required to perform the transaction.
 The more complex operations a transaction requires, the higher the gas limit
-(see [Executing EVM bytecode](https://docs.evmos.org/modules/evm/01_concepts.html#executing-evm-bytecode)).
+(see [Executing EVM bytecode](https://docs.evmos.org/modules/evm/spec/01_concepts.html#executing-evm-bytecode)).
 To submit a transaction, the signer needs to specify the `gasPrice`.
 
 With EIP-1559 enabled, the transaction fee is calculated with

@@ -182,7 +182,7 @@ and combine business logic with decentralized data storage.
 
 Ethereum transactions which are submitted to the `x/evm` module take part in this consensus process
 before being executed and changing the application state.
-We encourage to understand the basics of the [Tendermint consensus engine](https://docs.tendermint.com/master/introduction/what-is-tendermint.html#intro-to-abci)
+We encourage to understand the basics of the [Tendermint consensus engine](https://docs.tendermint.com/main/introduction/what-is-tendermint.html#intro-to-abci)
 in order to understand state transitions in detail.
 
 ## Transaction Logs
