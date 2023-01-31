@@ -4,7 +4,6 @@ deps:
   - buf.build/cosmos/cosmos-sdk
   - buf.build/cosmos/cosmos-proto
   - buf.build/cosmos/gogo-proto
-  - buf.build/evmos/ethermint
   - buf.build/googleapis/googleapis
 lint:
   use:
