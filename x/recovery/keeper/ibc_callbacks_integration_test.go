@@ -7,6 +7,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	"github.com/evmos/evmos/v11/app"
+	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/testutil"
 	teststypes "github.com/evmos/evmos/v11/types/tests"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
@@ -284,7 +285,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 
 						// Send IBC transaction of 10 ibc/uatom
 						transferMsg := transfertypes.NewMsgTransfer(s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0, "")
-						_, err = s.IBCOsmosisChain.SendMsgs(transferMsg)
+						_, err = ibctesting.SendMsgs(s.IBCOsmosisChain, ibctesting.DefaultFeeAmt, transferMsg)
 						s.Require().NoError(err) // message committed
 						transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/uatom", "10", sender, receiver, "")
 						packet := channeltypes.NewPacket(transfer.GetBytes(), 1, s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, s.pathOsmosisEvmos.EndpointB.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointB.ChannelID, timeoutHeight, 0)
