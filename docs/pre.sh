@@ -3,7 +3,6 @@
 # Paths
 #
 COSMOS_URL=https://raw.githubusercontent.com/cosmos/cosmos-sdk/main
-ETHERMINT_URL=https://github.com/evmos/ethermint
 IBC_GO_URL=https://github.com/cosmos/ibc-go.git
 # Formatting script
 FORMAT=./format/format_cosmos_specs.py
@@ -21,29 +20,6 @@ for D in ../x/*; do
 done
 
 sed 's/\.\/x/\/modules/g' ../x/README.md | sed 's/spec\/README.md//g' | sed 's/\.\.\/docs\/building-modules\/README\.md/\/building-modules\/intro\.html/g' > ./modules/README.md
-
-# ------------------
-# Include the specs from Ethermint
-#
-# For this purpose we are using the sparse checkout and only pull the following folders:
-#   - x/evm/spec
-#   - x/feemarket/spec
-#
-# Additionally, we are applying formatting to the feemarket overview file to
-# match the rest of the Evmos docs.
-mkdir ethermint_specs
-cd ethermint_specs || exit
-git init
-git remote add origin "$ETHERMINT_URL"
-git config core.sparseCheckout true
-printf "x/evm/spec\nx/feemarket/spec\n" > .git/info/sparse-checkout
-git pull origin main
-cd ..
-
-mv ethermint_specs/x/evm/spec/ ./modules/evm
-mv ethermint_specs/x/feemarket/spec/ ./modules/feemarket
-rm -rf ethermint_specs
-$FORMAT ./modules/feemarket/README.md --header --order 0 --title "Feemarket Overview" --parent "feemarket"
 
 # ------------------
 # Include the specs from Cosmos SDK and apply formatting to all downloaded files
