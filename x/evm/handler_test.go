@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/x/evm/keeper"
 	"github.com/evmos/evmos/v11/app"
 
 	sdkmath "cosmossdk.io/math"
@@ -530,172 +529,174 @@ func (suite *EvmTestSuite) deployERC20Contract() common.Address {
 	return crypto.CreateAddress(suite.from, nonce)
 }
 
-// TestERC20TransferReverted checks:
-// - when transaction reverted, gas refund works.
-// - when transaction reverted, nonce is still increased.
-func (suite *EvmTestSuite) TestERC20TransferReverted() {
-	intrinsicGas := uint64(21572)
-	// test different hooks scenarios
-	testCases := []struct {
-		msg      string
-		gasLimit uint64
-		hooks    types.EvmHooks
-		expErr   string
-	}{
-		{
-			"no hooks",
-			intrinsicGas, // enough for intrinsicGas, but not enough for execution
-			nil,
-			"out of gas",
-		},
-		{
-			"success hooks",
-			intrinsicGas, // enough for intrinsicGas, but not enough for execution
-			&DummyHook{},
-			"out of gas",
-		},
-		{
-			"failure hooks",
-			1000000, // enough gas limit, but hooks fails.
-			&FailureHook{},
-			"failed to execute post processing",
-		},
-	}
+// TODO: add back in once evm keeper from Freddy's PR is merged
+//// TestERC20TransferReverted checks:
+//// - when transaction reverted, gas refund works.
+//// - when transaction reverted, nonce is still increased.
+//func (suite *EvmTestSuite) TestERC20TransferReverted() {
+//	intrinsicGas := uint64(21572)
+//	// test different hooks scenarios
+//	testCases := []struct {
+//		msg      string
+//		gasLimit uint64
+//		hooks    types.EvmHooks
+//		expErr   string
+//	}{
+//		{
+//			"no hooks",
+//			intrinsicGas, // enough for intrinsicGas, but not enough for execution
+//			nil,
+//			"out of gas",
+//		},
+//		{
+//			"success hooks",
+//			intrinsicGas, // enough for intrinsicGas, but not enough for execution
+//			&DummyHook{},
+//			"out of gas",
+//		},
+//		{
+//			"failure hooks",
+//			1000000, // enough gas limit, but hooks fails.
+//			&FailureHook{},
+//			"failed to execute post processing",
+//		},
+//	}
+//
+//	for _, tc := range testCases {
+//		suite.Run(tc.msg, func() {
+//			suite.SetupTest()
+//			// TODO: Add CleanHooks back in from Freddy's PR
+//			//k := suite.app.EvmKeeper.CleanHooks()
+//			k := suite.app.EvmKeeper
+//			k.SetHooks(nil) // this basically does the same as CleanHooks
+//			k.SetHooks(tc.hooks)
+//
+//			// add some fund to pay gas fee
+//			err := k.SetBalance(suite.ctx, suite.from, big.NewInt(1000000000000000))
+//			suite.Require().NoError(err)
+//
+//			contract := suite.deployERC20Contract()
+//
+//			data, err := types.ERC20Contract.ABI.Pack("transfer", suite.from, big.NewInt(10))
+//			suite.Require().NoError(err)
+//
+//			gasPrice := big.NewInt(1000000000) // must be bigger than or equal to baseFee
+//			nonce := k.GetNonce(suite.ctx, suite.from)
+//			tx := types.NewTx(
+//				suite.chainID,
+//				nonce,
+//				&contract,
+//				big.NewInt(0),
+//				tc.gasLimit,
+//				gasPrice,
+//				nil,
+//				nil,
+//				data,
+//				nil,
+//			)
+//			suite.SignTx(tx)
+//
+//			before := k.GetBalance(suite.ctx, suite.from)
+//
+//			// TODO: Use this once evm keeper from Freddy's PR is merged
+//			//ethCfg := suite.app.EvmKeeper.GetChainConfig(suite.ctx).EthereumConfig(nil)
+//			evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+//			ethCfg := evmParams.GetChainConfig().EthereumConfig(nil) // this basically does the same as GetChainConfig on Keeper
+//			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
+//
+//			txData, err := types.UnpackTxData(tx.Data)
+//			suite.Require().NoError(err)
+//			fees, err := keeper.VerifyFee(txData, "aphoton", baseFee, true, true, suite.ctx.IsCheckTx())
+//			suite.Require().NoError(err)
+//			err = k.DeductTxCostsFromUserBalance(suite.ctx, fees, common.HexToAddress(tx.From))
+//			suite.Require().NoError(err)
+//
+//			res, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
+//			suite.Require().NoError(err)
+//
+//			suite.Require().True(res.Failed())
+//			suite.Require().Equal(tc.expErr, res.VmError)
+//			suite.Require().Empty(res.Logs)
+//
+//			after := k.GetBalance(suite.ctx, suite.from)
+//
+//			if tc.expErr == "out of gas" {
+//				suite.Require().Equal(tc.gasLimit, res.GasUsed)
+//			} else {
+//				suite.Require().Greater(tc.gasLimit, res.GasUsed)
+//			}
+//
+//			// check gas refund works: only deducted fee for gas used, rather than gas limit.
+//			suite.Require().Equal(new(big.Int).Mul(gasPrice, big.NewInt(int64(res.GasUsed))), new(big.Int).Sub(before, after))
+//
+//			// nonce should not be increased.
+//			nonce2 := k.GetNonce(suite.ctx, suite.from)
+//			suite.Require().Equal(nonce, nonce2)
+//		})
+//	}
+//}
 
-	for _, tc := range testCases {
-		suite.Run(tc.msg, func() {
-			suite.SetupTest()
-			// TODO: Add CleanHooks back in from Freddy's PR
-			//k := suite.app.EvmKeeper.CleanHooks()
-			k := suite.app.EvmKeeper
-			k.SetHooks(nil) // this basically does the same as CleanHooks
-			k.SetHooks(tc.hooks)
-
-			// add some fund to pay gas fee
-			err := k.SetBalance(suite.ctx, suite.from, big.NewInt(1000000000000000))
-			suite.Require().NoError(err)
-
-			contract := suite.deployERC20Contract()
-
-			data, err := types.ERC20Contract.ABI.Pack("transfer", suite.from, big.NewInt(10))
-			suite.Require().NoError(err)
-
-			gasPrice := big.NewInt(1000000000) // must be bigger than or equal to baseFee
-			nonce := k.GetNonce(suite.ctx, suite.from)
-			tx := types.NewTx(
-				suite.chainID,
-				nonce,
-				&contract,
-				big.NewInt(0),
-				tc.gasLimit,
-				gasPrice,
-				nil,
-				nil,
-				data,
-				nil,
-			)
-			suite.SignTx(tx)
-
-			before := k.GetBalance(suite.ctx, suite.from)
-
-			// TODO: Use this once evm keeper from Freddy's PR is merged
-			//ethCfg := suite.app.EvmKeeper.GetChainConfig(suite.ctx).EthereumConfig(nil)
-			evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-			ethCfg := evmParams.GetChainConfig().EthereumConfig(nil) // this basically does the same as GetChainConfig on Keeper
-			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
-
-			txData, err := types.UnpackTxData(tx.Data)
-			suite.Require().NoError(err)
-			fees, err := keeper.VerifyFee(txData, "aphoton", baseFee, true, true, suite.ctx.IsCheckTx())
-			suite.Require().NoError(err)
-			err = k.DeductTxCostsFromUserBalance(suite.ctx, fees, common.HexToAddress(tx.From))
-			suite.Require().NoError(err)
-
-			res, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
-			suite.Require().NoError(err)
-
-			suite.Require().True(res.Failed())
-			suite.Require().Equal(tc.expErr, res.VmError)
-			suite.Require().Empty(res.Logs)
-
-			after := k.GetBalance(suite.ctx, suite.from)
-
-			if tc.expErr == "out of gas" {
-				suite.Require().Equal(tc.gasLimit, res.GasUsed)
-			} else {
-				suite.Require().Greater(tc.gasLimit, res.GasUsed)
-			}
-
-			// check gas refund works: only deducted fee for gas used, rather than gas limit.
-			suite.Require().Equal(new(big.Int).Mul(gasPrice, big.NewInt(int64(res.GasUsed))), new(big.Int).Sub(before, after))
-
-			// nonce should not be increased.
-			nonce2 := k.GetNonce(suite.ctx, suite.from)
-			suite.Require().Equal(nonce, nonce2)
-		})
-	}
-}
-
-func (suite *EvmTestSuite) TestContractDeploymentRevert() {
-	intrinsicGas := uint64(134180)
-	testCases := []struct {
-		msg      string
-		gasLimit uint64
-		hooks    types.EvmHooks
-	}{
-		{
-			"no hooks",
-			intrinsicGas,
-			nil,
-		},
-		{
-			"success hooks",
-			intrinsicGas,
-			&DummyHook{},
-		},
-	}
-
-	for _, tc := range testCases {
-		suite.Run(tc.msg, func() {
-			suite.SetupTest()
-			//k := suite.app.EvmKeeper.CleanHooks()
-			k := suite.app.EvmKeeper
-			k.SetHooks(nil) // this basically does the same as CleanHooks
-
-			// test with different hooks scenarios
-			k.SetHooks(tc.hooks)
-
-			nonce := k.GetNonce(suite.ctx, suite.from)
-			ctorArgs, err := types.ERC20Contract.ABI.Pack("", suite.from, big.NewInt(0))
-			suite.Require().NoError(err)
-
-			tx := types.NewTx(
-				nil,
-				nonce,
-				nil, // to
-				nil, // amount
-				tc.gasLimit,
-				nil, nil, nil,
-				append(types.ERC20Contract.Bin, ctorArgs...),
-				nil,
-			)
-			suite.SignTx(tx)
-
-			// simulate nonce increment in ante handler
-			db := suite.StateDB()
-			db.SetNonce(suite.from, nonce+1)
-			suite.Require().NoError(db.Commit())
-
-			rsp, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
-			suite.Require().NoError(err)
-			suite.Require().True(rsp.Failed())
-
-			// nonce don't change
-			nonce2 := k.GetNonce(suite.ctx, suite.from)
-			suite.Require().Equal(nonce+1, nonce2)
-		})
-	}
-}
+// TODO: Add this back in once evm keeper from Freddy's PR is merged
+//func (suite *EvmTestSuite) TestContractDeploymentRevert() {
+//	intrinsicGas := uint64(134180)
+//	testCases := []struct {
+//		msg      string
+//		gasLimit uint64
+//		hooks    types.EvmHooks
+//	}{
+//		{
+//			"no hooks",
+//			intrinsicGas,
+//			nil,
+//		},
+//		{
+//			"success hooks",
+//			intrinsicGas,
+//			&DummyHook{},
+//		},
+//	}
+//
+//	for _, tc := range testCases {
+//		suite.Run(tc.msg, func() {
+//			suite.SetupTest()
+//			//k := suite.app.EvmKeeper.CleanHooks()
+//			k := suite.app.EvmKeeper
+//			k.SetHooks(nil) // this basically does the same as CleanHooks
+//
+//			// test with different hooks scenarios
+//			k.SetHooks(tc.hooks)
+//
+//			nonce := k.GetNonce(suite.ctx, suite.from)
+//			ctorArgs, err := types.ERC20Contract.ABI.Pack("", suite.from, big.NewInt(0))
+//			suite.Require().NoError(err)
+//
+//			tx := types.NewTx(
+//				nil,
+//				nonce,
+//				nil, // to
+//				nil, // amount
+//				tc.gasLimit,
+//				nil, nil, nil,
+//				append(types.ERC20Contract.Bin, ctorArgs...),
+//				nil,
+//			)
+//			suite.SignTx(tx)
+//
+//			// simulate nonce increment in ante handler
+//			db := suite.StateDB()
+//			db.SetNonce(suite.from, nonce+1)
+//			suite.Require().NoError(db.Commit())
+//
+//			rsp, err := k.EthereumTx(sdk.WrapSDKContext(suite.ctx), tx)
+//			suite.Require().NoError(err)
+//			suite.Require().True(rsp.Failed())
+//
+//			// nonce don't change
+//			nonce2 := k.GetNonce(suite.ctx, suite.from)
+//			suite.Require().Equal(nonce+1, nonce2)
+//		})
+//	}
+//}
 
 // DummyHook implements EvmHooks interface
 type DummyHook struct{}
