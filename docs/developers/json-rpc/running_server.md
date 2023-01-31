@@ -7,7 +7,9 @@ order: 2
 Learn how to run and setup the JSON-RPC server on Evmos. {synopsis}
 
 :::tip
-**Important**: You cannot use all JSON RPC methods unless your node stores the entire copy of the blockchain locally. Do you need archives/snapshots of our networks? Go to [this section](https://docs.evmos.org/validators/snapshots_archives.html).
+**Important**: You cannot use all JSON RPC methods unless your node stores the entire copy of the blockchain locally.
+Do you need archives/snapshots of our networks?
+Go to [this section](https://docs.evmos.org/validators/snapshots_archives.html).
 :::
 
 ## Introduction
@@ -29,7 +31,8 @@ evmosd start --json-rpc.enable
 
 ## Defining Namespaces
 
-`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default, but for the JSON-RPC you need to add more namespaces.
+`Eth`,`Net` and `Web3` [namespaces](./namespaces.md) are enabled by default,
+but for the JSON-RPC you need to add more namespaces.
 In order to enable other namespaces edit `app.toml` file.
 
 ```toml
@@ -40,7 +43,8 @@ api = "eth,net,web3,txpool,debug,personal"
 
 ## Set a Gas Cap
 
-`eth_call` and `eth_estimateGas` define a global gas cap over rpc for DoS protection. You can override the default gas cap value of 25,000,000 by passing a custom value in `app.toml`:
+`eth_call` and `eth_estimateGas` define a global gas cap over rpc for DoS protection.
+You can override the default gas cap value of 25,000,000 by passing a custom value in `app.toml`:
 
 ```toml
 # GasCap sets a cap on gas that can be used in eth_call/estimateGas (0=infinite). Default: 25,000,000.
@@ -49,7 +53,8 @@ gas-cap = 25000000
 
 ## CORS
 
-If accessing the RPC from a browser, CORS will need to be enabled with the appropriate domain set. Otherwise, JavaScript calls are limit by the same-origin policy and requests will fail.
+If accessing the RPC from a browser, CORS will need to be enabled with the appropriate domain set.
+Otherwise, JavaScript calls are limit by the same-origin policy and requests will fail.
 
 The CORS setting can be updated from the `app.toml`
 
@@ -68,7 +73,8 @@ enabled-unsafe-cors = true # default false
 
 ## Pruning
 
-For all methods to work correctly, your node must be archival (store the entire copy of the blockchain locally). Pruning must be disabled.
+For all methods to work correctly, your node must be archival (store the entire copy of the blockchain locally).
+Pruning must be disabled.
 The pruning settings can be updated from the `app.toml`
 
 ```toml
@@ -94,10 +100,14 @@ pruning-interval = "0"
 
 ## WebSocket Server
 
-Websocket is a bidirectional transport protocol. A Websocket connection is maintained by client and server until it is explicitly terminated by one. Most modern browsers support Websocket which means it has good tooling.
+Websocket is a bidirectional transport protocol.
+A Websocket connection is maintained by client and server until it is explicitly terminated by one.
+Most modern browsers support Websocket which means it has good tooling.
 
-Because Websocket is bidirectional, servers can push events to clients. That makes Websocket a good choice for use-cases involving event subscription.
-Another benefit of Websocket is that after the handshake procedure, the overhead of individual messages is low, making it good for sending high number of requests.
+Because Websocket is bidirectional, servers can push events to clients.
+That makes Websocket a good choice for use-cases involving event subscription.
+Another benefit of Websocket is that after the handshake procedure, the overhead of individual messages is low,
+making it good for sending high number of requests.
 The WebSocket Server can be enabled from the `app.toml`
 
 ```toml
@@ -107,7 +117,8 @@ ws-address = "0.0.0.0:8546"
 
 ## ETH Tx Indexer
 
-The ETH Tx Indexer provides an optional indexer services for Ethereum transactions to optimize JSON RPC performance. This removes the need for Tendermint Tx Indexer to support RPCs which reduces considerably storage costs.
+The ETH Tx Indexer provides an optional indexer services for Ethereum transactions to optimize JSON RPC performance.
+This removes the need for Tendermint Tx Indexer to support RPCs which reduces considerably storage costs.
 
 ### Enable Indexer
 
@@ -119,7 +130,8 @@ evmosd start --json-rpc.enable-indexer
 
 ### Index Historical Transactions
 
-If the chain had already started and you need the ETH Indexer to catch up on old transactions, you could run the `index-eth-tx` command to index historical ETH transactions.
+If the chain had already started and you need the ETH Indexer to catch up on old transactions,
+you could run the `index-eth-tx` command to index historical ETH transactions.
 
 ```bash
 evmosd index-eth-tx backward
@@ -135,4 +147,5 @@ evmosd index-eth-tx forward
 
 ### Eth Tx Indexer and State sync
 
-If setting up a node with state sync, you need to first start the node and index at least one block before turning on the eth tx indexer.
+If setting up a node with state sync, you need to first start the node and index at least one block
+before turning on the eth tx indexer.

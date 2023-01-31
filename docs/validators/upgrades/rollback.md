@@ -11,13 +11,17 @@ In order to restore a previous chain version, the following data must be recover
 - the database that contains the state of the previous chain (in `~/.evmosd/data` by default)
 - the `priv_validator_state.json` file of the validator (also in `~/.evmosd/data` by default)
 
-If validators don't possess their database data, another validator should share a copy of the database. Validators will be able to download a copy of the data and verify it before starting their node. If validators don't have the backup `priv_validator_state.json` file, then those validators will not have double-sign protection on their first block.
+If validators don't possess their database data, another validator should share a copy of the database.
+Validators will be able to download a copy of the data and verify it before starting their node.
+If validators don't have the backup `priv_validator_state.json` file,
+then those validators will not have double-sign protection on their first block.
 
 ## Restoring State Procedure
 
 1. First, stop your node.
 
-2. Then, copy the contents of your backup data directory back to the `$EVMOS_HOME/data` directory (which, by default, should be `~/.evmosd/data`).
+2. Then, copy the contents of your backup data directory back to the `$EVMOS_HOME/data` directory
+(which, by default, should be `~/.evmosd/data`).
 
 ```bash
 # Assumes backup is stored in "backup" directory

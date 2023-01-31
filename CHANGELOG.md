@@ -251,7 +251,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (vesting) [\#666](https://github.com/evmos/evmos/pull/666) Remove support of Cosmos SDK `VestingAccount` types.
 - (deps) [\#663](https://github.com/evmos/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/evmos/ethermint/releases/tag/v0.16.1)
 - (claims) [\#605](https://github.com/evmos/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
-- (erc20) [\#602](https://github.com/evmos/evmos/pull/602) Modified `RegisterERC20` proposals. Fix erc20 name sanitization to allow spaces on token name.
+- (erc20) [\#602](https://github.com/evmos/evmos/pull/602) Modified `RegisterERC20` proposals.
+Fix erc20 name sanitization to allow spaces on token name.
 
 ### API Breaking
 
@@ -313,7 +314,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (app) [\#555](https://github.com/evmos/evmos/pull/555) `v4.0.0` upgrade logic.
-- (p2p) [\#541](https://github.com/evmos/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound. Add default seeds to reduce the need for configuration.
+- (p2p) [\#541](https://github.com/evmos/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound.
+Add default seeds to reduce the need for configuration.
 - (deps) [\#528](https://github.com/evmos/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
 
 ## [v3.0.0] - 2022-04-22
@@ -415,7 +417,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - [\#286](https://github.com/evmos/evmos/pull/286) Add `x/vesting` module.
 - [\#184](https://github.com/evmos/evmos/pull/184) Add claims module for claiming the airdrop tokens.
 - [\#183](https://github.com/evmos/evmos/pull/183) Add epoch module for incentives.
-- [\#202](https://github.com/evmos/evmos/pull/202) Add custom configuration for state sync snapshots and tendermint p2p peers. This introduces a custom `InitCmd` function.
+- [\#202](https://github.com/evmos/evmos/pull/202) Add custom configuration for state sync snapshots and tendermint p2p peers.
+This introduces a custom `InitCmd` function.
 - [\#176](https://github.com/evmos/evmos/pull/176) Add `x/incentives` module.
 
 ### Improvements

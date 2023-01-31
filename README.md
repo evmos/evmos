@@ -39,14 +39,18 @@ parent:
   </a>
 </div>
 
-Evmos is a scalable, high-throughput Proof-of-Stake blockchain that is fully compatible and
-interoperable with Ethereum. It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) which runs on top of [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
+Evmos is a scalable, high-throughput Proof-of-Stake blockchain
+that is fully compatible and interoperable with Ethereum.
+It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/)
+which runs on top of the [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
 
 **Note**: Requires [Go 1.19+](https://golang.org/dl/)
 
 ## Installation
 
-For prerequisites and detailed build instructions please read the [Installation](https://docs.evmos.org/validators/quickstart/installation.html) instructions. Once the dependencies are installed, run:
+For prerequisites and detailed build instructions
+please read the [Installation](https://docs.evmos.org/validators/quickstart/installation.html) instructions.
+Once the dependencies are installed, run:
 
 ```bash
 make install
@@ -56,7 +60,9 @@ Or check out the latest [release](https://github.com/evmos/evmos/releases).
 
 ## Quick Start
 
-To learn how the Evmos works from a high-level perspective, go to the [Introduction](https://docs.evmos.org/about/intro/overview.html) section from the documentation. You can also check the instructions to [Run a Node](https://docs.evmos.org/validators/quickstart/run_node.html).
+To learn how the Evmos works from a high-level perspective,
+go to the [Introduction](https://docs.evmos.org/about/intro/overview.html) section from the documentation.
+You can also check the instructions to [Run a Node](https://docs.evmos.org/validators/quickstart/run_node.html).
 
 ## Community
 
@@ -69,7 +75,9 @@ The following chat channels and forums are a great spot to ask questions about E
 
 ## Contributing
 
-Looking for a good place to start contributing? Check out some [`good first issues`](https://github.com/evmos/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+Looking for a good place to start contributing?
+Check out some
+[`good first issues`](https://github.com/evmos/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
 
 For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
 

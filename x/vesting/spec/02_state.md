@@ -6,11 +6,18 @@ order: 2
 
 ## State Objects
 
-The `x/vesting` module does not keep objects in its own store. Instead, it uses the SDK `auth` module to store account objects in state using the [Account Interface](https://docs.cosmos.network/main/modules/auth#account-interface). Accounts are exposed externally as an interface and stored internally as a clawback vesting account.
+The `x/vesting` module does not keep objects in its own store.
+Instead, it uses the SDK `auth` module to store account objects in state
+using the [Account Interface](https://docs.cosmos.network/main/modules/auth#account-interface).
+Accounts are exposed externally as an interface and stored internally as a clawback vesting account.
 
 ## ClawbackVestingAccount
 
-An instance that implements the [Vesting Account](https://docs.cosmos.network/main/modules/auth/vesting#vesting-account-types) interface. It provides an account that can hold contributions subject to lockup, or vesting which is subject to clawback of unvested tokens, or a combination (tokens vest, but are still locked).
+An instance that implements
+the [Vesting Account](https://docs.cosmos.network/main/modules/auth/vesting#vesting-account-types) interface.
+It provides an account that can hold contributions subject to lockup,
+or vesting which is subject to clawback of unvested tokens,
+or a combination (tokens vest, but are still locked).
 
 ```go
 type ClawbackVestingAccount struct {
@@ -30,7 +37,8 @@ type ClawbackVestingAccount struct {
 
 ### BaseVestingAccount
 
-Implements the `VestingAccount` interface. It contains all the necessary fields needed for any vesting account implementation.
+Implements the `VestingAccount` interface.
+It contains all the necessary fields needed for any vesting account implementation.
 
 ### FunderAddress
 
@@ -50,4 +58,6 @@ Defines the vesting schedule relative to the start time.
 
 ## Genesis State
 
-The `x/vesting` module allows the definition of `ClawbackVestingAccounts` at genesis. In this case, the account balance must be logged in the SDK `bank` module balances or automatically adjusted through the `add-genesis-account` CLI command.
+The `x/vesting` module allows the definition of `ClawbackVestingAccounts` at genesis.
+In this case, the account balance must be logged in the SDK `bank` module balances
+or automatically adjusted through the `add-genesis-account` CLI command.

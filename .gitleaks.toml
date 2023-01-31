@@ -14,11 +14,12 @@ title = "gitleaks config"
 description = "global allow lists"
 paths = [
     '''gitleaks.toml''',
-    '''(.*?)(jpg|gif|doc|docx|zip|xls|pdf|bin|svg|socket)$''',
+    '''(.*?)(jpg|gif|pdf|png|svg)$''',
     '''(go.mod|go.sum)$''',
-    '''node_modules''',
-    '''vendor''',
-    '''local_node.sh'''
+]
+stopwords = [
+    '''secp256k1''',
+    '''evmospub1addwnpepqgcxazmq6wgt2j4rdfumsfwla0zfk8e5sws3p3zg5dkm9007hmfysxas0u2''',
 ]
 
 [[rules]]

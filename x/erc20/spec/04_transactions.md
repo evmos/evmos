@@ -8,7 +8,9 @@ This section defines the `sdk.Msg` concrete types that result in the state trans
 
 ## `RegisterCoinProposal`
 
-A gov `Content` type to register a token pair from a Cosmos Coin. Governance users vote on this proposal and it automatically executes the custom handler for `RegisterCoinProposal` when the vote passes.
+A gov `Content` type to register a token pair from a Cosmos Coin.
+Governance users vote on this proposal
+and it automatically executes the custom handler for `RegisterCoinProposal` when the vote passes.
 
 ```go
 type RegisterCoinProposal struct {
@@ -35,7 +37,9 @@ The proposal content stateless validation fails if:
 
 ## `RegisterERC20Proposal`
 
-A gov `Content` type to register a token pair from an ERC20 Token. Governance users vote on this proposal and it automatically executes the custom handler for `RegisterERC20Proposal` when the vote passes.
+A gov `Content` type to register a token pair from an ERC20 Token.
+Governance users vote on this proposal
+and it automatically executes the custom handler for `RegisterERC20Proposal` when the vote passes.
 
 ```go
 type RegisterERC20Proposal struct {

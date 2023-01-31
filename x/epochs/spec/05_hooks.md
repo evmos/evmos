@@ -4,7 +4,8 @@ order: 5
 
 # Hooks
 
-The `x/epochs` module implements hooks so that other modules can use epochs to allow facets of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) to run on specific schedules.
+The `x/epochs` module implements hooks so that other modules can use epochs
+to allow facets of the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) to run on specific schedules.
 
 ## Hooks Implementation
 
@@ -29,8 +30,10 @@ func (k Keeper) BeforeEpochStart(ctx sdk.Context, identifier string, epochNumber
 
 ## Recieving Hooks
 
-When other modules (outside of `x/epochs`) recieve hooks, they need to filter the value `epochIdentifier`, and only do executions for a specific `epochIdentifier`.
+When other modules (outside of `x/epochs`) recieve hooks,
+they need to filter the value `epochIdentifier`, and only do executions for a specific `epochIdentifier`.
 
-The filtered values from `epochIdentifier` could be stored in the `Params` of other modules, so they can be modified by governance.
+The filtered values from `epochIdentifier` could be stored in the `Params` of other modules,
+so they can be modified by governance.
 
 Governance can change epoch periods from `week` to `day` as needed.

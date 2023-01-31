@@ -22,7 +22,9 @@ go version
 ```
 
 :::tip
-If the `evmosd: command not found` error message is returned, confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured by running the following command:
+If the `evmosd: command not found` error message is returned,
+confirm that your [`GOPATH`](https://golang.org/doc/gopath_code#GOPATH) is correctly configured
+by running the following command:
 
 ```bash
 export PATH=$PATH:$(go env GOPATH)/bin
@@ -33,7 +35,8 @@ export PATH=$PATH:$(go env GOPATH)/bin
 ## Install Binaries
 
 ::: tip
-The latest {{ $themeConfig.project.name }} [version](https://github.com/evmos/evmos/releases) is `{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
+The latest {{ $themeConfig.project.name }} [version](https://github.com/evmos/evmos/releases) is
+`{{ $themeConfig.project.binary }} {{ $themeConfig.project.latest_version }}`
 :::
 
 ### GitHub

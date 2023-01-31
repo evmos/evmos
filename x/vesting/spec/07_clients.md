@@ -8,7 +8,8 @@ A user can query the Evmos `x/vesting` module using the CLI, gRPC, or REST.
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/vesting` module. You can obtain the full list by using the `evmosd -h` command.
+Find below a list of `evmosd` commands added with the `x/vesting` module.
+You can obtain the full list by using the `evmosd -h` command.
 
 ### Genesis
 
@@ -16,10 +17,16 @@ The genesis configuration commands allow users to configure the genesis `vesti
 
 `add-genesis-account`
 
-Allows users to set up clawback vesting accounts at genesis, funded with an allocation of tokens, subject to clawback. Must provide a lockup periods file (`--lockup`), a vesting periods file (`--vesting`), or both.
+Allows users to set up clawback vesting accounts at genesis, funded with an allocation of tokens, subject to clawback.
+Must provide a lockup periods file (`--lockup`), a vesting periods file (`--vesting`), or both.
 
 If both files are given, they must describe schedules for the same total amount.
-If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount. The described amount of coins will be transferred from the --from address to the vesting account. Unvested coins may be "clawed back" by the funder with the clawback command. Coins may not be transferred out of the account if they are locked or unvested. Only vested coins may be staked. For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
+If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount.
+The described amount of coins will be transferred from the --from address to the vesting account.
+Unvested coins may be "clawed back" by the funder with the clawback command.
+Coins may not be transferred out of the account if they are locked or unvested.
+Only vested coins may be staked.
+For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
 
 ```go
 evmosd add-genesis-account ADDRESS_OR_KEY_NAME COIN... [flags]
@@ -43,10 +50,16 @@ The `tx` commands allow users to create and clawback `vesting` account state
 
 **`create-clawback-vesting-account`**
 
-Allows users to create a new vesting account funded with an allocation of tokens, subject to clawback. Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
+Allows users to create a new vesting account funded with an allocation of tokens, subject to clawback.
+Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
 
 If both files are given, they must describe schedules for the same total amount.
-If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount. The described amount of coins will be transferred from the --from address to the vesting account. Unvested coins may be "clawed back" by the funder with the clawback command. Coins may not be transferred out of the account if they are locked or unvested. Only vested coins may be staked. For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
+If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount.
+The described amount of coins will be transferred from the --from address to the vesting account.
+Unvested coins may be "clawed back" by the funder with the clawback command.
+Coins may not be transferred out of the account if they are locked or unvested.
+Only vested coins may be staked.
+For an example of how to set this see [this link](https://github.com/evmos/evmos/pull/303).
 
 ```go
 evmosd tx vesting create-clawback-vesting-account TO_ADDRESS [flags]
@@ -54,7 +67,11 @@ evmosd tx vesting create-clawback-vesting-account TO_ADDRESS [flags]
 
 **`clawback`**
 
-Allows users to create a transfer unvested amount out of a ClawbackVestingAccount. Must be requested by the original funder address (--from) and may provide a destination address (--dest), otherwise the coins return to the funder. Delegated or undelegating staking tokens will be transferred in the delegated (undelegating) state. The recipient is vulnerable to slashing, and must act to unbond the tokens if desired.
+Allows users to create a transfer unvested amount out of a ClawbackVestingAccount.
+Must be requested by the original funder address (--from) and may provide a destination address (--dest),
+otherwise the coins return to the funder.
+Delegated or undelegating staking tokens will be transferred in the delegated (undelegating) state.
+The recipient is vulnerable to slashing, and must act to unbond the tokens if desired.
 
 ```go
 evmosd tx vesting clawback ADDRESS [flags]
@@ -62,7 +79,9 @@ evmosd tx vesting clawback ADDRESS [flags]
 
 **`update-vesting-funder`**
 
-Allows users to update the funder of an existent `ClawbackVestingAccount`. Must be requested by the original funder address (`--from`). To perform this action, the user needs to provide two arguments:
+Allows users to update the funder of an existent `ClawbackVestingAccount`.
+Must be requested by the original funder address (`--from`).
+To perform this action, the user needs to provide two arguments:
 
 1. the new funder address
 2. the vesting account address
