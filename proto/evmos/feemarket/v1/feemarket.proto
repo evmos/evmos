@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.feemarket.v1;
+package ethermint.feemarket.v1;
 
 import "gogoproto/gogo.proto";
 

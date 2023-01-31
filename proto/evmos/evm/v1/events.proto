@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.evm.v1;
+package ethermint.evm.v1;
 
 option go_package = "github.com/evmos/evmos/v11/x/evm/types";
 

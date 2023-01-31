@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.evm.v1;
+package ethermint.evm.v1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/evm/v1/evm.proto";

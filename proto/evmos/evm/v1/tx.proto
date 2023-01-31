@@ -1,5 +1,5 @@
 syntax = "proto3";
-package evmos.evm.v1;
+package ethermint.evm.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
