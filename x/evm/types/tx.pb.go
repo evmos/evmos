@@ -8,6 +8,7 @@ import (
 	encoding_binary "encoding/binary"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -17,7 +18,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	anypb "google.golang.org/protobuf/types/known/anypb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -37,7 +37,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // MsgEthereumTx encapsulates an Ethereum transaction as an SDK message.
 type MsgEthereumTx struct {
 	// data is inner transaction data of the Ethereum transaction
-	Data *anypb.Any `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Data *types.Any `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
 	// size is the encoded storage size of the transaction (DEPRECATED)
 	Size_ float64 `protobuf:"fixed64,2,opt,name=size,proto3" json:"-"`
 	// hash of the transaction in hex format
@@ -1500,7 +1500,7 @@ func (m *MsgEthereumTx) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Data == nil {
-				m.Data = &anypb.Any{}
+				m.Data = &types.Any{}
 			}
 			if err := m.Data.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
