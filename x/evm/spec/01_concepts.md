@@ -138,27 +138,21 @@ then nodes gossip between each other and eventually the transaction is included 
 
 In the Geth implementation, calling the endpoint roughly goes through the following steps:
 
-1.
-The `eth_call` request is transformed to call the `func (s *PublicBlockchainAPI) Call()` function using the `eth` namespace
+1. The `eth_call` request is transformed to call the `func (s *PublicBlockchainAPI) Call()` function using the `eth` namespace
 2. [`Call()`](https://github.com/ethereum/go-ethereum/blob/master/internal/ethapi/api.go#L982) is given
    the transaction arguments, the block to call against and optional arguments that modify the state to call against.
    It then calls `DoCall()`.
-3.
-[`DoCall()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/internal/ethapi/api.go#L891)
+3. [`DoCall()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/internal/ethapi/api.go#L891)
    transforms the arguments into a `ethtypes.message`, instantiates an EVM
    and applies the message with `core.ApplyMessage`
-4.
-[`ApplyMessage()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/state_transition.go#L180)
+4. [`ApplyMessage()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/state_transition.go#L180)
    calls the state transition `TransitionDb()`
-5.
-[`TransitionDb()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/state_transition.go#L275)
+5. [`TransitionDb()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/state_transition.go#L275)
    either `Create()`s a new contract or `Call()`s a contract
-6.
-[`evm.Call()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/vm/evm.go#L168)
+6. [`evm.Call()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/vm/evm.go#L168)
    runs the interpreter `evm.interpreter.Run()` to execute the message.
    If the execution fails, the state is reverted to a snapshot taken before the execution and gas is consumed.
-7.
-[`Run()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/vm/interpreter.go#L116)
+7. [`Run()`](https://github.com/ethereum/go-ethereum/blob/d575a2d3bc76dfbdefdd68b6cffff115542faf75/core/vm/interpreter.go#L116)
    performs a loop to execute the opcodes.
 
 The ethermint implementation is similar and makes use of the gRPC query client which is included in the Cosmos SDK:
@@ -169,8 +163,7 @@ The ethermint implementation is similar and makes use of the gRPC query client w
    transforms the arguments into a `EthCallRequest` and calls `EthCall()` using the query client of the evm module.
 4. [`EthCall()`](https://github.com/evmos/ethermint/blob/main/x/evm/keeper/grpc_query.go#L212)
    transforms the arguments into a `ethtypes.message` and calls `ApplyMessageWithConfig()
-5.
-[`ApplyMessageWithConfig()`](https://github.com/evmos/ethermint/blob/d5598932a7f06158b7a5e3aa031bbc94eaaae32c/x/evm/keeper/state_transition.go#L341)
+5. [`ApplyMessageWithConfig()`](https://github.com/evmos/ethermint/blob/d5598932a7f06158b7a5e3aa031bbc94eaaae32c/x/evm/keeper/state_transition.go#L341)
    instantiates an EVM and either `Create()`s a new contract or `Call()`s a contract using the Geth implementation.
 
 ### StateDB
