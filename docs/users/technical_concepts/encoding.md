@@ -28,12 +28,14 @@ support Amino in the EVM module, but it is supported for all other Cosmos SDK mo
 
 ### RLP
 
-Recursive Length Prefix ([RLP](https://eth.wiki/en/fundamentals/rlp)), is an encoding/decoding algorithm that serializes a message and
+Recursive Length Prefix ([RLP](https://eth.wiki/en/fundamentals/rlp)),
+is an encoding/decoding algorithm that serializes a message and
 allows for quick reconstruction of encoded data. Evmos uses RLP to encode/decode Ethereum
 messages for JSON-RPC handling to conform messages to the proper Ethereum format. This allows
 messages to be encoded and decoded in the exact format as Ethereum's.
 
-The `x/evm` transactions (`MsgEthereumTx`) encoding is performed by casting the message to a go-ethereum's `Transaction` and then marshaling the transaction data using RLP:
+The `x/evm` transactions (`MsgEthereumTx`) encoding is performed
+by casting the message to a go-ethereum's `Transaction` and then marshaling the transaction data using RLP:
 
 ```go
 // TxEncoder overwrites sdk.TxEncoder to support MsgEthereumTx

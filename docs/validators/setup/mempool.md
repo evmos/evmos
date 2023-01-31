@@ -33,10 +33,12 @@ When using the prioritized mempool, transactions for the next produced block are
 by order of their priority (i.e. their fees) from highest to lowest.
 Should the mempool be full, the prioritized implementation allows
 to remove the transactions with the lowest priority until enough disk space is available for
-an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576) implementation for more details).
+an incoming, higher-priority transaction (see [v1/mempool.go](https://github.com/tendermint/tendermint/blob/17c94bb0dcb354c57f49cdcd1e62f4742752c803/mempool/v1/mempool.go#L505C2-L576)
+implementation for more details).
 
 ::: tip
-Even though the transaction processing can be ordered by priority, the gossiping of transactions will always be according to FIFO.
+Even though the transaction processing can be ordered by priority,
+the gossiping of transactions will always be according to FIFO.
 :::
 
 ## Configuration
@@ -66,7 +68,7 @@ version = "v1"
 
 More detailed information can be found here:
 
-- [Tendermint ADR-067 - Mempool Refactor](https://github.com/tendermint/tendermint/blob/main/docs/architecture/adr-067-mempool-refactor.md).
+- [Tendermint ADR-067 - Mempool Refactor](https://github.com/tendermint/tendermint/blob/master/docs/architecture/adr-067-mempool-refactor.md).
 - [Blogpost: Tendermint v0.35 Announcement](https://medium.com/tendermint/tendermint-v0-35-introduces-prioritized-mempool-a-makeover-to-the-peer-to-peer-network-more-61eea6ec572d)
 - [EIP-1559: Fee market change for ETH 1.0 chain](https://eips.ethereum.org/EIPS/eip-1559)
 - [EIP-1559 FAQ](https://notes.ethereum.org/@vbuterin/eip-1559-faq)

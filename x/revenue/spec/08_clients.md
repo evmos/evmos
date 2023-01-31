@@ -6,7 +6,9 @@ order: 8
 
 ## CLI
 
-Find below a list of  `evmosd` commands added with the  `x/revenue` module. You can obtain the full list by using the `evmosd -h` command. A CLI command can look like this:
+Find below a list of  `evmosd` commands added with the  `x/revenue` module.
+You can obtain the full list by using the `evmosd -h` command.
+A CLI command can look like this:
 
 ```bash
 evmosd query revenue params

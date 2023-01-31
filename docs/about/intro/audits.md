@@ -4,9 +4,13 @@ order: 4
 
 # Audits
 
-Evmos is connecting two major worlds in the crypto universe by enabling compatibility between the Ethereum and Cosmos ecosystems. This does not come without its difficulties, and security always is a top priority for the Evmos developers.
+Evmos is connecting two major worlds in the crypto universe
+by enabling compatibility between the Ethereum and Cosmos ecosystems.
+This does not come without its difficulties, and security always is a top priority for the Evmos developers.
 
-Each feature is extensively tested and internally audited by the team before being brought to the users. However, external audits are a valuable and necessary assurance for the security of the protocol itself and with that, also for anyone deploying on or using Evmos.
+Each feature is extensively tested and internally audited by the team before being brought to the users.
+However, external audits are a valuable and necessary assurance for the security of the protocol itself
+and with that, also for anyone deploying on or using Evmos.
 
 ## Publicly Available Audits
 
