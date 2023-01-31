@@ -30,7 +30,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const DefaultFeeAmt = int64(1_000_000_000_000_000_000)
+const DefaultFeeAmt = int64(150_000_000_000_000_000) // 0.15 EVMOS
 
 var globalStartTime = time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC)
 

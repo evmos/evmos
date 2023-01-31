@@ -159,9 +159,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, claimstypes.DefaultClaimsDenom, amount, receiver, sender, 1, "")
 
 			aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
-			// TODO calculate instead of hardcoded
-			fee, _ := sdk.NewIntFromString("3000000000000000000")
-			s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(fee), aevmosAfterBalance.Amount)
+			s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(sendAndReceiveMsgFee), aevmosAfterBalance.Amount)
 
 			// check ibc aevmos coins balance on Osmosis
 			aevmosIBCBalanceBefore := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, teststypes.AevmosIbcdenom)
@@ -177,9 +175,9 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// check aevmos balance after transfer - should be equal to initial balance
 			aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
-			// TODO calculate instead of hardcoded
-			fee2, _ := sdk.NewIntFromString("2000000000000000000")
-			s.Require().Equal(aevmosInitialBalance.Amount.Sub(fee).Sub(fee2), aevmosFinalBalance.Amount)
+
+			totalFees := sendBackCoinsFee.Add(sendAndReceiveMsgFee)
+			s.Require().Equal(aevmosInitialBalance.Amount.Sub(totalFees), aevmosFinalBalance.Amount)
 
 			// check IBC Coin balance - should be zero
 			ibcCoinsBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.AevmosIbcdenom)
@@ -324,10 +322,8 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// validate that Receiver address on Evmos got the claims tokens
 			receiverFinalAevmosBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
-			// TODO calculate instead of hardcoded
-			fee2, _ := sdk.NewIntFromString("2000000000000000000")
 
-			s.Require().Equal(receiverInitialAevmosBalance.Amount.Add(claimableAmount).Sub(fee2), receiverFinalAevmosBalance.Amount)
+			s.Require().Equal(receiverInitialAevmosBalance.Amount.Add(claimableAmount).Sub(sendBackCoinsFee), receiverFinalAevmosBalance.Amount)
 		})
 	})
 	Describe("registered erc20", func() {

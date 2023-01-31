@@ -88,7 +88,16 @@ type KeeperTestSuite struct {
 	suiteIBCTesting bool
 }
 
-var s *KeeperTestSuite
+var (
+	s *KeeperTestSuite
+	// sendAndReceiveMsgFee corresponds to the fees paid on Evmos chain when calling the SendAndReceive function
+	// This function makes 3 cosmos txs under the hood
+	sendAndReceiveMsgFee = sdk.NewInt(ibctesting.DefaultFeeAmt * 3)
+	// sendBackCoinsFee corresponds to the fees paid on Evmos chain when calling the SendBackCoins function
+	// or calling the SendAndReceive from another chain to Evmos
+	// This function makes 2 cosmos txs under the hood
+	sendBackCoinsFee = sdk.NewInt(ibctesting.DefaultFeeAmt * 2)
+)
 
 func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
