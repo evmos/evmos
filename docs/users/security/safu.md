@@ -10,7 +10,7 @@ on Evmos {synopsis}
 ## Overview
 
 <!-- markdown-link-check-disable-next-line -->
-The [Simple Arrangement for Funding Upload (the "SAFU")](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf)
+The [Simple Arrangement for Funding Upload (the "SAFU")](https://github.com/evmos/evmos/tree/main/SAFU.pdf)
 outlines the post-exploit policy for active vulnerabilities in the Evmos blockchain.
 The SAFU is intended for white hat hackers
 and outlines the process for returning funds and calculating rewards
@@ -19,11 +19,12 @@ In summary, the SAFU states the following:
 
 * Hackers are not at risk of legal action if they act in accordance
   with the SAFU.
-* Hackers have 48 hours to return any exploited funds
+* Hackers have a Grace Period to return any exploited funds
   to a specified dropbox address and can claim a reward of
-  5% of the total funds secured up to a maximum of 750,000 tokens.
+  a Bounty Percent of the total funds secured up to the Bounty Cap.
 * The rewards are distributed during the next upgrade of the network.
-* If the reward is valued above $100,000, white hat hackers should go through
+* If the reward is valued above a specified threshold amount,
+  white hat hackers should go through
   a Know Your Clients/Know Your Business (KYC/KYB) process.
 * Exploiting vulnerabilities for malicious purposes
   will make a hacker ineligible for any rewards.
@@ -32,7 +33,7 @@ In summary, the SAFU states the following:
   by hackers but do not have their own SAFU program).
 
 For more information,
-visit [the SAFU agreement](https://github.com/evmos/evmos/tree/main/docs/users/security/SAFU.pdf).<!-- markdown-link-check-disable-line -->
+visit [the SAFU agreement](https://github.com/evmos/evmos/tree/main/SAFU.pdf).<!-- markdown-link-check-disable-line -->
 
 ## Dropbox Address
 
@@ -73,13 +74,13 @@ address = shaSum256([]byte("safu"))[:20])
 
 ## How To Secure Vulnerable Funds
 
-Within the first 48 hours of a hack,
+Within the Grace Period of a hack,
 white hats should secure the funds by transferring them to the dropbox address.
 
 ## How To Claim The Reward
 
 Rewards distribution will be done manually on the next chain upgrade.
-If the reward is valued above $100,000,
+If the reward is valued above a certain threshold amount,
 white hat hackers should go through a
 Know Your Clients/Know Your Business (KYC/KYB) process.
 
