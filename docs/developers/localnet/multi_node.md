@@ -46,7 +46,7 @@ To update the binary, just rebuild it and restart the nodes
 make localnet-start
 ```
 
-The command above  command will run containers in the background using Docker compose.
+The command above command will run containers in the background using Docker compose.
 You will see the network being created:
 
 ```bash

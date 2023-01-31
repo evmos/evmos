@@ -387,7 +387,7 @@ the validator will get slashed by a marginal amount proportional to X.
 If X is above a certain limit Y, then the validator will get unbonded.
 
 Note that even if a validator does not intentionally misbehave,
-it can still be slashed if its node crashes, looses connectivity, gets DDoSed,
+it can still be slashed if its node crashes, loses connectivity, gets DDoSed,
 or if its private key is compromised.
 
 ### Do validators need to self-bond EVMOS
