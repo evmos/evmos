@@ -6,11 +6,13 @@ order: 2
 
 Learn how to deploy a simple Solidity-based smart contract to Evmos using the Hardhat environment {synopsis}
 
-[Hardhat](https://hardhat.org/) is a flexible development environment for building Ethereum-based smart contracts. It is designed with integrations and extensibility in mind
+[Hardhat](https://hardhat.org/) is a flexible development environment for building Ethereum-based smart contracts.
+It is designed with integrations and extensibility in mind
 
 ## Install Dependencies
 
-Before proceeding, you need to install Node.js (we'll use v16.x) and the npm package manager. You can download directly from [Node.js](https://nodejs.org/en/download/) or in your terminal:
+Before proceeding, you need to install Node.js (we'll use v16.x) and the npm package manager.
+You can download directly from [Node.js](https://nodejs.org/en/download/) or in your terminal:
 
 <CodeGroup>
 <CodeGroupItem title="Ubuntu">
@@ -71,7 +73,10 @@ $ npx hardhat
   Quit
 ```
 
-Following the prompts should create a new project structure in your directory. Consult the [Hardhat config page](https://hardhat.org/config/) for a list of configuration options to specify in `hardhat.config.js`. Most importantly, you should set the `defaultNetwork` entry to point to your desired JSON-RPC network:
+Following the prompts should create a new project structure in your directory.
+Consult the [Hardhat config page](https://hardhat.org/config/) for a list of configuration options
+to specify in `hardhat.config.js`.
+Most importantly, you should set the `defaultNetwork` entry to point to your desired JSON-RPC network:
 
 <CodeGroup>
 <CodeGroupItem title="Local Node">
@@ -115,7 +120,8 @@ module.exports = {
 * To get the value for privateKey:
     * MetaMask -> Account Details -> Export Private Key -> add '0x' as prefix -> `privateKey1`
 
-To ensure you are targeting the correct network, you can query for a list of accounts available to you from your default network provider:
+To ensure you are targeting the correct network,
+you can query for a list of accounts available to you from your default network provider:
 
 ```bash
 $ npx hardhat accounts
@@ -141,7 +147,8 @@ task("accounts", "Prints the list of accounts", async () => {
 
 ## Deploying a Smart Contract
 
-You will see that a default smart contract, written in Solidity, has already been provided under `contracts/Greeter.sol`:
+You will see that a default smart contract, written in Solidity,
+has already been provided under `contracts/Greeter.sol`:
 
 ```javascript
 pragma solidity ^0.8.0;
@@ -167,7 +174,9 @@ contract Greeter {
 }
 ```
 
-This contract allows you to set and query a string `greeting`. Hardhat also provides a script to deploy smart contracts to a target network; this can be invoked via the following command, targeting your default network:
+This contract allows you to set and query a string `greeting`.
+Hardhat also provides a script to deploy smart contracts to a target network;
+this can be invoked via the following command, targeting your default network:
 
 ```bash
 npx hardhat run scripts/deploy.js

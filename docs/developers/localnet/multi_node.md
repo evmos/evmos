@@ -6,7 +6,7 @@ order: 2
 
 ## Pre-requisite Readings
 
-- [Install Ignite CLI](https://docs.ignite.com/guide/install.html)  {prereq}
+- [Install Ignite CLI](https://docs.ignite.com/welcome/install)  {prereq}
 - [Install Docker](https://docs.docker.com/engine/installation/)  {prereq}
 - [Install docker-compose](https://docs.docker.com/compose/install/)  {prereq}
 
@@ -18,7 +18,7 @@ Once you have installed `ignite`, just run the localnet by using
 ignite chain serve 
 ```
 
-Detailed instructions can be found in the [Ignite CLI documentation](https://docs.ignite.com/kb/serve.html)
+Detailed instructions can be found in the [Ignite CLI documentation](https://docs.ignite.com/references/cli#ignite-chain-serve)
 
 ## Automated Localnet with Docker
 
@@ -46,7 +46,8 @@ To update the binary, just rebuild it and restart the nodes
 make localnet-start
 ```
 
-The command above  command will run containers in the background using Docker compose. You will see the network being created:
+The command above command will run containers in the background using Docker compose.
+You will see the network being created:
 
 ```bash
 ...
@@ -188,7 +189,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1
 The IP address will be the public IP of the docker container.
 :::
 
-Additional instructions on how to interact with the WebSocket can be found on the [events documentation](./../json-rpc/events.md#ethereum-websocket).
+Additional instructions on how to interact with the WebSocket
+can be found on the [events documentation](./../json-rpc/events.md#ethereum-websocket).
 
 ### Keys & Accounts
 
@@ -203,12 +205,16 @@ Now that accounts exists, you may create new accounts and send those accounts
 funds!
 
 ::: tip
-**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json` and can be restored to the CLI using the `evmosd keys add --restore` command
+**Note**: Each node's seed is located at `./build/nodeN/evmosd/key_seed.json`
+and can be restored to the CLI using the `evmosd keys add --restore` command
 :::
 
 ### Special Binaries
 
-If you have multiple binaries with different names, you can specify which one to run with the BINARY environment variable. The path of the binary is relative to the attached volume. For example:
+If you have multiple binaries with different names,
+you can specify which one to run with the BINARY environment variable.
+The path of the binary is relative to the attached volume.
+For example:
 
 ```bash
 # Run with custom binary
