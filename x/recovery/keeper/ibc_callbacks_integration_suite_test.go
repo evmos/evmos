@@ -19,6 +19,7 @@ import (
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/evmos/evmos/v11/app"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 	"github.com/evmos/evmos/v11/x/recovery/types"
@@ -60,9 +61,20 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
 	// Mint coins locked on the evmos account generated with secp.
-	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))
+	amt, ok := sdk.NewIntFromString("1000000000000000000000")
+	suite.Require().True(ok)
+	coinEvmos := sdk.NewCoin(evmostypes.BaseDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 	err := suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
+	suite.Require().NoError(err)
+
+	// Fund sender address to pay fees
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
+	suite.Require().NoError(err)
+
+	coinEvmos = sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(10000))
+	coins = sdk.NewCoins(coinEvmos)
+	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
@@ -83,6 +95,19 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
+	// Mint coins for IBC tx fee on Osmosis and Cosmos chains
+	stkCoin := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amt))
+
+	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, stkCoin)
+	suite.Require().NoError(err)
+	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, suite.IBCOsmosisChain.SenderAccount.GetAddress(), stkCoin)
+	suite.Require().NoError(err)
+
+	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.MintCoins(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, stkCoin)
+	suite.Require().NoError(err)
+	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), stkCoin)
+	suite.Require().NoError(err)
+
 	claimparams := claimstypes.DefaultParams()
 	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
 	claimparams.EnableClaims = true
@@ -92,6 +117,11 @@ func (suite *IBCTestingSuite) SetupTest() {
 	params := types.DefaultParams()
 	params.EnableRecovery = true
 	err = suite.EvmosChain.App.(*app.Evmos).RecoveryKeeper.SetParams(suite.EvmosChain.GetContext(), params)
+	suite.Require().NoError(err)
+
+	evmParams := suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetParams(s.EvmosChain.GetContext())
+	evmParams.EvmDenom = evmostypes.BaseDenom
+	err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
 	suite.Require().NoError(err)
 
 	suite.pathOsmosisEvmos = ibctesting.NewTransferPath(suite.IBCOsmosisChain, suite.EvmosChain) // clientID, connectionID, channelID empty
