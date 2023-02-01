@@ -14,9 +14,9 @@ import (
 	"github.com/tendermint/tendermint/abci/types"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {

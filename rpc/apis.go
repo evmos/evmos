@@ -23,6 +23,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/rpc"
 
+	ethermint "github.com/evmos/ethermint/types"
 	"github.com/evmos/evmos/v11/rpc/backend"
 	"github.com/evmos/evmos/v11/rpc/namespaces/ethereum/debug"
 	"github.com/evmos/evmos/v11/rpc/namespaces/ethereum/eth"
@@ -32,7 +33,6 @@ import (
 	"github.com/evmos/evmos/v11/rpc/namespaces/ethereum/personal"
 	"github.com/evmos/evmos/v11/rpc/namespaces/ethereum/txpool"
 	"github.com/evmos/evmos/v11/rpc/namespaces/ethereum/web3"
-	ethermint "github.com/evmos/evmos/v11/types"
 
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 )

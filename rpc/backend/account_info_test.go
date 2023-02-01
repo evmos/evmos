@@ -12,9 +12,9 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/evmos/ethermint/tests"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestGetCode() {
