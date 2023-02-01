@@ -19,11 +19,11 @@ import (
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/indexer"
 	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/indexer"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -40,7 +40,7 @@ func TestBackendTestSuite(t *testing.T) {
 	suite.Run(t, new(BackendTestSuite))
 }
 
-const ChainID = "ethermint_9000-1"
+const ChainID = "evmos_9000-1"
 
 // SetupTest is executed before every BackendTestSuite test
 func (suite *BackendTestSuite) SetupTest() {

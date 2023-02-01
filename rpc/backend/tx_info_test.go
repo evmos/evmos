@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/ethermint/indexer"
+	"github.com/evmos/evmos/v11/indexer"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	ethermint "github.com/evmos/evmos/v11/types"

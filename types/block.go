@@ -13,38 +13,31 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Ethermint library. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
-package version
+package types
 
-import (
-	"fmt"
-	"runtime"
-)
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
-var (
-	AppVersion = ""
-	GitCommit  = ""
-	BuildDate  = ""
+// BlockGasLimit returns the max gas (limit) defined in the block gas meter. If the meter is not
+// set, it returns the max gas from the application consensus params.
+// NOTE: see https://github.com/cosmos/cosmos-sdk/issues/9514 for full reference
+func BlockGasLimit(ctx sdk.Context) uint64 {
+	blockGasMeter := ctx.BlockGasMeter()
 
-	GoVersion = ""
-	GoArch    = ""
-)
-
-func init() {
-	if len(AppVersion) == 0 {
-		AppVersion = "dev"
+	// Get the limit from the gas meter only if its not null and not an InfiniteGasMeter
+	if blockGasMeter != nil && blockGasMeter.Limit() != 0 {
+		return blockGasMeter.Limit()
 	}
 
-	GoVersion = runtime.Version()
-	GoArch = runtime.GOARCH
-}
+	// Otherwise get from the consensus parameters
+	cp := ctx.ConsensusParams()
+	if cp == nil || cp.Block == nil {
+		return 0
+	}
 
-func Version() string {
-	return fmt.Sprintf(
-		"Version %s (%s)\nCompiled at %s using Go %s (%s)",
-		AppVersion,
-		GitCommit,
-		BuildDate,
-		GoVersion,
-		GoArch,
-	)
+	maxGas := cp.Block.MaxGas
+	if maxGas > 0 {
+		return uint64(maxGas)
+	}
+
+	return 0
 }

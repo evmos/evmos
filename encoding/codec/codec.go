@@ -13,38 +13,28 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Ethermint library. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
-package version
+package codec
 
 import (
-	"fmt"
-	"runtime"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/std"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
+	ethermint "github.com/evmos/evmos/v11/types"
 )
 
-var (
-	AppVersion = ""
-	GitCommit  = ""
-	BuildDate  = ""
-
-	GoVersion = ""
-	GoArch    = ""
-)
-
-func init() {
-	if len(AppVersion) == 0 {
-		AppVersion = "dev"
-	}
-
-	GoVersion = runtime.Version()
-	GoArch = runtime.GOARCH
+// RegisterLegacyAminoCodec registers Interfaces from types, crypto, and SDK std.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	sdk.RegisterLegacyAminoCodec(cdc)
+	cryptocodec.RegisterCrypto(cdc)
+	codec.RegisterEvidences(cdc)
 }
 
-func Version() string {
-	return fmt.Sprintf(
-		"Version %s (%s)\nCompiled at %s using Go %s (%s)",
-		AppVersion,
-		GitCommit,
-		BuildDate,
-		GoVersion,
-		GoArch,
-	)
+// RegisterInterfaces registers Interfaces from types, crypto, and SDK std.
+func RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
+	std.RegisterInterfaces(interfaceRegistry)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	ethermint.RegisterInterfaces(interfaceRegistry)
 }

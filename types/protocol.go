@@ -13,38 +13,12 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Ethermint library. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
-package version
+package types
 
-import (
-	"fmt"
-	"runtime"
+// Constants to match up protocol versions and messages
+const (
+	eth65 = 65
+
+	// ProtocolVersion is the latest supported version of the eth protocol.
+	ProtocolVersion = eth65
 )
-
-var (
-	AppVersion = ""
-	GitCommit  = ""
-	BuildDate  = ""
-
-	GoVersion = ""
-	GoArch    = ""
-)
-
-func init() {
-	if len(AppVersion) == 0 {
-		AppVersion = "dev"
-	}
-
-	GoVersion = runtime.Version()
-	GoArch = runtime.GOARCH
-}
-
-func Version() string {
-	return fmt.Sprintf(
-		"Version %s (%s)\nCompiled at %s using Go %s (%s)",
-		AppVersion,
-		GitCommit,
-		BuildDate,
-		GoVersion,
-		GoArch,
-	)
-}
