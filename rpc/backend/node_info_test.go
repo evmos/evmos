@@ -246,7 +246,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 			false,
 		},
 		{
-			"fail - error querying for account ",
+			"fail - error querying for account",
 			func() {
 				var header metadata.MD
 				client := suite.backend.clientCtx.Client.(*mocks.Client)

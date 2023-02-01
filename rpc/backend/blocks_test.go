@@ -590,7 +590,7 @@ func (suite *BackendTestSuite) TestTendermintBlockByNumber() {
 			true,
 		},
 		{
-			"pass - blockNum = 0 (defaults to blockNum = 1 due to a difference between tendermint heights and geth heights",
+			"pass - blockNum = 0 (defaults to blockNum = 1 due to a difference between tendermint heights and geth heights)",
 			ethrpc.BlockNumber(0),
 			func(blockNum ethrpc.BlockNumber) {
 				height := blockNum.Int64()

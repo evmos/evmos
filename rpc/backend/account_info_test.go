@@ -106,7 +106,7 @@ func (suite *BackendTestSuite) TestGetProof() {
 			&rpctypes.AccountResult{},
 		},
 		{
-			"fail - Block doesn't exist)",
+			"fail - Block doesn't exist",
 			address1,
 			[]string{},
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNrInvalid},

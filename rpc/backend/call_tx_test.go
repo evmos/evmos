@@ -47,7 +47,7 @@ func (suite *BackendTestSuite) TestResend() {
 		expPass      bool
 	}{
 		{
-			"fail - Missing transaction nonce ",
+			"fail - Missing transaction nonce",
 			func() {},
 			evmtypes.TransactionArgs{
 				Nonce: nil,
@@ -80,7 +80,7 @@ func (suite *BackendTestSuite) TestResend() {
 			true,
 		},
 		{
-			"pass - Can't set Tx defaults ",
+			"pass - Can't set Tx defaults",
 			func() {
 				var header metadata.MD
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -127,7 +127,7 @@ func (suite *BackendTestSuite) TestResend() {
 			true,
 		},
 		{
-			"fail - GasPrice and (MaxFeePerGas or MaxPriorityPerGas specified",
+			"fail - GasPrice and (MaxFeePerGas or MaxPriorityPerGas specified)",
 			func() {},
 			evmtypes.TransactionArgs{
 				Nonce:                &txNonce,

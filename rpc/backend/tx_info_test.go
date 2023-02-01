@@ -317,7 +317,7 @@ func (suite *BackendTestSuite) TestGetTransactionByBlockAndIndex() {
 		expPass      bool
 	}{
 		{
-			"pass - block txs index out of bound ",
+			"pass - block txs index out of bound",
 			func() {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				_, err := RegisterBlockResults(client, 1)
@@ -558,7 +558,7 @@ func (suite *BackendTestSuite) TestGetTransactionReceipt() {
 		expPass      bool
 	}{
 		{
-			"fail - Receipts do not match ",
+			"fail - Receipts do not match",
 			func() {
 				var header metadata.MD
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
