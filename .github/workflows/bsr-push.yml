@@ -4,8 +4,8 @@ name: Push to Buf Schema Registry
 # https://buf.build/evmos/evmos
 on:
   push:
-    branches:
-      - "main"
+    tags:
+      - "v*.*.*"
     paths:
       - "proto/**"
 
