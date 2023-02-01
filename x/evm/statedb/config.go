@@ -1,4 +1,4 @@
-// Copyright 2021 Evmos Foundation
+// Copyright 2022 Evmos Foundation
 // This file is part of Evmos' Evmos packages.
 //
 // The Evmos packages is free software: you can redistribute it and/or modify
