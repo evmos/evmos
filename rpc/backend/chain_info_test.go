@@ -152,11 +152,11 @@ func (suite *BackendTestSuite) TestBaseFee() {
 }
 
 func (suite *BackendTestSuite) TestChainId() {
-	expChainId := (*hexutil.Big)(big.NewInt(9000))
+	expChainID := (*hexutil.Big)(big.NewInt(9000))
 	testCases := []struct {
 		name         string
 		registerMock func()
-		expChainId   *hexutil.Big
+		expChainID   *hexutil.Big
 		expPass      bool
 	}{
 		{
@@ -166,7 +166,7 @@ func (suite *BackendTestSuite) TestChainId() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParamsInvalidHeight(queryClient, &header, int64(1))
 			},
-			expChainId,
+			expChainID,
 			true,
 		},
 	}
@@ -176,10 +176,10 @@ func (suite *BackendTestSuite) TestChainId() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock()
 
-			chainId, err := suite.backend.ChainID()
+			chainID, err := suite.backend.ChainID()
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(tc.expChainId, chainId)
+				suite.Require().Equal(tc.expChainID, chainID)
 			} else {
 				suite.Require().Error(err)
 			}
@@ -374,7 +374,8 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 			func(validator sdk.AccAddress) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
-				RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
+				_, err := RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
+				suite.Require().NoError(err)
 				RegisterBlockResultsError(client, 1)
 			},
 			1,
@@ -390,8 +391,10 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
-				RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
-				RegisterBlockResults(client, 1)
+				_, err := RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
+				suite.Require().NoError(err)
+				_, err = RegisterBlockResults(client, 1)
+				suite.Require().NoError(err)
 				RegisterBaseFeeError(queryClient)
 				RegisterValidatorAccount(queryClient, validator)
 				RegisterConsensusParams(client, 1)
@@ -410,8 +413,10 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
-				RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
-				RegisterBlockResults(client, 1)
+				_, err := RegisterBlock(client, ethrpc.BlockNumber(1).Int64(), nil)
+				suite.Require().NoError(err)
+				_, err = RegisterBlockResults(client, 1)
+				suite.Require().NoError(err)
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterValidatorAccount(queryClient, validator)
 				RegisterConsensusParams(client, 1)

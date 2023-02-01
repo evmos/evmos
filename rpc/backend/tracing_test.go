@@ -14,7 +14,6 @@ import (
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -32,18 +31,21 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 	RegisterParamsWithoutHeader(queryClient, 1)
 
 	armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-	suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+	_ = suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 
 	msgEthereumTx.From = from.String()
-	msgEthereumTx.Sign(ethSigner, suite.signer)
+	_ = msgEthereumTx.Sign(ethSigner, suite.signer)
+
 	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
 	txBz, _ := txEncoder(tx)
 
 	msgEthereumTx2.From = from.String()
-	msgEthereumTx2.Sign(ethSigner, suite.signer)
+	_ = msgEthereumTx2.Sign(ethSigner, suite.signer)
+
 	tx2, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
 	txBz2, _ := txEncoder(tx2)
 
@@ -108,7 +110,8 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 			func() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlockMultipleTxs(client, 1, []types.Tx{txBz, txBz2})
+				_, err := RegisterBlockMultipleTxs(client, 1, []types.Tx{txBz, txBz2})
+				suite.Require().NoError(err)
 				RegisterTraceTransactionWithPredecessors(queryClient, msgEthereumTx, []*evmtypes.MsgEthereumTx{msgEthereumTx})
 			},
 			&types.Block{Header: types.Header{Height: 1, ChainID: ChainID}, Data: types.Data{Txs: []types.Tx{txBz, txBz2}}},
@@ -148,7 +151,8 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 			func() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, 1, txBz)
+				_, err := RegisterBlock(client, 1, txBz)
+				suite.Require().NoError(err)
 				RegisterTraceTransaction(queryClient, msgEthereumTx)
 			},
 			&types.Block{Header: types.Header{Height: 1}, Data: types.Data{Txs: []types.Tx{txBz}}},
@@ -196,9 +200,9 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 
 func (suite *BackendTestSuite) TestTraceBlock() {
 	msgEthTx, bz := suite.buildEthereumTx()
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	emptyBlock := types.MakeBlock(1, []types.Tx{}, nil, nil)
 	emptyBlock.ChainID = ChainID
-	filledBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
+	filledBlock := types.MakeBlock(1, []types.Tx{bz}, nil, nil)
 	filledBlock.ChainID = ChainID
 	resBlockEmpty := tmrpctypes.ResultBlock{Block: emptyBlock, BlockID: emptyBlock.LastBlockID}
 	resBlockFilled := tmrpctypes.ResultBlock{Block: filledBlock, BlockID: filledBlock.LastBlockID}

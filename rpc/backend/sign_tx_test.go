@@ -3,6 +3,8 @@ package backend
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -57,7 +59,8 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				suite.Require().NoError(err)
 				RegisterParams(queryClient, &header, 1)
 				RegisterBlockError(client, 1)
 			},
@@ -72,10 +75,13 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				suite.Require().NoError(err)
 				RegisterParams(queryClient, &header, 1)
-				RegisterBlock(client, 1, nil)
-				RegisterBlockResults(client, 1)
+				_, err = RegisterBlock(client, 1, nil)
+				suite.Require().NoError(err)
+				_, err = RegisterBlockResults(client, 1)
+				suite.Require().NoError(err)
 				RegisterBaseFee(queryClient, baseFee)
 			},
 			evmtypes.TransactionArgs{
@@ -91,22 +97,7 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 		{
 			"fail - Cannot broadcast transaction",
 			func() {
-				var header metadata.MD
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
-				RegisterParams(queryClient, &header, 1)
-				RegisterBlock(client, 1, nil)
-				RegisterBlockResults(client, 1)
-				RegisterBaseFee(queryClient, baseFee)
-				RegisterParamsWithoutHeader(queryClient, 1)
-				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
-				msg := callArgsDefault.ToTransaction()
-				msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
-				tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
-				txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
-				txBytes, _ := txEncoder(tx)
+				client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault)
 				RegisterBroadcastTxError(client, txBytes)
 			},
 			callArgsDefault,
@@ -116,22 +107,7 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 		{
 			"pass - Return the transaction hash",
 			func() {
-				var header metadata.MD
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
-				RegisterParams(queryClient, &header, 1)
-				RegisterBlock(client, 1, nil)
-				RegisterBlockResults(client, 1)
-				RegisterBaseFee(queryClient, baseFee)
-				RegisterParamsWithoutHeader(queryClient, 1)
-				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
-				msg := callArgsDefault.ToTransaction()
-				msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
-				tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
-				txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
-				txBytes, _ := txEncoder(tx)
+				client, txBytes := broadcastTx(suite, priv, baseFee, callArgsDefault)
 				RegisterBroadcastTx(client, txBytes)
 			},
 			callArgsDefault,
@@ -151,7 +127,8 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				RegisterParamsWithoutHeader(queryClient, 1)
 				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 				msg := callArgsDefault.ToTransaction()
-				msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
+				err := msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
+				suite.Require().NoError(err)
 				tc.expHash = msg.AsTransaction().Hash()
 			}
 			responseHash, err := suite.backend.SendTransaction(tc.args)
@@ -185,7 +162,8 @@ func (suite *BackendTestSuite) TestSign() {
 			"pass - sign nil data",
 			func() {
 				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				suite.Require().NoError(err)
 			},
 			from,
 			nil,
@@ -231,7 +209,8 @@ func (suite *BackendTestSuite) TestSignTypedData() {
 			"fail - empty TypeData",
 			func() {
 				armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
-				suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				err := suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+				suite.Require().NoError(err)
 			},
 			from,
 			apitypes.TypedData{},
@@ -248,7 +227,7 @@ func (suite *BackendTestSuite) TestSignTypedData() {
 			responseBz, err := suite.backend.SignTypedData(tc.fromAddr, tc.inputTypedData)
 
 			if tc.expPass {
-				sigHash, _, err := apitypes.TypedDataAndHash(tc.inputTypedData)
+				sigHash, _, _ := apitypes.TypedDataAndHash(tc.inputTypedData)
 				signature, _, err := suite.backend.clientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), sigHash)
 				signature[goethcrypto.RecoveryIDOffset] += 27
 				suite.Require().NoError(err)
@@ -258,4 +237,27 @@ func (suite *BackendTestSuite) TestSignTypedData() {
 			}
 		})
 	}
+}
+
+func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee math.Int, callArgsDefault evmtypes.TransactionArgs) (client *mocks.Client, txBytes []byte) {
+	var header metadata.MD
+	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+	client = suite.backend.clientCtx.Client.(*mocks.Client)
+	armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
+	_ = suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
+	RegisterParams(queryClient, &header, 1)
+	_, err := RegisterBlock(client, 1, nil)
+	suite.Require().NoError(err)
+	_, err = RegisterBlockResults(client, 1)
+	suite.Require().NoError(err)
+	RegisterBaseFee(queryClient, baseFee)
+	RegisterParamsWithoutHeader(queryClient, 1)
+	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
+	msg := callArgsDefault.ToTransaction()
+	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
+	suite.Require().NoError(err)
+	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
+	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
+	txBytes, _ = txEncoder(tx)
+	return client, txBytes
 }

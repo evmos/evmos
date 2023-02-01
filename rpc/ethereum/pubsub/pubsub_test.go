@@ -31,11 +31,13 @@ func TestSubscribe(t *testing.T) {
 	q := NewEventBus()
 	kekSrc := make(chan coretypes.ResultEvent)
 
-	q.AddTopic("kek", kekSrc)
+	err := q.AddTopic("kek", kekSrc)
+	require.NoError(t, err)
 
 	lolSrc := make(chan coretypes.ResultEvent)
 
-	q.AddTopic("lol", lolSrc)
+	err = q.AddTopic("lol", lolSrc)
+	require.NoError(t, err)
 
 	kekSubC, _, err := q.Subscribe("kek")
 	require.NoError(t, err)

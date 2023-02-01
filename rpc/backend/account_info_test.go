@@ -97,7 +97,8 @@ func (suite *BackendTestSuite) TestGetProof() {
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNrInvalid},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterAccount(queryClient, addr, blockNrInvalid.Int64())
 			},
@@ -125,7 +126,8 @@ func (suite *BackendTestSuite) TestGetProof() {
 				suite.backend.ctx = rpctypes.ContextWithHeight(bn.Int64())
 
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterAccount(queryClient, addr, bn.Int64())
 
@@ -280,7 +282,8 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterBalanceError(queryClient, addr, bn.Int64())
 			},
@@ -293,7 +296,8 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterBalanceInvalid(queryClient, addr, bn.Int64())
 			},
@@ -306,7 +310,8 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterBalanceNegative(queryClient, addr, bn.Int64())
 			},
@@ -319,7 +324,8 @@ func (suite *BackendTestSuite) TestGetBalance() {
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				RegisterBlock(client, bn.Int64(), nil)
+				_, err := RegisterBlock(client, bn.Int64(), nil)
+				suite.Require().NoError(err)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterBalance(queryClient, addr, bn.Int64())
 			},
@@ -381,7 +387,7 @@ func (suite *BackendTestSuite) TestGetTransactionCount() {
 			hexutil.Uint64(0),
 		},
 		// TODO: Error mocking the GetAccount call - problem with Any type
-		//{
+		// {
 		//	"pass - returns the number of transactions at the given address up to the given block number",
 		//	true,
 		//	rpctypes.NewBlockNumber(big.NewInt(1)),
@@ -400,7 +406,7 @@ func (suite *BackendTestSuite) TestGetTransactionCount() {
 		//	},
 		//	true,
 		//	hexutil.Uint64(0),
-		//},
+		// },
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {

@@ -134,33 +134,6 @@ func TestParseTxResult(t *testing.T) {
 					}},
 					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
 						{Key: []byte("ethereumTxHash"), Value: []byte(txHash2.Hex())},
-						{Key: []byte("txIndex"), Value: []byte("0x01")},
-						{Key: []byte("amount"), Value: []byte("1000")},
-						{Key: []byte("txGasUsed"), Value: []byte("21000")},
-						{Key: []byte("txHash"), Value: []byte("14A84ED06282645EFBF080E0B7ED80D8D8D6A36337668A12B5F229F81CDD3F57")},
-						{Key: []byte("recipient"), Value: []byte("0x775b87ef5D82ca211811C1a02CE0fE0CA3a455d7")},
-						{Key: []byte("ethereumTxFailed"), Value: []byte("contract reverted")},
-					}},
-					{Type: evmtypes.EventTypeTxLog, Attributes: []abci.EventAttribute{}},
-				},
-			},
-			nil,
-		},
-		{
-			"format 1 events, failed",
-			abci.ResponseDeliverTx{
-				GasUsed: 21000,
-				Events: []abci.Event{
-					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
-						{Key: []byte("ethereumTxHash"), Value: []byte(txHash.Hex())},
-						{Key: []byte("txIndex"), Value: []byte("10")},
-						{Key: []byte("amount"), Value: []byte("1000")},
-						{Key: []byte("txGasUsed"), Value: []byte("21000")},
-						{Key: []byte("txHash"), Value: []byte("14A84ED06282645EFBF080E0B7ED80D8D8D6A36337668A12B5F229F81CDD3F57")},
-						{Key: []byte("recipient"), Value: []byte("0x775b87ef5D82ca211811C1a02CE0fE0CA3a455d7")},
-					}},
-					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
-						{Key: []byte("ethereumTxHash"), Value: []byte(txHash2.Hex())},
 						{Key: []byte("txIndex"), Value: []byte("10")},
 						{Key: []byte("amount"), Value: []byte("1000")},
 						{Key: []byte("txGasUsed"), Value: []byte("0x01")},
@@ -169,25 +142,6 @@ func TestParseTxResult(t *testing.T) {
 						{Key: []byte("ethereumTxFailed"), Value: []byte("contract reverted")},
 					}},
 					{Type: evmtypes.EventTypeTxLog, Attributes: []abci.EventAttribute{}},
-				},
-			},
-			nil,
-		},
-		{
-			"format 2 events failed",
-			abci.ResponseDeliverTx{
-				GasUsed: 21000,
-				Events: []abci.Event{
-					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
-						{Key: []byte("ethereumTxHash"), Value: []byte(txHash.Hex())},
-						{Key: []byte("txIndex"), Value: []byte("0x01")},
-					}},
-					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
-						{Key: []byte("amount"), Value: []byte("1000")},
-						{Key: []byte("txGasUsed"), Value: []byte("21000")},
-						{Key: []byte("txHash"), Value: []byte("14A84ED06282645EFBF080E0B7ED80D8D8D6A36337668A12B5F229F81CDD3F57")},
-						{Key: []byte("recipient"), Value: []byte("0x775b87ef5D82ca211811C1a02CE0fE0CA3a455d7")},
-					}},
 				},
 			},
 			nil,

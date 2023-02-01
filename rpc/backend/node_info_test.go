@@ -272,7 +272,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 			false,
 		},
 		// TODO: Finish this test case once ABCIQuery GetAccount is fixed
-		//{
+		// {
 		//	"pass - set the etherbase for the miner",
 		//	func() {
 		//		client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -295,7 +295,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 		//	},
 		//	common.Address{},
 		//	false,
-		//},
+		// },
 	}
 
 	for _, tc := range testCases {
