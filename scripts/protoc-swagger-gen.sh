@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 SWAGGER_DIR=./swagger-proto
-THIRD_PARTY_DIR="$SWAGGER_DIR/third_party"
 
 set -eo pipefail
 
