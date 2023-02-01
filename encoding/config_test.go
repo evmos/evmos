@@ -30,7 +30,7 @@ func TestTxEncoding(t *testing.T) {
 	_, err = cfg.TxConfig.TxEncoder()(msg)
 	require.Error(t, err, "encoding failed")
 
-	// FIXME: transaction hashing is hardcoded on Terndermint:
+	// FIXME: transaction hashing is hardcoded on Tendermint:
 	// See https://github.com/tendermint/tendermint/issues/6539 for reference
 	// txHash := msg.AsTransaction().Hash()
 	// tmTx := tmtypes.Tx(bz)

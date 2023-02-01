@@ -36,7 +36,7 @@ const (
 
 	// hdWalletFixEnv defines whether the standard (correct) bip39
 	// derivation path was used, or if derivation was affected by
-	// https://github.com/btcsuite/btcutil/issues/172
+	// https://github.com/btcsuite/btcutil/issues/179
 	hdWalletFixEnv = "GO_ETHEREUM_HDWALLET_FIX_ISSUE_179"
 )
 
