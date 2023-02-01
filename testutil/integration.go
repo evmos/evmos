@@ -24,7 +24,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -114,7 +113,8 @@ func DeliverTx(
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(100_000_000)
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: sdk.NewInt(1)}})
+	amt, _ := sdk.NewIntFromString("1000000000000000000000")
+	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: amt}})
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}

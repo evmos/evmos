@@ -16,7 +16,9 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/testutil"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
 
 type IBCTestingSuite struct {
@@ -28,8 +30,8 @@ type IBCTestingSuite struct {
 	chainB      *ibcgotesting.TestChain // Evmos chain B
 	chainCosmos *ibcgotesting.TestChain // Cosmos chain
 
-	pathEVM    *ibcgotesting.Path // chainA (Evmos) <-->  chainB (Evmos)
-	pathCosmos *ibcgotesting.Path // chainA (Evmos) <--> chainCosmos
+	pathEVM    *ibctesting.Path // chainA (Evmos) <-->  chainB (Evmos)
+	pathCosmos *ibctesting.Path // chainA (Evmos) <--> chainCosmos
 }
 
 func (suite *IBCTestingSuite) SetupTest() {
@@ -42,11 +44,37 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.coordinator.CommitNBlocks(suite.chainB, 2)
 	suite.coordinator.CommitNBlocks(suite.chainCosmos, 2)
 
+	evmosChainA := suite.chainA.App.(*app.Evmos)
+	evmosChainB := suite.chainB.App.(*app.Evmos)
+
+	// Mint coins to pay tx fees
+	amt, ok := sdk.NewIntFromString("1000000000000000000000")
+	suite.Require().True(ok)
+	coinEvmos := sdk.NewCoin(types.DefaultClaimsDenom, amt)
+	coins := sdk.NewCoins(coinEvmos)
+
+	err := evmosChainA.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = evmosChainA.BankKeeper.SendCoinsFromModuleToAccount(suite.chainA.GetContext(), inflationtypes.ModuleName, suite.chainA.SenderAccount.GetAddress(), coins)
+	suite.Require().NoError(err)
+
+	err = evmosChainB.BankKeeper.MintCoins(suite.chainB.GetContext(), inflationtypes.ModuleName, coins)
+	suite.Require().NoError(err)
+	err = evmosChainB.BankKeeper.SendCoinsFromModuleToAccount(suite.chainB.GetContext(), inflationtypes.ModuleName, suite.chainB.SenderAccount.GetAddress(), coins)
+	suite.Require().NoError(err)
+
+	evmParams := evmosChainA.EvmKeeper.GetParams(suite.chainA.GetContext())
+	evmParams.EvmDenom = types.DefaultClaimsDenom
+	err = evmosChainA.EvmKeeper.SetParams(suite.chainA.GetContext(), evmParams)
+	suite.Require().NoError(err)
+	err = evmosChainB.EvmKeeper.SetParams(suite.chainB.GetContext(), evmParams)
+	suite.Require().NoError(err)
+
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(10000))
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(10000)))
+	coins = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(10000)))
 
-	err := testutil.FundModuleAccount(suite.chainB.GetContext(), suite.chainB.App.(*app.Evmos).BankKeeper, types.ModuleName, coins)
+	err = testutil.FundModuleAccount(suite.chainB.GetContext(), suite.chainB.App.(*app.Evmos).BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
 	suite.chainB.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(suite.chainB.GetContext(), addr, claimsRecord)
@@ -65,13 +93,13 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	suite.pathEVM = ibctesting.NewTransferPath(suite.chainA, suite.chainB) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathEVM)                                 // clientID, connectionID, channelID filled
+	ibctesting.SetupPath(suite.coordinator, suite.pathEVM)                 // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-0", suite.pathEVM.EndpointA.ClientID)
 	suite.Require().Equal("connection-0", suite.pathEVM.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathEVM.EndpointA.ChannelID)
 
 	suite.pathCosmos = ibctesting.NewTransferPath(suite.chainA, suite.chainCosmos) // clientID, connectionID, channelID empty
-	suite.coordinator.Setup(suite.pathCosmos)                                      // clientID, connectionID, channelID filled
+	ibctesting.SetupPath(suite.coordinator, suite.pathCosmos)                      // clientID, connectionID, channelID filled
 	suite.Require().Equal("07-tendermint-1", suite.pathCosmos.EndpointA.ClientID)
 	suite.Require().Equal("connection-1", suite.pathCosmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-1", suite.pathCosmos.EndpointA.ChannelID)
