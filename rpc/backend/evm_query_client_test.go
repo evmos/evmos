@@ -140,13 +140,13 @@ func TestRegisterParamsError(t *testing.T) {
 
 // ETH Call
 func RegisterEthCall(queryClient *mocks.EVMQueryClient, request *evmtypes.EthCallRequest) {
-	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) // nolint
+	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
 	queryClient.On("EthCall", ctx, request).
 		Return(&evmtypes.MsgEthereumTxResponse{}, nil)
 }
 
 func RegisterEthCallError(queryClient *mocks.EVMQueryClient, request *evmtypes.EthCallRequest) {
-	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) // nolint
+	ctx, _ := context.WithCancel(rpc.ContextWithHeight(1)) //nolint
 	queryClient.On("EthCall", ctx, request).
 		Return(nil, errortypes.ErrInvalidRequest)
 }
