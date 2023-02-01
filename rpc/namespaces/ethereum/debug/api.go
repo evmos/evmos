@@ -39,8 +39,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/rlp"
-	rpctypes "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/evmos/v11/rpc/backend"
+	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 

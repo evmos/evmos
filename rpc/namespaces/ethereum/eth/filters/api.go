@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/evmos/ethermint/rpc/types"
+	"github.com/evmos/evmos/v11/rpc/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 

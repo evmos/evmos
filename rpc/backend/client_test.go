@@ -10,8 +10,8 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
-	rpc "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v11/rpc/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

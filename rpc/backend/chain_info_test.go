@@ -6,8 +6,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
-	rpc "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/ethermint/tests"
+	rpc "github.com/evmos/evmos/v11/rpc/types"
 	"google.golang.org/grpc/metadata"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

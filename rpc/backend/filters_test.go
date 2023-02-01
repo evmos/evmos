@@ -5,8 +5,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethrpc "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
+	ethrpc "github.com/evmos/evmos/v11/rpc/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )

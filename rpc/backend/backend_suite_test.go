@@ -23,9 +23,9 @@ import (
 	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/ethermint/indexer"
-	rpctypes "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
+	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 

@@ -14,9 +14,9 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	"google.golang.org/grpc/metadata"
 
-	ethrpc "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
+	ethrpc "github.com/evmos/evmos/v11/rpc/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 

@@ -37,7 +37,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/rpc/ethereum/pubsub"
+	"github.com/evmos/evmos/v11/rpc/ethereum/pubsub"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
