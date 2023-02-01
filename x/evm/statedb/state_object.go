@@ -52,7 +52,7 @@ type Storage map[common.Hash]common.Hash
 
 // SortedKeys sort the keys for deterministic iteration
 func (s Storage) SortedKeys() []common.Hash {
-	keys := make([]common.Hash, len(s))
+	keys := make([]common.Hash, 0, len(s))
 	for k := range s {
 		keys = append(keys, k)
 	}

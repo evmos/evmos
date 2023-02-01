@@ -51,7 +51,7 @@ func newJournal() *journal {
 
 // sortedDirties sort the dirty addresses for deterministic iteration
 func (j *journal) sortedDirties() []common.Address {
-	keys := make([]common.Address, len(j.dirties))
+	keys := make([]common.Address, 0, len(j.dirties))
 	for k := range j.dirties {
 		keys = append(keys, k)
 	}
