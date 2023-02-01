@@ -450,10 +450,13 @@ proto-gen:
 	@echo "Generating Protobuf files"
 	$(protoImage) sh ./scripts/protocgen.sh
 
+generate-swagger:
+	$(protoImage) sh ./scripts/generate-swagger.sh
+
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
 	make proto-update-swagger-deps
-	make proto-cosmos-swagger-gen
+#make proto-cosmos-swagger-gen
 	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
 	rm -rf ./third_party
 	rm -rf ./tmp-swagger-gen
