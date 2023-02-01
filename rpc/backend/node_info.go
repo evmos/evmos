@@ -36,7 +36,7 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/ethermint/rpc/types"
 	"github.com/evmos/ethermint/server/config"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )

@@ -31,7 +31,7 @@ import (
 	"github.com/evmos/evmos/v11/rpc/backend"
 
 	rpctypes "github.com/evmos/ethermint/rpc/types"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 

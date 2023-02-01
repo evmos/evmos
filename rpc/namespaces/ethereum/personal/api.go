@@ -24,7 +24,7 @@ import (
 	"github.com/evmos/evmos/v11/rpc/backend"
 
 	"github.com/evmos/ethermint/crypto/hd"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 
