@@ -28,8 +28,10 @@ import (
 )
 
 const (
-	codeErrInvalidState      = uint32(iota) + 2 // NOTE: code 1 is reserved for internal errors
-	codeErrExecutionReverted                    // IMPORTANT: Do not move this error as it complies with the JSON-RPC error standard
+	// TODO bring this back to default once the ethermint RPC are migrated.
+	// Since we are still using Ethermint's RPCs this does not represent an issue
+	codeErrInvalidState      = uint32(iota) + 100 // NOTE: code 1 is reserved for internal errors
+	codeErrExecutionReverted                      // IMPORTANT: Do not move this error as it complies with the JSON-RPC error standard
 	codeErrChainConfigNotFound
 	codeErrInvalidChainConfig
 	codeErrZeroAddress
