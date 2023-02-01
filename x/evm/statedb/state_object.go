@@ -53,10 +53,8 @@ type Storage map[common.Hash]common.Hash
 // SortedKeys sort the keys for deterministic iteration
 func (s Storage) SortedKeys() []common.Hash {
 	keys := make([]common.Hash, len(s))
-	i := 0
 	for k := range s {
-		keys[i] = k
-		i++
+		keys = append(keys, k)
 	}
 	sort.Slice(keys, func(i, j int) bool {
 		return bytes.Compare(keys[i].Bytes(), keys[j].Bytes()) < 0

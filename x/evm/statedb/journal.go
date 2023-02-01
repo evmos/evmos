@@ -52,10 +52,8 @@ func newJournal() *journal {
 // sortedDirties sort the dirty addresses for deterministic iteration
 func (j *journal) sortedDirties() []common.Address {
 	keys := make([]common.Address, len(j.dirties))
-	i := 0
 	for k := range j.dirties {
-		keys[i] = k
-		i++
+		keys = append(keys, k)
 	}
 	sort.Slice(keys, func(i, j int) bool {
 		return bytes.Compare(keys[i].Bytes(), keys[j].Bytes()) < 0
