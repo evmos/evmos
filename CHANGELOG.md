@@ -39,10 +39,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (evm)[#1308](https://github.com/evmos/evmos/pull/1308) Migrate `evm` and `feemarket` types
+- (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate `contracts` directory to evmos repository
+- (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
 
 ### Improvements
 
+- (proto)[#1311](https://github.com/evmos/evmos/pull/1311) Also generate common types with `make proto-gen`
 - (deps) [#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
 - (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to `TypedEvent`
