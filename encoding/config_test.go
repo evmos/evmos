@@ -8,9 +8,9 @@ import (
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/tests"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 

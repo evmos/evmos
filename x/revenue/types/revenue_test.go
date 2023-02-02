@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/tests"
 )
 
 type RevenueTestSuite struct {
