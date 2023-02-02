@@ -138,7 +138,7 @@ func (m *memEventBus) closeAllSubscribers(name string) {
 
 	subsribers := m.subscribers[name]
 	delete(m.subscribers, name)
-
+	// #nosec G705
 	for _, sub := range subsribers {
 		close(sub)
 	}
@@ -148,7 +148,7 @@ func (m *memEventBus) publishAllSubscribers(name string, msg coretypes.ResultEve
 	m.subscribersMux.RLock()
 	subsribers := m.subscribers[name]
 	m.subscribersMux.RUnlock()
-
+	// #nosec G705
 	for _, sub := range subsribers {
 		select {
 		case sub <- msg:

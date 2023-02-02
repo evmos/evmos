@@ -188,7 +188,8 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 	subscriptions := make(map[rpc.ID]pubsub.UnsubscribeFunc)
 	defer func() {
 		// cancel all subscriptions when connection closed
-		for _, unsubFn := range subscriptions { // #nosec G705
+		// #nosec G705
+		for _, unsubFn := range subscriptions {
 			unsubFn()
 		}
 	}()

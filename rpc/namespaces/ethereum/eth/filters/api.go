@@ -117,6 +117,7 @@ func (api *PublicFilterAPI) timeoutLoop() {
 	for {
 		<-ticker.C
 		api.filtersMu.Lock()
+		// #nosec G705
 		for id, f := range api.filters {
 			select {
 			case <-f.deadline.C:
