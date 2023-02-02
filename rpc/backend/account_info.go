@@ -194,10 +194,7 @@ func (b *Backend) GetTransactionCount(address common.Address, blockNum rpctypes.
 		return &n, err
 	}
 	height := blockNum.Int64()
-	
-	if bn > math.MaxInt64 {
-		return nil, fmt.Errorf("not able to query block number greater than MaxInt64")
-	}
+
 	currentHeight := int64(bn)
 	if height > currentHeight {
 		return &n, sdkerrors.Wrapf(
