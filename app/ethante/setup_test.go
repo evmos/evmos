@@ -3,14 +3,15 @@ package ethante_test
 import (
 	"math/big"
 
+	"github.com/evmos/evmos/v11/app/ethante"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/ethermint/app/ante"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-func (suite AnteTestSuite) TestEthSetupContextDecorator() {
-	dec := ante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
+func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
+	dec := ethante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 
 	testCases := []struct {

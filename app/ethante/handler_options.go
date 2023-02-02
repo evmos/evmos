@@ -46,6 +46,7 @@ type HandlerOptions struct {
 	TxFeeChecker           ante.TxFeeChecker
 }
 
+//nolint:unused
 func (options HandlerOptions) validate() error {
 	if options.AccountKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "account keeper is required for AnteHandler")
@@ -65,6 +66,7 @@ func (options HandlerOptions) validate() error {
 	return nil
 }
 
+//nolint:unused
 func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		NewEthSetUpContextDecorator(options.EvmKeeper),                         // outermost AnteDecorator. SetUpContext must be called first
@@ -81,6 +83,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	)
 }
 
+//nolint:unused
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		RejectMessagesDecorator{}, // reject MsgEthereumTxs
