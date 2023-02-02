@@ -48,14 +48,20 @@ func NewInfiniteGasMeterWithLimit(limit sdk.Gas) sdk.GasMeter {
 	}
 }
 
+// GasConsumed returns the gas consumed from the GasMeter.
 func (g *infiniteGasMeterWithLimit) GasConsumed() sdk.Gas {
 	return g.consumed
 }
 
+// GasConsumedToLimit returns the gas limit if gas consumed is past the limit,
+// otherwise it returns the consumed gas.
+// NOTE: This behavior is only called when recovering from panic when
+// BlockGasMeter consumes gas past the limit.
 func (g *infiniteGasMeterWithLimit) GasConsumedToLimit() sdk.Gas {
 	return g.consumed
 }
 
+// Limit returns the gas limit of the GasMeter.
 func (g *infiniteGasMeterWithLimit) Limit() sdk.Gas {
 	return g.limit
 }
@@ -70,6 +76,7 @@ func addUint64Overflow(a, b uint64) (uint64, bool) {
 	return a + b, false
 }
 
+// ConsumeGas adds the given amount of gas to the gas consumed and panics if it overflows the limit or out of gas.
 func (g *infiniteGasMeterWithLimit) ConsumeGas(amount sdk.Gas, descriptor string) {
 	var overflow bool
 	// TODO: Should we set the consumed field after overflow checking?
@@ -93,18 +100,22 @@ func (g *infiniteGasMeterWithLimit) RefundGas(amount sdk.Gas, descriptor string)
 	g.consumed -= amount
 }
 
+// IsPastLimit returns true if gas consumed is past limit, otherwise it returns false.
 func (g *infiniteGasMeterWithLimit) IsPastLimit() bool {
 	return false
 }
 
+// IsOutOfGas returns true if gas consumed is greater than or equal to gas limit, otherwise it returns false.
 func (g *infiniteGasMeterWithLimit) IsOutOfGas() bool {
 	return false
 }
 
+// String returns the BasicGasMeter's gas limit and gas consumed.
 func (g *infiniteGasMeterWithLimit) String() string {
 	return fmt.Sprintf("InfiniteGasMeter:\n  consumed: %d", g.consumed)
 }
 
+// GasRemaining returns MaxUint64 since limit is not confined in infiniteGasMeter.
 func (g *infiniteGasMeterWithLimit) GasRemaining() sdk.Gas {
 	return math.MaxUint64
 }
