@@ -1,0 +1,33 @@
+name: Update Swagger File
+# This workflow runs for every newly released version of Evmos
+# which contains changes to proto files or go.mod
+# and updates the Swagger file.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+    paths:
+      - "proto/**"
+      - "go.mod"
+    
+  jobs:
+    update-swagger:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        # Set up buf to generate swagger files
+        - uses: bufbuild/buf-setup-action@v1.13.1
+        # Generate Swagger
+        - name: update swagger
+          run: make proto-swagger-gen
+        # Commit to Github upon changes
+        - name: check for changes
+          run: git status client/docs/swagger-ui/swagger.yaml
+        - name: stage file
+          run: git add client/docs/swagger-ui/swagger.yaml
+        - name: commit
+          run: git commit -m "auto-updating Swagger file"
+        - name: fetch from main
+          run: git fetch origin main
+        - name: push to main
+          run: git push origin HEAD:main
