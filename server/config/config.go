@@ -70,7 +70,7 @@ const (
 	// DefaultEVMTimeout is the default timeout for eth_call
 	DefaultEVMTimeout = 5 * time.Second
 
-	// default 1.0 eth
+	// DefaultTxFeeCap is the default tx-fee cap for sending a transaction
 	DefaultTxFeeCap float64 = 1.0
 
 	// DefaultHTTPTimeout is the default read/write timeout of the http json-rpc server
