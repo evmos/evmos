@@ -49,25 +49,34 @@ const (
 	// DefaultFixRevertGasRefundHeight is the default height at which to overwrite gas refund
 	DefaultFixRevertGasRefundHeight = 0
 
+	// DefaultMaxTxGasWanted is the default gas wanted for each eth tx returned in ante handler in check tx mode
 	DefaultMaxTxGasWanted = 0
 
+	// DefaultGasCap is the default cap on gas that can be used in eth_call/estimateGas
 	DefaultGasCap uint64 = 25000000
 
+	// DefaultFilterCap is the default cap for total number of filters that can be created
 	DefaultFilterCap int32 = 200
 
+	// DefaultFeeHistoryCap is the default cap for total number of blocks that can be fetched
 	DefaultFeeHistoryCap int32 = 100
 
+	// DefaultLogsCap is the default cap of results returned from single 'eth_getLogs' query
 	DefaultLogsCap int32 = 10000
 
+	// DefaultBlockRangeCap is the default cap of block range allowed for 'eth_getLogs' query
 	DefaultBlockRangeCap int32 = 10000
 
+	// DefaultEVMTimeout is the default timeout for eth_call
 	DefaultEVMTimeout = 5 * time.Second
 
 	// default 1.0 eth
 	DefaultTxFeeCap float64 = 1.0
 
+	// DefaultHTTPTimeout is the default read/write timeout of the http json-rpc server
 	DefaultHTTPTimeout = 30 * time.Second
 
+	// DefaultHTTPIdleTimeout is the default idle timeout of the http json-rpc server
 	DefaultHTTPIdleTimeout = 120 * time.Second
 
 	// DefaultAllowUnprotectedTxs value is false
