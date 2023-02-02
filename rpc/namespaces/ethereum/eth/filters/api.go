@@ -252,7 +252,7 @@ func (api *PublicFilterAPI) NewPendingTransactions(ctx context.Context) (*rpc.Su
 				for _, msg := range tx.GetMsgs() {
 					ethTx, ok := msg.(*evmtypes.MsgEthereumTx)
 					if ok {
-						_ = notifier.Notify(rpcSub.ID, ethTx.AsTransaction().Hash())
+						_ = notifier.Notify(rpcSub.ID, ethTx.AsTransaction().Hash()) // #nosec G703
 					}
 				}
 			case <-rpcSub.Err():
@@ -360,7 +360,7 @@ func (api *PublicFilterAPI) NewHeads(ctx context.Context) (*rpc.Subscription, er
 
 				// TODO: fetch bloom from events
 				header := types.EthHeaderFromTendermint(data.Header, ethtypes.Bloom{}, baseFee)
-				_ = notifier.Notify(rpcSub.ID, header)
+				_ = notifier.Notify(rpcSub.ID, header) // #nosec G703
 			case <-rpcSub.Err():
 				headersSub.Unsubscribe(api.events)
 				return
@@ -424,7 +424,7 @@ func (api *PublicFilterAPI) Logs(ctx context.Context, crit filters.FilterCriteri
 				logs := FilterLogs(evmtypes.LogsToEthereum(txResponse.Logs), crit.FromBlock, crit.ToBlock, crit.Addresses, crit.Topics)
 
 				for _, log := range logs {
-					_ = notifier.Notify(rpcSub.ID, log)
+					_ = notifier.Notify(rpcSub.ID, log) // #nosec G703
 				}
 			case <-rpcSub.Err(): // client send an unsubscribe request
 				logsSub.Unsubscribe(api.events)

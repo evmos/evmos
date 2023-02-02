@@ -213,7 +213,7 @@ func (b *Backend) ImportRawKey(privkey, password string) (common.Address, error)
 	}
 
 	// ignore error as we only care about the length of the list
-	list, _ := b.clientCtx.Keyring.List()
+	list, _ := b.clientCtx.Keyring.List() // #nosec G703
 	privKeyName := fmt.Sprintf("personal_%d", len(list))
 
 	armor := sdkcrypto.EncryptArmorPrivKey(privKey, password, ethsecp256k1.KeyType)

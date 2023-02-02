@@ -58,6 +58,7 @@ func (b *Backend) GetProof(address common.Address, storageKeys []string, blockNr
 	}
 
 	height := blockNum.Int64()
+
 	_, err = b.TendermintBlockByNumber(blockNum)
 	if err != nil {
 		// the error message imitates geth behavior
@@ -76,7 +77,7 @@ func (b *Backend) GetProof(address common.Address, storageKeys []string, blockNr
 			return nil, fmt.Errorf("not able to query block number greater than MaxInt64")
 		}
 
-		height = int64(bn)
+		height = int64(bn) //#nosec G701 -- checked for int overflow already
 	}
 
 	clientCtx := b.clientCtx.WithHeight(height)
@@ -195,7 +196,7 @@ func (b *Backend) GetTransactionCount(address common.Address, blockNum rpctypes.
 	}
 	height := blockNum.Int64()
 
-	currentHeight := int64(bn)
+	currentHeight := int64(bn) //#nosec G701 -- checked for int overflow already
 	if height > currentHeight {
 		return &n, sdkerrors.Wrapf(
 			sdkerrors.ErrInvalidHeight,

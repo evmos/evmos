@@ -104,7 +104,7 @@ func (b *Backend) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, er
 
 // CurrentHeader returns the latest block header
 func (b *Backend) CurrentHeader() *ethtypes.Header {
-	header, _ := b.HeaderByNumber(rpctypes.EthLatestBlockNumber)
+	header, _ := b.HeaderByNumber(rpctypes.EthLatestBlockNumber) // #nosec G703
 	return header
 }
 
@@ -149,7 +149,7 @@ func (b *Backend) GetCoinbase() (sdk.AccAddress, error) {
 		return nil, err
 	}
 
-	address, _ := sdk.AccAddressFromBech32(res.AccountAddress)
+	address, _ := sdk.AccAddressFromBech32(res.AccountAddress) // #nosec G703
 	return address, nil
 }
 
@@ -159,18 +159,18 @@ func (b *Backend) FeeHistory(
 	lastBlock rpc.BlockNumber, // the block to start search , to oldest
 	rewardPercentiles []float64, // percentiles to fetch reward
 ) (*rpctypes.FeeHistoryResult, error) {
-	blockEnd := int64(lastBlock)
+	blockEnd := int64(lastBlock) //#nosec G701 -- checked for int overflow already
 
 	if blockEnd < 0 {
 		blockNumber, err := b.BlockNumber()
 		if err != nil {
 			return nil, err
 		}
-		blockEnd = int64(blockNumber)
+		blockEnd = int64(blockNumber) //#nosec G701 -- checked for int overflow already
 	}
 
-	blocks := int64(userBlockCount)
-	maxBlockCount := int64(b.cfg.JSONRPC.FeeHistoryCap)
+	blocks := int64(userBlockCount)                     // #nosec G701 -- checked for int overflow already
+	maxBlockCount := int64(b.cfg.JSONRPC.FeeHistoryCap) // #nosec G701 -- checked for int overflow already
 	if blocks > maxBlockCount {
 		return nil, fmt.Errorf("FeeHistory user block count %d higher than %d", blocks, maxBlockCount)
 	}
@@ -197,7 +197,7 @@ func (b *Backend) FeeHistory(
 
 	// fetch block
 	for blockID := blockStart; blockID <= blockEnd; blockID++ {
-		index := int32(blockID - blockStart)
+		index := int32(blockID - blockStart) // #nosec G701
 		// tendermint block
 		tendermintblock, err := b.TendermintBlockByNumber(rpctypes.BlockNumber(blockID))
 		if tendermintblock == nil {
@@ -272,8 +272,8 @@ func (b *Backend) SuggestGasTipCap(baseFee *big.Int) (*big.Int, error) {
 	// ```
 	// MaxDelta = BaseFee * (GasLimit - GasLimit / ElasticityMultiplier) / (GasLimit / ElasticityMultiplier) / Denominator
 	//          = BaseFee * (ElasticityMultiplier - 1) / Denominator
-	// ```
-	maxDelta := baseFee.Int64() * (int64(params.Params.ElasticityMultiplier) - 1) / int64(params.Params.BaseFeeChangeDenominator)
+	// ```t
+	maxDelta := baseFee.Int64() * (int64(params.Params.ElasticityMultiplier) - 1) / int64(params.Params.BaseFeeChangeDenominator) // #nosec G701
 	if maxDelta < 0 {
 		// impossible if the parameter validation passed.
 		maxDelta = 0

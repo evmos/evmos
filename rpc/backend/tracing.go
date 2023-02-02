@@ -18,6 +18,7 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -49,7 +50,11 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 	}
 
 	// check tx index is not out of bound
-	if uint32(len(blk.Block.Txs)) < transaction.TxIndex {
+	if len(blk.Block.Txs) > math.MaxUint32 {
+		return nil, fmt.Errorf("tx count %d is overfloing", len(blk.Block.Txs))
+	}
+	txsLen := uint32(len(blk.Block.Txs)) // #nosec G701 -- checked for int overflow already
+	if txsLen < transaction.TxIndex {
 		b.logger.Debug("tx index out of bounds", "index", transaction.TxIndex, "hash", hash.String(), "height", blk.Block.Height)
 		return nil, fmt.Errorf("transaction not included in block %v", blk.Block.Height)
 	}
@@ -78,7 +83,8 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 	}
 
 	// add predecessor messages in current cosmos tx
-	for i := 0; i < int(transaction.MsgIndex); i++ {
+	index := int(transaction.MsgIndex) // #nosec G701
+	for i := 0; i < index; i++ {
 		ethMsg, ok := tx.GetMsgs()[i].(*evmtypes.MsgEthereumTx)
 		if !ok {
 			continue

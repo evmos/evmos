@@ -70,6 +70,7 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 		txHash = common.BytesToHash(header.DataHash)
 	}
 
+	time := uint64(header.Time.UTC().Unix()) // #nosec G701
 	return &ethtypes.Header{
 		ParentHash:  common.BytesToHash(header.LastBlockID.Hash.Bytes()),
 		UncleHash:   ethtypes.EmptyUncleHash,
@@ -82,7 +83,7 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 		Number:      big.NewInt(header.Height),
 		GasLimit:    0,
 		GasUsed:     0,
-		Time:        uint64(header.Time.UTC().Unix()),
+		Time:        time,
 		Extra:       []byte{},
 		MixDigest:   common.Hash{},
 		Nonce:       ethtypes.BlockNonce{},
@@ -93,8 +94,9 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 // BlockMaxGasFromConsensusParams returns the gas limit for the current block from the chain consensus params.
 func BlockMaxGasFromConsensusParams(goCtx context.Context, clientCtx client.Context, blockHeight int64) (int64, error) {
 	resConsParams, err := clientCtx.Client.ConsensusParams(goCtx, &blockHeight)
+	defaultGasLimit := int64(^uint32(0)) // #nosec G701
 	if err != nil {
-		return int64(^uint32(0)), err
+		return defaultGasLimit, err
 	}
 
 	gasLimit := resConsParams.ConsensusParams.Block.MaxGas
@@ -102,7 +104,7 @@ func BlockMaxGasFromConsensusParams(goCtx context.Context, clientCtx client.Cont
 		// Sets gas limit to max uint32 to not error with javascript dev tooling
 		// This -1 value indicating no block gas limit is set to max uint64 with geth hexutils
 		// which errors certain javascript dev tooling which only supports up to 53 bits
-		gasLimit = int64(^uint32(0))
+		gasLimit = defaultGasLimit
 	}
 
 	return gasLimit, nil
@@ -182,7 +184,7 @@ func NewRPCTransaction(
 	} else {
 		signer = ethtypes.HomesteadSigner{}
 	}
-	from, _ := ethtypes.Sender(signer, tx)
+	from, _ := ethtypes.Sender(signer, tx) // #nosec G703
 	v, r, s := tx.RawSignatureValues()
 	result := &RPCTransaction{
 		Type:     hexutil.Uint64(tx.Type()),

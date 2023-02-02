@@ -134,8 +134,9 @@ func ParseTxResult(result *abci.ResponseDeliverTx, tx sdk.Tx) (*ParsedTxs, error
 	}
 
 	// some old versions miss some events, fill it with tx result
+	gasUsed := uint64(result.GasUsed) // #nosec G701
 	if len(p.Txs) == 1 {
-		p.Txs[0].GasUsed = uint64(result.GasUsed)
+		p.Txs[0].GasUsed = gasUsed
 	}
 
 	// this could only happen if tx exceeds block gas limit
@@ -162,11 +163,11 @@ func ParseTxIndexerResult(txResult *tmrpctypes.ResultTx, tx sdk.Tx, getter func(
 	if parsedTx == nil {
 		return nil, fmt.Errorf("ethereum tx not found in msgs: block %d, index %d", txResult.Height, txResult.Index)
 	}
-
+	index := uint32(parsedTx.MsgIndex) // #nosec G701
 	return &ethermint.TxResult{
 		Height:            txResult.Height,
 		TxIndex:           txResult.Index,
-		MsgIndex:          uint32(parsedTx.MsgIndex),
+		MsgIndex:          index,
 		EthTxIndex:        parsedTx.EthTxIndex,
 		Failed:            parsedTx.Failed,
 		GasUsed:           parsedTx.GasUsed,
@@ -247,11 +248,11 @@ func fillTxAttribute(tx *ParsedTx, key []byte, value []byte) error {
 	case evmtypes.AttributeKeyEthereumTxHash:
 		tx.Hash = common.HexToHash(string(value))
 	case evmtypes.AttributeKeyTxIndex:
-		txIndex, err := strconv.ParseUint(string(value), 10, 31)
+		txIndex, err := strconv.ParseUint(string(value), 10, 31) // #nosec G701
 		if err != nil {
 			return err
 		}
-		tx.EthTxIndex = int32(txIndex)
+		tx.EthTxIndex = int32(txIndex) // #nosec G701
 	case evmtypes.AttributeKeyTxGasUsed:
 		gasUsed, err := strconv.ParseUint(string(value), 10, 64)
 		if err != nil {

@@ -91,7 +91,7 @@ type websocketsServer struct {
 
 func NewWebsocketsServer(clientCtx client.Context, logger log.Logger, tmWSClient *rpcclient.WSClient, cfg *config.Config) WebsocketsServer {
 	logger = logger.With("api", "websocket-server")
-	_, port, _ := net.SplitHostPort(cfg.JSONRPC.Address)
+	_, port, _ := net.SplitHostPort(cfg.JSONRPC.Address) // #nosec G703
 
 	return &websocketsServer{
 		rpcAddr:  "localhost:" + port, // FIXME: this shouldn't be hardcoded to localhost
@@ -155,7 +155,7 @@ func (s *websocketsServer) sendErrResponse(wsConn *wsConn, msg string) {
 		ID: nil,
 	}
 
-	_ = wsConn.WriteJSON(res)
+	_ = wsConn.WriteJSON(res) // #nosec G703
 }
 
 type wsConn struct {
@@ -196,7 +196,7 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 	for {
 		_, mb, err := wsConn.ReadMessage()
 		if err != nil {
-			_ = wsConn.Close()
+			_ = wsConn.Close() // #nosec G703
 			s.logger.Error("read message error, breaking read loop", "error", err.Error())
 			return
 		}
@@ -426,7 +426,7 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 
 					try(func() {
 						if err != websocket.ErrCloseSent {
-							_ = wsConn.Close()
+							_ = wsConn.Close() // #nosec G703
 						}
 					}, api.logger, "closing websocket peer sub")
 				}
@@ -606,7 +606,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 					if err != nil {
 						try(func() {
 							if err != websocket.ErrCloseSent {
-								_ = wsConn.Close()
+								_ = wsConn.Close() // #nosec G703
 							}
 						}, api.logger, "closing websocket peer sub")
 					}
@@ -664,7 +664,7 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 
 						try(func() {
 							if err != websocket.ErrCloseSent {
-								_ = wsConn.Close()
+								_ = wsConn.Close() // #nosec G703
 							}
 						}, api.logger, "closing websocket peer sub")
 					}
