@@ -15,7 +15,9 @@
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // BlockGasLimit returns the max gas (limit) defined in the block gas meter. If the meter is not
 // set, it returns the max gas from the application consensus params.
@@ -36,7 +38,7 @@ func BlockGasLimit(ctx sdk.Context) uint64 {
 
 	maxGas := cp.Block.MaxGas
 	if maxGas > 0 {
-		return uint64(maxGas)
+		return uint64(maxGas) // #nosec G701 -- maxGas is int64 type. It can never be greater than math.MaxUint64
 	}
 
 	return 0
