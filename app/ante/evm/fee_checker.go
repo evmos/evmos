@@ -114,8 +114,8 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coi
 	// Check tx gas is not bigger than max.MaxInt64.
 	// if it is, then charge the max
 	gas := int64(math.MaxInt64)
-	if g := tx.GetGas(); g < math.MaxInt64 {
-		gas = int64(g)
+	if g := sdk.NewIntFromUint64(tx.GetGas()); g.IsInt64() {
+		gas = g.Int64()
 	}
 
 	// Ensure that the provided fees meet a minimum threshold for the validator,
