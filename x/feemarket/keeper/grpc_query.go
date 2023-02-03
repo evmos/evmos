@@ -17,7 +17,9 @@ package keeper
 
 import (
 	"context"
+	"errors"
 
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -54,9 +56,13 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 // BlockGas implements the Query/BlockGas gRPC method
 func (k Keeper) BlockGas(c context.Context, _ *types.QueryBlockGasRequest) (*types.QueryBlockGasResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	gas := k.GetBlockGasWanted(ctx)
+	gas := sdk.NewIntFromUint64(k.GetBlockGasWanted(ctx))
+
+	if !gas.IsInt64() {
+		return nil, errorsmod.Wrapf(errors.New("integer overflow by integer type conversion"), "block gas %s is higher than MaxInt64", gas)
+	}
 
 	return &types.QueryBlockGasResponse{
-		Gas: int64(gas),
+		Gas: gas.Int64(),
 	}, nil
 }

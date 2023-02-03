@@ -58,25 +58,35 @@ func (k *Keeper) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) {
 		return
 	}
 
-	gasWanted := k.GetTransientGasWanted(ctx)
-	gasUsed := ctx.BlockGasMeter().GasConsumedToLimit()
+	gasWanted := sdk.NewIntFromUint64(k.GetTransientGasWanted(ctx))
+	gasUsed := sdk.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
+
+	if !gasWanted.IsInt64() {
+		k.Logger(ctx).Error(fmt.Sprintf("integer overflow by integer type conversion. gasWanted %s is higher than MaxInt64", gasWanted))
+		return
+	}
+
+	if !gasUsed.IsInt64() {
+		k.Logger(ctx).Error(fmt.Sprintf("integer overflow by integer type conversion. gasUsed %s is higher than MaxInt64", gasUsed))
+		return
+	}
 
 	// to prevent BaseFee manipulation we limit the gasWanted so that
 	// gasWanted = max(gasWanted * MinGasMultiplier, gasUsed)
 	// this will be keep BaseFee protected from un-penalized manipulation
 	// more info here https://github.com/evmos/ethermint/pull/1105#discussion_r888798925
 	minGasMultiplier := k.GetParams(ctx).MinGasMultiplier
-	limitedGasWanted := sdk.NewDec(int64(gasWanted)).Mul(minGasMultiplier)
-	gasWanted = sdk.MaxDec(limitedGasWanted, sdk.NewDec(int64(gasUsed))).TruncateInt().Uint64()
-	k.SetBlockGasWanted(ctx, gasWanted)
+	limitedGasWanted := sdk.NewDec(gasWanted.Int64()).Mul(minGasMultiplier)
+	updatedGasWanted := sdk.MaxDec(limitedGasWanted, sdk.NewDec(gasUsed.Int64())).TruncateInt().Uint64()
+	k.SetBlockGasWanted(ctx, updatedGasWanted)
 
 	defer func() {
-		telemetry.SetGauge(float32(gasWanted), "feemarket", "block_gas")
+		telemetry.SetGauge(float32(updatedGasWanted), "feemarket", "block_gas")
 	}()
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		"block_gas",
 		sdk.NewAttribute("height", fmt.Sprintf("%d", ctx.BlockHeight())),
-		sdk.NewAttribute("amount", fmt.Sprintf("%d", gasWanted)),
+		sdk.NewAttribute("amount", fmt.Sprintf("%d", updatedGasWanted)),
 	))
 }
