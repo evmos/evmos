@@ -12,10 +12,7 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 			s.runInitialNode(version)
 			continue
 		}
-		s.T().Logf(
-			"(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s",
-			idx, version.ImageTag, version.UpgradeName,
-		)
+		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
 		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
 		s.voteForProposal(idx)
 		s.upgrade(version.ImageName, version.ImageTag)
