@@ -1,8 +1,9 @@
 package evm_test
 
 import (
-	"github.com/evmos/evmos/v11/app/ante/evm"
 	"math/big"
+
+	"github.com/evmos/evmos/v11/app/ante/evm"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

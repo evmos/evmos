@@ -17,6 +17,8 @@
 package cosmos
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -25,7 +27,6 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evm "github.com/evmos/ethermint/x/evm/vm"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
-	"math/big"
 )
 
 // evmKeeper defines the expected keeper interface used on the Eth AnteHandler

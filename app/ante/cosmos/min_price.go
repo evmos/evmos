@@ -16,10 +16,11 @@
 package cosmos
 
 import (
+	"math/big"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"math/big"
 )
 
 // MinGasPriceDecorator will check if the transaction's fee is at least as large
