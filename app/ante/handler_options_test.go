@@ -1,7 +1,7 @@
 package ante_test
 
 import (
-	ethante "github.com/evmos/evmos/v11/app/ante"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/encoding"
 	ethermint "github.com/evmos/evmos/v11/types"
 
