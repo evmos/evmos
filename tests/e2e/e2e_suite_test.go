@@ -79,7 +79,7 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	defer cancel()
 
 	// wait until node starts and produce some blocks
-	err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
+	_, err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
 	s.Require().NoError(err)
 
 	s.T().Logf("successfully started node with version: [%s]", version.ImageTag)
@@ -161,7 +161,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	s.T().Log("wait for node to reach upgrade height...")
 	// wait for proposed upgrade height
-	err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
+	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
 	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
 
@@ -183,8 +183,14 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
 	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
-	// make sure node produce blocks after upgrade
-	err = s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	// make sure node produces blocks after upgrade
+	errLogs, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	if err == nil && errLogs != "" {
+		s.T().Logf(
+			"even though the node is producing blocks, there are error messages contained in the logs:\n%s",
+			errLogs,
+		)
+	}
 	s.Require().NoError(err, "node does not produce blocks after upgrade")
 
 	if targetVersion != upgrade.LocalVersionTag {
