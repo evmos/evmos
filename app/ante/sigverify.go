@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 
-package app
+package ante
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ import (
 var _ authante.SignatureVerificationGasConsumer = SigVerificationGasConsumer
 
 const (
-	secp256k1VerifyCost uint64 = 21000
+	Secp256k1VerifyCost uint64 = 21000
 )
 
 // SigVerificationGasConsumer is the Evmos implementation of SignatureVerificationGasConsumer. It consumes gas
@@ -55,7 +55,7 @@ func SigVerificationGasConsumer(
 
 	case *ethsecp256k1.PubKey:
 		// Ethereum keys
-		meter.ConsumeGas(secp256k1VerifyCost, "ante verify: eth_secp256k1")
+		meter.ConsumeGas(Secp256k1VerifyCost, "ante verify: eth_secp256k1")
 		return nil
 	case *ed25519.PubKey:
 		// Validator keys
