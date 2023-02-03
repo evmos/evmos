@@ -39,6 +39,15 @@ type EthVestingTransactionDecorator struct {
 	ek ethante.EVMKeeper
 }
 
+// ethVestingTotalSpend tracks the total transaction value to be sent across Ethereum
+// messages and the spendableBalance for a given account.
+type ethVestingTotalSpend struct {
+	// totalValue is the cumulative value to be spent across all transactions
+	totalValue *big.Int
+	// spendableBalance is the maximum value available to be spent
+	spendableBalance *big.Int
+}
+
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek ethante.EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
@@ -58,7 +67,7 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	totalValueByAddress := make(map[string]*big.Int)
+	totalSpendByAddress := make(map[string]*ethVestingTotalSpend)
 	evmDenom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
@@ -81,51 +90,74 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 			continue
 		}
 
-		address := acc.GetAddress()
-		balance := vtd.bk.GetBalance(ctx, address, evmDenom)
-
-		// Short-circuit if the balance is zero, since we require a non-zero balance to cover
-		// gas fees at a minimum (these are defined to be non-zero). Note that this check
-		// should be removed if the BaseFee definition is changed such that it can be zero.
-		if balance.IsZero() {
-			return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
-				"account has no balance to execute transaction: %s", address.String())
-		}
-
 		// Check to make sure that the account does not exceed its spendable balances.
 		// This transaction would fail in processing, so we should prevent it from
 		// moving past the AnteHandler.
 		msgValue := msgEthTx.AsTransaction().Value()
 
-		// Since there can be multiple transactions from different accounts, we track each account's total
-		// spend to compare against its unlocked balances.
-		totalValue, ok := totalValueByAddress[address.String()]
-		if !ok {
-			totalValue = msgValue
-			totalValueByAddress[address.String()] = totalValue
-		} else {
-			totalValue.Add(totalValue, msgValue)
+		totalSpend, err := vtd.getTotalSpend(ctx, totalSpendByAddress, clawbackAccount, msgValue, evmDenom)
+		if err != nil {
+			return ctx, err
 		}
 
-		// Check that the clawbackAccount has sufficient unlocked tokens to cover all requested spending.
-		ok, lockedBalance := clawbackAccount.LockedCoins(ctx.BlockTime()).Find(evmDenom)
-		if !ok {
-			lockedBalance = sdk.NewCoin(evmDenom, sdk.ZeroInt())
-		}
+		totalValue := totalSpend.totalValue
+		spendableBalance := totalSpend.spendableBalance
 
-		spendableValue := big.NewInt(0)
-		if spendableBalance, err := balance.SafeSub(lockedBalance); err == nil {
-			spendableValue = spendableBalance.Amount.BigInt()
-		}
-
-		if totalValue.Cmp(spendableValue) > 0 {
+		if totalValue.Cmp(spendableBalance) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableValue.String(), totalValue.String(),
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableBalance.String(), totalValue.String(),
 			)
 		}
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// getTotalSpend updates or sets, then returns the total spend (requested and spendable)
+// for the given address.
+func (vtd EthVestingTransactionDecorator) getTotalSpend(
+	ctx sdk.Context,
+	totalSpendByAddress map[string]*ethVestingTotalSpend,
+	account *vestingtypes.ClawbackVestingAccount,
+	value *big.Int,
+	denom string,
+) (*ethVestingTotalSpend, error) {
+	address := account.GetAddress()
+
+	totalSpend, ok := totalSpendByAddress[address.String()]
+	if ok {
+		totalSpend.totalValue.Add(totalSpend.totalValue, value)
+		return totalSpend, nil
+	}
+
+	balance := vtd.bk.GetBalance(ctx, address, denom)
+
+	// Short-circuit if the balance is zero, since we require a non-zero balance to cover
+	// gas fees at a minimum (these are defined to be non-zero). Note that this check
+	// should be removed if the BaseFee definition is changed such that it can be zero.
+	if balance.IsZero() {
+		return nil, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
+			"account has no balance to execute transaction: %s", address.String())
+	}
+
+	ok, lockedBalance := account.LockedCoins(ctx.BlockTime()).Find(denom)
+	if !ok {
+		lockedBalance = sdk.NewCoin(denom, sdk.ZeroInt())
+	}
+
+	spendableBalance := big.NewInt(0)
+	if spendableCoin, err := balance.SafeSub(lockedBalance); err == nil {
+		spendableBalance = spendableCoin.Amount.BigInt()
+	}
+
+	totalSpend = &ethVestingTotalSpend{
+		totalValue:       value,
+		spendableBalance: spendableBalance,
+	}
+
+	totalSpendByAddress[address.String()] = totalSpend
+
+	return totalSpend, nil
 }
 
 // TODO: remove once Cosmos SDK is upgraded to v0.46
