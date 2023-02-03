@@ -63,7 +63,7 @@ func TestLoadUpgradeParams(t *testing.T) {
 				Versions: []VersionConfig{
 					{"v0.1.0", "v0.1.0", tharsisRepo},
 					{"v0.2.0", "v0.2.0", tharsisRepo},
-					{latestVersionName, LocalVersionTag, localRepo},
+					{latestVersionName, LocalVersionTag, tharsisRepo},
 				},
 				ChainID:     defaultChainID,
 				WorkDirRoot: wd,
@@ -79,7 +79,7 @@ func TestLoadUpgradeParams(t *testing.T) {
 				MountPath: defaultMountPath,
 				Versions: []VersionConfig{
 					{"v0.1.0", "v0.1.0", tharsisRepo},
-					{latestVersionName, LocalVersionTag, localRepo},
+					{latestVersionName, LocalVersionTag, tharsisRepo},
 				},
 				ChainID:     defaultChainID,
 				WorkDirRoot: wd,
@@ -93,7 +93,7 @@ func TestLoadUpgradeParams(t *testing.T) {
 				MountPath: defaultMountPath,
 				Versions: []VersionConfig{
 					{defaultInitialVersion, defaultInitialVersion, tharsisRepo},
-					{latestVersionName, LocalVersionTag, localRepo},
+					{latestVersionName, LocalVersionTag, tharsisRepo},
 				},
 				ChainID:     defaultChainID,
 				WorkDirRoot: wd,

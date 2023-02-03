@@ -350,6 +350,10 @@ test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=a
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
+	@if [ -z "$(TARGET_VERSION)" ]; then \
+		echo "Building docker image from local codebase"; \
+		make build-docker; \
+	fi
 	@mkdir -p ./build
 	@rm -rf build/.evmosd
 	@INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \

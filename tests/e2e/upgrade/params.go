@@ -38,8 +38,6 @@ func LoadUpgradeParams(upgradesFolder string) (Params, error) {
 		err error
 		// upgradeName defines the upgrade name to use in the proposal
 		upgradeName string
-		// imageName defines which the name of the used docker image
-		imageName string
 		// upgradesList contains the available upgrades in the app/upgrades folder
 		upgradesList []string
 		// versionTag is a string to store the processed version tags (e.g. v10.0.1)
@@ -92,21 +90,19 @@ func LoadUpgradeParams(upgradesFolder string) (Params, error) {
 		}
 		upgradeName = upgradesList[len(upgradesList)-1]
 		versionTag = LocalVersionTag
-		imageName = localRepo
 	} else {
 		upgradeName = targetV
 		versionTag = targetV
-		imageName = tharsisRepo
 	}
 
 	// Add the target version to the versions slice
 	versions = append(versions, VersionConfig{
 		upgradeName,
 		versionTag,
-		imageName,
+		tharsisRepo,
 	})
 
-	// If chain ID is not specified, 'evmos_9000-1' will be used in upgrade-init.sh
+	// If chain ID is not specified, the default value from the constants file will be used in upgrade-init.sh
 	chainID := os.Getenv("CHAIN_ID")
 	if chainID == "" {
 		chainID = defaultChainID

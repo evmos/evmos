@@ -5,9 +5,6 @@ const (
 	// the defaultChainID used for testing
 	defaultChainID = "evmos_9000-1"
 
-	// localRepo defines the docker image UpgradeName when building locally
-	localRepo = "evmos"
-
 	// LocalVersionTag defines the docker image ImageTag when building locally
 	LocalVersionTag = "latest"
 
