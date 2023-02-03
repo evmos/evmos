@@ -8,23 +8,41 @@ parent:
 # `erc20`
 
 ::: tip
-**Note:** Working on a governance proposal related to the ERC-20 Module? Make sure to look at [Evmos Governance](../../validators/governance/overview.md), and specifically the [best practices](../../validators/governance/best_practices#erc-20-proposal).
+**Note:** Working on a governance proposal related to the ERC-20 Module?
+Make sure to look at [Evmos Governance](https://docs.evmos.org/users/governance/overview.html),
+and specifically the [best practices](https://docs.evmos.org/users/governance/best_practices).
 :::
 
 ## Abstract
 
 This document specifies the internal `x/erc20` module of the Evmos Hub.
 
-The `x/erc20` module enables the Evmos Hub to support a trustless, on-chain bidirectional internal conversion of tokens between Evmos' EVM and Cosmos runtimes, specifically the `x/evm` and `x/bank` modules. This allows token holders on Evmos to instantaneously convert their native Cosmos `sdk.Coins` (in this document referred to as "Coin(s)") to ERC-20 (aka "Token(s)") and vice versa, while retaining fungibility with the original asset on the issuing environment/runtime (EVM or Cosmos) and preserving ownership of the ERC-20 contract.
+The `x/erc20` module enables the Evmos Hub to support a trustless, on-chain bidirectional internal conversion of tokens
+between Evmos' EVM and Cosmos runtimes, specifically the `x/evm` and `x/bank` modules.
+This allows token holders on Evmos to instantaneously convert their native Cosmos `sdk.Coins`
+(in this document referred to as "Coin(s)") to ERC-20 (aka "Token(s)") and vice versa,
+while retaining fungibility with the original asset on the issuing environment/runtime (EVM or Cosmos)
+and preserving ownership of the ERC-20 contract.
 
-This conversion functionality is fully governed by native $EVMOS token holders who manage the canonical `TokenPair` registrations (ie, ERC20 ←→ Coin mappings). This governance functionality is implemented using the Cosmos-SDK `gov` module with custom proposal types for registering and updating the canonical mappings respectively.
+This conversion functionality is fully governed by native $EVMOS token holders
+who manage the canonical `TokenPair` registrations (ie, ERC20 ←→ Coin mappings).
+This governance functionality is implemented using the Cosmos-SDK `gov` module
+with custom proposal types for registering and updating the canonical mappings respectively.
 
-Why is this important? Cosmos and the EVM are two runtimes that are not compatible by default. The native Cosmos Coins cannot be used in applications that require the ERC-20 standard. Cosmos coins are held on the `x/bank` module (with access to module methods like querying the supply or balances) and ERC-20 Tokens live on smart contracts. This problem is similar to [wETH](https://weth.io/), with the difference,  that it not only applies to gas tokens (like $EVMOS), but to all Cosmos Coins (IBC vouchers, staking and gov coins, etc.) as well.
+Why is this important? Cosmos and the EVM are two runtimes that are not compatible by default.
+The native Cosmos Coins cannot be used in applications that require the ERC-20 standard.
+Cosmos coins are held on the `x/bank` module (with access to module methods like querying the supply or balances)
+and ERC-20 Tokens live on smart contracts.
+This problem is similar to [wETH](https://coinmarketcap.com/alexandria/article/what-is-wrapped-ethereum-weth),
+with the difference, that it not only applies to gas tokens (like $EVMOS),
+but to all Cosmos Coins (IBC vouchers, staking and gov coins, etc.) as well.
 
 With the `x/erc20` users on Evmos can
 
-- use existing native cosmos assets (like $OSMO or $ATOM) on EVM-based chains, e.g. for Trading IBC tokens on DeFi protocols, buying NFT, etc.
-- transfer existing tokens on Ethereum and other EVM-based chains to Evmos to take advantage of application-specific chains in the Cosmos ecosystem
+- use existing native cosmos assets (like $OSMO or $ATOM) on EVM-based chains, e.g.
+for Trading IBC tokens on DeFi protocols, buying NFT, etc.
+- transfer existing tokens on Ethereum and other EVM-based chains to Evmos
+to take advantage of application-specific chains in the Cosmos ecosystem
 - build new applications that are based on ERC-20 smart contracts and have access to the Cosmos ecosystem.
 
 ## Contents

@@ -927,7 +927,8 @@ func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...
 		_gasPrice := sdk.NewInt(1)
 		gasPrice = &_gasPrice
 	}
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.MulRaw(1000000)}}
+	amt, _ := sdk.NewIntFromString("1000000000000000")
+	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.Mul(amt)}}
 	txBuilder.SetFeeAmount(*fees)
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)

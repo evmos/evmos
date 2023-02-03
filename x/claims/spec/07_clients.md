@@ -8,7 +8,8 @@ A user can query the `x/claims` module using the CLI, gRPC or REST.
 
 ## CLI
 
-Find below a list of `evmosd` commands added with the `x/claims` module. You can obtain the full list by using the `evmosd -h` command.
+Find below a list of `evmosd` commands added with the `x/claims` module.
+You can obtain the full list by using the `evmosd -h` command.
 
 ### Queries
 

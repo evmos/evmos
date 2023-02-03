@@ -17,14 +17,18 @@ If you plan to use a Key Management System (KMS), you should go through these st
 
 ## Create Your Validator
 
-Your node consensus public key (`evmosvalconspub...`) can be used to create a new validator by staking EVMOS tokens. You can find your validator pubkey by running:
+Your node consensus public key (`evmosvalconspub...`) can be used to create a new validator by staking EVMOS tokens.
+You can find your validator pubkey by running:
 
 ```bash
 evmosd tendermint show-validator
 ```
 
 ::: danger
-🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a [`test`](./../../users/keys/keyring.md#testing) keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys
+using a [`test`](./../../users/keys/keyring.md#testing) keying backend.
+Doing so might result in a loss of funds
+by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
 
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
@@ -47,22 +51,38 @@ evmosd tx staking create-validator \
 ```
 
 ::: tip
-When specifying commission parameters, the `commission-max-change-rate` is used to measure % *point* change over the `commission-rate`. E.g. 1% to 2% is a 100% rate increase, but only 1 percentage point.
+When specifying commission parameters,
+the `commission-max-change-rate` is used to measure % *point* change over the `commission-rate`.
+E.g.
+1% to 2% is a 100% rate increase, but only 1 percentage point.
 :::
 
 ::: tip
-`Min-self-delegation` is a strictly positive integer that represents the minimum amount of self-delegated voting power your validator must always have. A `min-self-delegation` of `1000000` means your validator will never have a self-delegation lower than `1 atevmos`
+`Min-self-delegation` is a strictly positive integer
+that represents the minimum amount of self-delegated voting power your validator must always have.
+A `min-self-delegation` of `1000000` means your validator will never have a self-delegation lower than `1 atevmos`
 :::
 
 You can confirm that you are in the validator set by using a third party explorer.
 
 ## Edit Validator Description
 
-You can edit your validator's public description. This info is to identify your validator, and will be relied on by delegators to decide which validators to stake to. Make sure to provide input for every flag below. If a flag is not included in the command the field will default to empty (`--moniker` defaults to the machine name) if the field has never been set or remain the same if it has been set in the past.
+You can edit your validator's public description.
+This info is to identify your validator, and will be relied on by delegators to decide which validators to stake to.
+Make sure to provide input for every flag below.
+If a flag is not included in the command the field will default to empty (`--moniker` defaults to the machine name)
+if the field has never been set or remain the same if it has been set in the past.
 
-The <key_name> specifies which validator you are editing. If you choose to not include certain flags, remember that the --from flag must be included to identify the validator to update.
+The <key_name> specifies which validator you are editing.
+If you choose to not include certain flags,
+remember that the --from flag must be included to identify the validator to update.
 
-The `--identity` can be used as to verify identity with systems like Keybase or UPort. When using with Keybase `--identity` should be populated with a 16-digit string that is generated with a [keybase.io](https://keybase.io) account. It's a cryptographically secure method of verifying your identity across multiple online networks. The Keybase API allows us to retrieve your Keybase avatar. This is how you can add a logo to your validator profile.
+The `--identity` can be used as to verify identity with systems like Keybase or UPort.
+When using with Keybase `--identity` should be populated
+with a 16-digit string that is generated with a [keybase.io](https://keybase.io) account.
+It's a cryptographically secure method of verifying your identity across multiple online networks.
+The Keybase API allows us to retrieve your Keybase avatar.
+This is how you can add a logo to your validator profile.
 
 ```bash
 evmosd tx staking edit-validator
@@ -103,7 +123,9 @@ evmosd query slashing signing-info <validator-pubkey>\
 
 ## Unjail Validator
 
-When a validator is "jailed" for downtime, you must submit an `Unjail` transaction from the operator account in order to be able to get block proposer rewards again (depends on the zone fee distribution).
+When a validator is "jailed" for downtime,
+you must submit an `Unjail` transaction from the operator account
+in order to be able to get block proposer rewards again (depends on the zone fee distribution).
 
 ```bash
 evmosd tx slashing unjail \
@@ -119,7 +141,8 @@ Your validator is active if the following command returns anything:
 evmosd query tendermint-validator-set | grep "$(evmosd tendermint show-address)"
 ```
 
-You should now see your validator in one of Evmos explorers. You are looking for the `bech32` encoded `address` in the `~/.evmosd/config/priv_validator.json` file.
+You should now see your validator in one of Evmos explorers.
+You are looking for the `bech32` encoded `address` in the `~/.evmosd/config/priv_validator.json` file.
 
 ::: warning Note
 To be in the validator set, you need to have more total voting power than the 100th validator.
@@ -138,9 +161,12 @@ the block.
 
 ### Problem #1: My validator has `voting_power: 0`
 
-Your validator has become jailed. Validators get jailed, i.e. get removed from the active validator set, if they do not vote on `500` of the last `10000` blocks, or if they double sign.
+Your validator has become jailed.
+Validators get jailed, i.e.
+get removed from the active validator set, if they do not vote on `500` of the last `10000` blocks, or if they double sign.
 
-If you got jailed for downtime, you can get your voting power back to your validator. First, if `evmosd` is not running, start it up again:
+If you got jailed for downtime, you can get your voting power back to your validator.
+First, if `evmosd` is not running, start it up again:
 
 ```bash
 evmosd start
@@ -158,7 +184,14 @@ You may notice that your voting power is less than it used to be. That's because
 
 ### Problem #2: My node crashes because of `too many open files`
 
-The default number of files Linux can open (per-process) is `1024`. `evmosd` is known to open more than `1024` files. This causes the process to crash. A quick fix is to run `ulimit -n 4096` (increase the number of open files allowed) and then restart the process with `evmosd start`. If you are using `systemd` or another process manager to launch `evmosd` this may require some configuration at that level. A sample `systemd` file to fix this issue is below:
+The default number of files Linux can open (per-process) is `1024`.
+`evmosd` is known to open more than `1024` files.
+This causes the process to crash.
+A quick fix is to run `ulimit -n 4096` (increase the number of open files allowed)
+and then restart the process with `evmosd start`.
+If you are using `systemd` or another process manager to launch `evmosd`,
+this may require some configuration at that level.
+A sample `systemd` file to fix this issue is below:
 
 ```toml
 # /etc/systemd/system/evmosd.service

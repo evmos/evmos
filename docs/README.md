@@ -40,16 +40,21 @@ aside: false
 
 ## Reference
 
-- **[Users](./users/)**: Documentation on relevant technical concepts for users like `accounts`, `gas`, `tokens` or `transactions` on Evmos as well as more advanced topics.
-- **[Developers](./developers/)**: Documentation on `block explorers`, `clients`, the `JSON-RPC` implementation or the testnet `faucet` can be found here.
-- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements, configuring a `node` and connecting to the `testnet` and `mainnet`,
+- **[Users](./users/)**: Documentation on relevant technical concepts for users
+  like `accounts`, `gas`, `tokens` or `transactions` on Evmos as well as more advanced topics.
+- **[Developers](./developers/)**: Documentation on `block explorers`, `clients`, the `JSON-RPC` implementation
+  or the testnet `faucet` can be found here.
+- **[Validators](./validators/)**: Documentation on how to become an Evmos validator, hardware requirements,
+  configuring a `node` and connecting to the `testnet` and `mainnet`,
 
 ## Other Resources
 
 - **[Module Directory](../x/)**: Module implementations and their respective documentation.
 - **[Ethermint API Reference](https://pkg.go.dev/github.com/evmos/ethermint)**: Godocs of Ethermint.
-- **[gRPC Gateway API Reference](https://api.evmos.dev/)**: List of gRPC Gateway endpoints to interact with an full-node through REST.
+- **[gRPC Gateway API Reference](https://api.evmos.dev/)**:
+  List of gRPC Gateway endpoints to interact with an full-node through REST.
 
 ## Contribute
 
-See [this file](https://github.com/evmos/evmos/blob/main/docs/DOCS_README.md) for details of the build process and considerations when making changes.
+See [this file](https://github.com/evmos/evmos/blob/main/docs/DOCS_README.md) for details of the build process
+and considerations when making changes.

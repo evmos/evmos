@@ -8,7 +8,8 @@ Learn how to backup your wallet's mnemonic and private key. {synopsis}
 
 ## Mnemonics
 
-When you create a new key, you'll recieve a mnemonic phrase that can be used to restore that key. Backup the mnemonic phrase:
+When you create a new key, you'll recieve a mnemonic phrase that can be used to restore that key.
+Backup the mnemonic phrase:
 
 ```bash
 evmosd keys add dev0

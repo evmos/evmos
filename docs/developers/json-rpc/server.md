@@ -9,21 +9,34 @@ Learn about the JSON-RPC server to interact with the EVM. {synopsis}
 ## Pre-requisite Readings
 
 - [EthWiki JSON-RPC API](https://eth.wiki/json-rpc/API) {prereq}
-- [Geth JSON-RPC Server](https://geth.ethereum.org/docs/rpc/server) {prereq}
+- [Geth JSON-RPC Server](https://geth.ethereum.org/docs/interacting-with-geth/rpc) {prereq}
 
-The JSON-PRC Server provides an API that allows you to connect to the Evmos blockchain and interact with the EVM. This gives you direct access to reading Ethereum-formatted transactions or sending them to the network which otherwise wouldn't be possible on a Cosmos chain, such as Evmos.
+The JSON-PRC Server provides an API that allows you to connect to the Evmos blockchain and interact with the EVM.
+This gives you direct access to reading Ethereum-formatted transactions
+or sending them to the network which otherwise wouldn't be possible on a Cosmos chain, such as Evmos.
 
-[JSON-RPC](http://www.jsonrpc.org/specification) is a stateless, light-weight remote procedure call (RPC) protocol. It defines several data structures and the rules around their processing. It is transport agnostic in that the concepts can be used within the same process, over sockets, over HTTP, or in many various message passing environments. It uses JSON ([RFC 4627](https://www.ietf.org/rfc/rfc4627.txt)) as data format.
+[JSON-RPC](http://www.jsonrpc.org/specification) is a stateless, light-weight remote procedure call (RPC) protocol.
+It defines several data structures and the rules around their processing.
+It is transport agnostic in that the concepts can be used within the same process, over sockets, over HTTP,
+or in many various message passing environments.
+It uses JSON ([RFC 4627](https://www.ietf.org/rfc/rfc4627.txt)) as data format.
 
-JSON-RPC is provided on multiple transports. Evmos supports JSON-RPC over HTTP and WebSocket. Transports must be enabled through command-line flags or through the `app.toml` configuration file.
+JSON-RPC is provided on multiple transports.
+Evmos supports JSON-RPC over HTTP and WebSocket.
+Transports must be enabled through command-line flags or through the `app.toml` configuration file.
 
 ## Web3 Support
 
-Evmos supports all standard web3 JSON-RPC APIs. You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
+Evmos supports all standard web3 JSON-RPC APIs.
+You can find documentation for these APIs on the [`JSON-RPC Methods`](./endpoints.md) page.
 
-Ethereum JSON-RPC APIs use a name-space system. RPC methods are grouped into several categories depending on their purpose. All method names are composed of the namespace, an underscore, and the actual method name within the namespace. For example, the eth_call method resides in the eth namespace.
+Ethereum JSON-RPC APIs use a name-space system.
+RPC methods are grouped into several categories depending on their purpose.
+All method names are composed of the namespace, an underscore, and the actual method name within the namespace.
+For example, the eth_call method resides in the eth namespace.
 
-Access to RPC methods can be enabled on a per-namespace basis. Find documentation for individual namespaces in the [Namespaces](./namespaces.md) page.
+Access to RPC methods can be enabled on a per-namespace basis.
+Find documentation for individual namespaces in the [Namespaces](./namespaces.md) page.
 
 ## HEX value encoding
 
@@ -34,7 +47,9 @@ At present there are two key datatypes that are passed over JSON:
 
 Both are passed with a hex encoding, however with different requirements to formatting.
 
-When encoding quantities (integers, numbers), encode as hex, prefix with `"0x"`, the most compact representation (slight exception: zero should be represented as `"0x0"`). Examples:
+When encoding quantities (integers, numbers), encode as hex, prefix with `"0x"`,
+the most compact representation (slight exception: zero should be represented as `"0x0"`).
+Examples:
 
 - `0x41` (65 in decimal)
 - `0x400` (1024 in decimal)
@@ -42,7 +57,9 @@ When encoding quantities (integers, numbers), encode as hex, prefix with `"0x"`,
 - WRONG: `0x0400` (no leading zeroes allowed)
 - WRONG: `ff` (must be prefixed `0x`)
 
-When encoding unformatted data (byte arrays, account addresses, hashes, bytecode arrays), encode as hex, prefix with `"0x"`, two hex digits per byte. Examples:
+When encoding unformatted data (byte arrays, account addresses, hashes, bytecode arrays),
+encode as hex, prefix with `"0x"`, two hex digits per byte.
+Examples:
 
 - `0x41` (size 1, `"A"`)
 - `0x004200` (size 3, `"\0B\0"`)
@@ -60,7 +77,8 @@ The following methods have an extra default block parameter:
 - [`eth_getStorageAt`](./endpoints.md#eth-getstorageat)
 - [`eth_call`](./endpoints.md#eth-call)
 
-When requests are made that act on the state of Evmos, the last default block parameter determines the height of the block.
+When requests are made that act on the state of Evmos,
+the last default block parameter determines the height of the block.
 
 The following options are possible for the `defaultBlock` parameter:
 
@@ -71,6 +89,10 @@ The following options are possible for the `defaultBlock` parameter:
 
 ## Curl Examples Explained
 
-The curl options below might return a response where the node complains about the content type, this is because the `--data` option sets the content type to `application/x-www-form-urlencoded`. If your node does complain, manually set the header by placing `-H "Content-Type: application/json"` at the start of the call.
+The curl options below might return a response where the node complains about the content type,
+this is because the `--data` option sets the content type to `application/x-www-form-urlencoded`.
+If your node does complain, manually set the header by placing `-H "Content-Type: application/json"`
+at the start of the call.
 
-The examples also do not include the URL/IP & port combination which must be the last argument given to curl e.x. `127.0.0.1:8545`
+The examples also do not include the URL/IP & port combination which must be the last argument given to curl e.x.
+`127.0.0.1:8545`

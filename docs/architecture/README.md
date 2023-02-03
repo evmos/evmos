@@ -26,7 +26,8 @@ justification for a change in architecture, or for the architecture of something
 new. The spec is much more compressed and streamlined summary of everything as
 it stands today.
 
-If recorded decisions turned out to be lacking, convene a discussion, record the new decisions here, and then modify the code to match.
+If recorded decisions turned out to be lacking, convene a discussion, record the new decisions here,
+and then modify the code to match.
 
 Note the context/background should be written in the present tense.
 
