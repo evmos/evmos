@@ -13,12 +13,22 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+package types
 
-package statik
+import (
+	"github.com/ethereum/go-ethereum/common"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmtypes "github.com/tendermint/tendermint/types"
+)
 
-// unnamed import of statik for swagger UI support
-// override ethermint statik by importing it
-//nolint
-import _ "github.com/evmos/ethermint/client/docs/statik"
+// EVMTxIndexer defines the interface of custom eth tx indexer.
+type EVMTxIndexer interface {
+	// LastIndexedBlock returns -1 if indexer db is empty
+	LastIndexedBlock() (int64, error)
+	IndexBlock(*tmtypes.Block, []*abci.ResponseDeliverTx) error
 
-// This just for fixing the error in importing empty github.com/evmos/ethermint/client/docs/statik
+	// GetByTxHash returns nil if tx not found.
+	GetByTxHash(common.Hash) (*TxResult, error)
+	// GetByBlockAndIndex returns nil if tx not found.
+	GetByBlockAndIndex(int64, int32) (*TxResult, error)
+}

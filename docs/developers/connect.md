@@ -72,4 +72,4 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://jsonrpc-t.evmos.nodestake.top`      | `Ethereum` `JSON-RPC`  | [NodeStake](https://nodestake.top/)     |
 | `https://evmos-testnet-rpc.qubelabs.io`      | `Tendermint` `RPC`     | [Qubelabs](https://qubelabs.io/)        |
 | `https://evmos-testnet-lcd.qubelabs.io`      | `Cosmos` `REST`        | [Qubelabs](https://qubelabs.io/)        |
-| `https://evmos-testnet-grpc.qubelabs.io`     | `Cosmos` `gRPC`        | [Qubelabs](https://qubelabs.io/)        |
+| `https://evmos-testnet-grpc.qubelabs.io:9094`     | `Cosmos` `gRPC`        | [Qubelabs](https://qubelabs.io/)        |
