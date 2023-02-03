@@ -13,12 +13,38 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+package version
 
-package statik
+import (
+	"fmt"
+	"runtime"
+)
 
-// unnamed import of statik for swagger UI support
-// override ethermint statik by importing it
-//nolint
-import _ "github.com/evmos/ethermint/client/docs/statik"
+var (
+	AppVersion = ""
+	GitCommit  = ""
+	BuildDate  = ""
 
-// This just for fixing the error in importing empty github.com/evmos/ethermint/client/docs/statik
+	GoVersion = ""
+	GoArch    = ""
+)
+
+func init() {
+	if len(AppVersion) == 0 {
+		AppVersion = "dev"
+	}
+
+	GoVersion = runtime.Version()
+	GoArch = runtime.GOARCH
+}
+
+func Version() string {
+	return fmt.Sprintf(
+		"Version %s (%s)\nCompiled at %s using Go %s (%s)",
+		AppVersion,
+		GitCommit,
+		BuildDate,
+		GoVersion,
+		GoArch,
+	)
+}

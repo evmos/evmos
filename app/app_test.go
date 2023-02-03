@@ -19,7 +19,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/types"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 )
