@@ -18,6 +18,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"math"
 	"math/big"
 
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -198,9 +199,16 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 		return errorsmod.Wrap(err, "failed to unpack tx data")
 	}
 
+	gas := txData.GetGas()
+
 	// prevent txs with 0 gas to fill up the mempool
-	if txData.GetGas() == 0 {
+	if gas == 0 {
 		return errorsmod.Wrap(evmtypes.ErrInvalidGasLimit, "gas limit must not be zero")
+	}
+
+	// prevent gas limit from overflow
+	if gas > math.MaxUint64 {
+		return errorsmod.Wrap(evmtypes.ErrGasOverflow, "gas limit must be less than math.MaxUint64")
 	}
 
 	if err := txData.Validate(); err != nil {
