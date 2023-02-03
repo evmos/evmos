@@ -18,7 +18,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	"math"
 	"math/big"
 
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -207,7 +206,7 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 	}
 
 	// prevent gas limit from overflow
-	if gas > math.MaxUint64 {
+	if g := sdk.NewIntFromUint64(msg.GetGas()); g.IsInt64() {
 		return errorsmod.Wrap(evmtypes.ErrGasOverflow, "gas limit must be less than math.MaxUint64")
 	}
 

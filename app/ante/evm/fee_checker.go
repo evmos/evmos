@@ -110,13 +110,7 @@ func NewDynamicFeeChecker(k dynamicFeeEVMKeeper) authante.TxFeeChecker {
 func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coins, int64, error) {
 	feeCoins := tx.GetFee()
 	minGasPrices := ctx.MinGasPrices()
-
-	// Check tx gas is not bigger than max.MaxInt64.
-	// if it is, then charge the max
-	gas := int64(math.MaxInt64)
-	if g := sdk.NewIntFromUint64(tx.GetGas()); g.IsInt64() {
-		gas = g.Int64()
-	}
+	gas := tx.GetGas()
 
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
@@ -126,7 +120,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coi
 
 		// Determine the required fees by multiplying each required minimum gas
 		// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-		glDec := sdk.NewDec(gas)
+		glDec := sdk.NewDec(int64(gas)) //#nosec G701 -- checked for int overflow on ValidateBasic()
 
 		for i, gp := range minGasPrices {
 			fee := gp.Amount.Mul(glDec)
@@ -138,7 +132,7 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coi
 		}
 	}
 
-	priority := getTxPriority(feeCoins, gas)
+	priority := getTxPriority(feeCoins, int64(gas)) //#nosec G701 -- checked for int overflow on ValidateBasic()
 	return feeCoins, priority, nil
 }
 
