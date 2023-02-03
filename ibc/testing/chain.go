@@ -120,8 +120,8 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	return chain
 }
 
-func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *ibcgotesting.Path {
-	path := ibcgotesting.NewPath(chainA, chainB)
+func NewTransferPath(chainA, chainB *ibcgotesting.TestChain) *Path {
+	path := NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = ibcgotesting.TransferPort
 	path.EndpointB.ChannelConfig.PortID = ibcgotesting.TransferPort
 

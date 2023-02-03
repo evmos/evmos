@@ -6,11 +6,15 @@ order: 1
 
 Create, import, export and delete keys using the CLI keyring {synopsis}
 
-The keyring holds the private/public keypairs used to interact with the node. For instance, a validator key needs to be set up before running the node, so that blocks can be correctly signed. The private key can be stored in different locations, called ["backends"](#keyring-backends), such as a file or the operating system's own key storage.
+The keyring holds the private/public keypairs used to interact with the node.
+For instance, a validator key needs to be set up before running the node, so that blocks can be correctly signed.
+The private key can be stored in different locations,
+called ["backends"](#keyring-backends), such as a file or the operating system's own key storage.
 
 ## Add keys
 
-You can use the following commands for help with the `keys` command and for more information about a particular subcommand, respectively:
+You can use the following commands for help with the `keys` command
+and for more information about a particular subcommand, respectively:
 
 ```bash
 evmosd keys
@@ -20,7 +24,9 @@ evmosd keys
 evmosd keys [command] --help
 ```
 
-To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument. You will have to provide a password for the newly generated key. This key will be used in the next section.
+To create a new key in the keyring, run the `add` subcommand with a `<key_name>` argument.
+You will have to provide a password for the newly generated key.
+This key will be used in the next section.
 
 ```bash
 evmosd keys add dev0
@@ -29,12 +35,18 @@ evmosd keys add dev0
 MY_VALIDATOR_ADDRESS=$(evmosd keys show dev0 -a)
 ```
 
-This command generates a new 24-word mnemonic phrase, persists it to the relevant backend, and outputs information about the keypair. If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
+This command generates a new 24-word mnemonic phrase, persists it to the relevant backend,
+and outputs information about the keypair.
+If this keypair will be used to hold value-bearing tokens, be sure to write down the mnemonic phrase somewhere safe!
 
-By default, the keyring generates a `eth_secp256k1` key. The keyring also supports `ed25519` keys, which may be created by passing the `--algo` flag. A keyring can of course hold both types of keys simultaneously.
+By default, the keyring generates a `eth_secp256k1` key.
+The keyring also supports `ed25519` keys, which may be created by passing the `--algo` flag.
+A keyring can of course hold both types of keys simultaneously.
 
 :::tip
-**Note**: The Ethereum address associated with a public key can be derived by taking the full Ethereum public key of type `eth_secp256k1`, computing the `Keccak-256` hash, and truncating the first twelve bytes.
+**Note**: The Ethereum address associated with a public key can be derived
+by taking the full Ethereum public key of type `eth_secp256k1`, computing the `Keccak-256` hash,
+and truncating the first twelve bytes.
 :::
 
 ::: warning
@@ -101,8 +113,7 @@ information on how to download and install it.
 ::: tip
 **`pass`** uses [GnuPG](https://gnupg.org/) for encryption. `gpg` automatically invokes the `gpg-agent`
 daemon upon execution, which handles the caching of GnuPG credentials. Please refer to `gpg-agent`
-man page for more information on how to configure cache parameters such as credentials TTL and
-passphrase expiration.
+man page for more information on how to configure cache parameters such as credentials TTL and passphrase expiration.
 :::
 
 The password store must be set up prior to first use:
@@ -127,7 +138,9 @@ The `test` backend is a password-less variation of the `file` backend. Keys are 
 **unencrypted** on disk. This keyring is provided for <u>testing purposes only</u>. Use at your own risk!
 
 ::: danger
-🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a `test` keying backend. Doing so might result in a loss of funds by making your funds remotely accessible via the `eth_sendTransaction` JSON-RPC endpoint.
+🚨 **DANGER**: <u>Never</u> create your mainnet validator keys using a `test` keying backend.
+Doing so might result in a loss of funds by making your funds remotely accessible
+via the `eth_sendTransaction` JSON-RPC endpoint.
 
 Ref: [Security Advisory: Insecurely configured geth can make funds remotely accessible](https://blog.ethereum.org/2015/08/29/security-alert-insecurely-configured-geth-can-make-funds-remotely-accessible/)
 :::
@@ -137,5 +150,7 @@ Ref: [Security Advisory: Insecurely configured geth can make funds remotely acce
 The `memory` backend stores keys in memory. The keys are immediately deleted after the program has exited.
 
 :::danger
-**IMPORTANT**: Provided for testing purposes only. The `memory` backend is **not** recommended for use in production environments. Use at your own risk!
+**IMPORTANT**: Provided for testing purposes only.
+The `memory` backend is **not** recommended for use in production environments.
+Use at your own risk!
 :::

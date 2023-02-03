@@ -33,7 +33,11 @@ type Incentive struct {
 }
 ```
 
-As long as an incentive has remaining epochs, it distributes rewards according to its allocations. The allocations are stored as `sdk.DecCoins` where each containing [`sdk.DecCoin`](https://github.com/cosmos/cosmos-sdk/blob/master/types/dec_coin.go) describes the percentage of rewards (`Amount`) that are allocated to the contract for a given coin denomination (`Denom`). An incentive can contain several allocations, resulting in users to receive rewards in form of several different denominations.
+As long as an incentive has remaining epochs, it distributes rewards according to its allocations.
+The allocations are stored as `sdk.DecCoins` where each containing
+[`sdk.DecCoin`](https://github.com/cosmos/cosmos-sdk/blob/master/types/dec_coin.go) describes the percentage of rewards
+(`Amount`) that are allocated to the contract for a given coin denomination (`Denom`).
+An incentive can contain several allocations, resulting in users to receive rewards in form of several different denominations.
 
 ### GasMeter
 
@@ -52,13 +56,19 @@ type GasMeter struct {
 
 ### AllocationMeter
 
-An allocation meter stores the sum of all registered incentives’ allocations for a given denomination and is used to limit the amount of registered incentives.
+An allocation meter stores the sum of all registered incentives’ allocations for a given denomination
+and is used to limit the amount of registered incentives.
 
-Say, there are several incentives that have registered an allocation for the $EVMOS coin and the allocation meter for $EVMOS is at 97%. Then a new incentve proposal can only include an $EVMOS allocation at up to 3%, claiming the last remaining allocation capcaity from the $EVMOS rewards in the inflation pool.
+Say, there are several incentives that have registered an allocation for the $EVMOS coin
+and the allocation meter for $EVMOS is at 97%.
+Then a new incentve proposal can only include an $EVMOS allocation at up to 3%,
+claiming the last remaining allocation capacity from the $EVMOS rewards in the inflation pool.
 
 ## Genesis State
 
-The `x/incentives` module's `GenesisState` defines the state necessary for initializing the chain from a previously exported height. It contains the module parameters and the list of active incentives and their corresponding gas meters:
+The `x/incentives` module's `GenesisState` defines the state
+necessary for initializing the chain from a previously exported height.
+It contains the module parameters and the list of active incentives and their corresponding gas meters:
 
 ```go
 // GenesisState defines the module's genesis state.

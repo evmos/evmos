@@ -342,7 +342,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 	s.Require().NoError(err)
 
 	res := deliverTx(priv, msg)
-	submitEvent := res.GetEvents()[4]
+	submitEvent := res.GetEvents()[8]
 	Expect(submitEvent.Type).To(Equal("submit_proposal"))
 	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
 
@@ -432,6 +432,9 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(1000000)
+	amt, _ := sdk.NewIntFromString("1000000000000000")
+	txBuilder.SetFeeAmount(sdk.Coins{{Denom: evm.DefaultEVMDenom, Amount: amt}})
+
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
 
@@ -478,6 +481,6 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
-	Expect(res.IsOK()).To(Equal(true))
+	Expect(res.IsOK()).To(Equal(true), res.Log)
 	return res
 }

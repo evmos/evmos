@@ -278,6 +278,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		tmCfg.RPC.ListenAddress = ""
 		appCfg.GRPC.Enable = false
 		appCfg.GRPCWeb.Enable = false
+		appCfg.JSONRPC.Enable = false
 		apiListenAddr := ""
 		if i == 0 {
 			if cfg.APIAddress != "" {

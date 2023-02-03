@@ -31,7 +31,8 @@ archived [9001-1 mainnet](https://github.com/evmos/mainnet/tree/main/evmos_9001-
 | `Polkachu`     | [polkachu.com/tendermint_snapshots/evmos](https://www.polkachu.com/tendermint_snapshots/evmos)                           |
 | `Forbole`      | [bigdipper.live/evmos_9001-1](https://s3.bigdipper.live.eu-central-1.linodeobjects.com/evmos_9001-1.tar.lz4) |
 
-To access snapshots and archives, follow the process below (this code snippet is to access a snapshot of the current network, `evmos_9001-2`, from Nodes Guru):
+To access snapshots and archives, follow the process below
+(this code snippet is to access a snapshot of the current network, `evmos_9001-2`, from Nodes Guru):
 
 ```bash
 cd $HOME/.evmosd/data
@@ -67,4 +68,5 @@ Set `db_backend = "pebbledb"` in `config.toml` or start with `--db_backend=pebbl
 evmosd start --db_backend=pebbledb
 ```
 
-**Note**: use this [workaround](https://github.com/notional-labs/cosmosia/blob/main/docs/pebbledb.md) when upgrading a node running PebbleDB.
+**Note**: use this [workaround](https://github.com/notional-labs/cosmosia/blob/main/docs/pebbledb.md)
+when upgrading a node running PebbleDB.

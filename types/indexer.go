@@ -13,39 +13,22 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
-
-package version
+package types
 
 import (
-	"fmt"
-	"runtime"
+	"github.com/ethereum/go-ethereum/common"
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-var (
-	AppVersion = ""
-	GitCommit  = ""
-	BuildDate  = ""
+// EVMTxIndexer defines the interface of custom eth tx indexer.
+type EVMTxIndexer interface {
+	// LastIndexedBlock returns -1 if indexer db is empty
+	LastIndexedBlock() (int64, error)
+	IndexBlock(*tmtypes.Block, []*abci.ResponseDeliverTx) error
 
-	GoVersion = ""
-	GoArch    = ""
-)
-
-func init() {
-	if len(AppVersion) == 0 {
-		AppVersion = "dev"
-	}
-
-	GoVersion = runtime.Version()
-	GoArch = runtime.GOARCH
-}
-
-func Version() string {
-	return fmt.Sprintf(
-		"Version %s (%s)\nCompiled at %s using Go %s (%s)",
-		AppVersion,
-		GitCommit,
-		BuildDate,
-		GoVersion,
-		GoArch,
-	)
+	// GetByTxHash returns nil if tx not found.
+	GetByTxHash(common.Hash) (*TxResult, error)
+	// GetByBlockAndIndex returns nil if tx not found.
+	GetByBlockAndIndex(int64, int32) (*TxResult, error)
 }

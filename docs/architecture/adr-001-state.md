@@ -17,7 +17,13 @@ performance, and document all the transaction and state cycles and flows.
 
 ## Context
 
-<!-- > This section describes the forces at play, including technological, political, social, and project local. These forces are probably in tension, and should be called out as such. The language in this section is value-neutral. It is simply describing facts. It should clearly explain the problem and motivation that the proposal aims to resolve. -->
+<!--
+This section describes the forces at play, including technological, political, social, and project local.
+These forces are probably in tension, and should be called out as such.
+The language in this section is value-neutral.
+It is simply describing facts.
+It should clearly explain the problem and motivation that the proposal aims to resolve.
+-->
 
 This ADR addresses the issues of 3 different components of the EVM state: the `StateDB` interface,
 the live `stateObject` accounts, and the `StateTransition` functionality. These issues are outlined
@@ -30,14 +36,14 @@ perform CRUD operations on accounts, balances, code and state storage, among oth
 This database interface is defined by go-ethereum's `vm.StateDB`, which is currently implemented
 using the `CommitStateDB` concrete type.
 
-The `CommitStateDB` performs state updates by having a direct access to the `sdk.Context`, the evm's
+The `CommitStateDB` performs state updates by having direct access to the `sdk.Context`, the evm's
 `storetypes.StoreKey` and external `Keepers` for account and balances. Currently, the context field needs
 to be set on every block or state transition using `WithContext(ctx)` in order to pass the updated
 block and transaction data to the `CommitStateDB`.
 
 However, traditionally in Cosmos SDK-based chains, the `Keeper` type has been the de-facto abstraction
 that manages access the key-value store (`KVStore`) owned by the module through the store key.
-`Keepers` usually hold a reference to external module `Keepers` to perform functionality outside of
+`Keepers` usually hold a reference to external module `Keepers` to perform functionality outside
 the scope of their module.
 
 In the existing architecture of the EVM module, both `CommitStateDB` and `Keeper` have access to
@@ -46,14 +52,14 @@ state.
 ### State Objects
 
 The `CommitStateDB` also holds references of `stateObjects`, defined as "live ethereum consensus
-accounts (i.e any balance, account nonces or storage) which will get modified while processing a
+accounts (i.e. any balance, account nonces or storage) which will get modified while processing a
 state transition".
 
 Upon a state transition, these objects will be modified and marked as 'dirty' (a.k.a stateless
 update) on the `CommitStateDB`. Then, at every `EndBlock`, the state of these modified objects will
 be 'finalized' and committed to the store, resetting all the dirty list of objects.
 
-The core issue arises when a chain that uses the EVM module can have also have their account and
+The core issue arises when a chain that uses the EVM module can also have their account and
 balances updated through operations from other modules. This means that an EVM state object can be
 modified through an EVM transaction (`evm.MsgEthereumTx`) and other transactions like `bank.MsgSend`
 or `ibctransfer.MsgTransfer`. This can lead to unexpected behaviors like state overwrites, due to
@@ -62,22 +68,32 @@ directly.
 
 ### State Transition
 
-A general EVM state transition is performed by calling the ethereum `vm.EVM` `Create` or `Call` functions, depending on whether the transaction creates a contract or performs a transfer or call to a given contract.
+A general EVM state transition is performed
+by calling the ethereum `vm.EVM` `Create` or `Call` functions,
+depending on whether the transaction creates a contract
+or performs a transfer or call to a given contract.
 
-In the case of the `x/evm` module, it currently uses a modified version of Geth's `TransitionDB`, that wraps these two `vm.EVM` methods. The reason for using this modified function, is due to several reasons:
+In the case of the `x/evm` module,
+it currently uses a modified version of Geth's `TransitionDB`,
+that wraps these two `vm.EVM` methods.
+The reason for using this modified function, is due to several reasons:
 
-  1. The use of `sdk.Msg` (`MsgEthereumTx`) instead of the ethereum `core.Message` type for the `vm.EVM` functions, preventing the direct use of the `core.ApplyMessage`.
-  2. The use of custom gas accounting through the transaction `GasMeter` available on the `sdk.Context` to consume the same amount of gas as on Ethereum.
+  1. The use of `sdk.Msg` (`MsgEthereumTx`) instead of the ethereum `core.Message` type for the `vm.EVM` functions,
+     preventing the direct use of the `core.ApplyMessage`.
+  2. The use of custom gas accounting through the transaction `GasMeter` available on the `sdk.Context`
+     to consume the same amount of gas as on Ethereum.
   3. Simulate logic via ABCI `CheckTx`, that prevents the state from being finalized.
 
 ## Decision
 
-<!-- > This section describes our response to these forces. It is stated in full sentences, with active voice. "We will ..." -->
+<!-- > This section describes our response to these forces.
+It is stated in full sentences, with active voice.
+"We will ..." -->
 
 ### `StateDB`
 
-The `CommitStateDB` type will be removed in favor turning the module's `Keeper` into a `StateDB`
-concrete implementation.
+The `CommitStateDB` type will be removed in favor of
+turning the module's `Keeper` into a `StateDB` concrete implementation.
 
 ```go
 // Keeper now fully implements the StateDB interface
@@ -96,9 +112,11 @@ type Keeper struct {
 }
 ```
 
-This means that a `Keeper` pointer will now directly be passed to the `vm.EVM` for accessing the state and performing state transitions.
+This means that a `Keeper` pointer will now directly be passed to the `vm.EVM`
+for accessing the state and performing state transitions.
 
-The ABCI `BeginBlock` and `EndBlock` are have now been refactored to only keep track of internal fields (hashes, block bloom, etc).
+The ABCI `BeginBlock` and `EndBlock` are have now been refactored
+to only keep track of internal fields (hashes, block bloom, etc).
 
 ```go
 func (k *Keeper) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
@@ -131,7 +149,9 @@ func (k Keeper) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.Valid
 }
 ```
 
-The new `StateDB` (`Keeper`) will adopt the use of the  [`TransientStore`](https://docs.cosmos.network/main/core/store.html#transient-store) that discards the existing values of the store when the block is commited.
+The new `StateDB` (`Keeper`) will adopt the use of the
+[`TransientStore`](https://docs.cosmos.network/main/core/store.html#transient-store)
+that discards the existing values of the store when the block is committed.
 
 The fields that have been modified to use the `TransientStore` are:
 
@@ -143,19 +163,21 @@ The fields that have been modified to use the `TransientStore` are:
 
 ### State Objects
 
-The `stateObject` type will be completely removed in favor of updating the store directly through
-the use of the auth `AccountKeeper` and the bank `Keeper`. For the storage `State` and `Code`, the
-evm module `Keeper` will store these values directly on the KVStore using the EVM module store key
-and corresponding prefix keys.
+The `stateObject` type will be completely removed in favor of updating the store directly
+through the use of the auth `AccountKeeper` and the bank `Keeper`.
+For the storage `State` and `Code`, the evm module `Keeper` will store these values directly on the KVStore
+using the EVM module store key and corresponding prefix keys.
 
 ### State Transition
 
-The state transition logic will be refactored to use the [`ApplyTransaction`](https://github.com/ethereum/go-ethereum/blob/v1.10.3/core/state_processor.go#L137-L150) function from the `core`
-package of go-ethereum as reference. This method calls creates a go-ethereum `StateTransition`
-instance and, as it name implies, applies a Ethereum message to execute it and update the state.
-This `ApplyMessage` call will be wrapped in the `Keeper`'s `ApplyTransaction` function, which will
-generate the required arguments for this call (EVM, `core.Message`, chain config, and gas pool), thus performing the
-same gas accounting as before.
+The state transition logic will be refactored to use the
+[`ApplyTransaction`](https://github.com/ethereum/go-ethereum/blob/v1.10.3/core/state_processor.go#L137-L150)
+function from the `core` package of go-ethereum as reference.
+This method calls creates a go-ethereum `StateTransition` instance
+and, as it name implies, applies an Ethereum message to execute it and update the state.
+This `ApplyMessage` call will be wrapped in the `Keeper`'s `ApplyTransaction` function,
+which will generate the required arguments for this call (EVM, `core.Message`, chain config, and gas pool),
+thus performing the same gas accounting as before.
 
 ```go
 func (k *Keeper) ApplyTransaction(tx *ethtypes.Transaction) (*types.MsgEthereumTxResponse, error) {
@@ -190,9 +212,9 @@ func (k *Keeper) ApplyTransaction(tx *ethtypes.Transaction) (*types.MsgEthereumT
 }
 ```
 
-`ApplyMessage` computes the new state by applying the given message against the existing state. If
-the message fails, the VM execution error with the reason will be returned to the client and the
-transaction won't be committed to the store.
+`ApplyMessage` computes the new state by applying the given message against the existing state.
+If the message fails, the VM execution error with the reason will be returned to the client
+and the transaction won't be committed to the store.
 
 ```go
 func (k *Keeper) ApplyMessage(evm *vm.EVM, msg core.Message, cfg *params.ChainConfig) (*types.MsgEthereumTxResponse, error) {
@@ -271,11 +293,21 @@ func (k *Keeper) NewEVM(msg core.Message, config *params.ChainConfig) *vm.EVM {
 
 ## Consequences
 
-<!-- > This section describes the resulting context, after applying the decision. All consequences should be listed here, not just the "positive" ones. A particular decision may have positive, negative, and neutral consequences, but all of them affect the team and project in the future. -->
+<!--
+This section describes the resulting context, after applying the decision.
+All consequences should be listed here, not just the "positive" ones.
+A particular decision may have positive, negative, and neutral consequences,
+but all of them affect the team and project in the future.
+-->
 
 ### Backwards Compatibility
 
-<!-- All ADRs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The ADR must explain how the author proposes to deal with these incompatibilities. ADR submissions without a sufficient backwards compatibility treatise may be rejected outright. -->
+<!--
+All ADRs that introduce backwards incompatibilities must include a section
+describing these incompatibilities and their severity.
+The ADR must explain how the author proposes to deal with these incompatibilities.
+ADR submissions without a sufficient backwards compatibility treatise may be rejected outright.
+-->
 
 The proposed ADR is a breaking state machine change and will not have any backwards compatibility
 since no chain that uses this code is in a production ready-state (at the moment of writing).
@@ -288,7 +320,8 @@ since no chain that uses this code is in a production ready-state (at the moment
 - State operations and tests are now all located in the `evm/keeper/` package
 - Removes the concept of `stateObject` by committing to the store directly
 - Delete operations on `EndBlock` for updating and committing dirty state objects.
-- Split the state transition functionality to modularize components that can be beneficial for further customization (eg: using an alternative EVM)
+- Split the state transition functionality to modularize components
+  that can be beneficial for further customization (eg: using an alternative EVM)
 
 ### Negative
 
@@ -296,17 +329,25 @@ since no chain that uses this code is in a production ready-state (at the moment
 
 ### Neutral
 
-- Some of the fields from the `CommitStateDB` will have to be added to the `Keeper`
+- Some fields from the `CommitStateDB` will have to be added to the `Keeper`
 - Some state changes will have to be kept in store (eg: suicide state)
 
 ## Further Discussions
 
-<!-- While an ADR is in the DRAFT or PROPOSED stage, this section should contain a summary of issues to be solved in future iterations (usually referencing comments from a pull-request discussion).
-Later, this section can optionally list ideas or improvements the author or reviewers found during the analysis of this ADR. -->
+<!--
+While an ADR is in the DRAFT or PROPOSED stage,
+this section should contain a summary of issues to be solved in future iterations
+(usually referencing comments from a pull-request discussion).
+Later, this section can optionally list ideas or improvements
+the author or reviewers found during the analysis of this ADR.
+-->
 
 ## Test Cases [optional]
 
-<!-- Test cases for an implementation are mandatory for ADRs that are affecting consensus changes. Other ADRs can choose to include links to test cases if applicable. -->
+<!--
+Test cases for an implementation are mandatory for ADRs that are affecting consensus changes.
+Other ADRs can choose to include links to test cases if applicable.
+-->
 
 ## References
 

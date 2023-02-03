@@ -11,7 +11,7 @@ messages and index transactions. {synopsis}
 ## Pre-requisite Readings
 
 - [Cosmos SDK Events](https://docs.cosmos.network/main/core/events.html) {prereq}
-- [Ethereum's PubSub JSON-RPC API](https://geth.ethereum.org/docs/rpc/pubsub) {prereq}
+- [Ethereum's PubSub JSON-RPC API](https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub) {prereq}
 
 ## Subscribing to Events
 
@@ -21,7 +21,8 @@ messages and index transactions. {synopsis}
 Check the [Tendermint Websocket](./../clients.md#tendermint-websocket) in the Clients documentation for reference.
 :::
 
-It is possible to subscribe to `Events` via Tendermint's [Websocket](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
+It is possible to subscribe to `Events` via Tendermint's
+[Websocket](https://docs.tendermint.com/v0.34/tendermint-core/subscription.html).
 This is done by calling the `subscribe` RPC method via Websocket:
 
 ```json
@@ -35,10 +36,12 @@ This is done by calling the `subscribe` RPC method via Websocket:
 }
 ```
 
-These events are triggered after a block is committed. You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
+These events are triggered after a block is committed.
+You can get the full list of `event` categories and values [here](./../clients.md#list-of-tendermint-events).
 
 The `type` and `attribute` value of the `query` allow you to filter the specific `event` you are
-looking for. For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
+looking for.
+For example, a an Ethereum transaction on Evmos (`MsgEthereumTx`) triggers an `event` of type `ethermint` and
 has `sender` and `recipient` as `attributes`. Subscribing to this `event` would be done like so:
 
 ```json
@@ -58,7 +61,8 @@ where `hexAddress` is an Ethereum hex address (eg: `0x11223344556677889900112233
 
 Evmos also supports the Ethereum [JSON-RPC](./server.md) filters calls to
 subscribe to [state logs](https://eth.wiki/json-rpc/API#eth_newfilter),
-[blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter) or [pending transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
+[blocks](https://eth.wiki/json-rpc/API#eth_newblockfilter)
+or [pending transactions](https://eth.wiki/json-rpc/API#eth_newpendingtransactionfilter) changes.
 
 Under the hood, it uses the Tendermint RPC client's event system to process subscriptions that are
 then formatted to Ethereum-compatible events.
@@ -69,7 +73,8 @@ curl -X POST --data '{"jsonrpc":"2.0","method":"eth_newBlockFilter","params":[],
 {"jsonrpc":"2.0","id":1,"result":"0x3503de5f0c766c68f78a03a3b05036a5"}
 ```
 
-Then you can check if the state changes with the [`eth_getFilterChanges`](https://eth.wiki/json-rpc/API#eth_getfilterchanges) call:
+Then you can check if the state changes with the
+[`eth_getFilterChanges`](https://eth.wiki/json-rpc/API#eth_getfilterchanges) call:
 
 ```bash
 curl -X POST --data '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":["0x3503de5f0c766c68f78a03a3b05036a5"],"id":1}' -H "Content-Type: application/json" http://localhost:8545
@@ -102,8 +107,8 @@ ws ws://localhost:8080/websocket
 
 Since Evmos runs uses Tendermint Core as it's consensus Engine and it's built with the Cosmos
 SDK framework, it inherits the event format from them. However, in order to support the native Web3
-compatibility for websockets of the [Ethereum's PubSubAPI](https://geth.ethereum.org/docs/rpc/pubsub), Evmos needs to cast the Tendermint
-responses retrieved into the Ethereum types.
+compatibility for websockets of the [Ethereum's PubSubAPI](https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub),
+Evmos needs to cast the Tendermint responses retrieved into the Ethereum types.
 
 You can start a connection with the Ethereum websocket using the `--json-rpc.ws-address` flag when starting
 the node (default `"0.0.0.0:8546"`):

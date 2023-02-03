@@ -10,7 +10,8 @@ title: "Overview"
 :::
 
 Evmos has an on-chain governance mechanism for passing
-text proposals, changing [chain parameters](./param_change.md), and spending [funds from the community pool](./community_pool.md).
+text proposals, changing [chain parameters](./param_change.md),
+and spending [funds from the community pool](./community_pool.md).
 
 ## On- and off-chain Governance Structure
 
@@ -24,7 +25,11 @@ Governance practices and decisions are communicated through different types of d
 
 ### Decision-making and Discussion Venues
 
-Venues involve community members to different degrees and individuals often perform multiple roles in the Cosmos ecosystem (validators, users, developers and core-members of Evmos Team). Because technical direction setting and development is almost always happening in the open, involvement from members in the extended community occurs organically.
+Venues involve community members to different degrees
+and individuals often perform multiple roles in the Cosmos ecosystem
+(validators, users, developers and core-members of Evmos Team).
+Because technical direction setting and development is almost always happening in the open,
+involvement from members in the extended community occurs organically.
 
 - **[Evmos Discord](https://discord.gg/evmos)**
     - For ecosystem cross-pollination with an active developer presence.
