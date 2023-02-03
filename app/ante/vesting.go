@@ -39,13 +39,13 @@ type EthVestingTransactionDecorator struct {
 	ek ethante.EVMKeeper
 }
 
-// ethVestingTotalSpend tracks the total transaction value to be sent across Ethereum
-// messages and the spendableBalance for a given account.
+// ethVestingTotalSpend tracks both the total transaction value to be sent across Ethereum
+// messages and the maximum spendable value for a given account.
 type ethVestingTotalSpend struct {
-	// totalValue is the cumulative value to be spent across all transactions
+	// totalValue is the total value to be spent across a transaction with one or more Ethereum message calls
 	totalValue *big.Int
-	// spendableBalance is the maximum value available to be spent
-	spendableBalance *big.Int
+	// spendableValue is the maximum value that can be spent
+	spendableValue *big.Int
 }
 
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek ethante.EVMKeeper) EthVestingTransactionDecorator {
@@ -63,12 +63,11 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 //   - the message is not a MsgEthereumTx
 //   - sender account cannot be found
 //   - tx values are in excess of any account's spendable balances
-//   - blocktime is before surpassing vesting cliff end (with zero vested coins)
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
 	totalSpendByAddress := make(map[string]*ethVestingTotalSpend)
-	evmDenom := vtd.ek.GetParams(ctx).EvmDenom
+	denom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
@@ -95,17 +94,17 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// moving past the AnteHandler.
 		msgValue := msgEthTx.AsTransaction().Value()
 
-		totalSpend, err := vtd.getTotalSpend(ctx, totalSpendByAddress, clawbackAccount, msgValue, evmDenom)
+		totalSpend, err := vtd.getTotalSpend(ctx, totalSpendByAddress, clawbackAccount, msgValue, denom)
 		if err != nil {
 			return ctx, err
 		}
 
 		totalValue := totalSpend.totalValue
-		spendableBalance := totalSpend.spendableBalance
+		spendableValue := totalSpend.spendableValue
 
-		if totalValue.Cmp(spendableBalance) > 0 {
+		if totalValue.Cmp(spendableValue) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableBalance.String(), totalValue.String(),
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableValue.String(), totalValue.String(),
 			)
 		}
 	}
@@ -113,8 +112,8 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	return next(ctx, tx, simulate)
 }
 
-// getTotalSpend updates or sets, then returns the total spend (requested and spendable)
-// for the given address.
+// getTotalSpend updates or sets the totalSpend for the given account, then
+// returns the new value.
 func (vtd EthVestingTransactionDecorator) getTotalSpend(
 	ctx sdk.Context,
 	totalSpendByAddress map[string]*ethVestingTotalSpend,
@@ -145,14 +144,14 @@ func (vtd EthVestingTransactionDecorator) getTotalSpend(
 		lockedBalance = sdk.NewCoin(denom, sdk.ZeroInt())
 	}
 
-	spendableBalance := big.NewInt(0)
-	if spendableCoin, err := balance.SafeSub(lockedBalance); err == nil {
-		spendableBalance = spendableCoin.Amount.BigInt()
+	spendableValue := big.NewInt(0)
+	if spendableBalance, err := balance.SafeSub(lockedBalance); err == nil {
+		spendableValue = spendableBalance.Amount.BigInt()
 	}
 
 	totalSpend = &ethVestingTotalSpend{
-		totalValue:       value,
-		spendableBalance: spendableBalance,
+		totalValue:     value,
+		spendableValue: spendableValue,
 	}
 
 	totalSpendByAddress[address.String()] = totalSpend
