@@ -30,9 +30,9 @@ import (
 
 	"github.com/evmos/evmos/v11/rpc/backend"
 
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
+	ethermint "github.com/evmos/evmos/v11/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is

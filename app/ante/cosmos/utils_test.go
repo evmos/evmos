@@ -10,19 +10,19 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/ethereum/eip712"
+	"github.com/evmos/evmos/v11/ethereum/eip712"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/ethermint/app"
-	ante "github.com/evmos/ethermint/app/ante"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/x/evm/statedb"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/app"
+	ante "github.com/evmos/evmos/v11/app/ante"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )

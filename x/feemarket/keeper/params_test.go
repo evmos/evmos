@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/x/feemarket/types"
 )
 
 func (suite *KeeperTestSuite) TestSetGetParams() {

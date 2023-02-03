@@ -7,7 +7,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/app"
 	inflationkeeper "github.com/evmos/evmos/v11/x/inflation/keeper"
 	v2types "github.com/evmos/evmos/v11/x/inflation/migrations/v2/types"

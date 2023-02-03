@@ -23,12 +23,12 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	// TODO: remove once Ethermint is migrated to Evmos
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
 func newAccessListTx(tx *ethtypes.Transaction) (*AccessListTx, error) {

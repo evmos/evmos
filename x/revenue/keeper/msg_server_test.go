@@ -11,8 +11,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/ethermint/x/evm/statedb"
+	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
 
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )

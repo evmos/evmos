@@ -10,9 +10,9 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	ethermint "github.com/evmos/ethermint/types"
-	evm "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v11/tests"
+	ethermint "github.com/evmos/evmos/v11/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/incentives/types"

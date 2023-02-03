@@ -13,14 +13,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 
 	// TODO refactor when imported to Evmos
-	"github.com/evmos/ethermint/types"
 	"github.com/evmos/evmos/v11/cmd/config"
 	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/types"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/stretchr/testify/require"
 )

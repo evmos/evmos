@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	etherminttypes "github.com/evmos/ethermint/x/evm/types"
+	etherminttypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -29,7 +29,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	rpctypes "github.com/evmos/ethermint/rpc/types"
+	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 

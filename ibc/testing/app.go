@@ -35,8 +35,8 @@ import (
 
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
-	ethermint "github.com/evmos/ethermint/types"
 	evmosapp "github.com/evmos/evmos/v11/app"
+	ethermint "github.com/evmos/evmos/v11/types"
 	evmos "github.com/evmos/evmos/v11/types"
 )
 

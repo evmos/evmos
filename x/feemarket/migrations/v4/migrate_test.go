@@ -20,7 +20,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
 	v4 "github.com/evmos/evmos/v11/x/feemarket/migrations/v4"

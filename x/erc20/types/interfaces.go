@@ -29,8 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/evmos/ethermint/x/evm/statedb"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 )
 
