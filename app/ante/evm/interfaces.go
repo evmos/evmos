@@ -32,14 +32,14 @@ import (
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 )
 
-// DynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
+// dynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
 type dynamicFeeEVMKeeper interface {
 	ChainID() *big.Int
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
 }
 
-// EVMKeeper defines the expected keeper interface used on the Eth AnteHandler
+// evmKeeper defines the expected keeper interface used on the Eth AnteHandler
 type evmKeeper interface {
 	statedb.Keeper
 	dynamicFeeEVMKeeper
@@ -56,7 +56,7 @@ type protoTxProvider interface {
 	GetProtoTx() *tx.Tx
 }
 
-// FeeMarketKeeper defines the expected keeper interface used on the AnteHandler
+// feeMarketKeeper defines the expected keeper interface used on the AnteHandler
 type feeMarketKeeper interface {
 	GetParams(ctx sdk.Context) (params feemarkettypes.Params)
 	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
