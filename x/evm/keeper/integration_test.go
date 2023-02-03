@@ -154,7 +154,7 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	err := testutil.FundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, initBalance)
 	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
@@ -173,7 +173,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
-	newapp := app.NewEthermintApp(
+	newapp := app.NewEvmos(
 		log.NewNopLogger(),
 		db,
 		nil,
