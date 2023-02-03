@@ -35,6 +35,13 @@ type VersionConfig struct {
 // LoadUpgradeParams loads the upgrade parameters from the environment variables
 func LoadUpgradeParams(upgradesFolder string) (Params, error) {
 	var (
+		// allowedVersionPattern defines the regex pattern for a semver version (including release candidates)
+		allowedVersionPattern = `v*\d+\.\d\.\d(-rc\d+)*`
+		// allowedVersionSinglePattern defines the regex pattern for a single version
+		allowedVersionSinglePattern = fmt.Sprintf(`^%s$`, allowedVersionPattern)
+		// allowedVersionListPattern defines the regex pattern for a list of versions
+		allowedVersionListPattern = fmt.Sprintf(`^(%s*%s)+$`, versionSeparator, allowedVersionPattern)
+		// err is the captured error variable
 		err error
 		// upgradeName defines the upgrade name to use in the proposal
 		upgradeName string
@@ -55,8 +62,7 @@ func LoadUpgradeParams(upgradesFolder string) (Params, error) {
 		// set the second-to-last upgrade as initial version
 		versionTags = []string{upgradesList[len(upgradesList)-2]}
 	} else {
-		allowedVersionPattern := fmt.Sprintf(`^(%s*(v*\d+\.\d\.\d))+$`, versionSeparator)
-		if !regexp.MustCompile(allowedVersionPattern).MatchString(initialV) {
+		if !regexp.MustCompile(allowedVersionListPattern).MatchString(initialV) {
 			return Params{}, fmt.Errorf("invalid initial version: %s", initialV)
 		}
 		versionTags = strings.Split(initialV, versionSeparator)
@@ -91,6 +97,12 @@ func LoadUpgradeParams(upgradesFolder string) (Params, error) {
 		upgradeName = upgradesList[len(upgradesList)-1]
 		versionTag = LocalVersionTag
 	} else {
+		if !regexp.MustCompile(allowedVersionSinglePattern).MatchString(targetV) {
+			return Params{}, fmt.Errorf("invalid target version: %s", targetV)
+		}
+		if !strings.Contains(targetV, "v") {
+			targetV = "v" + targetV
+		}
 		upgradeName = targetV
 		versionTag = targetV
 	}

@@ -74,12 +74,30 @@ func TestLoadUpgradeParams(t *testing.T) {
 			name: "pass - no 'v' prefix in version string",
 			vars: envVars{
 				initialVersion: "0.1.0",
+				targetVersion:  "0.2.0",
 			},
 			want: Params{
 				MountPath: defaultMountPath,
 				Versions: []VersionConfig{
 					{"v0.1.0", "v0.1.0", tharsisRepo},
-					{latestVersionName, LocalVersionTag, tharsisRepo},
+					{"v0.2.0", "v0.2.0", tharsisRepo},
+				},
+				ChainID:     defaultChainID,
+				WorkDirRoot: wd,
+			},
+			expPass: true,
+		},
+		{
+			name: "pass - release candidate version",
+			vars: envVars{
+				initialVersion: "v0.1.0-rc1",
+				targetVersion:  "v0.2.0-rc2",
+			},
+			want: Params{
+				MountPath: defaultMountPath,
+				Versions: []VersionConfig{
+					{"v0.1.0-rc1", "v0.1.0-rc1", tharsisRepo},
+					{"v0.2.0-rc2", "v0.2.0-rc2", tharsisRepo},
 				},
 				ChainID:     defaultChainID,
 				WorkDirRoot: wd,
@@ -101,6 +119,15 @@ func TestLoadUpgradeParams(t *testing.T) {
 			expPass: true,
 		},
 		{
+			name: "fail - separator in target version",
+			vars: envVars{
+				initialVersion: "v0.1.0",
+				targetVersion:  "v0.2.0/v0.3.0",
+			},
+			want:    Params{},
+			expPass: false,
+		},
+		{
 			name: "fail - wrong version separator",
 			vars: envVars{
 				initialVersion: "v0.1.0|v0.2.0",
@@ -109,7 +136,15 @@ func TestLoadUpgradeParams(t *testing.T) {
 			expPass: false,
 		},
 		{
-			name: "fail - invalid version string",
+			name: "fail - invalid target version string",
+			vars: envVars{
+				targetVersion: "v@93bca",
+			},
+			want:    Params{},
+			expPass: false,
+		},
+		{
+			name: "fail - invalid initial version string",
 			vars: envVars{
 				initialVersion: "v@93bca",
 			},
