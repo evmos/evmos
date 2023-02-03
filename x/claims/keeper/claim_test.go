@@ -13,9 +13,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	ethermint "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	ethermint "github.com/evmos/evmos/v11/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
 	"github.com/evmos/evmos/v11/x/claims/types"

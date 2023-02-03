@@ -13,9 +13,9 @@ import (
 	goethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	"github.com/evmos/evmos/v11/tests"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	"google.golang.org/grpc/metadata"
 )
 

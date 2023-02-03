@@ -16,8 +16,8 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/utils"
 
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
