@@ -82,11 +82,7 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
 	s.Require().NoError(err)
 
-	s.T().Logf(
-		"successfully started node: repo: [%s] version: [%s]",
-		version.ImageName,
-		version.ImageTag,
-	)
+	s.T().Logf("successfully started node with version: [%s]", version.ImageTag)
 }
 
 // proposeUpgrade submits an upgrade proposal to the chain that schedules an upgrade to
@@ -133,7 +129,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	s.T().Logf(
 		"successfully submitted upgrade proposal: height: %d, name: %s",
 		s.upgradeManager.UpgradeHeight,
-		target,
+		name,
 	)
 }
 
@@ -178,11 +174,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
 
-	s.T().Logf(
-		"starting upgraded node: repo: [%s] version: [%s]",
-		targetRepo,
-		targetVersion,
-	)
+	s.T().Logf("starting upgraded node with version: [%s]", targetVersion)
 
 	node := upgrade.NewNode(targetRepo, targetVersion)
 	node.Mount(s.upgradeParams.MountPath)
