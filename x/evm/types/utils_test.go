@@ -14,7 +14,7 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	proto "github.com/gogo/protobuf/proto"
 
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/tests"
 
 	"github.com/stretchr/testify/require"
 
