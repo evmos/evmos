@@ -1,9 +1,10 @@
 package evm_test
 
 import (
-	"github.com/evmos/ethermint/app/ante"
 	"math"
 	"math/big"
+
+	"github.com/evmos/ethermint/app/ante"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

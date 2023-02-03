@@ -21,7 +21,7 @@ import (
 	"github.com/evmos/evmos/v11/cmd/config"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/types"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -96,7 +96,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(evmostypes.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(utils.BaseDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -190,7 +190,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	gasLimit := uint64(200000)
 	memo := ""
-	denom := evmostypes.BaseDenom
+	denom := utils.BaseDenom
 	feeAmount := math.NewInt(2000)
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
@@ -207,7 +207,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				evmostypes.BaseDenom,
+				utils.BaseDenom,
 				math.NewInt(10000000),
 			),
 		),

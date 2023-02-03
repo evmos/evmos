@@ -36,8 +36,8 @@ import (
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/evmos/v11/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/utils"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains

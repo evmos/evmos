@@ -19,7 +19,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	v9 "github.com/evmos/evmos/v11/app/upgrades/v9"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
@@ -76,7 +76,7 @@ func TestUpgradeTestSuite(t *testing.T) {
 }
 
 func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
-	suite.SetupTest(evmostypes.TestnetChainID + "-2")
+	suite.SetupTest(utils.TestnetChainID + "-2")
 
 	// send funds to the community pool
 	priv, err := ethsecp256k1.GenerateKey()
