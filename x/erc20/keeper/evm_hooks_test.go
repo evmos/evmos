@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
