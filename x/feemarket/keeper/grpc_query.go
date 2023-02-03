@@ -17,7 +17,6 @@ package keeper
 
 import (
 	"context"
-	"errors"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -59,7 +58,7 @@ func (k Keeper) BlockGas(c context.Context, _ *types.QueryBlockGasRequest) (*typ
 	gas := sdkmath.NewIntFromUint64(k.GetBlockGasWanted(ctx))
 
 	if !gas.IsInt64() {
-		return nil, errorsmod.Wrapf(errors.New("integer overflow by integer type conversion"), "block gas %s is higher than MaxInt64", gas)
+		return nil, errorsmod.Wrapf(sdk.ErrIntOverflowCoin, "block gas %s is higher than MaxInt64", gas)
 	}
 
 	return &types.QueryBlockGasResponse{
