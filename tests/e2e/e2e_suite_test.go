@@ -204,6 +204,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 			"unexpected node version after upgrade:\nexpected: %s\nactual: %s",
 			targetVersion, version,
 		)
+		s.T().Logf("node version is correct: %s", version)
 	}
 }
 
