@@ -28,8 +28,8 @@ import (
 	"math/big"
 )
 
-// EVMKeeper defines the expected keeper interface used on the Eth AnteHandler
-type EVMKeeper interface {
+// evmKeeper defines the expected keeper interface used on the Eth AnteHandler
+type evmKeeper interface {
 	statedb.Keeper
 	NewEVM(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB) evm.EVM
 	DeductTxCostsFromUserBalance(ctx sdk.Context, fees sdk.Coins, from common.Address) error
@@ -39,8 +39,8 @@ type EVMKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params
 }
 
-// FeeMarketKeeper defines the expected keeper interface used on the AnteHandler
-type FeeMarketKeeper interface {
+// feeMarketKeeper defines the expected keeper interface used on the AnteHandler
+type feeMarketKeeper interface {
 	GetParams(ctx sdk.Context) (params feemarkettypes.Params)
 	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	GetBaseFeeEnabled(ctx sdk.Context) bool
