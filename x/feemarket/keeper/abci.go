@@ -21,6 +21,7 @@ import (
 	"github.com/evmos/ethermint/x/feemarket/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -58,8 +59,8 @@ func (k *Keeper) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) {
 		return
 	}
 
-	gasWanted := sdk.NewIntFromUint64(k.GetTransientGasWanted(ctx))
-	gasUsed := sdk.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
+	gasWanted := sdkmath.NewIntFromUint64(k.GetTransientGasWanted(ctx))
+	gasUsed := sdkmath.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
 
 	if !gasWanted.IsInt64() {
 		k.Logger(ctx).Error(fmt.Sprintf("integer overflow by integer type conversion. gasWanted %s is higher than MaxInt64", gasWanted))

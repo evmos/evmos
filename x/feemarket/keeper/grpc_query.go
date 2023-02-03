@@ -56,7 +56,7 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 // BlockGas implements the Query/BlockGas gRPC method
 func (k Keeper) BlockGas(c context.Context, _ *types.QueryBlockGasRequest) (*types.QueryBlockGasResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	gas := sdk.NewIntFromUint64(k.GetBlockGasWanted(ctx))
+	gas := sdkmath.NewIntFromUint64(k.GetBlockGasWanted(ctx))
 
 	if !gas.IsInt64() {
 		return nil, errorsmod.Wrapf(errors.New("integer overflow by integer type conversion"), "block gas %s is higher than MaxInt64", gas)
