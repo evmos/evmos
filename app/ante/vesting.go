@@ -75,30 +75,21 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				"account %s does not exist", acc)
 		}
 
-		address := acc.GetAddress()
-		balance := vtd.bk.GetBalance(ctx, address, evmDenom)
-		// Short-circuit if the balance is zero, since we require a non-zero balance to cover
-		// cover gas fees at a minimum (these are defined to be non-zero). Note that this check
-		// should be removed if the BaseFee definition is changed such that it can be zero.
-		if balance.IsZero() {
-			return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
-				"account has no balance to execute transaction: %s", address.String())
-		}
-
 		// Check that this decorator only applies to clawback vesting accounts
 		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
 		if !isClawback {
 			continue
 		}
 
-		// Error if vesting cliff has not passed (with zero vested coins). This
-		// rule does not apply for existing clawback accounts that receive a new
-		// grant while there are already vested coins on the account.
-		vested := clawbackAccount.GetVestedCoins(ctx.BlockTime())
-		if len(vested) == 0 {
-			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientVestedCoins,
-				"cannot perform Ethereum tx with clawback vesting account, that has no vested coins: %s", vested,
-			)
+		address := acc.GetAddress()
+		balance := vtd.bk.GetBalance(ctx, address, evmDenom)
+
+		// Short-circuit if the balance is zero, since we require a non-zero balance to cover
+		// gas fees at a minimum (these are defined to be non-zero). Note that this check
+		// should be removed if the BaseFee definition is changed such that it can be zero.
+		if balance.IsZero() {
+			return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
+				"account has no balance to execute transaction: %s", address.String())
 		}
 
 		// Check to make sure that the account does not exceed its spendable balances.
