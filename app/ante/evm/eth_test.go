@@ -1,4 +1,4 @@
-package ethante_test
+package evm_test
 
 import (
 	"math"
