@@ -3,7 +3,7 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v11/app/ethante"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +11,7 @@ import (
 )
 
 func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
-	dec := ethante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
+	dec := evmante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 
 	testCases := []struct {
