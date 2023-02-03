@@ -1,12 +1,13 @@
 package evm_test
 
 import (
+	"github.com/evmos/ethermint/app/ante"
 	"math"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v11/app/ante"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
 	ethermint "github.com/evmos/evmos/v11/types"
@@ -17,7 +18,7 @@ import (
 )
 
 func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
-	dec := ante.NewEthAccountVerificationDecorator(
+	dec := ethante.NewEthAccountVerificationDecorator(
 		suite.app.AccountKeeper, suite.app.EvmKeeper,
 	)
 
@@ -161,7 +162,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 }
 
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
-	dec := ante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
+	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
 	addr := tests.GenerateAddress()
 
@@ -318,7 +319,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 }
 
 func (suite *AnteTestSuite) TestCanTransferDecorator() {
-	dec := ante.NewCanTransferDecorator(suite.app.EvmKeeper)
+	dec := ethante.NewCanTransferDecorator(suite.app.EvmKeeper)
 
 	addr, privKey := tests.NewAddrKey()
 

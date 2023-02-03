@@ -123,7 +123,7 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 
-	ethante "github.com/evmos/evmos/v11/app/ante"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 	srvflags "github.com/evmos/evmos/v11/server/flags"

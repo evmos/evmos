@@ -62,7 +62,7 @@ type AnteTestSuite struct {
 	suite.Suite
 
 	ctx             sdk.Context
-	app             *app.EthermintApp
+	app             *app.Evmos
 	clientCtx       client.Context
 	anteHandler     sdk.AnteHandler
 	ethSigner       ethtypes.Signer
@@ -80,7 +80,7 @@ func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = app.Setup(checkTx, func(app *app.EthermintApp, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
@@ -124,7 +124,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
-	anteHandler, err := ante.NewAnteHandler(ante.HandlerOptions{
+	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
 		AccountKeeper:   suite.app.AccountKeeper,
 		BankKeeper:      suite.app.BankKeeper,
 		EvmKeeper:       suite.app.EvmKeeper,
@@ -132,9 +132,8 @@ func (suite *AnteTestSuite) SetupTest() {
 		IBCKeeper:       suite.app.IBCKeeper,
 		FeeMarketKeeper: suite.app.FeeMarketKeeper,
 		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+		SigGasConsumer:  ante.SigVerificationGasConsumer,
 	})
-	suite.Require().NoError(err)
 
 	suite.anteHandler = anteHandler
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
