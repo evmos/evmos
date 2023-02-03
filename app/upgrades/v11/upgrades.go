@@ -44,7 +44,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v11
@@ -59,7 +59,7 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		if types.IsMainnet(ctx.ChainID()) {
+		if utils.IsMainnet(ctx.ChainID()) {
 			logger.Debug("distributing incentivized testnet rewards...")
 			HandleRewardDistribution(ctx, logger, bk, sk, dk)
 		}
@@ -202,7 +202,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			return err
 		}
 
-		reward := sdk.Coins{{Denom: types.BaseDenom, Amount: amount}}
+		reward := sdk.Coins{{Denom: utils.BaseDenom, Amount: amount}}
 
 		if err := bk.SendCoins(ctx, funder, receiver, reward); err != nil {
 			return err
@@ -221,7 +221,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 
 	// transfer all remaining tokens (1.775M = 7.4M - 5.625M) after rewards distribution
 	// to the community pool
-	remainingFunds := bk.GetBalance(ctx, funder, types.BaseDenom)
+	remainingFunds := bk.GetBalance(ctx, funder, utils.BaseDenom)
 	if !remainingFunds.Amount.IsPositive() {
 		return nil
 	}

@@ -21,7 +21,7 @@ import (
 
 	ethermint "github.com/evmos/evmos/v11/types"
 
-	evmos "github.com/evmos/evmos/v11/types"
+	utils "github.com/evmos/evmos/v11/utils"
 	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
 	"github.com/evmos/evmos/v11/x/inflation/types"
 )
@@ -134,7 +134,7 @@ func (k Keeper) GetProportions(
 func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
 
-	isMainnet := evmos.IsMainnet(ctx.ChainID())
+	isMainnet := utils.IsMainnet(ctx.ChainID())
 
 	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
 		return sdk.ZeroDec()
@@ -155,7 +155,7 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec 
 	teamAllocation := sdk.NewDecFromInt(teamAlloc)
 
 	// Consider team allocation only on mainnet chain id
-	if evmos.IsMainnet(ctx.ChainID()) {
+	if utils.IsMainnet(ctx.ChainID()) {
 		circulatingSupply = circulatingSupply.Sub(teamAllocation)
 	}
 

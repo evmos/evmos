@@ -33,7 +33,7 @@ import (
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
 	"github.com/evmos/evmos/v11/ibc"
-	evmos "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/recovery/types"
 )
 
@@ -106,7 +106,7 @@ func (k Keeper) OnRecvPacket(
 	// Check if recipient pubkey is a supported key (eth_secp256k1, amino multisig,
 	// ed25519). Continue and return success ACK as the funds are not stuck on
 	// chain for supported keys
-	if account != nil && evmos.IsSupportedKey(account.GetPubKey()) {
+	if account != nil && utils.IsSupportedKey(account.GetPubKey()) {
 		return ack
 	}
 

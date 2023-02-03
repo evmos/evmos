@@ -37,7 +37,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	evmos "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
@@ -84,7 +84,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(evmos.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)

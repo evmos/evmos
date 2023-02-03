@@ -42,7 +42,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/cmd/config"
-	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 func init() {
@@ -125,7 +125,7 @@ func Setup(
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         types.MainnetChainID + "-1",
+				ChainId:         utils.MainnetChainID + "-1",
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
