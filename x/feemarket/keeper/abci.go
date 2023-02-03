@@ -21,6 +21,7 @@ import (
 	"github.com/evmos/ethermint/x/feemarket/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -58,25 +59,35 @@ func (k *Keeper) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) {
 		return
 	}
 
-	gasWanted := k.GetTransientGasWanted(ctx)
-	gasUsed := ctx.BlockGasMeter().GasConsumedToLimit()
+	gasWanted := sdkmath.NewIntFromUint64(k.GetTransientGasWanted(ctx))
+	gasUsed := sdkmath.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
+
+	if !gasWanted.IsInt64() {
+		k.Logger(ctx).Error("integer overflow by integer type conversion. Gas wanted > MaxInt64", "gas wanted", gasWanted.String())
+		return
+	}
+
+	if !gasUsed.IsInt64() {
+		k.Logger(ctx).Error("integer overflow by integer type conversion. Gas used > MaxInt64", "gas used", gasUsed.String())
+		return
+	}
 
 	// to prevent BaseFee manipulation we limit the gasWanted so that
 	// gasWanted = max(gasWanted * MinGasMultiplier, gasUsed)
 	// this will be keep BaseFee protected from un-penalized manipulation
 	// more info here https://github.com/evmos/ethermint/pull/1105#discussion_r888798925
 	minGasMultiplier := k.GetParams(ctx).MinGasMultiplier
-	limitedGasWanted := sdk.NewDec(int64(gasWanted)).Mul(minGasMultiplier)
-	gasWanted = sdk.MaxDec(limitedGasWanted, sdk.NewDec(int64(gasUsed))).TruncateInt().Uint64()
-	k.SetBlockGasWanted(ctx, gasWanted)
+	limitedGasWanted := sdk.NewDec(gasWanted.Int64()).Mul(minGasMultiplier)
+	updatedGasWanted := sdk.MaxDec(limitedGasWanted, sdk.NewDec(gasUsed.Int64())).TruncateInt().Uint64()
+	k.SetBlockGasWanted(ctx, updatedGasWanted)
 
 	defer func() {
-		telemetry.SetGauge(float32(gasWanted), "feemarket", "block_gas")
+		telemetry.SetGauge(float32(updatedGasWanted), "feemarket", "block_gas")
 	}()
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		"block_gas",
 		sdk.NewAttribute("height", fmt.Sprintf("%d", ctx.BlockHeight())),
-		sdk.NewAttribute("amount", fmt.Sprintf("%d", gasWanted)),
+		sdk.NewAttribute("amount", fmt.Sprintf("%d", updatedGasWanted)),
 	))
 }
