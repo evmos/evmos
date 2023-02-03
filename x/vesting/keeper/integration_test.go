@@ -9,9 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/app/ante"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 
 	"github.com/ethereum/go-ethereum/common"

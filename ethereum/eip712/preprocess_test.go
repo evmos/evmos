@@ -18,9 +18,9 @@ import (
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 
 	// TODO refactor when imported to Evmos
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/ethermint/types"
 	"github.com/evmos/evmos/v11/cmd/config"
+	"github.com/evmos/evmos/v11/tests"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/stretchr/testify/require"
 )
