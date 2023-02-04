@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -650,7 +651,7 @@ func (suite *AnteTestSuite) createBaseTxBuilder(msg sdk.Msg, gas uint64) client.
 
 	txBuilder.SetGasLimit(gas)
 	txBuilder.SetFeeAmount(sdk.NewCoins(
-		sdk.NewCoin("aphoton", sdk.NewInt(10000)),
+		sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000)),
 	))
 
 	err := txBuilder.SetMsgs(msg)

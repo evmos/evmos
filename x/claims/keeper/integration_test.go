@@ -54,8 +54,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
-		sdk.NewCoin(claimsDenom, initClaimsAmount),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(claimsDenom, initClaimsAmount.Add(initEvmAmount)),
 	)
 
 	// account for creating the governance proposals

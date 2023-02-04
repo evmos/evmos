@@ -24,6 +24,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/utils"
 	v5 "github.com/evmos/evmos/v11/x/evm/migrations/v5"
 	v5types "github.com/evmos/evmos/v11/x/evm/migrations/v5/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
@@ -44,7 +45,7 @@ func TestMigrate(t *testing.T) {
 	chainConfigBz := cdc.MustMarshal(&chainConfig)
 
 	// Set the params in the store
-	kvStore.Set(types.ParamStoreKeyEVMDenom, []byte("aphoton"))
+	kvStore.Set(types.ParamStoreKeyEVMDenom, []byte(utils.BaseDenom))
 	kvStore.Set(types.ParamStoreKeyEnableCreate, []byte{0x01})
 	kvStore.Set(types.ParamStoreKeyEnableCall, []byte{0x01})
 	kvStore.Set(types.ParamStoreKeyAllowUnprotectedTxs, []byte{0x01})
@@ -59,7 +60,7 @@ func TestMigrate(t *testing.T) {
 	cdc.MustUnmarshal(paramsBz, &params)
 
 	// test that the params have been migrated correctly
-	require.Equal(t, "aphoton", params.EvmDenom)
+	require.Equal(t, utils.BaseDenom, params.EvmDenom)
 	require.True(t, params.EnableCreate)
 	require.True(t, params.EnableCall)
 	require.True(t, params.AllowUnprotectedTxs)
