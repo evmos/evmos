@@ -568,7 +568,7 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 			k.SetHooks(tc.hooks)
 
 			// add some fund to pay gas fee
@@ -656,7 +656,7 @@ func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 
 			// test with different hooks scenarios
 			k.SetHooks(tc.hooks)
