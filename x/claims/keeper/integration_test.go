@@ -61,8 +61,7 @@ var _ = Describe("Claiming", Ordered, func() {
 	initClaimsAmount0 := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
-		sdk.NewCoin(claimsDenom, initClaimsAmount0),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount.Add(initClaimsAmount0)),
 	)
 
 	var (
