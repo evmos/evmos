@@ -259,6 +259,14 @@ func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
 	return k
 }
 
+// SetHooks sets the hooks for the EVM module
+// It should be called only once during initialization, it panic if called more than once.
+// NOTE: Should only for testing purposes
+func (k *Keeper) CleanHooks() *Keeper {
+	k.hooks = nil
+	return k
+}
+
 // PostTxProcessing delegate the call to the hooks. If no hook has been registered, this function returns with a `nil` error
 func (k *Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
 	if k.hooks == nil {
