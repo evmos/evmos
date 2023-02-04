@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v11.0.1] - 2023-02-04
+
+### Improvements
+
+- (deps) [#1341](https://github.com/evmos/evmos/pull/1341) Bump Tendermint version to `v0.34.25`
+
 ## [v11.0.0] - 2023-01-27
 
 ### State Machine Breaking
