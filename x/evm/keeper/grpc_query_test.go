@@ -19,7 +19,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v11/server/config"
-	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -54,7 +53,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() {
-				amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, amt)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
@@ -195,7 +194,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 		{
 			"success",
 			func() {
-				amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, amt)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
