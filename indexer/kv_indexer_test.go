@@ -13,7 +13,6 @@ import (
 	evmenc "github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/indexer"
 	"github.com/evmos/evmos/v11/tests"
-	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -41,7 +40,7 @@ func TestKVIndexer(t *testing.T) {
 	clientCtx := client.Context{}.WithTxConfig(encodingConfig.TxConfig).WithCodec(encodingConfig.Codec)
 
 	// build cosmos-sdk wrapper tx
-	tmTx, err := tx.BuildTx(clientCtx.TxConfig.NewTxBuilder(), utils.BaseDenom)
+	tmTx, err := tx.BuildTx(clientCtx.TxConfig.NewTxBuilder(), "aphoton")
 	require.NoError(t, err)
 	txBz, err := clientCtx.TxConfig.TxEncoder()(tmTx)
 	require.NoError(t, err)
