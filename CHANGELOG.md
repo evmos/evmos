@@ -53,6 +53,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
 - (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new `TypedEvent`
 
+### Bug Fixes
+
+- (deps) [#1342](https://github.com/evmos/evmos/pull/1342) Bump `tendermint` to [`v0.34.25`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.25)
+
 ## [v11.0.0] - 2023-01-27
 
 ### State Machine Breaking
