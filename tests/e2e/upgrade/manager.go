@@ -69,9 +69,9 @@ func NewManager(networkName string) (*Manager, error) {
 }
 
 // BuildImage builds a docker image to run in the provided context directory
-// with <name>:<version> as the name target
+// with <name>:<version> as the image target
 func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args map[string]string) error {
-	buildArgs := []docker.BuildArg{}
+	buildArgs := make([]docker.BuildArg, len(args))
 	for k, v := range args {
 		bArg := docker.BuildArg{
 			Name:  k,
@@ -178,25 +178,28 @@ func (m *Manager) GetLogs(containerID string) (stdOut, stdErr string, err error)
 
 // WaitForHeight queries the Evmos node every second until the node will reach the specified height.
 // After 5 minutes this function times out and returns an error
-func (m *Manager) WaitForHeight(ctx context.Context, height int) error {
+func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error) {
 	var currentHeight int
 	var err error
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(2 * time.Minute)
 	for {
 		select {
 		case <-ticker.C:
 			stdOut, stdErr, errLogs := m.GetLogs(m.ContainerID())
 			if errLogs != nil {
-				return fmt.Errorf("error while getting logs: %s", errLogs.Error())
+				return "", fmt.Errorf("error while getting logs: %s", errLogs.Error())
 			}
-			return fmt.Errorf(
+			return "", fmt.Errorf(
 				"can't reach height %d, due to: %s\nerror logs: %s\nout logs: %s",
 				height, err.Error(), stdOut, stdErr,
 			)
 		default:
 			currentHeight, err = m.GetNodeHeight(ctx)
 			if currentHeight >= height {
-				return nil
+				if err != nil {
+					return err.Error(), nil
+				}
+				return "", nil
 			}
 			time.Sleep(1 * time.Second)
 		}
@@ -219,7 +222,17 @@ func (m *Manager) GetNodeHeight(ctx context.Context) (int, error) {
 	if outStr != "<nil>" && outStr != "" {
 		index := strings.Index(outBuff.String(), "\"height\":")
 		qq := outStr[index+10 : index+12]
-		h, _ = strconv.Atoi(qq)
+		h, err = strconv.Atoi(qq)
+		// check if the conversion was possible
+		if err == nil {
+			// if conversion was possible but the errBuff is not empty, return the height along with an error
+			// this is necessary e.g. when the "duplicate proto" errors occur in the logs but the node is still
+			// producing blocks
+			if errBuff.String() != "" {
+				return h, fmt.Errorf("%s", errBuff.String())
+			}
+			return h, nil
+		}
 	}
 	if errBuff.String() != "" {
 		return 0, fmt.Errorf("evmos query error: %s", errBuff.String())
@@ -262,7 +275,7 @@ func (m *Manager) RemoveNetwork() error {
 // KillCurrentNode stops the execution of the currently used docker container
 func (m *Manager) KillCurrentNode() error {
 	heightBeforeStop, err := m.GetNodeHeight(context.Background())
-	if err != nil {
+	if err != nil && heightBeforeStop == 0 {
 		return err
 	}
 	m.HeightBeforeStop = heightBeforeStop
