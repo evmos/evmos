@@ -37,8 +37,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/evmos/evmos/v11/rpc/ethereum/pubsub"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 var (

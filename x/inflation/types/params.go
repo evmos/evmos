@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evm "github.com/evmos/ethermint/x/evm/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 var ParamsKey = []byte("Params")
