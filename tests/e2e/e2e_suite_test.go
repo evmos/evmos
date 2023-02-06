@@ -256,13 +256,17 @@ func (s *IntegrationTestSuite) executeQueries() {
 	}
 
 	for _, tc := range testCases {
+		s.T().Logf("executing %s", tc.name)
 		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainId)
 		s.Require().NoError(err)
 
-		_, _, err = s.upgradeManager.RunExec(ctx, exec)
+		_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+		//s.T().Logf("err buff, %s, out buff, %s", errBuf.String(), outBuf.String())
 		s.Require().NoError(err)
-		s.T().Logf("All module queries executed")
+		s.Require().Equal(errBuf, "")
+
 	}
+	s.T().Logf("executed all queries successfuly")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
