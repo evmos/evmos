@@ -44,6 +44,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
 
+### API Breaking
+
+- [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
+
 ### Improvements
 
 - (evm) [#1354](https://github.com/evmos/evmos/pull/1354) Expose `Context` from the `StateDB` instance.
