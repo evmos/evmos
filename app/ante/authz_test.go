@@ -198,7 +198,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
 			ctx := sdk.Context{}.WithIsCheckTx(tc.checkTx)
-			tx, err := createTx(ctx, testPrivKeys[0], tc.msgs...)
+			tx, err := createTx(testPrivKeys[0], tc.msgs...)
 			require.NoError(t, err)
 			mmd := MockAnteHandler{}
 			_, err = decorator.AnteHandle(ctx, tx, false, mmd.AnteHandle)

@@ -38,6 +38,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		name         string
 		msg          sdk.Msg
 		expectedCode uint32
+		isEIP712     bool
 	}{
 		{
 			name:         "MsgEthereumTx is blocked",
@@ -49,13 +50,27 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			msg:          newMsgGrant(sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{})),
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
+		{
+			name:         "MsgEthereumTx is blocked on EIP712",
+			msg:          newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{})),
+			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
+			isEIP712:     true,
+		},
 	}
 
 	for _, tc := range testcases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(false)
+			var (
+				tx sdk.Tx
+				err error
+			)
 
-			tx, err := createTx(suite.ctx, testPrivKeys[0], tc.msg)
+			if tc.isEIP712 {
+				tx, err = createEIP712CosmosTx(testAddresses[0], testPrivKeys[0], []sdk.Msg{tc.msg})
+			} else {
+				tx, err = createTx(testPrivKeys[0], tc.msg)
+			}
 			suite.Require().NoError(err)
 
 			txEncoder := encodingConfig.TxConfig.TxEncoder()
