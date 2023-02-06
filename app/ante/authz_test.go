@@ -5,62 +5,20 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/app/ante"
 )
 
-var _ sdk.AnteHandler = (&MockAnteHandler{}).AnteHandle
-
-type MockAnteHandler struct {
-	WasCalled bool
-	CalledCtx sdk.Context
-}
-
-func (mah *MockAnteHandler) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
-	mah.WasCalled = true
-	mah.CalledCtx = ctx
-	return ctx, nil
-}
-
-func newMsgGrant(granter sdk.AccAddress, grantee sdk.AccAddress, a authz.Authorization, expiration *time.Time) *authz.MsgGrant {
-	msg, err := authz.NewMsgGrant(granter, grantee, a, expiration)
-	if err != nil {
-		panic(err)
-	}
-	return msg
-}
-
-func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
-	msg := authz.NewMsgExec(grantee, msgs)
-	return &msg
-}
-
 func TestAuthzLimiterDecorator(t *testing.T) {
-	var (
-		err           error
-		accCount      = 5
-		testPrivKeys  = make([]*ethsecp256k1.PrivKey, accCount)
-		testAddresses = make([]sdk.AccAddress, accCount)
-	)
-
-	for i := range testPrivKeys {
-		testPrivKeys[i], err = ethsecp256k1.GenerateKey()
-		require.NoError(t, err)
-		testAddresses[i] = testPrivKeys[i].PubKey().Address().Bytes()
-	}
+	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(5)
+	require.NoError(t, err)
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
@@ -251,53 +209,4 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			}
 		})
 	}
-}
-
-func createTx(ctx sdk.Context, priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	txBuilder.SetGasLimit(1000000)
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
-		return nil, err
-	}
-
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: 0,
-	}
-
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	if err := txBuilder.SetSignatures(sigsV2...); err != nil {
-		return nil, err
-	}
-
-	signerData := authsigning.SignerData{
-		ChainID:       "evmos_9000-1",
-		AccountNumber: 0,
-		Sequence:      0,
-	}
-	sigV2, err := tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		0,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
-	if err != nil {
-		return nil, err
-	}
-
-	return txBuilder.GetTx(), nil
 }
