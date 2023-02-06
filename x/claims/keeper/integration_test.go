@@ -37,6 +37,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+var defaultTxFee = sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(1_000_000_000_000_000)) // 0.001 EVMOS
+
 var _ = Describe("Claiming", Ordered, func() {
 	claimsAddr := s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
 	distrAddr := s.app.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
@@ -54,15 +56,14 @@ var _ = Describe("Claiming", Ordered, func() {
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
-		sdk.NewCoin(claimsDenom, initClaimsAmount),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(claimsDenom, initClaimsAmount.Add(initEvmAmount)), // claimsDenom == evmDenom
 	)
 
 	// account for creating the governance proposals
 	initClaimsAmount0 := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount.Add(initClaimsAmount0)),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount.Add(initClaimsAmount0)), // claimsDenom == evmDenom
 	)
 
 	var (
@@ -111,8 +112,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.app.AccountKeeper.SetAccount(s.ctx, acc)
 			claimsRecords = append(claimsRecords, claimsRecord)
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance.Amount).To(Equal(initClaimsAmount))
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom) // claimsDenom == evmDenom == 'aevmos'
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount)))
 		}
 
 		// ensure community pool doesn't have the fund
@@ -139,12 +140,16 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			delegate(privs[0], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(defaultTxFee)))
 		})
 
 		It("can claim ActionEVM", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
+			baseFee := s.app.FeeMarketKeeper.GetBaseFee(s.ctx)
+			baseFee.Mul(baseFee, big.NewInt(10000))
+			// TODO continue
+			txFee := sdk.NewCoin(evm.DefaultEVMDenom, baseFee.I)
 			sendEthToSelf(privs[0])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			Expect(balance).To(Equal(prebalance.Add(actionV)))
@@ -431,8 +436,7 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(1000000)
-	amt, _ := sdk.NewIntFromString("1000000000000000")
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: evm.DefaultEVMDenom, Amount: amt}})
+	txBuilder.SetFeeAmount(sdk.Coins{defaultTxFee})
 
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
