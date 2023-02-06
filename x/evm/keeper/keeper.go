@@ -259,9 +259,8 @@ func (k *Keeper) SetHooks(eh types.EvmHooks) *Keeper {
 	return k
 }
 
-// SetHooks sets the hooks for the EVM module
-// It should be called only once during initialization, it panic if called more than once.
-// NOTE: Should only for testing purposes
+// CleanHooks resets the hooks for the EVM module
+// NOTE: Should only be used for testing purposes
 func (k *Keeper) CleanHooks() *Keeper {
 	k.hooks = nil
 	return k
