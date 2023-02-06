@@ -25,9 +25,7 @@ const RootCodespace = "evmos"
 
 // root error codes for Evmos
 const (
-	// codeKeyTypeNotSupported = iota + 2
-	// TODO: Revert back once Ethermint is removed from dependencies
-	codeKeyTypeNotSupported = iota + 100
+	codeKeyTypeNotSupported = iota + 2
 )
 
 // errors
