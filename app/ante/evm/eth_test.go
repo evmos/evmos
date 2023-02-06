@@ -6,18 +6,18 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/app/ante"
-	"github.com/evmos/ethermint/server/config"
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
-	"github.com/evmos/ethermint/x/evm/statedb"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/server/config"
+	"github.com/evmos/evmos/v11/tests"
+	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
-	dec := ante.NewEthAccountVerificationDecorator(
+	dec := ethante.NewEthAccountVerificationDecorator(
 		suite.app.AccountKeeper, suite.app.EvmKeeper,
 	)
 
@@ -106,7 +106,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 
 func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 	suite.SetupTest()
-	dec := ante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
+	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 
 	addr := tests.GenerateAddress()
 
@@ -161,7 +161,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 }
 
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
-	dec := ante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
+	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
 	addr := tests.GenerateAddress()
 
@@ -318,7 +318,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 }
 
 func (suite *AnteTestSuite) TestCanTransferDecorator() {
-	dec := ante.NewCanTransferDecorator(suite.app.EvmKeeper)
+	dec := ethante.NewCanTransferDecorator(suite.app.EvmKeeper)
 
 	addr, privKey := tests.NewAddrKey()
 
@@ -402,7 +402,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 }
 
 func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
-	dec := ante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
+	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 	addr, privKey := tests.NewAddrKey()
 
 	contract := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 0, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)

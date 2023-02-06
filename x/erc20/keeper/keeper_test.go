@@ -36,12 +36,12 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/server/config"
-	"github.com/evmos/ethermint/x/evm/statedb"
-	evm "github.com/evmos/ethermint/x/evm/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
@@ -55,8 +55,8 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 	ibcgotestinghelpers "github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
-	evmostypes "github.com/evmos/evmos/v11/types"
 	teststypes "github.com/evmos/evmos/v11/types/tests"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 type KeeperTestSuite struct {
@@ -163,11 +163,11 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// bond denom
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = evmostypes.BaseDenom
+	stakingParams.BondDenom = utils.BaseDenom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-	evmParams.EvmDenom = evmostypes.BaseDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	err = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 	require.NoError(t, err)
 
@@ -269,7 +269,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 
 	s.app = suite.EvmosChain.App.(*app.Evmos)
 	evmParams := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
-	evmParams.EvmDenom = evmostypes.BaseDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	err := s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
 	suite.Require().NoError(err)
 
@@ -292,7 +292,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	// Mint coins locked on the evmos account generated with secp.
 	amt, ok := sdk.NewIntFromString("1000000000000000000000")
 	suite.Require().True(ok)
-	coinEvmos := sdk.NewCoin(evmostypes.BaseDenom, amt)
+	coinEvmos := sdk.NewCoin(utils.BaseDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 	err = s.app.BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -357,7 +357,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.Require().Equal("connection-0", suite.pathOsmosisEvmos.EndpointA.ConnectionID)
 	suite.Require().Equal("channel-0", suite.pathOsmosisEvmos.EndpointA.ChannelID)
 
-	coinEvmos = sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(1000000000000000000))
+	coinEvmos = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000000000000000000))
 	coins = sdk.NewCoins(coinEvmos)
 	err = s.app.BankKeeper.MintCoins(suite.EvmosChain.GetContext(), types.ModuleName, coins)
 	suite.Require().NoError(err)

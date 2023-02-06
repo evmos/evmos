@@ -9,9 +9,9 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	ethermint "github.com/evmos/ethermint/types"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	ethermint "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
