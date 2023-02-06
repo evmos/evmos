@@ -5,9 +5,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/app/ante"
-	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/tests"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
@@ -50,7 +50,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 				params.AllowUnprotectedTxs = tc.allowUnprotectedTxs
 			}
 			suite.SetupTest()
-			dec := ante.NewEthSigVerificationDecorator(suite.app.EvmKeeper)
+			dec := ethante.NewEthSigVerificationDecorator(suite.app.EvmKeeper)
 			_, err := dec.AnteHandle(suite.ctx.WithIsReCheckTx(tc.reCheckTx), tc.tx, false, NextFn)
 
 			if tc.expPass {

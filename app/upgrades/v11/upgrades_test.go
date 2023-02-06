@@ -12,17 +12,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/app"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -120,7 +120,7 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
-	suite.SetupTest(evmostypes.MainnetChainID)
+	suite.SetupTest(utils.MainnetChainID)
 
 	// fund some escrow accounts
 	existingAccounts := 30
@@ -152,7 +152,7 @@ func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
 
 func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	// define constants
-	mainnetChainID := evmostypes.MainnetChainID + "-4"
+	mainnetChainID := utils.MainnetChainID + "-4"
 	communityPool := sdk.MustAccAddressFromBech32("evmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8974jnh")
 	fundingAcc := sdk.MustAccAddressFromBech32(v11.FundingAccount)
 
@@ -213,7 +213,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 					fundingAcc,
 					sdk.AccAddress(tests.GenerateAddress().Bytes()),
 					sdk.NewCoins(
-						sdk.NewCoin(evmostypes.BaseDenom, balance.Quo(math.NewInt(2))),
+						sdk.NewCoin(utils.BaseDenom, balance.Quo(math.NewInt(2))),
 					),
 				)
 				suite.NoError(err)
@@ -232,7 +232,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 		},
 		{
 			"Testnet - no-op",
-			evmostypes.TestnetChainID + "-4",
+			utils.TestnetChainID + "-4",
 			func() {},
 			false,
 			math.ZeroInt(),
@@ -252,20 +252,20 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			initialDel := suite.getDelegatedTokens(validatorAddresses...)
 			suite.Require().Equal(math.ZeroInt(), initialDel)
 
-			if evmostypes.IsMainnet(tc.chainID) {
+			if utils.IsMainnet(tc.chainID) {
 				v11.HandleRewardDistribution(suite.ctx, suite.app.Logger(), suite.app.BankKeeper, suite.app.StakingKeeper, suite.app.DistrKeeper)
 			}
 
 			// account not in list should NOT get rewards
 			// balance should be 0
-			balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, evmostypes.BaseDenom)
+			balance := suite.app.BankKeeper.GetBalance(suite.ctx, noRewardAddr, utils.BaseDenom)
 			suite.Require().Equal(math.ZeroInt(), balance.Amount)
 
 			// get staked (delegated) tokens - no delegations expected
 			delegated := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
 			suite.Require().Empty(delegated)
 
-			commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, evmostypes.BaseDenom)
+			commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, utils.BaseDenom)
 			suite.Require().Equal(tc.expCommPoolBalance, commPoolFinalBalance.Amount)
 
 			// do allocations
@@ -273,7 +273,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
 				valShare, _ := sdk.NewIntFromString(v11.Allocations[i][1])
 
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, evmostypes.BaseDenom)
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
 				suite.Require().Equal(math.ZeroInt(), balance.Amount)
 
 				// get staked (delegated) tokens
@@ -304,7 +304,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				// sum of all delegations should be equal to rewards
 				suite.Require().Equal(expRewards, totalDelegations)
 				// Funding acc balance should be 0 after the rewards distribution
-				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, fundingAcc, evmostypes.BaseDenom)
+				finalFundingAccBalance := suite.app.BankKeeper.GetBalance(suite.ctx, fundingAcc, utils.BaseDenom)
 				suite.Require().Equal(math.NewInt(0), finalFundingAccBalance.Amount)
 			}
 		})
@@ -315,7 +315,7 @@ func (suite *UpgradeTestSuite) fundTestnetRewardsAcc(amount math.Int) {
 	rewardsAcc, err := sdk.AccAddressFromBech32(v11.FundingAccount)
 	suite.Require().NoError(err)
 
-	rewards := sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, amount))
+	rewards := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount))
 	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, rewardsAcc, rewards)
 	suite.Require().NoError(err)
 }

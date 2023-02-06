@@ -25,9 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/types"
-	// TODO: remove once Ethermint is migrated to evmos
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
 func newDynamicFeeTx(tx *ethtypes.Transaction) (*DynamicFeeTx, error) {
@@ -213,47 +211,47 @@ func (tx *DynamicFeeTx) SetSignatureValues(chainID, v, r, s *big.Int) {
 // Validate performs a stateless validation of the tx fields.
 func (tx DynamicFeeTx) Validate() error {
 	if tx.GasTipCap == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "gas tip cap cannot nil")
+		return errorsmod.Wrap(ErrInvalidGasCap, "gas tip cap cannot nil")
 	}
 
 	if tx.GasFeeCap == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "gas fee cap cannot nil")
+		return errorsmod.Wrap(ErrInvalidGasCap, "gas fee cap cannot nil")
 	}
 
 	if tx.GasTipCap.IsNegative() {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasCap, "gas tip cap cannot be negative %s", tx.GasTipCap)
+		return errorsmod.Wrapf(ErrInvalidGasCap, "gas tip cap cannot be negative %s", tx.GasTipCap)
 	}
 
 	if tx.GasFeeCap.IsNegative() {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasCap, "gas fee cap cannot be negative %s", tx.GasFeeCap)
+		return errorsmod.Wrapf(ErrInvalidGasCap, "gas fee cap cannot be negative %s", tx.GasFeeCap)
 	}
 
 	if !types.IsValidInt256(tx.GetGasTipCap()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasCap, "out of bound")
 	}
 
 	if !types.IsValidInt256(tx.GetGasFeeCap()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasCap, "out of bound")
 	}
 
 	if tx.GasFeeCap.LT(*tx.GasTipCap) {
 		return errorsmod.Wrapf(
-			evmtypes.ErrInvalidGasCap, "max priority fee per gas higher than max fee per gas (%s > %s)",
+			ErrInvalidGasCap, "max priority fee per gas higher than max fee per gas (%s > %s)",
 			tx.GasTipCap, tx.GasFeeCap,
 		)
 	}
 
 	if !types.IsValidInt256(tx.Fee()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasFee, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasFee, "out of bound")
 	}
 
 	amount := tx.GetValue()
 	// Amount can be 0
 	if amount != nil && amount.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidAmount, "amount cannot be negative %s", amount)
+		return errorsmod.Wrapf(ErrInvalidAmount, "amount cannot be negative %s", amount)
 	}
 	if !types.IsValidInt256(amount) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidAmount, "out of bound")
+		return errorsmod.Wrap(ErrInvalidAmount, "out of bound")
 	}
 
 	if tx.To != "" {
