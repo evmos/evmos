@@ -27,11 +27,11 @@ import (
 
 // EthSigVerificationDecorator validates an ethereum signatures
 type EthSigVerificationDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewEthSigVerificationDecorator creates a new EthSigVerificationDecorator
-func NewEthSigVerificationDecorator(ek evmKeeper) EthSigVerificationDecorator {
+func NewEthSigVerificationDecorator(ek EVMKeeper) EthSigVerificationDecorator {
 	return EthSigVerificationDecorator{
 		evmKeeper: ek,
 	}

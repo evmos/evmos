@@ -37,7 +37,7 @@ import (
 // - when `ExtensionOptionDynamicFeeTx` is omitted, `tipFeeCap` defaults to `MaxInt64`.
 // - when london hardfork is not enabled, it fallbacks to SDK default behavior (validator min-gas-prices).
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
-func NewDynamicFeeChecker(k dynamicFeeEVMKeeper) authante.TxFeeChecker {
+func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
 		feeTx, ok := tx.(sdk.FeeTx)
 		if !ok {
