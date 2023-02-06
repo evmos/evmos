@@ -32,7 +32,7 @@ import (
 )
 
 // EVMKeeper defines the expected keeper interface used on the AnteHandler
-type EVMKeeper interface {
+type EVMKeeper interface { //nolint: revive
 	statedb.Keeper
 	DynamicFeeEVMKeeper
 
