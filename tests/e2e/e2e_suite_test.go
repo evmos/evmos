@@ -196,7 +196,12 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
 	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
+
+	s.T().Logf("executing all module queries")
+	s.executeQueries()
+
 	// make sure node produce blocks after upgrade
+	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	err = s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	s.Require().NoError(err, "node does not produce blocks after upgrade")
 
@@ -214,7 +219,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	}
 }
 
-// ExecuteQueries executes all the module queries
+// executeQueries executes all the module queries
 func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -225,29 +230,38 @@ func (s *IntegrationTestSuite) executeQueries() {
 		moduleName string
 		subCommand string
 	}{
-		{
-			"Inflation - epoch mint provision",
-			"inflation",
-			"epoch-mint-provision",
-		},
+		{"inflation: params", "inflation", "params"},
+		{"inflation: circulating-supply", "inflation", "circulating-supply"},
+		{"inflation: inflation-rate", "inflation", "inflation-rate"},
+		{"inflation: period", "inflation", "period"},
+		{"inflation: skipped-epochs", "inflation", "skipped-epochs"},
+		{"inflation: epoch-mint-provision", "inflation", "epoch-mint-provision"},
+		{"erc20: params", "er20", "params"},
+		{"erc20: token-pairs", "er20", "token-pairs"},
+		{"evm: params", "evm", "params"},
+		{"feemarket: params", "feemarket", "params"},
+		{"feemarket: base-fee", "feemarket", "base-fee"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"revenue: params", "revenue", "params"},
+		{"revenue: contracts", "revenue", "contracts"},
+		{"revenue: withdrawer-contracts", "revenue", "withdrawer-contracts"},
+		{"revenue: deployer-contracts", "revenue", "deployer-contracts"},
+		{"incentives: params", "incentives", "params"},
+		{"incentives: allocation-meters", "incentives", "allocation-meters"},
+		{"incentives: gas-meters", "incentives", "gas-meters"},
+		{"incentives: incentives", "incentives", "incentives"},
+		//{"vesting: balances", "revenue", "balances", ""}, // TODO: add address
+
 	}
 
 	for _, tc := range testCases {
 		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainId)
 		s.Require().NoError(err)
 
-		outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-		s.Require().NoErrorf(
-			err,
-			"failed to submit proposal to upgrade Evmos to %s at height %d\nstdout: %s,\nstderr: %s",
-			s.upgradeManager.UpgradeHeight, outBuf.String(), errBuf.String(),
-		)
-
-		s.Require().Truef(
-			strings.Contains(outBuf.String(), "code: 0"),
-			"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
-		)
-
+		_, _, err = s.upgradeManager.RunExec(ctx, exec)
+		s.Require().NoError(err)
+		s.T().Logf("All module queries executed")
 	}
 }
 

@@ -16,7 +16,6 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 		s.proposeUpgrade(version.name, version.tag)
 		s.voteForProposal(idx)
 		s.upgrade(version.repo, version.tag)
-		s.executeQueries()
 	}
 	s.T().Logf("SUCCESS")
 }
