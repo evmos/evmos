@@ -214,6 +214,43 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	}
 }
 
+// ExecuteQueries executes all the module queries
+func (s *IntegrationTestSuite) executeQueries() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainId := "evmos_9000-1"
+	testCases := []struct {
+		name       string
+		moduleName string
+		subCommand string
+	}{
+		{
+			"Inflation - epoch mint provision",
+			"inflation",
+			"epoch-mint-provision",
+		},
+	}
+
+	for _, tc := range testCases {
+		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainId)
+		s.Require().NoError(err)
+
+		outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+		s.Require().NoErrorf(
+			err,
+			"failed to submit proposal to upgrade Evmos to %s at height %d\nstdout: %s,\nstderr: %s",
+			s.upgradeManager.UpgradeHeight, outBuf.String(), errBuf.String(),
+		)
+
+		s.Require().Truef(
+			strings.Contains(outBuf.String(), "code: 0"),
+			"tx returned non code 0:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
+		)
+
+	}
+}
+
 // TearDownSuite kills the running container, removes the network and mount path
 func (s *IntegrationTestSuite) TearDownSuite() {
 	if s.upgradeParams.SkipCleanup {

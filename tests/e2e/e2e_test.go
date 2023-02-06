@@ -16,6 +16,12 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 		s.proposeUpgrade(version.name, version.tag)
 		s.voteForProposal(idx)
 		s.upgrade(version.repo, version.tag)
+		s.executeQueries()
 	}
 	s.T().Logf("SUCCESS")
+}
+
+// TestQueries tests if all Evmos module queries return the expeted output
+func (s *IntegrationTestSuite) TestQueries() {
+	// TODO: Run the queries on the newly upgraded node
 }
