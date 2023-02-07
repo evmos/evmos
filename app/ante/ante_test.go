@@ -8,6 +8,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/ethermint/app"
 	"github.com/evmos/ethermint/encoding"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -41,20 +42,94 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		isEIP712     bool
 	}{
 		{
-			name:         "MsgEthereumTx is blocked",
+			name:         "a MsgGrant with MsgEthereumTx typeURL on the authorization field is blocked",
 			msg:          newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{})),
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
-			name:         "MsgCreateVestingAccount is blocked",
+			name:         "a MsgGrant with MsgCreateVestingAccount typeURL on the authorization field is blocked",
 			msg:          newMsgGrant(sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{})),
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
-			name:         "MsgEthereumTx is blocked on EIP712",
+			name:         "a MsgGrant with MsgEthereumTx typeURL on the authorization field included on EIP712 tx is blocked",
 			msg:          newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{})),
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 			isEIP712:     true,
+		},
+		{
+			name: "a MsgExec with nested messages (valid: MsgSend and invalid: MsgEthereumTx) is blocked",
+			msg: newMsgExec(
+				testAddresses[1],
+				[]sdk.Msg{
+					banktypes.NewMsgSend(
+						testAddresses[0],
+						testAddresses[3],
+						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+					),
+					&evmtypes.MsgEthereumTx{},
+				},
+			),
+			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
+		},
+		{
+			name: "a MsgExec with nested MsgExec messages that has invalid messages is blocked",
+			msg: newMsgExec(
+				testAddresses[1],
+				[]sdk.Msg{
+					newMsgExec(
+						testAddresses[1],
+						[]sdk.Msg{
+							newMsgExec(
+								testAddresses[1],
+								[]sdk.Msg{
+									&evmtypes.MsgEthereumTx{},
+								},
+							),
+						},
+					),
+				},
+			),
+			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
+		},
+		{
+			name: "a MsgExec with more nested MsgExec messages than allowed and with valid messages is blocked",
+			msg: newMsgExec(
+				testAddresses[1],
+				[]sdk.Msg{
+					newMsgExec(
+						testAddresses[2],
+						[]sdk.Msg{
+							newMsgExec(
+								testAddresses[3],
+								[]sdk.Msg{
+									newMsgExec(
+										testAddresses[4],
+										[]sdk.Msg{
+											newMsgExec(
+												testAddresses[3],
+												[]sdk.Msg{
+													newMsgExec(
+														testAddresses[3],
+														[]sdk.Msg{
+															banktypes.NewMsgSend(
+																testAddresses[0],
+																testAddresses[3],
+																sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+															),
+														},
+													),
+												},
+											),
+										},
+									),
+								},
+							),
+						},
+					),
+				},
+			),
+			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 	}
 
@@ -62,7 +137,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest(false)
 			var (
-				tx sdk.Tx
+				tx  sdk.Tx
 				err error
 			)
 
