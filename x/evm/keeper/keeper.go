@@ -112,7 +112,6 @@ func NewKeeper(
 		transientKey:    transientKey,
 		tracer:          tracer,
 		ss:              ss,
-		precompiles:     AvailablePrecompiles(),
 	}
 }
 

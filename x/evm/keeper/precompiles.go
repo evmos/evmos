@@ -3,18 +3,35 @@ package keeper
 import (
 	"fmt"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"golang.org/x/exp/maps"
+
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
-func AvailablePrecompiles() map[common.Address]vm.PrecompiledContract {
+func AvailablePrecompiles(
+	stakingKeeper stakingkeeper.Keeper,
+) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 	// TODO: Add any custom precompiles below
+	// stakingPrecompile := staking.NewPrecompile(stakingKeeper)
+	// precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	return precompiles
+}
+
+// WithPrecompiles sets the available precompiled contracts.
+func (k *Keeper) WithPrecompiles(precompiles map[common.Address]vm.PrecompiledContract) *Keeper {
+	if k.precompiles != nil {
+		panic("available precompiles map already set")
+	}
+
+	k.precompiles = precompiles
+	return k
 }
 
 // Precompiles returns the subset of the available precompiled contracts that
