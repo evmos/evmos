@@ -37,74 +37,99 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 
 	testcases := []struct {
 		name         string
-		msg          sdk.Msg
+		msgs         []sdk.Msg
 		expectedCode uint32
 		isEIP712     bool
 	}{
 		{
 			name:         "a MsgGrant with MsgEthereumTx typeURL on the authorization field is blocked",
-			msg:          newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{})),
+			msgs:         []sdk.Msg{newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}))},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
 			name:         "a MsgGrant with MsgCreateVestingAccount typeURL on the authorization field is blocked",
-			msg:          newMsgGrant(sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{})),
+			msgs:         []sdk.Msg{newMsgGrant(sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}))},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
 			name:         "a MsgGrant with MsgEthereumTx typeURL on the authorization field included on EIP712 tx is blocked",
-			msg:          newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{})),
+			msgs:         []sdk.Msg{newMsgGrant(sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}))},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 			isEIP712:     true,
 		},
 		{
 			name: "a MsgExec with nested messages (valid: MsgSend and invalid: MsgEthereumTx) is blocked",
-			msg: newMsgExec(
-				testAddresses[1],
-				[]sdk.Msg{
-					banktypes.NewMsgSend(
-						testAddresses[0],
-						testAddresses[3],
-						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
-					),
-					&evmtypes.MsgEthereumTx{},
-				},
-			),
+			msgs: []sdk.Msg{
+				newMsgExec(
+					testAddresses[1],
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+						&evmtypes.MsgEthereumTx{},
+					},
+				),
+			},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
 			name: "a MsgExec with nested MsgExec messages that has invalid messages is blocked",
-			msg: newMsgExec(
-				testAddresses[1],
-				[]sdk.Msg{
-					newMsgExec(
-						testAddresses[1],
-						[]sdk.Msg{
-							newMsgExec(
-								testAddresses[1],
-								[]sdk.Msg{
-									&evmtypes.MsgEthereumTx{},
-								},
-							),
-						},
-					),
-				},
-			),
+			msgs: []sdk.Msg{
+				createNestedMsgExec(
+					testAddresses[1],
+					2,
+					[]sdk.Msg{
+						&evmtypes.MsgEthereumTx{},
+					},
+				),
+			},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 		{
 			name: "a MsgExec with more nested MsgExec messages than allowed and with valid messages is blocked",
-			msg: createNestedMsgExec(
-				testAddresses[1],
-				6,
-				[]sdk.Msg{
-					banktypes.NewMsgSend(
-						testAddresses[0],
-						testAddresses[3],
-						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
-					),
-				},
-			),
+			msgs: []sdk.Msg{
+				createNestedMsgExec(
+					testAddresses[1],
+					6,
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+					},
+				),
+			},
+			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
+		},
+		{
+			name: "two MsgExec messages NOT containing a blocked msg but between the two have more nesting than the allowed. Then, is blocked",
+			msgs: []sdk.Msg{
+				createNestedMsgExec(
+					testAddresses[1],
+					3,
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+					},
+				),
+				createNestedMsgExec(
+					testAddresses[1],
+					4,
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+					},
+				),
+			},
 			expectedCode: sdkerrors.ErrUnauthorized.ABCICode(),
 		},
 	}
@@ -118,9 +143,9 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 
 			if tc.isEIP712 {
-				tx, err = createEIP712CosmosTx(testAddresses[0], testPrivKeys[0], []sdk.Msg{tc.msg})
+				tx, err = createEIP712CosmosTx(testAddresses[0], testPrivKeys[0], tc.msgs)
 			} else {
-				tx, err = createTx(testPrivKeys[0], tc.msg)
+				tx, err = createTx(testPrivKeys[0], tc.msgs...)
 			}
 			suite.Require().NoError(err)
 

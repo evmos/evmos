@@ -208,7 +208,35 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-
+			checkTx:     false,
+			expectedErr: sdkerrors.ErrUnauthorized,
+		},
+		{
+			name: "two nested MsgExec messages NOT containing a blocked msg but between the two have more nesting than the allowed, then is still blocked",
+			msgs: []sdk.Msg{
+				createNestedMsgExec(
+					testAddresses[1],
+					3,
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+					},
+				),
+				createNestedMsgExec(
+					testAddresses[1],
+					4,
+					[]sdk.Msg{
+						banktypes.NewMsgSend(
+							testAddresses[0],
+							testAddresses[3],
+							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						),
+					},
+				),
+			},
 			checkTx:     false,
 			expectedErr: sdkerrors.ErrUnauthorized,
 		},
