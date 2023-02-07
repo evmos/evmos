@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"strings"
@@ -180,6 +181,16 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 			amount:     minusOneInt,
 			gasLimit:   1000,
 			gasPrice:   hundredInt,
+			expectPass: false,
+		},
+		{
+			msg:        "maxInt64 gas limit overflow",
+			to:         suite.to.Hex(),
+			amount:     hundredInt,
+			gasLimit:   math.MaxInt64 + 1,
+			gasPrice:   hundredInt,
+			gasFeeCap:  nil,
+			gasTipCap:  nil,
 			expectPass: false,
 		},
 		{
