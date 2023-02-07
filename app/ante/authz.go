@@ -23,8 +23,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
-// MaxNestedMsgs defines a cap for the number of nested messages on a MsgExec message
-const MaxNestedMsgs = 7
+// maxNestedMsgs defines a cap for the number of nested messages on a MsgExec message
+const maxNestedMsgs = 7
 
 // AuthzLimiterDecorator blocks certain msg types from being granted or executed
 // within the authorization module.
@@ -56,8 +56,8 @@ func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 // This method is recursive as MsgExec's can wrap other MsgExecs. The check for nested messages is performed up to the
 // maxNestedMsgs threshold. If there are more than that limit, it returns an error
 func (ald AuthzLimiterDecorator) checkDisabledMsgs(msgs []sdk.Msg, isAuthzInnerMsg bool, nestedLvl int) error {
-	if nestedLvl >= MaxNestedMsgs {
-		return fmt.Errorf("found more nested msgs than permited. Limit is : %d", MaxNestedMsgs)
+	if nestedLvl >= maxNestedMsgs {
+		return fmt.Errorf("found more nested msgs than permited. Limit is : %d", maxNestedMsgs)
 	}
 	for _, msg := range msgs {
 		switch msg := msg.(type) {
