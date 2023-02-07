@@ -216,6 +216,18 @@ func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
 	return &msg
 }
 
+func createNestedMsgExec(a sdk.AccAddress, nestedLvl int, lastLvlMsgs []sdk.Msg) *authz.MsgExec {
+	msgs := make([]*authz.MsgExec, nestedLvl)
+	for i := range msgs {
+		if i == 0 {
+			msgs[i] = newMsgExec(a, lastLvlMsgs)
+			continue
+		}
+		msgs[i] = newMsgExec(a, []sdk.Msg{msgs[i-1]})
+	}
+	return msgs[nestedLvl-1]
+}
+
 func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.AccAddress, error) {
 	var (
 		err           error
@@ -356,17 +368,4 @@ func createEIP712CosmosTx(
 	}
 
 	return builder.GetTx(), err
-}
-
-func createNestedMsgExec(a sdk.AccAddress, nestedLvl int, lastLvlMsgs []sdk.Msg) *authz.MsgExec {
-	msgs := make([]*authz.MsgExec, nestedLvl)
-	for i := range msgs {
-		if i == 0 {
-			msgs[i] = newMsgExec(a, lastLvlMsgs)
-			continue
-		}
-		msgs[i] = newMsgExec(a, []sdk.Msg{msgs[i-1]})
-	}
-
-	return newMsgExec(a, []sdk.Msg{msgs[nestedLvl-1]})
 }

@@ -160,15 +160,11 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 		{
 			name: "a nested MsgExec containing a blocked msg is still blocked",
 			msgs: []sdk.Msg{
-				newMsgExec(
+				createNestedMsgExec(
 					testAddresses[1],
+					2,
 					[]sdk.Msg{
-						newMsgExec(
-							testAddresses[2],
-							[]sdk.Msg{
-								&evmtypes.MsgEthereumTx{},
-							},
-						),
+						&evmtypes.MsgEthereumTx{},
 					},
 				),
 			},
@@ -216,7 +212,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			msgs: []sdk.Msg{
 				createNestedMsgExec(
 					testAddresses[1],
-					3,
+					5,
 					[]sdk.Msg{
 						banktypes.NewMsgSend(
 							testAddresses[0],
@@ -227,7 +223,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 				),
 				createNestedMsgExec(
 					testAddresses[1],
-					4,
+					5,
 					[]sdk.Msg{
 						banktypes.NewMsgSend(
 							testAddresses[0],

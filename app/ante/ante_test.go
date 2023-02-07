@@ -109,7 +109,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			msgs: []sdk.Msg{
 				createNestedMsgExec(
 					testAddresses[1],
-					3,
+					5,
 					[]sdk.Msg{
 						banktypes.NewMsgSend(
 							testAddresses[0],
@@ -120,7 +120,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 				),
 				createNestedMsgExec(
 					testAddresses[1],
-					4,
+					5,
 					[]sdk.Msg{
 						banktypes.NewMsgSend(
 							testAddresses[0],
