@@ -193,6 +193,48 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			checkTx:     false,
 			expectedErr: sdkerrors.ErrUnauthorized,
 		},
+		{
+			name: "a nested MsgExec NOT containing a blocked msg but has more nesting levels than the allowed is still blocked",
+			msgs: []sdk.Msg{
+				newMsgExec(
+					testAddresses[1],
+					[]sdk.Msg{
+						newMsgExec(
+							testAddresses[2],
+							[]sdk.Msg{
+								newMsgExec(
+									testAddresses[3],
+									[]sdk.Msg{
+										newMsgExec(
+											testAddresses[4],
+											[]sdk.Msg{
+												newMsgExec(
+													testAddresses[3],
+													[]sdk.Msg{
+														newMsgExec(
+															testAddresses[3],
+															[]sdk.Msg{
+																banktypes.NewMsgSend(
+																	testAddresses[0],
+																	testAddresses[3],
+																	sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+																),
+															},
+														),
+													},
+												),
+											},
+										),
+									},
+								),
+							},
+						),
+					},
+				),
+			},
+			checkTx:     false,
+			expectedErr: sdkerrors.ErrUnauthorized,
+		},
 	}
 
 	for _, tc := range testCases {

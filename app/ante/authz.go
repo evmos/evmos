@@ -23,6 +23,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
+// MaxNestedMsgs defines a cap for the number of nested messages on a MsgExec message
+const MaxNestedMsgs = 7
+
 // AuthzLimiterDecorator blocks certain msg types from being granted or executed
 // within the authorization module.
 type AuthzLimiterDecorator struct {
@@ -38,7 +41,7 @@ func NewAuthzLimiterDecorator(disabledMsgTypes ...string) AuthzLimiterDecorator 
 }
 
 func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	if err := ald.checkDisabledMsgs(tx.GetMsgs(), false); err != nil {
+	if err := ald.checkDisabledMsgs(tx.GetMsgs(), false, 1); err != nil {
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, err.Error())
 	}
 
@@ -50,8 +53,12 @@ func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 // When searchOnlyInAuthzMsgs is enabled, only authz MsgGrant and MsgExec are blocked, if they contain unauthorized msg types.
 // Otherwise any msg matching the disabled types are blocked, regardless of being in an authz msg or not.
 //
-// This method is recursive as MsgExec's can wrap other MsgExecs.
-func (ald AuthzLimiterDecorator) checkDisabledMsgs(msgs []sdk.Msg, isAuthzInnerMsg bool) error {
+// This method is recursive as MsgExec's can wrap other MsgExecs. The check for nested messages is performed up to the
+// maxNestedMsgs threshold. If there are more than that limit, it returns an error
+func (ald AuthzLimiterDecorator) checkDisabledMsgs(msgs []sdk.Msg, isAuthzInnerMsg bool, nestedLvl int) error {
+	if nestedLvl >= MaxNestedMsgs {
+		return fmt.Errorf("found more nested msgs than permited. Limit is : %d", MaxNestedMsgs)
+	}
 	for _, msg := range msgs {
 		switch msg := msg.(type) {
 		case *authz.MsgExec:
@@ -59,8 +66,8 @@ func (ald AuthzLimiterDecorator) checkDisabledMsgs(msgs []sdk.Msg, isAuthzInnerM
 			if err != nil {
 				return err
 			}
-
-			if err := ald.checkDisabledMsgs(innerMsgs, true); err != nil {
+			nestedLvl++
+			if err := ald.checkDisabledMsgs(innerMsgs, true, nestedLvl); err != nil {
 				return err
 			}
 		case *authz.MsgGrant:
