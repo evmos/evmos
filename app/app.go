@@ -1197,16 +1197,24 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	v11Handler := v11.CreateUpgradeHandler(
+		app.mm, app.configurator,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.DistrKeeper,
+	)
+
+	// v11-rc3 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v11.UpgradeNameRC3,
+		v11Handler,
+	)
+
 	// v11 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v11.UpgradeName,
-		v11.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.DistrKeeper,
-		),
+		v11Handler,
 	)
 
 	// When a planned update height is reached, the old binary will panic

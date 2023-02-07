@@ -35,7 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v11.0.1] - 2023-02-04
+
+### Improvements
+
+- (fix)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint fork
+
+### Bug Fixes
+
+- (deps) [#1342](https://github.com/evmos/evmos/pull/1342) Bump `tendermint` to [`v0.34.25`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.25)
+
+## [v11.0.0] - 2023-01-27
 
 ### State Machine Breaking
 
@@ -83,7 +93,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (tests) [#1283](https://github.com/evmos/evmos/pull/1283) Enable multiple upgrades for automated upgrade tests
 - (deps) [#1279](https://github.com/evmos/evmos/pull/1279) Bump Cosmos SDK version to [`v0.46.8-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.8-ledger)
 - (inflation) [#1258](https://github.com/evmos/evmos/pull/1258) Remove unnecessary `Coin` validation and store calls for `Params`
 
