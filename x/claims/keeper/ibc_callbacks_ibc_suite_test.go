@@ -12,11 +12,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
@@ -72,7 +72,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(10000))
 	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	coins = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(10000)))
+	coins = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000)))
 
 	err = testutil.FundModuleAccount(suite.chainB.GetContext(), suite.chainB.App.(*app.Evmos).BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 

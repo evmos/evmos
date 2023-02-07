@@ -35,9 +35,9 @@ import (
 
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
-	ethermint "github.com/evmos/ethermint/types"
 	evmosapp "github.com/evmos/evmos/v11/app"
-	evmos "github.com/evmos/evmos/v11/types"
+	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 var DefaultTestingAppInit func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
@@ -82,20 +82,20 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = evmos.BaseDenom
+	stakingParams.BondDenom = utils.BaseDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(evmos.BaseDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(utils.BaseDenom, bondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(evmos.BaseDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, bondAmt)},
 	})
 
 	// update total supply

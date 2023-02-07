@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"strings"
@@ -13,16 +14,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/tests"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
 const invalidFromAddress = "0x0000"
@@ -180,6 +181,16 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 			amount:     minusOneInt,
 			gasLimit:   1000,
 			gasPrice:   hundredInt,
+			expectPass: false,
+		},
+		{
+			msg:        "maxInt64 gas limit overflow",
+			to:         suite.to.Hex(),
+			amount:     hundredInt,
+			gasLimit:   math.MaxInt64 + 1,
+			gasPrice:   hundredInt,
+			gasFeeCap:  nil,
+			gasTipCap:  nil,
 			expectPass: false,
 		},
 		{

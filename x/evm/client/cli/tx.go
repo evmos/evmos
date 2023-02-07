@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"os"
 
-	etherminttypes "github.com/evmos/ethermint/x/evm/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
@@ -29,7 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	rpctypes "github.com/evmos/ethermint/rpc/types"
+	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -72,7 +70,7 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &etherminttypes.QueryParamsRequest{})
+			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}

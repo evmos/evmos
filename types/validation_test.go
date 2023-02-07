@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/stretchr/testify/require"
 )

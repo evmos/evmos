@@ -24,7 +24,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v9
@@ -36,7 +36,7 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		if types.IsMainnet(ctx.ChainID()) {
+		if utils.IsMainnet(ctx.ChainID()) {
 			logger.Debug("recovering lost funds from clawback...")
 			if err := ReturnFundsFromCommunityPool(ctx, dk); err != nil {
 				// log error instead of aborting the upgrade

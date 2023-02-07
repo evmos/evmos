@@ -29,8 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/ethermint/server/config"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/server/config"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/x/erc20/types"

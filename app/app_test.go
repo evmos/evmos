@@ -19,8 +19,8 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/utils"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 )
 
@@ -53,7 +53,7 @@ func TestEvmosExport(t *testing.T) {
 	// Initialize the chain
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:       types.MainnetChainID + "-1",
+			ChainId:       utils.MainnetChainID + "-1",
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},

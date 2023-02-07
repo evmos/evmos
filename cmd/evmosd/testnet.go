@@ -53,12 +53,12 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/ethermint/server/config"
-	srvflags "github.com/evmos/ethermint/server/flags"
+	"github.com/evmos/evmos/v11/crypto/hd"
+	"github.com/evmos/evmos/v11/server/config"
+	srvflags "github.com/evmos/evmos/v11/server/flags"
 
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	ethermint "github.com/evmos/evmos/v11/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	cmdcfg "github.com/evmos/evmos/v11/cmd/config"
 	evmoskr "github.com/evmos/evmos/v11/crypto/keyring"

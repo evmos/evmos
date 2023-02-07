@@ -5,7 +5,6 @@ package mocks
 import (
 	"errors"
 
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -88,7 +87,7 @@ func (_m *SECP256K1) SignSECP256K1(_a0 []uint32, _a1 []byte) ([]byte, error) {
 	e := args.Get(1)
 	err, _ := e.(error)
 	if errors.Is(err, ErrMockedSigning) {
-		return  nil, err
+		return nil, err
 	}
 	f, _ := args.Get(0).(func([]uint32, []byte) ([]byte, error))
 	return f(_a0, _a1)

@@ -26,8 +26,8 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ethante "github.com/evmos/ethermint/app/ante"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -36,7 +36,7 @@ import (
 type EthVestingTransactionDecorator struct {
 	ak evmtypes.AccountKeeper
 	bk evmtypes.BankKeeper
-	ek ethante.EVMKeeper
+	ek evmante.EVMKeeper
 }
 
 // ethVestingTotalSpend tracks both the total transaction value to be sent across Ethereum
@@ -48,7 +48,7 @@ type ethVestingTotalSpend struct {
 	spendableValue *big.Int
 }
 
-func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek ethante.EVMKeeper) EthVestingTransactionDecorator {
+func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek evmante.EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
 		bk: bk,

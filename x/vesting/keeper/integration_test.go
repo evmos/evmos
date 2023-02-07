@@ -9,11 +9,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/app/ante"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -23,8 +23,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )

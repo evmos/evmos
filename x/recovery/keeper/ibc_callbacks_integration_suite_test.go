@@ -19,7 +19,7 @@ import (
 
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/evmos/evmos/v11/app"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 	"github.com/evmos/evmos/v11/x/recovery/types"
@@ -63,7 +63,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	// Mint coins locked on the evmos account generated with secp.
 	amt, ok := sdk.NewIntFromString("1000000000000000000000")
 	suite.Require().True(ok)
-	coinEvmos := sdk.NewCoin(evmostypes.BaseDenom, amt)
+	coinEvmos := sdk.NewCoin(utils.BaseDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 	err := suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -72,7 +72,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	coinEvmos = sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(10000))
+	coinEvmos = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000))
 	coins = sdk.NewCoins(coinEvmos)
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -120,7 +120,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	evmParams := suite.EvmosChain.App.(*app.Evmos).EvmKeeper.GetParams(s.EvmosChain.GetContext())
-	evmParams.EvmDenom = evmostypes.BaseDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	err = suite.EvmosChain.App.(*app.Evmos).EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
 	suite.Require().NoError(err)
 

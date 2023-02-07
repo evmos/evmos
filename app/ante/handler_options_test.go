@@ -1,9 +1,9 @@
 package ante_test
 
 import (
-	ethante "github.com/evmos/ethermint/app/ante"
-	"github.com/evmos/ethermint/encoding"
-	ethermint "github.com/evmos/ethermint/types"
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/encoding"
+	ethermint "github.com/evmos/evmos/v11/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/app/ante"
@@ -107,7 +107,7 @@ func (suite *AnteTestSuite) TestValidateHandlerOptions() {
 				StakingKeeper:   suite.app.StakingKeeper,
 				FeeMarketKeeper: suite.app.FeeMarketKeeper,
 				EvmKeeper:       suite.app.EvmKeeper,
-				SigGasConsumer:  app.SigVerificationGasConsumer,
+				SigGasConsumer:  ante.SigVerificationGasConsumer,
 				SignModeHandler: nil,
 			},
 			false,
@@ -125,7 +125,7 @@ func (suite *AnteTestSuite) TestValidateHandlerOptions() {
 				IBCKeeper:              suite.app.IBCKeeper,
 				FeeMarketKeeper:        suite.app.FeeMarketKeeper,
 				SignModeHandler:        encoding.MakeConfig(app.ModuleBasics).TxConfig.SignModeHandler(),
-				SigGasConsumer:         app.SigVerificationGasConsumer,
+				SigGasConsumer:         ante.SigVerificationGasConsumer,
 				MaxTxGasWanted:         40000000,
 				TxFeeChecker:           ethante.NewDynamicFeeChecker(suite.app.EvmKeeper),
 			},

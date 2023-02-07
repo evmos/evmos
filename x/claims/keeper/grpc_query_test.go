@@ -6,7 +6,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/claims/types"
 )

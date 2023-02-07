@@ -54,6 +54,7 @@ You can also use [chainlist.org](https://chainlist.org/) to add the node directl
 | `https://grpc-evmos.mms.team:443`             | `Cosmos` `gRPC`        | [MMS](https://mms.team/) |
 | `https://rpc-evmos.mms.team:443`              | `Tendermint` `RPC`     | [MMS](https://mms.team/) |
 | `https://jsonrpc-evmos.mms.team:443`          | `Ethereum` `JSON-RPC`  | [MMS](https://mms.team/) |
+| `https://web3endpoints.com/evmos-mainnet`     | `Ethereum` `JSON-RPC`  | [BlockSpaces](https://www.blockspaces.com/web3-infrastructure) |
 
 ### Testnet
 <!-- markdown-link-check-disable -->

@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/tests"
+	"github.com/evmos/evmos/v11/tests"
 	"github.com/stretchr/testify/suite"
 )
 

@@ -17,12 +17,14 @@
 package ante
 
 import (
+	"fmt"
+	"runtime/debug"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-
-	ethante "github.com/evmos/ethermint/app/ante"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 // NewAnteHandler returns an ante handler responsible for attempting to route an
@@ -35,7 +37,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		defer ethante.Recover(ctx.Logger(), &err)
+		defer Recover(ctx.Logger(), &err)
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
@@ -44,7 +46,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				switch typeURL := opts[0].GetTypeUrl(); typeURL {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
-					anteHandler = newEthAnteHandler(options)
+					anteHandler = newEVMAnteHandler(options)
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
 					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
 					anteHandler = newLegacyCosmosAnteHandlerEip712(options)
@@ -71,5 +73,24 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		}
 
 		return anteHandler(ctx, tx, sim)
+	}
+}
+
+func Recover(logger tmlog.Logger, err *error) {
+	if r := recover(); r != nil {
+		*err = errorsmod.Wrapf(errortypes.ErrPanic, "%v", r)
+
+		if e, ok := r.(error); ok {
+			logger.Error(
+				"ante handler panicked",
+				"error", e,
+				"stack trace", string(debug.Stack()),
+			)
+		} else {
+			logger.Error(
+				"ante handler panicked",
+				"recover", fmt.Sprintf("%v", r),
+			)
+		}
 	}
 }

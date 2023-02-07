@@ -32,7 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
-	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 // FlagGenesisTime defines the genesis time in string format
@@ -42,7 +42,7 @@ var migrationMap = genutiltypes.MigrationMap{}
 
 // GetMigrationCallback returns a MigrationCallback for a given version.
 func GetMigrationCallback(version, chainID string) genutiltypes.MigrationCallback {
-	if !types.IsMainnet(chainID) {
+	if !utils.IsMainnet(chainID) {
 		version = fmt.Sprintf("%s%s", "t", version)
 	}
 
