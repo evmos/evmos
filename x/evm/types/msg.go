@@ -206,7 +206,7 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 	}
 
 	// prevent gas limit from overflow
-	if g := sdk.NewIntFromUint64(msg.GetGas()); !g.IsInt64() {
+	if g := new(big.Int).SetUint64(gas); !g.IsInt64() {
 		return errorsmod.Wrap(evmtypes.ErrGasOverflow, "gas limit must be less than math.MaxInt64")
 	}
 
