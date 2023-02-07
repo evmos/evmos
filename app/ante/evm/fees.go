@@ -32,8 +32,8 @@ import (
 // if London hard fork or fee market params (EIP-1559) are enabled.
 // If fee is high enough, then call next AnteHandler
 type EthMinGasPriceDecorator struct {
-	feesKeeper feeMarketKeeper
-	evmKeeper  evmKeeper
+	feesKeeper FeeMarketKeeper
+	evmKeeper  EVMKeeper
 }
 
 // EthMempoolFeeDecorator will check if the transaction's effective fee is at least as large
@@ -43,18 +43,18 @@ type EthMinGasPriceDecorator struct {
 // If fee is high enough or not CheckTx, then call next AnteHandler
 // CONTRACT: Tx must implement FeeTx to use MempoolFeeDecorator
 type EthMempoolFeeDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewEthMinGasPriceDecorator creates a new MinGasPriceDecorator instance used only for
 // Ethereum transactions.
-func NewEthMinGasPriceDecorator(fk feeMarketKeeper, ek evmKeeper) EthMinGasPriceDecorator {
+func NewEthMinGasPriceDecorator(fk FeeMarketKeeper, ek EVMKeeper) EthMinGasPriceDecorator {
 	return EthMinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
 }
 
 // NewEthMempoolFeeDecorator creates a new NewEthMempoolFeeDecorator instance used only for
 // Ethereum transactions.
-func NewEthMempoolFeeDecorator(ek evmKeeper) EthMempoolFeeDecorator {
+func NewEthMempoolFeeDecorator(ek EVMKeeper) EthMempoolFeeDecorator {
 	return EthMempoolFeeDecorator{
 		evmKeeper: ek,
 	}
