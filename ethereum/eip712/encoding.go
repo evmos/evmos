@@ -28,7 +28,7 @@ import (
 
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
 	// TODO refactor when types are imported
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 )

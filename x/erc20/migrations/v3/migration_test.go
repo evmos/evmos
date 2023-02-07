@@ -5,8 +5,8 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
 
 	v3types "github.com/evmos/evmos/v11/x/erc20/migrations/v3/types"
 

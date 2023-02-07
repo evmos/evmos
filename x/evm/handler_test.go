@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/ethermint/x/evm/keeper"
+	"github.com/evmos/evmos/v11/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/gogo/protobuf/proto"
@@ -18,7 +18,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -32,13 +32,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
-	"github.com/evmos/ethermint/x/evm"
-	"github.com/evmos/ethermint/x/evm/statedb"
-	"github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/tests"
+	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/x/evm"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	"github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -52,7 +52,7 @@ type EvmTestSuite struct {
 
 	ctx     sdk.Context
 	handler sdk.Handler
-	app     *app.EthermintApp
+	app     *app.Evmos
 	chainID *big.Int
 
 	signer    keyring.Signer
@@ -78,7 +78,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = app.Setup(checkTx, func(app *app.EthermintApp, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.dynamicTxFee {
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
 			feemarketGenesis.Params.EnableHeight = 1
@@ -567,7 +567,7 @@ func (suite *EvmTestSuite) TestERC20TransferReverted() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 			k.SetHooks(tc.hooks)
 
 			// add some fund to pay gas fee
@@ -655,7 +655,7 @@ func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 	for _, tc := range testCases {
 		suite.Run(tc.msg, func() {
 			suite.SetupTest()
-			k := suite.app.EvmKeeper
+			k := suite.app.EvmKeeper.CleanHooks()
 
 			// test with different hooks scenarios
 			k.SetHooks(tc.hooks)

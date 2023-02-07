@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/crypto/hd"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/tests/integration/ledger/mocks"
 	"github.com/stretchr/testify/suite"
@@ -28,9 +28,9 @@ import (
 
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clientkeys "github.com/evmos/ethermint/client/keys"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	clientkeys "github.com/evmos/evmos/v11/client/keys"
 	evmoskeyring "github.com/evmos/evmos/v11/crypto/keyring"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"

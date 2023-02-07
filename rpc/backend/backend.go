@@ -30,10 +30,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/ethermint/server/config"
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
+	"github.com/evmos/evmos/v11/server/config"
+	ethermint "github.com/evmos/evmos/v11/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )

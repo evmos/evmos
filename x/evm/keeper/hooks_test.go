@@ -9,9 +9,9 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/x/evm/keeper"
-	"github.com/evmos/ethermint/x/evm/statedb"
-	"github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/x/evm/keeper"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
 // LogRecordHook records all the logs
@@ -60,6 +60,7 @@ func (suite *KeeperTestSuite) TestEvmHooks() {
 
 	for _, tc := range testCases {
 		suite.SetupTest()
+		suite.app.EvmKeeper = suite.app.EvmKeeper.CleanHooks()
 		hook := tc.setupHook()
 		suite.app.EvmKeeper.SetHooks(keeper.NewMultiEvmHooks(hook))
 

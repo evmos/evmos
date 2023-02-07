@@ -8,8 +8,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/ethermint/encoding"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
 	v3 "github.com/evmos/evmos/v11/x/claims/migrations/v3"
 	v3types "github.com/evmos/evmos/v11/x/claims/migrations/v3/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
