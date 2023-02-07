@@ -94,38 +94,14 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		},
 		{
 			name: "a MsgExec with more nested MsgExec messages than allowed and with valid messages is blocked",
-			msg: newMsgExec(
+			msg: createNestedMsgExec(
 				testAddresses[1],
+				6,
 				[]sdk.Msg{
-					newMsgExec(
-						testAddresses[2],
-						[]sdk.Msg{
-							newMsgExec(
-								testAddresses[3],
-								[]sdk.Msg{
-									newMsgExec(
-										testAddresses[4],
-										[]sdk.Msg{
-											newMsgExec(
-												testAddresses[3],
-												[]sdk.Msg{
-													newMsgExec(
-														testAddresses[3],
-														[]sdk.Msg{
-															banktypes.NewMsgSend(
-																testAddresses[0],
-																testAddresses[3],
-																sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
-															),
-														},
-													),
-												},
-											),
-										},
-									),
-								},
-							),
-						},
+					banktypes.NewMsgSend(
+						testAddresses[0],
+						testAddresses[3],
+						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 					),
 				},
 			),
