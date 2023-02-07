@@ -331,9 +331,12 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
-	// activePrecompiles := cfg.Params.ActivePrecompiles
-
-	// evm.WithPrecompiles(k.Precompiles(), activePrecompiles)
+	// set the custom precompiles to the EVM (if any)
+	if cfg.Params.HasCustomPrecompiles() {
+		activePrecompiles := cfg.Params.GetActivePrecompilesAddrs()
+		precompileMap := k.Precompiles(activePrecompiles...)
+		evm.WithPrecompiles(precompileMap, activePrecompiles)
+	}
 
 	leftoverGas := msg.Gas()
 

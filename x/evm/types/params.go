@@ -120,6 +120,11 @@ func (p Params) EIPs() []int {
 	return eips
 }
 
+// HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
+func (p Params) HasCustomPrecompiles() bool {
+	return len(p.ActivePrecompiles) > 0
+}
+
 // GetActivePrecompilesAddrs is a util function that the Active Precompiles
 // as a slice of addresses.
 func (p Params) GetActivePrecompilesAddrs() []common.Address {
