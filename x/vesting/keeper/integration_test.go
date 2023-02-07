@@ -166,9 +166,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can transfer spendable tokens", func() {
 			account := testAccounts[0]
 			// Fund account with new spendable tokens
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unvested)
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unvested)
+			Expect(err).To(BeNil())
 
-			err := s.app.BankKeeper.SendCoins(
+			err = s.app.BankKeeper.SendCoins(
 				s.ctx,
 				account.address,
 				dest,
@@ -190,7 +191,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can perform Ethereum tx with spendable balance", func() {
 			account := testAccounts[0]
 			// Fund account with new spendable tokens
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unlockedPerLockup)
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unlockedPerLockup)
+			Expect(err).To(BeNil())
 
 			txAmount := unlockedPerLockupAmt.BigInt()
 			msg := createEthTx(account.privKey, account.address, dest, txAmount, 0)
@@ -243,7 +245,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("can perform Ethereum tx with spendable balance", func() {
 			account := testAccounts[0]
 			// Fund account with new spendable tokens
-			testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unlockedPerLockup)
+			err := testutil.FundAccount(s.ctx, s.app.BankKeeper, account.address, unlockedPerLockup)
+			Expect(err).To(BeNil())
 
 			txAmount := unlockedPerLockupAmt.BigInt()
 			msg := createEthTx(account.privKey, account.address, dest, txAmount, 0)

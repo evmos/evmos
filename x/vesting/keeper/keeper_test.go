@@ -37,7 +37,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -150,7 +150,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	}
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
-	evmParams.EvmDenom = evmostypes.BaseDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	_ = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
 
 	acc := &ethermint.EthAccount{

@@ -38,8 +38,8 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/tests"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.
