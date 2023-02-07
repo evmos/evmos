@@ -61,7 +61,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-- (fix)[#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint fork
+- (deps) [#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
 
 ### Bug Fixes
 
