@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
@@ -285,6 +286,14 @@ func (suite *BackendTestSuite) TestResend() {
 
 func (suite *BackendTestSuite) TestSendRawTransaction() {
 	ethTx, bz := suite.buildEthereumTx()
+
+	// Sign the ethTx
+	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+	RegisterParamsWithoutHeader(queryClient, 1)
+	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
+	err := ethTx.Sign(ethSigner, suite.signer)
+	suite.Require().NoError(err)
+
 	rlpEncodedBz, _ := rlp.EncodeToBytes(ethTx.AsTransaction())
 	cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), "aphoton")
 	txBytes, _ := suite.backend.clientCtx.TxConfig.TxEncoder()(cosmosTx)
@@ -313,7 +322,9 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 		{
 			"fail - unprotected transactions",
 			func() {
+				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = false
+				RegisterParamsWithoutHeaderError(queryClient, 1)
 			},
 			rlpEncodedBz,
 			common.Hash{},
