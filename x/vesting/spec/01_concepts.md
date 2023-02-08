@@ -15,7 +15,8 @@ The duration until which the first tokens are vested is called the `cliff`.
 ## Lockup
 
 The lockup describes the schedule by which tokens are converted from a `locked` to an `unlocked` state.
-As long as all tokens are locked, the account cannot perform any Ethereum transactions that spend EVMOS using the `x/evm` module.
+As long as all tokens are locked, the account cannot perform any Ethereum transactions
+that spend EVMOS using the `x/evm` module.
 However, the account can perform Ethereum transactions that don't spend EVMOS tokens.
 Additionally, locked tokens cannot be transferred to other accounts.
 In the case in which tokens are both locked and vested at the same time,
