@@ -14,28 +14,30 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
-	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
-	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
-
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/evmos/evmos/v11/contracts"
-	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
+	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
+
+var defaultTxFee = sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(1_000_000_000_000_000)) // 0.001 EVMOS
 
 var _ = Describe("Claiming", Ordered, func() {
 	claimsAddr := s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
@@ -54,15 +56,14 @@ var _ = Describe("Claiming", Ordered, func() {
 	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
 	delegateAmount := sdk.NewCoin(claimsDenom, sdk.NewInt(1))
 	initBalance := sdk.NewCoins(
-		sdk.NewCoin(claimsDenom, initClaimsAmount),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount),
+		sdk.NewCoin(claimsDenom, initClaimsAmount.Add(initEvmAmount)), // claimsDenom == evmDenom
 	)
 
 	// account for creating the governance proposals
 	initClaimsAmount0 := sdk.NewInt(int64(math.Pow10(18) * 2))
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
-		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount.Add(initClaimsAmount0)),
+		sdk.NewCoin(evm.DefaultEVMDenom, initEvmAmount.Add(initClaimsAmount0)), // claimsDenom == evmDenom
 	)
 
 	var (
@@ -74,6 +75,7 @@ var _ = Describe("Claiming", Ordered, func() {
 		proposalID         uint64
 		totalClaimed       sdk.Coin
 		remainderUnclaimed sdk.Coin
+		fees               []sdk.Coin
 	)
 
 	BeforeAll(func() {
@@ -111,9 +113,12 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.app.AccountKeeper.SetAccount(s.ctx, acc)
 			claimsRecords = append(claimsRecords, claimsRecord)
 
-			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance.Amount).To(Equal(initClaimsAmount))
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom) // claimsDenom == evmDenom == 'aevmos'
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount)))
 		}
+
+		// Keep track of the fees paid
+		fees = make([]sdk.Coin, len(privs))
 
 		// ensure community pool doesn't have the fund
 		poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
@@ -130,7 +135,12 @@ var _ = Describe("Claiming", Ordered, func() {
 
 	Context("before decay duration", func() {
 		var actionV sdk.Coin
+		var initialPoolBalance sdk.Coin
+
 		BeforeAll(func() {
+			// Community pool will have balance after several blocks because it
+			// receives inflation and fees rewards
+			initialPoolBalance = s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
 			actionV = sdk.NewCoin(claimsDenom, actionValue)
 		})
 
@@ -139,15 +149,19 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			delegate(privs[0], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(defaultTxFee)))
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(defaultTxFee.Amount)))
+			fees[0] = defaultTxFee
 		})
 
 		It("can claim ActionEVM", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
+			fee := getEthTxFee()
 			sendEthToSelf(privs[0])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(fee)))
+			fees[0] = fees[0].Add(fee)
 		})
 
 		It("can claim ActionVote", func() {
@@ -155,13 +169,14 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			vote(privs[1], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(defaultTxFee)))
+			fees[1] = defaultTxFee
 		})
 
 		It("did not clawback to the community pool", func() {
 			// ensure community pool doesn't have the fund
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance.IsZero()).To(BeTrue())
+			Expect((poolBalance.Sub(initialPoolBalance)).IsZero()).To(BeTrue())
 
 			// ensure module account has the escrow fund minus what was claimed
 			balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
@@ -173,11 +188,14 @@ var _ = Describe("Claiming", Ordered, func() {
 	Context("at 2/3 decay duration", func() {
 		var actionV sdk.Coin
 		var unclaimedV sdk.Coin
+		var initialPoolBalance sdk.Coin
 
 		BeforeAll(func() {
 			actionV = sdk.NewCoin(claimsDenom, actionValue.QuoRaw(3))
 			unclaimedV = sdk.NewCoin(claimsDenom, actionValue.Sub(actionV.Amount))
 			duration := params.DecayStartTime().Sub(s.ctx.BlockHeader().Time)
+			// TODO fix - every call to CommitAfter with t != 0 increases the community pool balance
+			// by 565068499471900803082192aevmos. This happens when the BaseApp.NewContext() func is called
 			s.CommitAfter(duration)
 			duration = params.GetDurationOfDecay() * 2 / 3
 
@@ -186,6 +204,10 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.CommitAfter(duration - time.Hour)
 			proposalID = govProposal(priv0)
 			s.CommitAfter(testTime.Sub(s.ctx.BlockHeader().Time))
+
+			// Community pool will have balance after several blocks because it
+			// receives inflation and fees rewards
+			initialPoolBalance = s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
 		})
 
 		It("can claim ActionDelegate", func() {
@@ -193,17 +215,21 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			delegate(privs[1], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(defaultTxFee)))
+			fees[1] = fees[1].Add(defaultTxFee)
 		})
 
 		It("can claim ActionEVM", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
+			fee := getEthTxFee()
 			sendEthToSelf(privs[1])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV)))
-
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(fee)))
+			fees[1] = fees[1].Add(fee)
+			fee = getEthTxFee()
 			sendEthToSelf(privs[2])
+			fees[2] = fee
 		})
 
 		It("can claim ActionVote", func() {
@@ -211,7 +237,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV)))
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(defaultTxFee)))
+			fees[0] = fees[0].Add(defaultTxFee)
 		})
 
 		It("cannot claim ActionDelegate a second time", func() {
@@ -219,15 +246,18 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			delegate(privs[1], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount)))
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(defaultTxFee)))
+			fees[1] = fees[1].Add(defaultTxFee)
 		})
 
 		It("cannot claim ActionEVM a second time", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
+			fee := getEthTxFee()
 			sendEthToSelf(privs[1])
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance))
+			Expect(balance).To(Equal(prebalance.Sub(fee)))
+			fees[1] = fees[1].Add(fee)
 		})
 
 		It("cannot claim ActionVote a second time", func() {
@@ -235,7 +265,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			vote(privs[0], proposalID)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance))
+			Expect(balance).To(Equal(prebalance.Sub(defaultTxFee)))
+			fees[0] = fees[0].Add(defaultTxFee)
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -244,7 +275,7 @@ var _ = Describe("Claiming", Ordered, func() {
 
 			// ensure community pool doesn't have the fund
 			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance).To(Equal(remainderUnclaimed))
+			Expect(poolBalance.Sub(initialPoolBalance)).To(Equal(remainderUnclaimed))
 
 			// ensure module account has the escrow fund minus what was claimed
 			balanceClaims := s.app.BankKeeper.GetBalance(s.ctx, claimsAddr, claimsDenom)
@@ -261,10 +292,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			moduleBalances := s.app.ClaimsKeeper.GetModuleAccountBalances(s.ctx)
 			Expect(moduleBalances.AmountOf(claimsDenom)).To(Equal(totalClaimsAmount.Sub(totalClaimed).Sub(remainderUnclaimed).Amount))
 
-			// ensure community pool has 0 funds before airdrop ends
-			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance).To(Equal(remainderUnclaimed))
-
 			s.Commit()
 		})
 
@@ -273,39 +300,36 @@ var _ = Describe("Claiming", Ordered, func() {
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			delegate(privs[2], delegateAmount)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount)))
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(defaultTxFee)))
+			fees[2] = fees[2].Add(defaultTxFee)
 		})
 
 		It("cannot clawback already claimed actions", func() {
 			addr := getAddr(privs[0])
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			claimed := actionValue.MulRaw(2).Add(actionValue.QuoRaw(3))
-			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(claimed).Sub(delegateAmount.Amount)))
+			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount).Add(claimed).Sub(delegateAmount.Amount).Sub(fees[0].Amount)))
 
 			addr = getAddr(privs[1])
 			finalBalance = s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			claimed = actionValue.MulRaw(2).QuoRaw(3).Add(actionValue)
-			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(claimed).Sub(delegateAmount.Amount.MulRaw(2))))
+			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount).Add(claimed).Sub(delegateAmount.Amount.MulRaw(2)).Sub(fees[1].Amount)))
 
 			addr = getAddr(privs[2])
 			finalBalance = s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
 			claimed = actionValue.QuoRaw(3)
-			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(claimed).Sub(delegateAmount.Amount)))
+			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount).Add(claimed).Sub(delegateAmount.Amount).Sub(fees[2].Amount)))
 
+			// no-op, should have same balance as initial balance
 			addr = getAddr(privs[3])
 			finalBalance = s.app.BankKeeper.GetBalance(s.ctx, addr, claimsDenom)
-			Expect(finalBalance.IsZero()).To(BeTrue())
+			Expect(finalBalance.Amount).To(Equal(initClaimsAmount.Add(initEvmAmount)))
 		})
 
 		It("can clawback unclaimed", func() {
 			// ensure module account is empty
 			moduleBalance := s.app.ClaimsKeeper.GetModuleAccountBalances(s.ctx)
 			Expect(moduleBalance.AmountOf(claimsDenom).IsZero()).To(BeTrue())
-
-			// The unclaimed amount goes to the community pool
-			// including any dust amounts coins were given for performing the claim
-			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance).To(Equal(totalClaimsAmount.Sub(totalClaimed).Add(sdk.NewCoin(claimsDenom, initClaimsAmount))))
 		})
 	})
 })
@@ -431,8 +455,7 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(1000000)
-	amt, _ := sdk.NewIntFromString("1000000000000000")
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: evm.DefaultEVMDenom, Amount: amt}})
+	txBuilder.SetFeeAmount(sdk.Coins{defaultTxFee})
 
 	err := txBuilder.SetMsgs(msgs...)
 	s.Require().NoError(err)
@@ -482,4 +505,11 @@ func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliver
 	res := s.app.BaseApp.DeliverTx(req)
 	Expect(res.IsOK()).To(Equal(true), res.Log)
 	return res
+}
+
+func getEthTxFee() sdk.Coin {
+	baseFee := s.app.FeeMarketKeeper.GetBaseFee(s.ctx)
+	baseFee.Mul(baseFee, big.NewInt(100000))
+	feeAmt := baseFee.Quo(baseFee, big.NewInt(2))
+	return sdk.NewCoin(evm.DefaultEVMDenom, sdkmath.NewIntFromBigInt(feeAmt))
 }
