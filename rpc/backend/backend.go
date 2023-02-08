@@ -32,7 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -115,8 +115,8 @@ type EVMBackend interface {
 
 	// Tx Info
 	GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransaction, error)
-	GetTxByEthHash(txHash common.Hash) (*types.TxResult, error)
-	GetTxByTxIndex(height int64, txIndex uint) (*types.TxResult, error)
+	GetTxByEthHash(txHash common.Hash) (*ethermint.TxResult, error)
+	GetTxByTxIndex(height int64, txIndex uint) (*ethermint.TxResult, error)
 	GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
 	GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error)
 	GetTransactionByBlockHashAndIndex(hash common.Hash, idx hexutil.Uint) (*rpctypes.RPCTransaction, error)
@@ -153,7 +153,7 @@ type Backend struct {
 	chainID             *big.Int
 	cfg                 config.Config
 	allowUnprotectedTxs bool
-	indexer             types.EVMTxIndexer
+	indexer             ethermint.EVMTxIndexer
 }
 
 // NewBackend creates a new Backend instance for cosmos and ethereum namespaces
@@ -162,9 +162,9 @@ func NewBackend(
 	logger log.Logger,
 	clientCtx client.Context,
 	allowUnprotectedTxs bool,
-	indexer types.EVMTxIndexer,
+	indexer ethermint.EVMTxIndexer,
 ) *Backend {
-	chainID, err := types.ParseChainID(clientCtx.ChainID)
+	chainID, err := ethermint.ParseChainID(clientCtx.ChainID)
 	if err != nil {
 		panic(err)
 	}
