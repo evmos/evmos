@@ -115,6 +115,17 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
+	// TODO remove if not useful
+	// inflationParams := suite.app.InflationKeeper.GetParams(suite.ctx)
+	// inflationParams.InflationDistribution.CommunityPool = sdk.NewDec(0)
+	// inflationParams.InflationDistribution.StakingRewards = sdk.NewDecWithPrec(50, 2)
+	// inflationParams.InflationDistribution.UsageIncentives = sdk.NewDecWithPrec(50, 2)
+	// suite.app.InflationKeeper.SetParams(suite.ctx, inflationParams)
+
+	// distrParams := suite.app.DistrKeeper.GetParams(suite.ctx)
+	// distrParams.CommunityTax = sdk.NewDec(0)
+	// suite.app.DistrKeeper.SetParams(suite.ctx, distrParams)
+	
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
