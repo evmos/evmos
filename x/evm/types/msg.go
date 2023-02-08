@@ -196,9 +196,16 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 		return errorsmod.Wrap(err, "failed to unpack tx data")
 	}
 
+	gas := txData.GetGas()
+
 	// prevent txs with 0 gas to fill up the mempool
-	if txData.GetGas() == 0 {
+	if gas == 0 {
 		return errorsmod.Wrap(ErrInvalidGasLimit, "gas limit must not be zero")
+	}
+
+	// prevent gas limit from overflow
+	if g := new(big.Int).SetUint64(gas); !g.IsInt64() {
+		return errorsmod.Wrap(ErrGasOverflow, "gas limit must be less than math.MaxInt64")
 	}
 
 	if err := txData.Validate(); err != nil {

@@ -28,23 +28,15 @@ import (
 
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	evm "github.com/evmos/evmos/v11/x/evm/vm"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
 
-// dynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
-type dynamicFeeEVMKeeper interface {
-	ChainID() *big.Int
-	GetParams(ctx sdk.Context) evmtypes.Params
-	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
-}
-
-// evmKeeper defines the expected keeper interface used on the Eth AnteHandler
-type evmKeeper interface {
+// EVMKeeper defines the expected keeper interface used on the AnteHandler
+type EVMKeeper interface { //nolint: revive
 	statedb.Keeper
-	dynamicFeeEVMKeeper
+	DynamicFeeEVMKeeper
 
-	NewEVM(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB) evm.EVM
+	NewEVM(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB) *vm.EVM
 	DeductTxCostsFromUserBalance(ctx sdk.Context, fees sdk.Coins, from common.Address) error
 	GetBalance(ctx sdk.Context, addr common.Address) *big.Int
 	ResetTransientGasUsed(ctx sdk.Context)
@@ -52,13 +44,19 @@ type evmKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params
 }
 
-type protoTxProvider interface {
-	GetProtoTx() *tx.Tx
-}
-
-// feeMarketKeeper defines the expected keeper interface used on the AnteHandler
-type feeMarketKeeper interface {
+type FeeMarketKeeper interface {
 	GetParams(ctx sdk.Context) (params feemarkettypes.Params)
 	AddTransientGasWanted(ctx sdk.Context, gasWanted uint64) (uint64, error)
 	GetBaseFeeEnabled(ctx sdk.Context) bool
+}
+
+// DynamicFeeEVMKeeper is a subset of EVMKeeper interface that supports dynamic fee checker
+type DynamicFeeEVMKeeper interface {
+	ChainID() *big.Int
+	GetParams(ctx sdk.Context) evmtypes.Params
+	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
+}
+
+type protoTxProvider interface {
+	GetProtoTx() *tx.Tx
 }

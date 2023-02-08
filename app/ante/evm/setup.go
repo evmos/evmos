@@ -32,10 +32,10 @@ import (
 // EthSetupContextDecorator is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
 // by setting the gas meter to infinite
 type EthSetupContextDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
-func NewEthSetUpContextDecorator(evmKeeper evmKeeper) EthSetupContextDecorator {
+func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
 	return EthSetupContextDecorator{
 		evmKeeper: evmKeeper,
 	}
@@ -61,11 +61,11 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 // EthEmitEventDecorator emit events in ante handler in case of tx execution failed (out of block gas limit).
 type EthEmitEventDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewEthEmitEventDecorator creates a new EthEmitEventDecorator
-func NewEthEmitEventDecorator(evmKeeper evmKeeper) EthEmitEventDecorator {
+func NewEthEmitEventDecorator(evmKeeper EVMKeeper) EthEmitEventDecorator {
 	return EthEmitEventDecorator{evmKeeper}
 }
 
@@ -94,11 +94,11 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 
 // EthValidateBasicDecorator is adapted from ValidateBasicDecorator from cosmos-sdk, it ignores ErrNoSignatures
 type EthValidateBasicDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewEthValidateBasicDecorator creates a new EthValidateBasicDecorator
-func NewEthValidateBasicDecorator(ek evmKeeper) EthValidateBasicDecorator {
+func NewEthValidateBasicDecorator(ek EVMKeeper) EthValidateBasicDecorator {
 	return EthValidateBasicDecorator{
 		evmKeeper: ek,
 	}
