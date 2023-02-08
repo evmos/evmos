@@ -36,7 +36,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
 	"github.com/evmos/evmos/v11/server/config"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
@@ -341,13 +341,13 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 func (b *Backend) RPCMinGasPrice() int64 {
 	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
-		return ethermint.DefaultGasPrice
+		return types.DefaultGasPrice
 	}
 
 	minGasPrice := b.cfg.GetMinGasPrices()
 	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
 	if amt == 0 {
-		return ethermint.DefaultGasPrice
+		return types.DefaultGasPrice
 	}
 
 	return amt
