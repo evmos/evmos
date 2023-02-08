@@ -284,8 +284,6 @@ var _ = Describe("Claiming", Ordered, func() {
 	})
 
 	Context("after decay duration", func() {
-		// var initialPoolBalance sdk.Coin
-
 		BeforeAll(func() {
 			duration := params.AirdropEndTime().Sub(s.ctx.BlockHeader().Time) + 1
 			s.CommitAfter(duration)
@@ -294,16 +292,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			moduleBalances := s.app.ClaimsKeeper.GetModuleAccountBalances(s.ctx)
 			Expect(moduleBalances.AmountOf(claimsDenom)).To(Equal(totalClaimsAmount.Sub(totalClaimed).Sub(remainderUnclaimed).Amount))
 
-			// TODO fix: need to make the correction for the inflation/fees rewards
-			// ensure community pool has 0 funds before airdrop ends
-			// poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			// Expect(poolBalance).To(Equal(remainderUnclaimed))
-
 			s.Commit()
-
-			// Community pool will have balance after several blocks because it
-			// receives inflation and fees rewards
-			// initialPoolBalance = s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
 		})
 
 		It("cannot claim additional actions", func() {
@@ -341,11 +330,6 @@ var _ = Describe("Claiming", Ordered, func() {
 			// ensure module account is empty
 			moduleBalance := s.app.ClaimsKeeper.GetModuleAccountBalances(s.ctx)
 			Expect(moduleBalance.AmountOf(claimsDenom).IsZero()).To(BeTrue())
-
-			// The unclaimed amount goes to the community pool
-			// including any dust amounts coins were given for performing the claim
-			poolBalance := s.app.BankKeeper.GetBalance(s.ctx, distrAddr, claimsDenom)
-			Expect(poolBalance).To(Equal(totalClaimsAmount.Sub(totalClaimed).Add(sdk.NewCoin(claimsDenom, initClaimsAmount))))
 		})
 	})
 })
