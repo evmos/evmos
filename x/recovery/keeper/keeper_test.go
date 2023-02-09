@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/utils"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -77,7 +78,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = claimsParams.GetClaimsDenom()
+	stakingParams.BondDenom = utils.BaseDenom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 }
 
