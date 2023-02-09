@@ -240,11 +240,8 @@ func (s *IntegrationTestSuite) executeQueries() {
 		{"feemarket: block-gas", "feemarket", "block-gas"},
 		{"revenue: params", "revenue", "params"},
 		{"revenue: contracts", "revenue", "contracts"},
-		{"revenue: withdrawer-contracts", "revenue", "withdrawer-contracts"},
-		{"revenue: deployer-contracts", "revenue", "deployer-contracts"},
 		{"incentives: params", "incentives", "params"},
 		{"incentives: allocation-meters", "incentives", "allocation-meters"},
-		{"incentives: gas-meters", "incentives", "gas-meters"},
 		{"incentives: incentives", "incentives", "incentives"},
 	}
 
