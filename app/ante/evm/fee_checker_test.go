@@ -18,7 +18,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-var _ dynamicFeeEVMKeeper = MockEVMKeeper{}
+var _ DynamicFeeEVMKeeper = MockEVMKeeper{}
 
 type MockEVMKeeper struct {
 	BaseFee        *big.Int
@@ -60,7 +60,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	testCases := []struct {
 		name        string
 		ctx         sdk.Context
-		keeper      dynamicFeeEVMKeeper
+		keeper      DynamicFeeEVMKeeper
 		buildTx     func() sdk.Tx
 		expFees     string
 		expPriority int64

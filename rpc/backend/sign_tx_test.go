@@ -83,6 +83,7 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				_, err = RegisterBlockResults(client, 1)
 				suite.Require().NoError(err)
 				RegisterBaseFee(queryClient, baseFee)
+				RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			evmtypes.TransactionArgs{
 				From:     &from,

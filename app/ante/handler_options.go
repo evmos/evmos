@@ -29,7 +29,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
-	ethante "github.com/evmos/evmos/v11/app/ante/evm"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
@@ -43,8 +43,8 @@ type HandlerOptions struct {
 	BankKeeper             evmtypes.BankKeeper
 	IBCKeeper              *ibckeeper.Keeper
 	StakingKeeper          vestingtypes.StakingKeeper
-	FeeMarketKeeper        FeeMarketKeeper
-	EvmKeeper              EVMKeeper
+	FeeMarketKeeper        evmante.FeeMarketKeeper
+	EvmKeeper              evmante.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
 	ExtensionOptionChecker ante.ExtensionOptionChecker
 	SignModeHandler        authsigning.SignModeHandler
@@ -86,20 +86,20 @@ func (options HandlerOptions) Validate() error {
 }
 
 // newCosmosAnteHandler creates the default ante handler for Ethereum transactions
-func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		ethante.NewEthSetUpContextDecorator(options.EvmKeeper),                         // outermost AnteDecorator. SetUpContext must be called first
-		ethante.NewEthMempoolFeeDecorator(options.EvmKeeper),                           // Check eth effective gas price against the node's minimal-gas-prices config
-		ethante.NewEthMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper), // Check eth effective gas price against the global MinGasPrice
-		ethante.NewEthValidateBasicDecorator(options.EvmKeeper),
-		ethante.NewEthSigVerificationDecorator(options.EvmKeeper),
-		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
-		ethante.NewCanTransferDecorator(options.EvmKeeper),
+		evmante.NewEthSetUpContextDecorator(options.EvmKeeper),                         // outermost AnteDecorator. SetUpContext must be called first
+		evmante.NewEthMempoolFeeDecorator(options.EvmKeeper),                           // Check eth effective gas price against the node's minimal-gas-prices config
+		evmante.NewEthMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper), // Check eth effective gas price against the global MinGasPrice
+		evmante.NewEthValidateBasicDecorator(options.EvmKeeper),
+		evmante.NewEthSigVerificationDecorator(options.EvmKeeper),
+		evmante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
+		evmante.NewCanTransferDecorator(options.EvmKeeper),
 		NewEthVestingTransactionDecorator(options.AccountKeeper),
-		ethante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
-		ethante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
-		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-		ethante.NewEthEmitEventDecorator(options.EvmKeeper), // emit eth tx hash and index at the very last ante handler.
+		evmante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
+		evmante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
+		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		evmante.NewEthEmitEventDecorator(options.EvmKeeper), // emit eth tx hash and index at the very last ante handler.
 	)
 }
 
@@ -123,7 +123,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	)
 }
 
@@ -148,6 +148,6 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		ethante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
+		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	)
 }

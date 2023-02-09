@@ -131,7 +131,6 @@ import (
 	"github.com/evmos/evmos/v11/x/evm"
 	evmkeeper "github.com/evmos/evmos/v11/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/evmos/evmos/v11/x/evm/vm/geth"
 	"github.com/evmos/evmos/v11/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v11/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
@@ -464,7 +463,7 @@ func NewEvmos(
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
-		nil, geth.NewEVM, tracer, app.GetSubspace(evmtypes.ModuleName),
+		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
 	// Create IBC Keeper

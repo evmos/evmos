@@ -26,14 +26,14 @@ import (
 // for BaseFee calculation.
 // NOTE: This decorator does not perform any validation
 type GasWantedDecorator struct {
-	evmKeeper       evmKeeper
-	feeMarketKeeper feeMarketKeeper
+	evmKeeper       EVMKeeper
+	feeMarketKeeper FeeMarketKeeper
 }
 
 // NewGasWantedDecorator creates a new NewGasWantedDecorator
 func NewGasWantedDecorator(
-	evmKeeper evmKeeper,
-	feeMarketKeeper feeMarketKeeper,
+	evmKeeper EVMKeeper,
+	feeMarketKeeper FeeMarketKeeper,
 ) GasWantedDecorator {
 	return GasWantedDecorator{
 		evmKeeper,
