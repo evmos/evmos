@@ -62,6 +62,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1349](https://github.com/evmos/evmos/pull/1349) Restrict the Evmos codebase from working with chain IDs other than `9000` and `9001`
 - (test) [#1352](https://github.com/evmos/evmos/pull/1352) Deprecate usage of `aphoton` as denomination on tests
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
+- (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 
 ## [v11.0.1] - 2023-02-04
 
