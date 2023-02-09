@@ -3,7 +3,7 @@ package ante_test
 import (
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/encoding"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/app/ante"
@@ -118,7 +118,7 @@ func (suite *AnteTestSuite) TestValidateHandlerOptions() {
 				Cdc:                    suite.app.AppCodec(),
 				AccountKeeper:          suite.app.AccountKeeper,
 				BankKeeper:             suite.app.BankKeeper,
-				ExtensionOptionChecker: ethermint.HasDynamicFeeExtensionOption,
+				ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
 				EvmKeeper:              suite.app.EvmKeeper,
 				StakingKeeper:          suite.app.StakingKeeper,
 				FeegrantKeeper:         suite.app.FeeGrantKeeper,
