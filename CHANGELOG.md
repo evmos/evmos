@@ -35,12 +35,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v11.0.2] - 2023-02-07
-
-### Bug Fixes
-
-- (fix) [#1359](https://github.com/evmos/evmos/pull/1359) Implement hard fork logic for v11.1.0
-
 ## [v11.0.1] - 2023-02-04
 
 ### Improvements
