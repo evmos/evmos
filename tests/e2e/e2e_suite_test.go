@@ -256,11 +256,8 @@ func (s *IntegrationTestSuite) executeQueries() {
 		s.Require().NoError(err)
 
 		_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
-		//s.T().Logf("err buff, %s, out buff, %s", errBuf.String(), outBuf.String())
-		fmt.Println(errBuf.String())
-		//s.Require().NoError(err)
-		//s.Require().Equal(errBuf, "")
-
+		s.Require().NoError(err)
+		s.Require().Empty(errBuf.String())
 	}
 	s.T().Logf("executed all queries successfuly")
 }
