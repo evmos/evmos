@@ -22,7 +22,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
 // RegisterLegacyAminoCodec registers Interfaces from types, crypto, and SDK std.
@@ -36,5 +36,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	std.RegisterInterfaces(interfaceRegistry)
 	cryptocodec.RegisterInterfaces(interfaceRegistry)
-	ethermint.RegisterInterfaces(interfaceRegistry)
+	types.RegisterInterfaces(interfaceRegistry)
 }

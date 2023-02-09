@@ -32,13 +32,13 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -130,9 +130,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	// bond denom
-	params := claimstypes.DefaultParams()
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = params.GetClaimsDenom()
+	stakingParams.BondDenom = utils.BaseDenom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	// Set Validator

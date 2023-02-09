@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 var execTypes = []struct {
@@ -18,7 +18,7 @@ var execTypes = []struct {
 }
 
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
-	denom := evmtypes.DefaultEVMDenom
+	denom := utils.BaseDenom
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
