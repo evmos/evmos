@@ -219,7 +219,7 @@ func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	chainId := "evmos_9000-1"
+	chainID := "evmos_9000-1"
 	testCases := []struct {
 		name       string
 		moduleName string
@@ -246,20 +246,18 @@ func (s *IntegrationTestSuite) executeQueries() {
 		{"incentives: allocation-meters", "incentives", "allocation-meters"},
 		{"incentives: gas-meters", "incentives", "gas-meters"},
 		{"incentives: incentives", "incentives", "incentives"},
-		//{"vesting: balances", "revenue", "balances", ""}, // TODO: add address
-
 	}
 
 	for _, tc := range testCases {
 		s.T().Logf("executing %s", tc.name)
-		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainId)
+		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainID)
 		s.Require().NoError(err)
 
 		_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 		s.Require().NoError(err)
 		s.Require().Empty(errBuf.String())
 	}
-	s.T().Logf("executed all queries successfuly")
+	s.T().Logf("executed all queries successfully")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
