@@ -23,7 +23,7 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
 
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 )
 
 const (

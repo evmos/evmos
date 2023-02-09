@@ -11,8 +11,8 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/evmos/evmos/v11/tests"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"

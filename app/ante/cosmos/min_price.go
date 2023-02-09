@@ -21,6 +21,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 )
 
 // MinGasPriceDecorator will check if the transaction's fee is at least as large
@@ -29,13 +30,13 @@ import (
 // If fee is high enough, then call next AnteHandler
 // CONTRACT: Tx must implement FeeTx to use MinGasPriceDecorator
 type MinGasPriceDecorator struct {
-	feesKeeper feeMarketKeeper
-	evmKeeper  evmKeeper
+	feesKeeper evmante.FeeMarketKeeper
+	evmKeeper  evmante.EVMKeeper
 }
 
 // NewMinGasPriceDecorator creates a new MinGasPriceDecorator instance used only for
 // Cosmos transactions.
-func NewMinGasPriceDecorator(fk feeMarketKeeper, ek evmKeeper) MinGasPriceDecorator {
+func NewMinGasPriceDecorator(fk evmante.FeeMarketKeeper, ek evmante.EVMKeeper) MinGasPriceDecorator {
 	return MinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
 }
 

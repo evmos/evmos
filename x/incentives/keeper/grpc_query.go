@@ -29,7 +29,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/ethermint/types"
+	ethermint "github.com/evmos/evmos/v11/types"
 
 	"github.com/evmos/evmos/v11/x/incentives/types"
 )

@@ -15,12 +15,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
 	v9 "github.com/evmos/evmos/v11/app/upgrades/v9_1"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
@@ -88,7 +88,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 	}{
 		{
 			"Mainnet - success",
-			evmostypes.MainnetChainID + "-4",
+			utils.MainnetChainID + "-4",
 			func() {
 				// send funds to the community pool
 				priv, err := ethsecp256k1.GenerateKey()
@@ -111,7 +111,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		},
 		{ //nolint:dupl
 			"Mainnet - first account > MaxRecover",
-			evmostypes.MainnetChainID + "-4",
+			utils.MainnetChainID + "-4",
 			func() {
 				// send funds to the community pool
 				priv, err := ethsecp256k1.GenerateKey()
@@ -136,7 +136,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		},
 		{ //nolint:dupl
 			"Mainnet - middle account > MaxRecover",
-			evmostypes.MainnetChainID + "-4",
+			utils.MainnetChainID + "-4",
 			func() {
 				// send funds to the community pool
 				priv, err := ethsecp256k1.GenerateKey()
@@ -161,7 +161,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 		},
 		{
 			"Mainnet - fail communityFund is empty",
-			evmostypes.MainnetChainID + "-4",
+			utils.MainnetChainID + "-4",
 			func() {
 			},
 			false,

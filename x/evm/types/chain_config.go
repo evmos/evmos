@@ -19,8 +19,6 @@ import (
 	"math/big"
 	"strings"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-
 	sdkmath "cosmossdk.io/math"
 
 	errorsmod "cosmossdk.io/errors"
@@ -177,7 +175,7 @@ func (cc ChainConfig) Validate() error {
 
 func validateHash(hex string) error {
 	if hex != "" && strings.TrimSpace(hex) == "" {
-		return errorsmod.Wrap(evmtypes.ErrInvalidChainConfig, "hash cannot be blank")
+		return errorsmod.Wrap(ErrInvalidChainConfig, "hash cannot be blank")
 	}
 
 	return nil
@@ -191,7 +189,7 @@ func validateBlock(block *sdkmath.Int) error {
 
 	if block.IsNegative() {
 		return errorsmod.Wrapf(
-			evmtypes.ErrInvalidChainConfig, "block value cannot be negative: %s", block,
+			ErrInvalidChainConfig, "block value cannot be negative: %s", block,
 		)
 	}
 

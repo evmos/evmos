@@ -21,13 +21,13 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	"github.com/evmos/ethermint/x/feemarket/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/tests"
+	ethermint "github.com/evmos/evmos/v11/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -44,7 +44,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx         sdk.Context
-	app         *app.EthermintApp
+	app         *app.Evmos
 	queryClient types.QueryClient
 	address     common.Address
 	consAddress sdk.ConsAddress

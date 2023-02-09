@@ -11,8 +11,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/encoding"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
 	v2types "github.com/evmos/evmos/v11/x/inflation/migrations/v2/types"
 	"github.com/stretchr/testify/require"
 )

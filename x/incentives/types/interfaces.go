@@ -29,8 +29,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/ethermint/x/evm/statedb"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )

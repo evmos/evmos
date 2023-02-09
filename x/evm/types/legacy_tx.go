@@ -18,12 +18,12 @@ package types
 import (
 	"math/big"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
 func newLegacyTx(tx *ethtypes.Transaction) (*LegacyTx, error) {
@@ -177,32 +177,48 @@ func (tx *LegacyTx) SetSignatureValues(_, v, r, s *big.Int) {
 func (tx LegacyTx) Validate() error {
 	gasPrice := tx.GetGasPrice()
 	if gasPrice == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasPrice, "gas price cannot be nil")
+		return errorsmod.Wrap(ErrInvalidGasPrice, "gas price cannot be nil")
 	}
 
 	if gasPrice.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasPrice, "gas price cannot be negative %s", gasPrice)
+		return errorsmod.Wrapf(ErrInvalidGasPrice, "gas price cannot be negative %s", gasPrice)
 	}
 	if !types.IsValidInt256(gasPrice) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasPrice, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasPrice, "out of bound")
 	}
 	if !types.IsValidInt256(tx.Fee()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasFee, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasFee, "out of bound")
 	}
 
 	amount := tx.GetValue()
 	// Amount can be 0
 	if amount != nil && amount.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidAmount, "amount cannot be negative %s", amount)
+		return errorsmod.Wrapf(ErrInvalidAmount, "amount cannot be negative %s", amount)
 	}
 	if !types.IsValidInt256(amount) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidAmount, "out of bound")
+		return errorsmod.Wrap(ErrInvalidAmount, "out of bound")
 	}
 
 	if tx.To != "" {
 		if err := types.ValidateAddress(tx.To); err != nil {
 			return errorsmod.Wrap(err, "invalid to address")
 		}
+	}
+
+	chainID := tx.GetChainID()
+
+	if chainID == nil {
+		return errorsmod.Wrap(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be present on AccessList txs",
+		)
+	}
+
+	if !(chainID.Cmp(big.NewInt(9001)) == 0 || chainID.Cmp(big.NewInt(9000)) == 0) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be 9000 or 9001 on Evmos, got %s", chainID,
+		)
 	}
 
 	return nil

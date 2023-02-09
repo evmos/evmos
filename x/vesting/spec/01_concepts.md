@@ -14,8 +14,10 @@ The duration until which the first tokens are vested is called the `cliff`.
 
 ## Lockup
 
-The lockup describes the schedule by which tokens are converted from a  `locked` to an `unlocked` state.
-As long as all tokens are locked, the account cannot perform any Ethereum transactions using the `x/evm` module.
+The lockup describes the schedule by which tokens are converted from a `locked` to an `unlocked` state.
+As long as all tokens are locked, the account cannot perform any Ethereum transactions
+that spend EVMOS using the `x/evm` module.
+However, the account can perform Ethereum transactions that don't spend EVMOS tokens.
 Additionally, locked tokens cannot be transferred to other accounts.
 In the case in which tokens are both locked and vested at the same time,
 it is possible to delegate them to validators, but not transfer them to other accounts.
@@ -23,12 +25,17 @@ it is possible to delegate them to validators, but not transfer them to other ac
 The following table summarizes the actions that are allowed for tokens
 that are subject to the combination of vesting and lockup:
 
-| Token Status            | Transfer | Delegate | Vote | Eth Txs |
-| ----------------------- | :------: | :------: | :--: | :-----: |
-| `locked` & `unvested`   |    ❌    |    ❌    |  ❌  |   ❌    |
-| `locked` & `vested`     |    ❌    |    ✅    |  ✅  |   ❌    |
-| `unlocked` & `unvested` |    ❌    |    ❌    |  ❌  |   ❌    |
-| `unlocked` & `vested`   |    ✅    |    ✅    |  ✅  |   ✅    |
+| Token Status            | Transfer | Delegate | Vote | Eth Txs that spend EVMOS\*\* | Eth Txs that don't spend EVMOS (amount = 0)\*\* |
+| ----------------------- | :------: | :------: | :--: | :--------------------------: | :---------------------------------------------: |
+| `locked` & `unvested`   |    ❌    |    ❌    |  ❌  |              ❌              |                       ✅                        |
+| `locked` & `vested`     |    ❌    |    ✅    |  ✅  |              ❌              |                       ✅                        |
+| `unlocked` & `unvested` |    ❌    |    ❌    |  ❌  |              ❌              |                       ✅                        |
+| `unlocked` & `vested`\* |    ✅    |    ✅    |  ✅  |              ✅              |                       ✅                        |
+
+\*Staking rewards are unlocked and vested
+
+\*\*EVM transactions only fail if they involve sending locked or unvested EVMOS tokens,
+e.g. send EVMOS to EOA or Smart Contract (fails if amount > 0 ).
 
 ## Schedules
 
