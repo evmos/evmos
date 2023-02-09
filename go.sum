@@ -322,24 +322,15 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/go-control-plane v0.9.7/go.mod h1:cwu0lG7PUMfa9snN8LXBig5ynNVH9qI8YYLbd1fK2po=
 github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.mod h1:cXg6YxExXjJnVBQHBLXeUAgxn2UodCpnH306RInaBQk=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-<<<<<<< HEAD
 github.com/ethereum/go-ethereum v1.10.17/go.mod h1:Lt5WzjM07XlXc95YzrhosmR4J9Ahd6X2wyEV2SvGhk0=
 github.com/ethereum/go-ethereum v1.10.26 h1:i/7d9RBBwiXCEuyduBQzJw/mKmnvzsN14jqBmytw72s=
 github.com/ethereum/go-ethereum v1.10.26/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
-github.com/evmos/cosmos-sdk v0.46.8-ledger h1:yl0MjQRqulRqk0rkH9yampjAatPGJiq6qGmMF/J1DxU=
-github.com/evmos/cosmos-sdk v0.46.8-ledger/go.mod h1:lg+FqwndbbCYQk1YTUWRDpOsNbQG0nINQqxY7ZnsAP8=
+github.com/evmos/cosmos-sdk v0.46.9-ledger h1:cwl2ibHIRGeVjIxSEVPiVAWCNe00HXcNaoS7tct2Lso=
+github.com/evmos/cosmos-sdk v0.46.9-ledger/go.mod h1:ZFL/yjcIZq67H8FiWoLCnnaChkXnbRRYEEhGrFq8fzE=
 github.com/evmos/ethermint v0.21.0 h1:NnK59k+7rwq8nIaRrtC6YoJrPOhElPirxSElzgIcLAM=
 github.com/evmos/ethermint v0.21.0/go.mod h1:KJwIgGVkT8l/rREHvBV7c1/DhyoHzeAiJKvwrlK3IDI=
 github.com/evmos/evmos-ledger-go v0.2.1 h1:bUXA6/frc7FvN+z6GTaOcnprFCshUGh7Hd1mFmRe39s=
 github.com/evmos/evmos-ledger-go v0.2.1/go.mod h1:7Go/1+QmM0xw5VYK3nOUfluNFL4iy5BWxDwh1x3bUFs=
-=======
-github.com/evmos/cosmos-sdk v0.46.9-ledger h1:cwl2ibHIRGeVjIxSEVPiVAWCNe00HXcNaoS7tct2Lso=
-github.com/evmos/cosmos-sdk v0.46.9-ledger/go.mod h1:ZFL/yjcIZq67H8FiWoLCnnaChkXnbRRYEEhGrFq8fzE=
-github.com/evmos/evmos-ledger-go v0.2.2 h1:IJYDuUp+fQ5biw8qhoTRKz2RMyi3Xmxf30wxC7hHZ9w=
-github.com/evmos/evmos-ledger-go v0.2.2/go.mod h1:MkQ0HDbpgG+0XFaYw5ZioUF+5zHKPVNwqsz2LR9Ae44=
-github.com/evmos/go-ethereum v1.10.26 h1:7wlczxUWTwhzJJUyh3Kkqt3/5fdSJzh8c42boc9GuII=
-github.com/evmos/go-ethereum v1.10.26/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
->>>>>>> 64758ba (chore(deps): bump SDK to `v0.46.9-ledger` (#1370))
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=
@@ -1598,10 +1589,7 @@ gopkg.in/yaml.v3 v3.0.0/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
-<<<<<<< HEAD
 gotest.tools v2.2.0+incompatible/go.mod h1:DsYFclhRJ6vuDpmuTbkuFWG+y2sxOXAzmJt81HFBacw=
-=======
->>>>>>> 64758ba (chore(deps): bump SDK to `v0.46.9-ledger` (#1370))
 gotest.tools/v3 v3.0.2/go.mod h1:3SzNCllyD9/Y+b5r9JIKQ474KzkZyqLqEfYqMsX94Bk=
 gotest.tools/v3 v3.2.0 h1:I0DwBVMGAx26dttAj1BtJLAkVGncrkkUXfJLC4Flt/I=
 honnef.co/go/tools v0.0.0-20180728063816-88497007e858/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
