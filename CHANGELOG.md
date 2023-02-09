@@ -35,37 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v11.0.2] - 2023-02-07
-
-### Bug Fixes
-
-<<<<<<< HEAD
-- (fix) [#1359](https://github.com/evmos/evmos/pull/1359) Implement hard fork logic for v11.1.0
-=======
-- (evm)[#1308](https://github.com/evmos/evmos/pull/1308) Migrate `evm` and `feemarket` types
-- (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate `contracts` directory to evmos repository
-- (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
-- (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
-
-### API Breaking
-
-- [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
+## [v11.0.2] - 2023-02-10
 
 ### Improvements
 
 - (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
 - (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Tendermint version to [`v0.34.26`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26)
-- (evm) [#1354](https://github.com/evmos/evmos/pull/1354) Expose `Context` from the `StateDB` instance.
-- (proto)[#1311](https://github.com/evmos/evmos/pull/1311) Also generate common types with `make proto-gen`
-- (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
-- (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to `TypedEvent`
-- (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
-- (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new `TypedEvent`
-- (docs) [#1361](https://github.com/evmos/evmos/pull/1361) Update `vesting` module docs with new behavior for `ClawbackVestingAccounts`
-- (evm) [#1349](https://github.com/evmos/evmos/pull/1349) Restrict the Evmos codebase from working with chain IDs other than `9000` and `9001`
-- (test) [#1352](https://github.com/evmos/evmos/pull/1352) Deprecate usage of `aphoton` as denomination on tests
-- (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
->>>>>>> 64758ba (chore(deps): bump SDK to `v0.46.9-ledger` (#1370))
 
 ## [v11.0.1] - 2023-02-04
 
