@@ -124,7 +124,10 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
+	suite.Require().NotNil(suite.app.AppCodec())
+
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
+		Cdc:             suite.app.AppCodec(),
 		AccountKeeper:   suite.app.AccountKeeper,
 		BankKeeper:      suite.app.BankKeeper,
 		EvmKeeper:       suite.app.EvmKeeper,
