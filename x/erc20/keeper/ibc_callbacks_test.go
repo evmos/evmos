@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/erc20/keeper"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -59,7 +60,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 	registeredDenom := cosmosTokenBase
 	coins := sdk.NewCoins(
-		sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000)),
 		sdk.NewCoin(registeredDenom, sdk.NewInt(1000)), // some ERC20 token
 		sdk.NewCoin(ibcBase, sdk.NewInt(1000)),         // some IBC coin with a registered token pair
 	)
@@ -210,7 +211,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:   ethsecpAddr,
 			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 			),
@@ -261,7 +262,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			checkBalances: true,
 			expErc20s:     big.NewInt(1000),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 			),
@@ -282,7 +283,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expErc20s:     big.NewInt(1000),
 			checkBalances: true,
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
 			),
@@ -308,7 +309,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expErc20s:     big.NewInt(1000),
 			expCoins: sdk.NewCoins(
 				sdk.NewCoin(ibcBase, sdk.NewInt(1000)),
-				sdk.NewCoin(claimstypes.DefaultClaimsDenom, sdk.NewInt(1000)),
+				sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, sdk.NewInt(0)),
 			),
 		},
