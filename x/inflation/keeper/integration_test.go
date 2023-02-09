@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/evmos/evmos/v11/x/inflation/types"
@@ -284,8 +283,6 @@ var _ = Describe("Inflation", Ordered, func() {
 							s.Require().Equal(epochNumber, epochsPerPeriod+int64(skipped))
 
 							provision = s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-
-							fmt.Println(provision)
 
 							s.CommitAfter(time.Hour * 23) // commit before next full epoch
 							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
