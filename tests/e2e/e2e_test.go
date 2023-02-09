@@ -19,8 +19,3 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 	}
 	s.T().Logf("SUCCESS")
 }
-
-// TestQueries tests if all Evmos module queries return the expeted output
-func (s *IntegrationTestSuite) TestQueries() {
-	// TODO: Run the queries on the newly upgraded node
-}
