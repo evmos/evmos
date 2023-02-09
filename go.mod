@@ -27,7 +27,7 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
-	github.com/tendermint/tendermint v0.34.25
+	github.com/tendermint/tendermint v0.34.26
 	github.com/tendermint/tm-db v0.6.7
 	go.opencensus.io v0.24.0
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
@@ -70,7 +70,7 @@ require (
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
-	github.com/cosmos/iavl v0.19.4 // indirect
+	github.com/cosmos/iavl v0.19.5 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
@@ -159,9 +159,9 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.12.2 // indirect
-	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.34.0 // indirect
+	github.com/prometheus/client_golang v1.14.0 // indirect
+	github.com/prometheus/client_model v0.3.0 // indirect
+	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
@@ -192,7 +192,7 @@ require (
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
-	golang.org/x/crypto v0.4.0 // indirect
+	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
@@ -216,9 +216,9 @@ replace (
 	// use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	// use Cosmos-SDK fork to enable Ledger functionality
-	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.8-ledger
+	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.9-ledger
 	// use cosmos flavored protobufs
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	// Informal Tendermint fork
-	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.25
+	github.com/tendermint/tendermint => github.com/informalsystems/tendermint v0.34.26
 )
