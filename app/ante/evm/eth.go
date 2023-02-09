@@ -25,7 +25,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -37,11 +37,11 @@ import (
 // EthAccountVerificationDecorator validates an account balance checks
 type EthAccountVerificationDecorator struct {
 	ak        evmtypes.AccountKeeper
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewEthAccountVerificationDecorator creates a new EthAccountVerificationDecorator
-func NewEthAccountVerificationDecorator(ak evmtypes.AccountKeeper, ek evmKeeper) EthAccountVerificationDecorator {
+func NewEthAccountVerificationDecorator(ak evmtypes.AccountKeeper, ek EVMKeeper) EthAccountVerificationDecorator {
 	return EthAccountVerificationDecorator{
 		ak:        ak,
 		evmKeeper: ek,
@@ -104,13 +104,13 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 // EthGasConsumeDecorator validates enough intrinsic gas for the transaction and
 // gas consumption.
 type EthGasConsumeDecorator struct {
-	evmKeeper    evmKeeper
+	evmKeeper    EVMKeeper
 	maxGasWanted uint64
 }
 
 // NewEthGasConsumeDecorator creates a new EthGasConsumeDecorator
 func NewEthGasConsumeDecorator(
-	evmKeeper evmKeeper,
+	evmKeeper EVMKeeper,
 	maxGasWanted uint64,
 ) EthGasConsumeDecorator {
 	return EthGasConsumeDecorator{
@@ -145,7 +145,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		// Error: "gas wanted -1 is negative"
 		// For more information, see issue #1554
 		// https://github.com/evmos/ethermint/issues/1554
-		newCtx := ctx.WithGasMeter(ethermint.NewInfiniteGasMeterWithLimit(gasWanted))
+		newCtx := ctx.WithGasMeter(types.NewInfiniteGasMeterWithLimit(gasWanted))
 		return next(newCtx, tx, simulate)
 	}
 
@@ -212,7 +212,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	ctx.EventManager().EmitEvents(events)
 
-	blockGasLimit := ethermint.BlockGasLimit(ctx)
+	blockGasLimit := types.BlockGasLimit(ctx)
 
 	// return error if the tx gas is greater than the block limit (max gas)
 
@@ -235,7 +235,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	// FIXME: use a custom gas configuration that doesn't add any additional gas and only
 	// takes into account the gas consumed at the end of the EVM transaction.
 	newCtx := ctx.
-		WithGasMeter(ethermint.NewInfiniteGasMeterWithLimit(gasWanted)).
+		WithGasMeter(types.NewInfiniteGasMeterWithLimit(gasWanted)).
 		WithPriority(minPriority)
 
 	// we know that we have enough gas on the pool to cover the intrinsic gas
@@ -245,11 +245,11 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 // CanTransferDecorator checks if the sender is allowed to transfer funds according to the EVM block
 // context rules.
 type CanTransferDecorator struct {
-	evmKeeper evmKeeper
+	evmKeeper EVMKeeper
 }
 
 // NewCanTransferDecorator creates a new CanTransferDecorator instance.
-func NewCanTransferDecorator(evmKeeper evmKeeper) CanTransferDecorator {
+func NewCanTransferDecorator(evmKeeper EVMKeeper) CanTransferDecorator {
 	return CanTransferDecorator{
 		evmKeeper: evmKeeper,
 	}
@@ -307,7 +307,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 		// check that caller has enough balance to cover asset transfer for **topmost** call
 		// NOTE: here the gas consumed is from the context with the infinite gas meter
-		if coreMsg.Value().Sign() > 0 && !evm.Context().CanTransfer(stateDB, coreMsg.From(), coreMsg.Value()) {
+		if coreMsg.Value().Sign() > 0 && !evm.Context.CanTransfer(stateDB, coreMsg.From(), coreMsg.Value()) {
 			return ctx, errorsmod.Wrapf(
 				errortypes.ErrInsufficientFunds,
 				"failed to transfer %s from address %s using the EVM block context transfer function",

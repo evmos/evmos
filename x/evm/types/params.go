@@ -27,7 +27,7 @@ import (
 
 var (
 	// DefaultEVMDenom defines the default EVM denomination on Ethermint
-	DefaultEVMDenom = "aphoton"
+	DefaultEVMDenom = "aevmos"
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultEnableCreate enables contract creation (i.e true)
