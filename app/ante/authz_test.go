@@ -51,7 +51,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 				),
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -59,7 +59,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&evmtypes.MsgEthereumTx{},
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -67,7 +67,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&stakingtypes.MsgCancelUnbondingDelegation{},
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -80,7 +80,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -93,7 +93,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -106,7 +106,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -119,7 +119,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -133,7 +133,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 					)}),
 			},
-			false,
+			true,
 			nil,
 		},
 		{
@@ -146,7 +146,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -170,7 +170,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -184,7 +184,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -202,7 +202,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -220,7 +220,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -249,7 +249,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			false,
+			true,
 			sdkerrors.ErrUnauthorized,
 		},
 	}
