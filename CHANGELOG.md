@@ -56,6 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to `TypedEvent`
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
 - (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new `TypedEvent`
+- (docs) [#1361](https://github.com/evmos/evmos/pull/1361) Update `vesting` module docs with new behavior for `ClawbackVestingAccounts`
 
 ## [v11.0.1] - 2023-02-04
 
