@@ -17,18 +17,19 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 var (
 	// DefaultClaimsDenom is aevmos
-	DefaultClaimsDenom = "aevmos"
+	DefaultClaimsDenom = utils.BaseDenom
 	// DefaultDurationUntilDecay is 1 month = 30.4375 days
 	DefaultDurationUntilDecay = 2629800 * time.Second
 	// DefaultDurationOfDecay is 2 months
