@@ -195,8 +195,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			actionV = sdk.NewCoin(utils.BaseDenom, actionValue.QuoRaw(3))
 			unclaimedV = sdk.NewCoin(utils.BaseDenom, actionValue.Sub(actionV.Amount))
 			duration := params.DecayStartTime().Sub(s.ctx.BlockHeader().Time)
-			// TODO fix - every call to CommitAfter with t != 0 increases the community pool balance
-			// by 565068499471900803082192aevmos. This happens when the BaseApp.NewContext() func is called
+
 			s.CommitAfter(duration)
 			duration = params.GetDurationOfDecay() * 2 / 3
 
