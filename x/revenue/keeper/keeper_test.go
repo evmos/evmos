@@ -10,6 +10,7 @@ import (
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/utils"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -19,7 +20,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/require"
@@ -77,7 +77,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = tests.NewSigner(priv)
 
-	suite.denom = claimstypes.DefaultClaimsDenom
+	suite.denom = utils.BaseDenom
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
