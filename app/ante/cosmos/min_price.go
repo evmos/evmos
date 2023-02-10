@@ -77,6 +77,12 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		}
 	}
 
+	if feeCoins == nil {
+		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
+			"fee not provided. Please use the --fees flag or the --gas-price flag to estimate the fee. The minimun global fee for this tx is: %s",
+			requiredFees)
+	}
+
 	if !feeCoins.IsAnyGTE(requiredFees) {
 		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
 			"provided fee < minimum global fee (%s < %s). Please increase the gas price.",

@@ -50,6 +50,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (test) [#1348](https://github.com/evmos/evmos/pull/1348) Add query executions to e2e upgrade test suite
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Tendermint version to [`v0.34.26`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26)
 - (evm) [#1354](https://github.com/evmos/evmos/pull/1354) Expose `Context` from the `StateDB` instance.
 - (proto)[#1311](https://github.com/evmos/evmos/pull/1311) Also generate common types with `make proto-gen`
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
@@ -60,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1349](https://github.com/evmos/evmos/pull/1349) Restrict the Evmos codebase from working with chain IDs other than `9000` and `9001`
 - (test) [#1352](https://github.com/evmos/evmos/pull/1352) Deprecate usage of `aphoton` as denomination on tests
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
+- (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 
 ## [v11.0.1] - 2023-02-04
 
