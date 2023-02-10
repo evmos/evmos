@@ -18,8 +18,9 @@ package ante
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
@@ -43,7 +44,7 @@ func NewAuthzLimiterDecorator(disabledMsgTypes ...string) AuthzLimiterDecorator 
 func (ald AuthzLimiterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	if ctx.IsCheckTx() {
 		if err := ald.checkDisabledMsgs(tx.GetMsgs(), false, 1); err != nil {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, err.Error())
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnauthorized, err.Error())
 		}
 	}
 	return next(ctx, tx, simulate)
