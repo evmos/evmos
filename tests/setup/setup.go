@@ -14,23 +14,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 
-package app
+package setup
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/spf13/cast"
 	"github.com/stretchr/testify/require"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
-	"github.com/cosmos/ibc-go/v6/testing/mock"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	tmcrypto "github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -42,28 +39,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v11/cmd/config"
+	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	evmostypes "github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
-
-func init() {
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
-}
 
 // DefaultTestingAppInit defines the IBC application used for testing
 var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
@@ -87,114 +74,56 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	},
 }
 
-func init() {
-	feemarkettypes.DefaultMinGasPrice = sdk.ZeroDec()
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
+var DefaultOptions = simapp.SetupOptions{
+	Logger:             log.NewNopLogger(),
+	DB:                 dbm.NewMemDB(),
+	InvCheckPeriod:     0,
+	HomePath:           app.DefaultNodeHome,
+	SkipUpgradeHeights: nil,
+	EncConfig:          encoding.MakeConfig(app.ModuleBasics),
+	AppOpts:            simapp.EmptyAppOptions{},
 }
 
-type AccountType int8
+func NewAppOptions()
 
-const (
-	AccountType_EOA = iota
-	AccountType_Contract
-	AccountType_Validator
-)
-
-type Account struct {
-	Address    sdk.AccAddress
-	AddressHex common.Address
-	PubKey     cryptotypes.PubKey
-	TmPubKey   tmcrypto.PubKey
-	PrivKey    cryptotypes.PrivKey
-	Type       AccountType
-}
-
-func NewEOAAccount(t testing.TB) Account {
-	addr, privKey := tests.NewAddrKey()
-	return Account{
-		Address:    addr.Bytes(),
-		AddressHex: addr,
-		PubKey:     privKey.PubKey(),
-		PrivKey:    privKey,
-		Type:       AccountType_EOA,
-	}
-}
-
-func NewValidatorAccount(t testing.TB) Account {
-	privVal := mock.NewPV()
-	pubKey := privVal.PrivKey.PubKey()
-	tmPubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
-
-	addr := sdk.AccAddress(pubKey.Address())
-	return Account{
-		Address:    addr,
-		AddressHex: common.BytesToAddress(addr.Bytes()),
-		PubKey:     privVal.PrivKey.PubKey(),
-		PrivKey:    privVal.PrivKey,
-		Type:       AccountType_Validator,
-		TmPubKey:   tmPubKey,
-	}
-}
-
-func SetupWithOptions(
-	t testing.TB,
-	numValidators,
-	numAccounts uint64,
-) (
-	app *Evmos,
-	ctx sdk.Context,
-	accounts,
-	validatorAccounts []Account,
-) {
-	options := simapp.SetupOptions{
-		Logger:             log.NewNopLogger(),
-		DB:                 dbm.NewMemDB(),
-		InvCheckPeriod:     0,
-		HomePath:           DefaultNodeHome,
-		SkipUpgradeHeights: nil,
-		EncConfig:          encoding.MakeConfig(ModuleBasics),
-		AppOpts:            simapp.EmptyAppOptions{},
-	}
-
-	genesis := NewDefaultGenesisState()
-	return CustomSetup(t, numValidators, numAccounts, options, genesis)
+type TestingEnv struct {
+	genesis           simapp.GenesisState
+	setupOptions      simapp.SetupOptions
+	baseAppOptions    []func(*baseapp.BaseApp)
+	ctx               sdk.Context
+	app               *app.Evmos
+	accounts          []tests.Account
+	validatorAccounts []tests.Account
+	validators        []stakingtypes.Validator
+	denom             string
 }
 
 // Setup initializes a new Evmos. A Nop logger is set in Evmos.
-func CustomSetup(
+func (s *TestingEnv) Setup(
 	t testing.TB,
+	chainID string,
 	numValidators,
 	numAccounts uint64,
-	options simapp.SetupOptions,
-	genesis simapp.GenesisState,
-) (
-	app *Evmos,
-	ctx sdk.Context,
-	accounts,
-	validatorAccounts []Account,
 ) {
-	validatorAccounts = make([]Account, numValidators)
+	s.validatorAccounts = make([]tests.Account, numValidators)
 	tmValidators := make([]*tmtypes.Validator, numValidators)
 
 	for i := 0; i < int(numValidators); i++ {
-		validatorAcc := NewValidatorAccount(t)
+		validatorAcc := tests.NewValidatorAccount(t)
 		tmValidator := tmtypes.NewValidator(validatorAcc.TmPubKey, sdk.TokensToConsensusPower(sdk.OneInt(), evmostypes.PowerReduction))
-		validatorAccounts[i] = validatorAcc
+		s.validatorAccounts[i] = validatorAcc
 		tmValidators[i] = tmValidator
 	}
 
 	valSet := tmtypes.NewValidatorSet(tmValidators)
 
-	accounts = make([]Account, numAccounts)
+	s.accounts = make([]tests.Account, numAccounts)
 	genAccounts := make([]authtypes.GenesisAccount, numAccounts)
 	balances := make([]banktypes.Balance, numAccounts)
 
 	for i := uint64(0); i < numAccounts; i++ {
-		acc := NewEOAAccount(t)
-		accounts[i] = acc
+		acc := tests.NewEOAAccount(t)
+		s.accounts[i] = acc
 
 		baseAcc := authtypes.NewBaseAccount(acc.Address, acc.PubKey, i, 0)
 		genAccounts[i] = &evmostypes.EthAccount{BaseAccount: baseAcc, CodeHash: common.BytesToHash(evmtypes.EmptyCodeHash).Hex()}
@@ -205,58 +134,39 @@ func CustomSetup(
 		}
 	}
 
-	app = NewEvmos(
-		options.Logger,
-		options.DB,
+	s.app = app.NewEvmos(
+		s.setupOptions.Logger,
+		s.setupOptions.DB,
 		nil,
 		true,
-		options.SkipUpgradeHeights,
-		options.HomePath,
-		options.InvCheckPeriod,
-		options.EncConfig,
-		options.AppOpts,
-		// baseapp.SetPruning(pruningOpts),
-		baseapp.SetMinGasPrices(cast.ToString(options.AppOpts.Get(sdkserver.FlagMinGasPrices))),
-		baseapp.SetHaltHeight(cast.ToUint64(options.AppOpts.Get(sdkserver.FlagHaltHeight))),
-		baseapp.SetHaltTime(cast.ToUint64(options.AppOpts.Get(sdkserver.FlagHaltTime))),
-		baseapp.SetMinRetainBlocks(cast.ToUint64(options.AppOpts.Get(sdkserver.FlagMinRetainBlocks))),
-		// baseapp.SetInterBlockCache(cache),
-		baseapp.SetTrace(cast.ToBool(options.AppOpts.Get(sdkserver.FlagTrace))),
-		baseapp.SetIndexEvents(cast.ToStringSlice(options.AppOpts.Get(sdkserver.FlagIndexEvents))),
-		// baseapp.SetSnapshot(snapshotStore, snapshotOptions),
-		baseapp.SetIAVLCacheSize(cast.ToInt(options.AppOpts.Get(sdkserver.FlagIAVLCacheSize))),
-		baseapp.SetIAVLDisableFastNode(cast.ToBool(options.AppOpts.Get(sdkserver.FlagDisableIAVLFastNode))),
+		s.setupOptions.SkipUpgradeHeights,
+		s.setupOptions.HomePath,
+		s.setupOptions.InvCheckPeriod,
+		s.setupOptions.EncConfig,
+		s.setupOptions.AppOpts,
+		s.baseAppOptions...,
 	)
 
 	// init chain must be called to stop deliverState from being nil
-	genesis = GenesisStateWithValSet(app, genesis, valSet, genAccounts, balances...)
+	s.GenesisStateWithValSet(valSet, genAccounts, balances...)
 
-	// // Verify feeMarket genesis
-	// if feemarketGenesis != nil {
-	// 	err := feemarketGenesis.Validate()
-	// 	require.NoError(t, err)
-
-	// 	genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
-	// }
-
-	stateBytes, err := json.MarshalIndent(genesis, "", " ")
+	stateBytes, err := json.MarshalIndent(s.genesis, "", " ")
 	require.NoError(t, err)
 
 	// Initialize the chain
 	req := abci.RequestInitChain{
-		ChainId:         utils.MainnetChainID + "-1",
+		ChainId:         chainID,
 		Validators:      []abci.ValidatorUpdate{},
 		ConsensusParams: DefaultConsensusParams,
 		AppStateBytes:   stateBytes,
 	}
 
-	res := app.InitChain(req)
-	header := NewHeader(1, time.Now().UTC(), req.ChainId, validatorAccounts[0].Address.Bytes(), res.AppHash)
-	ctx = app.NewContext(false, header)
-	return app, ctx, accounts, validatorAccounts
+	res := s.app.InitChain(req)
+	header := s.NewHeader(1, time.Now().UTC(), chainID, s.validatorAccounts[0].Address.Bytes(), res.AppHash)
+	s.ctx = s.app.NewContext(false, header)
 }
 
-func NewHeader(
+func (s TestingEnv) NewHeader(
 	height int64,
 	blockTime time.Time,
 	chainID string,
@@ -288,23 +198,21 @@ func NewHeader(
 	}
 }
 
-func GenesisStateWithValSet(
-	app *Evmos,
-	genesis simapp.GenesisState,
+func (s *TestingEnv) GenesisStateWithValSet(
 	valSet *tmtypes.ValidatorSet,
 	genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) simapp.GenesisState {
+) {
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	genesis[authtypes.ModuleName] = app.AppCodec().MustMarshalJSON(authGenesis)
+	s.genesis[authtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(authGenesis)
 
-	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
+	s.validators = make([]stakingtypes.Validator, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
 	bondAmt := sdk.DefaultPowerReduction
 
-	for _, val := range valSet.Validators {
+	for i, val := range valSet.Validators {
 		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		pkAny, _ := codectypes.NewAnyWithValue(pk)
 		validator := stakingtypes.Validator{
@@ -320,15 +228,16 @@ func GenesisStateWithValSet(
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			MinSelfDelegation: sdk.ZeroInt(),
 		}
-		validators = append(validators, validator)
+		s.validators[i] = validator
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
 
 	}
+
 	// set validators and delegations
 	stakingparams := stakingtypes.DefaultParams()
-	stakingparams.BondDenom = utils.BaseDenom
-	stakingGenesis := stakingtypes.NewGenesisState(stakingparams, validators, delegations)
-	genesis[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
+	stakingparams.BondDenom = s.denom
+	stakingGenesis := stakingtypes.NewGenesisState(stakingparams, s.validators, delegations)
+	s.genesis[stakingtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
@@ -338,27 +247,26 @@ func GenesisStateWithValSet(
 
 	for range delegations {
 		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(utils.BaseDenom, bondAmt))
+		totalSupply = totalSupply.Add(sdk.NewCoin(s.denom, bondAmt))
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(s.denom, bondAmt)},
 	})
 
 	// update total supply
 	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
-	genesis[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
-
-	return genesis
+	s.genesis[banktypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(bankGenesis)
 }
+
+// FIXME: update to use the new testing setup
 
 // SetupTestingApp initializes the IBC-go testing application
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	// FIXME: update to use the new testing setup
 	db := dbm.NewMemDB()
-	cfg := encoding.MakeConfig(ModuleBasics)
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
-	return app, NewDefaultGenesisState()
+	cfg := encoding.MakeConfig(app.ModuleBasics)
+	evmosApp := app.NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, app.DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
+	return evmosApp, app.NewDefaultGenesisState()
 }
