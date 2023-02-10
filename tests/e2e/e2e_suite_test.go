@@ -183,6 +183,12 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
 	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
+
+	s.T().Logf("executing all module queries")
+	s.executeQueries()
+
+	// make sure node produce blocks after upgrade
+	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	// make sure node produces blocks after upgrade
 	errLogs, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	if err == nil && errLogs != "" {
@@ -206,6 +212,49 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 		)
 		s.T().Logf("node version is correct: %s", version)
 	}
+}
+
+// executeQueries executes all the module queries
+func (s *IntegrationTestSuite) executeQueries() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainID := "evmos_9000-1"
+	testCases := []struct {
+		name       string
+		moduleName string
+		subCommand string
+	}{
+		{"inflation: params", "inflation", "params"},
+		{"inflation: circulating-supply", "inflation", "circulating-supply"},
+		{"inflation: inflation-rate", "inflation", "inflation-rate"},
+		{"inflation: period", "inflation", "period"},
+		{"inflation: skipped-epochs", "inflation", "skipped-epochs"},
+		{"inflation: epoch-mint-provision", "inflation", "epoch-mint-provision"},
+		{"erc20: params", "erc20", "params"},
+		{"erc20: token-pairs", "erc20", "token-pairs"},
+		{"evm: params", "evm", "params"},
+		{"feemarket: params", "feemarket", "params"},
+		{"feemarket: base-fee", "feemarket", "base-fee"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"revenue: params", "revenue", "params"},
+		{"revenue: contracts", "revenue", "contracts"},
+		{"incentives: params", "incentives", "params"},
+		{"incentives: allocation-meters", "incentives", "allocation-meters"},
+		{"incentives: incentives", "incentives", "incentives"},
+	}
+
+	for _, tc := range testCases {
+		s.T().Logf("executing %s", tc.name)
+		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainID)
+		s.Require().NoError(err)
+
+		_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+		s.Require().NoError(err)
+		s.Require().Empty(errBuf.String())
+	}
+	s.T().Logf("executed all queries successfully")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path

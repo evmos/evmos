@@ -31,6 +31,7 @@ import (
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/utils"
 
 	"github.com/evmos/evmos/v11/app"
 )
@@ -108,13 +109,12 @@ func DeliverTx(
 ) (abci.ResponseDeliverTx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	denom := appEvmos.ClaimsKeeper.GetParams(ctx).ClaimsDenom
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
 	txBuilder.SetGasLimit(100_000_000)
 	amt, _ := sdk.NewIntFromString("1000000000000000000000")
-	txBuilder.SetFeeAmount(sdk.Coins{{Denom: denom, Amount: amt}})
+	txBuilder.SetFeeAmount(sdk.Coins{{Denom: utils.BaseDenom, Amount: amt}})
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}

@@ -34,17 +34,17 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-var ethermintCodec codec.ProtoCodecMarshaler
+var evmosCodec codec.ProtoCodecMarshaler
 
 func init() {
 	registry := codectypes.NewInterfaceRegistry()
-	ethermint.RegisterInterfaces(registry)
-	ethermintCodec = codec.NewProtoCodec(registry)
+	types.RegisterInterfaces(registry)
+	evmosCodec = codec.NewProtoCodec(registry)
 }
 
 // Deprecated: LegacyEip712SigVerificationDecorator Verify all signatures for a tx and return an error if any are invalid. Note,
@@ -204,7 +204,7 @@ func VerifySignature(
 			msgs, tx.GetMemo(), tx.GetTip(),
 		)
 
-		signerChainID, err := ethermint.ParseChainID(signerData.ChainID)
+		signerChainID, err := types.ParseChainID(signerData.ChainID)
 		if err != nil {
 			return errorsmod.Wrapf(err, "failed to parse chain-id: %s", signerData.ChainID)
 		}
@@ -218,7 +218,7 @@ func VerifySignature(
 			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "tx doesnt contain expected amount of extension options")
 		}
 
-		extOpt, ok := opts[0].GetCachedValue().(*ethermint.ExtensionOptionsWeb3Tx)
+		extOpt, ok := opts[0].GetCachedValue().(*types.ExtensionOptionsWeb3Tx)
 		if !ok {
 			return errorsmod.Wrap(errortypes.ErrUnknownExtensionOptions, "unknown extension option")
 		}
@@ -239,7 +239,7 @@ func VerifySignature(
 			FeePayer: feePayer,
 		}
 
-		typedData, err := eip712.WrapTxToTypedData(ethermintCodec, extOpt.TypedDataChainID, msgs[0], txBytes, feeDelegation)
+		typedData, err := eip712.WrapTxToTypedData(evmosCodec, extOpt.TypedDataChainID, msgs[0], txBytes, feeDelegation)
 		if err != nil {
 			return errorsmod.Wrap(err, "failed to create EIP-712 typed data from tx")
 		}

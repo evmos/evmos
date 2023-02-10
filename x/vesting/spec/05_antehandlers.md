@@ -29,6 +29,7 @@ Validates if a transaction contains a staking delegation of unvested coins. This
 
 Validates if a clawback vesting account is permitted to perform Ethereum transactions,
 based on if it has its vesting schedule has surpassed the vesting cliff and first lockup period.
+Also, validates if the account has sufficient unlocked tokens to execute the transaction.
 This AnteHandler decorator will fail if:
 
 - the message is not a `MsgEthereumTx`
@@ -36,3 +37,4 @@ This AnteHandler decorator will fail if:
 - sender account is not a `ClawbackVestingAccount`
 - block time is before surpassing vesting cliff end (with zero vested coins) AND
 - block time is before surpassing all lockup periods (with non-zero locked coins)
+- sender account has insufficient unlocked tokens to execute the transaction

@@ -3,9 +3,10 @@ package keeper_test
 import (
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
 	"github.com/evmos/evmos/v11/x/inflation/types"
 )
@@ -84,15 +85,19 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 }
 
 func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
+	// the total bonded tokens for the 2 accounts initialized on the setup
+	bondedAmt := sdkmath.NewInt(1000100000000000000)
+	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
+
 	testCases := []struct {
 		name             string
-		bankSupply       int64
+		bankSupply       sdkmath.Int
 		malleate         func()
 		expInflationRate sdk.Dec
 	}{
 		{
 			"no epochs per period",
-			400_000_000,
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {
 				suite.app.InflationKeeper.SetEpochsPerPeriod(suite.ctx, 0)
 			},
@@ -100,19 +105,19 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 		},
 		{
 			"high supply",
-			800_000_000,
+			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
 			sdk.MustNewDecFromStr("51.562500000000000000"),
 		},
 		{
 			"low supply",
-			400_000_000,
+			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
 			sdk.MustNewDecFromStr("154.687500000000000000"),
 		},
 		{
 			"zero circulating supply",
-			200_000_000,
+			sdk.TokensFromConsensusPower(200_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
 			sdk.ZeroDec(),
 		},
@@ -128,7 +133,7 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			// Mint coins to increase supply
 			coin := sdk.NewCoin(
 				types.DefaultInflationDenom,
-				sdk.TokensFromConsensusPower(tc.bankSupply, ethermint.PowerReduction),
+				tc.bankSupply,
 			)
 			decCoin := sdk.NewDecCoinFromCoin(coin)
 			err := suite.app.InflationKeeper.MintCoins(suite.ctx, coin)
@@ -136,11 +141,11 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 
 			teamAlloc := sdk.NewDecCoin(
 				types.DefaultInflationDenom,
-				sdk.TokensFromConsensusPower(int64(200_000_000), ethermint.PowerReduction),
+				sdk.TokensFromConsensusPower(int64(200_000_000), evmostypes.PowerReduction),
 			)
-			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx, types.DefaultInflationDenom)
 
-			suite.Require().Equal(decCoin.Sub(teamAlloc).Amount, circulatingSupply)
+			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx, types.DefaultInflationDenom)
+			suite.Require().Equal(decCoin.Add(bondedCoins).Sub(teamAlloc).Amount, circulatingSupply)
 
 			inflationRate := s.app.InflationKeeper.GetInflationRate(suite.ctx, types.DefaultInflationDenom)
 			suite.Require().Equal(tc.expInflationRate, inflationRate)

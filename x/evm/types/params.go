@@ -25,11 +25,12 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 var (
-	// DefaultEVMDenom defines the default EVM denomination on Ethermint
-	DefaultEVMDenom = "aphoton"
+	// DefaultEVMDenom defines the default EVM denomination on Evmos
+	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultEnableCreate enables contract creation (i.e true)

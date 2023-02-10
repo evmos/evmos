@@ -124,7 +124,10 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
+	suite.Require().NotNil(suite.app.AppCodec())
+
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
+		Cdc:             suite.app.AppCodec(),
 		AccountKeeper:   suite.app.AccountKeeper,
 		BankKeeper:      suite.app.BankKeeper,
 		EvmKeeper:       suite.app.EvmKeeper,
@@ -485,10 +488,10 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	ethChainID := pc.Uint64()
 
 	// GenerateTypedData TypedData
-	var ethermintCodec codec.ProtoCodecMarshaler
+	var evmosCodec codec.ProtoCodecMarshaler
 	registry := codectypes.NewInterfaceRegistry()
 	types.RegisterInterfaces(registry)
-	ethermintCodec = codec.NewProtoCodec(registry)
+	evmosCodec = codec.NewProtoCodec(registry)
 	cryptocodec.RegisterInterfaces(registry)
 
 	//nolint:staticcheck
@@ -496,7 +499,7 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	accNumber := suite.app.AccountKeeper.GetAccount(suite.ctx, from).GetAccountNumber()
 
 	data := legacytx.StdSignBytes(chainID, accNumber, nonce, 0, fee, msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(ethermintCodec, ethChainID, msgs[0], data, &eip712.FeeDelegationOptions{
+	typedData, err := eip712.WrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, &eip712.FeeDelegationOptions{
 		FeePayer: from,
 	})
 	suite.Require().NoError(err)
@@ -650,7 +653,7 @@ func (suite *AnteTestSuite) createBaseTxBuilder(msg sdk.Msg, gas uint64) client.
 
 	txBuilder.SetGasLimit(gas)
 	txBuilder.SetFeeAmount(sdk.NewCoins(
-		sdk.NewCoin("aphoton", sdk.NewInt(10000)),
+		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(10000)),
 	))
 
 	err := txBuilder.SetMsgs(msg)
