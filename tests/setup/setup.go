@@ -38,7 +38,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -98,29 +97,20 @@ type TestingEnv struct {
 	denom             string
 }
 
-// Setup initializes a new Evmos. A Nop logger is set in Evmos.
-func (s *TestingEnv) Setup(
+func (s *TestingEnv) setupEOAs(
 	t testing.TB,
-	chainID string,
-	numValidators,
-	numAccounts uint64,
-) {
-	s.validatorAccounts = make([]tests.Account, numValidators)
-	tmValidators := make([]*tmtypes.Validator, numValidators)
-
-	for i := 0; i < int(numValidators); i++ {
-		validatorAcc := tests.NewValidatorAccount(t)
-		tmValidator := tmtypes.NewValidator(validatorAcc.TmPubKey, sdk.TokensToConsensusPower(sdk.OneInt(), evmostypes.PowerReduction))
-		s.validatorAccounts[i] = validatorAcc
-		tmValidators[i] = tmValidator
-	}
-
-	valSet := tmtypes.NewValidatorSet(tmValidators)
-
+	numAccounts,
+	numValidators uint64,
+) ([]authtypes.GenesisAccount, []banktypes.Balance) {
 	s.accounts = make([]tests.Account, numAccounts)
-	genAccounts := make([]authtypes.GenesisAccount, numAccounts)
-	balances := make([]banktypes.Balance, numAccounts)
 
+	genAccounts := make([]authtypes.GenesisAccount, numAccounts)
+	balances := make([]banktypes.Balance, numAccounts+1)
+
+	amount := sdk.NewInt(1).Mul(evmostypes.PowerReduction)
+	bondedAmt := amount.MulRaw(int64(numValidators))
+
+	totalSupply := sdk.Coins{}
 	for i := uint64(0); i < numAccounts; i++ {
 		acc := tests.NewEOAAccount(t)
 		s.accounts[i] = acc
@@ -128,11 +118,90 @@ func (s *TestingEnv) Setup(
 		baseAcc := authtypes.NewBaseAccount(acc.Address, acc.PubKey, i, 0)
 		genAccounts[i] = &evmostypes.EthAccount{BaseAccount: baseAcc, CodeHash: common.BytesToHash(evmtypes.EmptyCodeHash).Hex()}
 
+		coins := sdk.Coins{evmostypes.NewAEvmosCoin(amount)}
 		balances[i] = banktypes.Balance{
 			Address: acc.Address.String(),
-			Coins:   sdk.Coins{evmostypes.NewAEvmosCoin(sdk.NewInt(1).Mul(evmostypes.PowerReduction))},
+			Coins:   coins,
 		}
+
+		totalSupply = totalSupply.Add(coins...)
 	}
+
+	// add delegated tokens to total supply
+	totalSupply = totalSupply.Add(sdk.NewCoin(s.denom, bondedAmt))
+
+	// add bonded amount to bonded pool module account
+	balances[numAccounts] = banktypes.Balance{
+		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
+		Coins:   sdk.Coins{sdk.NewCoin(s.denom, bondedAmt)},
+	}
+
+	// set genesis accounts
+	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccounts)
+	s.genesis[authtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(authGenesis)
+
+	// update total supply
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	s.genesis[banktypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(bankGenesis)
+
+	return genAccounts, balances
+}
+
+func (s *TestingEnv) setupValidators(
+	t testing.TB,
+	numValidators uint64,
+) {
+	s.validatorAccounts = make([]tests.Account, numValidators)
+	tmValidators := make([]*tmtypes.Validator, numValidators)
+	s.validators = make([]stakingtypes.Validator, numValidators)
+	delegations := make([]stakingtypes.Delegation, numValidators)
+
+	bondAmt := evmostypes.PowerReduction
+
+	for i := 0; i < int(numValidators); i++ {
+		validatorAcc := tests.NewValidatorAccount(t)
+		tmValidator := tmtypes.NewValidator(validatorAcc.TmPubKey, sdk.TokensToConsensusPower(sdk.OneInt(), evmostypes.PowerReduction))
+		s.validatorAccounts[i] = validatorAcc
+		tmValidators[i] = tmValidator
+
+		pkAny, err := codectypes.NewAnyWithValue(validatorAcc.PubKey)
+		require.NoError(t, err)
+
+		validator := stakingtypes.Validator{
+			OperatorAddress:   sdk.ValAddress(validatorAcc.Address).String(),
+			ConsensusPubkey:   pkAny,
+			Jailed:            false,
+			Status:            stakingtypes.Bonded,
+			Tokens:            bondAmt,
+			DelegatorShares:   sdk.OneDec(),
+			Description:       stakingtypes.Description{},
+			UnbondingHeight:   int64(0),
+			UnbondingTime:     time.Unix(0, 0).UTC(),
+			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			MinSelfDelegation: sdk.ZeroInt(),
+		}
+		s.validators[i] = validator
+
+		delegations[i] = stakingtypes.NewDelegation(s.accounts[i].Address, validator.GetOperator(), sdk.OneDec())
+	}
+
+	// set validators and delegations
+	params := stakingtypes.DefaultParams()
+	params.BondDenom = s.denom
+	stakingGenesis := stakingtypes.NewGenesisState(params, s.validators, delegations)
+	s.genesis[stakingtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(stakingGenesis)
+}
+
+// Setup initializes a new Evmos. A Nop logger is set in Evmos.
+func (s *TestingEnv) Setup(
+	t testing.TB,
+	chainID string,
+	numValidators,
+	numAccounts uint64,
+) {
+	genAccs, balances := s.setupEOAs(t, numAccounts, numValidators)
+
+	s.setupValidators(t, numValidators)
 
 	s.app = app.NewEvmos(
 		s.setupOptions.Logger,
@@ -146,9 +215,6 @@ func (s *TestingEnv) Setup(
 		s.setupOptions.AppOpts,
 		s.baseAppOptions...,
 	)
-
-	// init chain must be called to stop deliverState from being nil
-	s.GenesisStateWithValSet(valSet, genAccounts, balances...)
 
 	stateBytes, err := json.MarshalIndent(s.genesis, "", " ")
 	require.NoError(t, err)
@@ -196,77 +262,4 @@ func (s TestingEnv) NewHeader(
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	}
-}
-
-func (s *TestingEnv) GenesisStateWithValSet(
-	valSet *tmtypes.ValidatorSet,
-	genAccs []authtypes.GenesisAccount,
-	balances ...banktypes.Balance,
-) {
-	// set genesis accounts
-	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
-	s.genesis[authtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(authGenesis)
-
-	s.validators = make([]stakingtypes.Validator, len(valSet.Validators))
-	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
-
-	bondAmt := sdk.DefaultPowerReduction
-
-	for i, val := range valSet.Validators {
-		pk, _ := cryptocodec.FromTmPubKeyInterface(val.PubKey)
-		pkAny, _ := codectypes.NewAnyWithValue(pk)
-		validator := stakingtypes.Validator{
-			OperatorAddress:   sdk.ValAddress(val.Address).String(),
-			ConsensusPubkey:   pkAny,
-			Jailed:            false,
-			Status:            stakingtypes.Bonded,
-			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
-			Description:       stakingtypes.Description{},
-			UnbondingHeight:   int64(0),
-			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
-		}
-		s.validators[i] = validator
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
-
-	}
-
-	// set validators and delegations
-	stakingparams := stakingtypes.DefaultParams()
-	stakingparams.BondDenom = s.denom
-	stakingGenesis := stakingtypes.NewGenesisState(stakingparams, s.validators, delegations)
-	s.genesis[stakingtypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(stakingGenesis)
-
-	totalSupply := sdk.NewCoins()
-	for _, b := range balances {
-		// add genesis acc tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins...)
-	}
-
-	for range delegations {
-		// add delegated tokens to total supply
-		totalSupply = totalSupply.Add(sdk.NewCoin(s.denom, bondAmt))
-	}
-
-	// add bonded amount to bonded pool module account
-	balances = append(balances, banktypes.Balance{
-		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(s.denom, bondAmt)},
-	})
-
-	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
-	s.genesis[banktypes.ModuleName] = s.app.AppCodec().MustMarshalJSON(bankGenesis)
-}
-
-// FIXME: update to use the new testing setup
-
-// SetupTestingApp initializes the IBC-go testing application
-func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	db := dbm.NewMemDB()
-	cfg := encoding.MakeConfig(app.ModuleBasics)
-	evmosApp := app.NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, app.DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
-	return evmosApp, app.NewDefaultGenesisState()
 }
