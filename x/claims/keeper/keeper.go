@@ -26,7 +26,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
@@ -41,7 +40,7 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
 	distrKeeper   types.DistrKeeper
-	ibcKeeper     ibckeeper.Keeper
+	channelKeeper types.ChannelKeeper
 	ics4Wrapper   porttypes.ICS4Wrapper
 }
 
@@ -54,7 +53,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	dk types.DistrKeeper,
-	ik ibckeeper.Keeper,
+	ck types.ChannelKeeper,
 ) *Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
@@ -69,7 +68,7 @@ func NewKeeper(
 		bankKeeper:    bk,
 		stakingKeeper: sk,
 		distrKeeper:   dk,
-		ibcKeeper:     ik,
+		channelKeeper: ck,
 	}
 }
 
