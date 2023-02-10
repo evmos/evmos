@@ -9,6 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
+	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -18,9 +20,13 @@ func AvailablePrecompiles(
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
-	// TODO: Add any custom precompiles below
-	// stakingPrecompile := staking.NewPrecompile(stakingKeeper)
-	// precompiles[stakingPrecompile.Address()] = stakingPrecompile
+
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load staking precompile: %w", err))
+	}
+
+	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	return precompiles
 }
 
