@@ -25,6 +25,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 
 	"github.com/evmos/evmos/v11/x/claims/types"
@@ -42,20 +43,16 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Validate the requested authorized channels
-	authorizedChannels := req.Params.AuthorizedChannels
-	for _, channelID := range authorizedChannels {
-		if err := host.ChannelIdentifierValidator(channelID); err != nil {
-			return nil, errorsmod.Wrapf(err,
-				"invalid authorized channel contained in the request to update the claims parameters: %s",
-				channelID,
-			)
+	for _, channelID := range req.Params.AuthorizedChannels {
+		if err := checkIfChannelOpen(ctx, k.channelKeeper, channelID); err != nil {
+			return nil, errorsmod.Wrapf(err, "invalid authorized channel")
 		}
+	}
 
-		if _, found := k.channelKeeper.GetChannel(ctx, transfertypes.PortID, channelID); !found {
-			return nil, fmt.Errorf(
-				"trying to add a channel to the claims module's available channels parameters, when it is not found in the app's IBCKeeper.ChannelKeeper: %s",
-				channelID,
-			)
+	// Validate the requested EVM channels
+	for _, channelID := range req.Params.EVMChannels {
+		if err := checkIfChannelOpen(ctx, k.channelKeeper, channelID); err != nil {
+			return nil, errorsmod.Wrapf(err, "invalid evm channel")
 		}
 	}
 
@@ -64,4 +61,35 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
+}
+
+// checkIfChannelOpen checks if an IBC channel with the given channel id is registered
+// in the channel keeper and is in the OPEN state. It also requires the channel id to
+// be in a valid format.
+//
+// NOTE: the used port id is the default transfer port id.
+func checkIfChannelOpen(ctx sdk.Context, ck types.ChannelKeeper, channelID string) error {
+	if err := host.ChannelIdentifierValidator(channelID); err != nil {
+		return errorsmod.Wrapf(err,
+			"invalid channel identifier contained in the request to update the claims parameters: %s",
+			channelID,
+		)
+	}
+
+	foundChannel, found := ck.GetChannel(ctx, transfertypes.PortID, channelID)
+	if !found {
+		return fmt.Errorf(
+			"trying to add a channel to the claims module's available channels parameters, when it is not found in the app's IBCKeeper.ChannelKeeper: %s",
+			channelID,
+		)
+	}
+
+	if foundChannel.State != channeltypes.OPEN {
+		return fmt.Errorf(
+			"trying to add a channel to the claims module's available channels parameters, when it is not in the OPEN state: %s",
+			channelID,
+		)
+	}
+
+	return nil
 }

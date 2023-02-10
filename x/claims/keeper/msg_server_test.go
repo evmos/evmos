@@ -13,10 +13,14 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestUpdateParams() {
-	// Add channels to the channel keeper
-	channel := channeltypes.Channel{}
+	// Add open channels to the channel keeper (0 & 3 are the default channels, 2 is the default evm channel)
+	channel := channeltypes.Channel{State: channeltypes.OPEN}
 	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"0", channel)
 	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"3", channel)
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"2", channel)
+	// Add closed channel to the channel keeper
+	closedChannel := channeltypes.Channel{State: channeltypes.CLOSED}
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"4", closedChannel)
 
 	testCases := []struct {
 		name        string
@@ -48,7 +52,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 				},
 			},
 			expectErr:   true,
-			errContains: "invalid authorized channel",
+			errContains: "invalid authorized channel: invalid channel identifier",
 		},
 		{
 			name: "fail - valid Update msg with unknown channel",
@@ -60,6 +64,61 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			},
 			expectErr:   true,
 			errContains: "it is not found in the app's IBCKeeper.ChannelKeeper: channel-1",
+		},
+		{
+			name: "fail - valid Update msg with closed channel",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					AuthorizedChannels: []string{"channel-0", "channel-4"},
+				},
+			},
+			expectErr:   true,
+			errContains: "it is not in the OPEN state: channel-4",
+		},
+		{
+			name: "pass - valid Update msg with valid EVM channels",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					EVMChannels: []string{"channel-0", "channel-2"},
+				},
+			},
+			expectErr:   false,
+			errContains: "",
+		},
+		{
+			name: "fail - valid Update msg with invalid EVM channel",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					EVMChannels: []string{"channel-0", "abc"},
+				},
+			},
+			expectErr:   true,
+			errContains: "invalid evm channel: invalid channel identifier",
+		},
+		{
+			name: "fail - valid Update msg with unknown EVM channel",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					EVMChannels: []string{"channel-6"},
+				},
+			},
+			expectErr:   true,
+			errContains: "it is not found in the app's IBCKeeper.ChannelKeeper: channel-6",
+		},
+		{
+			name: "fail - valid Update msg with closed EVM channel",
+			request: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					EVMChannels: []string{"channel-4"},
+				},
+			},
+			expectErr:   true,
+			errContains: "it is not in the OPEN state: channel-4",
 		},
 	}
 
