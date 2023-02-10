@@ -67,7 +67,8 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 // in the channel keeper and is in the OPEN state. It also requires the channel id to
 // be in a valid format.
 //
-// NOTE: the used port id is the default transfer port id.
+// NOTE: this function is looking for a channel with the default transfer port id and will fail
+// if no channel with the given channel id has an open connection to this port.
 func checkIfChannelOpen(ctx sdk.Context, ck types.ChannelKeeper, channelID string) error {
 	if err := host.ChannelIdentifierValidator(channelID); err != nil {
 		return errorsmod.Wrapf(err,
