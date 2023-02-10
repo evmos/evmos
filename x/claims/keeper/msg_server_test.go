@@ -15,8 +15,8 @@ import (
 func (suite *KeeperTestSuite) TestUpdateParams() {
 	// Add channels to the channel keeper
 	channel := channeltypes.Channel{}
-	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, "0", channel)
-	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, "3", channel)
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"0", channel)
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, channeltypes.ChannelPrefix+"3", channel)
 
 	testCases := []struct {
 		name        string
