@@ -18,10 +18,13 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	host "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
@@ -35,6 +38,34 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Get available channels that are stored in the IBC keeper
+	availableChannels := k.ibcKeeper.ChannelKeeper.GetAllChannels(ctx)
+
+	// Validate the requested authorized channels
+	authorizedChannels := req.Params.AuthorizedChannels
+	for _, channelID := range authorizedChannels {
+		if err := host.ChannelIdentifierValidator(channelID); err != nil {
+			return nil, errorsmod.Wrapf(err,
+				"invalid authorized channel contained in the request to update the claims parameters: %s",
+				channelID,
+			)
+		}
+		found := false
+		for _, availableChannel := range availableChannels {
+			if "channel-"+availableChannel.ChannelId == channelID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, fmt.Errorf(
+				"trying to add a channel to the claims module's available channels parameters, when it is not found in the app's IBCKeeper.ChannelKeeper: %s",
+				channelID,
+			)
+		}
+	}
+
 	if err := k.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
