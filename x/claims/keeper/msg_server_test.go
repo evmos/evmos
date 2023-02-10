@@ -5,15 +5,18 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestUpdateParams() {
 	// Add channels to the channel keeper
 	channel := channeltypes.Channel{}
-	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "1", "0", channel)
-	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, "1", "3", channel)
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, "0", channel)
+	suite.app.IBCKeeper.ChannelKeeper.SetChannel(suite.ctx, transfertypes.PortID, "3", channel)
 
 	testCases := []struct {
 		name        string
@@ -56,7 +59,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 				},
 			},
 			expectErr:   true,
-			errContains: "it is not found",
+			errContains: "it is not found in the app's IBCKeeper.ChannelKeeper: channel-1",
 		},
 	}
 
