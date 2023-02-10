@@ -116,6 +116,26 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"provided fee < minimum global fee",
 			true,
 		},
+		{
+			"valid cosmos tx without specified fee with MinGasPrices = 10, gasPrice = 10",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(10)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
+				txBuilder.SetGasLimit(TestGasLimit)
+				// fee is nil
+				txBuilder.SetFeeAmount(nil)
+				err = txBuilder.SetMsgs(&testMsg)
+				suite.Require().NoError(err)
+				return txBuilder.GetTx()
+			},
+			false,
+			"fee not provided",
+			true,
+		},
 	}
 
 	for _, et := range execTypes {
