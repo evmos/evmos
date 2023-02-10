@@ -9,7 +9,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/app/ante"
+	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
@@ -532,7 +533,7 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	s.Require().NoError(err)
 	tx := txBuilder.GetTx()
 
-	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
+	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
@@ -555,7 +556,7 @@ func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
 	tx := txBuilder.GetTx()
 
 	// Call Ante decorator
-	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
