@@ -48,6 +48,7 @@ type ethVestingExpenseTracker struct {
 	spendable *big.Int
 }
 
+// NewEthVestingTransactionDecorator returns a new EthVestingTransactionDecorator.
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek evmante.EVMKeeper) EthVestingTransactionDecorator {
 	return EthVestingTransactionDecorator{
 		ak: ak,
@@ -66,7 +67,7 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	totalSpendByAddress := make(map[string]*ethVestingExpenseTracker)
+	accountExpenses := make(map[string]*ethVestingExpenseTracker)
 	denom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
@@ -94,17 +95,17 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// moving past the AnteHandler.
 		msgValue := msgEthTx.AsTransaction().Value()
 
-		totalSpend, err := vtd.updateAccountExpenses(ctx, totalSpendByAddress, clawbackAccount, msgValue, denom)
+		expenses, err := vtd.updateAccountExpenses(ctx, accountExpenses, clawbackAccount, msgValue, denom)
 		if err != nil {
 			return ctx, err
 		}
 
-		totalValue := totalSpend.total
-		spendableValue := totalSpend.spendable
+		total := expenses.total
+		spendable := expenses.spendable
 
-		if totalValue.Cmp(spendableValue) > 0 {
+		if total.Cmp(spendable) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendableValue.String(), totalValue.String(),
+				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendable.String(), total.String(),
 			)
 		}
 	}
@@ -144,7 +145,7 @@ func (vtd EthVestingTransactionDecorator) updateAccountExpenses(
 	lockedBalances := account.LockedCoins(ctx.BlockTime())
 	ok, lockedBalance := lockedBalances.Find(denom)
 	if !ok {
-		lockedBalance = sdk.NewCoin(denom, sdk.ZeroInt())
+		lockedBalance = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
 	}
 
 	spendableValue := big.NewInt(0)
