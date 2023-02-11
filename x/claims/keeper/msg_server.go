@@ -70,14 +70,7 @@ func (k *Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams)
 // NOTE: this function is looking for a channel with the default transfer port id and will fail
 // if no channel with the given channel id has an open connection to this port.
 func checkIfChannelOpen(ctx sdk.Context, ck types.ChannelKeeper, channelID string) error {
-	if err := host.ChannelIdentifierValidator(channelID); err != nil {
-		return errorsmod.Wrapf(err,
-			"invalid channel identifier contained in the request to update the claims parameters: %s",
-			channelID,
-		)
-	}
-
-	foundChannel, found := ck.GetChannel(ctx, transfertypes.PortID, channelID)
+	channel, found := ck.GetChannel(ctx, transfertypes.PortID, channelID)
 	if !found {
 		return fmt.Errorf(
 			"trying to add a channel to the claims module's available channels parameters, when it is not found in the app's IBCKeeper.ChannelKeeper: %s",
@@ -85,7 +78,7 @@ func checkIfChannelOpen(ctx sdk.Context, ck types.ChannelKeeper, channelID strin
 		)
 	}
 
-	if foundChannel.State != channeltypes.OPEN {
+	if channel.State != channeltypes.OPEN {
 		return fmt.Errorf(
 			"trying to add a channel to the claims module's available channels parameters, when it is not in the OPEN state: %s",
 			channelID,
