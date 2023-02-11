@@ -39,13 +39,13 @@ type EthVestingTransactionDecorator struct {
 	ek evmante.EVMKeeper
 }
 
-// ethVestingTotalSpend tracks both the total transaction value to be sent across Ethereum
+// ethVestingExpenseTracker tracks both the total transaction value to be sent across Ethereum
 // messages and the maximum spendable value for a given account.
-type ethVestingTotalSpend struct {
-	// totalValue is the total value to be spent across a transaction with one or more Ethereum message calls
-	totalValue *big.Int
-	// spendableValue is the maximum value that can be spent
-	spendableValue *big.Int
+type ethVestingExpenseTracker struct {
+	// total is the total value to be spent across a transaction with one or more Ethereum message calls
+	total *big.Int
+	// spendable is the maximum value that can be spent
+	spendable *big.Int
 }
 
 func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek evmante.EVMKeeper) EthVestingTransactionDecorator {
@@ -66,7 +66,7 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	totalSpendByAddress := make(map[string]*ethVestingTotalSpend)
+	totalSpendByAddress := make(map[string]*ethVestingExpenseTracker)
 	denom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
@@ -94,13 +94,13 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		// moving past the AnteHandler.
 		msgValue := msgEthTx.AsTransaction().Value()
 
-		totalSpend, err := vtd.getTotalSpend(ctx, totalSpendByAddress, clawbackAccount, msgValue, denom)
+		totalSpend, err := vtd.updateAccountExpenses(ctx, totalSpendByAddress, clawbackAccount, msgValue, denom)
 		if err != nil {
 			return ctx, err
 		}
 
-		totalValue := totalSpend.totalValue
-		spendableValue := totalSpend.spendableValue
+		totalValue := totalSpend.total
+		spendableValue := totalSpend.spendable
 
 		if totalValue.Cmp(spendableValue) > 0 {
 			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
@@ -112,21 +112,23 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	return next(ctx, tx, simulate)
 }
 
-// getTotalSpend updates or sets the totalSpend for the given account, then
+// updateAccountExpenses updates or sets the totalSpend for the given account, then
 // returns the new value.
-func (vtd EthVestingTransactionDecorator) getTotalSpend(
+func (vtd EthVestingTransactionDecorator) updateAccountExpenses(
 	ctx sdk.Context,
-	totalSpendByAddress map[string]*ethVestingTotalSpend,
+	accountExpenses map[string]*ethVestingExpenseTracker,
 	account *vestingtypes.ClawbackVestingAccount,
-	value *big.Int,
+	addedExpense *big.Int,
 	denom string,
-) (*ethVestingTotalSpend, error) {
+) (*ethVestingExpenseTracker, error) {
 	address := account.GetAddress()
+	addrStr := address.String()
 
-	totalSpend, ok := totalSpendByAddress[address.String()]
+	expenses, ok := accountExpenses[addrStr]
+	// if an expense tracker is found for the address, add the expense and return
 	if ok {
-		totalSpend.totalValue.Add(totalSpend.totalValue, value)
-		return totalSpend, nil
+		expenses.total = expenses.total.Add(expenses.total, addedExpense)
+		return expenses, nil
 	}
 
 	balance := vtd.bk.GetBalance(ctx, address, denom)
@@ -136,10 +138,11 @@ func (vtd EthVestingTransactionDecorator) getTotalSpend(
 	// should be removed if the BaseFee definition is changed such that it can be zero.
 	if balance.IsZero() {
 		return nil, errorsmod.Wrapf(errortypes.ErrInsufficientFunds,
-			"account has no balance to execute transaction: %s", address.String())
+			"account has no balance to execute transaction: %s", addrStr)
 	}
 
-	ok, lockedBalance := account.LockedCoins(ctx.BlockTime()).Find(denom)
+	lockedBalances := account.LockedCoins(ctx.BlockTime())
+	ok, lockedBalance := lockedBalances.Find(denom)
 	if !ok {
 		lockedBalance = sdk.NewCoin(denom, sdk.ZeroInt())
 	}
@@ -149,14 +152,14 @@ func (vtd EthVestingTransactionDecorator) getTotalSpend(
 		spendableValue = spendableBalance.Amount.BigInt()
 	}
 
-	totalSpend = &ethVestingTotalSpend{
-		totalValue:     value,
-		spendableValue: spendableValue,
+	expenses = &ethVestingExpenseTracker{
+		total:     addedExpense,
+		spendable: spendableValue,
 	}
 
-	totalSpendByAddress[address.String()] = totalSpend
+	accountExpenses[addrStr] = expenses
 
-	return totalSpend, nil
+	return expenses, nil
 }
 
 // TODO: remove once Cosmos SDK is upgraded to v0.46

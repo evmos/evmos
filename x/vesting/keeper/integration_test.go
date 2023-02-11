@@ -63,7 +63,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	cliffPeriod := sdkvesting.Period{Length: cliffLength, Amount: cliffAmt}
 
 	// 12 month lockup
-	lockup := int64(12) // 12 month
+	lockup := int64(12) // 12 months
 	lockupLength := vestingLength * lockup
 	// Unlock at 12 and 24 months
 	numLockupPeriods := int64(2)
