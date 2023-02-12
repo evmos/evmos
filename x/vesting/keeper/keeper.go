@@ -18,10 +18,10 @@ package keeper
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
@@ -57,4 +57,35 @@ func NewKeeper(
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+// AddVestingAccount adds the address of vesting account to store.
+// The caller should check the account type to make sure it's a vesting account type.
+func (k Keeper) AddVestingAccount(ctx sdk.Context, addr sdk.AccAddress) {
+	// Retrieve the account associated with the address
+	acc := k.accountKeeper.GetAccount(ctx, addr)
+	if _, ok := acc.(exported.VestingAccount); !ok {
+		// Account is not a vesting account
+	}
+	store := ctx.KVStore(k.storeKey)
+	store.Set(types.VestingAccountStoreKey(addr), []byte{0x01})
+}
+
+// IterateVestingAccounts iterates over all the stored vesting accounts.
+func (k Keeper) IterateVestingAccounts(ctx sdk.Context) {
+	store := ctx.KVStore(k.storeKey)
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixVestingAccounts)
+
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		addr := types.AddressFromVestingAccountKey(iterator.Key())
+
+		acct := k.accountKeeper.GetAccount(ctx, addr)
+		if _, ok := acct.(exported.VestingAccount); ok {
+			// Account is a vesting account
+		} else {
+			// Account is not a vesting account
+		}
+
+	}
 }

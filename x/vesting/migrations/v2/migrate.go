@@ -14,39 +14,25 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 
-package types
+package v2
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+	"github.com/evmos/evmos/v11/x/vesting/keeper"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
-const (
-	// ModuleName defines the module's name.
-	ModuleName = "vesting"
+// MigrateStore migrates the x/inflation module state from the consensus version 1 to
+// version 2. Specifically, adds all current vesting accounts to the store.
+func MigrateStore(ctx sdk.Context, vk keeper.Keeper, ak types.AccountKeeper) error {
+	ak.IterateAccounts(ctx, func(account authtypes.AccountI) bool {
+		if va, ok := account.(exported.VestingAccount); ok {
+			vk.AddVestingAccount(ctx, va.GetAddress())
+		}
+		return false
+	})
 
-	// StoreKey to be used when creating the KVStore
-	StoreKey = ModuleName
-
-	// RouterKey defines the module's message routing key
-	RouterKey = ModuleName
-)
-
-const (
-	prefixVestingAccounts = iota + 1
-)
-
-var (
-	KeyPrefixVestingAccounts = []byte{prefixVestingAccounts}
-)
-
-// VestingAccountStoreKey turn an address to key used to record it in the vesting store
-func VestingAccountStoreKey(addr sdk.AccAddress) []byte {
-	return append(KeyPrefixVestingAccounts, addr.Bytes()...)
-}
-
-// AddressFromVestingAccountKey creates the address from VestingAccountKey
-func AddressFromVestingAccountKey(key []byte) sdk.AccAddress {
-	kv.AssertKeyAtLeastLength(key, 1)
-	return key[1:] // remove prefix byte
+	return nil
 }

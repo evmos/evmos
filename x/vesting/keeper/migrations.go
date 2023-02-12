@@ -14,39 +14,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 
-package types
+package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
+	v2 "github.com/evmos/evmos/v11/x/vesting/migrations/v2"
 )
 
-const (
-	// ModuleName defines the module's name.
-	ModuleName = "vesting"
-
-	// StoreKey to be used when creating the KVStore
-	StoreKey = ModuleName
-
-	// RouterKey defines the module's message routing key
-	RouterKey = ModuleName
-)
-
-const (
-	prefixVestingAccounts = iota + 1
-)
-
-var (
-	KeyPrefixVestingAccounts = []byte{prefixVestingAccounts}
-)
-
-// VestingAccountStoreKey turn an address to key used to record it in the vesting store
-func VestingAccountStoreKey(addr sdk.AccAddress) []byte {
-	return append(KeyPrefixVestingAccounts, addr.Bytes()...)
+// Migrator is a struct for handling in-place store migrations.
+type Migrator struct {
+	keeper Keeper
 }
 
-// AddressFromVestingAccountKey creates the address from VestingAccountKey
-func AddressFromVestingAccountKey(key []byte) sdk.AccAddress {
-	kv.AssertKeyAtLeastLength(key, 1)
-	return key[1:] // remove prefix byte
+// NewMigrator returns a new Migrator.
+func NewMigrator(keeper Keeper) Migrator {
+	return Migrator{
+		keeper: keeper,
+	}
+}
+
+// Migrate1to2 migrates the store from consensus version 1 to 2
+func (m Migrator) Migrate1to2(ctx sdk.Context) error {
+	return v2.MigrateStore(ctx, m.keeper, m.keeper.accountKeeper)
 }

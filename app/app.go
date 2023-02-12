@@ -491,10 +491,15 @@ func NewEvmos(
 		&stakingKeeper, govRouter, app.MsgServiceRouter(), govConfig,
 	)
 
-	// Evmos Keeper
+	// Evmos Keepers
+	app.VestingKeeper = vestingkeeper.NewKeeper(
+		keys[vestingtypes.StoreKey], appCodec,
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
+	)
+
 	app.InflationKeeper = inflationkeeper.NewKeeper(
 		keys[inflationtypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper, app.VestingKeeper,
 		authtypes.FeeCollectorName,
 	)
 
@@ -512,11 +517,6 @@ func NewEvmos(
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
-	)
-
-	app.VestingKeeper = vestingkeeper.NewKeeper(
-		keys[vestingtypes.StoreKey], appCodec,
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
