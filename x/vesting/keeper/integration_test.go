@@ -844,11 +844,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 	})
 })
 
-func createAddressKey() (sdk.AccAddress, *ethsecp256k1.PrivKey) {
-	address, privKey := tests.NewAddrKey()
-	return address.Bytes(), privKey
-}
-
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
