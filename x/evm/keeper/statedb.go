@@ -1,5 +1,5 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Ethermint library.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
 // Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -12,7 +12,7 @@
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Ethermint library. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package keeper
 
 import (
