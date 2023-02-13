@@ -25,7 +25,6 @@ import (
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
 	"github.com/evmos/evmos/v11/ibc"
-	evmos "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
@@ -141,7 +140,7 @@ func (k Keeper) OnRecvPacket(
 			// -> return error acknowledgement to prevent funds from getting stuck
 			return channeltypes.NewErrorAcknowledgement(
 				errorsmod.Wrapf(
-					evmos.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
+					types.ErrKeyTypeNotSupported, "receiver address %s is not a valid ethereum address", recipientBech32,
 				),
 			)
 		default:
