@@ -1,4 +1,4 @@
-package ante_test
+package cosmos_test
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/encoding"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -20,7 +18,6 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	suite.Require().NoError(err)
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	newMsgGrant := func(msgTypeUrl string) *authz.MsgGrant {
 		msg, err := authz.NewMsgGrant(
@@ -149,7 +146,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			}
 			suite.Require().NoError(err)
 
-			txEncoder := encodingConfig.TxConfig.TxEncoder()
+			txEncoder := suite.clientCtx.TxConfig.TxEncoder()
 			bz, err := txEncoder(tx)
 			suite.Require().NoError(err)
 

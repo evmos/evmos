@@ -16,17 +16,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/evmos/evmos/v11/app"
-	ante "github.com/evmos/evmos/v11/app/ante"
+	"github.com/evmos/evmos/v11/app/ante"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
@@ -39,6 +44,19 @@ import (
 
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
+
+var _ sdk.AnteHandler = (&MockAnteHandler{}).AnteHandle
+
+type MockAnteHandler struct {
+	WasCalled bool
+	CalledCtx sdk.Context
+}
+
+func (mah *MockAnteHandler) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
+	mah.WasCalled = true
+	mah.CalledCtx = ctx
+	return ctx, nil
+}
 
 type AnteTestSuite struct {
 	suite.Suite
@@ -107,14 +125,17 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
-		AccountKeeper:   suite.app.AccountKeeper,
-		BankKeeper:      suite.app.BankKeeper,
-		EvmKeeper:       suite.app.EvmKeeper,
-		FeegrantKeeper:  suite.app.FeeGrantKeeper,
-		IBCKeeper:       suite.app.IBCKeeper,
-		FeeMarketKeeper: suite.app.FeeMarketKeeper,
-		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  ante.SigVerificationGasConsumer,
+		AccountKeeper:          suite.app.AccountKeeper,
+		BankKeeper:             suite.app.BankKeeper,
+		EvmKeeper:              suite.app.EvmKeeper,
+		FeegrantKeeper:         suite.app.FeeGrantKeeper,
+		StakingKeeper:          suite.app.StakingKeeper,
+		IBCKeeper:              suite.app.IBCKeeper,
+		FeeMarketKeeper:        suite.app.FeeMarketKeeper,
+		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
+		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.app.EvmKeeper),
 	})
 
 	suite.anteHandler = anteHandler
