@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	codeErrInvalidState      = uint32(iota) + 2 // NOTE: code 1 is reserved for internal errors
+	codeErrInvalidState = uint32(iota) + 2 // NOTE: code 1 is reserved for internal errors
 	codeErrInvalidChainConfig
 	codeErrZeroAddress
 	codeErrCreateDisabled
