@@ -16,6 +16,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/utils"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/testutil"
@@ -247,8 +248,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				pair = s.setupRegisterCoin(metadataCoin)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
-				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, fundsAmt)))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
 				s.Require().NoError(err)
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(coin))
 				s.Require().NoError(err)
@@ -306,8 +306,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
-				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, fundsAmt)))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
 				s.Require().NoError(err)
 
 				_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))

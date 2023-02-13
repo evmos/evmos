@@ -17,6 +17,7 @@ import (
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/testutil"
 	teststypes "github.com/evmos/evmos/v11/types/tests"
+	"github.com/evmos/evmos/v11/utils"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 	. "github.com/onsi/ginkgo/v2"
@@ -49,14 +50,14 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 	evmosMeta := banktypes.Metadata{
 		Description: "Base Denom for Evmos Chain",
-		Base:        claimstypes.DefaultClaimsDenom,
+		Base:        utils.BaseDenom,
 		DenomUnits: []*banktypes.DenomUnit{
 			{
 				Denom:    teststypes.AevmosDenomtrace.BaseDenom,
 				Exponent: 0,
 			},
 		},
-		Name:    claimstypes.DefaultClaimsDenom,
+		Name:    utils.BaseDenom,
 		Symbol:  erc20Symbol,
 		Display: teststypes.AevmosDenomtrace.BaseDenom,
 	}
@@ -153,12 +154,12 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			pair, err := s.app.Erc20Keeper.RegisterCoin(s.EvmosChain.GetContext(), evmosMeta)
 			s.Require().NoError(err)
 
-			aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
+			aevmosInitialBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 
 			// 1. Send aevmos from Evmos to Osmosis
-			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, claimstypes.DefaultClaimsDenom, amount, receiver, sender, 1, "")
+			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.EvmosChain, utils.BaseDenom, amount, receiver, sender, 1, "")
 
-			aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
+			aevmosAfterBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 			s.Require().Equal(aevmosInitialBalance.Amount.Sub(math.NewInt(amount)).Sub(sendAndReceiveMsgFee), aevmosAfterBalance.Amount)
 
 			// check ibc aevmos coins balance on Osmosis
@@ -174,7 +175,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(int64(0), aevmosIBCSenderFinalBalance.Amount.Int64())
 
 			// check aevmos balance after transfer - should be equal to initial balance
-			aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
+			aevmosFinalBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 
 			totalFees := sendBackCoinsFee.Add(sendAndReceiveMsgFee)
 			s.Require().Equal(aevmosInitialBalance.Amount.Sub(totalFees), aevmosFinalBalance.Amount)
@@ -293,11 +294,11 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			})
 
 			// escrow coins in module
-			coins := sdk.NewCoins(sdk.NewCoin(claimstypes.DefaultClaimsDenom, claimableAmount))
+			coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, claimableAmount))
 			err := testutil.FundModuleAccount(s.EvmosChain.GetContext(), s.app.BankKeeper, claimstypes.ModuleName, coins)
 			s.Require().NoError(err)
 
-			receiverInitialAevmosBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
+			receiverInitialAevmosBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 
 			uosmoInitialBalance := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, "uosmo")
 
@@ -321,7 +322,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.Require().Equal(uosmoInitialBalance.Amount.Int64()-amount, uosmoFinalBalance.Amount.Int64())
 
 			// validate that Receiver address on Evmos got the claims tokens
-			receiverFinalAevmosBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, claimstypes.DefaultClaimsDenom)
+			receiverFinalAevmosBalance := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, utils.BaseDenom)
 
 			s.Require().Equal(receiverInitialAevmosBalance.Amount.Add(claimableAmount).Sub(sendBackCoinsFee), receiverFinalAevmosBalance.Amount)
 		})

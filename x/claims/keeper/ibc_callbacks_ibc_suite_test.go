@@ -50,7 +50,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	// Mint coins to pay tx fees
 	amt, ok := sdk.NewIntFromString("1000000000000000000000")
 	suite.Require().True(ok)
-	coinEvmos := sdk.NewCoin(types.DefaultClaimsDenom, amt)
+	coinEvmos := sdk.NewCoin(utils.BaseDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 
 	err := evmosChainA.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
@@ -64,7 +64,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	evmParams := evmosChainA.EvmKeeper.GetParams(suite.chainA.GetContext())
-	evmParams.EvmDenom = types.DefaultClaimsDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	err = evmosChainA.EvmKeeper.SetParams(suite.chainA.GetContext(), evmParams)
 	suite.Require().NoError(err)
 	err = evmosChainB.EvmKeeper.SetParams(suite.chainB.GetContext(), evmParams)

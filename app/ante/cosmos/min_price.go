@@ -1,5 +1,5 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
 // Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -75,6 +75,12 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		if fee.IsPositive() {
 			requiredFees = requiredFees.Add(sdk.Coin{Denom: gp.Denom, Amount: fee})
 		}
+	}
+
+	if feeCoins == nil {
+		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
+			"fee not provided. Please use the --fees flag or the --gas-price flag to estimate the fee. The minimun global fee for this tx is: %s",
+			requiredFees)
 	}
 
 	if !feeCoins.IsAnyGTE(requiredFees) {

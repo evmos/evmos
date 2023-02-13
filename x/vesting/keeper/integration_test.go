@@ -9,10 +9,12 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/app/ante"
+	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/utils"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -21,7 +23,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
@@ -38,7 +39,7 @@ import (
 // 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	// Monthly vesting period
-	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
+	stakeDenom := utils.BaseDenom
 	amt := sdk.NewInt(1)
 	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
@@ -218,7 +219,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 // 23/02 Lock ends
 var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func() {
 	// Monthly vesting period
-	stakeDenom := claimstypes.DefaultParams().ClaimsDenom
+	stakeDenom := utils.BaseDenom
 	amt := sdk.NewInt(1)
 	vestingLength := int64(60 * 60 * 24 * 30) // in seconds
 	vestingAmt := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt))
@@ -527,12 +528,12 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error
 	//
 	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
 	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(amount)))
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(utils.BaseDenom, sdk.NewInt(amount)))
 	err = txBuilder.SetMsgs(delegateMsg)
 	s.Require().NoError(err)
 	tx := txBuilder.GetTx()
 
-	dec := ante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
+	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
@@ -555,7 +556,7 @@ func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
 	tx := txBuilder.GetTx()
 
 	// Call Ante decorator
-	dec := ante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
 	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
 	return err
 }
