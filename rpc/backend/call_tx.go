@@ -30,7 +30,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -51,7 +51,7 @@ func (b *Backend) Resend(args evmtypes.TransactionArgs, gasPrice *hexutil.Big, g
 
 	// The signer used should always be the 'latest' known one because we expect
 	// signers to be backwards-compatible with old transactions.
-	eip155ChainID, err := ethermint.ParseChainID(b.clientCtx.ChainID)
+	eip155ChainID, err := types.ParseChainID(b.clientCtx.ChainID)
 	if err != nil {
 		return common.Hash{}, err
 	}

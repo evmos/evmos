@@ -19,7 +19,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 
 	utils "github.com/evmos/evmos/v11/utils"
 	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
@@ -27,7 +27,7 @@ import (
 )
 
 // 200M token at year 4 allocated to the team
-var teamAlloc = sdk.NewInt(200_000_000).Mul(ethermint.PowerReduction)
+var teamAlloc = sdk.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
 
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(
