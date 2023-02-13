@@ -461,6 +461,61 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, true,
 		},
 		{
+			"success- DeliverTx EIP712 Multiple Different Msgs",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712MultipleDifferentMsgs(from, privKey, "ethermint_9000-1", gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Same Msgs, Different Schemas",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712SameMsgDifferentSchemas(from, privKey, "ethermint_9000-1", gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Zero Value Array",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712ZeroValueArray(from, privKey, "ethermint_9000-1", gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Zero Value Number",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712ZeroValueNumber(from, privKey, "ethermint_9000-1", gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 MsgTransfer",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712MsgTransfer(from, privKey, "ethermint_9000-1", gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, true,
+		},
+		{
 			"fails - DeliverTx EIP712 Multiple Signers",
 			func() sdk.Tx {
 				from := acc.GetAddress()

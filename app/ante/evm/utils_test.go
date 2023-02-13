@@ -39,6 +39,8 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
+	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 
@@ -61,14 +63,16 @@ import (
 type AnteTestSuite struct {
 	suite.Suite
 
-	ctx             sdk.Context
-	app             *app.Evmos
-	clientCtx       client.Context
-	anteHandler     sdk.AnteHandler
-	ethSigner       ethtypes.Signer
-	enableFeemarket bool
-	enableLondonHF  bool
-	evmParamsOption func(*evmtypes.Params)
+	ctx                      sdk.Context
+	app                      *app.Evmos
+	clientCtx                client.Context
+	anteHandler              sdk.AnteHandler
+	ethSigner                ethtypes.Signer
+	enableFeemarket          bool
+	enableLondonHF           bool
+	evmParamsOption          func(*evmtypes.Params)
+	useLegacyEIP712Extension bool
+	useLegacyEIP712TypedData bool
 }
 
 const TestGasLimit uint64 = 100000
@@ -145,6 +149,20 @@ func (suite *AnteTestSuite) SetupTest() {
 func TestAnteTestSuite(t *testing.T) {
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF: true,
+	})
+
+	// Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
+	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
+	suite.Run(t, &AnteTestSuite{
+		enableLondonHF:           true,
+		useLegacyEIP712Extension: true,
+		useLegacyEIP712TypedData: true,
+	})
+
+	suite.Run(t, &AnteTestSuite{
+		enableLondonHF:           true,
+		useLegacyEIP712Extension: false,
+		useLegacyEIP712TypedData: true,
 	})
 }
 
@@ -420,7 +438,45 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgExec(from sdk.AccAddress, priv cr
 func (suite *AnteTestSuite) CreateTestEIP712MultipleMsgSend(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend, msgSend, msgSend})
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend, msgSend, msgSend}, false)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	recipient := sdk.AccAddress(common.Address{}.Bytes())
+	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
+
+	msgVote := govtypesv1.NewMsgVote(from, 1, govtypesv1.VoteOption_VOTE_OPTION_YES, "")
+
+	valEthAddr := tests.GenerateAddress()
+	valAddr := sdk.ValAddress(valEthAddr.Bytes())
+	msgDelegate := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
+
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgSend, msgVote, msgDelegate}, suite.useLegacyEIP712TypedData)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712SameMsgDifferentSchemas(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	msgVote1 := govtypesv1.NewMsgVote(from, 1, govtypesv1.VoteOption_VOTE_OPTION_YES, "")
+	msgVote2 := govtypesv1.NewMsgVote(from, 5, govtypesv1.VoteOption_VOTE_OPTION_ABSTAIN, "With Metadata")
+
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgVote1, msgVote2}, suite.useLegacyEIP712TypedData)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712ZeroValueArray(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	recipient := sdk.AccAddress(common.Address{}.Bytes())
+	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(0))))
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgSend}, suite.useLegacyEIP712TypedData)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712ZeroValueNumber(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	msgVote := govtypesv1.NewMsgVote(from, 0, govtypesv1.VoteOption_VOTE_OPTION_NO, "")
+
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgVote}, suite.useLegacyEIP712TypedData)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712MsgTransfer(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	recipient := sdk.AccAddress(common.Address{}.Bytes())
+	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, "Memo")
+	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainId, gas, gasAmount, msgTransfer)
 }
 
 // Fails
@@ -428,7 +484,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleSignerMsgs(from sdk.AccAddre
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgSend1 := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
 	msgSend2 := banktypes.NewMsgSend(recipient, from, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend1, msgSend2})
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend1, msgSend2}, false)
 }
 
 // StdSignBytes returns the bytes to sign for a transaction.
@@ -472,13 +528,17 @@ func StdSignBytes(cdc *codec.LegacyAmino, chainID string, accnum uint64, sequenc
 func (suite *AnteTestSuite) CreateTestEIP712SingleMessageTxBuilder(
 	from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins, msg sdk.Msg,
 ) client.TxBuilder {
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msg})
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msg}, false)
 }
 
 func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
-	from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins, msgs []sdk.Msg,
+	from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins, msgs []sdk.Msg, expectTypedDataFailure bool,
 ) client.TxBuilder {
-	var err error
+	var (
+		typedData apitypes.TypedData
+		sigsV2    signing.SignatureV2
+		err       error
+	)
 
 	nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, from)
 	suite.Require().NoError(err)
@@ -497,15 +557,26 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	//nolint:staticcheck
 	fee := legacytx.NewStdFee(gas, gasAmount)
 	accNumber := suite.app.AccountKeeper.GetAccount(suite.ctx, from).GetAccountNumber()
+	feePayer := &eip712.FeeDelegationOptions{
+		FeePayer: from,
+	}
 
 	data := legacytx.StdSignBytes(chainID, accNumber, nonce, 0, fee, msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, &eip712.FeeDelegationOptions{
-		FeePayer: from,
-	})
-	suite.Require().NoError(err)
+
+	if suite.useLegacyEIP712TypedData {
+		typedData, err = eip712.LegacyWrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, feePayer)
+		suite.Require().NoError(err)
+	} else {
+		typedData, err = eip712.WrapTxToTypedData(ethChainID, data, feePayer)
+		suite.Require().NoError(err)
+	}
 
 	sigHash, _, err := apitypes.TypedDataAndHash(typedData)
-	suite.Require().NoError(err)
+	if expectTypedDataFailure {
+		suite.Require().Error(err)
+	} else {
+		suite.Require().NoError(err)
+	}
 
 	// Sign typedData
 	keyringSigner := tests.NewSigner(priv)
@@ -513,30 +584,41 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	suite.Require().NoError(err)
 	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
 
-	// Add ExtensionOptionsWeb3Tx extension
-	var option *codectypes.Any
-	option, err = codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
-		FeePayer:         from.String(),
-		TypedDataChainID: ethChainID,
-		FeePayerSig:      signature,
-	})
-	suite.Require().NoError(err)
-
-	suite.clientCtx.TxConfig.SignModeHandler()
 	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
 	suite.Require().True(ok)
 
-	builder.SetExtensionOptions(option)
 	builder.SetFeeAmount(gasAmount)
 	builder.SetGasLimit(gas)
 
-	sigsV2 := signing.SignatureV2{
-		PubKey: pubKey,
-		Data: &signing.SingleSignatureData{
-			SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-		},
-		Sequence: nonce,
+	if suite.useLegacyEIP712TypedData {
+		option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
+			FeePayer:         from.String(),
+			TypedDataChainID: ethChainID,
+			FeePayerSig:      signature,
+		})
+		suite.Require().NoError(err)
+
+		builder.SetExtensionOptions(option)
+
+		sigsV2 = signing.SignatureV2{
+			PubKey: pubKey,
+			Data: &signing.SingleSignatureData{
+				SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
+			},
+			Sequence: nonce,
+		}
+	} else {
+		// Must use SIGN_MODE_DIRECT, since Amino has some trouble parsing certain Any values from a SignDoc
+		// with the Legacy EIP-712 encodings. This is not an issue with the latest encoding.
+		sigsV2 = signing.SignatureV2{
+			PubKey: pubKey,
+			Data: &signing.SingleSignatureData{
+				SignMode:  signing.SignMode_SIGN_MODE_DIRECT,
+				Signature: signature,
+			},
+			Sequence: nonce,
+		}
 	}
 
 	err = builder.SetSignatures(sigsV2)

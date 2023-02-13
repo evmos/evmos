@@ -17,87 +17,165 @@ package eip712
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"math/big"
-	"reflect"
+	"sort"
+	"strconv"
 	"strings"
-	"time"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
 	errorsmod "cosmossdk.io/errors"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
+)
+
+type FeeDelegationOptions struct {
+	FeePayer sdk.AccAddress
+}
+
+const (
+	typeDefPrefix = "_"
+	ethBool       = "bool"
+	ethInt64      = "int64"
+	ethString     = "string"
 )
 
 // WrapTxToTypedData is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible TypedData request.
 func WrapTxToTypedData(
-	cdc codectypes.AnyUnpacker,
 	chainID uint64,
-	msg sdk.Msg,
 	data []byte,
 	feeDelegation *FeeDelegationOptions,
 ) (apitypes.TypedData, error) {
-	txData := make(map[string]interface{})
+	if !gjson.ValidBytes(data) {
+		return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrJSONUnmarshal, "invalid JSON received")
+	}
 
-	if err := json.Unmarshal(data, &txData); err != nil {
+	txData := gjson.ParseBytes(data)
+
+	if !txData.IsObject() {
 		return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrJSONUnmarshal, "failed to JSON unmarshal data")
+	}
+
+	txData, numMessages, err := FlattenPayloadMessages(txData)
+	if err != nil {
+		return apitypes.TypedData{}, errorsmod.Wrap(err, "failed to flatten payload JSON messages")
+	}
+
+	if !txData.IsObject() {
+		return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrJSONUnmarshal, "failed to flatten JSON data")
+	}
+
+	chainIDInt64, err := strconv.ParseInt(strconv.FormatUint(chainID, 10), 10, 64)
+	if err != nil {
+		return apitypes.TypedData{}, errorsmod.Wrap(err, "invalid chainID")
 	}
 
 	domain := apitypes.TypedDataDomain{
 		Name:              "Cosmos Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           math.NewHexOrDecimal256(chainIDInt64),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
 
-	msgTypes, err := extractMsgTypes(cdc, "MsgValue", msg)
+	payloadTypes, err := extractPayloadTypes(txData, numMessages)
 	if err != nil {
 		return apitypes.TypedData{}, err
 	}
 
 	if feeDelegation != nil {
-		feeInfo, ok := txData["fee"].(map[string]interface{})
-		if !ok {
-			return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrInvalidType, "cannot parse fee from tx data")
+		// TODO: Consider removing feePayer field, as it's not necessary for signature verification
+
+		txWithFee, err := sjson.Set(txData.Raw, "fee.feePayer", feeDelegation.FeePayer.String())
+		if err != nil {
+			return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrInvalidType, "cannot update feePayer from tx data")
 		}
 
-		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
+		txData = gjson.Parse(txWithFee)
+		if !txData.IsObject() {
+			return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrInvalidType, "could not update feePayer from tx data")
+		}
 
-		// also patching msgTypes to include feePayer
-		msgTypes["Fee"] = []apitypes.Type{
+		// Patch payloadTypes to include feePayer
+		payloadTypes["Fee"] = []apitypes.Type{
 			{Name: "feePayer", Type: "string"},
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
 		}
 	}
 
+	txDataMap, ok := txData.Value().(map[string]interface{})
+	if !ok {
+		return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrInvalidType, "failed to parse JSON as map")
+	}
+
 	typedData := apitypes.TypedData{
-		Types:       msgTypes,
+		Types:       payloadTypes,
 		PrimaryType: "Tx",
 		Domain:      domain,
-		Message:     txData,
+		Message:     txDataMap,
 	}
 
 	return typedData, nil
 }
 
-type FeeDelegationOptions struct {
-	FeePayer sdk.AccAddress
+func flattenedMsgField(i int) string {
+	return fmt.Sprintf("msg%d", i)
 }
 
-func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg sdk.Msg) (apitypes.Types, error) {
+// FlattenPayloadMessages flattens the input payload's messages, representing
+// them as key-value pairs of "Message{i}": {Msg}, rather than an array of Msgs.
+// We do this to support messages with different schemas.
+func FlattenPayloadMessages(payload gjson.Result) (gjson.Result, int, error) {
+	var err error
+	flattened := payload.Raw
+
+	msgs := payload.Get("msgs")
+
+	if !msgs.Exists() {
+		return gjson.Result{}, 0, errorsmod.Wrap(errortypes.ErrInvalidRequest, "no messages found in payload, unable to parse")
+	}
+
+	if !msgs.IsArray() {
+		return gjson.Result{}, 0, errorsmod.Wrap(errortypes.ErrInvalidRequest, "expected type array of messages, cannot parse")
+	}
+
+	for i, msg := range msgs.Array() {
+		if !msg.IsObject() {
+			return gjson.Result{}, 0, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "msg at index %d is not valid JSON: %v", i, msg)
+		}
+
+		msgField := flattenedMsgField(i)
+
+		if gjson.Get(flattened, msgField).Exists() {
+			return gjson.Result{}, 0, errorsmod.Wrapf(
+				errortypes.ErrInvalidRequest,
+				"malformed payload received, did not expect to find key with field %v", msgField,
+			)
+		}
+
+		flattened, err = sjson.SetRaw(flattened, msgField, msg.Raw)
+		if err != nil {
+			return gjson.Result{}, 0, err
+		}
+	}
+
+	flattened, err = sjson.Delete(flattened, "msgs")
+	if err != nil {
+		return gjson.Result{}, 0, err
+	}
+
+	return gjson.Parse(flattened), len(msgs.Array()), nil
+}
+
+func extractPayloadTypes(payload gjson.Result, numMessages int) (apitypes.Types, error) {
 	rootTypes := apitypes.Types{
 		"EIP712Domain": {
 			{
@@ -126,7 +204,6 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg sdk.Msg
 			{Name: "chain_id", Type: "string"},
 			{Name: "fee", Type: "Fee"},
 			{Name: "memo", Type: "string"},
-			{Name: "msgs", Type: "Msg[]"},
 			{Name: "sequence", Type: "string"},
 			// Note timeout_height was removed because it was not getting filled with the legacyTx
 			// {Name: "timeout_height", Type: "string"},
@@ -139,243 +216,211 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg sdk.Msg
 			{Name: "denom", Type: "string"},
 			{Name: "amount", Type: "string"},
 		},
-		"Msg": {
-			{Name: "type", Type: "string"},
-			{Name: "value", Type: msgTypeName},
-		},
-		msgTypeName: {},
 	}
 
-	if err := walkFields(cdc, rootTypes, msgTypeName, msg); err != nil {
-		return nil, err
+	for i := 0; i < numMessages; i++ {
+		msg := payload.Get(flattenedMsgField(i))
+
+		if !msg.IsObject() {
+			return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "ran out of messages at index (%d), expected total of (%d)", i, numMessages)
+		}
+
+		msgTypedef, err := walkMsgTypes(rootTypes, msg)
+		if err != nil {
+			return nil, err
+		}
+
+		rootTypes["Tx"] = append(rootTypes["Tx"], apitypes.Type{
+			Name: flattenedMsgField(i),
+			Type: msgTypedef,
+		})
 	}
 
 	return rootTypes, nil
 }
 
-const typeDefPrefix = "_"
+// addTypesToRoot attempts to add the types to the root at key typeDef and returns the key at which the types are
+// present, or an error if they cannot be added. If the typeDef key is a duplicate, we return the key corresponding
+// to an identical copy if present (without modifying the structure), otherwise we insert the types at the next
+// available typeDef-{n} field. We do this to support identically named payloads with different schemas.
+func addTypesToRoot(rootTypes apitypes.Types, typeDef string, types []apitypes.Type) (string, error) {
+	var typeDefKey string
 
-func walkFields(cdc codectypes.AnyUnpacker, typeMap apitypes.Types, rootType string, in interface{}) (err error) {
-	defer doRecover(&err)
-
-	t := reflect.TypeOf(in)
-	v := reflect.ValueOf(in)
+	duplicateIndex := 0
 
 	for {
-		if t.Kind() == reflect.Ptr ||
-			t.Kind() == reflect.Interface {
-			t = t.Elem()
-			v = v.Elem()
+		typeDefKey = fmt.Sprintf("%v%d", typeDef, duplicateIndex)
+		duplicateTypes, ok := rootTypes[typeDefKey]
 
-			continue
+		// Found identical duplicate
+		if ok && typesAreEqual(types, duplicateTypes) {
+			return typeDefKey, nil
 		}
 
-		break
+		// Found no element
+		if !ok {
+			break
+		}
+
+		duplicateIndex++
+
+		if duplicateIndex == 1000 {
+			return "", errorsmod.Wrap(errortypes.ErrInvalidRequest, "exceeded maximum number of duplicates for a single type definition")
+		}
 	}
 
-	return traverseFields(cdc, typeMap, rootType, typeDefPrefix, t, v)
+	// Add new type to root at current duplicate index
+	rootTypes[typeDefKey] = types
+	return typeDefKey, nil
 }
 
-type cosmosAnyWrapper struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
+// typesAreEqual compares two apitypes.Type arrays and returns a boolean indicating whether they have
+// the same naming and type definitions. Assumes both arrays are in the same order.
+func typesAreEqual(types1 []apitypes.Type, types2 []apitypes.Type) bool {
+	if len(types1) != len(types2) {
+		return false
+	}
+
+	n := len(types1)
+
+	for i := 0; i < n; i++ {
+		if types1[i].Name != types2[i].Name || types1[i].Type != types2[i].Type {
+			return false
+		}
+	}
+
+	return true
 }
 
+// walkMsgTypes recursively parses each field in the given message JSON and builds the typeMap along the way.
+// It returns the key of the message schema once it's been added to the typeMap.
+func walkMsgTypes(typeMap apitypes.Types, json gjson.Result) (msgField string, err error) {
+	defer doRecover(&err)
+
+	rootType := json.Get("type").Str
+
+	if rootType == "" {
+		// .Str is empty for arrays and objects
+		return "", errorsmod.Wrap(errortypes.ErrInvalidType, "malformed message type value, expected type string")
+	}
+
+	// Reformat root type name
+	tokens := strings.Split(rootType, "/")
+	if len(tokens) == 1 {
+		rootType = fmt.Sprintf("Type%v", rootType)
+	} else {
+		rootType = fmt.Sprintf("Type%v", tokens[len(tokens)-1])
+	}
+
+	return traverseFields(typeMap, rootType, typeDefPrefix, json)
+}
+
+// traverseFields walks all types in the given map, recursively adding sub-maps as new types when necessary, and adds the map's type definition
+// to typeMap. It returns the key to the type definition, and an error if it failed.
 func traverseFields(
-	cdc codectypes.AnyUnpacker,
 	typeMap apitypes.Types,
 	rootType string,
 	prefix string,
-	t reflect.Type,
-	v reflect.Value,
-) error {
-	n := t.NumField()
+	json gjson.Result,
+) (string, error) {
+	var typeDef string
 
-	if prefix == typeDefPrefix {
-		if len(typeMap[rootType]) == n {
-			return nil
-		}
-	} else {
-		typeDef := sanitizeTypedef(prefix)
-		if len(typeMap[typeDef]) == n {
-			return nil
-		}
+	// Sort JSON keys for deterministic type generation
+	mapKeys, err := sortedJSONKeys(json)
+	if err != nil {
+		return "", errorsmod.Wrap(err, "unable to traverse map types")
 	}
 
-	for i := 0; i < n; i++ {
-		var (
-			field reflect.Value
-			err   error
-		)
+	newTypes := []apitypes.Type{}
 
-		if v.IsValid() {
-			field = v.Field(i)
-		}
-
-		fieldType := t.Field(i).Type
-		fieldName := jsonNameFromTag(t.Field(i).Tag)
-
-		if fieldType == cosmosAnyType {
-			// Unpack field, value as Any
-			if fieldType, field, err = unpackAny(cdc, field); err != nil {
-				return err
-			}
-		}
-
-		// If field is an empty value, do not include in types, since it will not be present in the object
-		if field.IsZero() {
+	for _, fieldName := range mapKeys {
+		field := json.Get(fieldName)
+		if !field.Exists() {
 			continue
 		}
 
-		for {
-			if fieldType.Kind() == reflect.Ptr {
-				fieldType = fieldType.Elem()
-
-				if field.IsValid() {
-					field = field.Elem()
-				}
-
-				continue
-			}
-
-			if fieldType.Kind() == reflect.Interface {
-				fieldType = reflect.TypeOf(field.Interface())
-				continue
-			}
-
-			if field.Kind() == reflect.Ptr {
-				field = field.Elem()
-				continue
-			}
-
-			break
-		}
-
 		var isCollection bool
-		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			if field.Len() == 0 {
-				// skip empty collections from type mapping
+		if field.IsArray() {
+			if len(field.Array()) == 0 {
+				// Add generic string[] type, since we cannot access underlying object
+				newTypes = append(newTypes, apitypes.Type{
+					Name: fieldName,
+					Type: "string[]",
+				})
+
 				continue
 			}
 
-			fieldType = fieldType.Elem()
-			field = field.Index(0)
+			field = field.Array()[0]
 			isCollection = true
-
-			if fieldType == cosmosAnyType {
-				if fieldType, field, err = unpackAny(cdc, field); err != nil {
-					return err
-				}
-			}
-		}
-
-		for {
-			if fieldType.Kind() == reflect.Ptr {
-				fieldType = fieldType.Elem()
-
-				if field.IsValid() {
-					field = field.Elem()
-				}
-
-				continue
-			}
-
-			if fieldType.Kind() == reflect.Interface {
-				fieldType = reflect.TypeOf(field.Interface())
-				continue
-			}
-
-			if field.Kind() == reflect.Ptr {
-				field = field.Elem()
-				continue
-			}
-
-			break
 		}
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 
-		ethTyp := typToEth(fieldType)
-		if len(ethTyp) > 0 {
-			// Support array of uint64
-			if isCollection && fieldType.Kind() != reflect.Slice && fieldType.Kind() != reflect.Array {
-				ethTyp += "[]"
+		ethType := jsonToEth(field)
+		if ethType != "" {
+			// Type is not object
+			// Support array types
+			if isCollection {
+				ethType += "[]"
 			}
 
-			if prefix == typeDefPrefix {
-				typeMap[rootType] = append(typeMap[rootType], apitypes.Type{
-					Name: fieldName,
-					Type: ethTyp,
-				})
-			} else {
-				typeDef := sanitizeTypedef(prefix)
-				typeMap[typeDef] = append(typeMap[typeDef], apitypes.Type{
-					Name: fieldName,
-					Type: ethTyp,
-				})
-			}
+			newTypes = append(newTypes, apitypes.Type{
+				Name: fieldName,
+				Type: ethType,
+			})
 
 			continue
 		}
 
-		if fieldType.Kind() == reflect.Struct {
-			var fieldTypedef string
+		if field.IsObject() {
+			fieldTypedef, err := traverseFields(typeMap, rootType, fieldPrefix, field)
+			if err != nil {
+				return "", err
+			}
 
 			if isCollection {
-				fieldTypedef = sanitizeTypedef(fieldPrefix) + "[]"
+				fieldTypedef = sanitizeTypedef(fieldTypedef) + "[]"
 			} else {
-				fieldTypedef = sanitizeTypedef(fieldPrefix)
+				fieldTypedef = sanitizeTypedef(fieldTypedef)
 			}
 
-			if prefix == typeDefPrefix {
-				typeMap[rootType] = append(typeMap[rootType], apitypes.Type{
-					Name: fieldName,
-					Type: fieldTypedef,
-				})
-			} else {
-				typeDef := sanitizeTypedef(prefix)
-				typeMap[typeDef] = append(typeMap[typeDef], apitypes.Type{
-					Name: fieldName,
-					Type: fieldTypedef,
-				})
-			}
-
-			if err := traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field); err != nil {
-				return err
-			}
+			newTypes = append(newTypes, apitypes.Type{
+				Name: fieldName,
+				Type: fieldTypedef,
+			})
 
 			continue
 		}
 	}
 
-	return nil
+	if prefix == typeDefPrefix {
+		typeDef = rootType
+	} else {
+		typeDef = sanitizeTypedef(prefix)
+	}
+
+	return addTypesToRoot(typeMap, typeDef, newTypes)
 }
 
-func jsonNameFromTag(tag reflect.StructTag) string {
-	jsonTags := tag.Get("json")
-	parts := strings.Split(jsonTags, ",")
-	return parts[0]
-}
-
-// Unpack the given Any value with Type/Value deconstruction
-func unpackAny(cdc codectypes.AnyUnpacker, field reflect.Value) (reflect.Type, reflect.Value, error) {
-	any, ok := field.Interface().(*codectypes.Any)
-	if !ok {
-		return nil, reflect.Value{}, errorsmod.Wrapf(errortypes.ErrPackAny, "%T", field.Interface())
+// sortedJSONKeys returns the sorted JSON keys for the input object.
+func sortedJSONKeys(json gjson.Result) ([]string, error) {
+	if !json.IsObject() {
+		return nil, errorsmod.Wrap(errortypes.ErrInvalidType, "expected JSON map to parse")
 	}
 
-	anyWrapper := &cosmosAnyWrapper{
-		Type: any.TypeUrl,
+	jsonMap := json.Map()
+
+	keys := make([]string, 0, len(jsonMap))
+	for k := range jsonMap {
+		keys = append(keys, k)
 	}
 
-	if err := cdc.UnpackAny(any, &anyWrapper.Value); err != nil {
-		return nil, reflect.Value{}, errorsmod.Wrap(err, "failed to unpack Any in msg struct")
-	}
+	sort.Slice(keys, func(i, j int) bool {
+		return strings.Compare(keys[i], keys[j]) > 0
+	})
 
-	fieldType := reflect.TypeOf(anyWrapper)
-	field = reflect.ValueOf(anyWrapper)
-
-	return fieldType, field, nil
+	return keys, nil
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
@@ -402,79 +447,23 @@ func sanitizeTypedef(str string) string {
 	return buf.String()
 }
 
-var (
-	hashType      = reflect.TypeOf(common.Hash{})
-	addressType   = reflect.TypeOf(common.Address{})
-	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
-	cosmDecType   = reflect.TypeOf(sdk.Dec{})
-	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
-	timeType      = reflect.TypeOf(time.Time{})
-
-	edType = reflect.TypeOf(ed25519.PubKey{})
-)
-
-// typToEth supports only basic types and arrays of basic types.
-// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
-func typToEth(typ reflect.Type) string {
-	const str = "string"
-
-	switch typ.Kind() {
-	case reflect.String:
-		return str
-	case reflect.Bool:
-		return "bool"
-	case reflect.Int:
-		return "int64"
-	case reflect.Int8:
-		return "int8"
-	case reflect.Int16:
-		return "int16"
-	case reflect.Int32:
-		return "int32"
-	case reflect.Int64:
-		return "int64"
-	case reflect.Uint:
-		return "uint64"
-	case reflect.Uint8:
-		return "uint8"
-	case reflect.Uint16:
-		return "uint16"
-	case reflect.Uint32:
-		return "uint32"
-	case reflect.Uint64:
-		return "uint64"
-	case reflect.Slice:
-		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
-			return ethName + "[]"
-		}
-	case reflect.Array:
-		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
-			return ethName + "[]"
-		}
-	case reflect.Ptr:
-		if typ.Elem().ConvertibleTo(bigIntType) ||
-			typ.Elem().ConvertibleTo(timeType) ||
-			typ.Elem().ConvertibleTo(edType) ||
-			typ.Elem().ConvertibleTo(cosmDecType) ||
-			typ.Elem().ConvertibleTo(cosmIntType) {
-			return str
-		}
-	case reflect.Struct:
-		if typ.ConvertibleTo(hashType) ||
-			typ.ConvertibleTo(addressType) ||
-			typ.ConvertibleTo(bigIntType) ||
-			typ.ConvertibleTo(edType) ||
-			typ.ConvertibleTo(timeType) ||
-			typ.ConvertibleTo(cosmDecType) ||
-			typ.ConvertibleTo(cosmIntType) {
-			return str
-		}
+// jsonToEth converts a JSON type to an Ethereum type. Returns an empty string for Objects, Arrays, or Null.
+// See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md for more.
+func jsonToEth(json gjson.Result) string {
+	switch json.Type {
+	case gjson.True, gjson.False:
+		return ethBool
+	case gjson.Number:
+		return ethInt64
+	case gjson.String:
+		return ethString
+	case gjson.JSON:
+		// Array or Object type
+		// (Nested arrays are not supported)
+		return ""
+	default:
+		return ""
 	}
-
-	return ""
 }
 
 func doRecover(err *error) {
