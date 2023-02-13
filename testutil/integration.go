@@ -169,7 +169,7 @@ func DeliverTx(
 		return abci.ResponseDeliverTx{}, err
 	}
 
-	return broadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
 }
 
 // DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
@@ -231,11 +231,11 @@ func DeliverEthTx(
 	txBuilder.SetGasLimit(txGasLimit)
 	txBuilder.SetFeeAmount(txFee)
 
-	return broadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
 }
 
-// broadcastTxBytes encodes a transaction and calls DeliverTx on the app.
-func broadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseDeliverTx, error) {
+// BroadcastTxBytes encodes a transaction and calls DeliverTx on the app.
+func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseDeliverTx, error) {
 	// bz are bytes to be broadcasted over the network
 	bz, err := txEncoder(tx)
 	if err != nil {

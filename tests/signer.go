@@ -41,11 +41,11 @@ func NewAddrKey() (common.Address, *ethsecp256k1.PrivKey) {
 	return addr, privkey
 }
 
-// GenerateKeyAndSdkAddress generates a private key and its corresponding
+// NewAccAddressAndKey generates a private key and its corresponding
 // Cosmos SDK address.
-func GenerateKeyAndSdkAddress() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
+func NewAccAddressAndKey() (sdk.AccAddress, *ethsecp256k1.PrivKey) {
 	addr, privKey := NewAddrKey()
-	return privKey, sdk.AccAddress(addr.Bytes())
+	return sdk.AccAddress(addr.Bytes()), privKey
 }
 
 // GenerateAddress generates an Ethereum address.

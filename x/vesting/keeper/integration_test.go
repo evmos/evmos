@@ -383,7 +383,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not short-circuit with a normal account", func() {
 			account := testAccounts[0]
-			privKey, address := tests.GenerateKeyAndSdkAddress()
+			address, privKey := tests.NewAccAddressAndKey()
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).BigInt()
 

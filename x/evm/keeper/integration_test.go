@@ -147,7 +147,7 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee ma
 func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	setupChain(localMinGasPrices)
 
-	privKey, address := tests.GenerateKeyAndSdkAddress()
+	address, privKey := tests.NewAccAddressAndKey()
 	amount, ok := sdk.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{
