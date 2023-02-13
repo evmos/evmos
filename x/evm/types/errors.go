@@ -1,18 +1,18 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Ethermint library.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
-// The Ethermint library is free software: you can redistribute it and/or modify
+// Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// The Ethermint library is distributed in the hope that it will be useful,
+// The Evmos packages are distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Ethermint library. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
 import (
@@ -24,20 +24,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 const (
-	// TODO bring this back to default once the ethermint RPC are migrated.
-	// Since we are still using Ethermint's RPCs this does not represent an issue
-	codeErrInvalidState      = uint32(iota) + 100 // NOTE: code 1 is reserved for internal errors
-	codeErrExecutionReverted                      // IMPORTANT: Do not move this error as it complies with the JSON-RPC error standard
-	codeErrChainConfigNotFound
+	codeErrInvalidState = uint32(iota) + 2 // NOTE: code 1 is reserved for internal errors
 	codeErrInvalidChainConfig
 	codeErrZeroAddress
-	codeErrEmptyHash
-	codeErrBloomNotFound
-	codeErrTxReceiptNotFound
 	codeErrCreateDisabled
 	codeErrCallDisabled
 	codeErrInvalidAmount
@@ -45,7 +37,6 @@ const (
 	codeErrInvalidGasFee
 	codeErrVMExecution
 	codeErrInvalidRefund
-	codeErrInconsistentGas
 	codeErrInvalidGasCap
 	codeErrInvalidBaseFee
 	codeErrGasOverflow
@@ -59,26 +50,11 @@ var (
 	// ErrInvalidState returns an error resulting from an invalid Storage State.
 	ErrInvalidState = errorsmod.Register(ModuleName, codeErrInvalidState, "invalid storage state")
 
-	// ErrExecutionReverted returns an error resulting from an error in EVM execution.
-	ErrExecutionReverted = errorsmod.Register(ModuleName, codeErrExecutionReverted, vm.ErrExecutionReverted.Error())
-
-	// ErrChainConfigNotFound returns an error if the chain config cannot be found on the store.
-	ErrChainConfigNotFound = errorsmod.Register(ModuleName, codeErrChainConfigNotFound, "chain configuration not found")
-
 	// ErrInvalidChainConfig returns an error resulting from an invalid ChainConfig.
 	ErrInvalidChainConfig = errorsmod.Register(ModuleName, codeErrInvalidChainConfig, "invalid chain configuration")
 
 	// ErrZeroAddress returns an error resulting from an zero (empty) ethereum Address.
 	ErrZeroAddress = errorsmod.Register(ModuleName, codeErrZeroAddress, "invalid zero address")
-
-	// ErrEmptyHash returns an error resulting from an empty ethereum Hash.
-	ErrEmptyHash = errorsmod.Register(ModuleName, codeErrEmptyHash, "empty hash")
-
-	// ErrBloomNotFound returns an error if the block bloom cannot be found on the store.
-	ErrBloomNotFound = errorsmod.Register(ModuleName, codeErrBloomNotFound, "block bloom not found")
-
-	// ErrTxReceiptNotFound returns an error if the transaction receipt could not be found
-	ErrTxReceiptNotFound = errorsmod.Register(ModuleName, codeErrTxReceiptNotFound, "transaction receipt not found")
 
 	// ErrCreateDisabled returns an error if the EnableCreate parameter is false.
 	ErrCreateDisabled = errorsmod.Register(ModuleName, codeErrCreateDisabled, "EVM Create operation is disabled")
@@ -100,9 +76,6 @@ var (
 
 	// ErrInvalidRefund returns an error if a the gas refund value is invalid.
 	ErrInvalidRefund = errorsmod.Register(ModuleName, codeErrInvalidRefund, "invalid gas refund amount")
-
-	// ErrInconsistentGas returns an error if a the gas differs from the expected one.
-	ErrInconsistentGas = errorsmod.Register(ModuleName, codeErrInconsistentGas, "inconsistent gas")
 
 	// ErrInvalidGasCap returns an error if a the gas cap value is negative or invalid
 	ErrInvalidGasCap = errorsmod.Register(ModuleName, codeErrInvalidGasCap, "invalid gas cap")

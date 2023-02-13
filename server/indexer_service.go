@@ -23,7 +23,7 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
 
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 )
 
 const (
@@ -36,13 +36,13 @@ const (
 type EVMIndexerService struct {
 	service.BaseService
 
-	txIdxr ethermint.EVMTxIndexer
+	txIdxr evmostypes.EVMTxIndexer
 	client rpcclient.Client
 }
 
 // NewEVMIndexerService returns a new service instance.
 func NewEVMIndexerService(
-	txIdxr ethermint.EVMTxIndexer,
+	txIdxr evmostypes.EVMTxIndexer,
 	client rpcclient.Client,
 ) *EVMIndexerService {
 	is := &EVMIndexerService{txIdxr: txIdxr, client: client}
