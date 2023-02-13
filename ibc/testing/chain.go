@@ -34,7 +34,7 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 	"github.com/cosmos/ibc-go/v6/testing/mock"
 
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/tests"
 	ethermint "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -55,11 +55,11 @@ func init() {
 //
 // Time management is handled by the Coordinator in order to ensure synchrony between chains.
 // Each update of any chain increments the block header time for all chains by 5 seconds.
-func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string) *ibcgotesting.TestChain {
+func NewTestChain(tb *testing.T, coord *ibcgotesting.Coordinator, chainID string) *ibcgotesting.TestChain {
 	// generate validator private/public key
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	// create validator set with single validator
 	validator := tmtypes.NewValidator(pubKey, 1)
@@ -68,12 +68,9 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 	signers[pubKey.Address().String()] = privVal
 
 	// generate genesis account
-	senderPrivKey, err := ethsecp256k1.GenerateKey()
-	if err != nil {
-		panic(err)
-	}
+	addr, senderPrivKey := tests.NewAddrKey()
 
-	baseAcc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+	baseAcc := authtypes.NewBaseAccount(addr.Bytes(), senderPrivKey.PubKey(), 0, 0)
 
 	acc := &ethermint.EthAccount{
 		BaseAccount: baseAcc,
@@ -87,7 +84,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
-	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
+	app := SetupWithGenesisValSet(tb, valSet, []authtypes.GenesisAccount{acc}, chainID, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{
@@ -100,7 +97,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	// create an account to send transactions from
 	chain := &ibcgotesting.TestChain{
-		T:             t,
+		T:             tb,
 		Coordinator:   coord,
 		ChainID:       chainID,
 		App:           app,

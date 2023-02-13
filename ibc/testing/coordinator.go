@@ -183,7 +183,7 @@ func SendMsgs(chain *ibctesting.TestChain, feeAmt int64, msgs ...sdk.Msg) (*sdk.
 // Is a customization of IBC-go function that allows to modify the fee denom and amount
 // IBC-go implementation: https://github.com/cosmos/ibc-go/blob/d34cef7e075dda1a24a0a3e9b6d3eff406cc606c/testing/simapp/test_helpers.go#L332-L364
 func SignAndDeliver(
-	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
+	tb testing.TB, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
 	fee sdk.Coins,
 	chainID string, accNums, accSeqs []uint64, expPass bool, priv ...cryptotypes.PrivKey,
 ) (sdk.GasInfo, *sdk.Result, error) {
@@ -197,17 +197,17 @@ func SignAndDeliver(
 		accSeqs,
 		priv...,
 	)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	// Simulate a sending a transaction
 	gInfo, res, err := app.SimDeliver(txCfg.TxEncoder(), tx)
 
 	if expPass {
-		require.NoError(t, err)
-		require.NotNil(t, res)
+		require.NoError(tb, err)
+		require.NotNil(tb, res)
 	} else {
-		require.Error(t, err)
-		require.Nil(t, res)
+		require.Error(tb, err)
+		require.Nil(tb, res)
 	}
 
 	return gInfo, res, err

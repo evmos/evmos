@@ -146,7 +146,6 @@ import (
 	v82 "github.com/evmos/evmos/v11/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v11/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v11/app/upgrades/v9_1"
-	cmdcfg "github.com/evmos/evmos/v11/cmd/config"
 	"github.com/evmos/evmos/v11/x/claims"
 	claimskeeper "github.com/evmos/evmos/v11/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
@@ -198,10 +197,6 @@ func init() {
 	feemarkettypes.DefaultMinGasMultiplier = MainnetMinGasMultiplier
 	// modify default min commission to 5%
 	stakingtypes.DefaultMinCommissionRate = sdk.NewDecWithPrec(5, 2)
-
-	cfg := sdk.GetConfig()
-	cmdcfg.SetBech32Prefixes(cfg)
-	cmdcfg.SetBip44CoinType(cfg)
 }
 
 // Name defines the application binary name

@@ -25,8 +25,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
@@ -50,28 +48,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
-
-// DefaultTestingAppInit defines the IBC application used for testing
-var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
-
-// DefaultConsensusParams defines the default Tendermint consensus params used in
-// Evmos testing.
-var DefaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
-		MaxBytes: 200000,
-		MaxGas:   -1, // no limit
-	},
-	Evidence: &tmproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		MaxBytes:        10000,
-	},
-	Validator: &tmproto.ValidatorParams{
-		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeEd25519,
-		},
-	},
-}
 
 var DefaultOptions = simapp.SetupOptions{
 	Logger:             log.NewNopLogger(),
@@ -118,7 +94,7 @@ func (s *TestingEnv) setupEOAs(
 		baseAcc := authtypes.NewBaseAccount(acc.Address, acc.PubKey, i, 0)
 		genAccounts[i] = &evmostypes.EthAccount{BaseAccount: baseAcc, CodeHash: common.BytesToHash(evmtypes.EmptyCodeHash).Hex()}
 
-		coins := sdk.Coins{evmostypes.NewAEvmosCoin(amount)}
+		coins := sdk.Coins{evmostypes.NewEvmosCoin(amount)}
 		balances[i] = banktypes.Balance{
 			Address: acc.Address.String(),
 			Coins:   coins,
@@ -223,12 +199,22 @@ func (s *TestingEnv) Setup(
 	req := abci.RequestInitChain{
 		ChainId:         chainID,
 		Validators:      []abci.ValidatorUpdate{},
-		ConsensusParams: DefaultConsensusParams,
+		ConsensusParams: app.DefaultConsensusParams,
 		AppStateBytes:   stateBytes,
 	}
 
 	res := s.app.InitChain(req)
-	header := s.NewHeader(1, time.Now().UTC(), chainID, s.validatorAccounts[0].Address.Bytes(), res.AppHash)
+	// commit genesis changes
+	s.app.Commit()
+	s.app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
+		ChainID:            chainID,
+		Height:             s.app.LastBlockHeight() + 1,
+		AppHash:            s.app.LastCommitID().Hash,
+		ValidatorsHash:     valSet.Hash(),
+		NextValidatorsHash: valSet.Hash(),
+	}})
+
+	header := s.NewHeader(s.app.LastBlockHeight(), time.Now().UTC(), chainID, s.validatorAccounts[0].Address.Bytes(), res.AppHash)
 	s.ctx = s.app.NewContext(false, header)
 }
 
