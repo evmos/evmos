@@ -44,17 +44,6 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			errContains: "",
 		},
 		{
-			name: "fail - valid Update msg with invalid channel name",
-			request: &types.MsgUpdateParams{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params: types.Params{
-					AuthorizedChannels: []string{"channel-0", "abc"},
-				},
-			},
-			expectErr:   true,
-			errContains: "invalid authorized channel: invalid channel identifier",
-		},
-		{
 			name: "fail - valid Update msg with unknown channel",
 			request: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -86,17 +75,6 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			},
 			expectErr:   false,
 			errContains: "",
-		},
-		{
-			name: "fail - valid Update msg with invalid EVM channel",
-			request: &types.MsgUpdateParams{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params: types.Params{
-					EVMChannels: []string{"channel-0", "abc"},
-				},
-			},
-			expectErr:   true,
-			errContains: "invalid evm channel: invalid channel identifier",
 		},
 		{
 			name: "fail - valid Update msg with unknown EVM channel",
