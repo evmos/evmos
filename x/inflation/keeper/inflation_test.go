@@ -143,10 +143,6 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 				types.DefaultInflationDenom,
 				sdk.TokensFromConsensusPower(int64(200_000_000), evmostypes.PowerReduction),
 			)
-<<<<<<< HEAD
-=======
-			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx, types.DefaultInflationDenom)
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 
 			circulatingSupply := s.app.InflationKeeper.GetCirculatingSupply(suite.ctx, types.DefaultInflationDenom)
 			suite.Require().Equal(decCoin.Add(bondedCoins).Sub(teamAlloc).Amount, circulatingSupply)

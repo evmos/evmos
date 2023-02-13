@@ -137,15 +137,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		pruning.PruningCmd(a.newApp),
 	)
 
-<<<<<<< HEAD
 	evmosserver.AddCommands(
 		rootCmd,
 		evmosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
-=======
-	ethermintserver.AddCommands(
-		rootCmd,
-		ethermintserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 		a.appExport,
 		addModuleInitFlags,
 	)

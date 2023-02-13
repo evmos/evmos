@@ -52,7 +52,6 @@ voters are expected to vote `NoWithVeto` if a proposal leads to undesirable outc
 It states “if a proposal seems to be spam or is deemed to have caused a negative externality to Cosmos community,
 voters should vote `NoWithVeto`.”
 
-<<<<<<< HEAD
 Voting `NoWithVeto` provides a mechanism for a minority group representing a *third* of the participating voting power
 to reject a proposal that would otherwise pass.
 This makes explicit an aspect of the consensus protocol:
@@ -65,9 +64,6 @@ to discourage validators from relying on collusion and censorship tactics to inf
 
 [Proposal #103](https://www.mintscan.io/evmos/proposals/103) was passed in January 2023 by the Evmos network
 to formally define and adopt the meanings of each voting options aforementioned.
-=======
-Voting `NoWithVeto` provides a mechanism for a minority group representing a *third* of the participating voting power to reject a proposal that would otherwise pass. This makes explicit an aspect of the consensus protocol: it works as long as only up to [a third of nodes fail](https://docs.tendermint.com/v0.34/introduction/what-is-tendermint.html). In other words, greater than a third of validators are always in a position to cause a proposal to fail outside the formalized governance process and the network's norms, such as by censoring transactions. The purpose of internalizing this aspect of the consensus protocol into the governance process is to discourage validators from relying on collusion and censorship tactics to influence voting outcomes.
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 
 ## What determines whether or not a governance proposal passes?
 

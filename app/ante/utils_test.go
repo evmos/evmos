@@ -19,29 +19,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-<<<<<<< HEAD
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/ethereum/eip712"
+	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
-=======
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	cryptocodec "github.com/evmos/ethermint/crypto/codec"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/ethereum/eip712"
-	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/ethermint/types"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
-	"github.com/evmos/evmos/v11/app"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -62,22 +52,7 @@ type AnteTestSuite struct {
 	denom string
 }
 
-<<<<<<< HEAD
 func (suite *AnteTestSuite) SetupTest() {
-=======
-type MockAnteHandler struct {
-	WasCalled bool
-	CalledCtx sdk.Context
-}
-
-func (mah *MockAnteHandler) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
-	mah.WasCalled = true
-	mah.CalledCtx = ctx
-	return ctx, nil
-}
-
-func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 	t := suite.T()
 	privCons, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)

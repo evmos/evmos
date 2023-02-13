@@ -1251,23 +1251,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrade in v9 or v9.1
 	case v10.UpgradeName:
 		// no store upgrades in v10
-<<<<<<< HEAD
 	case v11.UpgradeName:
 		// add ica host submodule in v11
 		// initialize recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
-=======
-	case v11.UpgradeNameRC3:
-		// rename recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"recovery"},
-			Added:   []string{recoverytypes.StoreKey},
-		}
-	case v11.UpgradeName:
-		// add ica host submodule
-		// initialize recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
->>>>>>> 8eeeac7ae42a5b2695fea7f56868f3c6e9bc2378
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
 		}
 	}

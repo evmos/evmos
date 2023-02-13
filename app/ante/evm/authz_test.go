@@ -1,4 +1,4 @@
-package ante_test
+package evm_test
 
 import (
 	"fmt"
@@ -13,9 +13,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-
-	"github.com/evmos/evmos/v11/app/ante"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func TestAuthzLimiterDecorator(t *testing.T) {
@@ -31,7 +30,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	stakingAuthUndelegate, err := stakingtypes.NewStakeAuthorization([]sdk.ValAddress{validator}, nil, stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_UNDELEGATE, nil)
 	require.NoError(t, err)
 
-	decorator := ante.NewAuthzLimiterDecorator(
+	decorator := evmante.NewAuthzLimiterDecorator(
 		sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
 		sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
 	)
