@@ -413,7 +413,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err = validateAnteForEthTxs(normalAccMsg, msg)
 			Expect(err).ToNot(BeNil())
 
-			err = deliverEthTxs(nil, msg)
+			_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msg)
 			Expect(err).ToNot(BeNil())
 		})
 	})
@@ -907,13 +907,6 @@ func validateAnteForEthTxs(msgs ...sdk.Msg) error {
 	return err
 }
 
-// deliverEthTxs is a helper function to deliver multiple messages with the same
-// private key.
-func deliverEthTxs(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) error {
-	_, err := testutil.DeliverEthTx(s.ctx, s.app, priv, msgs...)
-	return err
-}
-
 // assertEthFails is a helper function that takes in 1 or more messages and checks
 // that they can neither be validated nor delivered.
 func assertEthFails(msgs ...sdk.Msg) {
@@ -924,7 +917,7 @@ func assertEthFails(msgs ...sdk.Msg) {
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 
 	// Sanity check that delivery fails as well
-	err = deliverEthTxs(nil, msgs...)
+	_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msgs...)
 	Expect(err).ToNot(BeNil())
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 }
@@ -948,7 +941,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	Expect(err).To(BeNil())
 
 	// Expect delivery to succeed, then compare balances
-	err = deliverEthTxs(nil, msgs...)
+	_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msgs...)
 	Expect(err).To(BeNil())
 
 	fb := s.app.BankKeeper.GetBalance(s.ctx, funder, denom)
