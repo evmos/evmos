@@ -1,6 +1,7 @@
-package ante_test
+package evm_test
 
 import (
+	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"math/big"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -117,7 +117,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 			suite.SetupTest()
 			tc.malleate()
 
-			dec := ante.NewEthVestingTransactionDecorator(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.EvmKeeper)
+			dec := ethante.NewEthVestingTransactionDecorator(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.EvmKeeper)
 			_, err := dec.AnteHandle(suite.ctx, tc.tx, false, NextFn)
 
 			if tc.expPass {
@@ -127,9 +127,4 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 			}
 		})
 	}
-}
-
-// NetxFn is a mock function for the next AnteHandler.
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
 }

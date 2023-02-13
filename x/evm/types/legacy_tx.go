@@ -18,6 +18,8 @@ package types
 import (
 	"math/big"
 
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -201,6 +203,22 @@ func (tx LegacyTx) Validate() error {
 		if err := types.ValidateAddress(tx.To); err != nil {
 			return errorsmod.Wrap(err, "invalid to address")
 		}
+	}
+
+	chainID := tx.GetChainID()
+
+	if chainID == nil {
+		return errorsmod.Wrap(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be present on AccessList txs",
+		)
+	}
+
+	if !(chainID.Cmp(big.NewInt(9001)) == 0 || chainID.Cmp(big.NewInt(9000)) == 0) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be 9000 or 9001 on Evmos, got %s", chainID,
+		)
 	}
 
 	return nil

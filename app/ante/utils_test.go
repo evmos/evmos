@@ -18,7 +18,7 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -72,7 +72,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 	})
 
-	suite.denom = claimstypes.DefaultClaimsDenom
+	suite.denom = utils.BaseDenom
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
 	_ = suite.app.EvmKeeper.SetParams(suite.ctx, evmParams)
