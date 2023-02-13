@@ -23,26 +23,5 @@ import (
 // RootCodespace is the codespace for all errors defined in this package
 const RootCodespace = "evmos"
 
-// root error codes for Evmos
-const (
-	// codeKeyTypeNotSupported = iota + 2
-	// TODO: Revert back once Ethermint is removed from dependencies
-	codeKeyTypeNotSupported = iota + 100
-)
-
-// errors
-var (
-	ErrKeyTypeNotSupported = errorsmod.Register(RootCodespace, codeKeyTypeNotSupported, "key type 'secp256k1' not supported")
-
-	// ErrInvalidValue returns an error resulting from an invalid value.
-	ErrInvalidValue = errorsmod.Register(RootCodespace, 2, "invalid value")
-
-	// ErrInvalidChainID returns an error resulting from an invalid chain ID.
-	ErrInvalidChainID = errorsmod.Register(RootCodespace, 3, "invalid chain ID")
-
-	// ErrMarshalBigInt returns an error resulting from marshaling a big.Int to a string.
-	ErrMarshalBigInt = errorsmod.Register(RootCodespace, 5, "cannot marshal big.Int to string")
-
-	// ErrUnmarshalBigInt returns an error resulting from unmarshaling a big.Int from a string.
-	ErrUnmarshalBigInt = errorsmod.Register(RootCodespace, 6, "cannot unmarshal big.Int from string")
-)
+// ErrInvalidChainID returns an error resulting from an invalid chain ID.
+var ErrInvalidChainID = errorsmod.Register(RootCodespace, 3, "invalid chain ID")
