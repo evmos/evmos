@@ -848,6 +848,8 @@ func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 	return ctx, nil
 }
 
+// delegate is a helper function which delegates a given amount of tokens
+// to a validator and checks if the Cosmos vesting delegation decorator returns no error.
 func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) error {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -867,6 +869,13 @@ func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) er
 	return err
 }
 
+// createEthTx is a helper function to create and sign an Ethereum transaction.
+//
+// If the given private key is not nil, it will be used to sign the transaction.
+//
+// It offers the ability to increment the nonce by a given amount in case one wants to set up
+// multiple transactions that are supposed to be executed one after another.
+// Should this not be the case, just pass in zero.
 func createEthTx(privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) *evmtypes.MsgEthereumTx {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
@@ -887,6 +896,8 @@ func createEthTx(privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.Ac
 	return msgEthereumTx
 }
 
+// validateAnteForEthTxs is a helper function to build a transaction containing the given messages
+// and returns any error that the Eth vesting transaction decorator might return.
 func validateAnteForEthTxs(msgs ...sdk.Msg) error {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
@@ -901,11 +912,15 @@ func validateAnteForEthTxs(msgs ...sdk.Msg) error {
 	return err
 }
 
+// deliverEthTxs is a helper function to deliver multiple messages with the same
+// private key.
 func deliverEthTxs(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) error {
 	_, err := testutil.DeliverEthTx(s.ctx, s.app, priv, msgs...)
 	return err
 }
 
+// assertEthFails is a helper function that takes in 1 or more messages and checks
+// that they can neither be validated nor delivered.
 func assertEthFails(msgs ...sdk.Msg) {
 	insufficientUnlocked := "insufficient unlocked"
 
@@ -919,6 +934,8 @@ func assertEthFails(msgs ...sdk.Msg) {
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 }
 
+// assertEthSucceeds is a helper function, that checks if 1 or more messages
+// can be validated and delivered.
 func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount math.Int, denom string, msgs ...sdk.Msg) {
 	numTestAccounts := len(testAccounts)
 
