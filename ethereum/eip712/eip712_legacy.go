@@ -19,7 +19,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"reflect"
+	"reflect" // #nosec G702 for sensitive import
+	"strconv"
 	"strings"
 	"time"
 
@@ -50,10 +51,15 @@ func LegacyWrapTxToTypedData(
 		return apitypes.TypedData{}, errorsmod.Wrap(errortypes.ErrJSONUnmarshal, "failed to JSON unmarshal data")
 	}
 
+	chainIDInt64, err := strconv.ParseInt(strconv.FormatUint(chainID, 10), 10, 64)
+	if err != nil {
+		return apitypes.TypedData{}, errorsmod.Wrap(err, "invalid chainID")
+	}
+
 	domain := apitypes.TypedDataDomain{
 		Name:              "Cosmos Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           math.NewHexOrDecimal256(chainIDInt64),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}

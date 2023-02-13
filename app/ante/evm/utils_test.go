@@ -441,7 +441,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleMsgSend(from sdk.AccAddress,
 	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend, msgSend, msgSend}, false)
 }
 
-func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(1))))
 
@@ -451,32 +451,32 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAd
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgDelegate := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgSend, msgVote, msgDelegate}, suite.useLegacyEIP712TypedData)
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend, msgVote, msgDelegate}, suite.useLegacyEIP712TypedData)
 }
 
-func (suite *AnteTestSuite) CreateTestEIP712SameMsgDifferentSchemas(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestEIP712SameMsgDifferentSchemas(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	msgVote1 := govtypesv1.NewMsgVote(from, 1, govtypesv1.VoteOption_VOTE_OPTION_YES, "")
 	msgVote2 := govtypesv1.NewMsgVote(from, 5, govtypesv1.VoteOption_VOTE_OPTION_ABSTAIN, "With Metadata")
 
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgVote1, msgVote2}, suite.useLegacyEIP712TypedData)
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgVote1, msgVote2}, suite.useLegacyEIP712TypedData)
 }
 
-func (suite *AnteTestSuite) CreateTestEIP712ZeroValueArray(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestEIP712ZeroValueArray(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(0))))
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgSend}, suite.useLegacyEIP712TypedData)
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend}, suite.useLegacyEIP712TypedData)
 }
 
-func (suite *AnteTestSuite) CreateTestEIP712ZeroValueNumber(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestEIP712ZeroValueNumber(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	msgVote := govtypesv1.NewMsgVote(from, 0, govtypesv1.VoteOption_VOTE_OPTION_NO, "")
 
-	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainId, gas, gasAmount, []sdk.Msg{msgVote}, suite.useLegacyEIP712TypedData)
+	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgVote}, suite.useLegacyEIP712TypedData)
 }
 
-func (suite *AnteTestSuite) CreateTestEIP712MsgTransfer(from sdk.AccAddress, priv cryptotypes.PrivKey, chainId string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+func (suite *AnteTestSuite) CreateTestEIP712MsgTransfer(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
 	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, "Memo")
-	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainId, gas, gasAmount, msgTransfer)
+	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgTransfer)
 }
 
 // Fails
