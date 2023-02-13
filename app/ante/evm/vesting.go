@@ -16,12 +16,13 @@
 package evm
 
 import (
+	"math/big"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
-	"math/big"
 )
 
 // EthVestingTransactionDecorator validates if clawback vesting accounts are
