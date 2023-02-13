@@ -577,7 +577,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -607,7 +607,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -637,7 +637,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -692,7 +692,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -722,7 +722,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -752,7 +752,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -782,7 +782,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -816,7 +816,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
@@ -846,7 +846,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 					addr[:],
 					sdk.NewCoins(
 						sdk.NewCoin(
-							"photon",
+							"evmos",
 							sdk.NewInt(1),
 						),
 					),
