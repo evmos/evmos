@@ -18,7 +18,7 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 )
 
 // NewGasMeter returns an instance of GasMeter
@@ -36,9 +36,9 @@ func NewGasMeter(
 
 // Validate performs a stateless validation of a Incentive
 func (gm GasMeter) Validate() error {
-	if err := ethermint.ValidateAddress(gm.Contract); err != nil {
+	if err := evmostypes.ValidateAddress(gm.Contract); err != nil {
 		return err
 	}
 
-	return ethermint.ValidateAddress(gm.Participant)
+	return evmostypes.ValidateAddress(gm.Participant)
 }

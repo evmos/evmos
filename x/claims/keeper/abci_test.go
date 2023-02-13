@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			types.GenesisDust,
 			func() {
 				baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
-				ethAccount := ethermint.EthAccount{
+				ethAccount := evmostypes.EthAccount{
 					BaseAccount: baseAccount,
 					CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 				}
@@ -284,8 +284,8 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 	}
 }
 
-func newEthAccount(baseAccount *authtypes.BaseAccount) ethermint.EthAccount {
-	return ethermint.EthAccount{
+func newEthAccount(baseAccount *authtypes.BaseAccount) evmostypes.EthAccount {
+	return evmostypes.EthAccount{
 		BaseAccount: baseAccount,
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}

@@ -24,7 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/x/incentives/types"
@@ -62,8 +62,8 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *eth
 		return nil
 	}
 
-	ethAccount, ok := acc.(ethermint.EthAccountI)
-	if ok && ethAccount.Type() == ethermint.AccountTypeContract {
+	ethAccount, ok := acc.(evmostypes.EthAccountI)
+	if ok && ethAccount.Type() == evmostypes.AccountTypeContract {
 		return nil
 	}
 

@@ -24,7 +24,7 @@ import (
 	"github.com/evmos/evmos/v11/rpc/backend"
 
 	"github.com/evmos/evmos/v11/crypto/hd"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -43,7 +43,7 @@ import (
 type PrivateAccountAPI struct {
 	backend    backend.EVMBackend
 	logger     log.Logger
-	hdPathIter ethermint.HDPathIterator
+	hdPathIter types.HDPathIterator
 }
 
 // NewAPI creates an instance of the public Personal Eth API.
@@ -54,7 +54,7 @@ func NewAPI(
 	cfg := sdk.GetConfig()
 	basePath := cfg.GetFullBIP44Path()
 
-	iterator, err := ethermint.NewHDPathIterator(basePath, true)
+	iterator, err := types.NewHDPathIterator(basePath, true)
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +111,7 @@ func (api *PrivateAccountAPI) NewAccount(password string) (common.Address, error
 	}
 	addr := common.BytesToAddress(pubKey.Address().Bytes())
 	api.logger.Info("Your new key was generated", "address", addr.String())
-	api.logger.Info("Please backup your key file!", "path", os.Getenv("HOME")+"/.ethermint/"+name) // TODO: pass the correct binary
+	api.logger.Info("Please backup your key file!", "path", os.Getenv("HOME")+"/.evmos/"+name) // TODO: pass the correct binary
 	api.logger.Info("Please remember your password!")
 	return addr, nil
 }

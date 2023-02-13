@@ -31,7 +31,7 @@ import (
 	"github.com/evmos/evmos/v11/rpc/backend"
 
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -308,7 +308,7 @@ func (e *PublicAPI) Call(args evmtypes.TransactionArgs,
 // ProtocolVersion returns the supported Ethereum protocol version.
 func (e *PublicAPI) ProtocolVersion() hexutil.Uint {
 	e.logger.Debug("eth_protocolVersion")
-	return hexutil.Uint(ethermint.ProtocolVersion)
+	return hexutil.Uint(types.ProtocolVersion)
 }
 
 // GasPrice returns the current gas price based on Ethermint's gas price oracle.

@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	ethermint "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -34,7 +34,7 @@ import (
 
 // ChainID is the EIP-155 replay-protection chain id for the current ethereum chain config.
 func (b *Backend) ChainID() (*hexutil.Big, error) {
-	eip155ChainID, err := ethermint.ParseChainID(b.clientCtx.ChainID)
+	eip155ChainID, err := types.ParseChainID(b.clientCtx.ChainID)
 	if err != nil {
 		panic(err)
 	}
