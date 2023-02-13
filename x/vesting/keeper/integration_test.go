@@ -88,10 +88,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	numTestAccounts := 4
 	testAccounts := make([]TestClawbackAccount, numTestAccounts)
 	for i := range testAccounts {
-		address, privKey := createAddressKey()
+		address, privKey := tests.NewAddrKey()
 		testAccounts[i] = TestClawbackAccount{
 			privKey: privKey,
-			address: address,
+			address: address.Bytes(),
 		}
 	}
 	numTestMsgs := 3
@@ -383,7 +383,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not short-circuit with a normal account", func() {
 			account := testAccounts[0]
-			address, privKey := createAddressKey()
+			privKey, address := tests.GenerateKeyAndSdkAddress()
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).BigInt()
 
@@ -846,7 +846,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 func createAddressKey() (sdk.AccAddress, *ethsecp256k1.PrivKey) {
 	address, privKey := tests.NewAddrKey()
-	return address.Bytes(), &ethsecp256k1.PrivKey{Key: privKey.Bytes()}
+	return address.Bytes(), privKey
 }
 
 func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
