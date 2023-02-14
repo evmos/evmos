@@ -21,13 +21,13 @@ RUN apt-get install ca-certificates jq -y
 
 WORKDIR /go/src/github.com/evmos/evmos
 
-COPY ./upgrade/upgrade-init.sh .
+COPY ./init-node.sh .
 
-# perms to make upgrade-init.sh executable
-RUN chmod +x upgrade-init.sh
+# perms to make init-node.sh executable
+RUN chmod +x init-node.sh
 
 COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /usr/bin/evmosd
 
 EXPOSE 26656 26657 1317 9090 8545 8546
 
-CMD ["sh", "./upgrade-init.sh"]
+CMD ["sh", "./init-node.sh"]

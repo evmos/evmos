@@ -34,7 +34,7 @@ const (
 	registryDockerFile = "./upgrade/Dockerfile.init"
 
 	// repoDockerFile builds the image from the repository (used when the images are not pushed to the registry, e.g. main)
-	repoDockerFile = "./upgrade/Dockerfile.repo"
+	repoDockerFile = "./Dockerfile.repo"
 )
 
 type IntegrationTestSuite struct {
@@ -113,6 +113,8 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
 		isLegacyProposal,
+		"--fees=500aevmos",
+		"--gas=500000",
 	)
 	s.Require().NoErrorf(
 		err,
@@ -143,7 +145,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 func (s *IntegrationTestSuite) voteForProposal(id int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id)
+	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id, "--fees=500aevmos", "--gas=500000")
 	s.Require().NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -269,15 +271,18 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 		s.T().Logf("skipping cleanup... container %s will be left running", s.upgradeManager.ContainerID())
 		return
 	}
-	s.T().Log("tearing down e2e integration test suite...")
 
-	s.T().Log("killing node...")
-	err := s.upgradeManager.KillCurrentNode()
-	s.Require().NoError(err, "can't kill current node")
+	// kill only if not killed already
+	if _, err := s.upgradeManager.GetNodeHeight(context.Background()); err == nil {
+		s.T().Log("tearing down e2e integration test suite...")
+		s.T().Log("killing node...")
+		err := s.upgradeManager.KillCurrentNode()
+		s.Require().NoError(err, "can't kill current node")
 
-	s.T().Log("removing network...")
-	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
+		s.T().Log("removing network...")
+		s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
 
-	s.T().Log("removing mount path...")
-	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
+		s.T().Log("removing mount path...")
+		s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
+	}
 }

@@ -8,12 +8,12 @@ RUN apt-get install ca-certificates jq -y
 
 WORKDIR /go/src/github.com/evmos/evmos
 
-COPY ./upgrade/upgrade-init.sh .
+COPY ./init-node.sh .
 
-# perms to make upgrade-init.sh executable
-RUN chmod +x upgrade-init.sh
+# perms to make init-node.sh executable
+RUN chmod +x init-node.sh
 
 # JSON-RPC server
 EXPOSE 8545
 
-CMD ["sh", "./upgrade-init.sh"]
+CMD ["sh", "./init-node.sh"]
