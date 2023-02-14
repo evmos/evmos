@@ -6,6 +6,10 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -14,15 +18,14 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -43,9 +46,11 @@ func (*QueryEpochsInfoRequest) ProtoMessage()    {}
 func (*QueryEpochsInfoRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d13f5778acd937ff, []int{0}
 }
+
 func (m *QueryEpochsInfoRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *QueryEpochsInfoRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryEpochsInfoRequest.Marshal(b, m, deterministic)
@@ -58,12 +63,15 @@ func (m *QueryEpochsInfoRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
+
 func (m *QueryEpochsInfoRequest) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryEpochsInfoRequest.Merge(m, src)
 }
+
 func (m *QueryEpochsInfoRequest) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *QueryEpochsInfoRequest) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryEpochsInfoRequest.DiscardUnknown(m)
 }
@@ -92,9 +100,11 @@ func (*QueryEpochsInfoResponse) ProtoMessage()    {}
 func (*QueryEpochsInfoResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d13f5778acd937ff, []int{1}
 }
+
 func (m *QueryEpochsInfoResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *QueryEpochsInfoResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryEpochsInfoResponse.Marshal(b, m, deterministic)
@@ -107,12 +117,15 @@ func (m *QueryEpochsInfoResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
+
 func (m *QueryEpochsInfoResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryEpochsInfoResponse.Merge(m, src)
 }
+
 func (m *QueryEpochsInfoResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *QueryEpochsInfoResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryEpochsInfoResponse.DiscardUnknown(m)
 }
@@ -146,9 +159,11 @@ func (*QueryCurrentEpochRequest) ProtoMessage()    {}
 func (*QueryCurrentEpochRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d13f5778acd937ff, []int{2}
 }
+
 func (m *QueryCurrentEpochRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *QueryCurrentEpochRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryCurrentEpochRequest.Marshal(b, m, deterministic)
@@ -161,12 +176,15 @@ func (m *QueryCurrentEpochRequest) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
+
 func (m *QueryCurrentEpochRequest) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryCurrentEpochRequest.Merge(m, src)
 }
+
 func (m *QueryCurrentEpochRequest) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *QueryCurrentEpochRequest) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryCurrentEpochRequest.DiscardUnknown(m)
 }
@@ -193,9 +211,11 @@ func (*QueryCurrentEpochResponse) ProtoMessage()    {}
 func (*QueryCurrentEpochResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d13f5778acd937ff, []int{3}
 }
+
 func (m *QueryCurrentEpochResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *QueryCurrentEpochResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryCurrentEpochResponse.Marshal(b, m, deterministic)
@@ -208,12 +228,15 @@ func (m *QueryCurrentEpochResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
+
 func (m *QueryCurrentEpochResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryCurrentEpochResponse.Merge(m, src)
 }
+
 func (m *QueryCurrentEpochResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *QueryCurrentEpochResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryCurrentEpochResponse.DiscardUnknown(m)
 }
@@ -270,8 +293,10 @@ var fileDescriptor_d13f5778acd937ff = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
+var (
+	_ context.Context
+	_ grpc.ClientConn
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -322,12 +347,12 @@ type QueryServer interface {
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
-type UnimplementedQueryServer struct {
-}
+type UnimplementedQueryServer struct{}
 
 func (*UnimplementedQueryServer) EpochInfos(ctx context.Context, req *QueryEpochsInfoRequest) (*QueryEpochsInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EpochInfos not implemented")
 }
+
 func (*UnimplementedQueryServer) CurrentEpoch(ctx context.Context, req *QueryCurrentEpochRequest) (*QueryCurrentEpochResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentEpoch not implemented")
 }
@@ -542,6 +567,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *QueryEpochsInfoRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -602,9 +628,11 @@ func (m *QueryCurrentEpochResponse) Size() (n int) {
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *QueryEpochsInfoRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -691,6 +719,7 @@ func (m *QueryEpochsInfoRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *QueryEpochsInfoResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -811,6 +840,7 @@ func (m *QueryEpochsInfoResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *QueryCurrentEpochRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -893,6 +923,7 @@ func (m *QueryCurrentEpochRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *QueryCurrentEpochResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -962,6 +993,7 @@ func (m *QueryCurrentEpochResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipQuery(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

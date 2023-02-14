@@ -8,25 +8,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
-	"github.com/stretchr/testify/suite"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
+
 	"github.com/evmos/evmos/v11/app"
 	ante "github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/encoding"
@@ -35,9 +35,6 @@ import (
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
-
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 type AnteTestSuite struct {
@@ -47,7 +44,7 @@ type AnteTestSuite struct {
 	app             *app.Evmos
 	clientCtx       client.Context
 	anteHandler     sdk.AnteHandler
-	ethSigner       ethtypes.Signer
+	ethSigner       types.Signer
 	enableFeemarket bool
 	enableLondonHF  bool
 	evmParamsOption func(*evmtypes.Params)
@@ -121,7 +118,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	})
 
 	suite.anteHandler = anteHandler
-	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+	suite.ethSigner = types.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 }
 
 func TestAnteTestSuite(t *testing.T) {

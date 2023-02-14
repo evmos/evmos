@@ -273,7 +273,6 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	}
 }
 
-
 func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)

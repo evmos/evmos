@@ -23,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/utils"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/require"
@@ -77,8 +76,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+	evmtypes.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evmtypes.NewQueryClient(queryHelperEvm)
 
 	params := types.DefaultParams()
 	params.EnableRevenue = true
@@ -139,8 +138,8 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+	evmtypes.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evmtypes.NewQueryClient(queryHelperEvm)
 }
 
 func calculateFees(

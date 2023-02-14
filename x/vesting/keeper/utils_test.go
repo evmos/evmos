@@ -26,7 +26,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 	"github.com/stretchr/testify/require"
@@ -83,8 +82,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Setup query helpers
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
+	evmtypes.RegisterQueryServer(queryHelperEvm, suite.app.EvmKeeper)
+	suite.queryClientEvm = evmtypes.NewQueryClient(queryHelperEvm)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
@@ -150,8 +149,8 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
-	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
+	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	suite.queryClientEvm = evmtypes.NewQueryClient(queryHelper)
 }
 
 // MintFeeCollector mints coins with the bank modules and sends them to the fee
@@ -177,7 +176,7 @@ func (suite *KeeperTestSuite) DeployContract(
 	}
 
 	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
+	args, err := json.Marshal(&evmtypes.TransactionArgs{
 		From: &suite.address,
 		Data: (*hexutil.Bytes)(&data),
 	})
@@ -185,7 +184,7 @@ func (suite *KeeperTestSuite) DeployContract(
 		return common.Address{}, err
 	}
 
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:   args,
 		GasCap: config.DefaultGasCap,
 	})
@@ -195,7 +194,7 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	erc20DeployTx := evm.NewTxContract(
+	erc20DeployTx := evmtypes.NewTxContract(
 		chainID,
 		nonce,
 		nil,     // amount
