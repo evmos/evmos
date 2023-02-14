@@ -54,12 +54,12 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 		// setup deployer account
-		deployerKey, deployerAddress = generateKey()
+		deployerAddress, deployerKey = tests.NewAccAddressAndKey()
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
 		Expect(err).To(BeNil())
 
 		// setup account interacting with registered contracts
-		userKey, userAddress = generateKey()
+		userAddress, userKey = tests.NewAccAddressAndKey()
 		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
 		Expect(err).To(BeNil())
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
@@ -636,8 +636,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					factory2Address      common.Address
 					contractAddress      common.Address
 				)
-				deployerKey1, deployerAddress1 := generateKey()
-				deployerKey2, deployerAddress2 := generateKey()
+				deployerAddress1, deployerKey1 := tests.NewAccAddressAndKey()
+				deployerAddress2, deployerKey2 := tests.NewAccAddressAndKey()
 
 				BeforeEach(func() {
 					err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)
