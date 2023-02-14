@@ -150,14 +150,14 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "out of gas",
 		},
 		{
-			name: "sucess - vote upgrade proposal, defined gas and fees",
+			name: "success - vote upgrade proposal, defined gas and fees",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=10000000000000000aevmos", "--gas=500000")
 			},
 			expPass: true,
 		},
 		// {
-		// 	name: "sucess - vote upgrade proposal, gas 'auto'",
+		// 	name: "success - vote upgrade proposal, gas 'auto'",
 		// 	cmd: func() (string, error) {
 		// 		return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=", "--gas=auto")
 		// 	},
