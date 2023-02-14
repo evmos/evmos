@@ -283,10 +283,3 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 		})
 	}
 }
-
-func newEthAccount(baseAccount *authtypes.BaseAccount) evmostypes.EthAccount {
-	return evmostypes.EthAccount{
-		BaseAccount: baseAccount,
-		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
-	}
-}
