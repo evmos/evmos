@@ -29,6 +29,12 @@ const (
 
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
+
+	// registryDockerFile builds the image using the docker image registry
+	registryDockerFile = "./upgrade/Dockerfile.init"
+
+	// repoDockerFile builds the image from the repository (used when the images are not pushed to the registry, e.g. main)
+	repoDockerFile = "./upgrade/Dockerfile.repo"
 )
 
 type IntegrationTestSuite struct {
@@ -59,11 +65,11 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 // runInitialNode builds a docker image capable of running an Evmos node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
-func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
+func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, dockerFile string) {
 	err := s.upgradeManager.BuildImage(
 		version.ImageName,
 		version.ImageTag,
-		"./upgrade/Dockerfile.init",
+		dockerFile,
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
