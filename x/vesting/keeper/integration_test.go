@@ -1,29 +1,19 @@
 package keeper_test
 
 import (
-	"math/big"
 	"time"
 
 	"cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/evmos/v11/app"
-	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v11/app/ante/evm"
-	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -514,49 +504,3 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceGrantee, bG)
 	})
 })
-
-func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
-func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-	s.Require().NoError(err)
-	//
-	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
-	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(utils.BaseDenom, sdk.NewInt(amount)))
-	err = txBuilder.SetMsgs(delegateMsg)
-	s.Require().NoError(err)
-	tx := txBuilder.GetTx()
-
-	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
-	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
-	return err
-}
-
-func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
-	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-	s.Require().NoError(err)
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(addr.Bytes())
-	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
-
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
-	msgEthereumTx.From = from.String()
-
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	err = txBuilder.SetMsgs(msgEthereumTx)
-	s.Require().NoError(err)
-
-	tx := txBuilder.GetTx()
-
-	// Call Ante decorator
-	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
-	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
-	return err
-}

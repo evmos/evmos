@@ -3,86 +3,39 @@ package keeper_test
 import (
 	"encoding/json"
 	"math/big"
-	"testing"
 	"time"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v11/app"
+	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
 	evmostypes "github.com/evmos/evmos/v11/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/utils"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/vesting/types"
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	"github.com/tendermint/tendermint/version"
 )
-
-var (
-	contract  common.Address
-	contract2 common.Address
-)
-
-var (
-	erc20Name     = "Coin Token"
-	erc20Symbol   = "CTKN"
-	erc20Name2    = "Coin Token 2"
-	erc20Symbol2  = "CTKN2"
-	erc20Decimals = uint8(18)
-)
-
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx            sdk.Context
-	app            *app.Evmos
-	queryClientEvm evm.QueryClient
-	queryClient    types.QueryClient
-	address        common.Address
-	consAddress    sdk.ConsAddress
-	validator      stakingtypes.Validator
-	clientCtx      client.Context
-	ethSigner      ethtypes.Signer
-	signer         keyring.Signer
-}
-
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
 
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
@@ -267,4 +220,50 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	suite.Require().Empty(rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce), nil
+}
+
+func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
+	return ctx, nil
+}
+
+func delegate(clawbackAccount *types.ClawbackVestingAccount, amount int64) error {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+	//
+	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
+	s.Require().NoError(err)
+	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(utils.BaseDenom, sdk.NewInt(amount)))
+	err = txBuilder.SetMsgs(delegateMsg)
+	s.Require().NoError(err)
+	tx := txBuilder.GetTx()
+
+	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
+}
+
+func performEthTx(clawbackAccount *types.ClawbackVestingAccount) error {
+	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
+	s.Require().NoError(err)
+	chainID := s.app.EvmKeeper.ChainID()
+	from := common.BytesToAddress(addr.Bytes())
+	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
+
+	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	msgEthereumTx.From = from.String()
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	err = txBuilder.SetMsgs(msgEthereumTx)
+	s.Require().NoError(err)
+
+	tx := txBuilder.GetTx()
+
+	// Call Ante decorator
+	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper)
+	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
+	return err
 }
