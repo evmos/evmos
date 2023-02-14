@@ -28,10 +28,6 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 }
 
 func (s *IntegrationTestSuite) TestCLITxs() {
-	// If node is still up after the tests
-	// then it clean up
-	defer s.TearDownSuite()
-
 	mainBranch := upgrade.VersionConfig{
 		ImageTag:  "main",
 		ImageName: "evmos",

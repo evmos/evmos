@@ -272,17 +272,14 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 		return
 	}
 
-	// kill only if not killed already
-	if _, err := s.upgradeManager.GetNodeHeight(context.Background()); err == nil {
-		s.T().Log("tearing down e2e integration test suite...")
-		s.T().Log("killing node...")
-		err := s.upgradeManager.KillCurrentNode()
-		s.Require().NoError(err, "can't kill current node")
+	s.T().Log("tearing down e2e integration test suite...")
+	s.T().Log("killing node...")
+	err := s.upgradeManager.KillCurrentNode()
+	s.Require().NoError(err, "can't kill current node")
 
-		s.T().Log("removing network...")
-		s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
+	s.T().Log("removing network...")
+	s.Require().NoError(s.upgradeManager.RemoveNetwork(), "can't remove network")
 
-		s.T().Log("removing mount path...")
-		s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
-	}
+	s.T().Log("removing mount path...")
+	s.Require().NoError(os.RemoveAll(strings.Split(s.upgradeParams.MountPath, ":")[0]), "can't remove mount path")
 }
