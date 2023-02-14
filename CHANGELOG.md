@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files
 - (claims) [#1378](https://github.com/evmos/evmos/pull/1378) Validate authorized channels when updating claims params
 - (test) [#1348](https://github.com/evmos/evmos/pull/1348) Add query executions to e2e upgrade test suite
 - (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
@@ -73,7 +74,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
 - (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Tendermint version to [`v0.34.26`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26)
-- (deps) [#1374](https://github.com/evmos/evmos/pull/1374) Bump Gin version to [`v1.7.7`](github.com/gin-gonic/gin/releases/tag/v1.7.7)
+- (deps) [#1374](https://github.com/evmos/evmos/pull/1374) Bump Gin version to [`v1.7.7`](https://github.com/gin-gonic/gin/releases/tag/v1.7.7)
 - (ante) [#1382](https://github.com/evmos/evmos/pull/1382) Add `AnteHandler` decorator for `x/authz` messages
 
 ## [v11.0.1] - 2023-02-04

@@ -2,33 +2,20 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
-	"testing"
 	"time"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
@@ -38,7 +25,13 @@ import (
 	evmostypes "github.com/evmos/evmos/v11/types"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/evmos/evmos/v11/x/vesting/types"
+	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/stretchr/testify/require"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
+	"github.com/tendermint/tendermint/version"
 )
 
 var (
@@ -47,42 +40,25 @@ var (
 )
 
 var (
+	participant     = tests.GenerateAddress()
+	participant2    = tests.GenerateAddress()
+	denomMint       = evm.DefaultEVMDenom
+	denomCoin       = "acoin"
+	allocationRate  = int64(5)
+	mintAllocations = sdk.DecCoins{
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
+	}
+	allocations = sdk.DecCoins{
+		sdk.NewDecCoinFromDec(denomMint, sdk.NewDecWithPrec(allocationRate, 2)),
+		sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(allocationRate, 2)),
+	}
+	epochs        = uint32(10)
 	erc20Name     = "Coin Token"
 	erc20Symbol   = "CTKN"
 	erc20Name2    = "Coin Token 2"
 	erc20Symbol2  = "CTKN2"
 	erc20Decimals = uint8(18)
 )
-
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx            sdk.Context
-	app            *app.Evmos
-	queryClientEvm evm.QueryClient
-	queryClient    types.QueryClient
-	address        common.Address
-	consAddress    sdk.ConsAddress
-	validator      stakingtypes.Validator
-	clientCtx      client.Context
-	ethSigner      ethtypes.Signer
-	signer         keyring.Signer
-}
-
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
 
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
@@ -134,7 +110,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.queryClientEvm = evm.NewQueryClient(queryHelperEvm)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
+	types.RegisterQueryServer(queryHelper, suite.app.IncentivesKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
@@ -152,7 +128,6 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}
-
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	// Set Validator
@@ -164,18 +139,14 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
-	suite.validator = validators[0]
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
 	// Deploy contracts
-	contract, err = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-	require.NoError(t, err)
-	contract2, err = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
-	require.NoError(t, err)
+	contract, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+	contract2, _ = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
 }
 
 // Commit commits and starts a new block with an updated context.
@@ -211,10 +182,7 @@ func (suite *KeeperTestSuite) MintFeeCollector(coins sdk.Coins) {
 }
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (suite *KeeperTestSuite) DeployContract(
-	name, symbol string,
-	decimals uint8,
-) (common.Address, error) {
+func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 	chainID := suite.app.EvmKeeper.ChainID()
 
@@ -267,4 +235,142 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	suite.Require().Empty(rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce), nil
+}
+
+// MintERC20Token mints ERC20MinterBurnerDecimalsContract tokens..
+func (suite *KeeperTestSuite) MintERC20Token(
+	contractAddr,
+	from, to common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
+
+// BurnERC20Token burns ERC20MinterBurnerDecimalsContract tokens.
+func (suite *KeeperTestSuite) BurnERC20Token(
+	contractAddr,
+	from common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", types.ModuleAddress, amount)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
+
+// GrantERC20Token grants ERC20MinterBurnerDecimalsContract tokens.
+func (suite *KeeperTestSuite) GrantERC20Token(
+	contractAddr,
+	from, to common.Address,
+	roleString string,
+) *evm.MsgEthereumTx {
+	// 0xCc508cD0818C85b8b8a1aB4cEEef8d981c8956A6 MINTER_ROLE
+	role := crypto.Keccak256([]byte(roleString))
+	// needs to be an array not a slice
+	var v [32]byte
+	copy(v[:], role)
+
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("grantRole", v, to)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
+
+// TransferERC20Token transfers tokens from one account to another to another
+func (suite *KeeperTestSuite) TransferERC20Token(
+	contractAddr,
+	from, to common.Address,
+	amount *big.Int,
+) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("transfer", to, amount)
+	suite.Require().NoError(err)
+	return suite.sendTx(contractAddr, from, transferData)
+}
+
+// sendTx creates, sings and sends a evm transaction from suite.address account.
+func (suite *KeeperTestSuite) sendTx(
+	contractAddr,
+	from common.Address,
+	transferData []byte,
+) *evm.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(suite.ctx)
+	chainID := suite.app.EvmKeeper.ChainID()
+
+	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	suite.Require().NoError(err)
+
+	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: config.DefaultGasCap,
+	})
+	suite.Require().NoError(err)
+
+	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+
+	// Mint the max gas to the FeeCollector to ensure balance in case of refund
+	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas)))))
+
+	ercTransferTx := evm.NewTx(
+		chainID,
+		nonce,
+		&contractAddr,
+		nil,
+		res.Gas,
+		nil,
+		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		big.NewInt(1),
+		transferData,
+		&ethtypes.AccessList{}, // accesses
+	)
+
+	ercTransferTx.From = from.Hex()
+
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	suite.Require().NoError(err)
+	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	suite.Require().NoError(err)
+	suite.Require().Empty(rsp.VmError)
+	return ercTransferTx
+}
+
+// BalanceOf gets the ERC20MinterBurnerDecimalsContract token balance at a given
+// addr.
+func (suite *KeeperTestSuite) BalanceOf(contract, account common.Address) *big.Int {
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "balanceOf", account)
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
+
+	unpacked, err := erc20.Unpack("balanceOf", res.Ret)
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(unpacked)
+	suite.Require().IsType(unpacked[0], &big.Int{})
+
+	return unpacked[0].(*big.Int)
+}
+
+// NameOf gets the name of a given ERC20MinterBurnerDecimalsContract contract.
+func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+
+	res, err := suite.app.Erc20Keeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, false, "name")
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
+
+	unpacked, err := erc20.Unpack("name", res.Ret)
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(unpacked)
+
+	return fmt.Sprintf("%v", unpacked[0])
+}
+
+// ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
+// incentives hook is already set
+func (suite *KeeperTestSuite) ensureHooksSet() {
+	defer func() {
+		err := recover()
+		suite.Require().NotNil(err)
+	}()
+	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper.Hooks())
 }

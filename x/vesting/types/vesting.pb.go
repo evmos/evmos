@@ -5,23 +5,26 @@ package types
 
 import (
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+	time "time"
+
 	github_com_cosmos_cosmos_sdk_x_auth_vesting_types "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
-var _ = time.Kitchen
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+	_ = time.Kitchen
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -52,9 +55,11 @@ func (*ClawbackVestingAccount) ProtoMessage() {}
 func (*ClawbackVestingAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5f1a3c86c0cebe5f, []int{0}
 }
+
 func (m *ClawbackVestingAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ClawbackVestingAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ClawbackVestingAccount.Marshal(b, m, deterministic)
@@ -67,12 +72,15 @@ func (m *ClawbackVestingAccount) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
+
 func (m *ClawbackVestingAccount) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ClawbackVestingAccount.Merge(m, src)
 }
+
 func (m *ClawbackVestingAccount) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ClawbackVestingAccount) XXX_DiscardUnknown() {
 	xxx_messageInfo_ClawbackVestingAccount.DiscardUnknown(m)
 }
@@ -204,6 +212,7 @@ func encodeVarintVesting(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *ClawbackVestingAccount) Size() (n int) {
 	if m == nil {
 		return 0
@@ -238,9 +247,11 @@ func (m *ClawbackVestingAccount) Size() (n int) {
 func sovVesting(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozVesting(x uint64) (n int) {
 	return sovVesting(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *ClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -460,6 +471,7 @@ func (m *ClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipVesting(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

@@ -19,16 +19,6 @@ import (
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
 
-// ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
-// incentives hook is already set
-func (suite *KeeperTestSuite) ensureHooksSet() {
-	defer func() {
-		err := recover()
-		suite.Require().NotNil(err)
-	}()
-	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper.Hooks())
-}
-
 func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 	var expGasUsed uint64
 
