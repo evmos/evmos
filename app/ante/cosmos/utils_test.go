@@ -73,6 +73,8 @@ type AnteTestSuite struct {
 
 const TestGasLimit uint64 = 100000
 
+var chainID = utils.TestnetChainID + "-1"
+
 func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
 	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
 }
@@ -109,7 +111,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		return genesis
 	})
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: "evmos_9000-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: chainID, Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
@@ -240,7 +242,7 @@ func createTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	}
 
 	signerData := authsigning.SignerData{
-		ChainID:       "evmos_9000-1",
+		ChainID:       chainID,
 		AccountNumber: 0,
 		Sequence:      0,
 	}
@@ -281,7 +283,7 @@ func createEIP712CosmosTx(
 	gas := uint64(200000)
 
 	fee := legacytx.NewStdFee(gas, amount) //nolint: staticcheck
-	data := legacytx.StdSignBytes("evmos_9000-1", 0, 0, 0, fee, msgs, "", nil)
+	data := legacytx.StdSignBytes(chainID, 0, 0, 0, fee, msgs, "", nil)
 	typedData, err := eip712.WrapTxToTypedData(ethermintCodec, 9000, msgs[0], data, &eip712.FeeDelegationOptions{
 		FeePayer: from,
 	})

@@ -26,6 +26,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
 
@@ -91,7 +92,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         utils.TestnetChainID + "-1",
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 		Version: tmversion.Consensus{

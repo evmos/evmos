@@ -25,6 +25,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/utils"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 
@@ -72,7 +73,10 @@ type KeeperTestSuite struct {
 	denom            string
 }
 
-var s *KeeperTestSuite
+var (
+	s       *KeeperTestSuite
+	chainID = utils.TestnetChainID + "-1"
+)
 
 func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
@@ -164,7 +168,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 		// Initialize the chain
 		suite.app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         "evmos_9000-1",
+				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: app.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -174,7 +178,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 
 	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9000-1",
+		ChainID:         chainID,
 		Time:            time.Now().UTC(),
 		ProposerAddress: suite.consAddress.Bytes(),
 		Version: tmversion.Consensus{

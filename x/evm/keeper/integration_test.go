@@ -19,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -195,7 +196,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         "evmos_9000-1",
+			ChainId:         utils.TestnetChainID + "-1",
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,

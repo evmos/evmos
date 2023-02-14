@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
@@ -112,18 +113,17 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 
 	// Initialize the chain
-	suite.app.InitChain(
-		abci.RequestInitChain{
-			ChainId:         "ethermint_9000-1",
-			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: app.DefaultConsensusParams,
-			AppStateBytes:   stateBytes,
-		},
-	)
+	req := abci.RequestInitChain{
+		ChainId:         utils.TestnetChainID + "-1",
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: app.DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
+	}
+	suite.app.InitChain(req)
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "ethermint_9000-1",
+		ChainID:         req.ChainId,
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 		Version: tmversion.Consensus{
