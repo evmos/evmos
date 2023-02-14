@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v11/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 const (
@@ -219,7 +220,7 @@ func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	chainID := "evmos_9000-1"
+	chainID := utils.TestnetChainID + "-1"
 	testCases := []struct {
 		name       string
 		moduleName string

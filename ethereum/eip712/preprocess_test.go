@@ -27,7 +27,7 @@ import (
 
 // Testing Constants
 var (
-	chainID = "evmos_9000-1"
+	chainID = utils.TestnetChainID + "-1"
 	ctx     = client.Context{}.WithTxConfig(
 		encoding.MakeConfig(app.ModuleBasics).TxConfig,
 	)
