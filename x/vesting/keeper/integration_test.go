@@ -5,38 +5,36 @@ import (
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/evmos/v11/app"
-	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
+// TestClawbackAccount is a struct to store all relevant information that is corresponding
+// to a clawback vesting account.
 type TestClawbackAccount struct {
 	privKey         *ethsecp256k1.PrivKey
 	address         sdk.AccAddress
 	clawbackAccount *types.ClawbackVestingAccount
 }
 
+// Initialize general error variable for easier handling in loops throughout this test suite.
 var err error
 
 // Clawback vesting with Cliff and Lock. In this case the cliff is reached
 // before the lockup period is reached to represent the scenario in which an
 // employee starts before mainnet launch (periodsCliff < lockupPeriod)
-
+//
 // Example:
 // 21/10 Employee joins Evmos and vesting starts
 // 22/03 Mainnet launch
@@ -410,7 +408,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			// Attempt to spend entire balance
 			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
-			err = validateAnteForEthTxs(normalAccMsg, msg)
+			err = validateEthVestingTransactionDecorator(normalAccMsg, msg)
 			Expect(err).ToNot(BeNil())
 
 			_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msg)
@@ -556,7 +554,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, big.NewInt(0), 0)
 			Expect(err).To(BeNil())
-			err = validateAnteForEthTxs(msg)
+			err = validateEthVestingTransactionDecorator(msg)
 			Expect(err).ToNot(BeNil())
 			Expect(strings.Contains(err.Error(), "no balance")).To(BeTrue())
 		})
@@ -866,53 +864,12 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 	})
 })
 
-func nextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
-// delegate is a helper function which delegates a given amount of tokens
-// to a validator and checks if the Cosmos vesting delegation decorator returns no error.
-func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) error {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-	s.Require().NoError(err)
-	//
-	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
-	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(utils.BaseDenom, amount))
-	err = txBuilder.SetMsgs(delegateMsg)
-	s.Require().NoError(err)
-	tx := txBuilder.GetTx()
-
-	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
-	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
-	return err
-}
-
-// validateAnteForEthTxs is a helper function to build a transaction containing the given messages
-// and returns any error that the Eth vesting transaction decorator might return.
-func validateAnteForEthTxs(msgs ...sdk.Msg) error {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	err := txBuilder.SetMsgs(msgs...)
-	s.Require().NoError(err)
-
-	tx := txBuilder.GetTx()
-
-	// Call Ante decorator
-	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
-	_, err = dec.AnteHandle(s.ctx, tx, false, nextFn)
-	return err
-}
-
 // assertEthFails is a helper function that takes in 1 or more messages and checks
-// that they can neither be validated nor delivered.
+// that they can neither be validated nor delivered using the EthVesting.
 func assertEthFails(msgs ...sdk.Msg) {
 	insufficientUnlocked := "insufficient unlocked"
 
-	err := validateAnteForEthTxs(msgs...)
+	err := validateEthVestingTransactionDecorator(msgs...)
 	Expect(err).ToNot(BeNil())
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 
@@ -937,7 +894,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	}
 
 	// Validate the AnteHandler passes without issue
-	err := validateAnteForEthTxs(msgs...)
+	err := validateEthVestingTransactionDecorator(msgs...)
 	Expect(err).To(BeNil())
 
 	// Expect delivery to succeed, then compare balances
