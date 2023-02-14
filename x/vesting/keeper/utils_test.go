@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	. "github.com/onsi/gomega"
 	"strings"
+
+	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
