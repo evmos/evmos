@@ -27,32 +27,32 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
-// GetCoinbaseAddress returns the block proposer's validator operator address.
-func (k Keeper) GetCoinbaseAddress(ctx sdk.Context, proposerAddress sdk.ConsAddress) (common.Address, error) {
-	validator, found := k.stakingKeeper.GetValidatorByConsAddr(ctx, GetProposerAddress(ctx, proposerAddress))
-	if !found {
-		return common.Address{}, errorsmod.Wrapf(
-			stakingtypes.ErrNoValidatorFound,
-			"failed to retrieve validator from block proposer address %s",
-			proposerAddress.String(),
+// CheckSenderBalance validates that the tx cost value is positive and that the
+// sender has enough funds to pay for the fees and value of the transaction.
+func CheckSenderBalance(
+	balance sdkmath.Int,
+	txData types.TxData,
+) error {
+	cost := txData.Cost()
+
+	if cost.Sign() < 0 {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidCoins,
+			"tx cost (%s) is negative and invalid", cost,
 		)
 	}
 
-	coinbase := common.BytesToAddress(validator.GetOperator())
-	return coinbase, nil
-}
-
-// GetProposerAddress returns current block proposer's address when provided proposer address is empty.
-func GetProposerAddress(ctx sdk.Context, proposerAddress sdk.ConsAddress) sdk.ConsAddress {
-	if len(proposerAddress) == 0 {
-		proposerAddress = ctx.BlockHeader().ProposerAddress
+	if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
+		return errorsmod.Wrapf(
+			errortypes.ErrInsufficientFunds,
+			"sender balance < tx cost (%s < %s)", balance, txData.Cost(),
+		)
 	}
-	return proposerAddress
+	return nil
 }
 
 // DeductTxCostsFromUserBalance deducts the fees from the user balance. Returns an
@@ -125,28 +125,4 @@ func VerifyFee(
 	}
 
 	return sdk.Coins{{Denom: denom, Amount: sdkmath.NewIntFromBigInt(feeAmt)}}, nil
-}
-
-// CheckSenderBalance validates that the tx cost value is positive and that the
-// sender has enough funds to pay for the fees and value of the transaction.
-func CheckSenderBalance(
-	balance sdkmath.Int,
-	txData types.TxData,
-) error {
-	cost := txData.Cost()
-
-	if cost.Sign() < 0 {
-		return errorsmod.Wrapf(
-			errortypes.ErrInvalidCoins,
-			"tx cost (%s) is negative and invalid", cost,
-		)
-	}
-
-	if balance.IsNegative() || balance.BigInt().Cmp(cost) < 0 {
-		return errorsmod.Wrapf(
-			errortypes.ErrInsufficientFunds,
-			"sender balance < tx cost (%s < %s)", balance, txData.Cost(),
-		)
-	}
-	return nil
 }

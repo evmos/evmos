@@ -5,23 +5,26 @@ package types
 
 import (
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+	time "time"
+
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
-var _ = time.Kitchen
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+	_ = time.Kitchen
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -43,9 +46,11 @@ func (*V3GenesisState) ProtoMessage()    {}
 func (*V3GenesisState) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f2f8f1d6f18af278, []int{0}
 }
+
 func (m *V3GenesisState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *V3GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_V3GenesisState.Marshal(b, m, deterministic)
@@ -58,12 +63,15 @@ func (m *V3GenesisState) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
+
 func (m *V3GenesisState) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_V3GenesisState.Merge(m, src)
 }
+
 func (m *V3GenesisState) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *V3GenesisState) XXX_DiscardUnknown() {
 	xxx_messageInfo_V3GenesisState.DiscardUnknown(m)
 }
@@ -109,9 +117,11 @@ func (*V3Params) ProtoMessage()    {}
 func (*V3Params) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f2f8f1d6f18af278, []int{1}
 }
+
 func (m *V3Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *V3Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_V3Params.Marshal(b, m, deterministic)
@@ -124,12 +134,15 @@ func (m *V3Params) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *V3Params) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_V3Params.Merge(m, src)
 }
+
 func (m *V3Params) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *V3Params) XXX_DiscardUnknown() {
 	xxx_messageInfo_V3Params.DiscardUnknown(m)
 }
@@ -367,6 +380,7 @@ func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *V3GenesisState) Size() (n int) {
 	if m == nil {
 		return 0
@@ -421,9 +435,11 @@ func (m *V3Params) Size() (n int) {
 func sovGenesis(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozGenesis(x uint64) (n int) {
 	return sovGenesis(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *V3GenesisState) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -541,6 +557,7 @@ func (m *V3GenesisState) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *V3Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -806,6 +823,7 @@ func (m *V3Params) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipGenesis(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
