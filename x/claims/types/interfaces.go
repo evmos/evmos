@@ -20,6 +20,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 )
 
 // BankKeeper defines the banking contract that must be fulfilled when
@@ -41,6 +42,11 @@ type AccountKeeper interface {
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
 	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
+}
+
+// ChannelKeeper is the keeper that controls access to IBC channels
+type ChannelKeeper interface {
+	GetChannel(ctx sdk.Context, portID, channelID string) (channel channeltypes.Channel, found bool)
 }
 
 // DistrKeeper is the keeper of the distribution store

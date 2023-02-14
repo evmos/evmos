@@ -10,7 +10,7 @@ import (
 	"github.com/evmos/evmos/v11/indexer"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
@@ -467,7 +467,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 		registerMock func()
 		height       int64
 		index        uint
-		expTxResult  *ethermint.TxResult
+		expTxResult  *evmostypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -479,7 +479,7 @@ func (suite *BackendTestSuite) TestGetTransactionByTxIndex() {
 			},
 			0,
 			0,
-			&ethermint.TxResult{},
+			&evmostypes.TxResult{},
 			false,
 		},
 	}
@@ -507,7 +507,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 		registerMock func()
 		txGetter     func(*rpctypes.ParsedTxs) *rpctypes.ParsedTx
 		query        string
-		expTxResult  *ethermint.TxResult
+		expTxResult  *evmostypes.TxResult
 		expPass      bool
 	}{
 		{
@@ -520,7 +520,7 @@ func (suite *BackendTestSuite) TestQueryTendermintTxIndexer() {
 				return &rpctypes.ParsedTx{}
 			},
 			"",
-			&ethermint.TxResult{},
+			&evmostypes.TxResult{},
 			false,
 		},
 	}

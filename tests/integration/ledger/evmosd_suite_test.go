@@ -22,6 +22,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/hd"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/version"
@@ -132,7 +133,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithUseLedger(true).
 		WithKeyring(kr).
 		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
-		WithChainID("evmos_9000-13")
+		WithChainID(utils.TestnetChainID + "-13")
 
 	srvCtx := server.NewDefaultContext()
 	ctx := context.Background()
@@ -142,7 +143,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 	return kr, initClientCtx, ctx
 }
 
-func (suite *LedgerTestSuite) ethermintAddKeyCmd() *cobra.Command {
+func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
 	cmd := keys.AddKeyCommand()
 
 	algoFlag := cmd.Flag(flags.FlagKeyAlgorithm)

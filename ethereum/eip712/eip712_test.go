@@ -369,7 +369,7 @@ func (suite *EIP712TestSuite) TestEIP712SignatureVerification() {
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
 				suite.Require().NoError(err)
 
-				chainID := "evmos_9000-1"
+				chainID := utils.TestnetChainID + "-1"
 				if tc.chainID != "" {
 					chainID = tc.chainID
 				}

@@ -1,5 +1,5 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
 // Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
@@ -74,6 +74,7 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	// After eth tx passed ante handler, the fee is deducted and nonce increased, it shouldn't be ignored by json-rpc,
 	// we need to emit some basic events at the very end of ante handler to be indexed by tendermint.
 	txIndex := eeed.evmKeeper.GetTxIndexTransient(ctx)
+
 	for i, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {
@@ -85,7 +86,7 @@ func (eeed EthEmitEventDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			evmtypes.EventTypeEthereumTx,
 			sdk.NewAttribute(evmtypes.AttributeKeyEthereumTxHash, msgEthTx.Hash),
-			sdk.NewAttribute(evmtypes.AttributeKeyTxIndex, strconv.FormatUint(txIndex+uint64(i), 10)),
+			sdk.NewAttribute(evmtypes.AttributeKeyTxIndex, strconv.FormatUint(txIndex+uint64(i), 10)), // #nosec G701
 		))
 	}
 
