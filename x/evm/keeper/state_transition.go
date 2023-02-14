@@ -333,7 +333,12 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 
 	// set the custom precompiles to the EVM (if any)
 	if cfg.Params.HasCustomPrecompiles() {
-		activePrecompiles := cfg.Params.GetActivePrecompilesAddrs()
+		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
+
+		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
+		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
+		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
+
 		precompileMap := k.Precompiles(activePrecompiles...)
 		evm.WithPrecompiles(precompileMap, activePrecompiles)
 	}
