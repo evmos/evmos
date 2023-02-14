@@ -186,11 +186,6 @@ func registerFee(
 	return res
 }
 
-func generateKey() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
-	address, priv := tests.NewAddrKey()
-	return priv.(*ethsecp256k1.PrivKey), sdk.AccAddress(address.Bytes())
-}
-
 func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
 	factoryNonce := getNonce(factoryAddress.Bytes())
 	chainID := s.app.EvmKeeper.ChainID()
