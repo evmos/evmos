@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
@@ -211,7 +210,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				err := suite.app.BankKeeper.SendCoins(
 					suite.ctx,
 					fundingAcc,
-					sdk.AccAddress(tests.GenerateAddress().Bytes()),
+					sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 					sdk.NewCoins(
 						sdk.NewCoin(utils.BaseDenom, balance.Quo(math.NewInt(2))),
 					),

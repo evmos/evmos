@@ -6,10 +6,11 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/tests"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	"github.com/evmos/evmos/v11/testutil"
 )
 
 type MsgsTestSuite struct {
@@ -25,11 +26,11 @@ func TestMsgsTestSuite(t *testing.T) {
 }
 
 func (suite *MsgsTestSuite) SetupTest() {
-	deployer := tests.GenerateAddress()
+	deployer := testutil.GenerateAddress()
 	suite.contract = crypto.CreateAddress(deployer, 1)
 	suite.deployer = sdk.AccAddress(deployer.Bytes())
 	suite.deployerStr = suite.deployer.String()
-	suite.withdrawerStr = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	suite.withdrawerStr = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
 }
 
 func (suite *MsgsTestSuite) TestMsgRegisterRevenueGetters() {
@@ -222,7 +223,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateRevenueGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateRevenueNew() {
-	withdrawerStr := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	withdrawerStr := sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
 	testCases := []struct {
 		msg        string
 		contract   string

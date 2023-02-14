@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v11/tests"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
 
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterRevenue() {
-	deployer := tests.GenerateAddress()
-	fakeDeployer := tests.GenerateAddress()
+	deployer := testutil.GenerateAddress()
+	fakeDeployer := testutil.GenerateAddress()
 	contract1 := crypto.CreateAddress(deployer, 1)
 	factory1 := contract1
 	factory2 := crypto.CreateAddress(factory1, 0)
@@ -227,10 +226,10 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 }
 
 func (suite *KeeperTestSuite) TestUpdateRevenue() {
-	deployer := tests.GenerateAddress()
+	deployer := testutil.GenerateAddress()
 	deployerAddr := sdk.AccAddress(deployer.Bytes())
-	withdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	newWithdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	withdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	newWithdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	contract1 := crypto.CreateAddress(deployer, 1)
 	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
 	contractAccount := statedb.Account{
@@ -461,10 +460,10 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 }
 
 func (suite *KeeperTestSuite) TestCancelRevenue() {
-	deployer := tests.GenerateAddress()
+	deployer := testutil.GenerateAddress()
 	deployerAddr := sdk.AccAddress(deployer.Bytes())
-	withdrawer := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	fakeDeployer := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	withdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	fakeDeployer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	contract1 := crypto.CreateAddress(deployer, 1)
 	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
 	contractAccount := statedb.Account{

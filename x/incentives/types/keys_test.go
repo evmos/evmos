@@ -3,13 +3,14 @@ package types
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+
 	"github.com/stretchr/testify/require"
 )
 
 func TestSplitGasMeterKey(t *testing.T) {
-	contract := tests.GenerateAddress()
-	user := tests.GenerateAddress()
+	contract := testutil.GenerateAddress()
+	user := testutil.GenerateAddress()
 
 	key := KeyPrefixGasMeter
 	key = append(key, contract.Bytes()...)

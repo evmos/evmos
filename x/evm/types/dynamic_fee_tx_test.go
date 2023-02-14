@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -42,7 +42,7 @@ func (suite *TxDataTestSuite) SetupTest() {
 	suite.sdkZeroInt = sdk.ZeroInt()
 	suite.sdkMinusOneInt = sdkmath.NewInt(-1)
 	suite.invalidAddr = "123456"
-	suite.addr = tests.GenerateAddress()
+	suite.addr = testutil.GenerateAddress()
 	suite.hexAddr = suite.addr.Hex()
 	suite.hexDataBytes = hexutil.Bytes([]byte("data"))
 	suite.hexInputBytes = hexutil.Bytes([]byte("input"))

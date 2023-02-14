@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 )
 
 type ProposalTestSuite struct {
@@ -38,7 +38,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -51,7 +51,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{},
 				10,
 				time.Now(),
@@ -64,7 +64,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -77,7 +77,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -129,7 +129,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
 				10,
 				time.Now(),
@@ -142,7 +142,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
@@ -155,7 +155,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
@@ -168,7 +168,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
@@ -208,7 +208,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				5,
 				time.Now(),
@@ -221,7 +221,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"",
 			"test desc",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -234,7 +234,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"test",
 			"",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),

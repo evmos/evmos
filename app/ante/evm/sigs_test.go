@@ -3,7 +3,7 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -12,8 +12,8 @@ func (suite *AnteTestSuite) TestSignatures() {
 	suite.enableFeemarket = false
 	suite.SetupTest() // reset
 
-	addr, privKey := tests.NewAddrKey()
-	to := tests.GenerateAddress()
+	addr, privKey := testutil.NewAddrKey()
+	to := testutil.GenerateAddress()
 
 	acc := statedb.NewEmptyAccount()
 	acc.Nonce = 1

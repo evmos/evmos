@@ -5,15 +5,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v11/tests"
 
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
 func (suite *KeeperTestSuite) TestMintingEnabled() {
-	sender := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	receiver := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	expPair := types.NewTokenPair(tests.GenerateAddress(), "coin", true, types.OWNER_MODULE)
+	sender := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	receiver := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	expPair := types.NewTokenPair(testutil.GenerateAddress(), "coin", true, types.OWNER_MODULE)
 	id := expPair.GetID()
 
 	testCases := []struct {
@@ -88,7 +88,7 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, expPair.Denom, id)
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
 
-				receiver = sdk.AccAddress(tests.GenerateAddress().Bytes())
+				receiver = sdk.AccAddress(testutil.GenerateAddress().Bytes())
 			},
 			true,
 		},

@@ -5,12 +5,12 @@ package types
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 )
 
 func FuzzSplitGasMeterKey(f *testing.F) {
-	contract := tests.GenerateAddress()
-	user := tests.GenerateAddress()
+	contract := testutil.GenerateAddress()
+	user := testutil.GenerateAddress()
 
 	key := KeyPrefixGasMeter
 	key = append(key, contract.Bytes()...)

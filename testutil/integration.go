@@ -36,7 +36,6 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
@@ -199,7 +198,7 @@ func DeliverEthTx(
 		}
 
 		if priv != nil {
-			err := msg.Sign(signer, tests.NewSigner(priv))
+			err := msg.Sign(signer, NewSigner(priv))
 			if err != nil {
 				return abci.ResponseDeliverTx{}, err
 			}
@@ -255,7 +254,7 @@ func CreateEthTx(ctx sdk.Context, appEvmos *app.Evmos, privKey *ethsecp256k1.Pri
 	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
 	if privKey != nil {
 		signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
-		err := msgEthereumTx.Sign(signer, tests.NewSigner(privKey))
+		err := msgEthereumTx.Sign(signer, NewSigner(privKey))
 		if err != nil {
 			return nil, err
 		}

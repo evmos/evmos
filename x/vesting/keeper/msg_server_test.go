@@ -9,7 +9,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -17,10 +16,10 @@ import (
 var (
 	balances       = sdk.NewCoins(sdk.NewInt64Coin("test", 1000))
 	quarter        = sdk.NewCoins(sdk.NewInt64Coin("test", 250))
-	addr           = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr2          = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr3          = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr4          = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr           = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr2          = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr3          = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr4          = sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
@@ -232,7 +231,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"no clawback account",
 			func() {},
 			addr,
-			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 			addr3,
 			suite.ctx.BlockTime(),
 			false,
@@ -349,7 +348,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			"non-existent vesting account",
 			func() {},
 			addr,
-			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 			addr3,
 			false,
 		},
@@ -443,7 +442,7 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
 	funder := sdk.AccAddress(types.ModuleName)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
@@ -459,7 +458,7 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
 	funder := sdk.AccAddress(types.ModuleName)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
 

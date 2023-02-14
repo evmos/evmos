@@ -30,7 +30,6 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/claims/types"
@@ -429,7 +428,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 
 func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) {
 	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
+	err := msgEthereumTx.Sign(s.ethSigner, testutil.NewSigner(priv))
 	s.Require().NoError(err)
 
 	// Assemble transaction from fields

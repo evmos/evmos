@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 )
 
 type IncentiveTestSuite struct {
@@ -29,42 +29,42 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 	}{
 		{
 			"Register incentive - pass",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 			10,
 			true,
 		},
 		{
 			"Register incentive - empty allocation",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation denom",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{{Denom: "(evmos", Amount: sdk.OneDec()}},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation amount (0)",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation amount (> 1)",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - zero epochs",
-			tests.GenerateAddress(),
+			testutil.GenerateAddress(),
 			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 			0,
 			false,
@@ -125,7 +125,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 		{
 			"pass",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -155,7 +155,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 		{
 			"pass",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -166,7 +166,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 		{
 			"epoch is zero",
 			Incentive{
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
