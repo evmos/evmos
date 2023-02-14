@@ -465,7 +465,7 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee sd
 func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	setupChain(localMinGasPrices)
 
-	privKey, address := generateKey()
+	address, privKey := tests.NewAccAddressAndKey()
 	amount, ok := sdkmath.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{
@@ -532,11 +532,6 @@ func setupChain(localMinGasPricesStr string) {
 
 	s.app = newapp
 	s.SetupApp(false)
-}
-
-func generateKey() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
-	address, priv := tests.NewAddrKey()
-	return priv.(*ethsecp256k1.PrivKey), sdk.AccAddress(address.Bytes())
 }
 
 func getNonce(addressBytes []byte) uint64 {
