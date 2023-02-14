@@ -96,7 +96,7 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		evmante.NewEthSigVerificationDecorator(options.EvmKeeper),
 		evmante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
 		evmante.NewCanTransferDecorator(options.EvmKeeper),
-		evmante.NewEthVestingTransactionDecorator(options.AccountKeeper),
+		evmante.NewEthVestingTransactionDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
 		evmante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
 		evmante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),

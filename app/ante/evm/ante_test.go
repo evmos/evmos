@@ -8,21 +8,18 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
+
 	"github.com/evmos/evmos/v11/tests"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
