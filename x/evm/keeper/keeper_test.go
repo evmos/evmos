@@ -32,7 +32,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -200,7 +200,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClient = evmtypes.NewQueryClient(queryHelper)
 
-	acc := &ethermint.EthAccount{
+	acc := &evmostypes.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}
@@ -527,7 +527,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			tc.malleate()
 			i := 0
 			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
-				ethAccount, ok := account.(ethermint.EthAccountI)
+				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
 					// ignore non EthAccounts
 					return false

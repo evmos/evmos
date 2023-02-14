@@ -15,7 +15,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
 	"github.com/evmos/evmos/v11/x/claims/types"
@@ -760,8 +760,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	suite.Require().NoError(err)
 
-	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, ethermint.PowerReduction))
-	delAmount := sdk.TokensFromConsensusPower(1, ethermint.PowerReduction)
+	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction))
+	delAmount := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
 
 	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addrs[1], sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), delAmount)))
 	suite.Require().NoError(err)
@@ -1077,7 +1077,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 		addr, err := sdk.AccAddressFromBech32(tc.address)
 		suite.Require().NoError(err, tc.name)
 
-		acc := &ethermint.EthAccount{
+		acc := &evmostypes.EthAccount{
 			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(addr.Bytes()), nil, 0, 0),
 			CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 		}

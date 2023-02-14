@@ -19,7 +19,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
@@ -50,7 +50,7 @@ func (tp TokenPair) Validate() error {
 		return err
 	}
 
-	if err := ethermint.ValidateAddress(tp.Erc20Address); err != nil {
+	if err := evmostypes.ValidateAddress(tp.Erc20Address); err != nil {
 		return err
 	}
 

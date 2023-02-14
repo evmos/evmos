@@ -33,7 +33,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/tests"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/app"
@@ -162,7 +162,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 		suite.app.EpochsKeeper.SetEpochInfo(suite.ctx, epoch)
 	}
 
-	acc := &ethermint.EthAccount{
+	acc := &evmostypes.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}

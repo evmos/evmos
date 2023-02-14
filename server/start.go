@@ -63,10 +63,9 @@ import (
 
 	"github.com/evmos/evmos/v11/indexer"
 	ethdebug "github.com/evmos/evmos/v11/rpc/namespaces/ethereum/debug"
-	// TODO update import to local pkg when rpc pkg is migrated
 	"github.com/evmos/evmos/v11/server/config"
 	srvflags "github.com/evmos/evmos/v11/server/flags"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.
@@ -424,7 +423,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 		ethmetricsexp.Setup(config.JSONRPC.MetricsAddress)
 	}
 
-	var idxer ethermint.EVMTxIndexer
+	var idxer evmostypes.EVMTxIndexer
 	if config.JSONRPC.EnableIndexer {
 		idxDB, err := OpenIndexerDB(home, server.GetAppDBBackend(ctx.Viper))
 		if err != nil {
