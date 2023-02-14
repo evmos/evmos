@@ -74,8 +74,8 @@ type KeeperTestSuite struct {
 }
 
 var (
-	s *KeeperTestSuite
-	chainID = utils.TestnetChainID+"-1"
+	s       *KeeperTestSuite
+	chainID = utils.TestnetChainID + "-1"
 )
 
 func TestKeeperTestSuite(t *testing.T) {
