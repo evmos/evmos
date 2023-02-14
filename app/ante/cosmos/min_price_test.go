@@ -117,7 +117,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			true,
 		},
 		{
-			"valid cosmos tx without specified fee with MinGasPrices = 10, gasPrice = 10",
+			"valid cosmos tx without specified fee with MinGasPrices = 10, gasPrice = 10", // when fee is not provided, the requiredFee is used by default
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
@@ -132,9 +132,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			},
-			false,
-			"fee not provided",
 			true,
+			"",
+			false,
 		},
 	}
 
