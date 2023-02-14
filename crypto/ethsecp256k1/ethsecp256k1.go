@@ -237,12 +237,17 @@ func (pubKey PubKey) verifySignatureAsEIP712(msg, sig []byte) bool {
 		return false
 	}
 
-	legacyEIP712Bytes, err := eip712.LegacyGetEIP712BytesForMsg(msg)
-	if err != nil {
-		return pubKey.verifySignatureECDSA(eip712Bytes, sig)
+	if pubKey.verifySignatureECDSA(eip712Bytes, sig) {
+		return true
 	}
 
-	return pubKey.verifySignatureECDSA(eip712Bytes, sig) || pubKey.verifySignatureECDSA(legacyEIP712Bytes, sig)
+	// Try verifying the signature using the legacy EIP-712 encoding
+	legacyEIP712Bytes, err := eip712.LegacyGetEIP712BytesForMsg(msg)
+	if err != nil {
+		return false
+	}
+
+	return pubKey.verifySignatureECDSA(legacyEIP712Bytes, sig)
 }
 
 // Perform standard ECDSA signature verification for the given raw bytes and signature.
