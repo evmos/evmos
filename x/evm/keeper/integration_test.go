@@ -19,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -147,7 +148,7 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee ma
 func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	setupChain(localMinGasPrices)
 
-	privKey, address := generateKey()
+	address, privKey := tests.NewAccAddressAndKey()
 	amount, ok := sdk.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{
@@ -195,7 +196,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         "evmos_9000-1",
+			ChainId:         utils.TestnetChainID + "-1",
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,
@@ -204,11 +205,6 @@ func setupChain(localMinGasPricesStr string) {
 
 	s.app = newapp
 	s.SetupApp(false)
-}
-
-func generateKey() (*ethsecp256k1.PrivKey, sdk.AccAddress) {
-	address, priv := tests.NewAddrKey()
-	return priv.(*ethsecp256k1.PrivKey), sdk.AccAddress(address.Bytes())
 }
 
 func getNonce(addressBytes []byte) uint64 {

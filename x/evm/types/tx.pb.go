@@ -7,6 +7,10 @@ import (
 	context "context"
 	encoding_binary "encoding/binary"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
@@ -18,15 +22,14 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	io "io"
-	math "math"
-	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -54,9 +57,11 @@ func (*MsgEthereumTx) ProtoMessage()    {}
 func (*MsgEthereumTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{0}
 }
+
 func (m *MsgEthereumTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgEthereumTx.Marshal(b, m, deterministic)
@@ -69,12 +74,15 @@ func (m *MsgEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
+
 func (m *MsgEthereumTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgEthereumTx.Merge(m, src)
 }
+
 func (m *MsgEthereumTx) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgEthereumTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgEthereumTx.DiscardUnknown(m)
 }
@@ -111,9 +119,11 @@ func (*LegacyTx) ProtoMessage()    {}
 func (*LegacyTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{1}
 }
+
 func (m *LegacyTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *LegacyTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_LegacyTx.Marshal(b, m, deterministic)
@@ -126,12 +136,15 @@ func (m *LegacyTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *LegacyTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_LegacyTx.Merge(m, src)
 }
+
 func (m *LegacyTx) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *LegacyTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_LegacyTx.DiscardUnknown(m)
 }
@@ -170,9 +183,11 @@ func (*AccessListTx) ProtoMessage()    {}
 func (*AccessListTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{2}
 }
+
 func (m *AccessListTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *AccessListTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_AccessListTx.Marshal(b, m, deterministic)
@@ -185,12 +200,15 @@ func (m *AccessListTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
+
 func (m *AccessListTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AccessListTx.Merge(m, src)
 }
+
 func (m *AccessListTx) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *AccessListTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_AccessListTx.DiscardUnknown(m)
 }
@@ -231,9 +249,11 @@ func (*DynamicFeeTx) ProtoMessage()    {}
 func (*DynamicFeeTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{3}
 }
+
 func (m *DynamicFeeTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *DynamicFeeTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_DynamicFeeTx.Marshal(b, m, deterministic)
@@ -246,12 +266,15 @@ func (m *DynamicFeeTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
+
 func (m *DynamicFeeTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_DynamicFeeTx.Merge(m, src)
 }
+
 func (m *DynamicFeeTx) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *DynamicFeeTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_DynamicFeeTx.DiscardUnknown(m)
 }
@@ -259,8 +282,7 @@ func (m *DynamicFeeTx) XXX_DiscardUnknown() {
 var xxx_messageInfo_DynamicFeeTx proto.InternalMessageInfo
 
 // ExtensionOptionsEthereumTx is an extension option for ethereum transactions
-type ExtensionOptionsEthereumTx struct {
-}
+type ExtensionOptionsEthereumTx struct{}
 
 func (m *ExtensionOptionsEthereumTx) Reset()         { *m = ExtensionOptionsEthereumTx{} }
 func (m *ExtensionOptionsEthereumTx) String() string { return proto.CompactTextString(m) }
@@ -268,9 +290,11 @@ func (*ExtensionOptionsEthereumTx) ProtoMessage()    {}
 func (*ExtensionOptionsEthereumTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{4}
 }
+
 func (m *ExtensionOptionsEthereumTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *ExtensionOptionsEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ExtensionOptionsEthereumTx.Marshal(b, m, deterministic)
@@ -283,12 +307,15 @@ func (m *ExtensionOptionsEthereumTx) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
+
 func (m *ExtensionOptionsEthereumTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ExtensionOptionsEthereumTx.Merge(m, src)
 }
+
 func (m *ExtensionOptionsEthereumTx) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *ExtensionOptionsEthereumTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_ExtensionOptionsEthereumTx.DiscardUnknown(m)
 }
@@ -319,9 +346,11 @@ func (*MsgEthereumTxResponse) ProtoMessage()    {}
 func (*MsgEthereumTxResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{5}
 }
+
 func (m *MsgEthereumTxResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgEthereumTxResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgEthereumTxResponse.Marshal(b, m, deterministic)
@@ -334,12 +363,15 @@ func (m *MsgEthereumTxResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
+
 func (m *MsgEthereumTxResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgEthereumTxResponse.Merge(m, src)
 }
+
 func (m *MsgEthereumTxResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgEthereumTxResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgEthereumTxResponse.DiscardUnknown(m)
 }
@@ -361,9 +393,11 @@ func (*MsgUpdateParams) ProtoMessage()    {}
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{6}
 }
+
 func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateParams.Marshal(b, m, deterministic)
@@ -376,12 +410,15 @@ func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
+
 func (m *MsgUpdateParams) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateParams.Merge(m, src)
 }
+
 func (m *MsgUpdateParams) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgUpdateParams) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateParams.DiscardUnknown(m)
 }
@@ -404,8 +441,7 @@ func (m *MsgUpdateParams) GetParams() Params {
 
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
-type MsgUpdateParamsResponse struct {
-}
+type MsgUpdateParamsResponse struct{}
 
 func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse{} }
 func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
@@ -413,9 +449,11 @@ func (*MsgUpdateParamsResponse) ProtoMessage()    {}
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f75ac0a12d075f21, []int{7}
 }
+
 func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateParamsResponse.Marshal(b, m, deterministic)
@@ -428,12 +466,15 @@ func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
+
 func (m *MsgUpdateParamsResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateParamsResponse.Merge(m, src)
 }
+
 func (m *MsgUpdateParamsResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateParamsResponse.DiscardUnknown(m)
 }
@@ -519,8 +560,10 @@ var fileDescriptor_f75ac0a12d075f21 = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
+var (
+	_ context.Context
+	_ grpc.ClientConn
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -573,12 +616,12 @@ type MsgServer interface {
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
-type UnimplementedMsgServer struct {
-}
+type UnimplementedMsgServer struct{}
 
 func (*UnimplementedMsgServer) EthereumTx(ctx context.Context, req *MsgEthereumTx) (*MsgEthereumTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EthereumTx not implemented")
 }
+
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
 }
@@ -1195,6 +1238,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *MsgEthereumTx) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1438,9 +1482,11 @@ func (m *MsgUpdateParamsResponse) Size() (n int) {
 func sovTx(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *MsgEthereumTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1602,6 +1648,7 @@ func (m *MsgEthereumTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *LegacyTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1930,6 +1977,7 @@ func (m *LegacyTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *AccessListTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2328,6 +2376,7 @@ func (m *AccessListTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *DynamicFeeTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2762,6 +2811,7 @@ func (m *DynamicFeeTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *ExtensionOptionsEthereumTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2812,6 +2862,7 @@ func (m *ExtensionOptionsEthereumTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgEthereumTxResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3013,6 +3064,7 @@ func (m *MsgEthereumTxResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3128,6 +3180,7 @@ func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -3178,6 +3231,7 @@ func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipTx(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

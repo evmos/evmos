@@ -27,7 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
@@ -69,7 +69,7 @@ func NewRegisterRevenue() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
+			if err := evmostypes.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
@@ -127,7 +127,7 @@ func NewCancelRevenue() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
+			if err := evmostypes.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 
@@ -165,7 +165,7 @@ func NewUpdateRevenue() *cobra.Command {
 			deployer := cliCtx.GetFromAddress()
 
 			contract := args[0]
-			if err := ethermint.ValidateNonZeroAddress(contract); err != nil {
+			if err := evmostypes.ValidateNonZeroAddress(contract); err != nil {
 				return fmt.Errorf("invalid contract hex address %w", err)
 			}
 

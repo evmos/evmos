@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
@@ -35,7 +36,7 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/tests"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/evm/types"
@@ -112,18 +113,17 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 
 	// Initialize the chain
-	suite.app.InitChain(
-		abci.RequestInitChain{
-			ChainId:         "ethermint_9000-1",
-			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: app.DefaultConsensusParams,
-			AppStateBytes:   stateBytes,
-		},
-	)
+	req := abci.RequestInitChain{
+		ChainId:         utils.TestnetChainID + "-1",
+		Validators:      []abci.ValidatorUpdate{},
+		ConsensusParams: app.DefaultConsensusParams,
+		AppStateBytes:   stateBytes,
+	}
+	suite.app.InitChain(req)
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
-		ChainID:         "ethermint_9000-1",
+		ChainID:         req.ChainId,
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 		Version: tmversion.Consensus{
@@ -148,7 +148,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 
-	acc := &ethermint.EthAccount{
+	acc := &evmostypes.EthAccount{
 		BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(address.Bytes()), nil, 0, 0),
 		CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 	}

@@ -21,7 +21,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	ethermint "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v11/types"
 )
 
 // NewIncentive returns an instance of Incentive
@@ -40,7 +40,7 @@ func NewIncentive(
 
 // Validate performs a stateless validation of a Incentive
 func (i Incentive) Validate() error {
-	if err := ethermint.ValidateAddress(i.Contract); err != nil {
+	if err := evmostypes.ValidateAddress(i.Contract); err != nil {
 		return err
 	}
 

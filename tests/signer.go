@@ -29,7 +29,7 @@ import (
 )
 
 // NewAddrKey generates an Ethereum address and its corresponding private key.
-func NewAddrKey() (common.Address, cryptotypes.PrivKey) {
+func NewAddrKey() (common.Address, *ethsecp256k1.PrivKey) {
 	privkey, _ := ethsecp256k1.GenerateKey()
 	key, err := privkey.ToECDSA()
 	if err != nil {
@@ -39,6 +39,13 @@ func NewAddrKey() (common.Address, cryptotypes.PrivKey) {
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
 	return addr, privkey
+}
+
+// NewAccAddressAndKey generates a private key and its corresponding
+// Cosmos SDK address.
+func NewAccAddressAndKey() (sdk.AccAddress, *ethsecp256k1.PrivKey) {
+	addr, privKey := NewAddrKey()
+	return sdk.AccAddress(addr.Bytes()), privKey
 }
 
 // GenerateAddress generates an Ethereum address.

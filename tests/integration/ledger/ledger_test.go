@@ -59,7 +59,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			krHome = s.T().TempDir()
 			encCfg = encoding.MakeConfig(app.ModuleBasics)
 
-			cmd = s.ethermintAddKeyCmd()
+			cmd = s.evmosAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
@@ -107,7 +107,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			var err error
 
 			// create add key command
-			cmd = s.ethermintAddKeyCmd()
+			cmd = s.evmosAddKeyCmd()
 
 			mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)

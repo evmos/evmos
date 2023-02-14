@@ -5,16 +5,19 @@ package types
 
 import (
 	fmt "fmt"
-	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -42,9 +45,11 @@ func (*EventRegisterRevenue) ProtoMessage()    {}
 func (*EventRegisterRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_56d63fc43f5946c2, []int{0}
 }
+
 func (m *EventRegisterRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *EventRegisterRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventRegisterRevenue.Marshal(b, m, deterministic)
@@ -57,12 +62,15 @@ func (m *EventRegisterRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
+
 func (m *EventRegisterRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventRegisterRevenue.Merge(m, src)
 }
+
 func (m *EventRegisterRevenue) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *EventRegisterRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventRegisterRevenue.DiscardUnknown(m)
 }
@@ -107,9 +115,11 @@ func (*EventUpdateRevenue) ProtoMessage()    {}
 func (*EventUpdateRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_56d63fc43f5946c2, []int{1}
 }
+
 func (m *EventUpdateRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *EventUpdateRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventUpdateRevenue.Marshal(b, m, deterministic)
@@ -122,12 +132,15 @@ func (m *EventUpdateRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
+
 func (m *EventUpdateRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventUpdateRevenue.Merge(m, src)
 }
+
 func (m *EventUpdateRevenue) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *EventUpdateRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventUpdateRevenue.DiscardUnknown(m)
 }
@@ -170,9 +183,11 @@ func (*EventCancelRevenue) ProtoMessage()    {}
 func (*EventCancelRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_56d63fc43f5946c2, []int{2}
 }
+
 func (m *EventCancelRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *EventCancelRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventCancelRevenue.Marshal(b, m, deterministic)
@@ -185,12 +200,15 @@ func (m *EventCancelRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
+
 func (m *EventCancelRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventCancelRevenue.Merge(m, src)
 }
+
 func (m *EventCancelRevenue) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *EventCancelRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventCancelRevenue.DiscardUnknown(m)
 }
@@ -229,9 +247,11 @@ func (*EventDistributeRevenue) ProtoMessage()    {}
 func (*EventDistributeRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_56d63fc43f5946c2, []int{3}
 }
+
 func (m *EventDistributeRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *EventDistributeRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventDistributeRevenue.Marshal(b, m, deterministic)
@@ -244,12 +264,15 @@ func (m *EventDistributeRevenue) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
+
 func (m *EventDistributeRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventDistributeRevenue.Merge(m, src)
 }
+
 func (m *EventDistributeRevenue) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *EventDistributeRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventDistributeRevenue.DiscardUnknown(m)
 }
@@ -505,6 +528,7 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *EventRegisterRevenue) Size() (n int) {
 	if m == nil {
 		return 0
@@ -592,9 +616,11 @@ func (m *EventDistributeRevenue) Size() (n int) {
 func sovEvents(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *EventRegisterRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -741,6 +767,7 @@ func (m *EventRegisterRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *EventUpdateRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -887,6 +914,7 @@ func (m *EventUpdateRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *EventCancelRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1001,6 +1029,7 @@ func (m *EventCancelRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *EventDistributeRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1179,6 +1208,7 @@ func (m *EventDistributeRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipEvents(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
