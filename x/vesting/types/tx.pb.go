@@ -6,6 +6,11 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+	time "time"
+
 	github_com_cosmos_cosmos_sdk_x_auth_vesting_types "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	types "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -17,17 +22,15 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
-var _ = time.Kitchen
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+	_ = time.Kitchen
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -63,9 +66,11 @@ func (*MsgCreateClawbackVestingAccount) ProtoMessage()    {}
 func (*MsgCreateClawbackVestingAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{0}
 }
+
 func (m *MsgCreateClawbackVestingAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgCreateClawbackVestingAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCreateClawbackVestingAccount.Marshal(b, m, deterministic)
@@ -78,12 +83,15 @@ func (m *MsgCreateClawbackVestingAccount) XXX_Marshal(b []byte, deterministic bo
 		return b[:n], nil
 	}
 }
+
 func (m *MsgCreateClawbackVestingAccount) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCreateClawbackVestingAccount.Merge(m, src)
 }
+
 func (m *MsgCreateClawbackVestingAccount) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgCreateClawbackVestingAccount) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCreateClawbackVestingAccount.DiscardUnknown(m)
 }
@@ -134,8 +142,7 @@ func (m *MsgCreateClawbackVestingAccount) GetMerge() bool {
 
 // MsgCreateClawbackVestingAccountResponse defines the
 // MsgCreateClawbackVestingAccount response type.
-type MsgCreateClawbackVestingAccountResponse struct {
-}
+type MsgCreateClawbackVestingAccountResponse struct{}
 
 func (m *MsgCreateClawbackVestingAccountResponse) Reset() {
 	*m = MsgCreateClawbackVestingAccountResponse{}
@@ -145,9 +152,11 @@ func (*MsgCreateClawbackVestingAccountResponse) ProtoMessage()    {}
 func (*MsgCreateClawbackVestingAccountResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{1}
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCreateClawbackVestingAccountResponse.Marshal(b, m, deterministic)
@@ -160,12 +169,15 @@ func (m *MsgCreateClawbackVestingAccountResponse) XXX_Marshal(b []byte, determin
 		return b[:n], nil
 	}
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCreateClawbackVestingAccountResponse.Merge(m, src)
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCreateClawbackVestingAccountResponse.DiscardUnknown(m)
 }
@@ -192,9 +204,11 @@ func (*MsgClawback) ProtoMessage()    {}
 func (*MsgClawback) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{2}
 }
+
 func (m *MsgClawback) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgClawback) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgClawback.Marshal(b, m, deterministic)
@@ -207,12 +221,15 @@ func (m *MsgClawback) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
+
 func (m *MsgClawback) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgClawback.Merge(m, src)
 }
+
 func (m *MsgClawback) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgClawback) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgClawback.DiscardUnknown(m)
 }
@@ -241,8 +258,7 @@ func (m *MsgClawback) GetDestAddress() string {
 }
 
 // MsgClawbackResponse defines the MsgClawback response type.
-type MsgClawbackResponse struct {
-}
+type MsgClawbackResponse struct{}
 
 func (m *MsgClawbackResponse) Reset()         { *m = MsgClawbackResponse{} }
 func (m *MsgClawbackResponse) String() string { return proto.CompactTextString(m) }
@@ -250,9 +266,11 @@ func (*MsgClawbackResponse) ProtoMessage()    {}
 func (*MsgClawbackResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{3}
 }
+
 func (m *MsgClawbackResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgClawbackResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgClawbackResponse.Marshal(b, m, deterministic)
@@ -265,12 +283,15 @@ func (m *MsgClawbackResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
+
 func (m *MsgClawbackResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgClawbackResponse.Merge(m, src)
 }
+
 func (m *MsgClawbackResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgClawbackResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgClawbackResponse.DiscardUnknown(m)
 }
@@ -294,9 +315,11 @@ func (*MsgUpdateVestingFunder) ProtoMessage()    {}
 func (*MsgUpdateVestingFunder) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{4}
 }
+
 func (m *MsgUpdateVestingFunder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgUpdateVestingFunder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateVestingFunder.Marshal(b, m, deterministic)
@@ -309,12 +332,15 @@ func (m *MsgUpdateVestingFunder) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
+
 func (m *MsgUpdateVestingFunder) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateVestingFunder.Merge(m, src)
 }
+
 func (m *MsgUpdateVestingFunder) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgUpdateVestingFunder) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateVestingFunder.DiscardUnknown(m)
 }
@@ -344,8 +370,7 @@ func (m *MsgUpdateVestingFunder) GetVestingAddress() string {
 
 // MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response
 // type.
-type MsgUpdateVestingFunderResponse struct {
-}
+type MsgUpdateVestingFunderResponse struct{}
 
 func (m *MsgUpdateVestingFunderResponse) Reset()         { *m = MsgUpdateVestingFunderResponse{} }
 func (m *MsgUpdateVestingFunderResponse) String() string { return proto.CompactTextString(m) }
@@ -353,9 +378,11 @@ func (*MsgUpdateVestingFunderResponse) ProtoMessage()    {}
 func (*MsgUpdateVestingFunderResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d5db113bc0c7240c, []int{5}
 }
+
 func (m *MsgUpdateVestingFunderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *MsgUpdateVestingFunderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateVestingFunderResponse.Marshal(b, m, deterministic)
@@ -368,12 +395,15 @@ func (m *MsgUpdateVestingFunderResponse) XXX_Marshal(b []byte, deterministic boo
 		return b[:n], nil
 	}
 }
+
 func (m *MsgUpdateVestingFunderResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateVestingFunderResponse.Merge(m, src)
 }
+
 func (m *MsgUpdateVestingFunderResponse) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *MsgUpdateVestingFunderResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateVestingFunderResponse.DiscardUnknown(m)
 }
@@ -438,8 +468,10 @@ var fileDescriptor_d5db113bc0c7240c = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
+var (
+	_ context.Context
+	_ grpc.ClientConn
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -507,15 +539,16 @@ type MsgServer interface {
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
-type UnimplementedMsgServer struct {
-}
+type UnimplementedMsgServer struct{}
 
 func (*UnimplementedMsgServer) CreateClawbackVestingAccount(ctx context.Context, req *MsgCreateClawbackVestingAccount) (*MsgCreateClawbackVestingAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateClawbackVestingAccount not implemented")
 }
+
 func (*UnimplementedMsgServer) Clawback(ctx context.Context, req *MsgClawback) (*MsgClawbackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Clawback not implemented")
 }
+
 func (*UnimplementedMsgServer) UpdateVestingFunder(ctx context.Context, req *MsgUpdateVestingFunder) (*MsgUpdateVestingFunderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateVestingFunder not implemented")
 }
@@ -850,6 +883,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *MsgCreateClawbackVestingAccount) Size() (n int) {
 	if m == nil {
 		return 0
@@ -956,9 +990,11 @@ func (m *MsgUpdateVestingFunderResponse) Size() (n int) {
 func sovTx(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *MsgCreateClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1194,6 +1230,7 @@ func (m *MsgCreateClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgCreateClawbackVestingAccountResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1244,6 +1281,7 @@ func (m *MsgCreateClawbackVestingAccountResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgClawback) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1390,6 +1428,7 @@ func (m *MsgClawback) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgClawbackResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1440,6 +1479,7 @@ func (m *MsgClawbackResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgUpdateVestingFunder) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1586,6 +1626,7 @@ func (m *MsgUpdateVestingFunder) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *MsgUpdateVestingFunderResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1636,6 +1677,7 @@ func (m *MsgUpdateVestingFunderResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipTx(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

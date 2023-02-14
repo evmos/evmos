@@ -5,23 +5,26 @@ package types
 
 import (
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+	time "time"
+
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
-var _ = time.Kitchen
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+	_ = time.Kitchen
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -50,9 +53,11 @@ func (*Incentive) ProtoMessage()    {}
 func (*Incentive) Descriptor() ([]byte, []int) {
 	return fileDescriptor_95b81e40854aec77, []int{0}
 }
+
 func (m *Incentive) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *Incentive) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_Incentive.Marshal(b, m, deterministic)
@@ -65,12 +70,15 @@ func (m *Incentive) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *Incentive) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Incentive.Merge(m, src)
 }
+
 func (m *Incentive) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *Incentive) XXX_DiscardUnknown() {
 	xxx_messageInfo_Incentive.DiscardUnknown(m)
 }
@@ -128,9 +136,11 @@ func (*GasMeter) ProtoMessage()    {}
 func (*GasMeter) Descriptor() ([]byte, []int) {
 	return fileDescriptor_95b81e40854aec77, []int{1}
 }
+
 func (m *GasMeter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *GasMeter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_GasMeter.Marshal(b, m, deterministic)
@@ -143,12 +153,15 @@ func (m *GasMeter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
+
 func (m *GasMeter) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_GasMeter.Merge(m, src)
 }
+
 func (m *GasMeter) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *GasMeter) XXX_DiscardUnknown() {
 	xxx_messageInfo_GasMeter.DiscardUnknown(m)
 }
@@ -196,9 +209,11 @@ func (*RegisterIncentiveProposal) ProtoMessage()    {}
 func (*RegisterIncentiveProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_95b81e40854aec77, []int{2}
 }
+
 func (m *RegisterIncentiveProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *RegisterIncentiveProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_RegisterIncentiveProposal.Marshal(b, m, deterministic)
@@ -211,12 +226,15 @@ func (m *RegisterIncentiveProposal) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
+
 func (m *RegisterIncentiveProposal) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_RegisterIncentiveProposal.Merge(m, src)
 }
+
 func (m *RegisterIncentiveProposal) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *RegisterIncentiveProposal) XXX_DiscardUnknown() {
 	xxx_messageInfo_RegisterIncentiveProposal.DiscardUnknown(m)
 }
@@ -274,9 +292,11 @@ func (*CancelIncentiveProposal) ProtoMessage()    {}
 func (*CancelIncentiveProposal) Descriptor() ([]byte, []int) {
 	return fileDescriptor_95b81e40854aec77, []int{3}
 }
+
 func (m *CancelIncentiveProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
+
 func (m *CancelIncentiveProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_CancelIncentiveProposal.Marshal(b, m, deterministic)
@@ -289,12 +309,15 @@ func (m *CancelIncentiveProposal) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
+
 func (m *CancelIncentiveProposal) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_CancelIncentiveProposal.Merge(m, src)
 }
+
 func (m *CancelIncentiveProposal) XXX_Size() int {
 	return m.Size()
 }
+
 func (m *CancelIncentiveProposal) XXX_DiscardUnknown() {
 	xxx_messageInfo_CancelIncentiveProposal.DiscardUnknown(m)
 }
@@ -590,6 +613,7 @@ func encodeVarintIncentives(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+
 func (m *Incentive) Size() (n int) {
 	if m == nil {
 		return 0
@@ -691,9 +715,11 @@ func (m *CancelIncentiveProposal) Size() (n int) {
 func sovIncentives(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
+
 func sozIncentives(x uint64) (n int) {
 	return sovIncentives(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
+
 func (m *Incentive) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -881,6 +907,7 @@ func (m *Incentive) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *GasMeter) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1014,6 +1041,7 @@ func (m *GasMeter) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *RegisterIncentiveProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1213,6 +1241,7 @@ func (m *RegisterIncentiveProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func (m *CancelIncentiveProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1359,6 +1388,7 @@ func (m *CancelIncentiveProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+
 func skipIncentives(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

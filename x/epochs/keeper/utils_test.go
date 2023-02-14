@@ -1,55 +1,19 @@
 package keeper_test
 
 import (
-	"testing"
 	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/x/epochs/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
-
-	evm "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/evmos/evmos/v11/app"
-	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
-	"github.com/evmos/evmos/v11/x/inflation/types"
 )
-
-var denomMint = types.DefaultInflationDenom
-
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx            sdk.Context
-	app            *app.Evmos
-	queryClientEvm evm.QueryClient
-	queryClient    types.QueryClient
-	consAddress    sdk.ConsAddress
-}
-
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
 
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
@@ -86,11 +50,11 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// setup query helpers
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, suite.app.InflationKeeper)
+	types.RegisterQueryServer(queryHelper, suite.app.EpochsKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers
-	identifiers := []string{epochstypes.WeekEpochID, epochstypes.DayEpochID}
+	identifiers := []string{types.WeekEpochID, types.DayEpochID}
 	for _, identifier := range identifiers {
 		epoch, found := suite.app.EpochsKeeper.GetEpochInfo(suite.ctx, identifier)
 		suite.Require().True(found)
