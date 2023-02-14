@@ -46,7 +46,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		expErrMsg string
 	}{
 		{
-			name: "fail - submit upgrade proposal, no fees",
+			name: "fail - submit upgrade proposal, no fees & insufficient gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
 					"v11.0.0",
@@ -58,7 +58,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 				)
 			},
 			expPass:   false,
-			expErrMsg: "insufficient fee",
+			expErrMsg: "insufficient fee", // TODO when the PR https://github.com/evmos/evmos/pull/1386 is merged, this may fail with out of gas error
 		},
 		{
 			name: "fail - submit upgrade proposal, insufficient fees",
@@ -91,7 +91,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "out of gas",
 		},
 		{
-			name: "success - submit upgrade proposal, defined fees and gas",
+			name: "success - submit upgrade proposal, defined fees & gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
 					"v11.0.0",
@@ -104,7 +104,36 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
-		// TODO uncomment these tests when the PR on cosmos-sdk is merged and that version is used on Evmos
+		{
+			name: "success - submit upgrade proposal, using gas & gas-prices",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+					"--gas-prices=1000000000aevmos",
+					"--gas=1500000",
+				)
+			},
+			expPass: true,
+		},
+		// TODO uncomment this test when the PR https://github.com/evmos/evmos/pull/1386 is merged
+		// {
+		// 	name: "success - submit upgrade proposal, no fees (defaults to requiredFees) & sufficient gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--fees=",
+		// 			"--gas=1500000",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
 		// {
 		// 	name: "success - submit upgrade proposal, gas 'auto'",
 		// 	cmd: func() (string, error) {
@@ -156,6 +185,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
+		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
 		// {
 		// 	name: "success - vote upgrade proposal, gas 'auto'",
 		// 	cmd: func() (string, error) {
