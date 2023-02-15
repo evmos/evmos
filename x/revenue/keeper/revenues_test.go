@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v11/tests"
+
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
@@ -39,9 +41,9 @@ func (suite *KeeperTestSuite) TestGetFees() {
 		{
 			"multiple revenues registered",
 			func() {
-				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-				contract2 := tests.GenerateAddress()
-				contract3 := tests.GenerateAddress()
+				deployer2 := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+				contract2 := testutil.GenerateAddress()
+				contract3 := testutil.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
@@ -97,9 +99,9 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		{
 			"multiple revenues registered",
 			func() {
-				deployer2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-				contract2 := tests.GenerateAddress()
-				contract3 := tests.GenerateAddress()
+				deployer2 := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+				contract2 := testutil.GenerateAddress()
+				contract3 := testutil.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
@@ -323,7 +325,7 @@ func (suite *KeeperTestSuite) TestIsRevenueRegistered() {
 	}{
 		{"registered revenue", contract, true},
 		{"revenue not registered", common.Address{}, false},
-		{"revenue not registered", tests.GenerateAddress(), false},
+		{"revenue not registered", testutil.GenerateAddress(), false},
 	}
 	for _, tc := range testCases {
 		found := suite.app.RevenueKeeper.IsRevenueRegistered(suite.ctx, tc.contract)

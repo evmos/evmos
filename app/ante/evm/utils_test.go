@@ -41,7 +41,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -105,7 +105,7 @@ func (suite *AnteTestSuite) CreateTestTxBuilder(
 		builder.SetExtensionOptions(option)
 	}
 
-	err = msg.Sign(suite.ethSigner, tests.NewSigner(priv))
+	err = msg.Sign(suite.ethSigner, testutil.NewSigner(priv))
 	suite.Require().NoError(err)
 
 	msg.From = ""
@@ -178,7 +178,7 @@ func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgSend(from sdk.AccAddress
 
 func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgDelegate(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	// Build MsgSend
-	valEthAddr := tests.GenerateAddress()
+	valEthAddr := testutil.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgSend := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgSend)
@@ -232,7 +232,7 @@ func (suite *AnteTestSuite) CreateTestEIP712GrantAllowance(from sdk.AccAddress, 
 		SpendLimit: spendLimit,
 		Expiration: &threeHours,
 	}
-	granted := tests.GenerateAddress()
+	granted := testutil.GenerateAddress()
 	grantedAddr := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, granted.Bytes())
 	msgGrant, err := feegrant.NewMsgGrantAllowance(basic, from, grantedAddr.GetAddress())
 	suite.Require().NoError(err)
@@ -405,7 +405,7 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	suite.Require().NoError(err)
 
 	// Sign typedData
-	keyringSigner := tests.NewSigner(priv)
+	keyringSigner := testutil.NewSigner(priv)
 	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
 	suite.Require().NoError(err)
 	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper

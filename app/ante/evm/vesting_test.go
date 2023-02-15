@@ -9,7 +9,6 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
@@ -31,7 +30,7 @@ var (
 
 // TestEthVestingTransactionDecorator tests the EthVestingTransactionDecorator ante handler.
 func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
-	addr := tests.GenerateAddress()
+	addr := testutil.GenerateAddress()
 	tx := evmtypes.NewTx(
 		suite.app.EvmKeeper.ChainID(),
 		1,

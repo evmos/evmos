@@ -39,7 +39,7 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0
 	go.opencensus.io v0.24.0
 	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db
-	golang.org/x/net v0.6.0
+	golang.org/x/net v0.7.0
 	golang.org/x/text v0.7.0
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
 	google.golang.org/grpc v1.53.0

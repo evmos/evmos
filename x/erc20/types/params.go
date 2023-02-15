@@ -44,7 +44,7 @@ func DefaultParams() Params {
 	}
 }
 
-func validateBool(i interface{}) error {
+func ValidateBool(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -54,9 +54,9 @@ func validateBool(i interface{}) error {
 }
 
 func (p Params) Validate() error {
-	if err := validateBool(p.EnableEVMHook); err != nil {
+	if err := ValidateBool(p.EnableEVMHook); err != nil {
 		return err
 	}
 
-	return validateBool(p.EnableErc20)
+	return ValidateBool(p.EnableErc20)
 }

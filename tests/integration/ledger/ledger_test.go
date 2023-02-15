@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/hd"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/tests/integration/ledger/mocks"
 	"github.com/evmos/evmos/v11/testutil"
 
@@ -179,7 +178,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					)
 					s.Require().NoError(err)
 
-					receiverAccAddr = sdk.AccAddress(tests.GenerateAddress().Bytes())
+					receiverAccAddr = sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 					cmd = bankcli.NewSendTxCmd()
 					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)

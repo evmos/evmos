@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"testing"
@@ -6,7 +6,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 type GasMeterTestSuite struct {
@@ -26,23 +27,23 @@ func (suite *GasMeterTestSuite) TestGasMeterNew() {
 		expectPass    bool
 	}{
 		{
-			"Register GasMeter - pass",
-			tests.GenerateAddress(),
-			tests.GenerateAddress(),
+			"Register types.GasMeter - pass",
+			testutil.GenerateAddress(),
+			testutil.GenerateAddress(),
 			100,
 			true,
 		},
 		{
-			"Register GasMeter - zero Cumulative Gas",
-			tests.GenerateAddress(),
-			tests.GenerateAddress(),
+			"Register types.GasMeter - zero Cumulative Gas",
+			testutil.GenerateAddress(),
+			testutil.GenerateAddress(),
 			0,
 			true,
 		},
 	}
 
 	for _, tc := range testCases {
-		gm := NewGasMeter(tc.contract, tc.participant, tc.cumulativeGas)
+		gm := types.NewGasMeter(tc.contract, tc.participant, tc.cumulativeGas)
 		err := gm.Validate()
 
 		if tc.expectPass {
@@ -56,22 +57,22 @@ func (suite *GasMeterTestSuite) TestGasMeterNew() {
 func (suite *GasMeterTestSuite) TestGasMeter() {
 	testCases := []struct {
 		msg        string
-		gm         GasMeter
+		gm         types.GasMeter
 		expectPass bool
 	}{
 		{
 			"Register gas meter - invalid contract address (no hex)",
-			GasMeter{
+			types.GasMeter{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				10,
 			},
 			false,
 		},
 		{
 			"Register gas meter - invalid participant address (no hex)",
-			GasMeter{
-				tests.GenerateAddress().String(),
+			types.GasMeter{
+				testutil.GenerateAddress().String(),
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				10,
 			},
@@ -79,27 +80,27 @@ func (suite *GasMeterTestSuite) TestGasMeter() {
 		},
 		{
 			"Register gas meter - invalid address (invalid length 1)",
-			GasMeter{
+			types.GasMeter{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				10,
 			},
 			false,
 		},
 		{
 			"Register gas meter - invalid address (invalid length 2)",
-			GasMeter{
+			types.GasMeter{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				tests.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				10,
 			},
 			false,
 		},
 		{
 			"pass",
-			GasMeter{
-				tests.GenerateAddress().String(),
-				tests.GenerateAddress().String(),
+			types.GasMeter{
+				testutil.GenerateAddress().String(),
+				testutil.GenerateAddress().String(),
 				10,
 			},
 			true,

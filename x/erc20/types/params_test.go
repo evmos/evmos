@@ -1,8 +1,9 @@
-package types
+package types_test
 
 import (
 	"testing"
 
+	"github.com/evmos/evmos/v11/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -17,18 +18,18 @@ func TestParamsTestSuite(t *testing.T) {
 func (suite *ParamsTestSuite) TestParamsValidate() {
 	testCases := []struct {
 		name     string
-		params   Params
+		params   types.Params
 		expError bool
 	}{
-		{"default", DefaultParams(), false},
+		{"default", types.DefaultParams(), false},
 		{
 			"valid",
-			NewParams(true, true),
+			types.NewParams(true, true),
 			false,
 		},
 		{
 			"empty",
-			Params{},
+			types.Params{},
 			false,
 		},
 	}
@@ -45,6 +46,6 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 }
 
 func (suite *ParamsTestSuite) TestParamsValidatePriv() {
-	suite.Require().Error(validateBool(1))
-	suite.Require().NoError(validateBool(true))
+	suite.Require().Error(types.ValidateBool(1))
+	suite.Require().NoError(types.ValidateBool(true))
 }

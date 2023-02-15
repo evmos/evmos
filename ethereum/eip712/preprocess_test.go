@@ -19,7 +19,7 @@ import (
 
 	// TODO refactor when imported to Evmos
 	"github.com/evmos/evmos/v11/cmd/config"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/require"
@@ -159,7 +159,7 @@ func createBasicTestCase(t *testing.T) TestCaseStruct {
 	signatureBytes, err := hex.DecodeString(signatureHex)
 	require.NoError(t, err)
 
-	_, privKey := tests.NewAddrKey()
+	_, privKey := testutil.NewAddrKey()
 	sigsV2 := signing.SignatureV2{
 		PubKey: privKey.PubKey(), // Use unrelated public key for testing
 		Data: &signing.SingleSignatureData{

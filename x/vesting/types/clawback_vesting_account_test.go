@@ -11,7 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -38,7 +38,7 @@ func TestVestingAccountSuite(t *testing.T) {
 }
 
 func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	baseAcc := authtypes.NewBaseAccountWithAddress(addr)
 	initialVesting := sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 50))
 
@@ -146,7 +146,7 @@ func (suite *VestingAccountTestSuite) TestClawbackAccountNew() {
 func (suite *VestingAccountTestSuite) TestGetVestedVestingLockedCoins() {
 	now := tmtime.Now()
 	endTime := now.Add(24 * time.Hour)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	bacc := authtypes.NewBaseAccountWithAddress(addr)
 	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
 
@@ -230,7 +230,7 @@ func (suite *VestingAccountTestSuite) TestGetVestedVestingLockedCoins() {
 func (suite *VestingAccountTestSuite) TestGetVestedUnvestedLockedOnly() {
 	now := tmtime.Now()
 	endTime := now.Add(24 * time.Hour)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 	bacc := authtypes.NewBaseAccountWithAddress(addr)
 	va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
 
@@ -438,7 +438,7 @@ func (suite *VestingAccountTestSuite) TestTrackDelegationUndelegation() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 			bacc := authtypes.NewBaseAccountWithAddress(addr)
 
 			va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
@@ -525,7 +525,7 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+			addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 			bacc := authtypes.NewBaseAccountWithAddress(addr)
 			va := types.NewClawbackVestingAccount(bacc, sdk.AccAddress([]byte("funder")), origCoins, now, lockupPeriods, vestingPeriods)
 

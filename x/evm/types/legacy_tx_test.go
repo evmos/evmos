@@ -1,10 +1,12 @@
-package types
+package types_test
 
 import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *TxDataTestSuite) TestNewLegacyTx() {
@@ -29,7 +31,7 @@ func (suite *TxDataTestSuite) TestNewLegacyTx() {
 	}
 
 	for _, tc := range testCases {
-		tx, err := newLegacyTx(tc.tx)
+		tx, err := types.NewLegacyTx(tc.tx)
 		suite.Require().NoError(err)
 
 		suite.Require().NotEmpty(tc.tx)
@@ -38,29 +40,29 @@ func (suite *TxDataTestSuite) TestNewLegacyTx() {
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxTxType() {
-	tx := LegacyTx{}
+	tx := types.LegacyTx{}
 	actual := tx.TxType()
 
 	suite.Require().Equal(uint8(0), actual)
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxCopy() {
-	tx := &LegacyTx{}
+	tx := &types.LegacyTx{}
 	txData := tx.Copy()
 
-	suite.Require().Equal(&LegacyTx{}, txData)
+	suite.Require().Equal(&types.LegacyTx{}, txData)
 	// TODO: Test for different pointers
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxGetChainID() {
-	tx := LegacyTx{}
+	tx := types.LegacyTx{}
 	actual := tx.GetChainID()
 
 	suite.Require().Nil(actual)
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxGetAccessList() {
-	tx := LegacyTx{}
+	tx := types.LegacyTx{}
 	actual := tx.GetAccessList()
 
 	suite.Require().Nil(actual)
@@ -69,11 +71,11 @@ func (suite *TxDataTestSuite) TestLegacyTxGetAccessList() {
 func (suite *TxDataTestSuite) TestLegacyTxGetData() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 	}{
 		{
 			"non-empty transaction",
-			LegacyTx{
+			types.LegacyTx{
 				Data: nil,
 			},
 		},
@@ -89,12 +91,12 @@ func (suite *TxDataTestSuite) TestLegacyTxGetData() {
 func (suite *TxDataTestSuite) TestLegacyTxGetGas() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  uint64
 	}{
 		{
 			"non-empty gas",
-			LegacyTx{
+			types.LegacyTx{
 				GasLimit: suite.uint64,
 			},
 			suite.uint64,
@@ -111,19 +113,19 @@ func (suite *TxDataTestSuite) TestLegacyTxGetGas() {
 func (suite *TxDataTestSuite) TestLegacyTxGetGasPrice() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  *big.Int
 	}{
 		{
 			"empty gasPrice",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: nil,
 			},
 			nil,
 		},
 		{
 			"non-empty gasPrice",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 			},
 			(&suite.sdkInt).BigInt(),
@@ -140,12 +142,12 @@ func (suite *TxDataTestSuite) TestLegacyTxGetGasPrice() {
 func (suite *TxDataTestSuite) TestLegacyTxGetGasTipCap() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  *big.Int
 	}{
 		{
 			"non-empty gasPrice",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 			},
 			(&suite.sdkInt).BigInt(),
@@ -162,12 +164,12 @@ func (suite *TxDataTestSuite) TestLegacyTxGetGasTipCap() {
 func (suite *TxDataTestSuite) TestLegacyTxGetGasFeeCap() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  *big.Int
 	}{
 		{
 			"non-empty gasPrice",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 			},
 			(&suite.sdkInt).BigInt(),
@@ -184,19 +186,19 @@ func (suite *TxDataTestSuite) TestLegacyTxGetGasFeeCap() {
 func (suite *TxDataTestSuite) TestLegacyTxGetValue() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  *big.Int
 	}{
 		{
 			"empty amount",
-			LegacyTx{
+			types.LegacyTx{
 				Amount: nil,
 			},
 			nil,
 		},
 		{
 			"non-empty amount",
-			LegacyTx{
+			types.LegacyTx{
 				Amount: &suite.sdkInt,
 			},
 			(&suite.sdkInt).BigInt(),
@@ -213,12 +215,12 @@ func (suite *TxDataTestSuite) TestLegacyTxGetValue() {
 func (suite *TxDataTestSuite) TestLegacyTxGetNonce() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  uint64
 	}{
 		{
 			"none-empty nonce",
-			LegacyTx{
+			types.LegacyTx{
 				Nonce: suite.uint64,
 			},
 			suite.uint64,
@@ -234,19 +236,19 @@ func (suite *TxDataTestSuite) TestLegacyTxGetNonce() {
 func (suite *TxDataTestSuite) TestLegacyTxGetTo() {
 	testCases := []struct {
 		name string
-		tx   LegacyTx
+		tx   types.LegacyTx
 		exp  *common.Address
 	}{
 		{
 			"empty address",
-			LegacyTx{
+			types.LegacyTx{
 				To: "",
 			},
 			nil,
 		},
 		{
 			"non-empty address",
-			LegacyTx{
+			types.LegacyTx{
 				To: suite.hexAddr,
 			},
 			&suite.addr,
@@ -261,7 +263,7 @@ func (suite *TxDataTestSuite) TestLegacyTxGetTo() {
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxAsEthereumData() {
-	tx := &LegacyTx{}
+	tx := &types.LegacyTx{}
 	txData := tx.AsEthereumData()
 
 	suite.Require().Equal(&ethtypes.LegacyTx{}, txData)
@@ -282,7 +284,7 @@ func (suite *TxDataTestSuite) TestLegacyTxSetSignatureValues() {
 		},
 	}
 	for _, tc := range testCases {
-		tx := &LegacyTx{}
+		tx := &types.LegacyTx{}
 		tx.SetSignatureValues(nil, tc.v, tc.r, tc.s)
 
 		v, r, s := tx.GetRawSignatureValues()
@@ -296,31 +298,31 @@ func (suite *TxDataTestSuite) TestLegacyTxSetSignatureValues() {
 func (suite *TxDataTestSuite) TestLegacyTxValidate() {
 	testCases := []struct {
 		name     string
-		tx       LegacyTx
+		tx       types.LegacyTx
 		expError bool
 	}{
 		{
 			"empty",
-			LegacyTx{},
+			types.LegacyTx{},
 			true,
 		},
 		{
 			"gas price is nil",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: nil,
 			},
 			true,
 		},
 		{
 			"gas price is negative",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkMinusOneInt,
 			},
 			true,
 		},
 		{
 			"amount is negative",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 				Amount:   &suite.sdkMinusOneInt,
 			},
@@ -328,7 +330,7 @@ func (suite *TxDataTestSuite) TestLegacyTxValidate() {
 		},
 		{
 			"to address is invalid",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 				Amount:   &suite.sdkInt,
 				To:       suite.invalidAddr,
@@ -352,13 +354,13 @@ func (suite *TxDataTestSuite) TestLegacyTxValidate() {
 func (suite *TxDataTestSuite) TestLegacyTxEffectiveGasPrice() {
 	testCases := []struct {
 		name    string
-		tx      LegacyTx
+		tx      types.LegacyTx
 		baseFee *big.Int
 		exp     *big.Int
 	}{
 		{
 			"non-empty legacy tx",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 			},
 			(&suite.sdkInt).BigInt(),
@@ -376,13 +378,13 @@ func (suite *TxDataTestSuite) TestLegacyTxEffectiveGasPrice() {
 func (suite *TxDataTestSuite) TestLegacyTxEffectiveFee() {
 	testCases := []struct {
 		name    string
-		tx      LegacyTx
+		tx      types.LegacyTx
 		baseFee *big.Int
 		exp     *big.Int
 	}{
 		{
 			"non-empty legacy tx",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 				GasLimit: uint64(1),
 			},
@@ -401,13 +403,13 @@ func (suite *TxDataTestSuite) TestLegacyTxEffectiveFee() {
 func (suite *TxDataTestSuite) TestLegacyTxEffectiveCost() {
 	testCases := []struct {
 		name    string
-		tx      LegacyTx
+		tx      types.LegacyTx
 		baseFee *big.Int
 		exp     *big.Int
 	}{
 		{
 			"non-empty legacy tx",
-			LegacyTx{
+			types.LegacyTx{
 				GasPrice: &suite.sdkInt,
 				GasLimit: uint64(1),
 				Amount:   &suite.sdkZeroInt,
@@ -425,7 +427,7 @@ func (suite *TxDataTestSuite) TestLegacyTxEffectiveCost() {
 }
 
 func (suite *TxDataTestSuite) TestLegacyTxFeeCost() {
-	tx := &LegacyTx{}
+	tx := &types.LegacyTx{}
 
 	suite.Require().Panics(func() { tx.Fee() }, "should panic")
 	suite.Require().Panics(func() { tx.Cost() }, "should panic")
