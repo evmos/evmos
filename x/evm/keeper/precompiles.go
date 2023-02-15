@@ -36,6 +36,10 @@ func (k *Keeper) WithPrecompiles(precompiles map[common.Address]vm.PrecompiledCo
 		panic("available precompiles map already set")
 	}
 
+	if len(precompiles) == 0 {
+		panic("empty precompiled contract map")
+	}
+
 	k.precompiles = precompiles
 	return k
 }
