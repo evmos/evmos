@@ -285,6 +285,24 @@ func (k Keeper) UpdateVestingFunder(
 	return &types.MsgUpdateVestingFunderResponse{}, nil
 }
 
+func (k Keeper) ConvertVestingAccount(
+	goCtx context.Context,
+	msg *types.MsgConvertVestingAccount,
+) (*types.MsgConvertVestingAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	acc := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	baseAccount := k.accountKeeper.GetAccount(ctx, acc)
+
+	// Check if baseAccount is of type ClawbackVestingAccount
+	if _, ok := baseAccount.(*types.ClawbackVestingAccount); !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.VestingAddress)
+	}
+
+	k.accountKeeper.SetAccount(ctx, baseAccount.(*types.ClawbackVestingAccount).BaseVestingAccount.BaseAccount)
+
+	return &types.MsgConvertVestingAccountResponse{}, nil
+}
+
 // addGrant merges a new clawback vesting grant into an existing
 // ClawbackVestingAccount.
 func (k Keeper) addGrant(
