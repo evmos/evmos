@@ -1,14 +1,16 @@
 package types_test
 
 import (
-	"github.com/evmos/evmos/v11/x/revenue/types"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/revenue/types"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type RevenueTestSuite struct {

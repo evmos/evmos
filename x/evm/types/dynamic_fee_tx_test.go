@@ -1,17 +1,19 @@
 package types_test
 
 import (
-	"github.com/evmos/evmos/v11/x/evm/types"
 	"math/big"
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/evm/types"
+
 	"github.com/stretchr/testify/suite"
 )
 

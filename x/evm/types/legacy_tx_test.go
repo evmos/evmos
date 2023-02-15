@@ -1,11 +1,12 @@
 package types_test
 
 import (
-	"github.com/evmos/evmos/v11/x/evm/types"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
+	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *TxDataTestSuite) TestNewLegacyTx() {

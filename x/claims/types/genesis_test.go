@@ -1,11 +1,13 @@
 package types_test
 
 import (
-	"github.com/evmos/evmos/v11/x/claims/types"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/claims/types"
+
 	"github.com/stretchr/testify/suite"
 )
 
