@@ -35,7 +35,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
@@ -72,7 +72,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(priv)
+	suite.signer = testutil.NewSigner(priv)
 	suite.from = address
 	// consensus key
 	priv, err = ethsecp256k1.GenerateKey()

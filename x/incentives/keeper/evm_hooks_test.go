@@ -10,11 +10,9 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/incentives/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -110,7 +108,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		{
 			"tx with non-incentivized contract",
 			func(_ common.Address) {
-				_ = suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
+				_ = suite.MintERC20Token(testutil.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
 			false,
 		},

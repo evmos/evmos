@@ -69,11 +69,11 @@ func NewTxDataFromTx(tx *ethtypes.Transaction) (TxData, error) {
 	var err error
 	switch tx.Type() {
 	case ethtypes.DynamicFeeTxType:
-		txData, err = newDynamicFeeTx(tx)
+		txData, err = NewDynamicFeeTx(tx)
 	case ethtypes.AccessListTxType:
 		txData, err = newAccessListTx(tx)
 	default:
-		txData, err = newLegacyTx(tx)
+		txData, err = NewLegacyTx(tx)
 	}
 	if err != nil {
 		return nil, err

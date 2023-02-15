@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/stretchr/testify/mock"
 
@@ -351,7 +350,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 }
 
 func (suite *KeeperTestSuite) TestGetIBCDenomDestinationIdentifiers() {
-	address := sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	address := sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
 
 	testCases := []struct {
 		name                                      string

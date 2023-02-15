@@ -20,17 +20,21 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
+
 	"github.com/stretchr/testify/require"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
@@ -46,7 +50,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(priv)
+	suite.signer = testutil.NewSigner(priv)
 
 	// consensus key
 	priv, err = ethsecp256k1.GenerateKey()
@@ -148,7 +152,7 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee sd
 func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	setupChain(localMinGasPrices)
 
-	address, privKey := tests.NewAccAddressAndKey()
+	address, privKey := testutil.NewAccAddressAndKey()
 	amount, ok := sdkmath.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{
@@ -263,7 +267,7 @@ func prepareEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 	s.Require().True(ok)
 	builder.SetExtensionOptions(option)
 
-	err = msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
+	err = msgEthereumTx.Sign(s.ethSigner, testutil.NewSigner(priv))
 	s.Require().NoError(err)
 
 	msgEthereumTx.From = ""

@@ -15,7 +15,7 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
@@ -45,7 +45,7 @@ type KeeperTestSuite struct {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	// consensus key
-	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
+	consAddress := sdk.ConsAddress(testutil.GenerateAddress().Bytes())
 
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{

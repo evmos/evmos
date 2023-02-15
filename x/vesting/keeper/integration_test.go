@@ -9,7 +9,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/vesting/types"
@@ -83,7 +82,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	numTestAccounts := 4
 	testAccounts := make([]TestClawbackAccount, numTestAccounts)
 	for i := range testAccounts {
-		address, privKey := tests.NewAddrKey()
+		address, privKey := testutil.NewAddrKey()
 		testAccounts[i] = TestClawbackAccount{
 			privKey: privKey,
 			address: address.Bytes(),
@@ -99,8 +98,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		vested          sdk.Coins
 	)
 
-	dest := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	dest := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	funder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 	BeforeEach(func() {
 		s.SetupTest()
@@ -395,7 +394,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not short-circuit with a normal account", func() {
 			account := testAccounts[0]
-			address, privKey := tests.NewAccAddressAndKey()
+			address, privKey := testutil.NewAccAddressAndKey()
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).BigInt()
 
@@ -480,7 +479,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 				vested,
 			)
 			Expect(err).To(BeNil())
@@ -490,7 +489,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(tests.GenerateAddress().Bytes()),
+				sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 				vestingAmtTotal,
 			)
 			Expect(err).ToNot(BeNil())
@@ -604,9 +603,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		unlocked        sdk.Coins
 		free            sdk.Coins
 	)
-	grantee := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	dest := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	grantee := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	funder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	dest := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 	BeforeEach(func() {
 		s.SetupTest()
@@ -807,7 +806,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 	It("should update vesting funder and claw back unvested amount before cliff", func() {
 		ctx := sdk.WrapSDKContext(s.ctx)
-		newFunder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+		newFunder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
@@ -837,7 +836,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 	It("should update vesting funder and first funder cannot claw back unvested before cliff", func() {
 		ctx := sdk.WrapSDKContext(s.ctx)
-		newFunder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+		newFunder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)

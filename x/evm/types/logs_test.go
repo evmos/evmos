@@ -1,28 +1,29 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 func TestTransactionLogsValidate(t *testing.T) {
-	addr := tests.GenerateAddress().String()
+	addr := testutil.GenerateAddress().String()
 
 	testCases := []struct {
 		name    string
-		txLogs  TransactionLogs
+		txLogs  types.TransactionLogs
 		expPass bool
 	}{
 		{
 			"valid log",
-			TransactionLogs{
+			types.TransactionLogs{
 				Hash: common.BytesToHash([]byte("tx_hash")).String(),
-				Logs: []*Log{
+				Logs: []*types.Log{
 					{
 						Address:     addr,
 						Topics:      []string{common.BytesToHash([]byte("topic")).String()},
@@ -40,32 +41,32 @@ func TestTransactionLogsValidate(t *testing.T) {
 		},
 		{
 			"empty hash",
-			TransactionLogs{
+			types.TransactionLogs{
 				Hash: common.Hash{}.String(),
 			},
 			false,
 		},
 		{
 			"nil log",
-			TransactionLogs{
+			types.TransactionLogs{
 				Hash: common.BytesToHash([]byte("tx_hash")).String(),
-				Logs: []*Log{nil},
+				Logs: []*types.Log{nil},
 			},
 			false,
 		},
 		{
 			"invalid log",
-			TransactionLogs{
+			types.TransactionLogs{
 				Hash: common.BytesToHash([]byte("tx_hash")).String(),
-				Logs: []*Log{{}},
+				Logs: []*types.Log{{}},
 			},
 			false,
 		},
 		{
 			"hash mismatch log",
-			TransactionLogs{
+			types.TransactionLogs{
 				Hash: common.BytesToHash([]byte("tx_hash")).String(),
-				Logs: []*Log{
+				Logs: []*types.Log{
 					{
 						Address:     addr,
 						Topics:      []string{common.BytesToHash([]byte("topic")).String()},
@@ -95,16 +96,16 @@ func TestTransactionLogsValidate(t *testing.T) {
 }
 
 func TestValidateLog(t *testing.T) {
-	addr := tests.GenerateAddress().String()
+	addr := testutil.GenerateAddress().String()
 
 	testCases := []struct {
 		name    string
-		log     *Log
+		log     *types.Log
 		expPass bool
 	}{
 		{
 			"valid log",
-			&Log{
+			&types.Log{
 				Address:     addr,
 				Topics:      []string{common.BytesToHash([]byte("topic")).String()},
 				Data:        []byte("data"),
@@ -118,18 +119,18 @@ func TestValidateLog(t *testing.T) {
 			true,
 		},
 		{
-			"empty log", &Log{}, false,
+			"empty log", &types.Log{}, false,
 		},
 		{
 			"zero address",
-			&Log{
+			&types.Log{
 				Address: common.Address{}.String(),
 			},
 			false,
 		},
 		{
 			"empty block hash",
-			&Log{
+			&types.Log{
 				Address:   addr,
 				BlockHash: common.Hash{}.String(),
 			},
@@ -137,7 +138,7 @@ func TestValidateLog(t *testing.T) {
 		},
 		{
 			"zero block number",
-			&Log{
+			&types.Log{
 				Address:     addr,
 				BlockHash:   common.BytesToHash([]byte("block_hash")).String(),
 				BlockNumber: 0,
@@ -146,7 +147,7 @@ func TestValidateLog(t *testing.T) {
 		},
 		{
 			"empty tx hash",
-			&Log{
+			&types.Log{
 				Address:     addr,
 				BlockHash:   common.BytesToHash([]byte("block_hash")).String(),
 				BlockNumber: 1,
@@ -168,11 +169,11 @@ func TestValidateLog(t *testing.T) {
 }
 
 func TestConversionFunctions(t *testing.T) {
-	addr := tests.GenerateAddress().String()
+	addr := testutil.GenerateAddress().String()
 
-	txLogs := TransactionLogs{
+	txLogs := types.TransactionLogs{
 		Hash: common.BytesToHash([]byte("tx_hash")).String(),
-		Logs: []*Log{
+		Logs: []*types.Log{
 			{
 				Address:     addr,
 				Topics:      []string{common.BytesToHash([]byte("topic")).String()},
@@ -188,11 +189,11 @@ func TestConversionFunctions(t *testing.T) {
 	}
 
 	// convert valid log to eth logs and back (and validate)
-	conversionLogs := NewTransactionLogsFromEth(common.BytesToHash([]byte("tx_hash")), txLogs.EthLogs())
+	conversionLogs := types.NewTransactionLogsFromEth(common.BytesToHash([]byte("tx_hash")), txLogs.EthLogs())
 	conversionErr := conversionLogs.Validate()
 
 	// create new transaction logs as copy of old valid one (and validate)
-	copyLogs := NewTransactionLogs(common.BytesToHash([]byte("tx_hash")), txLogs.Logs)
+	copyLogs := types.NewTransactionLogs(common.BytesToHash([]byte("tx_hash")), txLogs.Logs)
 	copyErr := copyLogs.Validate()
 
 	require.Nil(t, conversionErr)

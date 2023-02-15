@@ -26,7 +26,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	teststypes "github.com/evmos/evmos/v11/types/tests"
 	"github.com/evmos/evmos/v11/utils"
 	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(priv)
+	suite.signer = testutil.NewSigner(priv)
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
@@ -505,7 +505,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		&ethtypes.AccessList{}, // accesses
 	)
 
-	signer := tests.NewSigner(suite.EvmosChain.SenderPrivKey)
+	signer := testutil.NewSigner(suite.EvmosChain.SenderPrivKey)
 	erc20DeployTx.From = from.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), signer)
 	if err != nil {

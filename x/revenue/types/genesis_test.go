@@ -1,10 +1,11 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -19,15 +20,15 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) SetupTest() {
-	suite.address1 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
-	suite.address2 = sdk.AccAddress(tests.GenerateAddress().Bytes()).String()
+	suite.address1 = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
+	suite.address2 = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := NewGenesisState(DefaultParams(), []Revenue{})
+	newGen := types.NewGenesisState(types.DefaultParams(), []types.Revenue{})
 	testCases := []struct {
 		name     string
-		genState *GenesisState
+		genState *types.GenesisState
 		expPass  bool
 	}{
 		{
@@ -37,22 +38,22 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "default",
-			genState: DefaultGenesisState(),
+			genState: types.DefaultGenesisState(),
 			expPass:  true,
 		},
 		{
 			name: "valid genesis",
-			genState: &GenesisState{
-				Params:   DefaultParams(),
-				Revenues: []Revenue{},
+			genState: &types.GenesisState{
+				Params:   types.DefaultParams(),
+				Revenues: []types.Revenue{},
 			},
 			expPass: true,
 		},
 		{
 			name: "valid genesis - with fee",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -68,14 +69,14 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "empty genesis",
-			genState: &GenesisState{},
+			genState: &types.GenesisState{},
 			expPass:  false,
 		},
 		{
 			name: "invalid genesis - duplicated fee",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -90,9 +91,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - duplicated fee with different deployer address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: suite.address1,
@@ -107,9 +108,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - invalid contract address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress: suite.address1,
 						DeployerAddress: suite.address1,
@@ -120,9 +121,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - invalid deployer address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -133,9 +134,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - invalid withdraw address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress:   suite.address1,
@@ -147,9 +148,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - invalid withdrawer address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				Revenues: []Revenue{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				Revenues: []types.Revenue{
 					{
 						ContractAddress:   "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						DeployerAddress:   suite.address1,

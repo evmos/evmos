@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (test) [#1393](https://github.com/evmos/evmos/pull/1393) Move utilities from `tests` folder to `testutil` package
 - (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files
 - (claims) [#1378](https://github.com/evmos/evmos/pull/1378) Validate authorized channels when updating claims params
 - (test) [#1348](https://github.com/evmos/evmos/pull/1348) Add query executions to e2e upgrade test suite
