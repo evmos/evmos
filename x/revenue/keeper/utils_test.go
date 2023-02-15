@@ -14,9 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -192,7 +190,8 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	)
 	msgEthereumTx.From = from.String()
 
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	s.Commit()
 
@@ -232,7 +231,8 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 	)
 	msgEthereumTx.From = from.String()
 
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	s.Commit()
 
 	ethereumTx := res.GetEvents()[11]
@@ -255,7 +255,8 @@ func contractInteract(
 	accesses *ethtypes.AccessList,
 ) abci.ResponseDeliverTx {
 	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, accesses)
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	return res
 }
@@ -287,30 +288,4 @@ func buildEthTx(
 	)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
-}
-
-func prepareEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
-	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, testutil.NewSigner(priv))
-	s.Require().NoError(err)
-
-	// Assemble transaction from fields
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, s.app.EvmKeeper.GetParams(s.ctx).EvmDenom)
-	s.Require().NoError(err)
-
-	// Encode transaction by default Tx encoder and broadcasted over the network
-	txEncoder := encodingConfig.TxConfig.TxEncoder()
-	bz, err := txEncoder(tx)
-	s.Require().NoError(err)
-
-	return bz
-}
-
-func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseDeliverTx {
-	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
 }

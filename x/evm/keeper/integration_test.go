@@ -100,7 +100,8 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
+						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).To(BeNil())
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
@@ -115,8 +116,8 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
-						Expect(res.IsOK()).To(Equal(false), "transaction should have failed", res.GetLog())
+						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).ToNot(BeNil(), "transaction should have failed", res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
 						return txParams{0, big.NewInt(baseFee), nil, nil, nil}
@@ -282,9 +283,3 @@ func checkEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumT
 	return res
 }
 
-func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseDeliverTx {
-	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
