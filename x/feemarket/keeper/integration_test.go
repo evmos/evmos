@@ -257,12 +257,12 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
-						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+						_, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).ToNot(BeNil(), "transaction should have failed")
 						Expect(
-							strings.Contains(res.GetLog(),
+							strings.Contains(err.Error(),
 								"provided fee < minimum global fee"),
-						).To(BeTrue(), res.GetLog())
+						).To(BeTrue(), err.Error())
 					},
 					Entry("legacy tx", func() txParams {
 						return txParams{big.NewInt(minGasPrices - 10_000_000_000), nil, nil, nil}
@@ -281,7 +281,8 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
+						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).To(BeNil())
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {
@@ -378,12 +379,12 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
-						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+						_, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).ToNot(BeNil(), "transaction should have failed")
 						Expect(
-							strings.Contains(res.GetLog(),
+							strings.Contains(err.Error(),
 								"provided fee < minimum global fee"),
-						).To(BeTrue(), res.GetLog())
+						).To(BeTrue(), err.Error())
 					},
 					Entry("legacy tx", func() txParams {
 						return txParams{big.NewInt(minGasPrices - 1_000_000_000), nil, nil, nil}
@@ -398,12 +399,12 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
-						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+						_, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).NotTo(BeNil(), "transaction should have failed")
 						Expect(
-							strings.Contains(res.GetLog(),
+							strings.Contains(err.Error(),
 								"insufficient fee"),
-						).To(BeTrue(), res.GetLog())
+						).To(BeTrue(), err.Error())
 					},
 					// Note that the baseFee is not 10_000_000_000 anymore but updates to 8_750_000_000 because of the s.Commit
 					Entry("legacy tx", func() txParams {
@@ -419,7 +420,8 @@ var _ = Describe("Feemarket", func() {
 						p := malleate()
 						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
-						res := deliverEthTx(privKey, msgEthereumTx)
+						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
+						Expect(err).To(BeNil())
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 					},
 					Entry("legacy tx", func() txParams {

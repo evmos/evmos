@@ -227,7 +227,7 @@ func assertEthFails(msgs ...sdk.Msg) {
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 
 	// Sanity check that delivery fails as well
-	_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msgs...)
+	_, err = testutil.DeliverEthTx(s.app, nil, msgs...)
 	Expect(err).ToNot(BeNil())
 	Expect(strings.Contains(err.Error(), insufficientUnlocked))
 }
@@ -251,7 +251,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	Expect(err).To(BeNil())
 
 	// Expect delivery to succeed, then compare balances
-	_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msgs...)
+	_, err = testutil.DeliverEthTx(s.app, nil, msgs...)
 	Expect(err).To(BeNil())
 
 	fb := s.app.BankKeeper.GetBalance(s.ctx, funder, denom)

@@ -21,10 +21,12 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -32,7 +34,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -103,68 +105,6 @@ func Vote(
 	return DeliverTx(ctx, appEvmos, priv, nil, voteMsg)
 }
 
-// DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
-// If a private key is provided, it will attempt to sign all messages with the given private key,
-// otherwise, it will assume the messages have already been signed.
-func DeliverEthTx(
-	ctx sdk.Context,
-	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
-	msgs ...sdk.Msg,
-) (abci.ResponseDeliverTx, error) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	denom := appEvmos.ClaimsKeeper.GetParams(ctx).ClaimsDenom
-
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
-	txFee := sdk.Coins{}
-	txGasLimit := uint64(0)
-
-	// Sign messages and compute gas/fees.
-	for _, m := range msgs {
-		msg, ok := m.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errorsmod.Error{}, "cannot mix Ethereum and Cosmos messages in one Tx")
-		}
-
-		if priv != nil {
-			err := msg.Sign(signer, NewSigner(priv))
-			if err != nil {
-				return abci.ResponseDeliverTx{}, err
-			}
-		}
-
-		msg.From = ""
-
-		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(msg.GetFee())})
-	}
-
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
-		return abci.ResponseDeliverTx{}, err
-	}
-
-	// Set the extension
-	var option *codectypes.Any
-	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
-	if err != nil {
-		return abci.ResponseDeliverTx{}, err
-	}
-
-	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
-	if !ok {
-		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errorsmod.Error{}, "could not set extensions for Ethereum tx")
-	}
-
-	builder.SetExtensionOptions(option)
-
-	txBuilder.SetGasLimit(txGasLimit)
-	txBuilder.SetFeeAmount(txFee)
-
-	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
-}
-
 // CreateEthTx is a helper function to create and sign an Ethereum transaction.
 //
 // If the given private key is not nil, it will be used to sign the transaction.
@@ -209,4 +149,62 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	}
 
 	return res, nil
+}
+
+// NOTE: this should probably go in another file/pkg
+// could not include it on tx pkg because it uses functions on signer.go
+func prepareEthTx(
+	txCfg client.TxConfig,
+	appEvmos *app.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	msgs ...sdk.Msg,
+) (authsigning.Tx, error) {
+	txBuilder := txCfg.NewTxBuilder()
+
+	signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
+	txFee := sdk.Coins{}
+	txGasLimit := uint64(0)
+
+	// Sign messages and compute gas/fees.
+	for _, m := range msgs {
+		msg, ok := m.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return nil, errorsmod.Wrapf(errorsmod.Error{}, "cannot mix Ethereum and Cosmos messages in one Tx")
+		}
+
+		if priv != nil {
+			err := msg.Sign(signer, NewSigner(priv))
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		msg.From = ""
+
+		txGasLimit += msg.GetGas()
+		txFee = txFee.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+	}
+
+	if err := txBuilder.SetMsgs(msgs...); err != nil {
+		return nil, err
+	}
+
+	// Set the extension
+	var option *codectypes.Any
+	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
+	if err != nil {
+		return nil, err
+	}
+
+	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
+	if !ok {
+		return nil, errorsmod.Wrapf(errorsmod.Error{}, "could not set extensions for Ethereum tx")
+	}
+
+	builder.SetExtensionOptions(option)
+
+	txBuilder.SetGasLimit(txGasLimit)
+	txBuilder.SetFeeAmount(txFee)
+
+	return txBuilder.GetTx(), nil
 }

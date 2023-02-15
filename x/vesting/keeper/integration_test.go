@@ -410,7 +410,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err = validateEthVestingTransactionDecorator(normalAccMsg, msg)
 			Expect(err).ToNot(BeNil())
 
-			_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msg)
+			_, err = testutil.DeliverEthTx(s.app, nil, msg)
 			Expect(err).ToNot(BeNil())
 		})
 	})
