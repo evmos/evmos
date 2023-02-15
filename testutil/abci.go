@@ -3,20 +3,17 @@ package testutil
 import (
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v11/testutil/tx"
 )
-
-var DefaultTxFee = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10_000_000_000_000_000)) // 0.01 EVMOS
 
 // Commit commits a block at a given time. Reminder: At the end of each
 // Tendermint Consensus round the following methods are run
@@ -46,68 +43,37 @@ func DeliverTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	var gasLimit int64 = 10_000_000
-	txBuilder.SetGasLimit(uint64(gasLimit))
-
-	var fees sdk.Coins
-	if gasPrice != nil {
-		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: gasPrice.MulRaw(gasLimit)}}
-	} else {
-		fees = sdk.Coins{DefaultTxFee}
-	}
-
-	txBuilder.SetFeeAmount(fees)
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
-		return abci.ResponseDeliverTx{}, err
-	}
-
-	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, accountAddress)
+	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	tx, err := tx.PrepareCosmosTx(ctx, txConfig, appEvmos, priv, gasPrice, msgs...)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
+	return BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
+}
 
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: seq,
-	}
+// CheckTx checks a tx for a given set of msgs
+func CheckTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	gasPrice *sdkmath.Int,
+	msgs ...sdk.Msg,
+) (abci.ResponseCheckTx, error) {
+	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	if err := txBuilder.SetSignatures(sigsV2...); err != nil {
-		return abci.ResponseDeliverTx{}, err
-	}
-
-	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, accountAddress).GetAccountNumber()
-	signerData := authsigning.SignerData{
-		ChainID:       ctx.ChainID(),
-		AccountNumber: accNumber,
-		Sequence:      seq,
-	}
-	sigV2, err = tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		seq,
-	)
+	tx, err := tx.PrepareCosmosTx(ctx, txConfig, appEvmos, priv, gasPrice, msgs...)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ResponseCheckTx{}, err
 	}
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	if err = txBuilder.SetSignatures(sigsV2...); err != nil {
-		return abci.ResponseDeliverTx{}, err
+	bz, err := txConfig.TxEncoder()(tx)
+	if err != nil {
+		return abci.ResponseCheckTx{}, err
 	}
+	req := abci.RequestCheckTx{Tx: bz}
 
-	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+	res := appEvmos.CheckTx(req)
+	if res.Code != 0 {
+		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+	}
+	return res, nil
 }
