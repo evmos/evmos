@@ -50,17 +50,18 @@ var _ = Describe("Feemarket", func() {
 			Context("during DeliverTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(2)
-					res := deliverTx(privKey, &gasPrice, &msg)
-					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+					_, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					Expect(err).NotTo(BeNil(), "transaction should have failed")
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"provided fee < minimum global fee"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 				})
 
 				It("should accept transactions with gasPrice >= MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(3)
-					res := deliverTx(privKey, &gasPrice, &msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					s.Require().NoError(err)
 					Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 				})
 			})
@@ -93,17 +94,18 @@ var _ = Describe("Feemarket", func() {
 			Context("during DeliverTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(2)
-					res := deliverTx(privKey, &gasPrice, &msg)
-					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+					_, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					Expect(err).NotTo(BeNil(), "transaction should have failed")
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"provided fee < minimum global fee"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 				})
 
 				It("should accept transactions with gasPrice >= MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(3)
-					res := deliverTx(privKey, &gasPrice, &msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 				})
 			})
@@ -147,12 +149,12 @@ var _ = Describe("Feemarket", func() {
 			Context("during DeliverTx", func() {
 				It("should reject transactions with gasPrice < MinGasPrices", func() {
 					gasPrice := sdkmath.NewInt(2)
-					res := deliverTx(privKey, &gasPrice, &msg)
-					Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
+					_, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					Expect(err).NotTo(BeNil(), "transaction should have failed")
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"provided fee < minimum global fee"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 				})
 
 				It("should reject transactions with MinGasPrices < gasPrice < baseFee", func() {
@@ -166,7 +168,8 @@ var _ = Describe("Feemarket", func() {
 				})
 				It("should accept transactions with gasPrice >= baseFee", func() {
 					gasPrice := sdkmath.NewInt(5)
-					res := deliverTx(privKey, &gasPrice, &msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, privKey, &gasPrice, &msg)
+					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 				})
 			})

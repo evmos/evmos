@@ -57,7 +57,7 @@ func SubmitProposal(
 	if err != nil {
 		return id, err
 	}
-	res, err := DeliverTx(ctx, appEvmos, pk, msg)
+	res, err := DeliverTx(ctx, appEvmos, pk, nil, msg)
 	if err != nil {
 		return id, err
 	}
@@ -86,7 +86,7 @@ func Delegate(
 	}
 
 	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress, val, delegateAmount)
-	return DeliverTx(ctx, appEvmos, priv, delegateMsg)
+	return DeliverTx(ctx, appEvmos, priv, nil, delegateMsg)
 }
 
 // Vote delivers a vote tx with the VoteOption "yes"
@@ -100,7 +100,7 @@ func Vote(
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
 	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, voteOption)
-	return DeliverTx(ctx, appEvmos, priv, voteMsg)
+	return DeliverTx(ctx, appEvmos, priv, nil, voteMsg)
 }
 
 // DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.

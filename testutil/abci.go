@@ -3,6 +3,7 @@ package testutil
 import (
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -42,6 +43,7 @@ func DeliverTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,
 	priv *ethsecp256k1.PrivKey,
+	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -49,8 +51,17 @@ func DeliverTx(
 
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
-	txBuilder.SetGasLimit(10_000_000)
-	txBuilder.SetFeeAmount(sdk.Coins{DefaultTxFee})
+	var gasLimit int64 = 10_000_000
+	txBuilder.SetGasLimit(uint64(gasLimit))
+
+	var fees sdk.Coins
+	if gasPrice != nil {
+		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: gasPrice.MulRaw(gasLimit)}}
+	} else {
+		fees = sdk.Coins{DefaultTxFee}
+	}
+
+	txBuilder.SetFeeAmount(fees)
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
