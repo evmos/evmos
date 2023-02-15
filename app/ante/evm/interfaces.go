@@ -19,7 +19,8 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tx "github.com/cosmos/cosmos-sdk/types/tx"
+	"github.com/cosmos/cosmos-sdk/types/tx"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -35,6 +36,12 @@ import (
 // in the context of the evm AnteHandler package.
 type BankKeeper interface {
 	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
+}
+
+// DistributionKeeper defines the exposed interface for using functionality of the distribution
+// keeper in the context of the evm AnteHandler package.
+type DistributionKeeper interface {
+	WithdrawDelegationRewards(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error)
 }
 
 // EVMKeeper defines the expected keeper interface used on the AnteHandler
@@ -61,6 +68,12 @@ type DynamicFeeEVMKeeper interface {
 	ChainID() *big.Int
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetBaseFee(ctx sdk.Context, ethCfg *params.ChainConfig) *big.Int
+}
+
+// StakingKeeper defines the exposed interface for using functionality of the staking keeper
+// in the context of the evm AnteHandler package.
+type StakingKeeper interface {
+	IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool))
 }
 
 type protoTxProvider interface {

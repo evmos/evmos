@@ -26,6 +26,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -104,18 +105,27 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 // EthGasConsumeDecorator validates enough intrinsic gas for the transaction and
 // gas consumption.
 type EthGasConsumeDecorator struct {
-	evmKeeper    EVMKeeper
-	maxGasWanted uint64
+	bankKeeper         BankKeeper
+	distributionKeeper DistributionKeeper
+	evmKeeper          EVMKeeper
+	maxGasWanted       uint64
+	stakingKeeper      StakingKeeper
 }
 
 // NewEthGasConsumeDecorator creates a new EthGasConsumeDecorator
 func NewEthGasConsumeDecorator(
+	bankKeeper BankKeeper,
+	distributionKeeper DistributionKeeper,
 	evmKeeper EVMKeeper,
 	maxGasWanted uint64,
+	stakingKeeper StakingKeeper,
 ) EthGasConsumeDecorator {
 	return EthGasConsumeDecorator{
+		bankKeeper,
+		distributionKeeper,
 		evmKeeper,
 		maxGasWanted,
+		stakingKeeper,
 	}
 }
 
@@ -191,6 +201,22 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
 		}
 
+		// Check if the fees exceed the spendable account balance.
+		// TODO: Is this only giving the spendable balance or also the locked balance?
+		from := msgEthTx.GetFrom()
+		balance := egcd.bankKeeper.GetBalance(ctx, from, utils.BaseDenom)
+		if balance.IsLT(fees[0]) {
+			difference := sdk.Coins{
+				fees[0].Sub(balance),
+			}
+			// Try to claim enough staking rewards to cover the difference between the
+			// transaction cost and the account balance.
+			err = ClaimSufficientStakingRewards(ctx, egcd.stakingKeeper, egcd.distributionKeeper, from, difference)
+			if err != nil {
+				return ctx, errorsmod.Wrapf(err, "failed to claim sufficient staking rewards")
+			}
+		}
+
 		err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.HexToAddress(msgEthTx.From))
 		if err != nil {
 			return ctx, errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
@@ -217,7 +243,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	// return error if the tx gas is greater than the block limit (max gas)
 
 	// NOTE: it's important here to use the gas wanted instead of the gas consumed
-	// from the tx gas pool. The later only has the value so far since the
+	// from the tx gas pool. The latter only has the value so far since the
 	// EthSetupContextDecorator so it will never exceed the block gas limit.
 	if gasWanted > blockGasLimit {
 		return ctx, errorsmod.Wrapf(
