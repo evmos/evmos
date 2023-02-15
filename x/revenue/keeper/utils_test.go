@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) Commit() {
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	suite.ctx = testutil.Commit(suite.ctx, suite.app, t)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	
+
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
