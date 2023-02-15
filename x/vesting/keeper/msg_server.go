@@ -295,7 +295,7 @@ func (k Keeper) ConvertVestingAccount(
 
 	// check if baseAccount is of type ClawbackVestingAccount
 	if _, ok := baseAccount.(*types.ClawbackVestingAccount); !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.VestingAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
 	}
 
 	vestingAcc := baseAccount.(*types.ClawbackVestingAccount)
