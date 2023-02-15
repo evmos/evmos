@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"testing"
@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 type MsgsTestSuite struct {
@@ -34,15 +35,15 @@ func (suite *MsgsTestSuite) SetupTest() {
 }
 
 func (suite *MsgsTestSuite) TestMsgRegisterRevenueGetters() {
-	msgInvalid := MsgRegisterRevenue{}
-	msg := NewMsgRegisterRevenue(
+	msgInvalid := types.MsgRegisterRevenue{}
+	msg := types.NewMsgRegisterRevenue(
 		suite.contract,
 		suite.deployer,
 		suite.deployer,
 		[]uint64{1},
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgRegisterRevenue, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgRegisterRevenue, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -131,7 +132,7 @@ func (suite *MsgsTestSuite) TestMsgRegisterRevenueNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgRegisterRevenue{
+		tx := types.MsgRegisterRevenue{
 			ContractAddress:   tc.contract,
 			DeployerAddress:   tc.deployer,
 			WithdrawerAddress: tc.withdraw,
@@ -149,13 +150,13 @@ func (suite *MsgsTestSuite) TestMsgRegisterRevenueNew() {
 }
 
 func (suite *MsgsTestSuite) TestMsgCancelRevenueGetters() {
-	msgInvalid := MsgCancelRevenue{}
-	msg := NewMsgCancelRevenue(
+	msgInvalid := types.MsgCancelRevenue{}
+	msg := types.NewMsgCancelRevenue(
 		suite.contract,
 		sdk.AccAddress(suite.deployer.Bytes()),
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgCancelRevenue, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgCancelRevenue, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -194,7 +195,7 @@ func (suite *MsgsTestSuite) TestMsgCancelRevenueNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgCancelRevenue{
+		tx := types.MsgCancelRevenue{
 			ContractAddress: tc.contract,
 			DeployerAddress: tc.deployer,
 		}
@@ -210,14 +211,14 @@ func (suite *MsgsTestSuite) TestMsgCancelRevenueNew() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateRevenueGetters() {
-	msgInvalid := MsgUpdateRevenue{}
-	msg := NewMsgUpdateRevenue(
+	msgInvalid := types.MsgUpdateRevenue{}
+	msg := types.NewMsgUpdateRevenue(
 		suite.contract,
 		sdk.AccAddress(suite.deployer.Bytes()),
 		sdk.AccAddress(suite.deployer.Bytes()),
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgUpdateRevenue, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgUpdateRevenue, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -276,7 +277,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateRevenueNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgUpdateRevenue{
+		tx := types.MsgUpdateRevenue{
 			ContractAddress:   tc.contract,
 			DeployerAddress:   tc.deployer,
 			WithdrawerAddress: tc.withdraw,

@@ -1,6 +1,7 @@
-package types
+package types_test
 
 import (
+	"github.com/evmos/evmos/v11/x/revenue/types"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -64,7 +65,7 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 	}
 
 	for _, tc := range testCases {
-		i := NewRevenue(tc.contract, tc.deployer, tc.withdraw)
+		i := types.NewRevenue(tc.contract, tc.deployer, tc.withdraw)
 		err := i.Validate()
 
 		if tc.expectPass {
@@ -78,12 +79,12 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 func (suite *RevenueTestSuite) TestFee() {
 	testCases := []struct {
 		msg        string
-		revenue    Revenue
+		revenue    types.Revenue
 		expectPass bool
 	}{
 		{
 			"Create revenue- pass",
-			Revenue{
+			types.Revenue{
 				testutil.GenerateAddress().String(),
 				suite.address1.String(),
 				suite.address2.String(),
@@ -92,7 +93,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		},
 		{
 			"Create revenue- invalid contract address (not hex)",
-			Revenue{
+			types.Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -101,7 +102,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		},
 		{
 			"Create revenue- invalid contract address (invalid length 1)",
-			Revenue{
+			types.Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -110,7 +111,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		},
 		{
 			"Create revenue- invalid contract address (invalid length 2)",
-			Revenue{
+			types.Revenue{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				suite.address1.String(),
 				suite.address2.String(),
@@ -119,7 +120,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		},
 		{
 			"Create revenue- invalid deployer address",
-			Revenue{
+			types.Revenue{
 				testutil.GenerateAddress().String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
 				suite.address2.String(),
@@ -128,7 +129,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		},
 		{
 			"Create revenue- invalid withdraw address",
-			Revenue{
+			types.Revenue{
 				testutil.GenerateAddress().String(),
 				suite.address1.String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
@@ -150,7 +151,7 @@ func (suite *RevenueTestSuite) TestFee() {
 
 func (suite *RevenueTestSuite) TestRevenueGetters() {
 	contract := testutil.GenerateAddress()
-	fs := Revenue{
+	fs := types.Revenue{
 		contract.String(),
 		suite.address1.String(),
 		suite.address2.String(),
@@ -159,7 +160,7 @@ func (suite *RevenueTestSuite) TestRevenueGetters() {
 	suite.Equal(fs.GetDeployerAddr(), suite.address1)
 	suite.Equal(fs.GetWithdrawerAddr(), suite.address2)
 
-	fs = Revenue{
+	fs = types.Revenue{
 		contract.String(),
 		suite.address1.String(),
 		"",

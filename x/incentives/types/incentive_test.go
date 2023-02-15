@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"testing"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 type IncentiveTestSuite struct {
@@ -72,7 +73,7 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 	}
 
 	for _, tc := range testCases {
-		i := NewIncentive(tc.contract, tc.allocations, tc.epochs)
+		i := types.NewIncentive(tc.contract, tc.allocations, tc.epochs)
 		err := i.Validate()
 
 		if tc.expectPass {
@@ -86,12 +87,12 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 func (suite *IncentiveTestSuite) TestIncentive() {
 	testCases := []struct {
 		msg        string
-		incentive  Incentive
+		incentive  types.Incentive
 		expectPass bool
 	}{
 		{
 			"Register incentive - invalid address (no hex)",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -102,7 +103,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 		},
 		{
 			"Register incentive - invalid address (invalid length 1)",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -113,7 +114,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 		},
 		{
 			"Register incentive - invalid address (invalid length 2)",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -124,7 +125,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 		},
 		{
 			"pass",
-			Incentive{
+			types.Incentive{
 				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -149,12 +150,12 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 func (suite *IncentiveTestSuite) TestIsActive() {
 	testCases := []struct {
 		name       string
-		incentive  Incentive
+		incentive  types.Incentive
 		expectPass bool
 	}{
 		{
 			"pass",
-			Incentive{
+			types.Incentive{
 				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -165,7 +166,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 		},
 		{
 			"epoch is zero",
-			Incentive{
+			types.Incentive{
 				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				0,

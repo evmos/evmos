@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"testing"
@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 type MsgsTestSuite struct {
@@ -20,8 +21,8 @@ func TestMsgsTestSuite(t *testing.T) {
 }
 
 func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
-	msgInvalid := MsgCreateClawbackVestingAccount{}
-	msg := NewMsgCreateClawbackVestingAccount(
+	msgInvalid := types.MsgCreateClawbackVestingAccount{}
+	msg := types.NewMsgCreateClawbackVestingAccount(
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		time.Unix(100200300, 0),
@@ -29,8 +30,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 		sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 		true,
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgCreateClawbackVestingAccount, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgCreateClawbackVestingAccount, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -59,7 +60,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := NewMsgCreateClawbackVestingAccount(
+		tx := types.NewMsgCreateClawbackVestingAccount(
 			tc.from,
 			tc.to,
 			tc.startTime,
@@ -161,7 +162,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgCreateClawbackVestingAccount{
+		tx := types.MsgCreateClawbackVestingAccount{
 			tc.from,
 			tc.to,
 			tc.startTime,
@@ -180,14 +181,14 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 }
 
 func (suite *MsgsTestSuite) TestMsgClawbackGetters() {
-	msgInvalid := MsgClawback{}
-	msg := NewMsgClawback(
+	msgInvalid := types.MsgClawback{}
+	msg := types.NewMsgClawback(
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgClawback, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgClawback, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -210,7 +211,7 @@ func (suite *MsgsTestSuite) TestMsgClawbackNew() {
 	}
 
 	for i, tc := range testCases {
-		tx := NewMsgClawback(
+		tx := types.NewMsgClawback(
 			tc.funder,
 			tc.addr,
 			tc.dest,
@@ -271,7 +272,7 @@ func (suite *MsgsTestSuite) TestMsgClawback() {
 	}
 
 	for i, tc := range testCases {
-		tx := MsgClawback{
+		tx := types.MsgClawback{
 			tc.funder,
 			tc.addr,
 			tc.dest,
@@ -287,14 +288,14 @@ func (suite *MsgsTestSuite) TestMsgClawback() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
-	msgInvalid := MsgUpdateVestingFunder{}
-	msg := NewMsgUpdateVestingFunder(
+	msgInvalid := types.MsgUpdateVestingFunder{}
+	msg := types.NewMsgUpdateVestingFunder(
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
 	)
-	suite.Require().Equal(RouterKey, msg.Route())
-	suite.Require().Equal(TypeMsgUpdateVestingFunder, msg.Type())
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgUpdateVestingFunder, msg.Type())
 	suite.Require().NotNil(msgInvalid.GetSignBytes())
 	suite.Require().NotNil(msg.GetSigners())
 }
@@ -308,12 +309,12 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 
 	testCases := []struct {
 		name       string
-		msg        *MsgUpdateVestingFunder
+		msg        *types.MsgUpdateVestingFunder
 		expectPass bool
 	}{
 		{
 			name: "msg update vesting funder - valid addresses",
-			msg: NewMsgUpdateVestingFunder(
+			msg: types.NewMsgUpdateVestingFunder(
 				funder,
 				vestingAcc,
 				newFunder,
@@ -322,7 +323,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		},
 		{
 			name: "msg update vesting funder - invalid funder address",
-			msg: &MsgUpdateVestingFunder{
+			msg: &types.MsgUpdateVestingFunder{
 				"invalid_address",
 				vestingAcc.String(),
 				newFunder.String(),
@@ -331,7 +332,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		},
 		{
 			name: "msg update vesting funder - invalid new funder address",
-			msg: &MsgUpdateVestingFunder{
+			msg: &types.MsgUpdateVestingFunder{
 				funder.String(),
 				"invalid_address",
 				newFunder.String(),
@@ -340,7 +341,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		},
 		{
 			name: "msg update vesting funder - invalid vesting address",
-			msg: &MsgUpdateVestingFunder{
+			msg: &types.MsgUpdateVestingFunder{
 				funder.String(),
 				vestingAcc.String(),
 				"invalid_address",
@@ -349,7 +350,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		},
 		{
 			name: "msg update vesting funder - empty address",
-			msg: &MsgUpdateVestingFunder{
+			msg: &types.MsgUpdateVestingFunder{
 				funder.String(),
 				vestingAcc.String(),
 				"",
@@ -358,7 +359,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		},
 		{
 			name: "msg update vesting funder - new funder address is equal to current funder address",
-			msg: &MsgUpdateVestingFunder{
+			msg: &types.MsgUpdateVestingFunder{
 				funder.String(),
 				testutil.GenerateAddress().String(),
 				funder.String(),

@@ -1,6 +1,7 @@
-package types
+package types_test
 
 import (
+	"github.com/evmos/evmos/v11/x/claims/types"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,27 +25,27 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 
 	testCases := []struct {
 		name     string
-		genState *GenesisState
+		genState *types.GenesisState
 		expPass  bool
 	}{
 		{
 			name:     "default",
-			genState: DefaultGenesis(),
+			genState: types.DefaultGenesis(),
 			expPass:  true,
 		},
 		{
 			name: "valid genesis",
-			genState: &GenesisState{
-				Params:        DefaultParams(),
-				ClaimsRecords: []ClaimsRecordAddress{},
+			genState: &types.GenesisState{
+				Params:        types.DefaultParams(),
+				ClaimsRecords: []types.ClaimsRecordAddress{},
 			},
 			expPass: true,
 		},
 		{
 			name: "valid genesis - with claim record",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				ClaimsRecords: []ClaimsRecordAddress{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -56,9 +57,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - duplicated claim record",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				ClaimsRecords: []ClaimsRecordAddress{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -76,9 +77,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 
 		{
 			name: "invalid genesis - invalid address",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				ClaimsRecords: []ClaimsRecordAddress{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                "badaddress",
 						InitialClaimableAmount: sdk.NewInt(1),
@@ -90,9 +91,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name: "invalid genesis - invalid claimable amount",
-			genState: &GenesisState{
-				Params: DefaultParams(),
-				ClaimsRecords: []ClaimsRecordAddress{
+			genState: &types.GenesisState{
+				Params: types.DefaultParams(),
+				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
 						InitialClaimableAmount: sdk.NewInt(-100),
@@ -105,7 +106,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			// duration of decay must be positive
 			name:     "empty genesis",
-			genState: &GenesisState{},
+			genState: &types.GenesisState{},
 			expPass:  false,
 		},
 	}
