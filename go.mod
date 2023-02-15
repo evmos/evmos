@@ -16,7 +16,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/evmos-ledger-go v0.2.2
-	github.com/evmos/precompiles v0.0.0-20230210103915-a5edc1d0df6d
+	github.com/evmos/precompiles v0.0.0-20230215140036-d12abf63ba98
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
