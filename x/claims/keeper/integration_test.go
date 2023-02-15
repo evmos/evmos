@@ -9,6 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
@@ -17,8 +18,6 @@ import (
 	"github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
-
-var defaultTxFee = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1_000_000_000_000_000)) // 0.001 EVMOS
 
 var _ = Describe("Claiming", Ordered, func() {
 	claimsAddr := s.app.AccountKeeper.GetModuleAddress(types.ModuleName)
@@ -110,7 +109,8 @@ var _ = Describe("Claiming", Ordered, func() {
 
 		s.Commit()
 
-		proposalID = govProposal(priv0)
+		proposalID, err = govProposal(priv0)
+		s.Require().NoError(err)
 	})
 
 	Context("before decay duration", func() {
@@ -127,11 +127,12 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionDelegate", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			delegate(privs[0], delegateAmount)
+			_, err := testutil.Delegate(s.ctx, s.app, privs[0], delegateAmount, s.validator)
+			s.Require().NoError(err)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(defaultTxFee)))
-			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(defaultTxFee.Amount)))
-			fees[0] = defaultTxFee
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(testutil.DefaultTxFee)))
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(testutil.DefaultTxFee.Amount)))
+			fees[0] = testutil.DefaultTxFee
 		})
 
 		It("can claim ActionEVM", func() {
@@ -147,10 +148,11 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			vote(privs[1], proposalID)
+			_, err := testutil.Vote(s.ctx, s.app, privs[1], proposalID, govv1beta1.OptionAbstain)
+			s.Require().NoError(err)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(defaultTxFee)))
-			fees[1] = defaultTxFee
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(testutil.DefaultTxFee)))
+			fees[1] = testutil.DefaultTxFee
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -181,7 +183,10 @@ var _ = Describe("Claiming", Ordered, func() {
 			// create another proposal to vote for
 			testTime := s.ctx.BlockHeader().Time.Add(duration)
 			s.CommitAfter(duration - time.Hour)
-			proposalID = govProposal(priv0)
+
+			var err error
+			proposalID, err = govProposal(priv0)
+			s.Require().NoError(err)
 			s.CommitAfter(testTime.Sub(s.ctx.BlockHeader().Time))
 
 			// Community pool will have balance after several blocks because it
@@ -192,10 +197,12 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionDelegate", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			delegate(privs[1], delegateAmount)
+			_, err := testutil.Delegate(s.ctx, s.app, privs[1], delegateAmount, s.validator)
+			s.Require().NoError(err)
+
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(defaultTxFee)))
-			fees[1] = fees[1].Add(defaultTxFee)
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(testutil.DefaultTxFee)))
+			fees[1] = fees[1].Add(testutil.DefaultTxFee)
 		})
 
 		It("can claim ActionEVM", func() {
@@ -214,19 +221,23 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("can claim ActionVote", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			vote(privs[0], proposalID)
+			_, err := testutil.Vote(s.ctx, s.app, privs[0], proposalID, govv1beta1.OptionAbstain)
+			s.Require().NoError(err)
+
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(defaultTxFee)))
-			fees[0] = fees[0].Add(defaultTxFee)
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(testutil.DefaultTxFee)))
+			fees[0] = fees[0].Add(testutil.DefaultTxFee)
 		})
 
 		It("cannot claim ActionDelegate a second time", func() {
 			addr := getAddr(privs[1])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			delegate(privs[1], delegateAmount)
+			_, err := testutil.Delegate(s.ctx, s.app, privs[1], delegateAmount, s.validator)
+			s.Require().NoError(err)
+
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(defaultTxFee)))
-			fees[1] = fees[1].Add(defaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(testutil.DefaultTxFee)))
+			fees[1] = fees[1].Add(testutil.DefaultTxFee)
 		})
 
 		It("cannot claim ActionEVM a second time", func() {
@@ -242,10 +253,12 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("cannot claim ActionVote a second time", func() {
 			addr := getAddr(privs[0])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			vote(privs[0], proposalID)
+			_, err := testutil.Vote(s.ctx, s.app, privs[0], proposalID, govv1beta1.OptionAbstain)
+			s.Require().NoError(err)
+
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(defaultTxFee)))
-			fees[0] = fees[0].Add(defaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(testutil.DefaultTxFee)))
+			fees[0] = fees[0].Add(testutil.DefaultTxFee)
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -277,10 +290,12 @@ var _ = Describe("Claiming", Ordered, func() {
 		It("cannot claim additional actions", func() {
 			addr := getAddr(privs[2])
 			prebalance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			delegate(privs[2], delegateAmount)
+			_, err := testutil.Delegate(s.ctx, s.app, privs[2], delegateAmount, s.validator)
+			s.Require().NoError(err)
+
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(defaultTxFee)))
-			fees[2] = fees[2].Add(defaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(testutil.DefaultTxFee)))
+			fees[2] = fees[2].Add(testutil.DefaultTxFee)
 		})
 
 		It("cannot clawback already claimed actions", func() {

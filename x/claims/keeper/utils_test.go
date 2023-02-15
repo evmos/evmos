@@ -3,19 +3,14 @@ package keeper_test
 import (
 	"encoding/json"
 	"math/big"
-	"strconv"
 	"time"
 
 	. "github.com/onsi/gomega"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -151,19 +146,7 @@ func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
 	return sdk.AccAddress(priv.PubKey().Address().Bytes())
 }
 
-func delegate(priv *ethsecp256k1.PrivKey, delegateAmount sdk.Coin) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	val, err := sdk.ValAddressFromBech32(s.validator.OperatorAddress)
-	s.Require().NoError(err)
-
-	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress, val, delegateAmount)
-	deliverTx(priv, delegateMsg)
-}
-
-func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
-	stakeDenom := stakingtypes.DefaultParams().BondDenom
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+func govProposal(priv *ethsecp256k1.PrivKey) (uint64, error) {
 	contractAddress := deployContract(priv)
 	content := incentivestypes.NewRegisterIncentiveProposal(
 		"test",
@@ -172,27 +155,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) uint64 {
 		sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(5, 2))},
 		1000,
 	)
-
-	deposit := sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(100000000)))
-	msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, accountAddress)
-	s.Require().NoError(err)
-
-	res := deliverTx(priv, msg)
-	submitEvent := res.GetEvents()[8]
-	Expect(submitEvent.Type).To(Equal("submit_proposal"))
-	Expect(string(submitEvent.Attributes[0].Key)).To(Equal("proposal_id"))
-
-	proposalID, err := strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
-	s.Require().NoError(err)
-
-	return proposalID
-}
-
-func vote(priv *ethsecp256k1.PrivKey, proposalID uint64) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, govv1beta1.OptionAbstain)
-	deliverTx(priv, voteMsg)
+	return testutil.SubmitProposal(s.ctx, s.app, priv, content, 8)
 }
 
 func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
@@ -259,65 +222,6 @@ func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
 	Expect(res.IsOK()).To(Equal(true))
-}
-
-func deliverTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) abci.ResponseDeliverTx {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	txBuilder.SetGasLimit(1000000)
-	txBuilder.SetFeeAmount(sdk.Coins{defaultTxFee})
-
-	err := txBuilder.SetMsgs(msgs...)
-	s.Require().NoError(err)
-
-	seq, err := s.app.AccountKeeper.GetSequence(s.ctx, accountAddress)
-	s.Require().NoError(err)
-
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: seq,
-	}
-
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := s.app.AccountKeeper.GetAccount(s.ctx, accountAddress).GetAccountNumber()
-	signerData := authsigning.SignerData{
-		ChainID:       s.ctx.ChainID(),
-		AccountNumber: accNumber,
-		Sequence:      seq,
-	}
-	sigV2, err = tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		seq,
-	)
-	s.Require().NoError(err)
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// bz are bytes to be broadcasted over the network
-	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
-	s.Require().NoError(err)
-
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	Expect(res.IsOK()).To(Equal(true), res.Log)
-	return res
 }
 
 func getEthTxFee() sdk.Coin {
