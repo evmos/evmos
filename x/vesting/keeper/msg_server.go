@@ -293,12 +293,19 @@ func (k Keeper) ConvertVestingAccount(
 	acc := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 	baseAccount := k.accountKeeper.GetAccount(ctx, acc)
 
-	// Check if baseAccount is of type ClawbackVestingAccount
+	// check if baseAccount is of type ClawbackVestingAccount
 	if _, ok := baseAccount.(*types.ClawbackVestingAccount); !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.VestingAddress)
 	}
 
-	k.accountKeeper.SetAccount(ctx, baseAccount.(*types.ClawbackVestingAccount).BaseVestingAccount.BaseAccount)
+	vestingAcc := baseAccount.(*types.ClawbackVestingAccount)
+
+	// check if the ClawbackVestingAccount has any vesting coins left
+	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
+	}
+
+	k.accountKeeper.SetAccount(ctx, vestingAcc.BaseVestingAccount.BaseAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
 }
