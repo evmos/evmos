@@ -82,17 +82,7 @@ func CheckTx(
 	if err != nil {
 		return abci.ResponseCheckTx{}, err
 	}
-	bz, err := txConfig.TxEncoder()(tx)
-	if err != nil {
-		return abci.ResponseCheckTx{}, err
-	}
-	req := abci.RequestCheckTx{Tx: bz}
-
-	res := appEvmos.CheckTx(req)
-	if res.Code != 0 {
-		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
-	}
-	return res, nil
+	return checkTxBytes(appEvmos, txConfig.TxEncoder(), tx)
 }
 
 // CheckEthTx checks a Ethereum tx for a given set of msgs
@@ -107,17 +97,7 @@ func CheckEthTx(
 	if err != nil {
 		return abci.ResponseCheckTx{}, err
 	}
-	bz, err := txConfig.TxEncoder()(tx)
-	if err != nil {
-		return abci.ResponseCheckTx{}, err
-	}
-	req := abci.RequestCheckTx{Tx: bz}
-
-	res := appEvmos.CheckTx(req)
-	if res.Code != 0 {
-		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
-	}
-	return res, nil
+	return checkTxBytes(appEvmos, txConfig.TxEncoder(), tx)
 }
 
 // BroadcastTxBytes encodes a transaction and calls DeliverTx on the app.
@@ -132,6 +112,22 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	res := app.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
 		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+	}
+
+	return res, nil
+}
+
+// checkTxBytes encodes a transaction and calls checkTx on the app.
+func checkTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseCheckTx, error) {
+	bz, err := txEncoder(tx)
+	if err != nil {
+		return abci.ResponseCheckTx{}, err
+	}
+
+	req := abci.RequestCheckTx{Tx: bz}
+	res := app.BaseApp.CheckTx(req)
+	if res.Code != 0 {
+		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
 
 	return res, nil
