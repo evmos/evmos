@@ -94,3 +94,45 @@ func CheckTx(
 	}
 	return res, nil
 }
+
+// CheckEthTx checks a Ethereum tx for a given set of msgs
+func CheckEthTx(
+	appEvmos *app.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	msgs ...sdk.Msg,
+) (abci.ResponseCheckTx, error) {
+	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+
+	tx, err := prepareEthTx(txConfig, appEvmos, priv, msgs...)
+	if err != nil {
+		return abci.ResponseCheckTx{}, err
+	}
+	bz, err := txConfig.TxEncoder()(tx)
+	if err != nil {
+		return abci.ResponseCheckTx{}, err
+	}
+	req := abci.RequestCheckTx{Tx: bz}
+
+	res := appEvmos.CheckTx(req)
+	if res.Code != 0 {
+		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+	}
+	return res, nil
+}
+
+// BroadcastTxBytes encodes a transaction and calls DeliverTx on the app.
+func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseDeliverTx, error) {
+	// bz are bytes to be broadcasted over the network
+	bz, err := txEncoder(tx)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	req := abci.RequestDeliverTx{Tx: bz}
+	res := app.BaseApp.DeliverTx(req)
+	if res.Code != 0 {
+		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+	}
+
+	return res, nil
+}
