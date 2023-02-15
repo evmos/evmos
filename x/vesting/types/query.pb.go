@@ -6,10 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -19,14 +15,15 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -46,11 +43,9 @@ func (*QueryBalancesRequest) ProtoMessage()    {}
 func (*QueryBalancesRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ff0457b141ab5d28, []int{0}
 }
-
 func (m *QueryBalancesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *QueryBalancesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryBalancesRequest.Marshal(b, m, deterministic)
@@ -63,15 +58,12 @@ func (m *QueryBalancesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-
 func (m *QueryBalancesRequest) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryBalancesRequest.Merge(m, src)
 }
-
 func (m *QueryBalancesRequest) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *QueryBalancesRequest) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryBalancesRequest.DiscardUnknown(m)
 }
@@ -102,11 +94,9 @@ func (*QueryBalancesResponse) ProtoMessage()    {}
 func (*QueryBalancesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ff0457b141ab5d28, []int{1}
 }
-
 func (m *QueryBalancesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *QueryBalancesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_QueryBalancesResponse.Marshal(b, m, deterministic)
@@ -119,15 +109,12 @@ func (m *QueryBalancesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-
 func (m *QueryBalancesResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_QueryBalancesResponse.Merge(m, src)
 }
-
 func (m *QueryBalancesResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *QueryBalancesResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_QueryBalancesResponse.DiscardUnknown(m)
 }
@@ -186,15 +173,13 @@ var fileDescriptor_ff0457b141ab5d28 = []byte{
 	0xba, 0xdc, 0x9a, 0xe6, 0xc1, 0xf5, 0xc3, 0xeb, 0xac, 0xd0, 0x32, 0x77, 0xe9, 0x87, 0x9b, 0x73,
 	0x75, 0x2d, 0xbd, 0xd4, 0x0e, 0x5f, 0xf5, 0x4e, 0xe6, 0x4b, 0x1b, 0x2d, 0x96, 0x36, 0x7a, 0x59,
 	0xda, 0xe8, 0x76, 0x65, 0x1b, 0x8b, 0x95, 0x6d, 0x3c, 0xae, 0x6c, 0xe3, 0x6c, 0xff, 0x9d, 0xc2,
-	0x9c, 0x49, 0xf3, 0x39, 0x1d, 0x7a, 0xb1, 0x61, 0xcd, 0x94, 0xba, 0xa5, 0xec, 0xc2, 0x8e, 0xde,
-	0x02, 0x00, 0x00, 0xff, 0xff, 0xe9, 0x65, 0x95, 0x07, 0xe7, 0x02, 0x00, 0x00,
+	0x9c, 0x49, 0xf3, 0x39, 0x0e, 0xbd, 0xd8, 0xb0, 0x66, 0x4a, 0xdd, 0x52, 0x76, 0x61, 0x47, 0x6f,
+	0x01, 0x00, 0x00, 0xff, 0xff, 0xe7, 0xf5, 0x1e, 0xa2, 0xe7, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ context.Context
-	_ grpc.ClientConn
-)
+var _ context.Context
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -232,7 +217,8 @@ type QueryServer interface {
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
-type UnimplementedQueryServer struct{}
+type UnimplementedQueryServer struct {
+}
 
 func (*UnimplementedQueryServer) Balances(ctx context.Context, req *QueryBalancesRequest) (*QueryBalancesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Balances not implemented")
@@ -379,7 +365,6 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *QueryBalancesRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -423,11 +408,9 @@ func (m *QueryBalancesResponse) Size() (n int) {
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *QueryBalancesRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -510,7 +493,6 @@ func (m *QueryBalancesRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *QueryBalancesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -663,7 +645,6 @@ func (m *QueryBalancesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipQuery(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
