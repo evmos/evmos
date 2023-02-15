@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/evm/types"
@@ -108,7 +108,7 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 }
 
 func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
-	valOpAddr := tests.GenerateAddress()
+	valOpAddr := testutil.GenerateAddress()
 
 	testCases := []struct {
 		msg      string
@@ -127,7 +127,7 @@ func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
 		{
 			"success",
 			func() {
-				valConsAddr, privkey := tests.NewAddrKey()
+				valConsAddr, privkey := testutil.NewAddrKey()
 
 				pkAny, err := codectypes.NewAnyWithValue(privkey.PubKey())
 				suite.Require().NoError(err)

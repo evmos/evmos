@@ -1,4 +1,4 @@
-FROM golang:1.20.0-bullseye AS build-env
+FROM golang:1.20.1-bullseye AS build-env
 
 WORKDIR /go/src/github.com/evmos/evmos
 
@@ -9,7 +9,7 @@ COPY . .
 
 RUN make build
 
-FROM golang:1.20.0-bullseye
+FROM golang:1.20.1-bullseye
 
 RUN apt-get update -y
 RUN apt-get install ca-certificates jq -y

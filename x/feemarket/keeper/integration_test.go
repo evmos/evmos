@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
@@ -203,7 +203,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with EffectivePrice < MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := checkEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -230,7 +230,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gasPrice >= MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := checkEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -251,7 +251,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with gasPrice < MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := deliverEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -275,7 +275,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gasPrice >= MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := deliverEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -311,7 +311,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with gasPrice < MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := checkEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -334,7 +334,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with MinGasPrices < tx gasPrice < EffectivePrice",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := checkEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -354,7 +354,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gasPrice >= EffectivePrice",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := checkEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -372,7 +372,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with gasPrice < MinGasPrices",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := deliverEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -392,7 +392,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should reject transactions with MinGasPrices < gasPrice < EffectivePrice",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := deliverEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(false), "transaction should have failed")
@@ -413,7 +413,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gasPrice >= EffectivePrice",
 					func(malleate getprices) {
 						p := malleate()
-						to := tests.GenerateAddress()
+						to := testutil.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res := deliverEthTx(privKey, msgEthereumTx)
 						Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())

@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (test) [#1393](https://github.com/evmos/evmos/pull/1393) Move utilities from `tests` folder to `testutil` package
 - (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files
 - (claims) [#1378](https://github.com/evmos/evmos/pull/1378) Validate authorized channels when updating claims params
 - (test) [#1348](https://github.com/evmos/evmos/pull/1348) Add query executions to e2e upgrade test suite
@@ -67,6 +68,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
 - (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 - (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
+
+### Bug Fixes
+
+- (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
 
 ## [v11.0.2] - 2023-02-10
 

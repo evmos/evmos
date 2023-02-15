@@ -1,34 +1,34 @@
-package types
+package types_test
 
 import (
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v11/tests"
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClaimsRecordValidate(t *testing.T) {
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecord
+		claimsRecord types.ClaimsRecord
 		expError     bool
 	}{
 		{
 			"fail - empty",
-			ClaimsRecord{},
+			types.ClaimsRecord{},
 			true,
 		},
 		{
 			"fail - non positive claimable amount",
-			ClaimsRecord{InitialClaimableAmount: sdk.NewInt(-1)},
+			types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(-1)},
 			true,
 		},
 		{
 			"fail - empty actions",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{},
 			},
@@ -36,7 +36,7 @@ func TestClaimsRecordValidate(t *testing.T) {
 		},
 		{
 			"success - valid instance",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{true, true, true, true},
 			},
@@ -44,7 +44,7 @@ func TestClaimsRecordValidate(t *testing.T) {
 		},
 		{
 			"success - valid instance with constructor",
-			NewClaimsRecord(sdk.OneInt()),
+			types.NewClaimsRecord(sdk.OneInt()),
 			false,
 		},
 	}
@@ -62,32 +62,32 @@ func TestClaimsRecordValidate(t *testing.T) {
 func TestClaimAction(t *testing.T) {
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecord
-		action       Action
+		claimsRecord types.ClaimsRecord
+		action       types.Action
 		expClaimed   bool
 	}{
 		{
 			"fail - empty",
-			ClaimsRecord{},
-			ActionEVM,
+			types.ClaimsRecord{},
+			types.ActionEVM,
 			false,
 		},
 		{
 			"fail - unspecified action",
-			NewClaimsRecord(sdk.OneInt()),
-			ActionUnspecified,
+			types.NewClaimsRecord(sdk.OneInt()),
+			types.ActionUnspecified,
 			false,
 		},
 		{
 			"fail - invalid action",
-			NewClaimsRecord(sdk.OneInt()),
-			Action(10),
+			types.NewClaimsRecord(sdk.OneInt()),
+			types.Action(10),
 			false,
 		},
 		{
 			"success - valid instance with constructor",
-			NewClaimsRecord(sdk.OneInt()),
-			ActionEVM,
+			types.NewClaimsRecord(sdk.OneInt()),
+			types.ActionEVM,
 			true,
 		},
 	}
@@ -101,46 +101,46 @@ func TestClaimAction(t *testing.T) {
 func TestClaimsRecordHasClaimedAction(t *testing.T) {
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecord
-		action       Action
+		claimsRecord types.ClaimsRecord
+		action       types.Action
 		expBool      bool
 	}{
 		{
 			"false - empty",
-			ClaimsRecord{},
-			ActionEVM,
+			types.ClaimsRecord{},
+			types.ActionEVM,
 			false,
 		},
 		{
 			"false - unspecified action",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
-			ActionUnspecified,
+			types.ActionUnspecified,
 			false,
 		},
 		{
 			"false - invalid action",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
-			Action(10),
+			types.Action(10),
 			false,
 		},
 		{
 			"false - not claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
-			ActionEVM,
+			types.ActionEVM,
 			false,
 		},
 		{
 			"true - claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
-			ActionEVM,
+			types.ActionEVM,
 			true,
 		},
 	}
@@ -153,24 +153,24 @@ func TestClaimsRecordHasClaimedAction(t *testing.T) {
 func TestClaimsRecordHasClaimedAll(t *testing.T) {
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecord
+		claimsRecord types.ClaimsRecord
 		expBool      bool
 	}{
 		{
 			"false - empty",
-			ClaimsRecord{},
+			types.ClaimsRecord{},
 			false,
 		},
 		{
 			"false - not claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			false,
 		},
 		{
 			"true - all claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
 			true,
@@ -185,31 +185,31 @@ func TestClaimsRecordHasClaimedAll(t *testing.T) {
 func TestClaimsRecordHasAny(t *testing.T) {
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecord
+		claimsRecord types.ClaimsRecord
 		expBool      bool
 	}{
 		{
 			"false - empty",
-			ClaimsRecord{},
+			types.ClaimsRecord{},
 			false,
 		},
 		{
 			"false - not claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{false, false, false, false},
 			},
 			false,
 		},
 		{
 			"true - single action claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{true, false, false, false},
 			},
 			true,
 		},
 		{
 			"true - all claimed",
-			ClaimsRecord{
+			types.ClaimsRecord{
 				ActionsCompleted: []bool{true, true, true, true},
 			},
 			true,
@@ -222,36 +222,36 @@ func TestClaimsRecordHasAny(t *testing.T) {
 }
 
 func TestClaimsRecordAddressValidate(t *testing.T) {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name         string
-		claimsRecord ClaimsRecordAddress
+		claimsRecord types.ClaimsRecordAddress
 		expError     bool
 	}{
 		{
 			"fail - empty",
-			ClaimsRecordAddress{},
+			types.ClaimsRecordAddress{},
 			true,
 		},
 		{
 			"fail - invalid address",
-			NewClaimsRecordAddress(sdk.AccAddress{}, sdk.NewInt(-1)),
+			types.NewClaimsRecordAddress(sdk.AccAddress{}, sdk.NewInt(-1)),
 			true,
 		},
 		{
 			"fail - empty int",
-			NewClaimsRecordAddress(addr, math.Int{}),
+			types.NewClaimsRecordAddress(addr, math.Int{}),
 			true,
 		},
 		{
 			"fail - non positive claimable amount",
-			NewClaimsRecordAddress(addr, sdk.NewInt(-1)),
+			types.NewClaimsRecordAddress(addr, sdk.NewInt(-1)),
 			true,
 		},
 		{
 			"fail - empty actions",
-			ClaimsRecordAddress{
+			types.ClaimsRecordAddress{
 				Address:                addr.String(),
 				InitialClaimableAmount: sdk.OneInt(),
 				ActionsCompleted:       []bool{},
@@ -260,7 +260,7 @@ func TestClaimsRecordAddressValidate(t *testing.T) {
 		},
 		{
 			"success - valid instance",
-			NewClaimsRecordAddress(addr, sdk.OneInt()),
+			types.NewClaimsRecordAddress(addr, sdk.OneInt()),
 			false,
 		},
 	}

@@ -26,7 +26,7 @@ import (
 	"github.com/evmos/evmos/v11/types"
 )
 
-func newLegacyTx(tx *ethtypes.Transaction) (*LegacyTx, error) {
+func NewLegacyTx(tx *ethtypes.Transaction) (*LegacyTx, error) {
 	txData := &LegacyTx{
 		Nonce:    tx.Nonce(),
 		Data:     tx.Data(),
