@@ -7,12 +7,8 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -162,7 +158,8 @@ func registerFee(
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address())
 	msg := types.NewMsgRegisterRevenue(*contractAddress, deployerAddress, withdrawerAddress, nonces)
 
-	res := deliverTx(priv, nil, msg)
+	res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+	s.Require().NoError(err)
 	s.Commit()
 
 	if res.IsOK() {
@@ -313,74 +310,6 @@ func prepareEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereu
 
 func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseDeliverTx {
 	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
-
-func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	denom := utils.BaseDenom
-
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	txBuilder.SetGasLimit(1000000)
-	if gasPrice == nil {
-		_gasPrice := sdk.NewInt(1)
-		gasPrice = &_gasPrice
-	}
-	amt, _ := sdk.NewIntFromString("1000000000000000")
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.Mul(amt)}}
-	txBuilder.SetFeeAmount(*fees)
-	err := txBuilder.SetMsgs(msgs...)
-	s.Require().NoError(err)
-
-	seq, err := s.app.AccountKeeper.GetSequence(s.ctx, accountAddress)
-	s.Require().NoError(err)
-
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: seq,
-	}
-
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := s.app.AccountKeeper.GetAccount(s.ctx, accountAddress).GetAccountNumber()
-	signerData := authsigning.SignerData{
-		ChainID:       s.ctx.ChainID(),
-		AccountNumber: accNumber,
-		Sequence:      seq,
-	}
-	sigV2, err = tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		seq,
-	)
-	s.Require().NoError(err)
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// bz are bytes to be broadcasted over the network
-	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
-	s.Require().NoError(err)
-	return bz
-}
-
-func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx { //nolint:unparam
-	bz := prepareCosmosTx(priv, gasPrice, msgs...)
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := s.app.BaseApp.DeliverTx(req)
 	return res

@@ -103,10 +103,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				[]uint64{1},
 			)
 
-			res := deliverTx(deployerKey, nil, msg)
-			Expect(res.IsOK()).To(Equal(false), "registration should have failed")
+			_, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+			Expect(err).ToNot(BeNil(), "registration should have failed")
 			Expect(
-				strings.Contains(res.GetLog(),
+				strings.Contains(err.Error(),
 					"revenue module is disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
@@ -132,10 +132,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				deployerAddress,
 				withdrawerAddress,
 			)
-			res := deliverTx(deployerKey, nil, msg)
-			Expect(res.IsOK()).To(Equal(false), "update should have failed")
+			_, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+			Expect(err).ToNot(BeNil(), "update should have failed")
 			Expect(
-				strings.Contains(res.GetLog(),
+				strings.Contains(err.Error(),
 					"revenue module is disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
@@ -143,10 +143,10 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		It("should not allow cancellations of previously registered contracts", func() {
 			msg := types.NewMsgCancelRevenue(registeredContract, deployerAddress)
-			res := deliverTx(deployerKey, nil, msg)
-			Expect(res.IsOK()).To(Equal(false), "cancel should have failed")
+			_, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+			Expect(err).ToNot(BeNil(), "cancel should have failed")
 			Expect(
-				strings.Contains(res.GetLog(),
+				strings.Contains(err.Error(),
 					"revenue module is disabled by governance"),
 			).To(BeTrue())
 			s.Commit()
@@ -409,7 +409,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						withdrawerAddress,
 					)
 
-					res := deliverTx(deployerKey, nil, msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(
 						Equal(true),
 						"withdraw update failed: "+res.GetLog(),
@@ -463,15 +464,15 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						deployerAddress,
 					)
 
-					res := deliverTx(deployerKey, nil, msg)
-					Expect(res.IsOK()).To(
-						Equal(false),
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).NotTo(
+						BeNil(),
 						"withdraw update failed: "+res.GetLog(),
 					)
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"revenue already exists for given contract"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 					s.Commit()
 				})
 			})
@@ -486,15 +487,15 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						withdrawerAddress,
 					)
 
-					res := deliverTx(deployerKey, nil, msg)
-					Expect(res.IsOK()).To(
-						Equal(false),
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).ToNot(
+						BeNil(),
 						"withdraw update failed: "+res.GetLog(),
 					)
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"is not registered"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 					s.Commit()
 				})
 			})
@@ -519,7 +520,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 				It("should be possible", func() {
 					msg := types.NewMsgCancelRevenue(contractAddress, deployerAddress)
-					res := deliverTx(deployerKey, nil, msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(Equal(true), "withdraw update failed: "+res.GetLog())
 					s.Commit()
 
@@ -547,15 +549,15 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				It("should not be possible", func() {
 					contractAddress := testutil.GenerateAddress()
 					msg := types.NewMsgCancelRevenue(contractAddress, deployerAddress)
-					res := deliverTx(deployerKey, nil, msg)
-					Expect(res.IsOK()).To(
-						Equal(false),
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).ToNot(
+						BeNil(),
 						"canceling failed: "+res.GetLog(),
 					)
 					Expect(
-						strings.Contains(res.GetLog(),
+						strings.Contains(err.Error(),
 							"is not registered"),
-					).To(BeTrue(), res.GetLog())
+					).To(BeTrue(), err.Error())
 					s.Commit()
 				})
 			})
@@ -579,7 +581,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						nil,
 						[]uint64{factoryNonce, contractNonce},
 					)
-					res := deliverTx(deployerKey, nil, msg)
+					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+					Expect(err).To(BeNil())
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 					s.Commit()
 

@@ -378,7 +378,7 @@ func convertCoin(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey,
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
 	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertCoinMsg)
 	s.Require().NoError(err)
-	// res := deliverTx(pk, convertCoinMsg)
+
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
