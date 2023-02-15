@@ -68,6 +68,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 - (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
 
+### Bug Fixes
+
+- (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
+
 ## [v11.0.2] - 2023-02-10
 
 ### Improvements
