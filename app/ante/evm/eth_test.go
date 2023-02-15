@@ -162,7 +162,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	chainID := suite.app.EvmKeeper.ChainID()
-	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
+	dec := ethante.NewEthGasConsumeDecorator(suite.app.BankKeeper, suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
 	addr := testutil.GenerateAddress()
 

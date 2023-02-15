@@ -31,6 +31,12 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
 
+// BankKeeper defines the exposed interface for using functionality of the bank keeper
+// in the context of the evm AnteHandler package.
+type BankKeeper interface {
+	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
+}
+
 // EVMKeeper defines the expected keeper interface used on the AnteHandler
 type EVMKeeper interface { //nolint: revive
 	statedb.Keeper
