@@ -36,7 +36,6 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -320,17 +319,7 @@ func (suite *KeeperTestSuite) Commit() {
 //  3. EndBlock
 //  4. Commit
 func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
-	header := suite.ctx.BlockHeader()
-	_ = suite.app.Commit()
-
-	header.Height++
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = testutil.Commit(suite.ctx, suite.app, t)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
