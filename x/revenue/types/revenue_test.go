@@ -7,7 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	"github.com/stretchr/testify/suite"
@@ -24,8 +24,8 @@ func TestRevenueSuite(t *testing.T) {
 }
 
 func (suite *RevenueTestSuite) SetupTest() {
-	suite.address1 = sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	suite.address2 = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	suite.address1 = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	suite.address2 = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 }
 
 func (suite *RevenueTestSuite) TestFeeNew() {
@@ -38,14 +38,14 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 	}{
 		{
 			"Create revenue- pass",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			suite.address1,
 			suite.address2,
 			true,
 		},
 		{
 			"Create fee, omit withdraw - pass",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			suite.address1,
 			nil,
 			true,
@@ -59,7 +59,7 @@ func (suite *RevenueTestSuite) TestFeeNew() {
 		},
 		{
 			"Create revenue- invalid deployer address",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			sdk.AccAddress{},
 			suite.address2,
 			false,
@@ -87,7 +87,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		{
 			"Create revenue- pass",
 			types.Revenue{
-				testutil.GenerateAddress().String(),
+				utiltx.GenerateAddress().String(),
 				suite.address1.String(),
 				suite.address2.String(),
 			},
@@ -123,7 +123,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		{
 			"Create revenue- invalid deployer address",
 			types.Revenue{
-				testutil.GenerateAddress().String(),
+				utiltx.GenerateAddress().String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
 				suite.address2.String(),
 			},
@@ -132,7 +132,7 @@ func (suite *RevenueTestSuite) TestFee() {
 		{
 			"Create revenue- invalid withdraw address",
 			types.Revenue{
-				testutil.GenerateAddress().String(),
+				utiltx.GenerateAddress().String(),
 				suite.address1.String(),
 				"evmos14mq5c8yn9jx295ahaxye2f0xw3tlell0lt542Z",
 			},
@@ -152,7 +152,7 @@ func (suite *RevenueTestSuite) TestFee() {
 }
 
 func (suite *RevenueTestSuite) TestRevenueGetters() {
-	contract := testutil.GenerateAddress()
+	contract := utiltx.GenerateAddress()
 	fs := types.Revenue{
 		contract.String(),
 		suite.address1.String(),

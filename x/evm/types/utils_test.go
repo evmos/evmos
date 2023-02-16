@@ -16,7 +16,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/stretchr/testify/require"
@@ -90,7 +90,7 @@ func TestBinSearch(t *testing.T) {
 }
 
 func TestTransactionLogsEncodeDecode(t *testing.T) {
-	addr := testutil.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	txLogs := evmtypes.TransactionLogs{
 		Hash: common.BytesToHash([]byte("tx_hash")).String(),

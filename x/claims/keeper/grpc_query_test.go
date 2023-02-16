@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
@@ -54,7 +55,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 func (suite *KeeperTestSuite) TestClaimsRecords() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
-	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name          string
@@ -134,7 +135,7 @@ func (suite *KeeperTestSuite) TestClaimsRecord() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
 
 	req := &types.QueryClaimsRecordRequest{}
-	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name     string

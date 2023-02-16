@@ -13,13 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/cmd/config"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-
-	// TODO refactor when imported to Evmos
-	"github.com/evmos/evmos/v11/cmd/config"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/require"
@@ -159,7 +158,7 @@ func createBasicTestCase(t *testing.T) TestCaseStruct {
 	signatureBytes, err := hex.DecodeString(signatureHex)
 	require.NoError(t, err)
 
-	_, privKey := testutil.NewAddrKey()
+	_, privKey := utiltx.NewAddrKey()
 	sigsV2 := signing.SignatureV2{
 		PubKey: privKey.PubKey(), // Use unrelated public key for testing
 		Data: &signing.SingleSignatureData{

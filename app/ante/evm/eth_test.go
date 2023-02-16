@@ -8,7 +8,7 @@ import (
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		suite.app.AccountKeeper, suite.app.EvmKeeper,
 	)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
@@ -108,7 +108,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 	suite.SetupTest()
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
@@ -163,7 +163,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	txGasLimit := uint64(1000)
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), txGasLimit, big.NewInt(1), nil, nil, nil, nil)
@@ -320,7 +320,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 func (suite *AnteTestSuite) TestCanTransferDecorator() {
 	dec := ethante.NewCanTransferDecorator(suite.app.EvmKeeper)
 
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 
 	suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
 
@@ -349,7 +349,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 	tx.From = addr.Hex()
 
-	err := tx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err := tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	var vmdb *statedb.StateDB
@@ -403,22 +403,22 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 
 	contract := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 0, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	contract.From = addr.Hex()
-	err := contract.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err := contract.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	to := testutil.GenerateAddress()
+	to := utiltx.GenerateAddress()
 	tx := evmtypes.NewTx(suite.app.EvmKeeper.ChainID(), 0, &to, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
-	err = tx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err = tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	tx2 := evmtypes.NewTx(suite.app.EvmKeeper.ChainID(), 1, &to, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx2.From = addr.Hex()
-	err = tx2.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err = tx2.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {
