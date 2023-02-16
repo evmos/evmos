@@ -22,6 +22,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -115,20 +116,32 @@ func DeliverTx(
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
 	txBuilder.SetGasLimit(100_000_000)
 	amt, _ := sdk.NewIntFromString("1000000000000000000000")
 	txBuilder.SetFeeAmount(sdk.Coins{{Denom: utils.BaseDenom, Amount: amt}})
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
+
+	txBuilder, err := CreateTxInTxBuilder(ctx, appEvmos, txBuilder, priv, msgs...)
+	if err != nil {
 		return abci.ResponseDeliverTx{}, err
+	}
+
+	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+}
+
+// CreateTxInTxBuilder populates a txBuilder with a set of messages and signs
+// the resulting transaction.
+func CreateTxInTxBuilder(ctx sdk.Context, appEvmos *app.Evmos, txBuilder client.TxBuilder, priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) (client.TxBuilder, error) {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+
+	if err := txBuilder.SetMsgs(msgs...); err != nil {
+		return txBuilder, err
 	}
 
 	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, accountAddress)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return txBuilder, err
 	}
 
 	// First round: we gather all the signer infos. We use the "set empty
@@ -145,7 +158,7 @@ func DeliverTx(
 	sigsV2 := []signing.SignatureV2{sigV2}
 
 	if err := txBuilder.SetSignatures(sigsV2...); err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return txBuilder, err
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
@@ -161,15 +174,15 @@ func DeliverTx(
 		seq,
 	)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return txBuilder, err
 	}
 
 	sigsV2 = []signing.SignatureV2{sigV2}
 	if err = txBuilder.SetSignatures(sigsV2...); err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return txBuilder, err
 	}
 
-	return BroadcastTxBytes(appEvmos, encodingConfig.TxConfig.TxEncoder(), txBuilder.GetTx())
+	return txBuilder, nil
 }
 
 // DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
