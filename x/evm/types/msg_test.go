@@ -452,6 +452,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 				ChainID:   tc.chainID,
 				Nonce:     1,
 				To:        &to,
+                Amount: tc.amount,
 				GasLimit:  tc.gasLimit,
 				GasPrice:  tc.gasPrice,
 				GasFeeCap: tc.gasFeeCap,
