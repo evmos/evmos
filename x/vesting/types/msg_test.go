@@ -395,7 +395,7 @@ func (suite *MsgsTestSuite) TestMsgConvertVestingAccount() {
 		{
 			"pass - valid vesting address",
 			&types.MsgConvertVestingAccount{
-				sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+				sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			},
 			true,
 		},
