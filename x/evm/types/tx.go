@@ -16,12 +16,28 @@
 package types
 
 import (
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
+
+// EvmTxParams encapsulates all possible params to create all EVM txs types.
+// This includes LegacyTx, DynamicFeeTx and AccessListTx
+type EvmTxParams struct {
+	Nonce     uint64
+	GasLimit  uint64
+	Input     []byte
+	GasFeeCap *big.Int
+	GasPrice  *big.Int
+	ChainID   *big.Int
+	Amount    *big.Int
+	GasTipCap *big.Int
+	To        *common.Address
+	Accesses  *ethtypes.AccessList
+}
 
 // GetTxPriority returns the priority of a given Ethereum tx. It relies of the
 // priority reduction global variable to calculate the tx priority given the tx
