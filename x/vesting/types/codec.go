@@ -77,6 +77,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgClawback{},
 		&MsgCreateClawbackVestingAccount{},
 		&MsgUpdateVestingFunder{},
+		&MsgConvertVestingAccount{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -288,6 +288,7 @@ func (k Keeper) UpdateVestingFunder(
 	return &types.MsgUpdateVestingFunderResponse{}, nil
 }
 
+// ConvertVestingAccount converts a ClawbackVestingAccount to an ETHAccount
 func (k Keeper) ConvertVestingAccount(
 	goCtx context.Context,
 	msg *types.MsgConvertVestingAccount,
@@ -317,7 +318,7 @@ func (k Keeper) ConvertVestingAccount(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 
-	ethAccount := evmostypes.EthAccount{BaseAccount: vestingAcc.BaseAccount}
+	ethAccount := evmostypes.EthAccount{BaseAccount: vestingAcc.BaseAccount, CodeHash: ""}
 	k.accountKeeper.SetAccount(ctx, &ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
