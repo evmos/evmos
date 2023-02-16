@@ -307,11 +307,10 @@ func (k Keeper) ConvertVestingAccount(
 	}
 
 	// check if account is of type ClawbackVestingAccount
-	if _, ok := account.(*types.ClawbackVestingAccount); !ok {
+	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
+	if !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
 	}
-
-	vestingAcc := account.(*types.ClawbackVestingAccount)
 
 	// check if account is of the ClawbackVestingAccount has any vesting coins left
 	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
