@@ -290,8 +290,11 @@ func (k Keeper) ConvertVestingAccount(
 	msg *types.MsgConvertVestingAccount,
 ) (*types.MsgConvertVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	acc := sdk.MustAccAddressFromBech32(msg.VestingAddress)
-	baseAccount := k.accountKeeper.GetAccount(ctx, acc)
+	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	account := k.accountKeeper.GetAccount(ctx, address)
+	if account == nil {
+    // error account not found
+	}
 
 	// check if baseAccount is of type ClawbackVestingAccount
 	if _, ok := baseAccount.(*types.ClawbackVestingAccount); !ok {
