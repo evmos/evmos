@@ -43,6 +43,7 @@ func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration) sdk.Context {
 
 	header.Height++
 	header.Time = header.Time.Add(t)
+	header.AppHash = app.LastCommitID().Hash
 	app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
