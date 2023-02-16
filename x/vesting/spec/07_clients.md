@@ -90,9 +90,10 @@ To perform this action, the user needs to provide two arguments:
 evmosd tx vesting update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRESS --from=FUNDER_ADDRESS [flags]
 ```
 
-**`convert`** 
+**`convert`**
 
-Allows users to convert their vesting account to a normal `ETHAccount`. To perform this action a user needs to provide one argument:
+Allows users to convert their vesting account to a normal `ETHAccount`. To perform this action 
+a user needs to provide one argument:
 
 1.the vesting account address
 
