@@ -317,7 +317,8 @@ func (k Keeper) ConvertVestingAccount(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 
-	ethAccount := evmostypes.EthAccount{BaseAccount: vestingAcc.BaseAccount, CodeHash: ""}
+	ethAccount := evmostypes.ProtoAccount()
+	ethAccount.BaseAccount = vestingAcc.BaseAccount
 	k.accountKeeper.SetAccount(ctx, &ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
