@@ -82,5 +82,7 @@ type MsgConvertVestingAccount struct {
 	VestingAddress string `protobuf:"bytes,2,opt,name=vesting_address,json=vestingAddress,proto3" json:"vesting_address,omitempty"`
 }
 ```
+
 The msg content stateless validation fails if:
+
 - `VestingAddress` is invalid
