@@ -192,18 +192,16 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		factoryAddress,
-		nil,
-		uint64(100000),
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		data,
-		nil,
-	)
+
+	ethTxParams := evmtypes.EvmTxParams{
+		ChainID:  chainID,
+		Nonce:    nonce,
+		To:       factoryAddress,
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1000000000),
+		Input:    data,
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 
 	res := deliverEthTx(priv, msgEthereumTx)
@@ -233,17 +231,16 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 
 	data := common.Hex2Bytes(contractCode)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTxContract(
-		chainID,
-		nonce,
-		nil,
-		gasLimit,
-		nil,
-		s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		big.NewInt(1),
-		data,
-		&ethtypes.AccessList{},
-	)
+	ethTxParams := evmtypes.EvmTxParams{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasLimit:  gasLimit,
+		GasTipCap: big.NewInt(1),
+		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+		Input:     data,
+		Accesses:  &ethtypes.AccessList{},
+	}
+	msgEthereumTx := evmtypes.NewTxContract(&ethTxParams)
 	msgEthereumTx.From = from.String()
 
 	res := deliverEthTx(priv, msgEthereumTx)
@@ -287,18 +284,18 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		to,
-		nil,
-		gasLimit,
-		gasPrice,
-		gasFeeCap,
-		gasTipCap,
-		data,
-		accesses,
-	)
+	ethTxParams := evmtypes.EvmTxParams{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        to,
+		GasPrice:  gasPrice,
+		GasLimit:  gasLimit,
+		GasTipCap: gasTipCap,
+		GasFeeCap: gasFeeCap,
+		Input:     data,
+		Accesses:  accesses,
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
 }
