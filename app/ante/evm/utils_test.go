@@ -14,7 +14,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 	"github.com/evmos/evmos/v11/types"
 
@@ -329,7 +328,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAd
 
 	msgVote := govtypesv1.NewMsgVote(from, 1, govtypesv1.VoteOption_VOTE_OPTION_YES, "")
 
-	valEthAddr := tests.GenerateAddress()
+	valEthAddr := testutil.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgDelegate := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 
