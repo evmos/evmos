@@ -6,12 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
@@ -22,7 +22,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	}
 	signedTx := evmtypes.NewTxContract(ethContractCreationTxParams)
 	signedTx.From = addr.Hex()
-	err := signedTx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err := signedTx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	uprotectedEthTxParams := &evmtypes.EvmTxArgs{
@@ -33,7 +33,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	}
 	unprotectedTx := evmtypes.NewTxContract(uprotectedEthTxParams)
 	unprotectedTx.From = addr.Hex()
-	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutil.NewSigner(privKey))
+	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {

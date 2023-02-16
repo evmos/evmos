@@ -22,12 +22,12 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/incentives/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -40,8 +40,8 @@ var (
 )
 
 var (
-	participant     = testutil.GenerateAddress()
-	participant2    = testutil.GenerateAddress()
+	participant     = utiltx.GenerateAddress()
+	participant2    = utiltx.GenerateAddress()
 	denomMint       = evm.DefaultEVMDenom
 	denomCoin       = "acoin"
 	allocationRate  = int64(5)
@@ -68,7 +68,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = testutil.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 
 	// consensus key
 	priv, err = ethsecp256k1.GenerateKey()
@@ -156,16 +156,9 @@ func (suite *KeeperTestSuite) Commit() {
 
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	_ = suite.app.Commit()
-	header := suite.ctx.BlockHeader()
-	header.Height++
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, t, nil)
+	suite.Require().NoError(err)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)

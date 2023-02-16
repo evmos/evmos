@@ -10,13 +10,13 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func TestTxEncoding(t *testing.T) {
-	addr, key := testutil.NewAddrKey()
-	signer := testutil.NewSigner(key)
+	addr, key := utiltx.NewAddrKey()
+	signer := utiltx.NewSigner(key)
 
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   big.NewInt(1),

@@ -8,7 +8,7 @@ import (
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		suite.app.AccountKeeper, suite.app.EvmKeeper,
 	)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
@@ -116,7 +116,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 	suite.SetupTest()
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
@@ -179,7 +179,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 
 	txGasLimit := uint64(1000)
 
@@ -372,7 +372,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 func (suite *AnteTestSuite) TestCanTransferDecorator() {
 	dec := ethante.NewCanTransferDecorator(suite.app.EvmKeeper)
 
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 
 	suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
@@ -391,7 +391,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 	tx.From = addr.Hex()
 
-	err := tx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err := tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	var vmdb *statedb.StateDB
@@ -445,7 +445,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 
 	ethTxContractParamsNonce0 := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
@@ -456,10 +456,10 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	}
 	contract := evmtypes.NewTxContract(ethTxContractParamsNonce0)
 	contract.From = addr.Hex()
-	err := contract.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err := contract.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	to := testutil.GenerateAddress()
+	to := utiltx.GenerateAddress()
 	ethTxParamsNonce0 := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    0,
@@ -470,7 +470,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	}
 	tx := evmtypes.NewTx(ethTxParamsNonce0)
 	tx.From = addr.Hex()
-	err = tx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err = tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	ethTxParamsNonce1 := &evmtypes.EvmTxArgs{
@@ -483,7 +483,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	}
 	tx2 := evmtypes.NewTx(ethTxParamsNonce1)
 	tx2.From = addr.Hex()
-	err = tx2.Sign(suite.ethSigner, testutil.NewSigner(privKey))
+	err = tx2.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {

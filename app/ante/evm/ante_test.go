@@ -17,14 +17,14 @@ import (
 
 	"github.com/ethereum/go-ethereum/core/types"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestAnteHandler() {
 	var acc authtypes.AccountI
-	addr, privKey := testutil.NewAddrKey()
-	to := testutil.GenerateAddress()
+	addr, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 
 	setup := func() {
 		suite.enableFeemarket = false
@@ -860,8 +860,8 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 }
 
 func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
-	addr, privKey := testutil.NewAddrKey()
-	to := testutil.GenerateAddress()
+	addr, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
@@ -1044,8 +1044,8 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 }
 
 func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
-	addr, privKey := testutil.NewAddrKey()
-	to := testutil.GenerateAddress()
+	addr, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),

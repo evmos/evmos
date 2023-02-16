@@ -18,7 +18,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
@@ -44,11 +44,11 @@ func TestMsgsTestSuite(t *testing.T) {
 }
 
 func (suite *MsgsTestSuite) SetupTest() {
-	from, privFrom := testutil.NewAddrKey()
+	from, privFrom := utiltx.NewAddrKey()
 
-	suite.signer = testutil.NewSigner(privFrom)
+	suite.signer = utiltx.NewSigner(privFrom)
 	suite.from = from
-	suite.to = testutil.GenerateAddress()
+	suite.to = utiltx.GenerateAddress()
 	suite.chainID = big.NewInt(1)
 	suite.hundredBigInt = big.NewInt(100)
 
