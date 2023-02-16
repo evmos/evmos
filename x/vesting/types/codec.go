@@ -40,6 +40,7 @@ const (
 	clawback                     = "evmos/MsgClawback"
 	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
 	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
+	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -48,7 +49,7 @@ func init() {
 	amino.Seal()
 }
 
-// RegisterInterface associates protoName with AccountI and VestingAccount
+// RegisterInterfaces associates protoName with AccountI and VestingAccount
 // Interfaces and creates a registry of it's concrete implementations
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	// NOTE: BaseVestingAccount is still supported to as it's the underlying embedded
@@ -88,4 +89,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgClawback{}, clawback, nil)
 	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
+	cdc.RegisterConcrete(&MsgConvertVestingAccount{}, convertVestingAccount, nil)
 }
