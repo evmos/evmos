@@ -16,6 +16,8 @@
 package tx
 
 import (
+	"math"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -28,7 +30,10 @@ import (
 	"github.com/evmos/evmos/v11/utils"
 )
 
-var DefaultFee = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10_000_000_000_000_000)) // 0.01 EVMOS
+var (
+	feeAmt     = math.Pow10(16)
+	DefaultFee = sdk.NewCoin(utils.BaseDenom, sdk.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
+)
 
 // PrepareCosmosTx creates a cosmos tx and signs it with the provided messages and private key.
 // It returns the signed transaction and an error
