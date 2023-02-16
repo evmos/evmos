@@ -23,6 +23,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
@@ -36,19 +37,33 @@ import (
 //  2. DeliverTx
 //  3. EndBlock
 //  4. Commit
-func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration) sdk.Context {
+func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
 	header := ctx.BlockHeader()
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+
+	if vs != nil {
+		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
+
+		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
+		if err != nil {
+			return ctx, err
+		}
+		header.ValidatorsHash = vs.Hash()
+		header.NextValidatorsHash = nextVals.Hash()
+	} else {
+		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+	}
+
 	_ = app.Commit()
 
 	header.Height++
 	header.Time = header.Time.Add(t)
 	header.AppHash = app.LastCommitID().Hash
+
 	app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
 
-	return app.BaseApp.NewContext(false, header)
+	return app.BaseApp.NewContext(false, header), nil
 }
 
 // DeliverTx delivers a cosmos tx for a given set of msgs
@@ -147,4 +162,22 @@ func checkTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.Resp
 	}
 
 	return res, nil
+}
+
+// applyValSetChanges takes in tmtypes.ValidatorSet and []abci.ValidatorUpdate and will return a new tmtypes.ValidatorSet which has the
+// provided validator updates applied to the provided validator set.
+func applyValSetChanges(valSet *tmtypes.ValidatorSet, valUpdates []abci.ValidatorUpdate) (*tmtypes.ValidatorSet, error) {
+	updates, err := tmtypes.PB2TM.ValidatorUpdates(valUpdates)
+	if err != nil {
+		return nil, err
+	}
+
+	// must copy since validator set will mutate with UpdateWithChangeSet
+	newVals := valSet.Copy()
+	err = newVals.UpdateWithChangeSet(updates)
+	if err != nil {
+		return nil, err
+	}
+
+	return newVals, nil
 }
