@@ -16,9 +16,10 @@
 package types
 
 import (
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"math"
 	"math/big"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"

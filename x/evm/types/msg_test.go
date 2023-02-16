@@ -452,7 +452,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 				ChainID:   tc.chainID,
 				Nonce:     1,
 				To:        &to,
-                Amount: tc.amount,
+				Amount:    tc.amount,
 				GasLimit:  tc.gasLimit,
 				GasPrice:  tc.gasPrice,
 				GasFeeCap: tc.gasFeeCap,
@@ -487,7 +487,6 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasic() {
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasicAdvanced() {
-
 	hundredInt := big.NewInt(100)
 	evmTx := &types.EvmTxParams{
 		ChainID:   hundredInt,
