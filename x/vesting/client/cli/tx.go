@@ -227,3 +227,34 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
+
+// NewMsgConvertVestingAccount returns a CLI command handler for creating a
+// MsgConvertVestingAccount transaction.
+func NewMsgConvertVestingAccount() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "convert-vesting-account VESTING_ACCOUNT_ADDRESS",
+		Short: "Convert a ClawbackVestingAccount back into a BaseAccount.",
+		Long:  "The ClawbackVestingAccount must have all of it's coins vested.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			addr, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgConvertVestingAccount(clientCtx.GetFromAddress(), addr)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
