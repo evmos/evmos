@@ -135,20 +135,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 
 	// deduct the fees
 	if !fee.IsZero() {
-		balance := dfd.bankKeeper.GetBalance(ctx, deductFeesFromAcc.GetAddress(), fee[0].Denom)
-		if balance.IsLT(fee[0]) {
-			difference := fee[0].Sub(balance)
-			// Try to claim enough staking rewards to cover the difference between the
-			// transaction cost and the account balance.
-			err := evm.ClaimSufficientStakingRewards(ctx, dfd.stakingKeeper, dfd.distributionKeeper, deductFeesFromAcc.GetAddress(), sdk.Coins{difference})
-			if err != nil {
-				return errorsmod.Wrapf(err, "failed to claim sufficient staking rewards for %s", deductFeesFromAcc.GetAddress())
-			}
-		}
-
-		err := authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
-		if err != nil {
-			return err
+		if err := dfd.deductFeesFromBalanceOrUnclaimedRewards(ctx, deductFeesFromAcc, fee); err != nil {
+			return fmt.Errorf("failed to deduct fees from %s: %w", deductFeesFrom.String(), err)
 		}
 	}
 
@@ -161,6 +149,27 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fee 
 	}
 	ctx.EventManager().EmitEvents(events)
 
+	return nil
+}
+
+// deductFeesFromBalanceOrUnclaimedRewards tries to deduct the fees from the account balance.
+// If the account balance is not enough, it tries to claim enough staking rewards to cover the fees.
+// If the account does not have sufficient staking rewards, it returns an error.
+func (dfd DeductFeeDecorator) deductFeesFromBalanceOrUnclaimedRewards(ctx sdk.Context, deductFeesFromAcc authtypes.AccountI, fee sdk.Coins) error {
+	balance := dfd.bankKeeper.GetBalance(ctx, deductFeesFromAcc.GetAddress(), fee[0].Denom)
+	if balance.IsLT(fee[0]) {
+		difference := fee[0].Sub(balance)
+		// Try to claim enough staking rewards to cover the difference between the
+		// transaction cost and the account balance.
+		err := evm.ClaimSufficientStakingRewards(ctx, dfd.stakingKeeper, dfd.distributionKeeper, deductFeesFromAcc.GetAddress(), sdk.Coins{difference})
+		if err != nil {
+			return errorsmod.Wrapf(err, "failed to claim sufficient staking rewards for %s", deductFeesFromAcc.GetAddress())
+		}
+	}
+	// deduct the fees if possible
+	if err := authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee); err != nil {
+		return err
+	}
 	return nil
 }
 
