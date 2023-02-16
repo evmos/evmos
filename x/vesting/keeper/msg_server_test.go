@@ -524,7 +524,6 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
 		res, err := suite.app.VestingKeeper.ConvertVestingAccount(ctx, msg)
 
-		fmt.Println(tc.name, err)
 		if tc.expPass {
 			suite.Require().NoError(err)
 			suite.Require().NotNil(res)

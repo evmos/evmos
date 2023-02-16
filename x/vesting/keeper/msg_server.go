@@ -18,6 +18,7 @@ package keeper
 
 import (
 	"context"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"strconv"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
@@ -292,23 +294,30 @@ func (k Keeper) ConvertVestingAccount(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 	account := k.accountKeeper.GetAccount(ctx, address)
+
 	if account == nil {
-    // error account not found
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
 	}
 
-	// check if baseAccount is of type ClawbackVestingAccount
-	if _, ok := baseAccount.(*types.ClawbackVestingAccount); !ok {
+	// Check if account is of VestingAccount interface
+	if _, ok := account.(vestingexported.VestingAccount); !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to vesting: %s", msg.VestingAddress)
+	}
+
+	// check if account is of type ClawbackVestingAccount
+	if _, ok := account.(*types.ClawbackVestingAccount); !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
 	}
 
-	vestingAcc := baseAccount.(*types.ClawbackVestingAccount)
+	vestingAcc := account.(*types.ClawbackVestingAccount)
 
-	// check if the ClawbackVestingAccount has any vesting coins left
+	// check if account is of the ClawbackVestingAccount has any vesting coins left
 	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 
-	k.accountKeeper.SetAccount(ctx, vestingAcc.BaseVestingAccount.BaseAccount)
+	ethAccount := evmostypes.EthAccount{BaseAccount: vestingAcc.BaseAccount}
+	k.accountKeeper.SetAccount(ctx, &ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
 }

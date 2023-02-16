@@ -28,6 +28,8 @@ import (
 var (
 	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
 	_ sdk.Msg = &MsgClawback{}
+	_ sdk.Msg = &MsgConvertVestingAccount{}
+	_ sdk.Msg = &MsgUpdateVestingFunder{}
 )
 
 const (
@@ -224,7 +226,6 @@ func (msg MsgConvertVestingAccount) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
 		return errorsmod.Wrapf(err, "invalid vesting address")
 	}
-	// TODO: Do I add a check here to make sure the vesting account is actually a vesting account?
 	return nil
 }
 
