@@ -16,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/feemarket/types"
 
@@ -62,7 +63,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gas Limit > 0",
 					func(malleate getprices) {
 						p := malleate()
-						to := testutil.GenerateAddress()
+						to := utiltx.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res, err := testutil.CheckEthTx(s.app, privKey, msgEthereumTx)
 						Expect(err).To(BeNil())
@@ -78,7 +79,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should not accept transactions with gas Limit > 0",
 					func(malleate getprices) {
 						p := malleate()
-						to := testutil.GenerateAddress()
+						to := utiltx.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res, err := testutil.CheckEthTx(s.app, privKey, msgEthereumTx)
 						Expect(err).ToNot(BeNil(), "transaction should have failed", res.GetLog())
@@ -97,7 +98,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should accept transactions with gas Limit > 0",
 					func(malleate getprices) {
 						p := malleate()
-						to := testutil.GenerateAddress()
+						to := utiltx.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
 						Expect(err).To(BeNil())
@@ -113,7 +114,7 @@ var _ = Describe("Feemarket", func() {
 				DescribeTable("should not accept transactions with gas Limit > 0",
 					func(malleate getprices) {
 						p := malleate()
-						to := testutil.GenerateAddress()
+						to := utiltx.GenerateAddress()
 						msgEthereumTx := buildEthTx(privKey, &to, p.gasLimit, p.gasPrice, p.gasFeeCap, p.gasTipCap, p.accesses)
 						res, err := testutil.DeliverEthTx(s.app, privKey, msgEthereumTx)
 						Expect(err).ToNot(BeNil(), "transaction should have failed", res.GetLog())
@@ -147,7 +148,7 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee ma
 func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	setupChain(localMinGasPrices)
 
-	address, privKey := testutil.NewAccAddressAndKey()
+	address, privKey := utiltx.NewAccAddressAndKey()
 	amount, ok := sdk.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{

@@ -23,6 +23,7 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/claims/types"
@@ -42,7 +43,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = testutil.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
@@ -205,7 +206,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 
 func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) {
 	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, testutil.NewSigner(priv))
+	err := msgEthereumTx.Sign(s.ethSigner, utiltx.NewSigner(priv))
 	s.Require().NoError(err)
 
 	// Assemble transaction from fields

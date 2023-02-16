@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -24,8 +24,8 @@ var execTypes = []struct {
 
 func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 	denom := evmtypes.DefaultEVMDenom
-	from, privKey := testutil.NewAddrKey()
-	to := testutil.GenerateAddress()
+	from, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 	emptyAccessList := ethtypes.AccessList{}
 
 	testCases := []struct {

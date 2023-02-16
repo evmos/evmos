@@ -131,9 +131,9 @@ var _ = Describe("Claiming", Ordered, func() {
 			_, err := testutil.Delegate(s.ctx, s.app, privs[0], delegateAmount, s.validator)
 			s.Require().NoError(err)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultTxFee)))
-			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(tx.DefaultTxFee.Amount)))
-			fees[0] = tx.DefaultTxFee
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultFee)))
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(tx.DefaultFee.Amount)))
+			fees[0] = tx.DefaultFee
 		})
 
 		It("can claim ActionEVM", func() {
@@ -152,8 +152,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			_, err := testutil.Vote(s.ctx, s.app, privs[1], proposalID, govv1beta1.OptionAbstain)
 			s.Require().NoError(err)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(tx.DefaultTxFee)))
-			fees[1] = tx.DefaultTxFee
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(tx.DefaultFee)))
+			fees[1] = tx.DefaultFee
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -202,8 +202,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultTxFee)))
-			fees[1] = fees[1].Add(tx.DefaultTxFee)
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultFee)))
+			fees[1] = fees[1].Add(tx.DefaultFee)
 		})
 
 		It("can claim ActionEVM", func() {
@@ -226,8 +226,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(tx.DefaultTxFee)))
-			fees[0] = fees[0].Add(tx.DefaultTxFee)
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(tx.DefaultFee)))
+			fees[0] = fees[0].Add(tx.DefaultFee)
 		})
 
 		It("cannot claim ActionDelegate a second time", func() {
@@ -237,8 +237,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultTxFee)))
-			fees[1] = fees[1].Add(tx.DefaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultFee)))
+			fees[1] = fees[1].Add(tx.DefaultFee)
 		})
 
 		It("cannot claim ActionEVM a second time", func() {
@@ -258,8 +258,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(tx.DefaultTxFee)))
-			fees[0] = fees[0].Add(tx.DefaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(tx.DefaultFee)))
+			fees[0] = fees[0].Add(tx.DefaultFee)
 		})
 
 		It("did not clawback to the community pool", func() {
@@ -295,8 +295,8 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultTxFee)))
-			fees[2] = fees[2].Add(tx.DefaultTxFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultFee)))
+			fees[2] = fees[2].Add(tx.DefaultFee)
 		})
 
 		It("cannot clawback already claimed actions", func() {

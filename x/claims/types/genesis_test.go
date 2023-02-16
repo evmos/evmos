@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/claims/types"
 
 	"github.com/stretchr/testify/suite"
@@ -23,7 +23,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name     string

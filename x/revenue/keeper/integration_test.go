@@ -13,6 +13,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -53,12 +54,12 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 
 		// setup deployer account
-		deployerAddress, deployerKey = testutil.NewAccAddressAndKey()
+		deployerAddress, deployerKey = utiltx.NewAccAddressAndKey()
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress, initBalance)
 		Expect(err).To(BeNil())
 
 		// setup account interacting with registered contracts
-		userAddress, userKey = testutil.NewAccAddressAndKey()
+		userAddress, userKey = utiltx.NewAccAddressAndKey()
 		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, userAddress, initBalance)
 		Expect(err).To(BeNil())
 		acc := s.app.AccountKeeper.NewAccountWithAddress(s.ctx, userAddress)
@@ -126,7 +127,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		})
 
 		It("should not allow revenue updates for previously registered contracts", func() {
-			withdrawerAddress := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+			withdrawerAddress := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 			msg := types.NewMsgUpdateRevenue(
 				registeredContract,
 				deployerAddress,
@@ -232,7 +233,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeAll(func() {
 					nonce = getNonce(deployerAddress.Bytes())
 					contractAddress = deployContract(deployerKey, contractCode)
-					withdrawerAddress = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+					withdrawerAddress = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 				})
 
 				It("should be possible", func() {
@@ -390,7 +391,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 				BeforeAll(func() {
 					nonce = getNonce(deployerAddress.Bytes())
-					withdrawerAddress = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+					withdrawerAddress = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 					contractAddress = deployContract(deployerKey, contractCode)
 					res := registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
@@ -479,8 +480,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 			Context("for a contract that was not registered", func() {
 				It("should fail", func() {
-					contractAddress := testutil.GenerateAddress()
-					withdrawerAddress := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+					contractAddress := utiltx.GenerateAddress()
+					withdrawerAddress := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 					msg := types.NewMsgUpdateRevenue(
 						contractAddress,
 						deployerAddress,
@@ -547,7 +548,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 			When("the revenue does not exist", func() {
 				It("should not be possible", func() {
-					contractAddress := testutil.GenerateAddress()
+					contractAddress := utiltx.GenerateAddress()
 					msg := types.NewMsgCancelRevenue(contractAddress, deployerAddress)
 					res, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
 					Expect(err).ToNot(
@@ -638,8 +639,8 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					factory2Address      common.Address
 					contractAddress      common.Address
 				)
-				deployerAddress1, deployerKey1 := testutil.NewAccAddressAndKey()
-				deployerAddress2, deployerKey2 := testutil.NewAccAddressAndKey()
+				deployerAddress1, deployerKey1 := utiltx.NewAccAddressAndKey()
+				deployerAddress2, deployerKey2 := utiltx.NewAccAddressAndKey()
 
 				BeforeEach(func() {
 					err := testutil.FundAccount(s.ctx, s.app.BankKeeper, deployerAddress1, initBalance)

@@ -16,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
@@ -33,7 +34,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = testutil.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 
 	suite.denom = utils.BaseDenom
 

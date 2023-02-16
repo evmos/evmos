@@ -24,7 +24,7 @@ import (
 	"github.com/evmos/evmos/v11/indexer"
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -58,7 +58,7 @@ func (suite *BackendTestSuite) SetupTest() {
 	}
 
 	// Create Account with set sequence
-	suite.acc = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	suite.acc = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	accounts := map[string]client.TestAccount{}
 	accounts[suite.acc.String()] = client.TestAccount{
 		Address: suite.acc,
@@ -66,9 +66,9 @@ func (suite *BackendTestSuite) SetupTest() {
 		Seq:     uint64(1),
 	}
 
-	from, priv := testutil.NewAddrKey()
+	from, priv := utiltx.NewAddrKey()
 	suite.from = from
-	suite.signer = testutil.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 	suite.Require().NoError(err)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
@@ -174,8 +174,8 @@ func (suite *BackendTestSuite) generateTestKeyring(clientDir string) (keyring.Ke
 }
 
 func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
-	from, priv := testutil.NewAddrKey()
-	signer := testutil.NewSigner(priv)
+	from, priv := utiltx.NewAddrKey()
+	signer := utiltx.NewSigner(priv)
 
 	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 	RegisterParamsWithoutHeader(queryClient, 1)
