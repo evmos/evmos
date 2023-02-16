@@ -10,24 +10,12 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/incentives/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
-
-// ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
-// incentives hook is already set
-func (suite *KeeperTestSuite) ensureHooksSet() {
-	defer func() {
-		err := recover()
-		suite.Require().NotNil(err)
-	}()
-	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper.Hooks())
-}
 
 func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 	var expGasUsed uint64
@@ -120,7 +108,7 @@ func (suite *KeeperTestSuite) TestEvmHooksStoreTxGasUsed() {
 		{
 			"tx with non-incentivized contract",
 			func(_ common.Address) {
-				_ = suite.MintERC20Token(tests.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
+				_ = suite.MintERC20Token(testutil.GenerateAddress(), suite.address, suite.address, big.NewInt(1000))
 			},
 			false,
 		},

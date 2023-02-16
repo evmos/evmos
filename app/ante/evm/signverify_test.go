@@ -6,21 +6,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
-	addr, privKey := tests.NewAddrKey()
+	addr, privKey := testutil.NewAddrKey()
 
 	signedTx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	signedTx.From = addr.Hex()
-	err := signedTx.Sign(suite.ethSigner, tests.NewSigner(privKey))
+	err := signedTx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	unprotectedTx := evmtypes.NewTxContract(nil, 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	unprotectedTx.From = addr.Hex()
-	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, tests.NewSigner(privKey))
+	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutil.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {

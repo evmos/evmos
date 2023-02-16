@@ -3,13 +3,10 @@ package evm_test
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"math/big"
-	"testing"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
@@ -17,6 +14,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 	"github.com/evmos/evmos/v11/types"
 
@@ -29,15 +27,12 @@ import (
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	sdkante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
@@ -49,122 +44,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/evmos/evmos/v11/app"
-	ante "github.com/evmos/evmos/v11/app/ante"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/tests"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
+	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
-
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
-
-type AnteTestSuite struct {
-	suite.Suite
-
-	ctx                      sdk.Context
-	app                      *app.Evmos
-	clientCtx                client.Context
-	anteHandler              sdk.AnteHandler
-	ethSigner                ethtypes.Signer
-	enableFeemarket          bool
-	enableLondonHF           bool
-	evmParamsOption          func(*evmtypes.Params)
-	useLegacyEIP712Extension bool
-	useLegacyEIP712TypedData bool
-}
-
-const TestGasLimit uint64 = 100000
-
-func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
-}
-
-func (suite *AnteTestSuite) SetupTest() {
-	checkTx := false
-
-	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
-		if suite.enableFeemarket {
-			// setup feemarketGenesis params
-			feemarketGenesis := feemarkettypes.DefaultGenesisState()
-			feemarketGenesis.Params.EnableHeight = 1
-			feemarketGenesis.Params.NoBaseFee = false
-			// Verify feeMarket genesis
-			err := feemarketGenesis.Validate()
-			suite.Require().NoError(err)
-			genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
-		}
-		evmGenesis := evmtypes.DefaultGenesisState()
-		evmGenesis.Params.AllowUnprotectedTxs = false
-		if !suite.enableLondonHF {
-			maxInt := sdkmath.NewInt(math.MaxInt64)
-			evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-			evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-			evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-			evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-			evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-			evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-		}
-		if suite.evmParamsOption != nil {
-			suite.evmParamsOption(&evmGenesis.Params)
-		}
-		genesis[evmtypes.ModuleName] = app.AppCodec().MustMarshalJSON(evmGenesis)
-		return genesis
-	})
-
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: "ethermint_9000-1", Time: time.Now().UTC()})
-	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
-	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
-	suite.app.EvmKeeper.WithChainID(suite.ctx)
-
-	infCtx := suite.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
-	suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
-
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	// We're using TestMsg amino encoding in some tests, so register it here.
-	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
-	eip712.SetEncodingConfig(encodingConfig)
-
-	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
-
-	suite.Require().NotNil(suite.app.AppCodec())
-
-	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
-		Cdc:             suite.app.AppCodec(),
-		AccountKeeper:   suite.app.AccountKeeper,
-		BankKeeper:      suite.app.BankKeeper,
-		EvmKeeper:       suite.app.EvmKeeper,
-		FeegrantKeeper:  suite.app.FeeGrantKeeper,
-		IBCKeeper:       suite.app.IBCKeeper,
-		FeeMarketKeeper: suite.app.FeeMarketKeeper,
-		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  ante.SigVerificationGasConsumer,
-	})
-
-	suite.anteHandler = anteHandler
-	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-}
-
-func TestAnteTestSuite(t *testing.T) {
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF: true,
-	})
-
-	// Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
-	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF:           true,
-		useLegacyEIP712Extension: true,
-		useLegacyEIP712TypedData: true,
-	})
-
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF:           true,
-		useLegacyEIP712Extension: false,
-		useLegacyEIP712TypedData: true,
-	})
-}
 
 func (suite *AnteTestSuite) BuildTestEthTx(
 	from common.Address,
@@ -226,7 +108,7 @@ func (suite *AnteTestSuite) CreateTestTxBuilder(
 		builder.SetExtensionOptions(option)
 	}
 
-	err = msg.Sign(suite.ethSigner, tests.NewSigner(priv))
+	err = msg.Sign(suite.ethSigner, testutil.NewSigner(priv))
 	suite.Require().NoError(err)
 
 	msg.From = ""
@@ -299,7 +181,7 @@ func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgSend(from sdk.AccAddress
 
 func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgDelegate(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	// Build MsgSend
-	valEthAddr := tests.GenerateAddress()
+	valEthAddr := testutil.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgSend := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgSend)
@@ -353,7 +235,7 @@ func (suite *AnteTestSuite) CreateTestEIP712GrantAllowance(from sdk.AccAddress, 
 		SpendLimit: spendLimit,
 		Expiration: &threeHours,
 	}
-	granted := tests.GenerateAddress()
+	granted := testutil.GenerateAddress()
 	grantedAddr := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, granted.Bytes())
 	msgGrant, err := feegrant.NewMsgGrantAllowance(basic, from, grantedAddr.GetAddress())
 	suite.Require().NoError(err)
@@ -579,7 +461,7 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	}
 
 	// Sign typedData
-	keyringSigner := tests.NewSigner(priv)
+	keyringSigner := testutil.NewSigner(priv)
 	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
 	suite.Require().NoError(err)
 	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper

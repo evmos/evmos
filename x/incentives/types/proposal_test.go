@@ -1,13 +1,14 @@
-package types
+package types_test
 
 import (
 	"testing"
-	time "time"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 type ProposalTestSuite struct {
@@ -19,10 +20,10 @@ func TestProposalTestSuite(t *testing.T) {
 }
 
 func (suite *ProposalTestSuite) TestKeysTypes() {
-	suite.Require().Equal("incentives", (&RegisterIncentiveProposal{}).ProposalRoute())
-	suite.Require().Equal("RegisterIncentive", (&RegisterIncentiveProposal{}).ProposalType())
-	suite.Require().Equal("incentives", (&CancelIncentiveProposal{}).ProposalRoute())
-	suite.Require().Equal("CancelIncentive", (&CancelIncentiveProposal{}).ProposalType())
+	suite.Require().Equal("incentives", (&types.RegisterIncentiveProposal{}).ProposalRoute())
+	suite.Require().Equal("RegisterIncentive", (&types.RegisterIncentiveProposal{}).ProposalType())
+	suite.Require().Equal("incentives", (&types.CancelIncentiveProposal{}).ProposalRoute())
+	suite.Require().Equal("CancelIncentive", (&types.CancelIncentiveProposal{}).ProposalType())
 }
 
 func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
@@ -30,15 +31,15 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 		name        string
 		title       string
 		description string
-		incentive   Incentive
+		incentive   types.Incentive
 		expectPass  bool
 	}{
 		{
 			"Register incentive - valid",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -50,8 +51,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - empty allocations",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{},
 				10,
 				time.Now(),
@@ -63,8 +64,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid missing title ",
 			"",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -76,8 +77,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid missing description ",
 			"test",
 			"",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -89,7 +90,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid address (no hex)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -102,7 +103,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid address (invalid length 1)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -115,7 +116,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid address (invalid length 2)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -128,8 +129,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid allocation amount >100% ",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
 				10,
 				time.Now(),
@@ -141,8 +142,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid allocation amount 0%",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
@@ -154,8 +155,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - zero epochs",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
@@ -167,8 +168,8 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 			"Register incentive - invalid allocation amount 0%",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
 				10,
 				time.Now(),
@@ -178,7 +179,7 @@ func (suite *ProposalTestSuite) TestRegisterIncentiveProposal() {
 		},
 	}
 	for _, tc := range testCases {
-		tx := NewRegisterIncentiveProposal(
+		tx := types.NewRegisterIncentiveProposal(
 			tc.title,
 			tc.description,
 			tc.incentive.Contract,
@@ -200,15 +201,15 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 		name        string
 		title       string
 		description string
-		incentive   Incentive
+		incentive   types.Incentive
 		expectPass  bool
 	}{
 		{
 			"Cancel incentive - valid",
 			"test",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				5,
 				time.Now(),
@@ -220,8 +221,8 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"Cancel incentive - invalid missing title ",
 			"",
 			"test desc",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -233,8 +234,8 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"Cancel incentive - invalid missing description ",
 			"test",
 			"",
-			Incentive{
-				tests.GenerateAddress().String(),
+			types.Incentive{
+				testutil.GenerateAddress().String(),
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
@@ -246,7 +247,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"Cancel incentive - invalid address (no hex)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"035dCA2483280D9727c80b5518faC4556617fb19ZZ",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -259,7 +260,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"Cancel incentive - invalid address (invalid length 1)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -272,7 +273,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 			"Cancel incentive - invalid address (invalid length 2)",
 			"test",
 			"test desc",
-			Incentive{
+			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
 				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 				10,
@@ -283,7 +284,7 @@ func (suite *ProposalTestSuite) TestCancelIncentiveProposal() {
 		},
 	}
 	for _, tc := range testCases {
-		tx := NewCancelIncentiveProposal(
+		tx := types.NewCancelIncentiveProposal(
 			tc.title,
 			tc.description,
 			tc.incentive.Contract,

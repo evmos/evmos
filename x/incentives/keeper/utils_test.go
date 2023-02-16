@@ -4,42 +4,34 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"testing"
 	"time"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/contracts"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/server/config"
+	"github.com/evmos/evmos/v11/testutil"
+	evmostypes "github.com/evmos/evmos/v11/types"
+	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
+	evm "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
-
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/tests"
-	evmostypes "github.com/evmos/evmos/v11/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/contracts"
-	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
-	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 var (
@@ -48,8 +40,8 @@ var (
 )
 
 var (
-	participant     = tests.GenerateAddress()
-	participant2    = tests.GenerateAddress()
+	participant     = testutil.GenerateAddress()
+	participant2    = testutil.GenerateAddress()
 	denomMint       = evm.DefaultEVMDenom
 	denomCoin       = "acoin"
 	allocationRate  = int64(5)
@@ -68,36 +60,6 @@ var (
 	erc20Decimals = uint8(18)
 )
 
-type KeeperTestSuite struct {
-	suite.Suite
-
-	ctx              sdk.Context
-	app              *app.Evmos
-	queryClientEvm   evm.QueryClient
-	queryClient      types.QueryClient
-	address          common.Address
-	consAddress      sdk.ConsAddress
-	clientCtx        client.Context
-	ethSigner        ethtypes.Signer
-	signer           keyring.Signer
-	mintFeeCollector bool
-}
-
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
-}
-
-func (suite *KeeperTestSuite) SetupTest() {
-	suite.DoSetupTest(suite.T())
-}
-
 // Test helpers
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	checkTx := false
@@ -106,7 +68,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(priv)
+	suite.signer = testutil.NewSigner(priv)
 
 	// consensus key
 	priv, err = ethsecp256k1.GenerateKey()
@@ -401,4 +363,14 @@ func (suite *KeeperTestSuite) NameOf(contract common.Address) string {
 	suite.Require().NotEmpty(unpacked)
 
 	return fmt.Sprintf("%v", unpacked[0])
+}
+
+// ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the
+// incentives hook is already set
+func (suite *KeeperTestSuite) ensureHooksSet() {
+	defer func() {
+		err := recover()
+		suite.Require().NotNil(err)
+	}()
+	suite.app.EvmKeeper.SetHooks(suite.app.IncentivesKeeper.Hooks())
 }

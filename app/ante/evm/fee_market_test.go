@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -17,8 +17,8 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	suite.enableFeemarket = true
 	suite.SetupTest()
 	dec := evm.NewGasWantedDecorator(suite.app.EvmKeeper, suite.app.FeeMarketKeeper)
-	from, fromPrivKey := tests.NewAddrKey()
-	to := tests.GenerateAddress()
+	from, fromPrivKey := testutil.NewAddrKey()
+	to := testutil.GenerateAddress()
 
 	testCases := []struct {
 		name              string
