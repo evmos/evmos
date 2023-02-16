@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
@@ -55,7 +55,7 @@ func (suite *KeeperTestSuite) TestRevenues() {
 			"2 fee infos registered wo/pagination",
 			func() {
 				req = &types.QueryRevenuesRequest{}
-				contract2 := testutil.GenerateAddress()
+				contract2 := utiltx.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
@@ -239,7 +239,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 				req = &types.QueryDeployerRevenuesRequest{
 					DeployerAddress: deployer.String(),
 				}
-				contract2 := testutil.GenerateAddress()
+				contract2 := utiltx.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)
 				suite.app.RevenueKeeper.SetDeployerMap(suite.ctx, deployer, contract)
@@ -345,8 +345,8 @@ func (suite *KeeperTestSuite) TestWithdrawerRevenues() {
 				req = &types.QueryWithdrawerRevenuesRequest{
 					WithdrawerAddress: withdraw.String(),
 				}
-				contract2 := testutil.GenerateAddress()
-				deployer2 := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+				contract2 := utiltx.GenerateAddress()
+				deployer2 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				suite.app.RevenueKeeper.SetRevenue(suite.ctx, revenue)

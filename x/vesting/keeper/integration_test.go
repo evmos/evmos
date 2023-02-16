@@ -8,15 +8,16 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/testutil"
-	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/vesting/types"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 // TestClawbackAccount is a struct to store all relevant information that is corresponding
@@ -82,7 +83,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	numTestAccounts := 4
 	testAccounts := make([]TestClawbackAccount, numTestAccounts)
 	for i := range testAccounts {
-		address, privKey := testutil.NewAddrKey()
+		address, privKey := utiltx.NewAddrKey()
 		testAccounts[i] = TestClawbackAccount{
 			privKey: privKey,
 			address: address.Bytes(),
@@ -98,8 +99,8 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		vested          sdk.Coins
 	)
 
-	dest := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	funder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	dest := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	BeforeEach(func() {
 		s.SetupTest()
@@ -190,7 +191,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			txAmount := unlockedPerLockupAmt.BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{account}, funder, dest, unlockedPerLockupAmt, stakeDenom, msg)
@@ -199,7 +200,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("cannot perform Ethereum tx with unvested balance", func() {
 			account := testAccounts[0]
 			txAmount := unlockedPerLockupAmt.BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msg)
@@ -246,7 +247,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).To(BeNil())
 
 			txAmount := unlockedPerLockupAmt.BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{account}, funder, dest, unlockedPerLockupAmt, stakeDenom, msg)
@@ -255,7 +256,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		It("cannot perform Ethereum tx with locked balance", func() {
 			account := testAccounts[0]
 			txAmount := vested.AmountOf(stakeDenom).BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msg)
@@ -284,7 +285,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			account := testAccounts[0]
 
 			txAmount := unlockedPerLockupAmt.BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{account}, funder, dest, unlockedPerLockupAmt, stakeDenom, msg)
@@ -298,7 +299,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := unlockedPerLockupAmt.QuoRaw(int64(numTestMsgs)).BigInt()
 
 			for i := 0; i < numTestMsgs; i++ {
-				msgs[i], err = testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, i)
+				msgs[i], err = utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, i)
 				Expect(err).To(BeNil())
 			}
 
@@ -310,7 +311,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			msgs := make([]sdk.Msg, numTestAccounts)
 			for i, grantee := range testAccounts {
-				msgs[i], err = testutil.CreateEthTx(s.ctx, s.app, grantee.privKey, grantee.address, dest, txAmount, 0)
+				msgs[i], err = utiltx.CreateEthTx(s.ctx, s.app, grantee.privKey, grantee.address, dest, txAmount, 0)
 				Expect(err).To(BeNil())
 			}
 
@@ -323,7 +324,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			for _, grantee := range testAccounts {
 				for j := 0; j < numTestMsgs; j++ {
-					addedMsg, err := testutil.CreateEthTx(s.ctx, s.app, grantee.privKey, grantee.address, dest, txAmount, j)
+					addedMsg, err := utiltx.CreateEthTx(s.ctx, s.app, grantee.privKey, grantee.address, dest, txAmount, j)
 					Expect(err).To(BeNil())
 					msgs = append(msgs, addedMsg)
 				}
@@ -336,7 +337,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			testAccount := testAccounts[0]
 			// Attempt to spend entire vesting balance
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msg)
@@ -349,7 +350,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			// Add additional message that exceeds unlocked balance
 			for i := 0; i < numTestMsgs+1; i++ {
-				msgs[i], err = testutil.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, i)
+				msgs[i], err = utiltx.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, i)
 				Expect(err).To(BeNil())
 			}
 
@@ -361,12 +362,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			txAmount := unlockedPerLockupAmt.BigInt()
 
 			for i, account := range testAccounts {
-				msgs[i], err = testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+				msgs[i], err = utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 				Expect(err).To(BeNil())
 			}
 
 			// Add additional message that exceeds unlocked balance
-			msgs[numTestAccounts], err = testutil.CreateEthTx(s.ctx, s.app, testAccounts[0].privKey, testAccounts[0].address, dest, txAmount, 1)
+			msgs[numTestAccounts], err = utiltx.CreateEthTx(s.ctx, s.app, testAccounts[0].privKey, testAccounts[0].address, dest, txAmount, 1)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msgs...)
@@ -379,13 +380,13 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 			for _, account := range testAccounts {
 				for j := 0; j < numTestMsgs; j++ {
-					addedMsg, err = testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, j)
+					addedMsg, err = utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, j)
 					msgs = append(msgs, addedMsg)
 				}
 			}
 
 			// Add additional message that exceeds unlocked balance
-			addedMsg, err = testutil.CreateEthTx(s.ctx, s.app, testAccounts[0].privKey, testAccounts[0].address, dest, txAmount, numTestMsgs)
+			addedMsg, err = utiltx.CreateEthTx(s.ctx, s.app, testAccounts[0].privKey, testAccounts[0].address, dest, txAmount, numTestMsgs)
 			Expect(err).To(BeNil())
 			msgs = append(msgs, addedMsg)
 
@@ -394,23 +395,23 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 
 		It("should not short-circuit with a normal account", func() {
 			account := testAccounts[0]
-			address, privKey := testutil.NewAccAddressAndKey()
+			address, privKey := utiltx.NewAccAddressAndKey()
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).BigInt()
 
 			// Fund a normal account to try to short-circuit the AnteHandler
 			err = testutil.FundAccount(s.ctx, s.app.BankKeeper, address, vestingAmtTotal.MulInt(sdk.NewInt(2)))
 			Expect(err).To(BeNil())
-			normalAccMsg, err := testutil.CreateEthTx(s.ctx, s.app, privKey, address, dest, txAmount, 0)
+			normalAccMsg, err := utiltx.CreateEthTx(s.ctx, s.app, privKey, address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			// Attempt to spend entire balance
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 			err = validateEthVestingTransactionDecorator(normalAccMsg, msg)
 			Expect(err).ToNot(BeNil())
 
-			_, err = testutil.DeliverEthTx(s.ctx, s.app, nil, msg)
+			_, err = testutil.DeliverEthTx(s.app, nil, msg)
 			Expect(err).ToNot(BeNil())
 		})
 	})
@@ -434,7 +435,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			testAccount := testAccounts[0]
 
 			txAmount := unlockedPerLockupAmt.BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{testAccount}, funder, dest, unlockedPerLockupAmt, stakeDenom, msg)
@@ -444,7 +445,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			testAccount := testAccounts[0]
 
 			txAmount := vested.AmountOf(stakeDenom).BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, testAccount.privKey, testAccount.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msg)
@@ -479,7 +480,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+				sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 				vested,
 			)
 			Expect(err).To(BeNil())
@@ -489,7 +490,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(
 				s.ctx,
 				clawbackAccount.GetAddress(),
-				sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+				sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 				vestingAmtTotal,
 			)
 			Expect(err).ToNot(BeNil())
@@ -499,7 +500,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			account := testAccounts[0]
 
 			txAmount := vested.AmountOf(stakeDenom).BigInt()
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount, 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{account}, funder, dest, vested.AmountOf(stakeDenom), stakeDenom, msg)
@@ -527,7 +528,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			account := testAccounts[0]
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom)
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount.BigInt(), 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount.BigInt(), 0)
 			Expect(err).To(BeNil())
 
 			assertEthSucceeds([]TestClawbackAccount{account}, funder, dest, txAmount, stakeDenom, msg)
@@ -537,7 +538,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			account := testAccounts[0]
 
 			txAmount := vestingAmtTotal.AmountOf(stakeDenom).Mul(math.NewInt(2))
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount.BigInt(), 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, txAmount.BigInt(), 0)
 			Expect(err).To(BeNil())
 
 			assertEthFails(msg)
@@ -551,7 +552,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			err := s.app.BankKeeper.SendCoins(s.ctx, account.address, dest, sdk.NewCoins(balance))
 			Expect(err).To(BeNil())
 
-			msg, err := testutil.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, big.NewInt(0), 0)
+			msg, err := utiltx.CreateEthTx(s.ctx, s.app, account.privKey, account.address, dest, big.NewInt(0), 0)
 			Expect(err).To(BeNil())
 			err = validateEthVestingTransactionDecorator(msg)
 			Expect(err).ToNot(BeNil())
@@ -603,9 +604,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		unlocked        sdk.Coins
 		free            sdk.Coins
 	)
-	grantee := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	funder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	dest := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	grantee := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	dest := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	BeforeEach(func() {
 		s.SetupTest()
@@ -806,7 +807,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 	It("should update vesting funder and claw back unvested amount before cliff", func() {
 		ctx := sdk.WrapSDKContext(s.ctx)
-		newFunder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+		newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
@@ -836,7 +837,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 
 	It("should update vesting funder and first funder cannot claw back unvested before cliff", func() {
 		ctx := sdk.WrapSDKContext(s.ctx)
-		newFunder := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+		newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)

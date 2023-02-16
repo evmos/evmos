@@ -13,7 +13,7 @@ import (
 
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -31,7 +31,7 @@ func (suite *BackendTestSuite) TestGetCode() {
 	}{
 		{
 			"fail - BlockHash and BlockNumber are both nil ",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{},
 			func(addr common.Address) {},
 			false,
@@ -39,7 +39,7 @@ func (suite *BackendTestSuite) TestGetCode() {
 		},
 		{
 			"fail - query client errors on getting Code",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(addr common.Address) {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -50,7 +50,7 @@ func (suite *BackendTestSuite) TestGetCode() {
 		},
 		{
 			"pass",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(addr common.Address) {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
@@ -79,7 +79,7 @@ func (suite *BackendTestSuite) TestGetCode() {
 func (suite *BackendTestSuite) TestGetProof() {
 	blockNrInvalid := rpctypes.NewBlockNumber(big.NewInt(1))
 	blockNr := rpctypes.NewBlockNumber(big.NewInt(4))
-	address1 := testutil.GenerateAddress()
+	address1 := utiltx.GenerateAddress()
 
 	testCases := []struct {
 		name          string
@@ -197,7 +197,7 @@ func (suite *BackendTestSuite) TestGetStorageAt() {
 	}{
 		{
 			"fail - BlockHash and BlockNumber are both nil",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			"0x0",
 			rpctypes.BlockNumberOrHash{},
 			func(addr common.Address, key string, storage string) {},
@@ -206,7 +206,7 @@ func (suite *BackendTestSuite) TestGetStorageAt() {
 		},
 		{
 			"fail - query client errors on getting Storage",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			"0x0",
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(addr common.Address, key string, storage string) {
@@ -218,7 +218,7 @@ func (suite *BackendTestSuite) TestGetStorageAt() {
 		},
 		{
 			"pass",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			"0x0",
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(addr common.Address, key string, storage string) {
@@ -258,7 +258,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 	}{
 		{
 			"fail - BlockHash and BlockNumber are both nil",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 			},
@@ -267,7 +267,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 		},
 		{
 			"fail - tendermint client failed to get block",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -278,7 +278,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 		},
 		{
 			"fail - query client failed to get balance",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -292,7 +292,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 		},
 		{
 			"fail - invalid balance",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -306,7 +306,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 		},
 		{
 			"fail - pruned node state",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -320,7 +320,7 @@ func (suite *BackendTestSuite) TestGetBalance() {
 		},
 		{
 			"pass",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			rpctypes.BlockNumberOrHash{BlockNumber: &blockNr},
 			func(bn rpctypes.BlockNumber, addr common.Address) {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
@@ -412,7 +412,7 @@ func (suite *BackendTestSuite) TestGetTransactionCount() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest()
 
-			addr := testutil.GenerateAddress()
+			addr := utiltx.GenerateAddress()
 			if tc.accExists {
 				addr = common.BytesToAddress(suite.acc.Bytes())
 			}

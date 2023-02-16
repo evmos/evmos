@@ -17,7 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -42,7 +42,7 @@ func (suite *KeeperTestSuite) TestCreateAccount() {
 		},
 		{
 			"create account",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			func(vmdb vm.StateDB, addr common.Address) {
 				suite.Require().False(vmdb.Exist(addr))
 			},
@@ -163,7 +163,7 @@ func (suite *KeeperTestSuite) TestGetNonce() {
 	}{
 		{
 			"account not found",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			0,
 			func(vm.StateDB) {},
 		},
@@ -197,7 +197,7 @@ func (suite *KeeperTestSuite) TestSetNonce() {
 	}{
 		{
 			"new account",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			10,
 			func() {},
 		},
@@ -220,7 +220,7 @@ func (suite *KeeperTestSuite) TestSetNonce() {
 }
 
 func (suite *KeeperTestSuite) TestGetCodeHash() {
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
 	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 
@@ -232,7 +232,7 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 	}{
 		{
 			"account not found",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			common.Hash{},
 			func(vm.StateDB) {},
 		},
@@ -264,7 +264,7 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 }
 
 func (suite *KeeperTestSuite) TestSetCode() {
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
 	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 
@@ -276,7 +276,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 	}{
 		{
 			"account not found",
-			testutil.GenerateAddress(),
+			utiltx.GenerateAddress(),
 			[]byte("code"),
 			false,
 		},
@@ -319,7 +319,7 @@ func (suite *KeeperTestSuite) TestSetCode() {
 }
 
 func (suite *KeeperTestSuite) TestKeeperSetCode() {
-	addr := testutil.GenerateAddress()
+	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
 	suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 
@@ -508,7 +508,7 @@ func (suite *KeeperTestSuite) TestExist() {
 		{"success, has suicided", suite.address, func(vmdb vm.StateDB) {
 			vmdb.Suicide(suite.address)
 		}, true},
-		{"success, account doesn't exist", testutil.GenerateAddress(), func(vm.StateDB) {}, false},
+		{"success, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, false},
 	}
 
 	for _, tc := range testCases {
@@ -535,7 +535,7 @@ func (suite *KeeperTestSuite) TestEmpty() {
 			func(vmdb vm.StateDB) { vmdb.AddBalance(suite.address, big.NewInt(100)) },
 			false,
 		},
-		{"empty, account doesn't exist", testutil.GenerateAddress(), func(vm.StateDB) {}, true},
+		{"empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, true},
 	}
 
 	for _, tc := range testCases {
@@ -616,7 +616,7 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 
 	builder.SetExtensionOptions(option)
 
-	err = msg.Sign(suite.ethSigner, testutil.NewSigner(priv))
+	err = msg.Sign(suite.ethSigner, utiltx.NewSigner(priv))
 	suite.Require().NoError(err)
 
 	err = txBuilder.SetMsgs(msg)
@@ -626,7 +626,7 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 }
 
 func (suite *KeeperTestSuite) TestAddLog() {
-	addr, privKey := testutil.NewAddrKey()
+	addr, privKey := utiltx.NewAddrKey()
 	msg := types.NewTx(big.NewInt(1), 0, &suite.address, big.NewInt(1), 100000, big.NewInt(1), nil, nil, []byte("test"), nil)
 	msg.From = addr.Hex()
 
@@ -702,11 +702,11 @@ func (suite *KeeperTestSuite) TestAddLog() {
 }
 
 func (suite *KeeperTestSuite) TestPrepareAccessList() {
-	dest := testutil.GenerateAddress()
-	precompiles := []common.Address{testutil.GenerateAddress(), testutil.GenerateAddress()}
+	dest := utiltx.GenerateAddress()
+	precompiles := []common.Address{utiltx.GenerateAddress(), utiltx.GenerateAddress()}
 	accesses := ethtypes.AccessList{
-		{Address: testutil.GenerateAddress(), StorageKeys: []common.Hash{common.BytesToHash([]byte("key"))}},
-		{Address: testutil.GenerateAddress(), StorageKeys: []common.Hash{common.BytesToHash([]byte("key1"))}},
+		{Address: utiltx.GenerateAddress(), StorageKeys: []common.Hash{common.BytesToHash([]byte("key"))}},
+		{Address: utiltx.GenerateAddress(), StorageKeys: []common.Hash{common.BytesToHash([]byte("key1"))}},
 	}
 
 	vmdb := suite.StateDB()
@@ -753,7 +753,7 @@ func (suite *KeeperTestSuite) AddSlotToAccessList() {
 		addr common.Address
 		slot common.Hash
 	}{
-		{"new address and slot (1)", testutil.GenerateAddress(), common.BytesToHash([]byte("hash"))},
+		{"new address and slot (1)", utiltx.GenerateAddress(), common.BytesToHash([]byte("hash"))},
 		{"new address and slot (2)", suite.address, common.Hash{}},
 		{"existing address and slot", suite.address, common.Hash{}},
 		{"existing address, new slot", suite.address, common.BytesToHash([]byte("hash"))},

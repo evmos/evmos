@@ -25,7 +25,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -190,7 +190,7 @@ func createEIP712CosmosTx(
 	}
 
 	// Sign typedData
-	keyringSigner := testutil.NewSigner(priv)
+	keyringSigner := utiltx.NewSigner(priv)
 	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
 	if err != nil {
 		return nil, err
