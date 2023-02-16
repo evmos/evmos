@@ -92,8 +92,8 @@ evmosd tx vesting update-vesting-funder VESTING_ACCOUNT_ADDRESS NEW_FUNDER_ADDRE
 
 **`convert`**
 
-Allows users to convert their vesting account to a normal `ETHAccount`. To perform this action 
-a user needs to provide one argument:
+Allows users to convert their vesting account to the chain's default account (i.e `EthAccount`).
+To perform this action a user needs to provide one argument:
 
 1.the vesting account address
 
