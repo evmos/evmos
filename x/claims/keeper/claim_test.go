@@ -12,10 +12,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/tests"
-	ethermint "github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 
 	"github.com/evmos/evmos/v11/x/claims/types"
@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 }
 
 func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name     string
@@ -177,7 +177,7 @@ func (suite *KeeperTestSuite) TestGetUserTotalClaimable() {
 }
 
 func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name            string
@@ -426,7 +426,7 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 }
 
 func (suite *KeeperTestSuite) TestMergeClaimRecords() {
-	recipient := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	recipient := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	params := types.Params{
 		EnableClaims:       true,
@@ -605,7 +605,7 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 
 func (suite *KeeperTestSuite) TestHookOfUnclaimableAccount() {
 	suite.SetupTestWithEscrow()
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr1, nil, 0, 0))
 
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
@@ -630,7 +630,7 @@ func (suite *KeeperTestSuite) TestHookBeforeAirdropStart() {
 	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(1000))
 	acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr1)
@@ -667,7 +667,7 @@ func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
 	suite.SetupTestWithEscrow()
 
 	// airdrop recipient address
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	claimsRecord := types.ClaimsRecord{
 		InitialClaimableAmount: sdk.NewInt(1000),
@@ -689,7 +689,7 @@ func (suite *KeeperTestSuite) TestHookAfterAirdropEnd() {
 
 func (suite *KeeperTestSuite) TestDuplicatedActionNotWithdrawRepeatedly() {
 	suite.SetupTestWithEscrow()
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
@@ -760,8 +760,8 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	suite.Require().NoError(err)
 
-	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, ethermint.PowerReduction))
-	delAmount := sdk.TokensFromConsensusPower(1, ethermint.PowerReduction)
+	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction))
+	delAmount := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
 
 	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addrs[1], sdk.NewCoins(sdk.NewCoin(params.GetClaimsDenom(), delAmount)))
 	suite.Require().NoError(err)
@@ -783,8 +783,8 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	suite.SetupTestWithEscrow()
 
 	addrs := []sdk.AccAddress{
-		sdk.AccAddress(tests.GenerateAddress().Bytes()),
-		sdk.AccAddress(tests.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 	}
 
 	claimsRecords := []types.ClaimsRecord{
@@ -812,7 +812,7 @@ func (suite *KeeperTestSuite) TestAirdropFlow() {
 	coins2 := suite.getUserTotalClaimable(suite.ctx, addrs[1])
 	suite.Require().Equal(coins2, claimsRecords[1].InitialClaimableAmount)
 
-	coins3 := suite.getUserTotalClaimable(suite.ctx, sdk.AccAddress(tests.GenerateAddress().Bytes()))
+	coins3 := suite.getUserTotalClaimable(suite.ctx, sdk.AccAddress(utiltx.GenerateAddress().Bytes()))
 	suite.Require().True(coins3.IsZero())
 
 	// get rewards amount per action
@@ -885,7 +885,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 	durationUntilDecay := time.Hour
 	durationOfDecay := time.Hour * 4
 
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 	params.AirdropStartTime = airdropStartTime
@@ -1004,7 +1004,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokens() {
 	suite.Require().Equal(bal.Amount, sdk.ZeroInt())
 
 	// claim some amount from airdrop
-	addr1 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr1 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	initClaim := sdk.NewInt(1000)
 	claimsRecord := types.ClaimsRecord{
 		InitialClaimableAmount: initClaim,
@@ -1077,7 +1077,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccountsAirdrop() {
 		addr, err := sdk.AccAddressFromBech32(tc.address)
 		suite.Require().NoError(err, tc.name)
 
-		acc := &ethermint.EthAccount{
+		acc := &evmostypes.EthAccount{
 			BaseAccount: authtypes.NewBaseAccount(sdk.AccAddress(addr.Bytes()), nil, 0, 0),
 			CodeHash:    common.BytesToHash(crypto.Keccak256(nil)).String(),
 		}

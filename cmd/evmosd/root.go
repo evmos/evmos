@@ -51,13 +51,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	ethermintclient "github.com/evmos/ethermint/client"
-	"github.com/evmos/ethermint/client/debug"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/ethermint/ethereum/eip712"
-	ethermintserver "github.com/evmos/ethermint/server"
-	servercfg "github.com/evmos/ethermint/server/config"
-	srvflags "github.com/evmos/ethermint/server/flags"
+	evmosclient "github.com/evmos/evmos/v11/client"
+	"github.com/evmos/evmos/v11/client/debug"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v11/server"
+	servercfg "github.com/evmos/evmos/v11/server/config"
+	srvflags "github.com/evmos/evmos/v11/server/flags"
 
 	"github.com/evmos/evmos/v11/app"
 	cmdcfg "github.com/evmos/evmos/v11/cmd/config"
@@ -122,7 +122,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 	a := appCreator{encodingConfig}
 	rootCmd.AddCommand(
-		ethermintclient.ValidateChainID(
+		evmosclient.ValidateChainID(
 			InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		),
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
@@ -137,9 +137,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		pruning.PruningCmd(a.newApp),
 	)
 
-	ethermintserver.AddCommands(
+	evmosserver.AddCommands(
 		rootCmd,
-		ethermintserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
+		evmosserver.NewDefaultStartOptions(a.newApp, app.DefaultNodeHome),
 		a.appExport,
 		addModuleInitFlags,
 	)
@@ -149,7 +149,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		ethermintclient.KeyCommands(app.DefaultNodeHome),
+		evmosclient.KeyCommands(app.DefaultNodeHome),
 	)
 	rootCmd, err := srvflags.AddTxFlags(rootCmd)
 	if err != nil {

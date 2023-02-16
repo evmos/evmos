@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/ethermint/tests"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
@@ -29,7 +29,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 		{
 			"contract doesn't exist",
 			func() {
-				contract = tests.GenerateAddress()
+				contract = utiltx.GenerateAddress()
 			},
 			[]sdk.DecCoin{},
 			false,

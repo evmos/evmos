@@ -1,4 +1,4 @@
-package types
+package types_test
 
 import (
 	"strings"
@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/evmos/v11/x/erc20/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -38,7 +39,7 @@ func TestSanitizeERC20Name(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		name := SanitizeERC20Name(tc.erc20Name)
+		name := types.SanitizeERC20Name(tc.erc20Name)
 		require.Equal(t, tc.expErc20Name, name, tc.name)
 		err := sdk.ValidateDenom(name)
 		if tc.expectPass {
@@ -195,7 +196,7 @@ func TestEqualMetadata(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		err := EqualMetadata(tc.metadataA, tc.metadataB)
+		err := types.EqualMetadata(tc.metadataA, tc.metadataB)
 		if tc.expError {
 			require.Error(t, err)
 		} else {
@@ -244,6 +245,6 @@ func TestEqualAliases(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		require.Equal(t, tc.expEqual, EqualStringSlice(tc.aliasesA, tc.aliasesB), tc.name)
+		require.Equal(t, tc.expEqual, types.EqualStringSlice(tc.aliasesA, tc.aliasesB), tc.name)
 	}
 }

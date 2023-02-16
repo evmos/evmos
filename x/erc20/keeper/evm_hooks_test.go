@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/contracts"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
@@ -219,7 +219,7 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 		true,                  // checkNonce
 	)
 
-	account := tests.GenerateAddress()
+	account := utiltx.GenerateAddress()
 
 	transferData := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	transferData[31] = uint8(10)

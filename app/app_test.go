@@ -19,9 +19,8 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v11/types"
-	claimstypes "github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 func TestEvmosExport(t *testing.T) {
@@ -39,7 +38,7 @@ func TestEvmosExport(t *testing.T) {
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(claimstypes.DefaultParams().ClaimsDenom, sdk.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100000000000000))),
 	}
 
 	db := dbm.NewMemDB()
@@ -53,7 +52,7 @@ func TestEvmosExport(t *testing.T) {
 	// Initialize the chain
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:       types.MainnetChainID + "-1",
+			ChainId:       utils.MainnetChainID + "-1",
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},

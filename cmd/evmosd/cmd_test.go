@@ -11,6 +11,7 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	evmosd "github.com/evmos/evmos/v11/cmd/evmosd"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 func TestInitCmd(t *testing.T) {
@@ -19,7 +20,7 @@ func TestInitCmd(t *testing.T) {
 		"init",       // Test the init cmd
 		"evmos-test", // Moniker
 		fmt.Sprintf("--%s=%s", cli.FlagOverwrite, "true"), // Overwrite genesis.json, in case it already exists
-		fmt.Sprintf("--%s=%s", flags.FlagChainID, "evmos_9000-1"),
+		fmt.Sprintf("--%s=%s", flags.FlagChainID, utils.TestnetChainID+"-1"),
 	})
 
 	err := svrcmd.Execute(rootCmd, "evmosd", app.DefaultNodeHome)

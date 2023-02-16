@@ -11,40 +11,32 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v11/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 const (
-	localRepository       = "evmos"
-	localVersionTag       = "latest"
-	defaultChainID        = "evmos_9000-1"
+	// defaultManagerNetwork defines the network used by the upgrade manager
 	defaultManagerNetwork = "evmos-local"
 
 	// blocksAfterUpgrade defines how many blocks must be produced after an upgrade is
 	// considered successful
 	blocksAfterUpgrade = 5
+
 	// relatedBuildPath defines the path where the build data is stored
 	relatedBuildPath = "../../build/"
-	// tharsisRepo is the docker hub repository that contains the Evmos images pulled during tests
-	tharsisRepo = "tharsishq/evmos"
+
 	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
 	upgradeHeightDelta = 10
+
+	// upgradePath defines the relative path from this folder to the upgrade folder
+	upgradePath = "../../app/upgrades"
 )
-
-type upgradeParams struct {
-	MountPath string
-	Versions  []versionConfig
-
-	ChainID     string
-	TargetRepo  string
-	SkipCleanup bool
-	WDRoot      string
-}
 
 type IntegrationTestSuite struct {
 	suite.Suite
 
 	upgradeManager *upgrade.Manager
-	upgradeParams  upgradeParams
+	upgradeParams  upgrade.Params
 }
 
 func TestIntegrationTestSuite(t *testing.T) {
@@ -55,7 +47,8 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	s.T().Log("setting up e2e integration test suite...")
 	var err error
 
-	s.loadUpgradeParams()
+	s.upgradeParams, err = upgrade.LoadUpgradeParams(upgradePath)
+	s.Require().NoError(err, "can't load upgrade params")
 
 	s.upgradeManager, err = upgrade.NewManager(defaultManagerNetwork)
 	s.Require().NoError(err, "upgrade manager creation error")
@@ -67,17 +60,17 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 // runInitialNode builds a docker image capable of running an Evmos node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
-func (s *IntegrationTestSuite) runInitialNode(version string) {
+func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	err := s.upgradeManager.BuildImage(
-		localRepository,
-		version,
+		version.ImageName,
+		version.ImageTag,
 		"./upgrade/Dockerfile.init",
 		".",
-		map[string]string{"INITIAL_VERSION": version},
+		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
 	s.Require().NoError(err, "can't build container with Evmos version: %s", version)
 
-	node := upgrade.NewNode(localRepository, version)
+	node := upgrade.NewNode(version.ImageName, version.ImageTag)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
 
 	err = s.upgradeManager.RunNode(node)
@@ -87,10 +80,10 @@ func (s *IntegrationTestSuite) runInitialNode(version string) {
 	defer cancel()
 
 	// wait until node starts and produce some blocks
-	err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
+	_, err = s.upgradeManager.WaitForHeight(ctx, s.upgradeManager.HeightBeforeStop+5)
 	s.Require().NoError(err)
 
-	s.T().Logf("successfully started node with Evmos version: [%s]", version)
+	s.T().Logf("successfully started node with version: [%s]", version.ImageTag)
 }
 
 // proposeUpgrade submits an upgrade proposal to the chain that schedules an upgrade to
@@ -137,7 +130,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	s.T().Logf(
 		"successfully submitted upgrade proposal: height: %d, name: %s",
 		s.upgradeManager.UpgradeHeight,
-		target,
+		name,
 	)
 }
 
@@ -169,7 +162,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	s.T().Log("wait for node to reach upgrade height...")
 	// wait for proposed upgrade height
-	err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
+	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
 	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
 
@@ -182,12 +175,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	err = s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")
 
-	s.T().Logf(
-		"starting upgraded node: repo: [%s] version: [%s] mount point: [%s]",
-		targetRepo,
-		targetVersion,
-		s.upgradeParams.MountPath,
-	)
+	s.T().Logf("starting upgraded node with version: [%s]", targetVersion)
 
 	node := upgrade.NewNode(targetRepo, targetVersion)
 	node.Mount(s.upgradeParams.MountPath)
@@ -196,11 +184,23 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 
 	s.T().Logf("node started! waiting for node to produce %d blocks", blocksAfterUpgrade)
+
+	s.T().Logf("executing all module queries")
+	s.executeQueries()
+
 	// make sure node produce blocks after upgrade
-	err = s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	// make sure node produces blocks after upgrade
+	errLogs, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
+	if err == nil && errLogs != "" {
+		s.T().Logf(
+			"even though the node is producing blocks, there are error messages contained in the logs:\n%s",
+			errLogs,
+		)
+	}
 	s.Require().NoError(err, "node does not produce blocks after upgrade")
 
-	if targetVersion != localVersionTag {
+	if targetVersion != upgrade.LocalVersionTag {
 		s.T().Log("checking node version...")
 		version, err := s.upgradeManager.GetNodeVersion(ctx)
 		s.Require().NoError(err, "can't get node version")
@@ -211,7 +211,51 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 			"unexpected node version after upgrade:\nexpected: %s\nactual: %s",
 			targetVersion, version,
 		)
+		s.T().Logf("node version is correct: %s", version)
 	}
+}
+
+// executeQueries executes all the module queries
+func (s *IntegrationTestSuite) executeQueries() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainID := utils.TestnetChainID + "-1"
+	testCases := []struct {
+		name       string
+		moduleName string
+		subCommand string
+	}{
+		{"inflation: params", "inflation", "params"},
+		{"inflation: circulating-supply", "inflation", "circulating-supply"},
+		{"inflation: inflation-rate", "inflation", "inflation-rate"},
+		{"inflation: period", "inflation", "period"},
+		{"inflation: skipped-epochs", "inflation", "skipped-epochs"},
+		{"inflation: epoch-mint-provision", "inflation", "epoch-mint-provision"},
+		{"erc20: params", "erc20", "params"},
+		{"erc20: token-pairs", "erc20", "token-pairs"},
+		{"evm: params", "evm", "params"},
+		{"feemarket: params", "feemarket", "params"},
+		{"feemarket: base-fee", "feemarket", "base-fee"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"feemarket: block-gas", "feemarket", "block-gas"},
+		{"revenue: params", "revenue", "params"},
+		{"revenue: contracts", "revenue", "contracts"},
+		{"incentives: params", "incentives", "params"},
+		{"incentives: allocation-meters", "incentives", "allocation-meters"},
+		{"incentives: incentives", "incentives", "incentives"},
+	}
+
+	for _, tc := range testCases {
+		s.T().Logf("executing %s", tc.name)
+		exec, err := s.upgradeManager.CreateModuleQueryExec(tc.moduleName, tc.subCommand, chainID)
+		s.Require().NoError(err)
+
+		_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+		s.Require().NoError(err)
+		s.Require().Empty(errBuf.String())
+	}
+	s.T().Logf("executed all queries successfully")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path

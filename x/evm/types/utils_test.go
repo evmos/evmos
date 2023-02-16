@@ -9,16 +9,17 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/evmos/ethermint/app"
-	"github.com/evmos/ethermint/encoding"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-	proto "github.com/gogo/protobuf/proto"
-
-	"github.com/evmos/ethermint/tests"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	proto "github.com/gogo/protobuf/proto"
+
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestEvmDataEncoding(t *testing.T) {
@@ -89,7 +90,7 @@ func TestBinSearch(t *testing.T) {
 }
 
 func TestTransactionLogsEncodeDecode(t *testing.T) {
-	addr := tests.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	txLogs := evmtypes.TransactionLogs{
 		Hash: common.BytesToHash([]byte("tx_hash")).String(),

@@ -1,18 +1,18 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
-// The Evmos packages is free software: you can redistribute it and/or modify
+// Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// The Evmos packages is distributed in the hope that it will be useful,
+// The Evmos packages are distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Evmos packages. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
 import (
@@ -22,13 +22,10 @@ import (
 	sdkmath "cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	// TODO: remove once Ethermint is migrated to Evmos
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
 func newAccessListTx(tx *ethtypes.Transaction) (*AccessListTx, error) {
@@ -202,27 +199,27 @@ func (tx *AccessListTx) SetSignatureValues(chainID, v, r, s *big.Int) {
 func (tx AccessListTx) Validate() error {
 	gasPrice := tx.GetGasPrice()
 	if gasPrice == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasPrice, "cannot be nil")
+		return errorsmod.Wrap(ErrInvalidGasPrice, "cannot be nil")
 	}
 	if !types.IsValidInt256(gasPrice) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasPrice, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasPrice, "out of bound")
 	}
 
 	if gasPrice.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasPrice, "gas price cannot be negative %s", gasPrice)
+		return errorsmod.Wrapf(ErrInvalidGasPrice, "gas price cannot be negative %s", gasPrice)
 	}
 
 	amount := tx.GetValue()
 	// Amount can be 0
 	if amount != nil && amount.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidAmount, "amount cannot be negative %s", amount)
+		return errorsmod.Wrapf(ErrInvalidAmount, "amount cannot be negative %s", amount)
 	}
 	if !types.IsValidInt256(amount) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidAmount, "out of bound")
+		return errorsmod.Wrap(ErrInvalidAmount, "out of bound")
 	}
 
 	if !types.IsValidInt256(tx.Fee()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasFee, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasFee, "out of bound")
 	}
 
 	if tx.To != "" {
@@ -231,10 +228,19 @@ func (tx AccessListTx) Validate() error {
 		}
 	}
 
-	if tx.GetChainID() == nil {
+	chainID := tx.GetChainID()
+
+	if chainID == nil {
 		return errorsmod.Wrap(
 			errortypes.ErrInvalidChainID,
 			"chain ID must be present on AccessList txs",
+		)
+	}
+
+	if !(chainID.Cmp(big.NewInt(9001)) == 0 || chainID.Cmp(big.NewInt(9000)) == 0) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be 9000 or 9001 on Evmos, got %s", chainID,
 		)
 	}
 

@@ -44,14 +44,53 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
 
+### API Breaking
+
+- [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
+
 ### Improvements
 
+- (test) [#1393](https://github.com/evmos/evmos/pull/1393) Move utilities from `tests` folder to `testutil` package
+- (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files
+- (claims) [#1378](https://github.com/evmos/evmos/pull/1378) Validate authorized channels when updating claims params
+- (test) [#1348](https://github.com/evmos/evmos/pull/1348) Add query executions to e2e upgrade test suite
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Tendermint version to [`v0.34.26`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26)
+- (evm) [#1354](https://github.com/evmos/evmos/pull/1354) Expose `Context` from the `StateDB` instance.
 - (proto)[#1311](https://github.com/evmos/evmos/pull/1311) Also generate common types with `make proto-gen`
-- (deps) [#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
 - (revenue)[#1153](https://github.com/evmos/evmos/pull/1153) Migrate revenue module event emitting to `TypedEvent`
 - (erc20) [#1152](https://github.com/evmos/evmos/pull/1152) Migrate event emitting to `TypedEvent`
 - (claims) [#1126](https://github.com/evmos/evmos/pull/1126) Remove old x/params migration logic
 - (vesting) [#1155](https://github.com/evmos/evmos/pull/1155) Migrate deprecated event emitting to new `TypedEvent`
+- (docs) [#1361](https://github.com/evmos/evmos/pull/1361) Update `vesting` module docs with new behavior for `ClawbackVestingAccounts`
+- (evm) [#1349](https://github.com/evmos/evmos/pull/1349) Restrict the Evmos codebase from working with chain IDs other than `9000` and `9001`
+- (test) [#1352](https://github.com/evmos/evmos/pull/1352) Deprecate usage of `aphoton` as denomination on tests
+- (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
+- (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
+- (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
+
+### Bug Fixes
+
+- (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
+
+## [v11.0.2] - 2023-02-10
+
+### Improvements
+
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Cosmos SDK version to [`v0.46.9-ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.9-ledger)
+- (deps) [#1370](https://github.com/evmos/evmos/pull/1370) Bump Tendermint version to [`v0.34.26`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.26)
+- (deps) [#1374](https://github.com/evmos/evmos/pull/1374) Bump Gin version to [`v1.7.7`](https://github.com/gin-gonic/gin/releases/tag/v1.7.7)
+- (ante) [#1382](https://github.com/evmos/evmos/pull/1382) Add `AnteHandler` decorator for `x/authz` messages
+
+## [v11.0.1] - 2023-02-04
+
+### Improvements
+
+- (deps) [#1248](https://github.com/evmos/evmos/pull/1248) Use the Informal Systems Tendermint Core fork
+
+### Bug Fixes
+
+- (deps) [#1342](https://github.com/evmos/evmos/pull/1342) Bump `tendermint` to [`v0.34.25`](https://github.com/informalsystems/tendermint/releases/tag/v0.34.25)
 
 ## [v11.0.0] - 2023-01-27
 
@@ -67,6 +106,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (incentives) [#1130](https://github.com/evmos/evmos/pull/1130) Deprecate usage of `x/params` in `x/incentives`
 - (claims) [#1125](https://github.com/evmos/evmos/pull/1125) Deprecate usage of `x/params` in `x/claims`
 - (revenue) [#1129](https://github.com/evmos/evmos/pull/1129) Deprecate usage of `x/params` in `x/revenue`
+- (vesting) [#1268](https://github.com/evmos/evmos/pull/1268) Allow usage of vested and unlocked tokens in EVM interactions
 
 ### Features
 

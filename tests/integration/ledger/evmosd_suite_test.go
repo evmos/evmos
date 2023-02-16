@@ -18,19 +18,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/ethermint/crypto/hd"
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/crypto/hd"
 	"github.com/evmos/evmos/v11/tests/integration/ledger/mocks"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/version"
 
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clientkeys "github.com/evmos/ethermint/client/keys"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	clientkeys "github.com/evmos/evmos/v11/client/keys"
 	evmoskeyring "github.com/evmos/evmos/v11/crypto/keyring"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"
@@ -72,7 +73,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 
 	suite.ledger = mocks.NewSECP256K1(s.T())
 
-	ethAddr, s.privKey = tests.NewAddrKey()
+	ethAddr, s.privKey = utiltx.NewAddrKey()
 
 	s.Require().NoError(err)
 	suite.pubKey = s.privKey.PubKey()
@@ -81,7 +82,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 }
 
 func (suite *LedgerTestSuite) SetupEvmosApp() {
-	consAddress := sdk.ConsAddress(tests.GenerateAddress().Bytes())
+	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
@@ -132,7 +133,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithUseLedger(true).
 		WithKeyring(kr).
 		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
-		WithChainID("evmos_9000-13")
+		WithChainID(utils.TestnetChainID + "-13")
 
 	srvCtx := server.NewDefaultContext()
 	ctx := context.Background()
@@ -142,7 +143,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 	return kr, initClientCtx, ctx
 }
 
-func (suite *LedgerTestSuite) ethermintAddKeyCmd() *cobra.Command {
+func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
 	cmd := keys.AddKeyCommand()
 
 	algoFlag := cmd.Flag(flags.FlagKeyAlgorithm)

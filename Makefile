@@ -350,11 +350,15 @@ test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=a
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 test-upgrade:
-	mkdir -p ./build
-	rm -rf build/.evmosd
-	INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
+	@if [ -z "$(TARGET_VERSION)" ]; then \
+		echo "Building docker image from local codebase"; \
+		make build-docker; \
+	fi
+	@mkdir -p ./build
+	@rm -rf build/.evmosd
+	@INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
 	E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
-	go test -v ./tests/e2e
+	go test -v ./tests/e2e -run ^TestIntegrationTestSuite$
 
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
@@ -565,7 +569,7 @@ localnet-show-logstream:
 ###############################################################################
 
 PACKAGE_NAME:=github.com/evmos/evmos
-GOLANG_CROSS_VERSION  = v1.19
+GOLANG_CROSS_VERSION  = v1.20
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
 	docker run \
@@ -577,7 +581,7 @@ release-dry-run:
 		-v ${GOPATH}/pkg:/go/pkg \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--rm-dist --skip-validate --skip-publish --snapshot
+		--clean --skip-validate --skip-publish --snapshot
 
 release:
 	@if [ ! -f ".release-env" ]; then \
@@ -593,7 +597,7 @@ release:
 		-v `pwd`:/go/src/$(PACKAGE_NAME) \
 		-w /go/src/$(PACKAGE_NAME) \
 		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --rm-dist --skip-validate
+		release --clean --skip-validate
 
 .PHONY: release-dry-run release
 

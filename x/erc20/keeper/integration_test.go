@@ -15,7 +15,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/utils"
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/testutil"
@@ -247,8 +248,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				pair = s.setupRegisterCoin(metadataCoin)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
-				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, fundsAmt)))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
 				s.Require().NoError(err)
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(coin))
 				s.Require().NoError(err)
@@ -306,8 +306,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
-				denom := s.app.ClaimsKeeper.GetParams(s.ctx).ClaimsDenom
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(denom, fundsAmt)))
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
 				s.Require().NoError(err)
 
 				_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
@@ -377,9 +376,9 @@ func convertCoin(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey,
 	addrBz := pk.PubKey().Address().Bytes()
 
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
-	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertCoinMsg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertCoinMsg)
 	s.Require().NoError(err)
-	// res := deliverTx(pk, convertCoinMsg)
+
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
@@ -387,7 +386,7 @@ func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey
 	addrBz := pk.PubKey().Address().Bytes()
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
-	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertERC20Msg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
 	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }

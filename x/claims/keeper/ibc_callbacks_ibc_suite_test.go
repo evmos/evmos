@@ -12,11 +12,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 
-	"github.com/evmos/ethermint/tests"
 	"github.com/evmos/evmos/v11/app"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/testutil"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
@@ -50,7 +50,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	// Mint coins to pay tx fees
 	amt, ok := sdk.NewIntFromString("1000000000000000000000")
 	suite.Require().True(ok)
-	coinEvmos := sdk.NewCoin(types.DefaultClaimsDenom, amt)
+	coinEvmos := sdk.NewCoin(utils.BaseDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 
 	err := evmosChainA.BankKeeper.MintCoins(suite.chainA.GetContext(), inflationtypes.ModuleName, coins)
@@ -64,15 +64,15 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	evmParams := evmosChainA.EvmKeeper.GetParams(suite.chainA.GetContext())
-	evmParams.EvmDenom = types.DefaultClaimsDenom
+	evmParams.EvmDenom = utils.BaseDenom
 	err = evmosChainA.EvmKeeper.SetParams(suite.chainA.GetContext(), evmParams)
 	suite.Require().NoError(err)
 	err = evmosChainB.EvmKeeper.SetParams(suite.chainB.GetContext(), evmParams)
 	suite.Require().NoError(err)
 
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(10000))
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	coins = sdk.NewCoins(sdk.NewCoin(evmostypes.BaseDenom, sdk.NewInt(10000)))
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	coins = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000)))
 
 	err = testutil.FundModuleAccount(suite.chainB.GetContext(), suite.chainB.App.(*app.Evmos).BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)

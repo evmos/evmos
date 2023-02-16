@@ -1,18 +1,18 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
-// The Evmos packages is free software: you can redistribute it and/or modify
+// Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// The Evmos packages is distributed in the hope that it will be useful,
+// The Evmos packages are distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Evmos packages. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
 import (
@@ -25,12 +25,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/ethermint/types"
-	// TODO: remove once Ethermint is migrated to evmos
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/evmos/v11/types"
 )
 
-func newDynamicFeeTx(tx *ethtypes.Transaction) (*DynamicFeeTx, error) {
+func NewDynamicFeeTx(tx *ethtypes.Transaction) (*DynamicFeeTx, error) {
 	txData := &DynamicFeeTx{
 		Nonce:    tx.Nonce(),
 		Data:     tx.Data(),
@@ -213,47 +211,47 @@ func (tx *DynamicFeeTx) SetSignatureValues(chainID, v, r, s *big.Int) {
 // Validate performs a stateless validation of the tx fields.
 func (tx DynamicFeeTx) Validate() error {
 	if tx.GasTipCap == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "gas tip cap cannot nil")
+		return errorsmod.Wrap(ErrInvalidGasCap, "gas tip cap cannot nil")
 	}
 
 	if tx.GasFeeCap == nil {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "gas fee cap cannot nil")
+		return errorsmod.Wrap(ErrInvalidGasCap, "gas fee cap cannot nil")
 	}
 
 	if tx.GasTipCap.IsNegative() {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasCap, "gas tip cap cannot be negative %s", tx.GasTipCap)
+		return errorsmod.Wrapf(ErrInvalidGasCap, "gas tip cap cannot be negative %s", tx.GasTipCap)
 	}
 
 	if tx.GasFeeCap.IsNegative() {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidGasCap, "gas fee cap cannot be negative %s", tx.GasFeeCap)
+		return errorsmod.Wrapf(ErrInvalidGasCap, "gas fee cap cannot be negative %s", tx.GasFeeCap)
 	}
 
 	if !types.IsValidInt256(tx.GetGasTipCap()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasCap, "out of bound")
 	}
 
 	if !types.IsValidInt256(tx.GetGasFeeCap()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasCap, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasCap, "out of bound")
 	}
 
 	if tx.GasFeeCap.LT(*tx.GasTipCap) {
 		return errorsmod.Wrapf(
-			evmtypes.ErrInvalidGasCap, "max priority fee per gas higher than max fee per gas (%s > %s)",
+			ErrInvalidGasCap, "max priority fee per gas higher than max fee per gas (%s > %s)",
 			tx.GasTipCap, tx.GasFeeCap,
 		)
 	}
 
 	if !types.IsValidInt256(tx.Fee()) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidGasFee, "out of bound")
+		return errorsmod.Wrap(ErrInvalidGasFee, "out of bound")
 	}
 
 	amount := tx.GetValue()
 	// Amount can be 0
 	if amount != nil && amount.Sign() == -1 {
-		return errorsmod.Wrapf(evmtypes.ErrInvalidAmount, "amount cannot be negative %s", amount)
+		return errorsmod.Wrapf(ErrInvalidAmount, "amount cannot be negative %s", amount)
 	}
 	if !types.IsValidInt256(amount) {
-		return errorsmod.Wrap(evmtypes.ErrInvalidAmount, "out of bound")
+		return errorsmod.Wrap(ErrInvalidAmount, "out of bound")
 	}
 
 	if tx.To != "" {
@@ -262,10 +260,19 @@ func (tx DynamicFeeTx) Validate() error {
 		}
 	}
 
-	if tx.GetChainID() == nil {
+	chainID := tx.GetChainID()
+
+	if chainID == nil {
 		return errorsmod.Wrap(
 			errortypes.ErrInvalidChainID,
 			"chain ID must be present on AccessList txs",
+		)
+	}
+
+	if !(chainID.Cmp(big.NewInt(9001)) == 0 || chainID.Cmp(big.NewInt(9000)) == 0) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidChainID,
+			"chain ID must be 9000 or 9001 on Evmos, got %s", chainID,
 		)
 	}
 

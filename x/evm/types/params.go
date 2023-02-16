@@ -1,69 +1,52 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
-// The Evmos packages is free software: you can redistribute it and/or modify
+// Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// The Evmos packages is distributed in the hope that it will be useful,
+// The Evmos packages are distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Evmos packages. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
 import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/ethermint/types"
+
+	"github.com/evmos/evmos/v11/utils"
 )
 
 var (
-	// DefaultEVMDenom defines the default EVM denomination on Ethermint
-	DefaultEVMDenom = types.AttoPhoton
+	// DefaultEVMDenom defines the default EVM denomination on Evmos
+	DefaultEVMDenom = utils.BaseDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultEnableCreate enables contract creation (i.e true)
 	DefaultEnableCreate = true
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
-	// DefaultExtraEIPs  defines the set of activateable Ethereum Improvement Proposals
-	DefaultExtraEIPs = ExtraEIPs{AvailableExtraEIPs}
 )
 
-// Parameter keys
-var (
-	ParamStoreKeyEVMDenom            = []byte("EVMDenom")
-	ParamStoreKeyEnableCreate        = []byte("EnableCreate")
-	ParamStoreKeyEnableCall          = []byte("EnableCall")
-	ParamStoreKeyExtraEIPs           = []byte("EnableExtraEIPs")
-	ParamStoreKeyChainConfig         = []byte("ChainConfig")
-	ParamStoreKeyAllowUnprotectedTxs = []byte("AllowUnprotectedTxs")
-
-	// AvailableExtraEIPs define the list of all EIPs that can be enabled by the
-	// EVM interpreter. These EIPs are applied in order and can override the
-	// instruction sets from the latest hard fork enabled by the ChainConfig. For
-	// more info check:
-	// https://github.com/ethereum/go-ethereum/blob/master/core/vm/interpreter.go#L97
-	AvailableExtraEIPs = []int64{1344, 1884, 2200, 2929, 3198, 3529}
-)
-
-// ParamKeyTable returns the parameter key table.
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
-}
+// AvailableExtraEIPs define the list of all EIPs that can be enabled by the
+// EVM interpreter. These EIPs are applied in order and can override the
+// instruction sets from the latest hard fork enabled by the ChainConfig. For
+// more info check:
+// https://github.com/ethereum/go-ethereum/blob/master/core/vm/interpreter.go#L97
+var AvailableExtraEIPs = []int64{1344, 1884, 2200, 2929, 3198, 3529}
 
 // NewParams creates a new Params instance
-func NewParams(evmDenom string, allowUnprotectedTxs, enableCreate, enableCall bool, config ChainConfig, extraEIPs ExtraEIPs) Params {
+func NewParams(evmDenom string, allowUnprotectedTxs, enableCreate, enableCall bool, config ChainConfig, extraEIPs []int64) Params {
 	return Params{
 		EvmDenom:            evmDenom,
 		AllowUnprotectedTxs: allowUnprotectedTxs,
@@ -82,20 +65,8 @@ func DefaultParams() Params {
 		EnableCreate:        DefaultEnableCreate,
 		EnableCall:          DefaultEnableCall,
 		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           DefaultExtraEIPs,
+		ExtraEIPs:           nil,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-	}
-}
-
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyEVMDenom, &p.EvmDenom, validateEVMDenom),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableCreate, &p.EnableCreate, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyEnableCall, &p.EnableCall, validateBool),
-		paramtypes.NewParamSetPair(ParamStoreKeyExtraEIPs, &p.ExtraEIPs.EIPs, validateEIPs),
-		paramtypes.NewParamSetPair(ParamStoreKeyChainConfig, &p.ChainConfig, validateChainConfig),
-		paramtypes.NewParamSetPair(ParamStoreKeyAllowUnprotectedTxs, &p.AllowUnprotectedTxs, validateBool),
 	}
 }
 
@@ -105,7 +76,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateEIPs(p.ExtraEIPs.EIPs); err != nil {
+	if err := validateEIPs(p.ExtraEIPs); err != nil {
 		return err
 	}
 
@@ -126,8 +97,8 @@ func (p Params) Validate() error {
 
 // EIPs returns the ExtraEIPS as a int slice
 func (p Params) EIPs() []int {
-	eips := make([]int, len(p.ExtraEIPs.EIPs))
-	for i, eip := range p.ExtraEIPs.EIPs {
+	eips := make([]int, len(p.ExtraEIPs))
+	for i, eip := range p.ExtraEIPs {
 		eips[i] = int(eip)
 	}
 	return eips

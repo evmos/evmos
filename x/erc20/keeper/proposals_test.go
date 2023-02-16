@@ -12,8 +12,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/ethermint/tests"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/evmos/evmos/v11/x/erc20/keeper"
 	"github.com/evmos/evmos/v11/x/erc20/types"
@@ -140,7 +140,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() { //nolint:govet // we can copy 
 		{
 			"denom already registered",
 			func() {
-				regPair := types.NewTokenPair(tests.GenerateAddress(), metadata.Base, true, types.OWNER_MODULE)
+				regPair := types.NewTokenPair(utiltx.GenerateAddress(), metadata.Base, true, types.OWNER_MODULE)
 				suite.app.Erc20Keeper.SetDenomMap(suite.ctx, regPair.Denom, regPair.GetID())
 				suite.Commit()
 			},

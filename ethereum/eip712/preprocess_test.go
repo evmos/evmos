@@ -13,21 +13,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/ethermint/encoding"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
 
-	// TODO refactor when imported to Evmos
-	"github.com/evmos/ethermint/tests"
-	"github.com/evmos/ethermint/types"
+	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/cmd/config"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/ethereum/eip712"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/require"
 )
 
 // Testing Constants
 var (
-	chainID = "evmos_9000-1"
+	chainID = utils.TestnetChainID + "-1"
 	ctx     = client.Context{}.WithTxConfig(
 		encoding.MakeConfig(app.ModuleBasics).TxConfig,
 	)
@@ -96,7 +95,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(evmostypes.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(utils.BaseDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -159,7 +158,7 @@ func createBasicTestCase(t *testing.T) TestCaseStruct {
 	signatureBytes, err := hex.DecodeString(signatureHex)
 	require.NoError(t, err)
 
-	_, privKey := tests.NewAddrKey()
+	_, privKey := utiltx.NewAddrKey()
 	sigsV2 := signing.SignatureV2{
 		PubKey: privKey.PubKey(), // Use unrelated public key for testing
 		Data: &signing.SingleSignatureData{
@@ -190,7 +189,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	gasLimit := uint64(200000)
 	memo := ""
-	denom := evmostypes.BaseDenom
+	denom := utils.BaseDenom
 	feeAmount := math.NewInt(2000)
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
@@ -207,7 +206,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				evmostypes.BaseDenom,
+				utils.BaseDenom,
 				math.NewInt(10000000),
 			),
 		),

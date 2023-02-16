@@ -1,18 +1,18 @@
-// Copyright 2021 Evmos Foundation
-// This file is part of Evmos' Evmos packages.
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
 //
-// The Evmos packages is free software: you can redistribute it and/or modify
+// Evmos is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// The Evmos packages is distributed in the hope that it will be useful,
+// The Evmos packages are distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with the Evmos packages. If not, see https://github.com/evmos/ethermint/blob/main/LICENSE
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
 package types
 
 import (
@@ -26,7 +26,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
