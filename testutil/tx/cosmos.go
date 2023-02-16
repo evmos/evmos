@@ -43,7 +43,7 @@ func PrepareCosmosTx(
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	txBuilder := txCfg.NewTxBuilder()
 
-	var gasLimit int64 = 10_000_000
+	gasLimit := int64(10_000_000)
 	txBuilder.SetGasLimit(uint64(gasLimit))
 
 	var fees sdk.Coins
