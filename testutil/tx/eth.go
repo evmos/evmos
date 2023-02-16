@@ -34,8 +34,8 @@ import (
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
-// NOTE: this should probably go in another file/pkg
-// could not include it on tx pkg because it uses functions on signer.go
+// PrepareEthTx creates an ethereum tx and signs it with the provided messages and private key.
+// It returns the signed transaction and an error
 func PrepareEthTx(
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
