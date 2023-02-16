@@ -10,6 +10,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/evmos/evmos/v11/testutil"
+	signerutil "github.com/evmos/evmos/v11/testutil/tx"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -485,7 +486,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		{
 			"fail - not a account found",
 			func() authtypes.AccountI {
-				from, priv := testutil.NewAccAddressAndKey()
+				from, priv := signerutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				return baseAcc
 			},
@@ -494,7 +495,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		{
 			"fail - not a vesting account",
 			func() authtypes.AccountI {
-				from, priv := testutil.NewAccAddressAndKey()
+				from, priv := signerutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 				return baseAcc
@@ -504,7 +505,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		{
 			"fail - still vesting",
 			func() authtypes.AccountI {
-				from, priv := testutil.NewAccAddressAndKey()
+				from, priv := signerutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
@@ -515,7 +516,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		{
 			"success - convert to base account",
 			func() authtypes.AccountI {
-				from, priv := testutil.NewAccAddressAndKey()
+				from, priv := signerutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingPeriods := sdkvesting.Periods{{Length: 1, Amount: quarter}}
 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, time.Unix(1676540761, 1).UTC(), nil, vestingPeriods)
