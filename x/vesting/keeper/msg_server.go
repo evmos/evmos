@@ -18,9 +18,10 @@ package keeper
 
 import (
 	"context"
-	evmostypes "github.com/evmos/evmos/v11/types"
 	"strconv"
 	"time"
+
+	evmostypes "github.com/evmos/evmos/v11/types"
 
 	"github.com/armon/go-metrics"
 
