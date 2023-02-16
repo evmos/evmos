@@ -210,7 +210,7 @@ func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	ethTxParams := evm.EvmTxParams{
+	ethTxParams := evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        &from,
@@ -246,7 +246,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 	})
 	s.Require().NoError(err)
 
-	ethTxParams := evm.EvmTxParams{
+	ethTxParams := evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,

@@ -241,7 +241,7 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        to,

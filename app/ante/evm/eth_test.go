@@ -23,7 +23,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 
 	addr := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -118,7 +118,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 
 	addr := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -183,7 +183,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 
 	txGasLimit := uint64(1000)
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -202,7 +202,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	gasPrice := new(big.Int).Add(baseFee, evmtypes.DefaultPriorityReduction.BigInt())
 
 	tx2GasLimit := uint64(1000000)
-	eth2TxContractParams := &evmtypes.EvmTxParams{
+	eth2TxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -215,7 +215,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	tx2Priority := int64(1)
 
 	tx3GasLimit := types.BlockGasLimit(suite.ctx) + uint64(1)
-	eth3TxContractParams := &evmtypes.EvmTxParams{
+	eth3TxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -225,7 +225,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	}
 	tx3 := evmtypes.NewTxContract(eth3TxContractParams)
 
-	dynamicTxContractParams := &evmtypes.EvmTxParams{
+	dynamicTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -252,7 +252,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		{"invalid transaction type", &invalidTx{}, math.MaxUint64, func() {}, false, false, 0},
 		{
 			"sender not found",
-			evmtypes.NewTxContract(&evmtypes.EvmTxParams{
+			evmtypes.NewTxContract(&evmtypes.EvmTxArgs{
 				ChainID:  suite.app.EvmKeeper.ChainID(),
 				Nonce:    1,
 				Amount:   big.NewInt(10),
@@ -375,7 +375,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 	addr, privKey := testutil.NewAddrKey()
 
 	suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -447,7 +447,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 	addr, privKey := testutil.NewAddrKey()
 
-	ethTxContractParamsNonce0 := &evmtypes.EvmTxParams{
+	ethTxContractParamsNonce0 := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    0,
 		Amount:   big.NewInt(10),
@@ -460,7 +460,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	suite.Require().NoError(err)
 
 	to := testutil.GenerateAddress()
-	ethTxParamsNonce0 := &evmtypes.EvmTxParams{
+	ethTxParamsNonce0 := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    0,
 		To:       &to,
@@ -473,7 +473,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	err = tx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	ethTxParamsNonce1 := &evmtypes.EvmTxParams{
+	ethTxParamsNonce1 := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		To:       &to,

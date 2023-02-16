@@ -627,7 +627,7 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 
 func (suite *KeeperTestSuite) TestAddLog() {
 	addr, privKey := testutil.NewAddrKey()
-	ethTxParams := &types.EvmTxParams{
+	ethTxParams := &types.EvmTxArgs{
 		ChainID:  big.NewInt(1),
 		Nonce:    0,
 		To:       &suite.address,
@@ -643,7 +643,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg, _ = tx.GetMsgs()[0].(*types.MsgEthereumTx)
 	txHash := msg.AsTransaction().Hash()
 
-	ethTx2Params := &types.EvmTxParams{
+	ethTx2Params := &types.EvmTxArgs{
 		ChainID:  big.NewInt(1),
 		Nonce:    2,
 		To:       &suite.address,
@@ -655,7 +655,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg2 := types.NewTx(ethTx2Params)
 	msg2.From = addr.Hex()
 
-	ethTx3Params := &types.EvmTxParams{
+	ethTx3Params := &types.EvmTxArgs{
 		ChainID:   big.NewInt(1),
 		Nonce:     0,
 		To:        &suite.address,
@@ -672,7 +672,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg3, _ = tx3.GetMsgs()[0].(*types.MsgEthereumTx)
 	txHash3 := msg3.AsTransaction().Hash()
 
-	ethTx4Params := &types.EvmTxParams{
+	ethTx4Params := &types.EvmTxArgs{
 		ChainID:   big.NewInt(1),
 		Nonce:     1,
 		To:        &suite.address,

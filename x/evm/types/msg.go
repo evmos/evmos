@@ -56,7 +56,7 @@ const (
 
 // NewTx returns a reference to a new Ethereum transaction message.
 func NewTx(
-	tx *EvmTxParams,
+	tx *EvmTxArgs,
 ) *MsgEthereumTx {
 	return newMsgEthereumTx(tx)
 }
@@ -64,13 +64,13 @@ func NewTx(
 // NewTxContract returns a reference to a new Ethereum transaction
 // message designated for contract creation.
 func NewTxContract(
-	tx *EvmTxParams,
+	tx *EvmTxArgs,
 ) *MsgEthereumTx {
 	return newMsgEthereumTx(tx)
 }
 
 func newMsgEthereumTx(
-	tx *EvmTxParams,
+	tx *EvmTxArgs,
 ) *MsgEthereumTx {
 	var (
 		cid, amt, gp *sdkmath.Int

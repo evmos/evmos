@@ -230,7 +230,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 				gasPrice = tc.gasPrice.BigInt()
 			}
 
-			ethTxParams := &evmtypes.EvmTxParams{
+			ethTxParams := &evmtypes.EvmTxArgs{
 				ChainID:   zeroInt.BigInt(),
 				Nonce:     1,
 				To:        &to,
@@ -479,7 +479,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			err := vmdb.Commit()
 			suite.Require().NoError(err, "Unexpected error while committing to vmdb: %d", err)
 
-			ethTxParams := &evmtypes.EvmTxParams{
+			ethTxParams := &evmtypes.EvmTxArgs{
 				ChainID:   zeroInt.BigInt(),
 				Nonce:     1,
 				To:        &suite.address,

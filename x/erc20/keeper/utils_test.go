@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	// Mint the max gas to the FeeCollector to ensure balance in case of refund
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmParams.EvmDenom, sdk.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas)))))
-	ercTransferTxParams := &evm.EvmTxParams{
+	ercTransferTxParams := &evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        &contractAddr,
@@ -364,7 +364,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	ethTxParams := &evm.EvmTxParams{
+	ethTxParams := &evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,
@@ -412,7 +412,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	ethTxParams := &evm.EvmTxParams{
+	ethTxParams := &evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,
@@ -454,7 +454,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	ethTxParams := &evm.EvmTxParams{
+	ethTxParams := &evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,
@@ -488,7 +488,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 
 	nonce := s.app.EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
-	ethTxParams := &evm.EvmTxParams{
+	ethTxParams := &evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  uint64(100000000000),

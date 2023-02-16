@@ -201,7 +201,7 @@ func (suite *KeeperTestSuite) DeployContract(
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,

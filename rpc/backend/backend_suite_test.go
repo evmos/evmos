@@ -95,7 +95,7 @@ func (suite *BackendTestSuite) SetupTest() {
 
 // buildEthereumTx returns an example legacy Ethereum transaction
 func (suite *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byte) {
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:  suite.backend.chainID,
 		Nonce:    uint64(0),
 		To:       &common.Address{},

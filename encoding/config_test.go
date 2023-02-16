@@ -18,7 +18,7 @@ func TestTxEncoding(t *testing.T) {
 	addr, key := testutil.NewAddrKey()
 	signer := testutil.NewSigner(key)
 
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   big.NewInt(1),
 		Nonce:     1,
 		Amount:    big.NewInt(10),

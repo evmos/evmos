@@ -226,7 +226,7 @@ func buildEthTx(
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		To:        to,
 		Nonce:     nonce,

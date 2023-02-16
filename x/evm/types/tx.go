@@ -25,9 +25,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-// EvmTxParams encapsulates all possible params to create all EVM txs types.
+// EvmTxArgs encapsulates all possible params to create all EVM txs types.
 // This includes LegacyTx, DynamicFeeTx and AccessListTx
-type EvmTxParams struct {
+type EvmTxArgs struct {
 	Nonce     uint64
 	GasLimit  uint64
 	Input     []byte

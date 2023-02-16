@@ -70,7 +70,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:   chainID,
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
@@ -81,7 +81,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 		}
 		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
 	} else {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:  chainID,
 			Nonce:    nonce,
 			GasLimit: res.Gas,
@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:   chainID,
 			Nonce:     nonce,
 			To:        &contractAddr,
@@ -130,7 +130,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 		}
 		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:  chainID,
 			Nonce:    nonce,
 			To:       &contractAddr,
@@ -172,7 +172,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:   chainID,
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 		}
 		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
 	} else {
-		ethTxParams := &evmtypes.EvmTxParams{
+		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:  chainID,
 			Nonce:    nonce,
 			GasLimit: res.Gas,

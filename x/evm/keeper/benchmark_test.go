@@ -82,7 +82,7 @@ func BenchmarkTokenTransfer(b *testing.B) {
 		input, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-		ethTxParams := &types.EvmTxParams{
+		ethTxParams := &types.EvmTxArgs{
 			ChainID:  suite.app.EvmKeeper.ChainID(),
 			Nonce:    nonce,
 			To:       &contract,
@@ -100,7 +100,7 @@ func BenchmarkEmitLogs(b *testing.B) {
 		input, err := types.ERC20Contract.ABI.Pack("benchmarkLogs", big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-		ethTxParams := &types.EvmTxParams{
+		ethTxParams := &types.EvmTxArgs{
 			ChainID:  suite.app.EvmKeeper.ChainID(),
 			Nonce:    nonce,
 			To:       &contract,
@@ -118,7 +118,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 		input, err := types.ERC20Contract.ABI.Pack("transferFrom", suite.address, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(0))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-		ethTxParams := &types.EvmTxParams{
+		ethTxParams := &types.EvmTxArgs{
 			ChainID:  suite.app.EvmKeeper.ChainID(),
 			Nonce:    nonce,
 			To:       &contract,
@@ -136,7 +136,7 @@ func BenchmarkTokenMint(b *testing.B) {
 		input, err := types.ERC20Contract.ABI.Pack("mint", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
 		require.NoError(b, err)
 		nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-		ethTxParams := &types.EvmTxParams{
+		ethTxParams := &types.EvmTxArgs{
 			ChainID:  suite.app.EvmKeeper.ChainID(),
 			Nonce:    nonce,
 			To:       &contract,
@@ -155,7 +155,7 @@ func BenchmarkMessageCall(b *testing.B) {
 	input, err := types.TestMessageCall.ABI.Pack("benchmarkMessageCall", big.NewInt(10000))
 	require.NoError(b, err)
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-	ethTxParams := &types.EvmTxParams{
+	ethTxParams := &types.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    nonce,
 		To:       &contract,

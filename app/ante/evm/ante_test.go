@@ -40,7 +40,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
 	}
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -49,7 +49,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		GasFeeCap: big.NewInt(200),
 	}
 
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		To:        &to,
 		Nonce:     1,
@@ -181,7 +181,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, acc.GetAddress())
 				suite.Require().NoError(err)
-				ethTxParams := &evmtypes.EvmTxParams{
+				ethTxParams := &evmtypes.EvmTxArgs{
 					ChainID:  suite.app.EvmKeeper.ChainID(),
 					To:       &to,
 					Nonce:    nonce,
@@ -201,7 +201,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, acc.GetAddress())
 				suite.Require().NoError(err)
-				ethTxParams := &evmtypes.EvmTxParams{
+				ethTxParams := &evmtypes.EvmTxArgs{
 					ChainID:  suite.app.EvmKeeper.ChainID(),
 					To:       &to,
 					Nonce:    nonce,
@@ -222,7 +222,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, acc.GetAddress())
 				suite.Require().NoError(err)
-				ethTxParams := &evmtypes.EvmTxParams{
+				ethTxParams := &evmtypes.EvmTxArgs{
 					ChainID:  suite.app.EvmKeeper.ChainID(),
 					To:       &to,
 					Nonce:    nonce,
@@ -243,7 +243,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, acc.GetAddress())
 				suite.Require().NoError(err)
-				ethTxParams := &evmtypes.EvmTxParams{
+				ethTxParams := &evmtypes.EvmTxArgs{
 					ChainID:  suite.app.EvmKeeper.ChainID(),
 					To:       &to,
 					Nonce:    nonce,
@@ -271,7 +271,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			func() sdk.Tx {
 				nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, acc.GetAddress())
 				suite.Require().NoError(err)
-				ethTxParams := &evmtypes.EvmTxParams{
+				ethTxParams := &evmtypes.EvmTxArgs{
 					ChainID:  suite.app.EvmKeeper.ChainID(),
 					To:       &to,
 					Nonce:    nonce,
@@ -863,7 +863,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := testutil.NewAddrKey()
 	to := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -873,7 +873,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 		Accesses:  &types.AccessList{},
 	}
 
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -1047,7 +1047,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := testutil.NewAddrKey()
 	to := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -1057,7 +1057,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 		Accesses:  &types.AccessList{},
 	}
 
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),

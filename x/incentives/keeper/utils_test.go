@@ -210,7 +210,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	ethTxParams := evm.EvmTxParams{
+	ethTxParams := evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  res.Gas,
@@ -309,7 +309,7 @@ func (suite *KeeperTestSuite) sendTx(
 	// Mint the max gas to the FeeCollector to ensure balance in case of refund
 	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas)))))
 
-	ethTxParams := evm.EvmTxParams{
+	ethTxParams := evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        &contractAddr,

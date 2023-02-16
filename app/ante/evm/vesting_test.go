@@ -32,7 +32,7 @@ var (
 func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 	addr := testutil.GenerateAddress()
 
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		To:       &addr,

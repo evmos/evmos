@@ -904,7 +904,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				chainID := suite.app.EvmKeeper.ChainID()
 				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 				data := types.ERC20Contract.Bin
-				ethTxParams := &types.EvmTxParams{
+				ethTxParams := &types.EvmTxArgs{
 					ChainID:  chainID,
 					Nonce:    nonce,
 					GasLimit: ethparams.TxGasContractCreation,

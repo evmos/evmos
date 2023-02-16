@@ -61,7 +61,7 @@ func (suite *AnteTestSuite) BuildTestEthTx(
 		common.BytesToAddress(from.Bytes()),
 	)
 
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        &to,

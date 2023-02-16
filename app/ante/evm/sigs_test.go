@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestSignatures() {
 
 	err := suite.app.EvmKeeper.SetAccount(suite.ctx, addr, *acc)
 	suite.Require().NoError(err)
-	ethTxParams := &evmtypes.EvmTxParams{
+	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		To:       &to,

@@ -61,7 +61,7 @@ func TestUnwrapEthererumMsg(t *testing.T) {
 	_, err = evmtypes.UnwrapEthereumMsg(&tx, common.Hash{})
 	require.NotNil(t, err)
 
-	evmTxParams := &evmtypes.EvmTxParams{
+	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  big.NewInt(1),
 		Nonce:    0,
 		To:       &common.Address{},

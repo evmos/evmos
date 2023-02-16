@@ -13,7 +13,7 @@ import (
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutil.NewAddrKey()
 
-	ethTxContractParams := &evmtypes.EvmTxParams{
+	ethTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -25,7 +25,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	err := signedTx.Sign(suite.ethSigner, testutil.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	uprotectedEthTxParams := &evmtypes.EvmTxParams{
+	uprotectedEthTxParams := &evmtypes.EvmTxArgs{
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
@@ -47,7 +47,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 		{"invalid transaction type", &invalidTx{}, false, false, false},
 		{
 			"invalid sender",
-			evmtypes.NewTx(&evmtypes.EvmTxParams{
+			evmtypes.NewTx(&evmtypes.EvmTxArgs{
 				To:       &addr,
 				Nonce:    1,
 				Amount:   big.NewInt(10),

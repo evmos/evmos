@@ -30,7 +30,7 @@ func TestKVIndexer(t *testing.T) {
 	ethSigner := ethtypes.LatestSignerForChainID(nil)
 
 	to := common.BigToAddress(big.NewInt(1))
-	ethTxParams := types.EvmTxParams{
+	ethTxParams := types.EvmTxArgs{
 		Nonce:    0,
 		To:       &to,
 		Amount:   big.NewInt(1000),

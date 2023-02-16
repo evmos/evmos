@@ -193,7 +193,7 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:  chainID,
 		Nonce:    nonce,
 		To:       factoryAddress,
@@ -231,7 +231,7 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 
 	data := common.Hex2Bytes(contractCode)
 	gasLimit := uint64(100000)
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gasLimit,
@@ -284,7 +284,7 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	ethTxParams := evmtypes.EvmTxParams{
+	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        to,
