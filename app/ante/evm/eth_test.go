@@ -23,7 +23,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 
 	addr := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxArgs{
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -31,7 +31,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethTxContractParams)
+	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	var vmdb *statedb.StateDB
@@ -118,7 +118,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 
 	addr := testutil.GenerateAddress()
 
-	ethTxContractParams := &evmtypes.EvmTxArgs{
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -126,7 +126,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethTxContractParams)
+	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	testCases := []struct {
@@ -183,7 +183,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 
 	txGasLimit := uint64(1000)
 
-	ethTxContractParams := &evmtypes.EvmTxArgs{
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
@@ -191,7 +191,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethTxContractParams)
+	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	ethCfg := suite.app.EvmKeeper.GetParams(suite.ctx).
@@ -375,7 +375,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 	addr, privKey := testutil.NewAddrKey()
 
 	suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
-	ethTxContractParams := &evmtypes.EvmTxArgs{
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
 		Nonce:     1,
 		Amount:    big.NewInt(10),
@@ -386,8 +386,8 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 		Accesses:  &ethtypes.AccessList{},
 	}
 
-	tx := evmtypes.NewTxContract(ethTxContractParams)
-	tx2 := evmtypes.NewTxContract(ethTxContractParams)
+	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx2 := evmtypes.NewTxContract(ethContractCreationTxParams)
 
 	tx.From = addr.Hex()
 

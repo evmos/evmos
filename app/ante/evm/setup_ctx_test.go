@@ -12,14 +12,14 @@ import (
 
 func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 	dec := evmante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
-	ethTxContractParams := &evmtypes.EvmTxArgs{
+	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	tx := evmtypes.NewTxContract(ethTxContractParams)
+	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
 
 	testCases := []struct {
 		name    string
