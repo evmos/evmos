@@ -482,10 +482,20 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		expPass  bool
 	}{
 		{
+			"fail - not a account found",
+			func() authtypes.AccountI {
+				from, priv := testutil.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				return baseAcc
+			},
+			false,
+		},
+		{
 			"fail - not a vesting account",
 			func() authtypes.AccountI {
 				from, priv := testutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
 				return baseAcc
 			},
 			false,
@@ -496,6 +506,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 				from, priv := testutil.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
 				return vestingAcc
 			},
 			false,
@@ -507,6 +518,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingPeriods := sdkvesting.Periods{{Length: 1, Amount: quarter}}
 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, time.Unix(1676540761, 1).UTC(), nil, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
 				return vestingAcc
 			},
 			true,
@@ -519,11 +531,10 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 
 		acc := tc.malleate()
 
-		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-
 		msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
 		res, err := suite.app.VestingKeeper.ConvertVestingAccount(ctx, msg)
 
+		fmt.Println(tc.name, err)
 		if tc.expPass {
 			suite.Require().NoError(err)
 			suite.Require().NotNil(res)
