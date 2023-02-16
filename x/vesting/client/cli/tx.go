@@ -235,7 +235,7 @@ func NewMsgConvertVestingAccount() *cobra.Command {
 		Use:   "convert VESTING_ACCOUNT_ADDRESS",
 		Short: "Convert a vesting account to the chain's default account type.",
 		Long: "Convert a vesting account to the chain's default account type. " +
-			"The vesting account must be of type ClawbackVestingAccount and have all of it's coins vested in order to convert" +
+			"The vesting account must be of type ClawbackVestingAccount and have all of its coins vested in order to convert" +
 			"it back to the chain default account type.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
