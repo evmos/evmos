@@ -207,7 +207,7 @@ func (msg MsgUpdateVestingFunder) GetSigners() []sdk.AccAddress {
 }
 
 // NewMsgConvertVestingAccount creates new instance of MsgConvertVestingAccount
-func NewMsgConvertVestingAccount(vestingAcc, addr sdk.AccAddress) *MsgConvertVestingAccount {
+func NewMsgConvertVestingAccount(vestingAcc sdk.AccAddress) *MsgConvertVestingAccount {
 	return &MsgConvertVestingAccount{
 		VestingAddress: vestingAcc.String(),
 	}
