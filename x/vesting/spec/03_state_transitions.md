@@ -50,7 +50,7 @@ The funding address of an existing clawback vesting account can be updated only 
 
 ## Convert Vesting Account
 
-Once all tokens are vested, the vesting account can be converted to an `ETHAccount`
+Once all tokens are vested, the vesting account can be converted to an `EthAccount`
 
 1. Owner of vesting account submits a `MsgConvertVestingAccount` through one of the clients.
 2. Check if
