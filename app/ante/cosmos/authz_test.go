@@ -52,7 +52,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -60,7 +60,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&evmtypes.MsgEthereumTx{},
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -68,7 +68,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&stakingtypes.MsgCancelUnbondingDelegation{},
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -81,7 +81,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -94,7 +94,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -107,7 +107,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -120,7 +120,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -134,7 +134,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 					)}),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -147,7 +147,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -171,7 +171,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -185,7 +185,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -203,7 +203,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -221,7 +221,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -250,7 +250,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 	}
@@ -418,13 +418,12 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
-			// TODO uncomment this on v12 release. ATM the anteHandler works on CheckTx mode
-			// resDeliverTx := suite.app.DeliverTx(
-			// 	abci.RequestDeliverTx{
-			// 		Tx: bz,
-			// 	},
-			// )
-			// suite.Require().Equal(resDeliverTx.Code, tc.expectedCode, resDeliverTx.Log)
+			resDeliverTx := suite.app.DeliverTx(
+				abci.RequestDeliverTx{
+					Tx: bz,
+				},
+			)
+			suite.Require().Equal(resDeliverTx.Code, tc.expectedCode, resDeliverTx.Log)
 		})
 	}
 }
