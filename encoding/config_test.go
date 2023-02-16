@@ -10,13 +10,13 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func TestTxEncoding(t *testing.T) {
-	addr, key := testutil.NewAddrKey()
-	signer := testutil.NewSigner(key)
+	addr, key := utiltx.NewAddrKey()
+	signer := utiltx.NewSigner(key)
 
 	msg := evmtypes.NewTxContract(big.NewInt(1), 1, big.NewInt(10), 100000, nil, big.NewInt(1), big.NewInt(1), []byte{}, nil)
 	msg.From = addr.Hex()

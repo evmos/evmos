@@ -10,7 +10,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 )
 
 func BenchmarkCreateAccountNew(b *testing.B) {
@@ -23,7 +23,7 @@ func BenchmarkCreateAccountNew(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
-		addr := testutil.GenerateAddress()
+		addr := utiltx.GenerateAddress()
 		b.StartTimer()
 		vmdb.CreateAccount(addr)
 	}
@@ -184,7 +184,7 @@ func BenchmarkSuicide(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
-		addr := testutil.GenerateAddress()
+		addr := utiltx.GenerateAddress()
 		vmdb.CreateAccount(addr)
 		b.StartTimer()
 

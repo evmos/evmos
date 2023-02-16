@@ -8,7 +8,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
@@ -23,8 +23,8 @@ func TestMsgsTestSuite(t *testing.T) {
 func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 	msgInvalid := types.MsgCreateClawbackVestingAccount{}
 	msg := types.NewMsgCreateClawbackVestingAccount(
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 		time.Unix(100200300, 0),
 		sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 		sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -49,8 +49,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 	}{
 		{
 			"msg create clawback vesting account - pass",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -92,7 +92,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		{
 			"msg create clawback vesting account - invalid from address",
 			"foo",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -101,7 +101,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - invalid to address",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			"foo",
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -111,8 +111,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - invalid lockup period length",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -121,8 +121,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - invalid lockup period amount",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -131,8 +131,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - invalid vesting period length",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 0, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -141,8 +141,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - invalid vesting period amount",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 0)}}},
@@ -151,8 +151,8 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 		},
 		{
 			"msg create clawback vesting account - pass",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			time.Unix(100200300, 0),
 			sdkvesting.Periods{{Length: 200000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
 			sdkvesting.Periods{{Length: 300000, Amount: sdk.Coins{sdk.NewInt64Coin("atom", 10000000)}}},
@@ -183,9 +183,9 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccount() {
 func (suite *MsgsTestSuite) TestMsgClawbackGetters() {
 	msgInvalid := types.MsgClawback{}
 	msg := types.NewMsgClawback(
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 	)
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgClawback, msg.Type())
@@ -203,9 +203,9 @@ func (suite *MsgsTestSuite) TestMsgClawbackNew() {
 	}{
 		{
 			"msg clawback - pass",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			true,
 		},
 	}
@@ -237,36 +237,36 @@ func (suite *MsgsTestSuite) TestMsgClawback() {
 		{
 			"msg create clawback vesting account - invalid fund address",
 			"foo",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			false,
 		},
 		{
 			"msg create clawback vesting account - invalid addr address",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			"foo",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			false,
 		},
 		{
 			"msg create clawback vesting account - invalid dest address",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			"foo",
 			false,
 		},
 		{
 			"msg create clawback vesting account - pass empty dest address",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			"",
 			true,
 		},
 		{
 			"msg create clawback vesting account - pass",
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
 			true,
 		},
 	}
@@ -290,9 +290,9 @@ func (suite *MsgsTestSuite) TestMsgClawback() {
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
 	msgInvalid := types.MsgUpdateVestingFunder{}
 	msg := types.NewMsgUpdateVestingFunder(
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
-		sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 	)
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgUpdateVestingFunder, msg.Type())
@@ -302,9 +302,9 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunderGetters() {
 
 func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 	var (
-		funder     = sdk.AccAddress(testutil.GenerateAddress().Bytes())
-		newFunder  = sdk.AccAddress(testutil.GenerateAddress().Bytes())
-		vestingAcc = sdk.AccAddress(testutil.GenerateAddress().Bytes())
+		funder     = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+		newFunder  = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+		vestingAcc = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	)
 
 	testCases := []struct {
@@ -361,7 +361,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 			name: "msg update vesting funder - new funder address is equal to current funder address",
 			msg: &types.MsgUpdateVestingFunder{
 				funder.String(),
-				testutil.GenerateAddress().String(),
+				utiltx.GenerateAddress().String(),
 				funder.String(),
 			},
 			expectPass: false,

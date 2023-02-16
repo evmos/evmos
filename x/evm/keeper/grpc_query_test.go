@@ -16,7 +16,7 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/evmos/evmos/v11/server/config"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -1159,7 +1159,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 }
 
 func (suite *KeeperTestSuite) TestNonceInQuery() {
-	address := testutil.GenerateAddress()
+	address := utiltx.GenerateAddress()
 	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
@@ -1269,7 +1269,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 func (suite *KeeperTestSuite) TestEthCall() {
 	var req *types.EthCallRequest
 
-	address := testutil.GenerateAddress()
+	address := utiltx.GenerateAddress()
 	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
