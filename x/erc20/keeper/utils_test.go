@@ -492,7 +492,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  uint64(100000000000),
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.EvmosChain.GetContext()),
 		GasTipCap: big.NewInt(1),
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
