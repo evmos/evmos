@@ -98,7 +98,7 @@ func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		evmante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
 		evmante.NewCanTransferDecorator(options.EvmKeeper),
 		evmante.NewEthVestingTransactionDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
-		evmante.NewEthGasConsumeDecorator(options.BankKeeper, options.DistributionKeeper, options.EvmKeeper, options.MaxTxGasWanted, options.StakingKeeper),
+		evmante.NewEthGasConsumeDecorator(options.BankKeeper, options.DistributionKeeper, options.EvmKeeper, options.StakingKeeper, options.MaxTxGasWanted),
 		evmante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper),
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 		evmante.NewEthEmitEventDecorator(options.EvmKeeper), // emit eth tx hash and index at the very last ante handler.
@@ -120,7 +120,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
+		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
 		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),

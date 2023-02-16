@@ -108,8 +108,8 @@ type EthGasConsumeDecorator struct {
 	bankKeeper         BankKeeper
 	distributionKeeper DistributionKeeper
 	evmKeeper          EVMKeeper
-	maxGasWanted       uint64
 	stakingKeeper      StakingKeeper
+	maxGasWanted       uint64
 }
 
 // NewEthGasConsumeDecorator creates a new EthGasConsumeDecorator
@@ -117,15 +117,15 @@ func NewEthGasConsumeDecorator(
 	bankKeeper BankKeeper,
 	distributionKeeper DistributionKeeper,
 	evmKeeper EVMKeeper,
-	maxGasWanted uint64,
 	stakingKeeper StakingKeeper,
+	maxGasWanted uint64,
 ) EthGasConsumeDecorator {
 	return EthGasConsumeDecorator{
 		bankKeeper,
 		distributionKeeper,
 		evmKeeper,
-		maxGasWanted,
 		stakingKeeper,
+		maxGasWanted,
 	}
 }
 
@@ -206,12 +206,10 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		from := msgEthTx.GetFrom()
 		balance := egcd.bankKeeper.GetBalance(ctx, from, utils.BaseDenom)
 		if balance.IsLT(fees[0]) {
-			difference := sdk.Coins{
-				fees[0].Sub(balance),
-			}
+			difference := fees[0].Sub(balance)
 			// Try to claim enough staking rewards to cover the difference between the
 			// transaction cost and the account balance.
-			err = ClaimSufficientStakingRewards(ctx, egcd.stakingKeeper, egcd.distributionKeeper, from, difference)
+			err = ClaimSufficientStakingRewards(ctx, egcd.stakingKeeper, egcd.distributionKeeper, from, sdk.Coins{difference})
 			if err != nil {
 				return ctx, errorsmod.Wrapf(err, "failed to claim sufficient staking rewards")
 			}
