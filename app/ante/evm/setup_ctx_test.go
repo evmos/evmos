@@ -12,8 +12,8 @@ import (
 
 func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 	dec := evmante.NewEthSetUpContextDecorator(suite.app.EvmKeeper)
-    ethTxContractParams := &evmtypes.EvmTxParams{
-      ChainID: suite.app.EvmKeeper.ChainID(),
+	ethTxContractParams := &evmtypes.EvmTxParams{
+		ChainID:  suite.app.EvmKeeper.ChainID(),
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,
