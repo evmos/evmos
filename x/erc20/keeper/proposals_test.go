@@ -75,19 +75,23 @@ var (
 )
 
 func (suite *KeeperTestSuite) setupRegisterERC20Pair(contractType int) common.Address {
-	var contract common.Address
+	var (
+		contract common.Address
+		err      error
+	)
 	// Deploy contract
 	switch contractType {
 	case contractDirectBalanceManipulation:
-		contract = suite.DeployContractDirectBalanceManipulation(erc20Name, erc20Symbol)
+		contract, err = suite.DeployContractDirectBalanceManipulation()
 	case contractMaliciousDelayed:
-		contract = suite.DeployContractMaliciousDelayed(erc20Name, erc20Symbol)
+		contract, err = suite.DeployContractMaliciousDelayed()
 	default:
-		contract, _ = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+		contract, err = suite.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
 	}
+	suite.Require().NoError(err)
 	suite.Commit()
 
-	_, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contract)
+	_, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contract)
 	suite.Require().NoError(err)
 	return contract
 }
@@ -302,12 +306,12 @@ func (suite KeeperTestSuite) TestRegisterERC20() { //nolint:govet // we can copy
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			var err error
 			suite.SetupTest() // reset
 
-			var err error
 			contractAddr, err = suite.DeployContract(erc20Name, erc20Symbol, cosmosDecimals)
 			suite.Require().NoError(err)
-			suite.Commit()
+
 			coinName := types.CreateDenom(contractAddr.String())
 			pair = types.NewTokenPair(contractAddr, coinName, true, types.OWNER_EXTERNAL)
 

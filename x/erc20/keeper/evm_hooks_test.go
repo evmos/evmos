@@ -113,7 +113,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredERC20() {
 
 			contractAddr, err := suite.DeployContract("coin test erc20", "token", erc20Decimals)
 			suite.Require().NoError(err)
-			suite.Commit()
 
 			tc.malleate(contractAddr)
 
@@ -317,7 +316,6 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 			func() {
 				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
 				suite.Require().NoError(err)
-				suite.Commit()
 
 				_, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
@@ -339,7 +337,6 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 			func() {
 				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
 				suite.Require().NoError(err)
-				suite.Commit()
 
 				pair, err = suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
@@ -361,7 +358,6 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 			func() {
 				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
 				suite.Require().NoError(err)
-				suite.Commit()
 
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
@@ -386,7 +382,6 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 			func() {
 				contractAddr, err := suite.DeployContract("coin", "token", erc20Decimals)
 				suite.Require().NoError(err)
-				suite.Commit()
 
 				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
@@ -412,6 +407,7 @@ func (suite *KeeperTestSuite) TestPostTxProcessing() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 			suite.ensureHooksSet()
+			suite.Commit()
 
 			tc.malleate()
 

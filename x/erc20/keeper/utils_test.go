@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"math"
 	"math/big"
 	"strconv"
 	"time"
@@ -66,6 +67,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
+	suite.priv = priv
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = utiltx.NewSigner(priv)
 
@@ -130,6 +132,16 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
+
+	// fund signer acc to pay for tx fees
+	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	err = testutil.FundAccount(
+		suite.ctx,
+		suite.app.BankKeeper,
+		suite.priv.PubKey().Address().Bytes(),
+		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
+	)
+	suite.Require().NoError(err)
 
 	// TODO change to setup with 1 validator
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 2)
@@ -331,146 +343,48 @@ func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
+	suite.Commit()
+	addr, err := testutil.DeployContract(
+		suite.ctx,
+		suite.app,
+		suite.priv,
+		suite.queryClientEvm,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		name, symbol, decimals,
 	)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce), nil
+	suite.Commit()
+	return addr, err
 }
 
-func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol string) common.Address { //nolint:dupl
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MaliciousDelayedContract.ABI.Pack("", big.NewInt(1000000000000000000))
-	suite.Require().NoError(err)
-
-	data := append(contracts.ERC20MaliciousDelayedContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	suite.Require().NoError(err)
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	suite.Require().NoError(err)
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
+func (suite *KeeperTestSuite) DeployContractMaliciousDelayed() (common.Address, error) {
+	suite.Commit()
+	addr, err := testutil.DeployContract(
+		suite.ctx,
+		suite.app,
+		suite.priv,
+		suite.queryClientEvm,
+		contracts.ERC20MaliciousDelayedContract,
+		big.NewInt(1000000000000000000),
 	)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	suite.Require().NoError(err)
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	suite.Commit()
+	return addr, err
 }
 
-func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name string, symbol string) common.Address { //nolint:dupl
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20DirectBalanceManipulationContract.ABI.Pack("", big.NewInt(1000000000000000000))
-	suite.Require().NoError(err)
-
-	data := append(contracts.ERC20DirectBalanceManipulationContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	suite.Require().NoError(err)
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	suite.Require().NoError(err)
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
+func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation() (common.Address, error) {
+	suite.Commit()
+	addr, err := testutil.DeployContract(
+		suite.ctx,
+		suite.app,
+		suite.priv,
+		suite.queryClientEvm,
+		contracts.ERC20DirectBalanceManipulationContract,
+		big.NewInt(1000000000000000000),
 	)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	suite.Require().NoError(err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	suite.Require().NoError(err)
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	suite.Commit()
+	return addr, err
 }
 
+// TODO refactor this func to use the testutil DeployContract func
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
 	ctx := sdk.WrapSDKContext(s.EvmosChain.GetContext())

@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
@@ -31,6 +32,7 @@ type KeeperTestSuite struct {
 	consAddress      sdk.ConsAddress
 	clientCtx        client.Context //nolint:unused
 	ethSigner        ethtypes.Signer
+	priv             *ethsecp256k1.PrivKey
 	validator        stakingtypes.Validator
 	signer           keyring.Signer
 	mintFeeCollector bool
