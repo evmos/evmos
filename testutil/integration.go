@@ -17,7 +17,6 @@
 package testutil
 
 import (
-	"math/big"
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
@@ -28,11 +27,6 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.
@@ -97,33 +91,4 @@ func Vote(
 
 	voteMsg := govv1beta1.NewMsgVote(accountAddress, proposalID, voteOption)
 	return DeliverTx(ctx, appEvmos, priv, nil, voteMsg)
-}
-
-// CreateEthTx is a helper function to create and sign an Ethereum transaction.
-//
-// If the given private key is not nil, it will be used to sign the transaction.
-//
-// It offers the ability to increment the nonce by a given amount in case one wants to set up
-// multiple transactions that are supposed to be executed one after another.
-// Should this not be the case, just pass in zero.
-func CreateEthTx(ctx sdk.Context, appEvmos *app.Evmos, privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) (*evmtypes.MsgEthereumTx, error) {
-	toAddr := common.BytesToAddress(dest.Bytes())
-	fromAddr := common.BytesToAddress(from.Bytes())
-	chainID := appEvmos.EvmKeeper.ChainID()
-
-	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
-	nonce := appEvmos.EvmKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement)
-	msgEthereumTx := evmtypes.NewTx(chainID, nonce, &toAddr, amount, 100000, nil, appEvmos.FeeMarketKeeper.GetBaseFee(ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
-	msgEthereumTx.From = fromAddr.String()
-
-	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
-	if privKey != nil {
-		signer := ethtypes.LatestSignerForChainID(appEvmos.EvmKeeper.ChainID())
-		err := msgEthereumTx.Sign(signer, tx.NewSigner(privKey))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return msgEthereumTx, nil
 }
