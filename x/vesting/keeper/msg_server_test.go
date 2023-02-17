@@ -2,6 +2,8 @@ package keeper_test
 
 import (
 	"fmt"
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+	evmostypes "github.com/evmos/evmos/v11/types"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -569,10 +571,18 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		if tc.expPass {
 			suite.Require().NoError(err)
 			suite.Require().NotNil(res)
+
+			account := suite.app.AccountKeeper.GetAccount(suite.ctx, acc.GetAddress())
+
+			_, ok := account.(vestingexported.VestingAccount)
+			suite.Require().False(ok)
+
+			_, ok = account.(evmostypes.EthAccountI)
+			suite.Require().True(ok)
+
 		} else {
 			suite.Require().Error(err)
 			suite.Require().Nil(res)
 		}
-
 	}
 }
