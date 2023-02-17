@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	"github.com/evmos/evmos/v11/testutil"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -24,7 +25,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			name: "pass - zero gas limit in simulation mode",
 			malleate: func() signing.Tx {
 				// Generate new account
-				addr, priv := testutil.NewAccAddressAndKey()
+				addr, priv := testutiltx.NewAccAddressAndKey()
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(300)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err, "failed to fund account")
@@ -38,7 +39,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				txBuilder.SetGasLimit(0)
 
 				// Create a transaction out of the message
-				txBuilder, err = testutil.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
+				txBuilder, err = testutiltx.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
 				suite.Require().NoError(err, "failed to create transaction")
 
 				return txBuilder.GetTx()
@@ -53,7 +54,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			malleate: func() signing.Tx {
 				// TODO: refactor this
 				// Generate new account
-				addr, priv := testutil.NewAccAddressAndKey()
+				addr, priv := testutiltx.NewAccAddressAndKey()
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(300)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err, "failed to fund account")
@@ -67,7 +68,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				txBuilder.SetGasLimit(0)
 
 				// Create a transaction out of the message
-				txBuilder, err = testutil.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
+				txBuilder, err = testutiltx.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
 				suite.Require().NoError(err, "failed to create transaction")
 
 				return txBuilder.GetTx()
@@ -81,7 +82,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			name: "fail - checkTx - insufficient funds and no staking rewards",
 			malleate: func() signing.Tx {
 				// Generate new account
-				addr, priv := testutil.NewAccAddressAndKey()
+				addr, priv := testutiltx.NewAccAddressAndKey()
 				suite.app.AccountKeeper.SetAccount(suite.ctx, suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
 
 				// Create an arbitrary message for testing purposes
@@ -93,7 +94,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				txBuilder.SetGasLimit(100)
 
 				// Create a transaction out of the message
-				txBuilder, err = testutil.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
+				txBuilder, err = testutiltx.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
 				suite.Require().NoError(err, "failed to create transaction")
 
 				return txBuilder.GetTx()

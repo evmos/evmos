@@ -8,11 +8,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestAfterProposalVote() {
-	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name string
@@ -134,8 +135,8 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 }
 
 func (suite *KeeperTestSuite) TestAfterDelegation() {
-	addr := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	addr2 := sdk.ValAddress(testutil.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr2 := sdk.ValAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name string
@@ -261,8 +262,8 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 }
 
 func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
-	from := testutil.GenerateAddress()
-	to := testutil.GenerateAddress()
+	from := utiltx.GenerateAddress()
+	to := utiltx.GenerateAddress()
 	msg := ethtypes.NewMessage(from, &to, 0, nil, 0, nil, nil, nil, nil, nil, false)
 
 	receipt := ethtypes.Receipt{}

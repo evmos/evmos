@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v11/testutil"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -15,7 +16,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 	// ----------------------------------------
 	// Set up first account
 	//
-	addr, _ := testutil.NewAccAddressAndKey()
+	addr, _ := testutiltx.NewAccAddressAndKey()
 	initialBalance := sdk.Coins{sdk.Coin{Amount: sdk.NewInt(1e18), Denom: utils.BaseDenom}}
 	err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, initialBalance)
 	suite.Require().NoError(err, "failed to fund account")
@@ -23,7 +24,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 	// ----------------------------------------
 	// Set up validator
 	//
-	addr2, priv2 := testutil.NewAccAddressAndKey()
+	addr2, priv2 := testutiltx.NewAccAddressAndKey()
 	valAddr := sdk.ValAddress(addr2.Bytes())
 	fivePercent := sdk.NewDecWithPrec(5, 2)
 
