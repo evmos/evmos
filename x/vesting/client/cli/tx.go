@@ -228,9 +228,9 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	return cmd
 }
 
-// NewMsgConvertVestingAccount returns a CLI command handler for creating a
+// NewMsgConvertVestingAccountCmd returns a CLI command handler for creating a
 // MsgConvertVestingAccount transaction.
-func NewMsgConvertVestingAccount() *cobra.Command {
+func NewMsgConvertVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert VESTING_ACCOUNT_ADDRESS",
 		Short: "Convert a vesting account to the chain's default account type.",

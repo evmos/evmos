@@ -288,7 +288,8 @@ func (k Keeper) UpdateVestingFunder(
 	return &types.MsgUpdateVestingFunderResponse{}, nil
 }
 
-// ConvertVestingAccount converts a ClawbackVestingAccount to an ETHAccount
+// ConvertVestingAccount converts a ClawbackVestingAccount to the default chain account
+// after its lock and vesting periods have concluded.
 func (k Keeper) ConvertVestingAccount(
 	goCtx context.Context,
 	msg *types.MsgConvertVestingAccount,
