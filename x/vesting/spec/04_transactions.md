@@ -73,3 +73,16 @@ type MsgUpdateVestingFunder struct {
 The msg content stateless validation fails if:
 
 - `FunderAddress`, `NewFunderAddress` or `VestingAddress` are invalid
+
+## `ConvertVestingAccount`
+
+```go
+type MsgConvertVestingAccount struct {
+	// vesting_address is the address of the ClawbackVestingAccount being updated
+	VestingAddress string `protobuf:"bytes,2,opt,name=vesting_address,json=vestingAddress,proto3" json:"vesting_address,omitempty"`
+}
+```
+
+The msg content stateless validation fails if:
+
+- `VestingAddress` is invalid

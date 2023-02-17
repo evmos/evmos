@@ -377,3 +377,36 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 		}
 	}
 }
+
+func (suite *MsgsTestSuite) TestMsgConvertVestingAccount() {
+	testCases := []struct {
+		name    string
+		msg     *types.MsgConvertVestingAccount
+		expPass bool
+	}{
+		{
+			"fail - not a valid vesting address",
+			&types.MsgConvertVestingAccount{
+				"invalid_address",
+			},
+			false,
+		},
+
+		{
+			"pass - valid vesting address",
+			&types.MsgConvertVestingAccount{
+				sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			true,
+		},
+	}
+
+	for i, tc := range testCases {
+		err := tc.msg.ValidateBasic()
+		if tc.expPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.name)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.name)
+		}
+	}
+}
