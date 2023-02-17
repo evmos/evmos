@@ -9,8 +9,11 @@ import (
 )
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
+	// General setup
+	addr, priv := testutiltx.NewAccAddressAndKey()
 	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
 
+	// Testcase definitions
 	testcases := []struct {
 		name        string
 		malleate    func() signing.Tx
@@ -23,7 +26,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			name: "pass - zero gas limit in simulation mode",
 			malleate: func() signing.Tx {
 				// Generate new account
-				addr, priv := testutiltx.NewAccAddressAndKey()
 				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
 				suite.Require().NoError(err, "failed to fund account")
 
@@ -49,7 +51,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			malleate: func() signing.Tx {
 				// TODO: refactor this
 				// Generate new account
-				addr, priv := testutiltx.NewAccAddressAndKey()
 				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
 				suite.Require().NoError(err, "failed to fund account")
 
@@ -73,8 +74,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name: "fail - checkTx - insufficient funds and no staking rewards",
 			malleate: func() signing.Tx {
-				// Generate new account
-				addr, priv := testutiltx.NewAccAddressAndKey()
 				suite.app.AccountKeeper.SetAccount(suite.ctx, suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
 
 				// Create an arbitrary message for testing purposes
@@ -93,6 +92,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 	}
 
+	// Test execution
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()

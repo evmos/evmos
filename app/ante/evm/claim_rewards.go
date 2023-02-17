@@ -18,6 +18,7 @@ package evm
 
 import (
 	"fmt"
+	"log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -36,12 +37,17 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 	cacheCtx, writeFn := ctx.CacheContext()
 
 	// iterate through all delegations and get the rewards if any are unclaimed.
+	// TODO: remove logging
+	log.Print("iterating through delegations...")
 	stakingKeeper.IterateDelegations(
 		cacheCtx, addr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
+			log.Printf("delegation: %s -> %s", delegation.GetDelegatorAddr().String(), delegation.GetValidatorAddr().String())
 			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, delegation.GetValidatorAddr())
 			if err != nil {
+				log.Printf("error while withdrawing delegation rewards: %s", err)
 				return true
 			}
+			log.Printf("reward: %s", reward.String())
 			rewards = rewards.Add(reward...)
 
 			// FIXME: is there a better way to do this? probably not necessary to check if ANY is gte but rather check the specific denom.
@@ -54,8 +60,10 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 		return fmt.Errorf("error while withdrawing delegation rewards: %s", err)
 	}
 
-	// commit state changes
-	writeFn()
-
+	// only write to state if there are enough rewards to cover the transaction fees
+	if !rewards.IsAnyGTE(amount) {
+		return fmt.Errorf("insufficient staking rewards to cover transaction fees")
+	}
+	writeFn() // commit state changes
 	return nil
 }
