@@ -16,6 +16,7 @@
 package testutil
 
 import (
+	"fmt"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -139,6 +140,7 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 		return abci.ResponseDeliverTx{}, err
 	}
 
+	fmt.Println(string(bz))
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := app.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
