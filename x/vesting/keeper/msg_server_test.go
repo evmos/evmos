@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"fmt"
+	"time"
+
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	evmostypes "github.com/evmos/evmos/v11/types"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
