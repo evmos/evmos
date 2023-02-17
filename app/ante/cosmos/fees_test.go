@@ -2,12 +2,10 @@ package cosmos_test
 
 import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/utils"
 )
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
@@ -26,14 +24,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			malleate: func() signing.Tx {
 				// Generate new account
 				addr, priv := testutiltx.NewAccAddressAndKey()
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(300)))
-				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
+				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
 				suite.Require().NoError(err, "failed to fund account")
 
 				// Create an arbitrary message for testing purposes
 				msg := sdktestutil.NewTestMsg(addr)
-				err = txBuilder.SetMsgs(msg)
-				suite.Require().NoError(err, "failed to set message")
 
 				// Set gas limit to zero for testing purposes
 				txBuilder.SetGasLimit(0)
@@ -55,14 +50,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				// TODO: refactor this
 				// Generate new account
 				addr, priv := testutiltx.NewAccAddressAndKey()
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(300)))
-				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
+				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
 				suite.Require().NoError(err, "failed to fund account")
 
 				// Create an arbitrary message for testing purposes
 				msg := sdktestutil.NewTestMsg(addr)
-				err = txBuilder.SetMsgs(msg)
-				suite.Require().NoError(err, "failed to set message")
 
 				// Set gas limit to zero for testing purposes
 				txBuilder.SetGasLimit(0)
@@ -87,17 +79,12 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 
 				// Create an arbitrary message for testing purposes
 				msg := sdktestutil.NewTestMsg(addr)
-				err := txBuilder.SetMsgs(msg)
-				suite.Require().NoError(err, "failed to set message")
-
-				// Set gas limit to zero for testing purposes
-				txBuilder.SetGasLimit(100)
 
 				// Create a transaction out of the message
-				txBuilder, err = testutiltx.CreateTxInTxBuilder(suite.ctx, suite.app, txBuilder, priv, msg)
+				tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.clientCtx.TxConfig, suite.app, priv, nil, msg)
 				suite.Require().NoError(err, "failed to create transaction")
 
-				return txBuilder.GetTx()
+				return tx
 			},
 			checkTx:     true,
 			simulate:    false,

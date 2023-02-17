@@ -19,6 +19,7 @@ package testutil
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/evmos/evmos/v11/utils"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 )
 
@@ -31,6 +32,16 @@ func FundAccount(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddr
 	}
 
 	return bankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, amounts)
+}
+
+// FundAccountWithBaseDenom is a utility function that uses the FundAccount function
+// to fund an account with the default Evmos denomination. This should be used for testing purposes
+// only!
+func FundAccountWithBaseDenom(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddress, amount int64) error {
+	coins := sdk.NewCoins(
+		sdk.NewCoin(utils.BaseDenom, sdk.NewInt(amount)),
+	)
+	return FundAccount(ctx, bankKeeper, addr, coins)
 }
 
 // FundModuleAccount is a utility function that funds a module account by
