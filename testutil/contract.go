@@ -38,18 +38,19 @@ func DeployContract(
 	}
 
 	data := append(contract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &from,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
 
 	// default gas limit (used if no queryClientEvm is provided)
 	gas := uint64(100000000000)
 
 	if queryClientEvm != nil {
+		args, err := json.Marshal(&evm.TransactionArgs{
+			From: &from,
+			Data: (*hexutil.Bytes)(&data),
+		})
+		if err != nil {
+			return common.Address{}, err
+		}
+
 		goCtx := sdk.WrapSDKContext(ctx)
 		res, err := queryClientEvm.EstimateGas(goCtx, &evm.EthCallRequest{
 			Args:   args,

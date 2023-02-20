@@ -215,38 +215,18 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 }
 
 func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Address {
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := getNonce(from.Bytes())
-
-	data := common.Hex2Bytes(contractCode)
-	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTxContract(
-		chainID,
-		nonce,
-		nil,
-		gasLimit,
-		nil,
-		s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		big.NewInt(1),
-		data,
-		&ethtypes.AccessList{},
+	addr, err := testutil.DeployContract(
+		s.ctx,
+		s.app,
+		priv,
+		s.queryClientEvm,
+		evmtypes.CompiledContract{
+			Bin: common.Hex2Bytes(contractCode),
+		},
 	)
-	msgEthereumTx.From = from.String()
-
-	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
-	Expect(err).To(BeNil())
+	s.Require().NoError(err)
 	s.Commit()
-
-	ethereumTx := res.GetEvents()[11]
-	Expect(ethereumTx.Type).To(Equal("ethereum_tx"))
-	Expect(string(ethereumTx.Attributes[1].Key)).To(Equal("ethereumTxHash"))
-
-	contractAddress := crypto.CreateAddress(from, nonce)
-	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc)
-	s.Require().True(acc.IsContract())
-	return contractAddress
+	return addr
 }
 
 func contractInteract(
