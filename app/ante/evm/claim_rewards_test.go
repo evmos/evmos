@@ -2,7 +2,7 @@ package evm_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v11/app/ante/evm"
@@ -24,13 +24,19 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 		errContains string
 	}{
 		{
-			name: "pass - claim rewards",
+			name: "pass - sufficient rewards can be claimed",
 			malleate: func(valAddr sdk.ValAddress) {
-				rewards := distributiontypes.ValidatorOutstandingRewards{
-					Rewards: sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDec(100))},
-				}
-				// FIXME: this doesn't work yet, the rewards are apparently zero, check how to correctly set them
-				suite.app.DistrKeeper.SetValidatorOutstandingRewards(suite.ctx, valAddr, rewards)
+				// set distribution module account balance
+				distrAcc := suite.app.DistrKeeper.GetDistributionAccount(suite.ctx)
+				err := testutil.FundModuleAccount(
+					suite.ctx, suite.app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000))),
+				)
+				suite.Require().NoError(err, "failed to fund distribution module account")
+				suite.app.AccountKeeper.SetModuleAccount(suite.ctx, distrAcc)
+
+				// allocate rewards to validator
+				validator := suite.app.StakingKeeper.Validator(suite.ctx, valAddr)
+				suite.app.DistrKeeper.AllocateTokensToValidator(suite.ctx, validator, sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1000))))
 			},
 			amount:      100,
 			expErr:      false,
@@ -70,7 +76,8 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 }
 
 // BasicSetupForClaimRewardsTest is a helper function, that creates a validator and a delegator
-// and funds them with some tokens. It also sets up the staking and distribution keepers.
+// and funds them with some tokens. It also sets up the staking keeper to include a self-delegation
+// of the validator and a delegation from the delegator to the validator.
 func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk.ValAddress) {
 	balanceAmount := sdk.NewInt(1e18)
 	initialBalance := sdk.Coins{sdk.Coin{Amount: balanceAmount, Denom: utils.BaseDenom}}
@@ -103,12 +110,13 @@ func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk
 
 	valAddr := sdk.ValAddress(addr2.Bytes())
 	stakingHelper.CreateValidator(valAddr, priv2.PubKey(), balanceAmount, true)
+	// TODO: is this working or is it necessary to use the testutils from the x/distribution module
+	// because of incomplete hooks in the module specific test helpers?
 	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(123456789))
 
-	// TODO: remove logging
-	suite.T().Logf("Address 1: %s", addr.String())
-	suite.T().Logf("Address 2: %s", addr2.String())
-	suite.T().Logf("Val Address: %s", valAddr.String())
+	// end block to bond validator and increase block height
+	staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
+	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
 
 	return addr, valAddr
 }
