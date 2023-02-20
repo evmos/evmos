@@ -13,7 +13,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
@@ -174,26 +173,14 @@ func registerFee(
 }
 
 func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
-	factoryNonce := getNonce(factoryAddress.Bytes())
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := getNonce(from.Bytes())
-	data := make([]byte, 0)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		factoryAddress,
-		nil,
-		uint64(100000),
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		data,
-		nil,
+	contractAddress, res, err := testutil.DeployContractWithFactory(
+		s.ctx,
+		s.app,
+		priv,
+		*factoryAddress,
+		s.queryClientEvm,
 	)
-	msgEthereumTx.From = from.String()
 
-	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	s.Commit()
@@ -203,14 +190,10 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	Expect(string(ethereumTx.Attributes[0].Key)).To(Equal("txLog"))
 	txLog := string(ethereumTx.Attributes[0].Value)
 
-	contractAddress := crypto.CreateAddress(*factoryAddress, factoryNonce)
 	Expect(
 		strings.Contains(txLog, strings.ToLower(contractAddress.String()[2:])),
 	).To(BeTrue(), "log topic does not match created contract address")
 
-	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc, "contract not created")
-	s.Require().True(acc.IsContract(), "not a contract")
 	return contractAddress
 }
 

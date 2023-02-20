@@ -1,20 +1,19 @@
 package testutil
 
 import (
-	"encoding/json"
 	"errors"
 	"math/big"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/server/config"
+	"github.com/evmos/evmos/v11/testutil/tx"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -22,15 +21,15 @@ import (
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	app *app.Evmos,
+	evmosApp *app.Evmos,
 	priv cryptotypes.PrivKey,
 	queryClientEvm evm.QueryClient,
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := app.EvmKeeper.ChainID()
+	chainID := evmosApp.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := app.EvmKeeper.GetNonce(ctx, from)
+	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {
@@ -38,28 +37,9 @@ func DeployContract(
 	}
 
 	data := append(contract.Bin, ctorArgs...) //nolint:gocritic
-
-	// default gas limit (used if no queryClientEvm is provided)
-	gas := uint64(100000000000)
-
-	if queryClientEvm != nil {
-		args, err := json.Marshal(&evm.TransactionArgs{
-			From: &from,
-			Data: (*hexutil.Bytes)(&data),
-		})
-		if err != nil {
-			return common.Address{}, err
-		}
-
-		goCtx := sdk.WrapSDKContext(ctx)
-		res, err := queryClientEvm.EstimateGas(goCtx, &evm.EthCallRequest{
-			Args:   args,
-			GasCap: config.DefaultGasCap,
-		})
-		if err != nil {
-			return common.Address{}, err
-		}
-		gas = res.Gas
+	gas, err := tx.GasLimit(ctx, from, data, queryClientEvm)
+	if err != nil {
+		return common.Address{}, err
 	}
 
 	msgEthereumTx := evm.NewTxContract(
@@ -68,25 +48,66 @@ func DeployContract(
 		nil, // amount
 		gas, // gasLimit
 		nil, // gasPrice
-		app.FeeMarketKeeper.GetBaseFee(ctx),
+		evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
 		big.NewInt(1),
 		data,                   // input
 		&ethtypes.AccessList{}, // accesses
 	)
 	msgEthereumTx.From = from.String()
 
-	if _, err = DeliverEthTx(app, priv, msgEthereumTx); err != nil {
+	if _, err = DeliverEthTx(evmosApp, priv, msgEthereumTx); err != nil {
 		return common.Address{}, err
 	}
 
+	return getContractAddr(ctx, evmosApp, from, nonce)
+}
+
+// DeployContractWithFactory deploys a contract using a contract factory
+// with the provided factoryAddress
+func DeployContractWithFactory(ctx sdk.Context,
+	evmosApp *app.Evmos,
+	priv cryptotypes.PrivKey,
+	factoryAddress common.Address,
+	queryClientEvm evm.QueryClient,
+) (common.Address, abci.ResponseDeliverTx, error) {
+	chainID := evmosApp.EvmKeeper.ChainID()
+	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
+	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
+	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+
+	msgEthereumTx := evm.NewTx(
+		chainID,
+		nonce,
+		&factoryAddress,
+		nil,
+		uint64(100000),
+		big.NewInt(1000000000),
+		nil,
+		nil,
+		[]byte{},
+		nil,
+	)
+	msgEthereumTx.From = from.String()
+
+	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	if err != nil {
+		return common.Address{}, abci.ResponseDeliverTx{}, err
+	}
+
+	addr, err := getContractAddr(ctx, evmosApp, factoryAddress, factoryNonce)
+	return addr, res, err
+}
+
+// getContractAddr calculates the contract address based on the deployer's address and its nonce
+// Then, checks if the account exists and has the 'code' field populated
+func getContractAddr(ctx sdk.Context, evmosApp *app.Evmos, from common.Address, nonce uint64) (common.Address, error) {
 	contractAddress := crypto.CreateAddress(from, nonce)
-	acc := app.EvmKeeper.GetAccountWithoutBalance(ctx, contractAddress)
+	acc := evmosApp.EvmKeeper.GetAccountWithoutBalance(ctx, contractAddress)
 	if acc == nil {
 		return common.Address{}, errors.New("an error occurred when deploying the contract. GetAccountWithoutBalance using contract's account returned nil")
 	}
 	if !acc.IsContract() {
 		return common.Address{}, errors.New("an error occurred when deploying the contract. Contract's account does not have the contract code")
 	}
-
 	return contractAddress, nil
 }

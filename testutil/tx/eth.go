@@ -16,6 +16,7 @@
 package tx
 
 import (
+	"encoding/json"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -27,9 +28,11 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -127,4 +130,30 @@ func CreateEthTx(
 	}
 
 	return msgEthereumTx, nil
+}
+
+func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
+	// default gas limit (used if no queryClientEvm is provided)
+	gas := uint64(100000000000)
+
+	if queryClientEvm != nil {
+		args, err := json.Marshal(&evmtypes.TransactionArgs{
+			From: &from,
+			Data: (*hexutil.Bytes)(&data),
+		})
+		if err != nil {
+			return gas, err
+		}
+
+		goCtx := sdk.WrapSDKContext(ctx)
+		res, err := queryClientEvm.EstimateGas(goCtx, &evmtypes.EthCallRequest{
+			Args:   args,
+			GasCap: config.DefaultGasCap,
+		})
+		if err != nil {
+			return gas, err
+		}
+		gas = res.Gas
+	}
+	return gas, nil
 }
