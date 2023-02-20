@@ -153,6 +153,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) (uint64, error) {
 	)
 	s.Require().NoError(err)
 	s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+	s.Require().NoError(err)
 	content := incentivestypes.NewRegisterIncentiveProposal(
 		"test",
 		"description",

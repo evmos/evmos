@@ -21,7 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
@@ -384,47 +383,17 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation() (common.
 	return addr, err
 }
 
-// TODO refactor this func to use the testutil DeployContract func
-// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
+// DeployContractToChain deploys the ERC20MinterBurnerDecimalsContract
+// to the Evmos chain (used on IBC tests)
 func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
-	ctx := sdk.WrapSDKContext(s.EvmosChain.GetContext())
-	from := common.BytesToAddress(suite.EvmosChain.SenderAccount.GetAddress().Bytes())
-	chainID := s.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-
-	nonce := s.app.EvmKeeper.GetNonce(s.EvmosChain.GetContext(), from)
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,                  // amount
-		uint64(100000000000), // gasLimit
-		nil,                  // gasPrice
-		s.app.FeeMarketKeeper.GetBaseFee(s.EvmosChain.GetContext()),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
+	return testutil.DeployContract(
+		s.EvmosChain.GetContext(),
+		s.EvmosChain.App.(*app.Evmos),
+		suite.EvmosChain.SenderPrivKey,
+		suite.queryClientEvm,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		name, symbol, decimals,
 	)
-
-	signer := utiltx.NewSigner(suite.EvmosChain.SenderPrivKey)
-	erc20DeployTx.From = from.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), signer)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	rsp, err := s.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(from, nonce), nil
 }
 
 func (suite *KeeperTestSuite) sendAndReceiveMessage(

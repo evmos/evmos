@@ -22,6 +22,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -29,7 +30,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -39,7 +39,7 @@ import (
 func PrepareEthTx(
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
+	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
@@ -99,7 +99,15 @@ func PrepareEthTx(
 // It offers the ability to increment the nonce by a given amount in case one wants to set up
 // multiple transactions that are supposed to be executed one after another.
 // Should this not be the case, just pass in zero.
-func CreateEthTx(ctx sdk.Context, appEvmos *app.Evmos, privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) (*evmtypes.MsgEthereumTx, error) {
+func CreateEthTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	privKey cryptotypes.PrivKey,
+	from sdk.AccAddress,
+	dest sdk.AccAddress,
+	amount *big.Int,
+	nonceIncrement int,
+) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := appEvmos.EvmKeeper.ChainID()

@@ -21,12 +21,12 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -41,7 +41,7 @@ func PrepareCosmosTx(
 	ctx sdk.Context,
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
+	priv cryptotypes.PrivKey,
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {

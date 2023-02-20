@@ -5,6 +5,7 @@ import (
 	"errors"
 	"math/big"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -13,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/server/config"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -23,7 +23,7 @@ import (
 func DeployContract(
 	ctx sdk.Context,
 	app *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
+	priv cryptotypes.PrivKey,
 	queryClientEvm evm.QueryClient,
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
@@ -46,21 +46,27 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
-	goCtx := sdk.WrapSDKContext(ctx)
-	res, err := queryClientEvm.EstimateGas(goCtx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	if err != nil {
-		return common.Address{}, err
+	// default gas limit (used if no queryClientEvm is provided)
+	gas := uint64(100000000000)
+
+	if queryClientEvm != nil {
+		goCtx := sdk.WrapSDKContext(ctx)
+		res, err := queryClientEvm.EstimateGas(goCtx, &evm.EthCallRequest{
+			Args:   args,
+			GasCap: config.DefaultGasCap,
+		})
+		if err != nil {
+			return common.Address{}, err
+		}
+		gas = res.Gas
 	}
 
 	msgEthereumTx := evm.NewTxContract(
 		chainID,
 		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
+		nil, // amount
+		gas, // gasLimit
+		nil, // gasPrice
 		app.FeeMarketKeeper.GetBaseFee(ctx),
 		big.NewInt(1),
 		data,                   // input
@@ -75,10 +81,10 @@ func DeployContract(
 	contractAddress := crypto.CreateAddress(from, nonce)
 	acc := app.EvmKeeper.GetAccountWithoutBalance(ctx, contractAddress)
 	if acc == nil {
-		return common.Address{}, errors.New("an error occurred when creating the contract. GetAccountWithoutBalance using contract's account returned nil")
+		return common.Address{}, errors.New("an error occurred when deploying the contract. GetAccountWithoutBalance using contract's account returned nil")
 	}
 	if !acc.IsContract() {
-		return common.Address{}, errors.New("an error occurred when creating the contract. Contract's account does not have the contract code")
+		return common.Address{}, errors.New("an error occurred when deploying the contract. Contract's account does not have the contract code")
 	}
 
 	return contractAddress, nil
