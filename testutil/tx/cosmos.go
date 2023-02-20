@@ -122,3 +122,12 @@ func CreateTxInTxBuilder(ctx sdk.Context, appEvmos *app.Evmos, txBuilder client.
 
 	return txBuilder, nil
 }
+
+var _ sdk.Tx = &InvalidTx{}
+
+// InvalidTx is a dummy transaction that implements the sdk.Tx interface
+// but contains no valid information.
+type InvalidTx struct{}
+
+func (InvalidTx) GetMsgs() []sdk.Msg   { return []sdk.Msg{nil} }
+func (InvalidTx) ValidateBasic() error { return nil }
