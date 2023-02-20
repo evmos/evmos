@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -145,7 +144,7 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	err := fundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, initBalance)
 	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
@@ -158,16 +157,6 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 	}
 	s.Commit()
 	return privKey, msg
-}
-
-// fundAccount is a utility function that funds an account by minting and
-// sending the coins to the address.
-func fundAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	if err := bankKeeper.MintCoins(ctx, evmtypes.ModuleName, amounts); err != nil {
-		return err
-	}
-
-	return bankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, addr, amounts)
 }
 
 func setupChain(localMinGasPricesStr string) {
