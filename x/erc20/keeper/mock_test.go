@@ -3,15 +3,16 @@ package keeper_test
 import (
 	"context"
 
+	"github.com/stretchr/testify/mock"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/vm"
+
 	"github.com/evmos/evmos/v11/x/erc20/types"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/stretchr/testify/mock"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 var _ types.EVMKeeper = &MockEVMKeeper{}
@@ -20,9 +21,9 @@ type MockEVMKeeper struct {
 	mock.Mock
 }
 
-func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evm.Params {
+func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evmtypes.Params {
 	args := m.Called(mock.Anything)
-	return args.Get(0).(evm.Params)
+	return args.Get(0).(evmtypes.Params)
 }
 
 func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account {
@@ -33,21 +34,43 @@ func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Ad
 	return args.Get(0).(*statedb.Account)
 }
 
-func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evm.EthCallRequest) (*evm.EstimateGasResponse, error) {
+func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evmtypes.EthCallRequest) (*evmtypes.EstimateGasResponse, error) {
 	args := m.Called(mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*evm.EstimateGasResponse), args.Error(1)
+	return args.Get(0).(*evmtypes.EstimateGasResponse), args.Error(1)
 }
 
-func (m *MockEVMKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evm.MsgEthereumTxResponse, error) {
-	args := m.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
-
+func (m *MockEVMKeeper) CallEVMWithData(
+	ctx sdk.Context,
+	from common.Address,
+	contract *common.Address,
+	data []byte,
+	commit bool,
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	args := m.Called(mock.Anything)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*evm.MsgEthereumTxResponse), args.Error(1)
+
+	return args.Get(0).(*evmtypes.MsgEthereumTxResponse), args.Error(1)
+}
+
+func (m *MockEVMKeeper) CallEVM(
+	ctx sdk.Context,
+	abi abi.ABI,
+	from, contract common.Address,
+	commit bool,
+	method string,
+	args ...interface{},
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	mockArgs := m.Called(mock.Anything)
+	if mockArgs.Get(0) == nil {
+		return nil, mockArgs.Error(1)
+	}
+
+	return mockArgs.Get(0).(*evmtypes.MsgEthereumTxResponse), mockArgs.Error(1)
 }
 
 var _ types.BankKeeper = &MockBankKeeper{}
