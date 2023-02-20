@@ -8,13 +8,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
@@ -32,7 +32,7 @@ type KeeperTestSuite struct {
 	consAddress      sdk.ConsAddress
 	clientCtx        client.Context //nolint:unused
 	ethSigner        ethtypes.Signer
-	priv             *ethsecp256k1.PrivKey
+	priv             cryptotypes.PrivKey
 	validator        stakingtypes.Validator
 	signer           keyring.Signer
 	mintFeeCollector bool
