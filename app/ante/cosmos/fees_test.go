@@ -88,7 +88,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
-			errContains: "insufficient funds",
+			errContains: "insufficient funds and failed to claim sufficient staking rewards",
 		},
 	}
 

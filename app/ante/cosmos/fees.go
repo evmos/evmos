@@ -28,7 +28,7 @@ import (
 	"github.com/evmos/evmos/v11/app/ante/evm"
 )
 
-// DeductFeeDecorator deducts fees from the first signer of the tx
+// DeductFeeDecorator deducts fees from the first signer of the tx.
 // If the first signer does not have the funds to pay for the fees,
 // and does not have enough unclaimed staking rewards, then return
 // with InsufficientFunds error.
@@ -163,14 +163,15 @@ func (dfd DeductFeeDecorator) deductFeesFromBalanceOrUnclaimedRewards(ctx sdk.Co
 		// transaction cost and the account balance.
 		err := evm.ClaimSufficientStakingRewards(ctx, dfd.stakingKeeper, dfd.distributionKeeper, deductFeesFromAcc.GetAddress(), sdk.Coins{difference})
 		if err != nil {
-			return errorsmod.Wrapf(err, "failed to claim sufficient staking rewards for %s", deductFeesFromAcc.GetAddress())
+			return errortypes.ErrInsufficientFunds.Wrapf(
+				"insufficient funds and failed to claim sufficient staking rewards for %s to pay for fees; %s",
+				deductFeesFromAcc.GetAddress(),
+				err.Error(),
+			)
 		}
 	}
 	// deduct the fees if possible
-	if err := authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee); err != nil {
-		return err
-	}
-	return nil
+	return authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fee)
 }
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
@@ -214,9 +215,9 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 // provided in a transaction.
 // NOTE: This implementation should be used with a great consideration as it opens potential attack vectors
 // where txs with multiple coins could not be prioritized as expected.
-func getTxPriority(fee sdk.Coins, gas int64) int64 {
+func getTxPriority(fees sdk.Coins, gas int64) int64 {
 	var priority int64
-	for _, c := range fee {
+	for _, c := range fees {
 		p := int64(math.MaxInt64)
 		gasPrice := c.Amount.QuoRaw(gas)
 		if gasPrice.IsInt64() {
