@@ -17,7 +17,7 @@ func NewHeader(
 	blockTime time.Time,
 	chainID string,
 	proposer sdk.ConsAddress,
-	appHash []byte,
+	appHash,
 	validatorHash []byte,
 ) tmproto.Header {
 	return tmproto.Header{
@@ -36,7 +36,7 @@ func NewHeader(
 		},
 		LastCommitHash:     tmhash.Sum([]byte("commit")),
 		DataHash:           tmhash.Sum([]byte("data")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
+		ValidatorsHash:     validatorHash,
 		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
 		AppHash:            appHash,
