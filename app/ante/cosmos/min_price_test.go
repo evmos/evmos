@@ -5,8 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
-	"github.com/evmos/evmos/v11/testutil"
-	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -37,7 +35,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx type",
 			func() sdk.Tx {
-				return &testutiltx.InvalidTx{}
+				return &invalidTx{}
 			},
 			false,
 			"invalid transaction type",
@@ -146,7 +144,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				// s.SetupTest(et.isCheckTx)
 				ctx := suite.ctx.WithIsReCheckTx(et.isCheckTx)
 				dec := cosmosante.NewMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
-				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NextFn)
+				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, NextFn)
 
 				if tc.expPass || (et.simulate && tc.allowPassOnSimulate) {
 					suite.Require().NoError(err, tc.name)
