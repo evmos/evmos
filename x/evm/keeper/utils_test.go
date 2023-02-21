@@ -65,28 +65,24 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			data,                   // input
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			GasLimit:  res.Gas,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasTipCap: big.NewInt(1),
+			Input:     data,
+			Accesses:  &ethtypes.AccessList{},
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			nil, nil,
-			data, // input
-			nil,  // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			GasLimit: res.Gas,
+			Input:    data,
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()
@@ -117,30 +113,26 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		ercTransferTx = evmtypes.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			transferData,
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			To:        &contractAddr,
+			GasLimit:  res.Gas,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasTipCap: big.NewInt(1),
+			Input:     transferData,
+			Accesses:  &ethtypes.AccessList{},
+		}
+		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		ercTransferTx = evmtypes.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			nil, nil,
-			transferData,
-			nil,
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			To:       &contractAddr,
+			GasLimit: res.Gas,
+			Input:    transferData,
+		}
+		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	ercTransferTx.From = suite.address.Hex()
@@ -175,28 +167,24 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			data,                   // input
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			GasLimit:  res.Gas,
+			Input:     data,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			Accesses:  &ethtypes.AccessList{},
+			GasTipCap: big.NewInt(1),
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			nil, nil,
-			data, // input
-			nil,  // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			GasLimit: res.Gas,
+			Input:    data,
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()

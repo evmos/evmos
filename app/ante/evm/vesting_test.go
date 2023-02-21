@@ -32,18 +32,16 @@ var (
 // TestEthVestingTransactionDecorator tests the EthVestingTransactionDecorator ante handler.
 func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 	addr := testutiltx.GenerateAddress()
-	tx := evmtypes.NewTx(
-		suite.app.EvmKeeper.ChainID(),
-		1,
-		&addr,
-		big.NewInt(1000000000),
-		100000,
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		nil,
-		nil,
-	)
+
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:  suite.app.EvmKeeper.ChainID(),
+		Nonce:    1,
+		To:       &addr,
+		Amount:   big.NewInt(1000000000),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1000000000),
+	}
+	tx := evmtypes.NewTx(ethTxParams)
 	tx.From = addr.Hex()
 
 	testcases := []struct {
