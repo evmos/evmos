@@ -21,12 +21,12 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -41,11 +41,10 @@ func PrepareCosmosTx(
 	ctx sdk.Context,
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
+	priv cryptotypes.PrivKey,
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
 	txBuilder := txCfg.NewTxBuilder()
 
 	gasLimit := int64(10_000_000)
@@ -63,7 +62,26 @@ func PrepareCosmosTx(
 		return nil, err
 	}
 
-	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, accountAddress)
+	return signCosmosTx(
+		ctx,
+		appEvmos,
+		priv,
+		txCfg,
+		txBuilder,
+	)
+}
+
+// signCosmosTx signs the cosmos transaction on the txBuilder provided using
+// the provided private key
+func signCosmosTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	priv cryptotypes.PrivKey,
+	txCfg client.TxConfig,
+	txBuilder client.TxBuilder,
+) (authsigning.Tx, error) {
+	addr := sdk.AccAddress(priv.PubKey().Address().Bytes())
+	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +104,15 @@ func PrepareCosmosTx(
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, accountAddress).GetAccountNumber()
+	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
 		ChainID:       ctx.ChainID(),
 		AccountNumber: accNumber,
 		Sequence:      seq,
 	}
 	sigV2, err = tx.SignWithPrivKey(
-		txCfg.SignModeHandler().DefaultMode(), signerData,
+		txCfg.SignModeHandler().DefaultMode(),
+		signerData,
 		txBuilder, priv, txCfg,
 		seq,
 	)
