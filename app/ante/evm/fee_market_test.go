@@ -74,8 +74,9 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-				tx := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, suite.ctx.ChainID(), gas, amount)
-				return tx.GetTx()
+				builder, err := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
+				return builder.GetTx()
 			},
 		},
 	}
