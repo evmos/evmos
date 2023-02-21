@@ -12,10 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -33,7 +30,6 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
-	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -375,73 +371,21 @@ func (suite *AnteTestSuite) CreateTestEIP712SingleMessageTxBuilder(
 func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins, msgs []sdk.Msg,
 ) client.TxBuilder {
-	var err error
-
-	nonce, err := suite.app.AccountKeeper.GetSequence(suite.ctx, from)
-	suite.Require().NoError(err)
-
-	pc, err := types.ParseChainID(chainID)
-	suite.Require().NoError(err)
-	ethChainID := pc.Uint64()
-
-	// GenerateTypedData TypedData
-	var evmosCodec codec.ProtoCodecMarshaler
-	registry := codectypes.NewInterfaceRegistry()
-	types.RegisterInterfaces(registry)
-	evmosCodec = codec.NewProtoCodec(registry)
-	cryptocodec.RegisterInterfaces(registry)
-
-	//nolint:staticcheck
-	fee := legacytx.NewStdFee(gas, gasAmount)
-	accNumber := suite.app.AccountKeeper.GetAccount(suite.ctx, from).GetAccountNumber()
-
-	data := legacytx.StdSignBytes(chainID, accNumber, nonce, 0, fee, msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, &eip712.FeeDelegationOptions{
-		FeePayer: from,
-	})
-	suite.Require().NoError(err)
-
-	sigHash, _, err := apitypes.TypedDataAndHash(typedData)
-	suite.Require().NoError(err)
-
-	// Sign typedData
-	keyringSigner := utiltx.NewSigner(priv)
-	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
-	suite.Require().NoError(err)
-	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
-
-	// Add ExtensionOptionsWeb3Tx extension
-	var option *codectypes.Any
-	option, err = codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
-		FeePayer:         from.String(),
-		TypedDataChainID: ethChainID,
-		FeePayerSig:      signature,
-	})
-	suite.Require().NoError(err)
-
-	suite.clientCtx.TxConfig.SignModeHandler()
-	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
-	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
-	suite.Require().True(ok)
-
-	builder.SetExtensionOptions(option)
-	builder.SetFeeAmount(gasAmount)
-	builder.SetGasLimit(gas)
-
-	sigsV2 := signing.SignatureV2{
-		PubKey: pubKey,
-		Data: &signing.SingleSignatureData{
-			SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
+	txConf := suite.clientCtx.TxConfig
+	builder, err := utiltx.PrepareEIP712CosmosTx(
+		suite.ctx,
+		suite.app,
+		utiltx.CosmosTxInput{
+			TxCfg:   txConf,
+			Priv:    priv,
+			ChainID: chainID,
+			Gas:     gas,
+			Fees:    gasAmount,
 		},
-		Sequence: nonce,
-	}
+		msgs...,
+	)
 
-	err = builder.SetSignatures(sigsV2)
 	suite.Require().NoError(err)
-
-	err = builder.SetMsgs(msgs...)
-	suite.Require().NoError(err)
-
 	return builder
 }
 
