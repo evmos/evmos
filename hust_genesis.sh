@@ -1,16 +1,22 @@
 #!/bin/bash
-
 KEYS[0]="hust0"
-CHAINID="$CHAIN_ID"
+
+echo "CHAINID"
+read -r CHAINID
+
+echo "MONIKER"
+read -r MONIKER
+
+CHAINID="$CHAINID"
 MONIKER="$MONIKER"
 # Remember to change to other types of keyring like 'file' in-case exposing to outside world,
 # otherwise your balance will be wiped quickly
 # The keyring test does not require private key to steal tokens from you
-KEYRING="test"
+KEYRING="file"
 KEYALGO="eth_secp256k1"
 LOGLEVEL="info"
-# Set dedicated home directory for the evmosd instance
-HOMEDIR="$HOME/.tmp-hust-evmosd"
+# Set dedicated home directory for the hustd instance
+HOMEDIR="$HOME/.tmp-hust-hustd"
 # to trace evm
 #TRACE="--trace"
 TRACE=""
@@ -53,16 +59,16 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# Set client config
-	evmosd config keyring-backend $KEYRING --home "$HOMEDIR"
-	evmosd config chain-id $CHAINID --home "$HOMEDIR"
+	hustd config keyring-backend $KEYRING --home "$HOMEDIR"
+	hustd config chain-id $CHAINID --home "$HOMEDIR"
 
 	# If keys exist they should be deleted
 	for KEY in "${KEYS[@]}"; do
-		evmosd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
+		hustd keys add $KEY --keyring-backend $KEYRING --algo $KEYALGO --home "$HOMEDIR"
 	done
 
 	# Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
-	evmosd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+	hustd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
 
 	# Change parameter token denominations to GOV_TOKEN 
 	jq -r --arg GOV_TOKEN "$GOV_TOKEN" '.app_state["staking"]["params"]["bond_denom"]=$GOV_TOKEN' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -143,19 +149,21 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
       sed -i '' 's/enabled-unsafe-cors *= *.*/enabled-unsafe-cors = true/g' "$APP_TOML" 
       sed -i '' 's/cors_allowed_origins *= *.*/cors_allowed_origins = \[\"*\"\]/g' "$CONFIG"
       sed -i '' '/\[api\]/,+3 s/enable = false/enable = true/' "$APP_TOML" 
+      sed -i '' 's/aevmos/abkc/g' "$APP_TOML"
     else
       sed -i 's/127.0.0.1/0.0.0.0/g' "$CONFIG"
       sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
       sed -i 's/enabled-unsafe-cors *= *.*/enabled-unsafe-cors = true/g' "$APP_TOML" 
       sed -i 's/cors_allowed_origins *= *.*/cors_allowed_origins = \[\"*\"\]/g' "$CONFIG"
-      sed -i '' '/\[api\]/,+3 s/enable = false/enable = true/' "$APP_TOML" 
+      sed -i '/\[api\]/,+3 s/enable = false/enable = true/' "$APP_TOML" 
+      sed -i 's/aevmos/abkc' "$APP_TOML"
     fi
   fi
   
 
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
-		evmosd add-genesis-account $KEY "100000000000000000000000000${GOV_TOKEN},100000000000000000000000000${EVM_TOKEN}"  --keyring-backend $KEYRING --home "$HOMEDIR"
+		hustd add-genesis-account $KEY "100000000000000000000000000${GOV_TOKEN},100000000000000000000000000${EVM_TOKEN}"  --keyring-backend $KEYRING --home "$HOMEDIR"
 	done
 
 	# bc is required to add these big numbers
@@ -165,7 +173,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq -r --arg total_supply "$total_supply_vnd" '.app_state["bank"]["supply"][1]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Sign genesis transaction
-	evmosd gentx ${KEYS[0]} "1000000000000000000000${GOV_TOKEN}" --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+	hustd gentx ${KEYS[0]} "1000000000000000000000${GOV_TOKEN}" --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
 	## 1. Back to `evmosd keys add` step, init more keys
 	## 2. Back to `evmosd add-genesis-account` step, add balance for those
@@ -174,14 +182,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
 	# Collect genesis tx
-	evmosd collect-gentxs --home "$HOMEDIR"
+	hustd collect-gentxs --home "$HOMEDIR"
 
 	# Run this to ensure everything worked and that the genesis file is setup correctly
-	evmosd validate-genesis --home "$HOMEDIR"
-
-	if [[ $1 == "pending" ]]; then
-		echo "pending mode is on, please wait for the first block committed."
-	fi
-
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start --metrics --pruning=nothing "$TRACE" --log_level $LOGLEVEL --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
+	hustd validate-genesis --home "$HOMEDIR"
