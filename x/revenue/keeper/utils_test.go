@@ -180,7 +180,6 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 		*factoryAddress,
 		s.queryClientEvm,
 	)
-
 	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	s.Commit()
@@ -240,18 +239,18 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		to,
-		nil,
-		gasLimit,
-		gasPrice,
-		gasFeeCap,
-		gasTipCap,
-		data,
-		accesses,
-	)
+	ethTxParams := evmtypes.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        to,
+		GasPrice:  gasPrice,
+		GasLimit:  gasLimit,
+		GasTipCap: gasTipCap,
+		GasFeeCap: gasFeeCap,
+		Input:     data,
+		Accesses:  accesses,
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
 }

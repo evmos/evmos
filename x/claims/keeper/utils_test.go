@@ -169,7 +169,16 @@ func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
 
-	msgEthereumTx := evm.NewTx(chainID, nonce, &from, nil, 100000, nil, s.app.FeeMarketKeeper.GetBaseFee(s.ctx), big.NewInt(1), nil, &ethtypes.AccessList{})
+	ethTxParams := evm.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        &from,
+		GasLimit:  100000,
+		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+		GasTipCap: big.NewInt(1),
+		Accesses:  &ethtypes.AccessList{},
+	}
+	msgEthereumTx := evm.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 	_, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	s.Require().NoError(err)

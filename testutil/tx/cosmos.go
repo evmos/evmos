@@ -107,3 +107,15 @@ func PrepareCosmosTx(
 	}
 	return txBuilder.GetTx(), nil
 }
+
+var _ sdk.Tx = &InvalidTx{}
+
+// InvalidTx defines a type, which satisfies the sdk.Tx interface, but
+// holds no valid transaction information.
+//
+// NOTE: This is used for testing purposes, to serve the edge case of invalid data being passed to functions.
+type InvalidTx struct{}
+
+func (InvalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
+
+func (InvalidTx) ValidateBasic() error { return nil }
