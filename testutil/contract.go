@@ -42,17 +42,15 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
-	msgEthereumTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil, // amount
-		gas, // gasLimit
-		nil, // gasPrice
-		evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
-	)
+	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasLimit:  gas,
+		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
+		GasTipCap: big.NewInt(1),
+		Input:     data,
+		Accesses:  &ethtypes.AccessList{},
+	})
 	msgEthereumTx.From = from.String()
 
 	if _, err = DeliverEthTx(evmosApp, priv, msgEthereumTx); err != nil {
@@ -64,7 +62,8 @@ func DeployContract(
 
 // DeployContractWithFactory deploys a contract using a contract factory
 // with the provided factoryAddress
-func DeployContractWithFactory(ctx sdk.Context,
+func DeployContractWithFactory(
+	ctx sdk.Context,
 	evmosApp *app.Evmos,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
@@ -75,18 +74,13 @@ func DeployContractWithFactory(ctx sdk.Context,
 	factoryNonce := evmosApp.EvmKeeper.GetNonce(ctx, factoryAddress)
 	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
 
-	msgEthereumTx := evm.NewTx(
-		chainID,
-		nonce,
-		&factoryAddress,
-		nil,
-		uint64(100000),
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		[]byte{},
-		nil,
-	)
+	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
+		ChainID:  chainID,
+		Nonce:    nonce,
+		To:       &factoryAddress,
+		GasLimit: uint64(100000),
+		GasPrice: big.NewInt(1000000000),
+	})
 	msgEthereumTx.From = from.String()
 
 	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
