@@ -114,9 +114,9 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
-		// TODO uncomment this test when the PR https://github.com/evmos/evmos/pull/1386 is merged
+		// TODO uncomment this test when the PR https://github.com/evmos/evmos/pull/1386 is merged - will fail with error saying cannot use --gas flag with fees=auto
 		// {
-		// 	name: "success - submit upgrade proposal, no fees (defaults to requiredFees) & sufficient gas",
+		// 	name: "fail - submit upgrade proposal, no fees (defaults to 'auto') & sufficient gas",
 		// 	cmd: func() (string, error) {
 		// 		return s.upgradeManager.CreateSubmitProposalExec(
 		// 			"v11.0.0",
@@ -126,7 +126,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		// 			"--gas=1500000",
 		// 		)
 		// 	},
-		// 	expPass: true,
+		// 	expPass: false,
 		// },
 		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
 		// {
