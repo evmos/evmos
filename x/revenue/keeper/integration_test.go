@@ -687,8 +687,16 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var contractAddress common.Address
 
 				BeforeAll(func() {
+					var err error
 					contractNonce = getNonce(factoryAddress.Bytes())
-					contractAddress = deployContractWithFactory(deployerKey, &factoryAddress)
+					contractAddress, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey,
+						factoryAddress,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
 					s.Commit()
 				})
 
@@ -782,11 +790,27 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 					// Create factory2
 					factory2Nonce = getNonce(factory1Address.Bytes())
-					factory2Address = deployContractWithFactory(deployerKey1, &factory1Address)
+					factory2Address, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey1,
+						factory1Address,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
+					s.Commit()
 
 					// Create contract
 					contractNonce = getNonce(factory2Address.Bytes())
-					contractAddress = deployContractWithFactory(deployerKey1, &factory2Address)
+					contractAddress, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey1,
+						factory2Address,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
+					s.Commit()
 				})
 
 				DescribeTable("should consume gas for three address derivation iterations",

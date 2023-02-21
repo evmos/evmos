@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"math/big"
-	"strings"
 	"time"
 
 	. "github.com/onsi/gomega"
@@ -170,30 +169,6 @@ func registerFee(
 		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
-}
-
-func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
-	contractAddress, res, err := testutil.DeployContractWithFactory(
-		s.ctx,
-		s.app,
-		priv,
-		*factoryAddress,
-		s.queryClientEvm,
-	)
-	Expect(err).To(BeNil())
-	Expect(res.IsOK()).To(Equal(true), res.GetLog())
-	s.Commit()
-
-	ethereumTx := res.GetEvents()[12]
-	Expect(ethereumTx.Type).To(Equal("tx_log"))
-	Expect(string(ethereumTx.Attributes[0].Key)).To(Equal("txLog"))
-	txLog := string(ethereumTx.Attributes[0].Value)
-
-	Expect(
-		strings.Contains(txLog, strings.ToLower(contractAddress.String()[2:])),
-	).To(BeTrue(), "log topic does not match created contract address")
-
-	return contractAddress
 }
 
 func contractInteract(
