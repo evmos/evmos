@@ -196,21 +196,6 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	return contractAddress
 }
 
-func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Address {
-	addr, err := testutil.DeployContract(
-		s.ctx,
-		s.app,
-		priv,
-		s.queryClientEvm,
-		evmtypes.CompiledContract{
-			Bin: common.Hex2Bytes(contractCode),
-		},
-	)
-	s.Require().NoError(err)
-	s.Commit()
-	return addr
-}
-
 func contractInteract(
 	priv *ethsecp256k1.PrivKey,
 	contractAddr *common.Address,

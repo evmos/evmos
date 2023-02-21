@@ -7,16 +7,17 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/evmos/evmos/v11/app"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
+
 	"github.com/stretchr/testify/suite"
 )
 
