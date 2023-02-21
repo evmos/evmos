@@ -27,7 +27,6 @@ func PrepareEIP712CosmosTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,
 	input CosmosTxInput,
-	msgs ...sdk.Msg,
 ) (client.TxBuilder, error) {
 	pc, err := types.ParseChainID(input.ChainID)
 	if err != nil {
@@ -52,8 +51,8 @@ func PrepareEIP712CosmosTx(
 
 	fee := legacytx.NewStdFee(input.Gas, input.Fees) //nolint: staticcheck
 
-	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(evmosCodec, chainIDNum, msgs[0], data, &eip712.FeeDelegationOptions{
+	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, input.Msgs, "", nil)
+	typedData, err := eip712.WrapTxToTypedData(evmosCodec, chainIDNum, input.Msgs[0], data, &eip712.FeeDelegationOptions{
 		FeePayer: from,
 	})
 	if err != nil {
@@ -69,7 +68,7 @@ func PrepareEIP712CosmosTx(
 	builder.SetFeeAmount(fee.Amount)
 	builder.SetGasLimit(input.Gas)
 
-	err = builder.SetMsgs(msgs...)
+	err = builder.SetMsgs(input.Msgs...)
 	if err != nil {
 		return nil, err
 	}

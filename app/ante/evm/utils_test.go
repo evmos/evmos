@@ -381,10 +381,9 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 			ChainID: chainID,
 			Gas:     gas,
 			Fees:    gasAmount,
+			Msgs:    msgs,
 		},
-		msgs...,
 	)
-
 	suite.Require().NoError(err)
 	return builder
 }

@@ -50,6 +50,8 @@ type CosmosTxInput struct {
 	GasPrice *sdkmath.Int
 	// Fees is the fee to be used on the tx (amount and denom)
 	Fees sdk.Coins
+	// Msgs slice of messages to include on the tx
+	Msgs []sdk.Msg
 }
 
 // PrepareCosmosTx creates a cosmos tx and signs it with the provided messages and private key.

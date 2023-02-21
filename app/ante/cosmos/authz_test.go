@@ -274,7 +274,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 }
 
 func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
-	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(10)
+	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -400,9 +400,9 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 
 			if tc.isEIP712 {
-				tx, err = createEIP712CosmosTx(testAddresses[0], testPrivKeys[0], tc.msgs)
+				tx, err = suite.CreateEIP712CosmosTx(suite.priv, tc.msgs)
 			} else {
-				tx, err = createTx(testPrivKeys[0], tc.msgs...)
+				tx, err = createTx(suite.priv, tc.msgs...)
 			}
 			suite.Require().NoError(err)
 
