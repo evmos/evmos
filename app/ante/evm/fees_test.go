@@ -3,13 +3,13 @@ package evm_test
 import (
 	"math/big"
 
-	evmante "github.com/evmos/evmos/v11/app/ante/evm"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/testutil"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -24,8 +24,8 @@ var execTypes = []struct {
 
 func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 	denom := evmtypes.DefaultEVMDenom
-	from, privKey := utiltx.NewAddrKey()
-	to := utiltx.GenerateAddress()
+	from, privKey := testutiltx.NewAddrKey()
+	to := testutiltx.GenerateAddress()
 	emptyAccessList := ethtypes.AccessList{}
 
 	testCases := []struct {
@@ -42,7 +42,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				return &invalidTx{}
+				return &testutiltx.InvalidTx{}
 			},
 			false,
 			"invalid message type",
@@ -72,7 +72,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				params.MinGasPrice = sdk.ZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
-				return &invalidTx{}
+				return &testutiltx.InvalidTx{}
 			},
 			true,
 			"",
@@ -235,7 +235,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				// s.SetupTest(et.isCheckTx)
 				suite.SetupTest()
 				dec := evmante.NewEthMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
-				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, NextFn)
+				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, testutil.NextFn)
 
 				if tc.expPass {
 					suite.Require().NoError(err, tc.name)
