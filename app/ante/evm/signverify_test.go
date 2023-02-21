@@ -6,12 +6,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/testutil"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
-	addr, privKey := utiltx.NewAddrKey()
+	addr, privKey := testutiltx.NewAddrKey()
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
 		ChainID:  suite.app.EvmKeeper.ChainID(),
@@ -22,7 +23,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	}
 	signedTx := evmtypes.NewTxContract(ethContractCreationTxParams)
 	signedTx.From = addr.Hex()
-	err := signedTx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
+	err := signedTx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	uprotectedEthTxParams := &evmtypes.EvmTxArgs{
@@ -33,7 +34,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	}
 	unprotectedTx := evmtypes.NewTxContract(uprotectedEthTxParams)
 	unprotectedTx.From = addr.Hex()
-	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, utiltx.NewSigner(privKey))
+	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {
@@ -43,8 +44,8 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 		reCheckTx           bool
 		expPass             bool
 	}{
-		{"ReCheckTx", &invalidTx{}, false, true, false},
-		{"invalid transaction type", &invalidTx{}, false, false, false},
+		{"ReCheckTx", &testutiltx.InvalidTx{}, false, true, false},
+		{"invalid transaction type", &testutiltx.InvalidTx{}, false, false, false},
 		{
 			"invalid sender",
 			evmtypes.NewTx(&evmtypes.EvmTxArgs{
@@ -70,7 +71,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 			}
 			suite.SetupTest()
 			dec := ethante.NewEthSigVerificationDecorator(suite.app.EvmKeeper)
-			_, err := dec.AnteHandle(suite.ctx.WithIsReCheckTx(tc.reCheckTx), tc.tx, false, NextFn)
+			_, err := dec.AnteHandle(suite.ctx.WithIsReCheckTx(tc.reCheckTx), tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
