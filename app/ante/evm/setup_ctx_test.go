@@ -4,9 +4,11 @@ import (
 	"math/big"
 
 	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/testutil"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -19,7 +21,7 @@ func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 		tx      sdk.Tx
 		expPass bool
 	}{
-		{"invalid transaction type - does not implement GasTx", &invalidTx{}, false},
+		{"invalid transaction type - does not implement GasTx", &testutiltx.InvalidTx{}, false},
 		{
 			"success - transaction implement GasTx",
 			tx,
@@ -29,7 +31,7 @@ func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			ctx, err := dec.AnteHandle(suite.ctx, tc.tx, false, NextFn)
+			ctx, err := dec.AnteHandle(suite.ctx, tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err)

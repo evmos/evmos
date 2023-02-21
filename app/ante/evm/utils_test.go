@@ -626,14 +626,3 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 
 	return txBuilder
 }
-
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
-var _ sdk.Tx = &invalidTx{}
-
-type invalidTx struct{}
-
-func (invalidTx) GetMsgs() []sdk.Msg   { return []sdk.Msg{nil} }
-func (invalidTx) ValidateBasic() error { return nil }

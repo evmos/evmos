@@ -51,6 +51,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (test) [#1415](https://github.com/evmos/evmos/pull/1415) Refactor InvalidTx type and NextFn used in AnteHandler tests
 - (vesting) [#1400](https://github.com/evmos/evmos/pull/1400) Add convert vesting account message
 - (test) [#1393](https://github.com/evmos/evmos/pull/1393) Move utilities from `tests` folder to `testutil` package
 - (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files

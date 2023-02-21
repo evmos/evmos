@@ -54,18 +54,6 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 	return txBuilder
 }
 
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
-var _ sdk.Tx = &invalidTx{}
-
-type invalidTx struct{}
-
-func (invalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
-
-func (invalidTx) ValidateBasic() error { return nil }
-
 func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
 	msg := authz.NewMsgExec(grantee, msgs)
 	return &msg
