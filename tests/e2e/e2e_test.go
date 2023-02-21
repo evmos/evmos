@@ -49,7 +49,6 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 					s.upgradeParams.ChainID,
 					5000,
 					true,
-					"--fees=",
 					"--gas=50000",
 				)
 			},
@@ -123,13 +122,24 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		// 			s.upgradeParams.ChainID,
 		// 			5000,
 		// 			true,
-		// 			"--fees=",
 		// 			"--gas=1500000",
 		// 		)
 		// 	},
 		// 	expPass: true,
 		// },
 		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
+		// {
+		// 	name: "success - submit upgrade proposal, no fees (defaults to 'auto')",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
 		// {
 		// 	name: "success - submit upgrade proposal, gas 'auto'",
 		// 	cmd: func() (string, error) {
@@ -138,7 +148,6 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		// 			s.upgradeParams.ChainID,
 		// 			5000,
 		// 			true,
-		// 			"--fees=",
 		// 			"--gas=auto",
 		// 		)
 		// 	},
@@ -153,7 +162,6 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		// 			5000,
 		// 			true,
 		// 			"--fees=auto",
-		// 			"--gas=",
 		// 		)
 		// 	},
 		// 	expPass: true,
@@ -161,7 +169,12 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		{
 			name: "fail - vote upgrade proposal, insufficient fees",
 			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=10aevmos", "--gas=500000")
+				return s.upgradeManager.CreateVoteProposalExec(
+					s.upgradeParams.ChainID,
+					1,
+					"--fees=10aevmos",
+					"--gas=500000",
+				)
 			},
 			expPass:   false,
 			expErrMsg: "insufficient fee",
@@ -169,7 +182,12 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		{
 			name: "fail - vote upgrade proposal, insufficient gas",
 			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=10000000000000000aevmos", "--gas=100")
+				return s.upgradeManager.CreateVoteProposalExec(
+					s.upgradeParams.ChainID,
+					1,
+					"--fees=10000000000000000aevmos",
+					"--gas=100",
+				)
 			},
 			expPass:   false,
 			expErrMsg: "out of gas",
@@ -177,7 +195,12 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		{
 			name: "success - vote upgrade proposal, defined gas and fees",
 			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=10000000000000000aevmos", "--gas=500000")
+				return s.upgradeManager.CreateVoteProposalExec(
+					s.upgradeParams.ChainID,
+					1,
+					"--fees=10000000000000000aevmos",
+					"--gas=500000",
+				)
 			},
 			expPass: true,
 		},
@@ -185,14 +208,22 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		// {
 		// 	name: "success - vote upgrade proposal, gas 'auto'",
 		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=", "--gas=auto")
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 		s.upgradeParams.ChainID,
+		// 		1,
+		// 		"--gas=auto",
+		// 	  )
 		// 	},
 		// 	expPass:   true,
 		// },
 		// {
 		// 	name: "success - vote upgrade proposal, fees 'auto'",
 		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, 1, "--fees=auto", "--gas=")
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 		s.upgradeParams.ChainID,
+		// 		1,
+		// 		"--fees=auto",
+		// 	)
 		// 	},
 		// 	expPass:   true,
 		// },
