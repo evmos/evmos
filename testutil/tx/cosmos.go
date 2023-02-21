@@ -35,6 +35,23 @@ var (
 	DefaultFee = sdk.NewCoin(utils.BaseDenom, sdk.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
 )
 
+// CosmosTxInput contains the input parameters required for preparing
+// an EIP712 cosmos tx
+type CosmosTxInput struct {
+	// TxCfg is the client transaction config
+	TxCfg client.TxConfig
+	// Priv is the private key that will be used to sign the tx
+	Priv cryptotypes.PrivKey
+	// ChainID is the chain's id on cosmos format, e.g. 'evmos_9000-1'
+	ChainID string
+	// Gas to be used on the tx
+	Gas uint64
+	// GasPrice to use on tx
+	GasPrice *sdkmath.Int
+	// Fees is the fee to be used on the tx (amount and denom)
+	Fees sdk.Coins
+}
+
 // PrepareCosmosTx creates a cosmos tx and signs it with the provided messages and private key.
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
