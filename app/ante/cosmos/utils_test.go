@@ -16,8 +16,6 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 var _ sdk.AnteHandler = (&MockAnteHandler{}).AnteHandle
@@ -133,24 +131,4 @@ func createTx(priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	}
 
 	return txBuilder.GetTx(), nil
-}
-
-func (suite *AnteTestSuite) CreateEIP712CosmosTx(priv cryptotypes.PrivKey, msgs []sdk.Msg,
-) (sdk.Tx, error) {
-	coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
-	fees := sdk.NewCoins(coinAmount)
-	builder, err := utiltx.PrepareEIP712CosmosTx(
-		suite.ctx,
-		suite.app,
-		utiltx.CosmosTxInput{
-			TxCfg:   suite.clientCtx.TxConfig,
-			Priv:    priv,
-			ChainID: suite.ctx.ChainID(),
-			Gas:     200000,
-			Fees:    fees,
-			Msgs:    msgs,
-		},
-	)
-
-	return builder.GetTx(), err
 }

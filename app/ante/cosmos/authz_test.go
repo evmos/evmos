@@ -16,6 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -400,7 +401,20 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 
 			if tc.isEIP712 {
-				tx, err = suite.CreateEIP712CosmosTx(suite.priv, tc.msgs)
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				fees := sdk.NewCoins(coinAmount)
+				tx, err = utiltx.CreateEIP712CosmosTx(
+					suite.ctx,
+					suite.app,
+					utiltx.CosmosTxInput{
+						TxCfg:   suite.clientCtx.TxConfig,
+						Priv:    suite.priv,
+						ChainID: suite.ctx.ChainID(),
+						Gas:     200000,
+						Fees:    fees,
+						Msgs:    tc.msgs,
+					},
+				)
 			} else {
 				tx, err = createTx(suite.priv, tc.msgs...)
 			}
