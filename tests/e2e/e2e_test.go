@@ -54,6 +54,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass:   false,
 			expErrMsg: "insufficient fee", // TODO when the PR https://github.com/evmos/evmos/pull/1386 is merged, this may fail with out of gas error
+			// when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk and included on this repo, will get an error that cannot define gas flag when using fees=auto (which is the default)
 		},
 		{
 			name: "fail - submit upgrade proposal, insufficient fees",
