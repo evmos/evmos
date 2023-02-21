@@ -118,7 +118,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 			tc.malleate()
 
 			dec := ethante.NewEthVestingTransactionDecorator(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.EvmKeeper)
-			_, err := dec.AnteHandle(suite.ctx, tc.tx, false, NextFn)
+			_, err := dec.AnteHandle(suite.ctx, tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)

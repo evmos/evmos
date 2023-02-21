@@ -54,10 +54,6 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 	return txBuilder
 }
 
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
 func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
 	msg := authz.NewMsgExec(grantee, msgs)
 	return &msg

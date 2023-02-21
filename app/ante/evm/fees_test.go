@@ -3,12 +3,12 @@ package evm_test
 import (
 	"math/big"
 
-	evmante "github.com/evmos/evmos/v11/app/ante/evm"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	evmante "github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -235,7 +235,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				// s.SetupTest(et.isCheckTx)
 				suite.SetupTest()
 				dec := evmante.NewEthMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
-				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, NextFn)
+				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, testutil.NextFn)
 
 				if tc.expPass {
 					suite.Require().NoError(err, tc.name)
