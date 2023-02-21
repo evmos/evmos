@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 			Input:     data,
 			Accesses:  &ethtypes.AccessList{},
 		}
-		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
 		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:  chainID,
@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 			GasLimit: res.Gas,
 			Input:    data,
 		}
-		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()
@@ -176,7 +176,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 			Accesses:  &ethtypes.AccessList{},
 			GasTipCap: big.NewInt(1),
 		}
-		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
 		ethTxParams := &evmtypes.EvmTxArgs{
 			ChainID:  chainID,
@@ -184,7 +184,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 			GasLimit: res.Gas,
 			Input:    data,
 		}
-		erc20DeployTx = evmtypes.NewTxContract(ethTxParams)
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()

@@ -212,7 +212,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	erc20DeployTx := evm.NewTxContract(&ethTxParams)
+	erc20DeployTx := evm.NewTx(&ethTxParams)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)

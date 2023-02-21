@@ -27,7 +27,7 @@ func TestTxEncoding(t *testing.T) {
 		GasTipCap: big.NewInt(1),
 		Input:     []byte{},
 	}
-	msg := evmtypes.NewTxContract(&ethTxParams)
+	msg := evmtypes.NewTx(&ethTxParams)
 	msg.From = addr.Hex()
 
 	ethSigner := ethtypes.LatestSignerForChainID(big.NewInt(1))

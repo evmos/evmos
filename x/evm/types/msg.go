@@ -61,14 +61,6 @@ func NewTx(
 	return newMsgEthereumTx(tx)
 }
 
-// NewTxContract returns a reference to a new Ethereum transaction
-// message designated for contract creation.
-func NewTxContract(
-	tx *EvmTxArgs,
-) *MsgEthereumTx {
-	return newMsgEthereumTx(tx)
-}
-
 func newMsgEthereumTx(
 	tx *EvmTxArgs,
 ) *MsgEthereumTx {

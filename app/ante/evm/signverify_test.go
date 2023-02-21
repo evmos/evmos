@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	signedTx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	signedTx := evmtypes.NewTx(ethContractCreationTxParams)
 	signedTx.From = addr.Hex()
 	err := signedTx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
@@ -32,7 +32,7 @@ func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	unprotectedTx := evmtypes.NewTxContract(uprotectedEthTxParams)
+	unprotectedTx := evmtypes.NewTx(uprotectedEthTxParams)
 	unprotectedTx.From = addr.Hex()
 	err = unprotectedTx.Sign(ethtypes.HomesteadSigner{}, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)

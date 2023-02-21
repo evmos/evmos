@@ -365,7 +365,7 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	erc20DeployTx := evm.NewTxContract(ethTxParams)
+	erc20DeployTx := evm.NewTx(ethTxParams)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
@@ -413,7 +413,7 @@ func (suite *KeeperTestSuite) DeployContractMaliciousDelayed(name string, symbol
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	erc20DeployTx := evm.NewTxContract(ethTxParams)
+	erc20DeployTx := evm.NewTx(ethTxParams)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
@@ -455,7 +455,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation(name strin
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	erc20DeployTx := evm.NewTxContract(ethTxParams)
+	erc20DeployTx := evm.NewTx(ethTxParams)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
@@ -489,7 +489,7 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	erc20DeployTx := evm.NewTxContract(ethTxParams)
+	erc20DeployTx := evm.NewTx(ethTxParams)
 
 	signer := utiltx.NewSigner(suite.EvmosChain.SenderPrivKey)
 	erc20DeployTx.From = from.Hex()

@@ -32,7 +32,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx := evmtypes.NewTx(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	var vmdb *statedb.StateDB
@@ -127,7 +127,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx := evmtypes.NewTx(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	testCases := []struct {
@@ -192,7 +192,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		GasPrice: big.NewInt(1),
 	}
 
-	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx := evmtypes.NewTx(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
 	ethCfg := suite.app.EvmKeeper.GetParams(suite.ctx).
@@ -211,7 +211,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		GasPrice: gasPrice,
 		Accesses: &ethtypes.AccessList{{Address: addr, StorageKeys: nil}},
 	}
-	tx2 := evmtypes.NewTxContract(eth2TxContractParams)
+	tx2 := evmtypes.NewTx(eth2TxContractParams)
 	tx2.From = addr.Hex()
 	tx2Priority := int64(1)
 
@@ -224,7 +224,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		GasPrice: gasPrice,
 		Accesses: &ethtypes.AccessList{{Address: addr, StorageKeys: nil}},
 	}
-	tx3 := evmtypes.NewTxContract(eth3TxContractParams)
+	tx3 := evmtypes.NewTx(eth3TxContractParams)
 
 	dynamicTxContractParams := &evmtypes.EvmTxArgs{
 		ChainID:   suite.app.EvmKeeper.ChainID(),
@@ -235,7 +235,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		GasTipCap: evmtypes.DefaultPriorityReduction.BigInt(),
 		Accesses:  &ethtypes.AccessList{{Address: addr, StorageKeys: nil}},
 	}
-	dynamicFeeTx := evmtypes.NewTxContract(dynamicTxContractParams)
+	dynamicFeeTx := evmtypes.NewTx(dynamicTxContractParams)
 	dynamicFeeTx.From = addr.Hex()
 	dynamicFeeTxPriority := int64(1)
 
@@ -253,7 +253,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		{"invalid transaction type", &testutiltx.InvalidTx{}, math.MaxUint64, func() {}, false, false, 0},
 		{
 			"sender not found",
-			evmtypes.NewTxContract(&evmtypes.EvmTxArgs{
+			evmtypes.NewTx(&evmtypes.EvmTxArgs{
 				ChainID:  suite.app.EvmKeeper.ChainID(),
 				Nonce:    1,
 				Amount:   big.NewInt(10),
@@ -387,8 +387,8 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 		Accesses:  &ethtypes.AccessList{},
 	}
 
-	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
-	tx2 := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx := evmtypes.NewTx(ethContractCreationTxParams)
+	tx2 := evmtypes.NewTx(ethContractCreationTxParams)
 
 	tx.From = addr.Hex()
 
@@ -455,7 +455,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	contract := evmtypes.NewTxContract(ethTxContractParamsNonce0)
+	contract := evmtypes.NewTx(ethTxContractParamsNonce0)
 	contract.From = addr.Hex()
 	err := contract.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)

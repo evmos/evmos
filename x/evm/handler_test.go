@@ -223,7 +223,7 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 		{
 			"insufficient balance",
 			func() {
-				tx = types.NewTxContract(defaultEthTxParams)
+				tx = types.NewTx(defaultEthTxParams)
 				suite.SignTx(tx)
 			},
 			false,
@@ -231,7 +231,7 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 		{
 			"tx encoding failed",
 			func() {
-				tx = types.NewTxContract(defaultEthTxParams)
+				tx = types.NewTx(defaultEthTxParams)
 			},
 			false,
 		},
@@ -245,7 +245,7 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 		{
 			"VerifySig failed",
 			func() {
-				tx = types.NewTxContract(defaultEthTxParams)
+				tx = types.NewTx(defaultEthTxParams)
 			},
 			false,
 		},

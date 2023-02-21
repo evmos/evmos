@@ -211,7 +211,7 @@ func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
 	}
-	msgEthereumTx := evm.NewTxContract(&ethTxParams)
+	msgEthereumTx := evm.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 
 	performEthTx(priv, msgEthereumTx)

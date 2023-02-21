@@ -910,7 +910,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 					GasLimit: ethparams.TxGasContractCreation,
 					Input:    data,
 				}
-				contractTx := types.NewTxContract(ethTxParams)
+				contractTx := types.NewTx(ethTxParams)
 
 				predecessors = append(predecessors, contractTx)
 				suite.Commit()

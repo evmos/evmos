@@ -78,7 +78,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
 		GasLimit: 100000,
 		Input:    []byte("test"),
 	}
-	msg = types.NewTxContract(evmTx2)
+	msg = types.NewTx(evmTx2)
 	suite.Require().NotNil(msg)
 	// suite.Require().Empty(msg.Data.To)
 	// suite.Require().Nil(msg.To())
@@ -505,7 +505,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasicAdvanced() {
 		{
 			"fails - invalid tx hash",
 			func() *types.MsgEthereumTx {
-				msg := types.NewTxContract(evmTx)
+				msg := types.NewTx(evmTx)
 				msg.Hash = "0x00"
 				return msg
 			},
@@ -514,7 +514,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_ValidateBasicAdvanced() {
 		{
 			"fails - invalid size",
 			func() *types.MsgEthereumTx {
-				msg := types.NewTxContract(evmTx)
+				msg := types.NewTx(evmTx)
 				msg.Size_ = 1
 				return msg
 			},

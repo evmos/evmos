@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 		GasLimit: 1000,
 		GasPrice: big.NewInt(1),
 	}
-	tx := evmtypes.NewTxContract(ethContractCreationTxParams)
+	tx := evmtypes.NewTx(ethContractCreationTxParams)
 
 	testCases := []struct {
 		name    string
