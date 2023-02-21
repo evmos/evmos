@@ -58,34 +58,29 @@ type CosmosTxInput struct {
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
 	ctx sdk.Context,
-	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv cryptotypes.PrivKey,
-	gasPrice *sdkmath.Int,
-	msgs ...sdk.Msg,
+	input CosmosTxInput,
 ) (authsigning.Tx, error) {
-	txBuilder := txCfg.NewTxBuilder()
+	txBuilder := input.TxCfg.NewTxBuilder()
 
-	gasLimit := int64(10_000_000)
-	txBuilder.SetGasLimit(uint64(gasLimit))
+	txBuilder.SetGasLimit(input.Gas)
 
 	var fees sdk.Coins
-	if gasPrice != nil {
-		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: gasPrice.MulRaw(gasLimit)}}
+	if input.GasPrice != nil {
+		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: input.GasPrice.MulRaw(int64(input.Gas))}}
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}
 
 	txBuilder.SetFeeAmount(fees)
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
+	if err := txBuilder.SetMsgs(input.Msgs...); err != nil {
 		return nil, err
 	}
 
 	return signCosmosTx(
 		ctx,
 		appEvmos,
-		priv,
-		txCfg,
+		input,
 		txBuilder,
 	)
 }
@@ -95,11 +90,10 @@ func PrepareCosmosTx(
 func signCosmosTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,
-	priv cryptotypes.PrivKey,
-	txCfg client.TxConfig,
+	input CosmosTxInput,
 	txBuilder client.TxBuilder,
 ) (authsigning.Tx, error) {
-	addr := sdk.AccAddress(priv.PubKey().Address().Bytes())
+	addr := sdk.AccAddress(input.Priv.PubKey().Address().Bytes())
 	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, addr)
 	if err != nil {
 		return nil, err
@@ -108,9 +102,9 @@ func signCosmosTx(
 	// First round: we gather all the signer infos. We use the "set empty
 	// signature" hack to do that.
 	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
+		PubKey: input.Priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  txCfg.SignModeHandler().DefaultMode(),
+			SignMode:  input.TxCfg.SignModeHandler().DefaultMode(),
 			Signature: nil,
 		},
 		Sequence: seq,
@@ -125,14 +119,14 @@ func signCosmosTx(
 	// Second round: all signer infos are set, so each signer can sign.
 	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
-		ChainID:       ctx.ChainID(),
+		ChainID:       input.ChainID,
 		AccountNumber: accNumber,
 		Sequence:      seq,
 	}
 	sigV2, err = tx.SignWithPrivKey(
-		txCfg.SignModeHandler().DefaultMode(),
+		input.TxCfg.SignModeHandler().DefaultMode(),
 		signerData,
-		txBuilder, priv, txCfg,
+		txBuilder, input.Priv, input.TxCfg,
 		seq,
 	)
 	if err != nil {

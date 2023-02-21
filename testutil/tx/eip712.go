@@ -73,7 +73,13 @@ func PrepareEIP712CosmosTx(
 		return nil, err
 	}
 
-	return signCosmosEIP712Tx(ctx, appEvmos, builder, input.Priv, chainIDNum, typedData)
+	return signCosmosEIP712Tx(
+		ctx,
+		appEvmos,
+		builder,
+		input.Priv,
+		chainIDNum, typedData,
+	)
 }
 
 // signCosmosEIP712Tx signs the cosmos transaction on the txBuilder provided using
