@@ -72,6 +72,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
 - (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 - (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
+- (test) [#1417](https://github.com/evmos/evmos/pull/1417) Refactor EIP-712 transactions helper functions used on tests
 
 ### Bug Fixes
 

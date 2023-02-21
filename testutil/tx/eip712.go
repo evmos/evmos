@@ -20,6 +20,22 @@ import (
 	"github.com/evmos/evmos/v11/types"
 )
 
+// CreateEIP712CosmosTx creates a cosmos tx for typed data according to EIP712.
+// Also, signs the tx with the provided messages and private key.
+// It returns the signed transaction and an error
+func CreateEIP712CosmosTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	input CosmosTxInput,
+) (sdk.Tx, error) {
+	builder, err := PrepareEIP712CosmosTx(
+		ctx,
+		appEvmos,
+		input,
+	)
+	return builder.GetTx(), err
+}
+
 // PrepareEIP712CosmosTx creates a cosmos tx for typed data according to EIP712.
 // Also, signs the tx with the provided messages and private key.
 // It returns the tx builder with the signed transaction and an error
