@@ -10,7 +10,7 @@ import (
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -31,7 +31,7 @@ var (
 
 // TestEthVestingTransactionDecorator tests the EthVestingTransactionDecorator ante handler.
 func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
-	addr := utiltx.GenerateAddress()
+	addr := testutiltx.GenerateAddress()
 	tx := evmtypes.NewTx(
 		suite.app.EvmKeeper.ChainID(),
 		1,
@@ -65,7 +65,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 		},
 		{
 			"fail - invalid transaction",
-			&invalidTx{},
+			&testutiltx.InvalidTx{},
 			func() {},
 			false,
 			"invalid message type",

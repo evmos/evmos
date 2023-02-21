@@ -8,7 +8,7 @@ import (
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/server/config"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -21,7 +21,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		suite.app.AccountKeeper, suite.app.EvmKeeper,
 	)
 
-	addr := utiltx.GenerateAddress()
+	addr := testutiltx.GenerateAddress()
 
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
@@ -36,7 +36,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 		expPass  bool
 	}{
 		{"not CheckTx", nil, func() {}, false, true},
-		{"invalid transaction type", &invalidTx{}, func() {}, true, false},
+		{"invalid transaction type", &testutiltx.InvalidTx{}, func() {}, true, false},
 		{
 			"sender not set to msg",
 			evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil),
@@ -108,7 +108,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 	suite.SetupTest()
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
 
-	addr := utiltx.GenerateAddress()
+	addr := testutiltx.GenerateAddress()
 
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
@@ -120,8 +120,8 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 		reCheckTx bool
 		expPass   bool
 	}{
-		{"ReCheckTx", &invalidTx{}, func() {}, true, false},
-		{"invalid transaction type", &invalidTx{}, func() {}, false, false},
+		{"ReCheckTx", &testutiltx.InvalidTx{}, func() {}, true, false},
+		{"invalid transaction type", &testutiltx.InvalidTx{}, func() {}, false, false},
 		{"sender account not found", tx, func() {}, false, false},
 		{
 			"sender nonce missmatch",
@@ -163,7 +163,7 @@ func (suite *AnteTestSuite) TestEthNonceVerificationDecorator() {
 func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	dec := ethante.NewEthGasConsumeDecorator(suite.app.EvmKeeper, config.DefaultMaxTxGasWanted)
 
-	addr := utiltx.GenerateAddress()
+	addr := testutiltx.GenerateAddress()
 
 	txGasLimit := uint64(1000)
 	tx := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), txGasLimit, big.NewInt(1), nil, nil, nil, nil)
@@ -203,7 +203,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		expPanic    bool
 		expPriority int64
 	}{
-		{"invalid transaction type", &invalidTx{}, math.MaxUint64, func() {}, false, false, 0},
+		{"invalid transaction type", &testutiltx.InvalidTx{}, math.MaxUint64, func() {}, false, false, 0},
 		{
 			"sender not found",
 			evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 1, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil),
@@ -320,7 +320,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 func (suite *AnteTestSuite) TestCanTransferDecorator() {
 	dec := ethante.NewCanTransferDecorator(suite.app.EvmKeeper)
 
-	addr, privKey := utiltx.NewAddrKey()
+	addr, privKey := testutiltx.NewAddrKey()
 
 	suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, big.NewInt(100))
 
@@ -349,7 +349,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 	tx.From = addr.Hex()
 
-	err := tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
+	err := tx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	var vmdb *statedb.StateDB
@@ -360,7 +360,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 		malleate func()
 		expPass  bool
 	}{
-		{"invalid transaction type", &invalidTx{}, func() {}, false},
+		{"invalid transaction type", &testutiltx.InvalidTx{}, func() {}, false},
 		{"AsMessage failed", tx2, func() {}, false},
 		{
 			"evm CanTransfer failed",
@@ -403,22 +403,22 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	dec := ethante.NewEthIncrementSenderSequenceDecorator(suite.app.AccountKeeper)
-	addr, privKey := utiltx.NewAddrKey()
+	addr, privKey := testutiltx.NewAddrKey()
 
 	contract := evmtypes.NewTxContract(suite.app.EvmKeeper.ChainID(), 0, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	contract.From = addr.Hex()
-	err := contract.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
+	err := contract.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
-	to := utiltx.GenerateAddress()
+	to := testutiltx.GenerateAddress()
 	tx := evmtypes.NewTx(suite.app.EvmKeeper.ChainID(), 0, &to, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx.From = addr.Hex()
-	err = tx.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
+	err = tx.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	tx2 := evmtypes.NewTx(suite.app.EvmKeeper.ChainID(), 1, &to, big.NewInt(10), 1000, big.NewInt(1), nil, nil, nil, nil)
 	tx2.From = addr.Hex()
-	err = tx2.Sign(suite.ethSigner, utiltx.NewSigner(privKey))
+	err = tx2.Sign(suite.ethSigner, testutiltx.NewSigner(privKey))
 	suite.Require().NoError(err)
 
 	testCases := []struct {
@@ -430,7 +430,7 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	}{
 		{
 			"invalid transaction type",
-			&invalidTx{},
+			&testutiltx.InvalidTx{},
 			func() {},
 			false, false,
 		},

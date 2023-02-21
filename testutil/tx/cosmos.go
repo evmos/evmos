@@ -107,3 +107,11 @@ func PrepareCosmosTx(
 	}
 	return txBuilder.GetTx(), nil
 }
+
+var _ sdk.Tx = &InvalidTx{}
+
+type InvalidTx struct{}
+
+func (InvalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
+
+func (InvalidTx) ValidateBasic() error { return nil }

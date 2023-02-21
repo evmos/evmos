@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -35,7 +36,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx type",
 			func() sdk.Tx {
-				return &invalidTx{}
+				return &testutiltx.InvalidTx{}
 			},
 			false,
 			"invalid transaction type",

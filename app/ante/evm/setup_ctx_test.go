@@ -7,6 +7,7 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -19,7 +20,7 @@ func (suite *AnteTestSuite) TestEthSetupContextDecorator() {
 		tx      sdk.Tx
 		expPass bool
 	}{
-		{"invalid transaction type - does not implement GasTx", &invalidTx{}, false},
+		{"invalid transaction type - does not implement GasTx", &testutiltx.InvalidTx{}, false},
 		{
 			"success - transaction implement GasTx",
 			tx,
