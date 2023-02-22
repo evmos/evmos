@@ -26,12 +26,12 @@ import (
 func CreateEIP712CosmosTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,
-	input CosmosTxInput,
+	args CosmosTxArgs,
 ) (sdk.Tx, error) {
 	builder, err := PrepareEIP712CosmosTx(
 		ctx,
 		appEvmos,
-		input,
+		args,
 	)
 	return builder.GetTx(), err
 }
@@ -42,15 +42,15 @@ func CreateEIP712CosmosTx(
 func PrepareEIP712CosmosTx(
 	ctx sdk.Context,
 	appEvmos *app.Evmos,
-	input CosmosTxInput,
+	args CosmosTxArgs,
 ) (client.TxBuilder, error) {
-	pc, err := types.ParseChainID(input.ChainID)
+	pc, err := types.ParseChainID(args.ChainID)
 	if err != nil {
 		return nil, err
 	}
 	chainIDNum := pc.Uint64()
 
-	from := sdk.AccAddress(input.Priv.PubKey().Address().Bytes())
+	from := sdk.AccAddress(args.Priv.PubKey().Address().Bytes())
 	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, from).GetAccountNumber()
 
 	nonce, err := appEvmos.AccountKeeper.GetSequence(ctx, from)
@@ -65,26 +65,26 @@ func PrepareEIP712CosmosTx(
 	evmosCodec = codec.NewProtoCodec(registry)
 	cryptocodec.RegisterInterfaces(registry)
 
-	fee := legacytx.NewStdFee(input.Gas, input.Fees) //nolint: staticcheck
+	fee := legacytx.NewStdFee(args.Gas, args.Fees) //nolint: staticcheck
 
-	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, input.Msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(evmosCodec, chainIDNum, input.Msgs[0], data, &eip712.FeeDelegationOptions{
+	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, args.Msgs, "", nil)
+	typedData, err := eip712.WrapTxToTypedData(evmosCodec, chainIDNum, args.Msgs[0], data, &eip712.FeeDelegationOptions{
 		FeePayer: from,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	txBuilder := input.TxCfg.NewTxBuilder()
+	txBuilder := args.TxCfg.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
 	if !ok {
 		return nil, errors.New("txBuilder could not be casted to authtx.ExtensionOptionsTxBuilder type")
 	}
 
 	builder.SetFeeAmount(fee.Amount)
-	builder.SetGasLimit(input.Gas)
+	builder.SetGasLimit(args.Gas)
 
-	err = builder.SetMsgs(input.Msgs...)
+	err = builder.SetMsgs(args.Msgs...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func PrepareEIP712CosmosTx(
 		ctx,
 		appEvmos,
 		builder,
-		input.Priv,
+		args.Priv,
 		chainIDNum, typedData,
 	)
 }

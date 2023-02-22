@@ -406,7 +406,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 				tx, err = utiltx.CreateEIP712CosmosTx(
 					suite.ctx,
 					suite.app,
-					utiltx.CosmosTxInput{
+					utiltx.CosmosTxArgs{
 						TxCfg:   suite.clientCtx.TxConfig,
 						Priv:    suite.priv,
 						ChainID: suite.ctx.ChainID(),
