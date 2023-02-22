@@ -1,9 +1,12 @@
 package testutil
 
 import (
-	"errors"
+	"fmt"
 	"math/big"
 
+	"github.com/gogo/protobuf/proto"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -53,11 +56,16 @@ func DeployContract(
 	})
 	msgEthereumTx.From = from.String()
 
-	if _, err = DeliverEthTx(evmosApp, priv, msgEthereumTx); err != nil {
+	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	if err != nil {
 		return common.Address{}, err
 	}
 
-	return getContractAddr(ctx, evmosApp, from, nonce)
+	if err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
+		return common.Address{}, err
+	}
+
+	return crypto.CreateAddress(from, nonce), nil
 }
 
 // DeployContractWithFactory deploys a contract using a contract factory
@@ -88,20 +96,28 @@ func DeployContractWithFactory(
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
-	addr, err := getContractAddr(ctx, evmosApp, factoryAddress, factoryNonce)
-	return addr, res, err
+	if err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
+		return common.Address{}, abci.ResponseDeliverTx{}, err
+	}
+
+	return crypto.CreateAddress(factoryAddress, factoryNonce), res, err
 }
 
-// getContractAddr calculates the contract address based on the deployer's address and its nonce
-// Then, checks if the account exists and has the 'code' field populated
-func getContractAddr(ctx sdk.Context, evmosApp *app.Evmos, from common.Address, nonce uint64) (common.Address, error) {
-	contractAddress := crypto.CreateAddress(from, nonce)
-	acc := evmosApp.EvmKeeper.GetAccountWithoutBalance(ctx, contractAddress)
-	if acc == nil {
-		return common.Address{}, errors.New("an error occurred when deploying the contract. GetAccountWithoutBalance using contract's account returned nil")
+// checkResponseTx checks that the transaction was executed successfully
+func checkResponseTx(r abci.ResponseDeliverTx, cdc codec.Codec) error {
+	if !r.IsOK() {
+		return fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
 	}
-	if !acc.IsContract() {
-		return common.Address{}, errors.New("an error occurred when deploying the contract. Contract's account does not have the contract code")
+	var txData sdk.TxMsgData
+	if err := cdc.Unmarshal(r.Data, &txData); err != nil {
+		return err
 	}
-	return contractAddress, nil
+	var ethRes evm.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &ethRes); err != nil {
+		return err
+	}
+	if ethRes.Failed() {
+		return fmt.Errorf("tx failed. VmError: %s", ethRes.VmError)
+	}
+	return nil
 }
