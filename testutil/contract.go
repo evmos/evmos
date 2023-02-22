@@ -113,8 +113,8 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 		return nil, err
 	}
 
-	var res *evm.MsgEthereumTxResponse
-	if err := proto.Unmarshal(txData.MsgResponses[0].Value, res); err != nil {
+	var res evm.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &res); err != nil {
 		return nil, err
 	}
 
@@ -122,5 +122,5 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 		return nil, fmt.Errorf("tx failed. VmError: %s", res.VmError)
 	}
 
-	return res, nil
+	return &res, nil
 }
