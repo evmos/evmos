@@ -22,6 +22,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 // ClaimSufficientStakingRewards checks if the account has enough staking rewards unclaimed
@@ -32,6 +33,9 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 		err     error
 		reward  sdk.Coins
 		rewards sdk.Coins
+
+		// baseAmount defines the amount to be claimed in the base denomination
+		baseAmount = amount.AmountOf(utils.BaseDenom)
 	)
 
 	cacheCtx, writeFn := ctx.CacheContext()
@@ -50,8 +54,7 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 			log.Printf("reward: %s", reward.String())
 			rewards = rewards.Add(reward...)
 
-			// FIXME: is there a better way to do this? probably not necessary to check if ANY is gte but rather check the specific denom.
-			return rewards.IsAnyGTE(amount)
+			return rewards.AmountOf(utils.BaseDenom).GTE(baseAmount)
 		},
 	)
 
@@ -61,7 +64,7 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 	}
 
 	// only write to state if there are enough rewards to cover the transaction fees
-	if !rewards.IsAnyGTE(amount) {
+	if rewards.AmountOf(utils.BaseDenom).LT(baseAmount) {
 		return fmt.Errorf("insufficient staking rewards to cover transaction fees")
 	}
 	writeFn() // commit state changes
