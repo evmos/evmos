@@ -78,8 +78,7 @@ func (suite *EIP712TestSuite) generateRandomPayload(numMessages int) gjson.Resul
 	msgs := make([]gjson.Result, numMessages)
 
 	for i := 0; i < numMessages; i++ {
-		m := suite.createRandomJSONObject()
-		msgs[i] = m
+		msgs[i] = suite.createRandomJSONObject()
 	}
 
 	payload, err := sjson.Set(payload, MSGS_FIELD_NAME, msgs)
@@ -93,9 +92,9 @@ func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
 	var err error
 	payloadRaw := ""
 
-	numFields := suite.randomInRange(0, params.maxNumFieldsPerObject)
+	numFields := suite.createRandomIntInRange(0, params.maxNumFieldsPerObject)
 	for i := 0; i < numFields; i++ {
-		key := suite.generateRandomString()
+		key := suite.createRandomString()
 
 		randField := suite.createRandomJSONField(i, 0)
 		payloadRaw, err = sjson.Set(payloadRaw, key, randField)
@@ -106,40 +105,51 @@ func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
 }
 
 // createRandomJSONField creates a random field with a random JSON type, with the possibility of
-// nested fields up to depth.
+// nested fields up to depth objects.
 func (suite *EIP712TestSuite) createRandomJSONField(t int, depth int) interface{} {
 	switch t % NUM_JSON_TYPES {
 	case JSON_BOOL_TYPE:
-		return rand.Intn(2) == 0
+		return suite.createRandomBoolean()
 	case JSON_STRING_TYPE:
-		return suite.generateRandomString()
+		return suite.createRandomString()
 	case JSON_FLOAT_TYPE:
-		return (rand.Float64() - 0.5) * params.randomFloatRange
+		return suite.createRandomFloat()
 	case JSON_ARRAY_TYPE:
-		arr := make([]interface{}, rand.Intn(params.maxArrayLength))
-		for i := range arr {
-			arr[i] = suite.createRandomJSONSubField(depth)
-		}
-
-		return arr
+		return suite.createRandomJSONNestedArray(depth)
 	case JSON_OBJECT_TYPE:
-		numFields := rand.Intn(params.maxNumFieldsPerObject)
-		obj := make(map[string]interface{})
-
-		for i := 0; i < numFields; i++ {
-			subField := suite.createRandomJSONSubField(depth)
-			obj[suite.generateRandomString()] = subField
-		}
-
-		return obj
+		return suite.createRandomJSONNestedObject(depth)
 	default:
 		return nil
 	}
 }
 
-// createRandomJSONSubField serves as a helper for createRandomJSONField and returns a random
-// subfield in the event that createRandomJSONField must create an array or object type.
-func (suite *EIP712TestSuite) createRandomJSONSubField(depth int) interface{} {
+// createRandomJSONNestedArray creates an array of random nested JSON fields.
+func (suite *EIP712TestSuite) createRandomJSONNestedArray(depth int) []interface{} {
+	arr := make([]interface{}, rand.Intn(params.maxArrayLength))
+	for i := range arr {
+		arr[i] = suite.createRandomJSONNestedField(depth)
+	}
+
+	return arr
+}
+
+// createRandomJSONNestedObject creates a key-value set of objects with random nested JSON fields.
+func (suite *EIP712TestSuite) createRandomJSONNestedObject(depth int) interface{} {
+	numFields := rand.Intn(params.maxNumFieldsPerObject)
+	obj := make(map[string]interface{})
+
+	for i := 0; i < numFields; i++ {
+		subField := suite.createRandomJSONNestedField(depth)
+
+		obj[suite.createRandomString()] = subField
+	}
+
+	return obj
+}
+
+// createRandomJSONNestedField serves as a helper for createRandomJSONField and returns a random
+// subfield to populate an array or object type.
+func (suite *EIP712TestSuite) createRandomJSONNestedField(depth int) interface{} {
 	var newFieldType int
 
 	if depth == params.maxObjectDepth {
@@ -151,13 +161,20 @@ func (suite *EIP712TestSuite) createRandomJSONSubField(depth int) interface{} {
 	return suite.createRandomJSONField(newFieldType, depth+1)
 }
 
-// generateRandomString generates a random string with the given properties.
-func (suite *EIP712TestSuite) generateRandomString() string {
-	bzLen := suite.randomInRange(params.minStringLength, params.maxStringLength)
+func (suite *EIP712TestSuite) createRandomBoolean() bool {
+	return rand.Intn(2) == 0
+}
+
+func (suite *EIP712TestSuite) createRandomFloat() float64 {
+	return (rand.Float64() - 0.5) * params.randomFloatRange
+}
+
+func (suite *EIP712TestSuite) createRandomString() string {
+	bzLen := suite.createRandomIntInRange(params.minStringLength, params.maxStringLength)
 	bz := make([]byte, bzLen)
 
 	for i := 0; i < bzLen; i++ {
-		bz[i] = byte(suite.randomInRange(ASCII_RANGE_START, ASCII_RANGE_END))
+		bz[i] = byte(suite.createRandomIntInRange(ASCII_RANGE_START, ASCII_RANGE_END))
 	}
 
 	str := string(bz)
@@ -171,7 +188,7 @@ func (suite *EIP712TestSuite) generateRandomString() string {
 	return str
 }
 
-// randomInRange provides a random integer between [min, max)
-func (suite *EIP712TestSuite) randomInRange(min int, max int) int {
+// createRandomIntInRange provides a random integer between [min, max)
+func (suite *EIP712TestSuite) createRandomIntInRange(min int, max int) int {
 	return rand.Intn(max-min) + min
 }
