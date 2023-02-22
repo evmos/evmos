@@ -21,12 +21,15 @@ func NewHeader(
 	validatorHash []byte,
 ) tmproto.Header {
 	return tmproto.Header{
+		ChainID:         chainID,
+		Height:          height,
+		Time:            blockTime,
+		ValidatorsHash:  validatorHash,
+		AppHash:         appHash,
+		ProposerAddress: proposer.Bytes(),
 		Version: tmversion.Consensus{
 			Block: version.BlockProtocol,
 		},
-		ChainID: chainID,
-		Height:  height,
-		Time:    blockTime,
 		LastBlockId: tmproto.BlockID{
 			Hash: tmhash.Sum([]byte("block_id")),
 			PartSetHeader: tmproto.PartSetHeader{
@@ -34,14 +37,10 @@ func NewHeader(
 				Hash:  tmhash.Sum([]byte("partset_header")),
 			},
 		},
-		LastCommitHash:     tmhash.Sum([]byte("commit")),
 		DataHash:           tmhash.Sum([]byte("data")),
-		ValidatorsHash:     validatorHash,
 		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
 		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		AppHash:            appHash,
 		LastResultsHash:    tmhash.Sum([]byte("last_result")),
 		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ProposerAddress:    proposer.Bytes(),
 	}
 }
