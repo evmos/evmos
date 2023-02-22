@@ -1,14 +1,13 @@
 package keeper_test
 
 import (
-	"encoding/json"
-	"math/big"
+	"math"
 	"strings"
 	"time"
 
 	. "github.com/onsi/gomega"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +16,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -27,7 +25,6 @@ import (
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
@@ -47,6 +44,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = utiltx.NewSigner(priv)
+	suite.priv = priv
 
 	// consensus key
 	priv, err = ethsecp256k1.GenerateKey()
@@ -88,6 +86,16 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	}
 
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
+
+	// fund signer acc to pay for tx fees
+	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	err = testutil.FundAccount(
+		suite.ctx,
+		suite.app.BankKeeper,
+		suite.priv.PubKey().Address().Bytes(),
+		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
+	)
+	suite.Require().NoError(err)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
@@ -142,57 +150,17 @@ func (suite *KeeperTestSuite) DeployContract(
 	name, symbol string,
 	decimals uint8,
 ) (common.Address, error) {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evmtypes.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		GasLimit:  res.Gas,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     data,
-		Accesses:  &ethtypes.AccessList{},
-	}
-	erc20DeployTx := evmtypes.NewTx(&ethTxParams)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce), nil
+	suite.Commit()
+	addr, err := testutil.DeployContract(
+		suite.ctx,
+		suite.app,
+		suite.priv,
+		suite.queryClientEvm,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		name, symbol, decimals,
+	)
+	suite.Commit()
+	return addr, err
 }
 
 // assertEthFails is a helper function that takes in 1 or more messages and checks
@@ -212,7 +180,7 @@ func assertEthFails(msgs ...sdk.Msg) {
 
 // assertEthSucceeds is a helper function, that checks if 1 or more messages
 // can be validated and delivered.
-func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount math.Int, denom string, msgs ...sdk.Msg) {
+func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress, dest sdk.AccAddress, amount sdkmath.Int, denom string, msgs ...sdk.Msg) {
 	numTestAccounts := len(testAccounts)
 
 	// Track starting balances for all accounts
@@ -236,7 +204,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 	db := s.app.BankKeeper.GetBalance(s.ctx, dest, denom)
 
 	s.Require().Equal(funderBalance, fb)
-	s.Require().Equal(destBalance.AddAmount(amount).Amount.Mul(math.NewInt(int64(numTestAccounts))), db.Amount)
+	s.Require().Equal(destBalance.AddAmount(amount).Amount.Mul(sdkmath.NewInt(int64(numTestAccounts))), db.Amount)
 
 	for i, account := range testAccounts {
 		gb := s.app.BankKeeper.GetBalance(s.ctx, account.address, denom)
@@ -247,7 +215,7 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 
 // delegate is a helper function which creates a message to delegate a given amount of tokens
 // to a validator and checks if the Cosmos vesting delegation decorator returns no error.
-func delegate(clawbackAccount *types.ClawbackVestingAccount, amount math.Int) error {
+func delegate(clawbackAccount *types.ClawbackVestingAccount, amount sdkmath.Int) error {
 	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
 	s.Require().NoError(err)
 

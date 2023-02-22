@@ -59,6 +59,9 @@ var _ = Describe("Distribution", Ordered, func() {
 
 	BeforeEach(func() {
 		s.SetupTest()
+		s.deployContracts()
+
+		initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), denomMint)
 
 		// Enable Inflation
 		params := s.app.InflationKeeper.GetParams(s.ctx)
@@ -97,9 +100,9 @@ var _ = Describe("Distribution", Ordered, func() {
 		amount := big.NewInt(100)
 		s.MintERC20Token(contractAddr, s.address, s.address, amount)
 
-		// Check if participant account has zero balance
+		// Check if participant account has the corresponding initial balance
 		balanceBefore = s.app.BankKeeper.GetBalance(s.ctx, participantAcc, denomMint)
-		s.Require().True(balanceBefore.IsZero())
+		s.Require().True(balanceBefore.Sub(initialBalance).IsZero())
 
 		// Check if module account has zero balance
 		moduleBalance := s.app.BankKeeper.GetBalance(s.ctx, moduleAcc, denomMint)
