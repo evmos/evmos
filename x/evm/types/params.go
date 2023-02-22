@@ -37,6 +37,9 @@ var (
 	DefaultEnableCreate = true
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
+	// DefaultActivePrecompiles defines the default active precompiles
+	// TODO: testing if this fixes the issues with integration tests
+	DefaultActivePrecompiles = []string{common.BytesToAddress([]byte{100}).Hex()}
 )
 
 // AvailableExtraEIPs define the list of all EIPs that can be enabled by the
@@ -79,7 +82,7 @@ func DefaultParams() Params {
 		ChainConfig:         DefaultChainConfig(),
 		ExtraEIPs:           nil,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   nil,
+		ActivePrecompiles:   DefaultActivePrecompiles,
 	}
 }
 
