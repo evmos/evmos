@@ -35,8 +35,7 @@ var (
 	DefaultFee = sdk.NewCoin(utils.BaseDenom, sdk.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
 )
 
-// CosmosTxArgs contains the input parameters required for preparing
-// an EIP712 cosmos tx
+// CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
 	// TxCfg is the client transaction config
 	TxCfg client.TxConfig
