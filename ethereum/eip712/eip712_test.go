@@ -40,6 +40,10 @@ import (
 // Unit tests for single-signer EIP-712 signature verification. Multi-signature key verification tests are out-of-scope
 // here and included with the ante_tests.
 
+const (
+	MSGS_FIELD_NAME = "msgs"
+)
+
 type EIP712TestSuite struct {
 	suite.Suite
 
@@ -59,6 +63,8 @@ type EIP712TestParams struct {
 
 func TestEIP712TestSuite(t *testing.T) {
 	suite.Run(t, &EIP712TestSuite{})
+	// Note that we don't test the Legacy EIP-712 Extension, since that case
+	// is sufficiently covered by the AnteHandler tests.
 	suite.Run(t, &EIP712TestSuite{
 		useLegacyEIP712TypedData: true,
 	})
@@ -385,8 +391,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					suite.verifySignDocFlattening(bz)
 
 					if tc.expectSuccess {
-						feePayer := txBuilder.GetTx().FeePayer()
-						suite.verifyBasicTypedData(bz, feePayer)
+						suite.verifyBasicTypedData(bz)
 					}
 				}
 			})
@@ -456,7 +461,7 @@ func (suite *EIP712TestSuite) verifyPayloadAgainstFlattened(payload gjson.Result
 // verifyPayloadMapAgainstFlattenedMap directly compares two JSON maps in Go representations to
 // test flattening.
 func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]interface{}, flattened map[string]interface{}) {
-	interfaceMessages, ok := original["msgs"]
+	interfaceMessages, ok := original[MSGS_FIELD_NAME]
 	suite.Require().True(ok)
 
 	messages, ok := interfaceMessages.([]interface{})
@@ -474,7 +479,7 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 	}
 
 	// Verify new payload does not have msgs field
-	_, ok = flattened["msgs"]
+	_, ok = flattened[MSGS_FIELD_NAME]
 	suite.Require().False(ok)
 
 	// Verify number of total keys
@@ -487,7 +492,7 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 
 	// Verify contents of remaining keys
 	for k, obj := range original {
-		if k == "msgs" {
+		if k == MSGS_FIELD_NAME {
 			continue
 		}
 
@@ -498,8 +503,8 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 	}
 }
 
-// verifyBasicTypedData performs basic verification on the TypedData generation
-func (suite *EIP712TestSuite) verifyBasicTypedData(signDoc []byte, feePayer sdk.AccAddress) {
+// verifyBasicTypedData performs basic verification on the TypedData generation.
+func (suite *EIP712TestSuite) verifyBasicTypedData(signDoc []byte) {
 	typedData, err := eip712.GetEIP712TypedDataForMsg(signDoc)
 
 	suite.Require().NoError(err)
@@ -511,14 +516,14 @@ func (suite *EIP712TestSuite) verifyBasicTypedData(signDoc []byte, feePayer sdk.
 	suite.Require().NoError(err)
 	suite.Require().True(flattened.IsObject())
 
-	originalFlattenedMsg, ok := flattened.Value().(map[string]interface{})
+	flattenedMsgMap, ok := flattened.Value().(map[string]interface{})
 	suite.Require().True(ok)
 
-	suite.Require().Equal(typedData.Message, originalFlattenedMsg)
+	suite.Require().Equal(typedData.Message, flattenedMsgMap)
 }
 
-// TestFlattenPayloadErrorHandling tests error handling in TypedData generation, specifically
-// regarding the payload.
+// TestFlattenPayloadErrorHandling tests error handling in TypedData generation,
+// specifically regarding the payload.
 func (suite *EIP712TestSuite) TestFlattenPayloadErrorHandling() {
 	// No msgs
 	_, _, err := eip712.FlattenPayloadMessages(gjson.Parse(""))
@@ -539,7 +544,8 @@ func (suite *EIP712TestSuite) TestFlattenPayloadErrorHandling() {
 	suite.Require().ErrorContains(err, "malformed payload")
 }
 
-// TestTypedDataErrorHandling tests error handling for TypedData generation.
+// TestTypedDataErrorHandling tests error handling for TypedData generation
+// in the main algorithm.
 func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 	// Empty JSON
 	_, err := eip712.WrapTxToTypedData(0, make([]byte, 0))
@@ -554,7 +560,7 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 
 	// Max duplicate type recursion depth
 	messagesArr := new(bytes.Buffer)
-	maxRecursionDepth := 1001
+	maxRecursionDepth := eip712.MAX_TYPEDEF_DUPLICATES + 1
 
 	messagesArr.WriteString("[")
 	for i := 0; i < maxRecursionDepth; i++ {

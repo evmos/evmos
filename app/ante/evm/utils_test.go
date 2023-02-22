@@ -346,7 +346,7 @@ func (suite *AnteTestSuite) CreateTestEIP712SameMsgDifferentSchemas(from sdk.Acc
 
 func (suite *AnteTestSuite) CreateTestEIP712ZeroValueArray(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
-	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(0))))
+	msgSend := banktypes.NewMsgSend(from, recipient, sdk.NewCoins())
 	return suite.CreateTestEIP712CosmosTxBuilder(from, priv, chainID, gas, gasAmount, []sdk.Msg{msgSend}, suite.useLegacyEIP712TypedData)
 }
 
@@ -357,9 +357,19 @@ func (suite *AnteTestSuite) CreateTestEIP712ZeroValueNumber(from sdk.AccAddress,
 }
 
 func (suite *AnteTestSuite) CreateTestEIP712MsgTransfer(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
-	recipient := sdk.AccAddress(common.Address{}.Bytes())
-	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, "Memo")
+	msgTransfer := suite.createMsgTransfer(from, "With Memo")
 	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgTransfer)
+}
+
+func (suite *AnteTestSuite) CreateTestEIP712MsgTransferWithoutMemo(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
+	msgTransfer := suite.createMsgTransfer(from, "")
+	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgTransfer)
+}
+
+func (suite *AnteTestSuite) createMsgTransfer(from sdk.AccAddress, memo string) *ibctypes.MsgTransfer {
+	recipient := sdk.AccAddress(common.Address{}.Bytes())
+	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, memo)
+	return msgTransfer
 }
 
 // Fails
@@ -440,14 +450,13 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	//nolint:staticcheck
 	fee := legacytx.NewStdFee(gas, gasAmount)
 	accNumber := suite.app.AccountKeeper.GetAccount(suite.ctx, from).GetAccountNumber()
-	feePayer := &eip712.FeeDelegationOptions{
-		FeePayer: from,
-	}
 
 	data := legacytx.StdSignBytes(chainID, accNumber, nonce, 0, fee, msgs, "", nil)
 
 	if suite.useLegacyEIP712TypedData {
-		typedData, err = eip712.LegacyWrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, feePayer)
+		typedData, err = eip712.LegacyWrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, &eip712.FeeDelegationOptions{
+			FeePayer: from,
+		})
 		suite.Require().NoError(err)
 	} else {
 		typedData, err = eip712.WrapTxToTypedData(ethChainID, data)

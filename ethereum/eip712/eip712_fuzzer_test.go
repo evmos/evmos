@@ -27,7 +27,6 @@ const (
 	ASCII_RANGE_START        = 65
 	ASCII_RANGE_END          = 127
 	TEST_NAME                = "Flatten"
-	MSGS_FIELD_NAME          = "msgs"
 )
 
 const (
@@ -38,7 +37,7 @@ const (
 	JSON_OBJECT_TYPE = iota
 )
 
-var params EIP712FuzzTestParams = EIP712FuzzTestParams{
+var params = EIP712FuzzTestParams{
 	numTestObjects:        16,
 	maxNumFieldsPerObject: 16,
 	minStringLength:       16,

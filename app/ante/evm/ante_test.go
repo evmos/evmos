@@ -464,7 +464,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
-			"success- DeliverTx EIP712 Zero Value Array",
+			"success- DeliverTx EIP712 Zero Value Array (Should Not Omit Field)",
 			func() sdk.Tx {
 				from := acc.GetAddress()
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
@@ -475,7 +475,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
-			"success- DeliverTx EIP712 Zero Value Number",
+			"success- DeliverTx EIP712 Zero Value Number (Should Not Omit Field)",
 			func() sdk.Tx {
 				from := acc.GetAddress()
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
@@ -493,6 +493,17 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
 				txBuilder := suite.CreateTestEIP712MsgTransfer(from, privKey, suite.ctx.ChainID(), gas, amount)
+				return txBuilder.GetTx()
+			}, false, false, true,
+		},
+		{
+			"success- DeliverTx EIP712 MsgTransfer Without Memo",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder := suite.CreateTestEIP712MsgTransferWithoutMemo(from, privKey, suite.ctx.ChainID(), gas, amount)
 				return txBuilder.GetTx()
 			}, false, false, true,
 		},
