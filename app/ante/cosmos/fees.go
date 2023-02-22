@@ -44,6 +44,7 @@ type DeductFeeDecorator struct {
 	txFeeChecker       authante.TxFeeChecker
 }
 
+// NewDeductFeeDecorator returns a new DeductFeeDecorator.
 func NewDeductFeeDecorator(
 	ak authante.AccountKeeper,
 	bk BankKeeper,
@@ -66,6 +67,8 @@ func NewDeductFeeDecorator(
 	}
 }
 
+// AnteHandle ensures that the transaction contains valid fee requirements and tries to deduct those
+// from the account balance or unclaimed staking rewards, which the transaction sender might have.
 func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
