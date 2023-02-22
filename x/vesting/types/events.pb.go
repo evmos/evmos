@@ -5,19 +5,16 @@ package types
 
 import (
 	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-
-	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -46,11 +43,9 @@ func (*EventCreateClawbackVestingAccount) ProtoMessage()    {}
 func (*EventCreateClawbackVestingAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_48ea095c8e21d4cd, []int{0}
 }
-
 func (m *EventCreateClawbackVestingAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventCreateClawbackVestingAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventCreateClawbackVestingAccount.Marshal(b, m, deterministic)
@@ -63,15 +58,12 @@ func (m *EventCreateClawbackVestingAccount) XXX_Marshal(b []byte, deterministic 
 		return b[:n], nil
 	}
 }
-
 func (m *EventCreateClawbackVestingAccount) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventCreateClawbackVestingAccount.Merge(m, src)
 }
-
 func (m *EventCreateClawbackVestingAccount) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventCreateClawbackVestingAccount) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventCreateClawbackVestingAccount.DiscardUnknown(m)
 }
@@ -129,11 +121,9 @@ func (*EventClawback) ProtoMessage()    {}
 func (*EventClawback) Descriptor() ([]byte, []int) {
 	return fileDescriptor_48ea095c8e21d4cd, []int{1}
 }
-
 func (m *EventClawback) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventClawback) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventClawback.Marshal(b, m, deterministic)
@@ -146,15 +136,12 @@ func (m *EventClawback) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-
 func (m *EventClawback) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventClawback.Merge(m, src)
 }
-
 func (m *EventClawback) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventClawback) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventClawback.DiscardUnknown(m)
 }
@@ -198,11 +185,9 @@ func (*EventUpdateVestingFunder) ProtoMessage()    {}
 func (*EventUpdateVestingFunder) Descriptor() ([]byte, []int) {
 	return fileDescriptor_48ea095c8e21d4cd, []int{2}
 }
-
 func (m *EventUpdateVestingFunder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventUpdateVestingFunder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventUpdateVestingFunder.Marshal(b, m, deterministic)
@@ -215,15 +200,12 @@ func (m *EventUpdateVestingFunder) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-
 func (m *EventUpdateVestingFunder) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventUpdateVestingFunder.Merge(m, src)
 }
-
 func (m *EventUpdateVestingFunder) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventUpdateVestingFunder) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventUpdateVestingFunder.DiscardUnknown(m)
 }
@@ -440,7 +422,6 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *EventCreateClawbackVestingAccount) Size() (n int) {
 	if m == nil {
 		return 0
@@ -515,11 +496,9 @@ func (m *EventUpdateVestingFunder) Size() (n int) {
 func sovEvents(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *EventCreateClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -730,7 +709,6 @@ func (m *EventCreateClawbackVestingAccount) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventClawback) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -877,7 +855,6 @@ func (m *EventClawback) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventUpdateVestingFunder) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1024,7 +1001,6 @@ func (m *EventUpdateVestingFunder) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipEvents(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

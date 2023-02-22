@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/stretchr/testify/require"
 )
@@ -71,7 +71,7 @@ func TestValidateAddress(t *testing.T) {
 			"zero address", common.Address{}.String(), false,
 		},
 		{
-			"valid address", testutil.GenerateAddress().Hex(), false,
+			"valid address", utiltx.GenerateAddress().Hex(), false,
 		},
 	}
 
@@ -102,7 +102,7 @@ func TestValidateNonZeroAddress(t *testing.T) {
 			"zero address", common.Address{}.String(), true,
 		},
 		{
-			"valid address", testutil.GenerateAddress().Hex(), false,
+			"valid address", utiltx.GenerateAddress().Hex(), false,
 		},
 	}
 

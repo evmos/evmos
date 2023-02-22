@@ -21,6 +21,8 @@ import (
 	"strconv"
 	"time"
 
+	evmostypes "github.com/evmos/evmos/v11/types"
+
 	"github.com/armon/go-metrics"
 
 	errorsmod "cosmossdk.io/errors"
@@ -28,6 +30,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/evmos/evmos/v11/x/vesting/types"
@@ -283,6 +286,43 @@ func (k Keeper) UpdateVestingFunder(
 	)
 
 	return &types.MsgUpdateVestingFunderResponse{}, nil
+}
+
+// ConvertVestingAccount converts a ClawbackVestingAccount to the default chain account
+// after its lock and vesting periods have concluded.
+func (k Keeper) ConvertVestingAccount(
+	goCtx context.Context,
+	msg *types.MsgConvertVestingAccount,
+) (*types.MsgConvertVestingAccountResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	account := k.accountKeeper.GetAccount(ctx, address)
+
+	if account == nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
+	}
+
+	// Check if account is of VestingAccount interface
+	if _, ok := account.(vestingexported.VestingAccount); !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to vesting: %s", msg.VestingAddress)
+	}
+
+	// check if account is of type ClawbackVestingAccount
+	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
+	if !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
+	}
+
+	// check if account  has any vesting coins left
+	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
+	}
+
+	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
+	ethAccount.BaseAccount = vestingAcc.BaseAccount
+	k.accountKeeper.SetAccount(ctx, ethAccount)
+
+	return &types.MsgConvertVestingAccountResponse{}, nil
 }
 
 // addGrant merges a new clawback vesting grant into an existing

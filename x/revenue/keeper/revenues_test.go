@@ -7,7 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
@@ -41,9 +41,9 @@ func (suite *KeeperTestSuite) TestGetFees() {
 		{
 			"multiple revenues registered",
 			func() {
-				deployer2 := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-				contract2 := testutil.GenerateAddress()
-				contract3 := testutil.GenerateAddress()
+				deployer2 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+				contract2 := utiltx.GenerateAddress()
+				contract3 := utiltx.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
@@ -99,9 +99,9 @@ func (suite *KeeperTestSuite) TestIterateFees() {
 		{
 			"multiple revenues registered",
 			func() {
-				deployer2 := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-				contract2 := testutil.GenerateAddress()
-				contract3 := testutil.GenerateAddress()
+				deployer2 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+				contract2 := utiltx.GenerateAddress()
+				contract3 := utiltx.GenerateAddress()
 				revenue := types.NewRevenue(contract, deployer, withdraw)
 				feeSplit2 := types.NewRevenue(contract2, deployer, nil)
 				feeSplit3 := types.NewRevenue(contract3, deployer2, nil)
@@ -325,7 +325,7 @@ func (suite *KeeperTestSuite) TestIsRevenueRegistered() {
 	}{
 		{"registered revenue", contract, true},
 		{"revenue not registered", common.Address{}, false},
-		{"revenue not registered", testutil.GenerateAddress(), false},
+		{"revenue not registered", utiltx.GenerateAddress(), false},
 	}
 	for _, tc := range testCases {
 		found := suite.app.RevenueKeeper.IsRevenueRegistered(suite.ctx, tc.contract)

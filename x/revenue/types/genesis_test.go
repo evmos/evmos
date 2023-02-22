@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,8 +20,8 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) SetupTest() {
-	suite.address1 = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
-	suite.address2 = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
+	suite.address1 = sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String()
+	suite.address2 = sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String()
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {

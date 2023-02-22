@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
@@ -32,6 +31,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = testutil.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 
 	// consensus key
 	privCons, err := ethsecp256k1.GenerateKey()
@@ -181,18 +181,9 @@ func (suite *KeeperTestSuite) Commit() {
 //  3. EndBlock
 //  4. Commit
 func (suite *KeeperTestSuite) CommitAndBeginBlockAfter(t time.Duration) {
-	header := suite.ctx.BlockHeader()
-	_ = suite.app.Commit()
-
-	header.Height++
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, t, nil)
+	suite.Require().NoError(err)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)
@@ -270,17 +261,16 @@ func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8
 
 	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 
-	erc20DeployTx := evm.NewTxContract(
-		chainID,
-		nonce,
-		nil,     // amount
-		res.Gas, // gasLimit
-		nil,     // gasPrice
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		data,                   // input
-		&ethtypes.AccessList{}, // accesses
-	)
+	ethTxParams := evm.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasLimit:  res.Gas,
+		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasTipCap: big.NewInt(1),
+		Input:     data,
+		Accesses:  &ethtypes.AccessList{},
+	}
+	erc20DeployTx := evm.NewTx(&ethTxParams)
 
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
@@ -320,18 +310,17 @@ func (suite *KeeperTestSuite) sendTx(contractAddr, from common.Address, transfer
 	// Mint the max gas to the FeeCollector to ensure balance in case of refund
 	suite.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evm.DefaultEVMDenom, sdk.NewInt(suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx).Int64()*int64(res.Gas)))))
 
-	ercTransferTx := evm.NewTx(
-		chainID,
-		nonce,
-		&contractAddr,
-		nil,
-		res.Gas,
-		nil,
-		suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		big.NewInt(1),
-		transferData,
-		&ethtypes.AccessList{}, // accesses
-	)
+	ethTxParams := evm.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        &contractAddr,
+		GasLimit:  res.Gas,
+		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasTipCap: big.NewInt(1),
+		Input:     transferData,
+		Accesses:  &ethtypes.AccessList{},
+	}
+	ercTransferTx := evm.NewTx(&ethTxParams)
 
 	ercTransferTx.From = suite.address.Hex()
 	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)

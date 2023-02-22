@@ -25,7 +25,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -53,18 +53,6 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 	suite.Require().NoError(err)
 	return txBuilder
 }
-
-func NextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
-	return ctx, nil
-}
-
-var _ sdk.Tx = &invalidTx{}
-
-type invalidTx struct{}
-
-func (invalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
-
-func (invalidTx) ValidateBasic() error { return nil }
 
 func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
 	msg := authz.NewMsgExec(grantee, msgs)
@@ -190,7 +178,7 @@ func createEIP712CosmosTx(
 	}
 
 	// Sign typedData
-	keyringSigner := testutil.NewSigner(priv)
+	keyringSigner := utiltx.NewSigner(priv)
 	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
 	if err != nil {
 		return nil, err
