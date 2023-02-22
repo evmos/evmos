@@ -667,10 +667,9 @@ func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk
 	stakingHelper.Denom = utils.BaseDenom
 
 	valAddr := sdk.ValAddress(addr2.Bytes())
-	stakeAmount := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, int64(1))
-	suite.T().Logf("stake amount: %s (1e%d)", stakeAmount.String(), len(stakeAmount.String())-1)
+	stakeAmount := sdk.NewInt(1e10)
 	stakingHelper.CreateValidator(valAddr, privKey.PubKey(), stakeAmount, true)
-	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(123456789))
+	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(1e10))
 
 	// end block to bond validator and increase block height
 	staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
