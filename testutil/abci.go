@@ -78,7 +78,7 @@ func DeliverTx(
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
 		appEvmos,
-		tx.CosmosTxInput{
+		tx.CosmosTxArgs{
 			TxCfg:    txConfig,
 			Priv:     priv,
 			ChainID:  ctx.ChainID(),
@@ -123,7 +123,7 @@ func CheckTx(
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
 		appEvmos,
-		tx.CosmosTxInput{
+		tx.CosmosTxArgs{
 			TxCfg:    txConfig,
 			Priv:     priv,
 			ChainID:  ctx.ChainID(),

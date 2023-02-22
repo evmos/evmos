@@ -320,7 +320,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleMsgSend(from sdk.AccAddress,
 	return utiltx.PrepareEIP712CosmosTx(
 		suite.ctx,
 		suite.app,
-		utiltx.CosmosTxInput{
+		utiltx.CosmosTxArgs{
 			TxCfg:   txConf,
 			Priv:    priv,
 			ChainID: chainID,
@@ -341,7 +341,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleSignerMsgs(from sdk.AccAddre
 	return utiltx.PrepareEIP712CosmosTx(
 		suite.ctx,
 		suite.app,
-		utiltx.CosmosTxInput{
+		utiltx.CosmosTxArgs{
 			TxCfg:   txConf,
 			Priv:    priv,
 			ChainID: chainID,
@@ -398,7 +398,7 @@ func (suite *AnteTestSuite) CreateTestEIP712SingleMessageTxBuilder(
 	return utiltx.PrepareEIP712CosmosTx(
 		suite.ctx,
 		suite.app,
-		utiltx.CosmosTxInput{
+		utiltx.CosmosTxArgs{
 			TxCfg:   txConf,
 			Priv:    priv,
 			ChainID: chainID,
