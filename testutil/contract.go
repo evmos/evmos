@@ -96,7 +96,7 @@ func DeployContractWithFactory(
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
-	if _, err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
@@ -112,15 +112,15 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 	if err := cdc.Unmarshal(r.Data, &txData); err != nil {
 		return nil, err
 	}
-	
+
 	var res *evm.MsgEthereumTxResponse
 	if err := proto.Unmarshal(txData.MsgResponses[0].Value, res); err != nil {
 		return nil, err
 	}
-	
+
 	if res.Failed() {
-		return nil, fmt.Errorf("tx failed. VmError: %s", ethRes.VmError)
+		return nil, fmt.Errorf("tx failed. VmError: %s", res.VmError)
 	}
-	
+
 	return res, nil
 }
