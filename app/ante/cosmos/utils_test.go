@@ -18,19 +18,6 @@ import (
 	"github.com/evmos/evmos/v11/encoding"
 )
 
-var _ sdk.AnteHandler = (&MockAnteHandler{}).AnteHandle
-
-type MockAnteHandler struct {
-	WasCalled bool
-	CalledCtx sdk.Context
-}
-
-func (mah *MockAnteHandler) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool) (sdk.Context, error) {
-	mah.WasCalled = true
-	mah.CalledCtx = ctx
-	return ctx, nil
-}
-
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
 	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
 
