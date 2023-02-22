@@ -24,7 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
-// createEIP712Domain creates the Domain object for the given ChainID.
+// createEIP712Domain creates the typed data domain for the given chainID.
 func createEIP712Domain(chainID uint64) (apitypes.TypedDataDomain, error) {
 	chainIDAsInt64, err := strconv.ParseInt(strconv.FormatUint(chainID, 10), 10, 64)
 	if err != nil {
