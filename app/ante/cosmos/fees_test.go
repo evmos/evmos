@@ -3,7 +3,6 @@ package cosmos_test
 import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
@@ -16,7 +15,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// Testcase definitions
 	testcases := []struct {
 		name        string
-		malleate    func() signing.Tx
+		malleate    func() testutiltx.CosmosTxArgs
 		checkTx     bool
 		simulate    bool
 		expPass     bool
@@ -24,27 +23,16 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	}{
 		{
 			name: "pass - sufficient balance to pay fees",
-			malleate: func() signing.Tx {
-				// Generate new account
+			malleate: func() testutiltx.CosmosTxArgs {
+				// Fund account
 				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 1e18)
 				suite.Require().NoError(err, "failed to fund account")
 
-				// Create an arbitrary message for testing purposes
-				msg := sdktestutil.NewTestMsg(addr)
-
-				msgArgs := testutiltx.CosmosTxArgs{
+				return testutiltx.CosmosTxArgs{
 					TxCfg: suite.clientCtx.TxConfig,
 					Priv:  priv,
 					Gas:   0,
-					Fees:  sdk.Coins{sdk.Coin{"", sdk.ZeroInt()}},
-					Msgs:  []sdk.Msg{msg},
 				}
-
-				// Create a transaction out of the message
-				tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, msgArgs)
-				suite.Require().NoError(err, "failed to create transaction")
-
-				return tx
 			},
 			checkTx:     false,
 			simulate:    true,
@@ -53,30 +41,17 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name: "fail - zero gas limit in check tx mode",
-			malleate: func() signing.Tx {
-				// TODO: refactor this
-				// Generate new account
+			malleate: func() testutiltx.CosmosTxArgs {
+				// Fund account
 				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
 				suite.Require().NoError(err, "failed to fund account")
 
-				// Create an arbitrary message for testing purposes
-				msg := sdktestutil.NewTestMsg(addr)
-
 				// Set gas limit to zero for testing purposes
-				msgArgs := testutiltx.CosmosTxArgs{
-					TxCfg:    suite.clientCtx.TxConfig,
-					Priv:     priv,
-					Gas:      0,
-					GasPrice: nil,
-					Fees:     sdk.Coins{sdk.Coin{"", sdk.ZeroInt()}},
-					Msgs:     []sdk.Msg{msg},
+				return testutiltx.CosmosTxArgs{
+					TxCfg: suite.clientCtx.TxConfig,
+					Priv:  priv,
+					Gas:   0,
 				}
-
-				// Create a transaction out of the message
-				tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, msgArgs)
-				suite.Require().NoError(err, "failed to create transaction")
-
-				return tx
 			},
 			checkTx:     true,
 			simulate:    false,
@@ -85,24 +60,14 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name: "fail - checkTx - insufficient funds and no staking rewards",
-			malleate: func() signing.Tx {
+			malleate: func() testutiltx.CosmosTxArgs {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
 
-				// Create an arbitrary message for testing purposes
-				msg := sdktestutil.NewTestMsg(addr)
-
-				// Create a transaction out of the message
-				msgArgs := testutiltx.CosmosTxArgs{
+				return testutiltx.CosmosTxArgs{
 					TxCfg: suite.clientCtx.TxConfig,
 					Priv:  priv,
 					Gas:   10_000_000,
-					Fees:  sdk.Coins{sdk.Coin{"", sdk.ZeroInt()}},
-					Msgs:  []sdk.Msg{msg},
 				}
-				tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, msgArgs)
-				suite.Require().NoError(err, "failed to create transaction")
-
-				return tx
 			},
 			checkTx:     true,
 			simulate:    false,
@@ -115,16 +80,26 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx)
+
+			// Create a new DeductFeeDecorator
 			dfd := cosmosante.NewDeductFeeDecorator(
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
 			)
 
 			// set up the testcase
-			tx := tc.malleate()
-			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx)
+			args := tc.malleate()
+
+			// Create an arbitrary message for testing purposes
+			msg := sdktestutil.NewTestMsg(addr)
+			args.Msgs = []sdk.Msg{msg}
+
+			// Create a transaction out of the message
+			tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, args)
+			suite.Require().NoError(err, "failed to create transaction")
 
 			// run the ante handler
-			_, err := dfd.AnteHandle(suite.ctx, tx, tc.simulate, testutil.NextFn)
+			_, err = dfd.AnteHandle(suite.ctx, tx, tc.simulate, testutil.NextFn)
 
 			// assert the resulting error
 			if tc.expPass {
