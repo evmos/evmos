@@ -11,6 +11,43 @@ import (
 	"github.com/tidwall/sjson"
 )
 
+type EIP712FuzzTestParams struct {
+	numTestObjects        int
+	maxNumFieldsPerObject int
+	minStringLength       int
+	maxStringLength       int
+	randomFloatRange      float64
+	maxArrayLength        int
+	maxObjectDepth        int
+}
+
+const (
+	NUM_PRIMITIVE_JSON_TYPES = 3
+	NUM_JSON_TYPES           = 5
+	ASCII_RANGE_START        = 65
+	ASCII_RANGE_END          = 127
+	TEST_NAME                = "Flatten"
+	MSGS_FIELD_NAME          = "msgs"
+)
+
+const (
+	JSON_BOOL_TYPE   = iota
+	JSON_STRING_TYPE = iota
+	JSON_FLOAT_TYPE  = iota
+	JSON_ARRAY_TYPE  = iota
+	JSON_OBJECT_TYPE = iota
+)
+
+var params EIP712FuzzTestParams = EIP712FuzzTestParams{
+	numTestObjects:        16,
+	maxNumFieldsPerObject: 16,
+	minStringLength:       16,
+	maxStringLength:       48,
+	randomFloatRange:      120000000,
+	maxArrayLength:        8,
+	maxObjectDepth:        4,
+}
+
 // TestRandomPayloadFlattening generates many random payloads with different JSON values to ensure
 // that Flattening works across all inputs.
 // Note that this is a fuzz test, although it doesn't use Go's Fuzz testing suite, since there are
@@ -21,9 +58,8 @@ func (suite *EIP712TestSuite) TestRandomPayloadFlattening() {
 	// Re-seed rand generator
 	rand.Seed(rand.Int64())
 
-	numTestObjects := 15
-	for i := 0; i < numTestObjects; i++ {
-		suite.Run(fmt.Sprintf("Flatten%d", i), func() {
+	for i := 0; i < params.numTestObjects; i++ {
+		suite.Run(fmt.Sprintf("%v%d", TEST_NAME, i), func() {
 			payload := suite.generateRandomPayload(i)
 
 			flattened, numMessages, err := eip712.FlattenPayloadMessages(payload)
@@ -46,7 +82,7 @@ func (suite *EIP712TestSuite) generateRandomPayload(numMessages int) gjson.Resul
 		msgs[i] = m
 	}
 
-	payload, err := sjson.Set(payload, "msgs", msgs)
+	payload, err := sjson.Set(payload, MSGS_FIELD_NAME, msgs)
 	suite.Require().NoError(err)
 
 	return gjson.Parse(payload)
@@ -57,9 +93,9 @@ func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
 	var err error
 	payloadRaw := ""
 
-	numFields := suite.randomInRange(0, 16)
+	numFields := suite.randomInRange(0, params.maxNumFieldsPerObject)
 	for i := 0; i < numFields; i++ {
-		key := suite.generateRandomString(12, 36)
+		key := suite.generateRandomString()
 
 		randField := suite.createRandomJSONField(i, 0)
 		payloadRaw, err = sjson.Set(payloadRaw, key, randField)
@@ -72,59 +108,60 @@ func (suite *EIP712TestSuite) createRandomJSONObject() gjson.Result {
 // createRandomJSONField creates a random field with a random JSON type, with the possibility of
 // nested fields up to depth.
 func (suite *EIP712TestSuite) createRandomJSONField(t int, depth int) interface{} {
-	constNumTypes := 5
-
-	switch t % constNumTypes {
-	case 0:
-		// Rand bool
+	switch t % NUM_JSON_TYPES {
+	case JSON_BOOL_TYPE:
 		return rand.Intn(2) == 0
-	case 1:
-		// Rand string
-		return suite.generateRandomString(10, 48)
-	case 2:
-		// Rand num
-		return (rand.Float64() - 0.5) * 100000000000
-	case 3, 4:
-		// Rand array (3) or object (4)
-		arr := make([]interface{}, rand.Intn(10))
+	case JSON_STRING_TYPE:
+		return suite.generateRandomString()
+	case JSON_FLOAT_TYPE:
+		return (rand.Float64() - 0.5) * params.randomFloatRange
+	case JSON_ARRAY_TYPE:
+		arr := make([]interface{}, rand.Intn(params.maxArrayLength))
+		for i := range arr {
+			arr[i] = suite.createRandomJSONSubField(depth)
+		}
+
+		return arr
+	case JSON_OBJECT_TYPE:
+		numFields := rand.Intn(params.maxNumFieldsPerObject)
 		obj := make(map[string]interface{})
 
-		for i := range arr {
-			fieldType := rand.Intn(constNumTypes)
-			if depth == constNumTypes {
-				// Max depth
-				fieldType = rand.Intn(constNumTypes - 2)
-			}
-
-			randField := suite.createRandomJSONField(fieldType, depth+1)
-
-			if t%constNumTypes == 3 {
-				arr[i] = randField
-			} else {
-				obj[suite.generateRandomString(10, 48)] = randField
-			}
+		for i := 0; i < numFields; i++ {
+			subField := suite.createRandomJSONSubField(depth)
+			obj[suite.generateRandomString()] = subField
 		}
 
-		if t%constNumTypes == 3 {
-			return arr
-		}
 		return obj
 	default:
-		// Null
 		return nil
 	}
 }
 
+// createRandomJSONSubField serves as a helper for createRandomJSONField and returns a random
+// subfield in the event that createRandomJSONField must create an array or object type.
+func (suite *EIP712TestSuite) createRandomJSONSubField(depth int) interface{} {
+	var newFieldType int
+
+	if depth == params.maxObjectDepth {
+		newFieldType = rand.Intn(NUM_PRIMITIVE_JSON_TYPES)
+	} else {
+		newFieldType = rand.Intn(NUM_JSON_TYPES)
+	}
+
+	return suite.createRandomJSONField(newFieldType, depth+1)
+}
+
 // generateRandomString generates a random string with the given properties.
-func (suite *EIP712TestSuite) generateRandomString(minLength int, maxLength int) string {
-	bzLen := suite.randomInRange(minLength, maxLength)
+func (suite *EIP712TestSuite) generateRandomString() string {
+	bzLen := suite.randomInRange(params.minStringLength, params.maxStringLength)
 	bz := make([]byte, bzLen)
 
 	for i := 0; i < bzLen; i++ {
-		bz[i] = byte(suite.randomInRange(65, 127))
+		bz[i] = byte(suite.randomInRange(ASCII_RANGE_START, ASCII_RANGE_END))
 	}
 
 	str := string(bz)
+
 	// Remove control characters, since they will make JSON invalid
 	str = strings.ReplaceAll(str, "{", "")
 	str = strings.ReplaceAll(str, "}", "")

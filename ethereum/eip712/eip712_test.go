@@ -10,7 +10,7 @@ import (
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
+	chainparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
@@ -37,16 +37,24 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-// Unit tests for single-signer EIP-712 signature verification. Multi-signer verification tests are included
-// in ante_test.go.
+// Unit tests for single-signer EIP-712 signature verification. Multi-signature key verification tests are out-of-scope
+// here and included with the ante_tests.
 
 type EIP712TestSuite struct {
 	suite.Suite
 
-	config                   params.EncodingConfig
+	config                   chainparams.EncodingConfig
 	clientCtx                client.Context
 	useLegacyEIP712TypedData bool
 	denom                    string
+}
+
+type EIP712TestParams struct {
+	fee           txtypes.Fee
+	address       sdk.AccAddress
+	accountNumber uint64
+	sequence      uint64
+	memo          string
 }
 
 func TestEIP712TestSuite(t *testing.T) {
@@ -107,27 +115,26 @@ func (suite *EIP712TestSuite) TestEIP712() {
 		signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
 	}
 
-	// Use a fixed test address
-	testAddress := suite.createTestAddress()
+	params := EIP712TestParams{
+		fee: txtypes.Fee{
+			Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
+			GasLimit: 20000,
+		},
+		address:       suite.createTestAddress(),
+		accountNumber: 25,
+		sequence:      78,
+		memo:          "",
+	}
 
 	testCases := []struct {
 		title         string
 		chainID       string
-		fee           txtypes.Fee
-		memo          string
 		msgs          []sdk.Msg
-		accountNumber uint64
-		sequence      uint64
 		timeoutHeight uint64
 		expectSuccess bool
 	}{
 		{
 			title: "Succeeds - Standard MsgSend",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				banktypes.NewMsgSend(
 					suite.createTestAddress(),
@@ -135,17 +142,10 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					suite.makeCoins(suite.denom, math.NewInt(1)),
 				),
 			},
-			accountNumber: 8,
-			sequence:      5,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Standard MsgVote",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -153,17 +153,10 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					govtypes.OptionNo,
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Standard MsgDelegate",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				stakingtypes.NewMsgDelegate(
 					suite.createTestAddress(),
@@ -171,124 +164,82 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					suite.makeCoins(suite.denom, math.NewInt(1))[0],
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Standard MsgWithdrawDelegationReward",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				distributiontypes.NewMsgWithdrawDelegatorReward(
 					suite.createTestAddress(),
 					sdk.ValAddress(suite.createTestAddress()),
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Two Single-Signer MsgDelegate",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				stakingtypes.NewMsgDelegate(
-					testAddress,
+					params.address,
 					sdk.ValAddress(suite.createTestAddress()),
 					suite.makeCoins(suite.denom, math.NewInt(1))[0],
 				),
 				stakingtypes.NewMsgDelegate(
-					testAddress,
+					params.address,
 					sdk.ValAddress(suite.createTestAddress()),
 					suite.makeCoins(suite.denom, math.NewInt(5))[0],
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Single-Signer MsgVote V1 with Omitted Value",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypesv1.NewMsgVote(
-					testAddress,
+					params.address,
 					5,
 					govtypesv1.VoteOption_VOTE_OPTION_NO,
 					"",
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: true,
 		},
 		{
 			title: "Succeeds - Single-Signer MsgSend + MsgVote",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
-					testAddress,
+					params.address,
 					5,
 					govtypes.OptionNo,
 				),
 				banktypes.NewMsgSend(
-					testAddress,
+					params.address,
 					suite.createTestAddress(),
 					suite.makeCoins(suite.denom, math.NewInt(50)),
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: !suite.useLegacyEIP712TypedData,
 		},
 		{
 			title: "Succeeds - Single-Signer 2x MsgVoteV1 with Different Schemas",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypesv1.NewMsgVote(
-					testAddress,
+					params.address,
 					5,
 					govtypesv1.VoteOption_VOTE_OPTION_NO,
 					"",
 				),
 				govtypesv1.NewMsgVote(
-					testAddress,
+					params.address,
 					10,
 					govtypesv1.VoteOption_VOTE_OPTION_YES,
 					"Has Metadata",
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: !suite.useLegacyEIP712TypedData,
 		},
 		{
 			title: "Fails - Two MsgVotes with Different Signers",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -301,30 +252,16 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					govtypes.OptionAbstain,
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: false,
 		},
 		{
-			title: "Fails - Empty Transaction",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo:          "",
+			title:         "Fails - Empty Transaction",
 			msgs:          []sdk.Msg{},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: false,
 		},
 		{
 			title:   "Fails - Invalid ChainID",
 			chainID: "invalidchainid",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -332,18 +269,11 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					govtypes.OptionNo,
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: false,
 		},
 		{
 			title:   "Fails - Large ChainID",
 			chainID: fmt.Sprintf("evmos_%v-1", big.NewInt(10).Exp(big.NewInt(10), big.NewInt(1000), nil).String()),
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -351,17 +281,10 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					govtypes.OptionNo,
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: false,
 		},
 		{
 			title: "Fails - Includes TimeoutHeight",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -369,18 +292,11 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					govtypes.OptionNo,
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			timeoutHeight: 1000,
 			expectSuccess: false,
 		},
 		{
 			title: "Fails - Single Message / Multi-Signer",
-			fee: txtypes.Fee{
-				Amount:   suite.makeCoins(suite.denom, math.NewInt(2000)),
-				GasLimit: 20000,
-			},
-			memo: "",
 			msgs: []sdk.Msg{
 				banktypes.NewMsgMultiSend(
 					[]banktypes.Input{
@@ -405,8 +321,6 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					},
 				),
 			},
-			accountNumber: 25,
-			sequence:      78,
 			expectSuccess: false,
 		},
 	}
@@ -416,21 +330,17 @@ func (suite *EIP712TestSuite) TestEIP712() {
 			suite.Run(tc.title, func() {
 				privKey, pubKey := suite.createTestKeyPair()
 
-				// Init tx builder
 				txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
 
-				// Set gas and fees
-				txBuilder.SetGasLimit(tc.fee.GasLimit)
-				txBuilder.SetFeeAmount(tc.fee.Amount)
+				txBuilder.SetGasLimit(params.fee.GasLimit)
+				txBuilder.SetFeeAmount(params.fee.Amount)
 
-				// Set messages
 				err := txBuilder.SetMsgs(tc.msgs...)
 				suite.Require().NoError(err)
 
-				// Set memo
-				txBuilder.SetMemo(tc.memo)
+				txBuilder.SetMemo(params.memo)
 
-				// Prepare signature field
+				// Prepare signature field with empty signatures
 				txSigData := signing.SingleSignatureData{
 					SignMode:  signMode,
 					Signature: nil,
@@ -438,7 +348,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 				txSig := signing.SignatureV2{
 					PubKey:   pubKey,
 					Data:     &txSigData,
-					Sequence: tc.sequence,
+					Sequence: params.sequence,
 				}
 
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
@@ -453,11 +363,10 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					txBuilder.SetTimeoutHeight(tc.timeoutHeight)
 				}
 
-				// Declare signerData
 				signerData := authsigning.SignerData{
 					ChainID:       chainID,
-					AccountNumber: tc.accountNumber,
-					Sequence:      tc.sequence,
+					AccountNumber: params.accountNumber,
+					Sequence:      params.sequence,
 					PubKey:        pubKey,
 					Address:       sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, pubKey.Bytes()),
 				}
@@ -487,7 +396,6 @@ func (suite *EIP712TestSuite) TestEIP712() {
 
 // verifyEIP712SignatureVerification verifies that the payload passes signature verification if signed as its EIP-712 representation.
 func (suite *EIP712TestSuite) verifyEIP712SignatureVerification(expectedSuccess bool, privKey ethsecp256k1.PrivKey, pubKey ethsecp256k1.PubKey, signBytes []byte) {
-	// Convert to EIP712 bytes and sign
 	eip712Bytes, err := eip712.GetEIP712BytesForMsg(signBytes)
 
 	if suite.useLegacyEIP712TypedData {
@@ -495,7 +403,6 @@ func (suite *EIP712TestSuite) verifyEIP712SignatureVerification(expectedSuccess 
 	}
 
 	if !expectedSuccess {
-		// Expect failure generating EIP-712 bytes
 		suite.Require().Error(err)
 		return
 	}
