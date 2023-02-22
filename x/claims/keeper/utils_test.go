@@ -1,11 +1,8 @@
 package keeper_test
 
 import (
-	"encoding/json"
 	"math/big"
 	"time"
-
-	. "github.com/onsi/gomega"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -14,14 +11,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/contracts"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
@@ -31,11 +25,6 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
@@ -51,30 +40,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	consAddress := sdk.ConsAddress(privCons.PubKey().Address())
 
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: consAddress.Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9001-1", consAddress, nil, nil,
+	)
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.ClaimsKeeper)
@@ -150,7 +119,17 @@ func getAddr(priv *ethsecp256k1.PrivKey) sdk.AccAddress {
 }
 
 func govProposal(priv *ethsecp256k1.PrivKey) (uint64, error) {
-	contractAddress := deployContract(priv)
+	contractAddress, err := testutil.DeployContract(
+		s.ctx,
+		s.app,
+		priv,
+		s.queryClientEvm,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		"Test", "TTT", uint8(18),
+	)
+	s.Require().NoError(err)
+	s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+	s.Require().NoError(err)
 	content := incentivestypes.NewRegisterIncentiveProposal(
 		"test",
 		"description",
@@ -177,72 +156,8 @@ func sendEthToSelf(priv *ethsecp256k1.PrivKey) {
 	}
 	msgEthereumTx := evm.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
-	performEthTx(priv, msgEthereumTx)
-}
-
-func deployContract(priv *ethsecp256k1.PrivKey) common.Address {
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := s.app.EvmKeeper.GetNonce(s.ctx, from)
-
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "Test", "TTT", uint8(18))
+	_, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	s.Require().NoError(err)
-
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &s.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	s.Require().NoError(err)
-
-	ctx := sdk.WrapSDKContext(s.ctx)
-	res, err := s.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	s.Require().NoError(err)
-
-	ethTxParams := evm.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		GasLimit:  res.Gas,
-		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     data,
-		Accesses:  &ethtypes.AccessList{},
-	}
-	msgEthereumTx := evm.NewTx(&ethTxParams)
-	msgEthereumTx.From = from.String()
-
-	performEthTx(priv, msgEthereumTx)
-	s.Commit()
-
-	contractAddress := crypto.CreateAddress(from, nonce)
-	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc)
-	s.Require().True(acc.IsContract())
-	return contractAddress
-}
-
-func performEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evm.MsgEthereumTx) {
-	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, utiltx.NewSigner(priv))
-	s.Require().NoError(err)
-
-	// Assemble transaction from fields
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, utils.BaseDenom)
-	s.Require().NoError(err)
-
-	// Encode transaction by default Tx encoder and broadcasted over the network
-	txEncoder := encodingConfig.TxConfig.TxEncoder()
-	bz, err := txEncoder(tx)
-	s.Require().NoError(err)
-
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	Expect(res.IsOK()).To(Equal(true))
 }
 
 func getEthTxFee() sdk.Coin {

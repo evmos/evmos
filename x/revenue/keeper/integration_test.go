@@ -14,6 +14,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -68,7 +69,16 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		// deploy a factory
 		factoryNonce = getNonce(deployerAddress.Bytes())
-		factoryAddress = deployContract(deployerKey, factoryCode)
+		factoryAddress, err = testutil.DeployContract(
+			s.ctx,
+			s.app,
+			deployerKey,
+			s.queryClientEvm,
+			evmtypes.CompiledContract{
+				Bin: common.Hex2Bytes(factoryCode),
+			},
+		)
+		s.Require().NoError(err)
 		s.Commit()
 	})
 
@@ -77,8 +87,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		BeforeAll(func() {
 			// revenue registered before disabling params
+			var err error
 			nonce := getNonce(deployerAddress.Bytes())
-			registeredContract = deployContract(deployerKey, contractCode)
+			registeredContract, err = testutil.DeployContract(
+				s.ctx,
+				s.app,
+				deployerKey,
+				s.queryClientEvm,
+				evmtypes.CompiledContract{
+					Bin: common.Hex2Bytes(contractCode),
+				},
+			)
+			s.Require().NoError(err)
+			s.Commit()
 			res := registerFee(deployerKey, &registeredContract, nil, []uint64{nonce})
 			Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
@@ -96,7 +117,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 		})
 
 		It("should not allow new contract registrations", func() {
-			contractAddress := deployContract(deployerKey, contractCode)
+			contractAddress, err := testutil.DeployContract(
+				s.ctx,
+				s.app,
+				deployerKey,
+				s.queryClientEvm,
+				evmtypes.CompiledContract{
+					Bin: common.Hex2Bytes(contractCode),
+				},
+			)
+			s.Require().NoError(err)
+			s.Commit()
 			msg := types.NewMsgRegisterRevenue(
 				contractAddress,
 				deployerAddress,
@@ -104,7 +135,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				[]uint64{1},
 			)
 
-			_, err := testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
+			_, err = testutil.DeliverTx(s.ctx, s.app, deployerKey, nil, msg)
 			Expect(err).ToNot(BeNil(), "registration should have failed")
 			Expect(
 				strings.Contains(err.Error(),
@@ -167,8 +198,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var nonce uint64
 
 				BeforeAll(func() {
+					var err error
 					nonce = getNonce(deployerAddress.Bytes())
-					contractAddress = deployContract(deployerKey, contractCode)
+					contractAddress, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 				})
 
 				It("should be possible", func() {
@@ -199,7 +241,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Context("with a withdrawer address equal to the deployer address", func() {
 				It("should be possible", func() {
 					nonce := getNonce(deployerAddress.Bytes())
-					contractAddress := deployContract(deployerKey, contractCode)
+					contractAddress, err := testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					res := registerFee(deployerKey, &contractAddress, deployerAddress, []uint64{nonce})
 					Expect(res.IsOK()).To(BeTrue())
 
@@ -212,7 +264,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Context("with an empty withdrawer address", func() {
 				It("should be possible", func() {
 					nonce := getNonce(deployerAddress.Bytes())
-					contractAddress := deployContract(deployerKey, contractCode)
+					contractAddress, err := testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					res := registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
@@ -231,8 +293,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var nonce uint64
 
 				BeforeAll(func() {
+					var err error
 					nonce = getNonce(deployerAddress.Bytes())
-					contractAddress = deployContract(deployerKey, contractCode)
+					contractAddress, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					withdrawerAddress = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 				})
 
@@ -269,8 +342,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			var nonce uint64
 
 			BeforeAll(func() {
+				var err error
 				nonce = getNonce(deployerAddress.Bytes())
-				contractAddress = deployContract(deployerKey, contractCode)
+				contractAddress, err = testutil.DeployContract(
+					s.ctx,
+					s.app,
+					deployerKey,
+					s.queryClientEvm,
+					evmtypes.CompiledContract{
+						Bin: common.Hex2Bytes(contractCode),
+					},
+				)
+				s.Require().NoError(err)
+				s.Commit()
 				res := registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 				Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 			})
@@ -390,9 +474,20 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var nonce uint64
 
 				BeforeAll(func() {
+					var err error
 					nonce = getNonce(deployerAddress.Bytes())
 					withdrawerAddress = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-					contractAddress = deployContract(deployerKey, contractCode)
+					contractAddress, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					res := registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
@@ -446,8 +541,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var nonce uint64
 
 				BeforeAll(func() {
+					var err error
 					nonce = getNonce(deployerAddress.Bytes())
-					contractAddress = deployContract(deployerKey, contractCode)
+					contractAddress, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					res := registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
@@ -508,8 +614,19 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var nonce uint64
 
 				BeforeAll(func() {
+					var err error
 					nonce = getNonce(deployerAddress.Bytes())
-					contractAddress = deployContract(deployerKey, contractCode)
+					contractAddress, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(contractCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 					registerFee(deployerKey, &contractAddress, nil, []uint64{nonce})
 					fee, isRegistered := s.app.RevenueKeeper.GetRevenue(s.ctx, contractAddress)
 
@@ -570,8 +687,16 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				var contractAddress common.Address
 
 				BeforeAll(func() {
+					var err error
 					contractNonce = getNonce(factoryAddress.Bytes())
-					contractAddress = deployContractWithFactory(deployerKey, &factoryAddress)
+					contractAddress, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey,
+						factoryAddress,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
 					s.Commit()
 				})
 
@@ -651,15 +776,41 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					// Create contract: deployerKey1 -> factory1 -> factory2 -> contract
 					// Create factory1
 					factory1Nonce = getNonce(deployerAddress1.Bytes())
-					factory1Address = deployContract(deployerKey1, doubleFactoryCode)
+					factory1Address, err = testutil.DeployContract(
+						s.ctx,
+						s.app,
+						deployerKey1,
+						s.queryClientEvm,
+						evmtypes.CompiledContract{
+							Bin: common.Hex2Bytes(doubleFactoryCode),
+						},
+					)
+					s.Require().NoError(err)
+					s.Commit()
 
 					// Create factory2
 					factory2Nonce = getNonce(factory1Address.Bytes())
-					factory2Address = deployContractWithFactory(deployerKey1, &factory1Address)
+					factory2Address, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey1,
+						factory1Address,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
+					s.Commit()
 
 					// Create contract
 					contractNonce = getNonce(factory2Address.Bytes())
-					contractAddress = deployContractWithFactory(deployerKey1, &factory2Address)
+					contractAddress, _, err = testutil.DeployContractWithFactory(
+						s.ctx,
+						s.app,
+						deployerKey1,
+						factory2Address,
+						s.queryClientEvm,
+					)
+					Expect(err).To(BeNil())
+					s.Commit()
 				})
 
 				DescribeTable("should consume gas for three address derivation iterations",
@@ -672,7 +823,17 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						// We use another deployer, to have the same storage cost for
 						// SetDeployerFees
 						factory1Nonce2 := getNonce(deployerAddress2.Bytes())
-						factory1Address2 := deployContract(deployerKey2, doubleFactoryCode)
+						factory1Address2, err := testutil.DeployContract(
+							s.ctx,
+							s.app,
+							deployerKey2,
+							s.queryClientEvm,
+							evmtypes.CompiledContract{
+								Bin: common.Hex2Bytes(doubleFactoryCode),
+							},
+						)
+						s.Require().NoError(err)
+						s.Commit()
 						res := registerFee(
 							deployerKey2,
 							&factory1Address2,
