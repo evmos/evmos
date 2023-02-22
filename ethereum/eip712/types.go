@@ -90,14 +90,14 @@ func createEIP712Types(messagePayload eip712MessagePayload) (apitypes.Types, err
 	}
 
 	for i := 0; i < messagePayload.numPayloadMsgs; i++ {
-		msgField := msgFieldForIndex(i)
-		msg := messagePayload.payload.Get(msgField)
+		field := msgFieldForIndex(i)
+		msg := messagePayload.payload.Get(field)
 
 		if !msg.IsObject() {
 			return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "message is not valid JSON, cannot parse types")
 		}
 
-		if err := addMsgTypesToRoot(eip712Types, msgField, msg); err != nil {
+		if err := addMsgTypesToRoot(eip712Types, field, msg); err != nil {
 			return nil, err
 		}
 	}
@@ -110,7 +110,7 @@ func createEIP712Types(messagePayload eip712MessagePayload) (apitypes.Types, err
 func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msgJSON gjson.Result) (err error) {
 	defer doRecover(&err)
 
-	msgRootType, err := getMsgRootType(msgJSON)
+	msgRootType, err := msgRootType(msgJSON)
 	if err != nil {
 		return err
 	}
@@ -125,9 +125,9 @@ func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msgJSON gjso
 	return nil
 }
 
-// getMsgRootType parses the message and returns a formatted
-// type signature.
-func getMsgRootType(msgJSON gjson.Result) (string, error) {
+// msgRootType parses the message and returns the formatted
+// type signature corresponding to the message type.
+func msgRootType(msgJSON gjson.Result) (string, error) {
 	msgType := msgJSON.Get(MSG_TYPE).Str
 	if msgType == "" {
 		// .Str is empty for arrays and objects
@@ -166,7 +166,7 @@ func recursivelyAddTypesToRoot(
 	// Must sort JSON keys for deterministic type generation
 	jsonFieldNames, err := sortedJSONKeys(payload)
 	if err != nil {
-		return "", errorsmod.Wrap(err, "unable to traverse map types")
+		return "", errorsmod.Wrap(err, "unable to sort object keys")
 	}
 
 	typesToAdd := []apitypes.Type{}
@@ -177,11 +177,12 @@ func recursivelyAddTypesToRoot(
 			continue
 		}
 
+		// Handle array types.
 		isCollection := false
 		if field.IsArray() {
 			if len(field.Array()) == 0 {
-				// Arbitrarily add string[] type since we cannot access underlying object, in order
-				// to handle empty arrays
+				// Arbitrarily add string[] type to handle empty arrays,
+				// since we cannot access the underlying object.
 				typesToAdd = append(typesToAdd, apitypes.Type{
 					Name: fieldName,
 					Type: "string[]",
@@ -194,11 +195,10 @@ func recursivelyAddTypesToRoot(
 			isCollection = true
 		}
 
-		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethType := getEthTypeForJSON(field)
 
+		// Handle JSON primitive types.
 		if ethType != "" {
-			// Type is a JSON primitive
 			if isCollection {
 				ethType += "[]"
 			}
@@ -210,22 +210,24 @@ func recursivelyAddTypesToRoot(
 			continue
 		}
 
+		// Handle object types. Note that nested array types are not supported
+		// in EIP-712, so we must exclude that case.
 		if field.IsObject() {
-			// Recursively parse and add field types to the root for each child
-			fieldTypedef, err := recursivelyAddTypesToRoot(typeMap, rootType, fieldPrefix, field)
+			// Recursively parse and update root types for the sub-field.
+			subFieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
+			fieldTypeDef, err := recursivelyAddTypesToRoot(typeMap, rootType, subFieldPrefix, field)
 			if err != nil {
 				return "", err
 			}
 
+			fieldTypeDef = sanitizeTypedef(fieldTypeDef)
 			if isCollection {
-				fieldTypedef = sanitizeTypedef(fieldTypedef) + "[]"
-			} else {
-				fieldTypedef = sanitizeTypedef(fieldTypedef)
+				fieldTypeDef += "[]"
 			}
 
 			typesToAdd = append(typesToAdd, apitypes.Type{
 				Name: fieldName,
-				Type: fieldTypedef,
+				Type: fieldTypeDef,
 			})
 
 			continue
@@ -249,17 +251,17 @@ func recursivelyAddTypesToRoot(
 // the types at the next available typeDef-{n} field. We do this to
 // support identically named payloads with different schemas.
 func addTypesToRoot(rootTypes apitypes.Types, typeDef string, types []apitypes.Type) (string, error) {
-	var typeDefIndexed string
+	var indexedTypeDef string
 
-	duplicateIndex := 0
+	numDuplicates := 0
 
 	for {
-		typeDefIndexed = fmt.Sprintf("%v%d", typeDef, duplicateIndex)
-		duplicateTypes, ok := rootTypes[typeDefIndexed]
+		indexedTypeDef = fmt.Sprintf("%v%d", typeDef, numDuplicates)
+		existingTypes, ok := rootTypes[indexedTypeDef]
 
 		// Found identical duplicate
-		if ok && typesAreEqual(types, duplicateTypes) {
-			return typeDefIndexed, nil
+		if ok && typesAreEqual(types, existingTypes) {
+			return indexedTypeDef, nil
 		}
 
 		// Found no element
@@ -267,16 +269,16 @@ func addTypesToRoot(rootTypes apitypes.Types, typeDef string, types []apitypes.T
 			break
 		}
 
-		duplicateIndex++
+		numDuplicates++
 
-		if duplicateIndex == MAX_TYPEDEF_DUPLICATES {
+		if numDuplicates == MAX_TYPEDEF_DUPLICATES {
 			return "", errorsmod.Wrap(errortypes.ErrInvalidRequest, "exceeded maximum number of duplicates for a single type definition")
 		}
 	}
 
 	// Add new type to root at current duplicate index
-	rootTypes[typeDefIndexed] = types
-	return typeDefIndexed, nil
+	rootTypes[indexedTypeDef] = types
+	return indexedTypeDef, nil
 }
 
 // typesAreEqual compares two apitypes.Type arrays
@@ -288,9 +290,7 @@ func typesAreEqual(types1 []apitypes.Type, types2 []apitypes.Type) bool {
 		return false
 	}
 
-	n := len(types1)
-
-	for i := 0; i < n; i++ {
+	for i := 0; i < len(types1); i++ {
 		if types1[i].Name != types2[i].Name || types1[i].Type != types2[i].Type {
 			return false
 		}
@@ -307,9 +307,11 @@ func sortedJSONKeys(json gjson.Result) ([]string, error) {
 
 	jsonMap := json.Map()
 
-	keys := make([]string, 0, len(jsonMap))
+	keys := make([]string, len(jsonMap))
+	i := 0
 	for k := range jsonMap {
-		keys = append(keys, k)
+		keys[i] = k
+		i++
 	}
 
 	sort.Slice(keys, func(i, j int) bool {
@@ -325,8 +327,8 @@ func sortedJSONKeys(json gjson.Result) ([]string, error) {
 // the inputs.
 func sanitizeTypedef(str string) string {
 	buf := new(bytes.Buffer)
-	parts := strings.Split(str, ".")
 	caser := cases.Title(language.English, cases.NoLower)
+	parts := strings.Split(str, ".")
 
 	for _, part := range parts {
 		if part == ROOT_PREFIX {
@@ -356,7 +358,6 @@ func getEthTypeForJSON(json gjson.Result) string {
 		return ETH_STRING
 	case gjson.JSON:
 		// Array or Object type
-		// (Nested arrays are not supported)
 		return ""
 	default:
 		return ""
