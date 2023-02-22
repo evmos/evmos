@@ -16,37 +16,28 @@
 package eip712
 
 import (
+	"strconv"
+
+	errorsmod "cosmossdk.io/errors"
+
+	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
-// WrapTxToTypedData wraps an Amino-encoded Cosmos Tx JSON SignDoc
-// bytestream into an EIP712-compatible TypedData request.
-func WrapTxToTypedData(
-	chainID uint64,
-	data []byte,
-) (apitypes.TypedData, error) {
-	messagePayload, err := createEIP712MessagePayload(data)
-	message := messagePayload.message
+// createEIP712Domain creates the Domain object for the given ChainID.
+func createEIP712Domain(chainID uint64) (apitypes.TypedDataDomain, error) {
+	chainIDAsInt64, err := strconv.ParseInt(strconv.FormatUint(chainID, 10), 10, 64)
 	if err != nil {
-		return apitypes.TypedData{}, err
+		return apitypes.TypedDataDomain{}, errorsmod.Wrap(err, "invalid chainID")
 	}
 
-	types, err := createEIP712Types(messagePayload)
-	if err != nil {
-		return apitypes.TypedData{}, err
+	domain := apitypes.TypedDataDomain{
+		Name:              "Cosmos Web3",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(chainIDAsInt64),
+		VerifyingContract: "cosmos",
+		Salt:              "0",
 	}
 
-	domain, err := createEIP712Domain(chainID)
-	if err != nil {
-		return apitypes.TypedData{}, err
-	}
-
-	typedData := apitypes.TypedData{
-		Types:       types,
-		PrimaryType: TX_FIELD,
-		Domain:      domain,
-		Message:     message,
-	}
-
-	return typedData, nil
+	return domain, nil
 }

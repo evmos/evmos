@@ -36,6 +36,17 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
+type FeeDelegationOptions struct {
+	FeePayer sdk.AccAddress
+}
+
+const (
+	typeDefPrefix = "_"
+	ethBool       = "bool"
+	ethInt64      = "int64"
+	ethString     = "string"
+)
+
 // LegacyWrapTxToTypedData is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible TypedData request.
 func LegacyWrapTxToTypedData(

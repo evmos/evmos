@@ -509,12 +509,6 @@ func (suite *EIP712TestSuite) verifyBasicTypedData(signDoc []byte, feePayer sdk.
 
 	flattened, _, err := eip712.FlattenPayloadMessages(jsonPayload)
 	suite.Require().NoError(err)
-
-	// Add feePayer field
-	flattenedRaw, err := sjson.Set(flattened.Raw, "fee.feePayer", feePayer.String())
-	suite.Require().NoError(err)
-
-	flattened = gjson.Parse(flattenedRaw)
 	suite.Require().True(flattened.IsObject())
 
 	originalFlattenedMsg, ok := flattened.Value().(map[string]interface{})
@@ -548,22 +542,14 @@ func (suite *EIP712TestSuite) TestFlattenPayloadErrorHandling() {
 // TestTypedDataErrorHandling tests error handling for TypedData generation.
 func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 	// Empty JSON
-	_, err := eip712.WrapTxToTypedData(0, make([]byte, 0), nil)
+	_, err := eip712.WrapTxToTypedData(0, make([]byte, 0))
 	suite.Require().ErrorContains(err, "invalid JSON")
 
-	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": 10}`).Raw), nil)
+	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": 10}`).Raw))
 	suite.Require().ErrorContains(err, "array of messages")
 
-	// Invalid fee type
-	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }], "fee": [1, 2, 3]}`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
-	suite.Require().ErrorContains(err, "feePayer")
-
 	// Invalid message 'type'
-	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": 10 }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	_, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": 10 }] }`).Raw))
 	suite.Require().ErrorContains(err, "message type value")
 
 	// Max duplicate type recursion depth
@@ -579,15 +565,11 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 	}
 	messagesArr.WriteString("]")
 
-	_, err = eip712.WrapTxToTypedData(0, []byte(fmt.Sprintf(`{ "msgs": %v }`, messagesArr)), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	_, err = eip712.WrapTxToTypedData(0, []byte(fmt.Sprintf(`{ "msgs": %v }`, messagesArr)))
 	suite.Require().ErrorContains(err, "maximum number of duplicates")
 
 	// ChainID overflow
-	_, err = eip712.WrapTxToTypedData(sdkmath.MaxUint64, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	_, err = eip712.WrapTxToTypedData(sdkmath.MaxUint64, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }] }`).Raw))
 	suite.Require().ErrorContains(err, "chainID")
 }
 
@@ -595,26 +577,20 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 // (or don't work) as expected.
 func (suite *EIP712TestSuite) TestTypedDataEdgeCases() {
 	// Type without '/' separator
-	typedData, err := eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": 10 } }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err := eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": 10 } }] }`).Raw))
 	suite.Require().NoError(err)
 	types := typedData.Types["TypeMsgSend0"]
 	suite.Require().Greater(len(types), 0)
 
 	// Null value
-	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": null } }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": null } }] }`).Raw))
 	suite.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
 	// Skip null type, since we don't expect any in the payload
 	suite.Require().Equal(len(types), 0)
 
 	// Simple arrays
-	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [1, 2, 3] } }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [1, 2, 3] } }] }`).Raw))
 	suite.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
 	suite.Require().Equal(len(types), 1)
@@ -624,9 +600,7 @@ func (suite *EIP712TestSuite) TestTypedDataEdgeCases() {
 	})
 
 	// Nested arrays (EIP-712 does not support nested arrays)
-	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [[1, 2, 3], [1, 2]] } }] }`).Raw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [[1, 2, 3], [1, 2]] } }] }`).Raw))
 	suite.Require().NoError(err)
 	types = typedData.Types["TypeValue0"]
 	suite.Require().Equal(len(types), 0)
@@ -637,18 +611,14 @@ func (suite *EIP712TestSuite) TestTypedDataGeneration() {
 	// Multiple messages with the same schema should share one type
 	payloadRaw := `{ "msgs": [{ "type": "msgType", "value": { "field1": 10 }}, { "type": "msgType", "value": { "field1": 20 }}] }`
 
-	typedData, err := eip712.WrapTxToTypedData(0, []byte(payloadRaw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err := eip712.WrapTxToTypedData(0, []byte(payloadRaw))
 	suite.Require().NoError(err)
 	suite.Require().True(typedData.Types["TypemsgType1"] == nil)
 
 	// Multiple messages with different schemas should have different types
 	payloadRaw = `{ "msgs": [{ "type": "msgType", "value": { "field1": 10 }}, { "type": "msgType", "value": { "field2": 20 }}] }`
 
-	typedData, err = eip712.WrapTxToTypedData(0, []byte(payloadRaw), &eip712.FeeDelegationOptions{
-		FeePayer: sdk.AccAddress{},
-	})
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(payloadRaw))
 	suite.Require().NoError(err)
 	suite.Require().False(typedData.Types["TypemsgType1"] == nil)
 }

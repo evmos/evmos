@@ -450,7 +450,7 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 		typedData, err = eip712.LegacyWrapTxToTypedData(evmosCodec, ethChainID, msgs[0], data, feePayer)
 		suite.Require().NoError(err)
 	} else {
-		typedData, err = eip712.WrapTxToTypedData(ethChainID, data, feePayer)
+		typedData, err = eip712.WrapTxToTypedData(ethChainID, data)
 		suite.Require().NoError(err)
 	}
 

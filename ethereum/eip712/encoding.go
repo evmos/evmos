@@ -116,15 +116,6 @@ func decodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 		return apitypes.TypedData{}, err
 	}
 
-	// Use first message to deduce fee payer
-	msg := msgs[0]
-
-	// By convention, the fee payer is the first address in the list of signers.
-	feePayer := msg.GetSigners()[0]
-	feeDelegation := &FeeDelegationOptions{
-		FeePayer: feePayer,
-	}
-
 	chainID, err := evmostypes.ParseChainID(aminoDoc.ChainID)
 	if err != nil {
 		return apitypes.TypedData{}, errors.New("invalid chain ID passed as argument")
@@ -133,7 +124,6 @@ func decodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	typedData, err := WrapTxToTypedData(
 		chainID.Uint64(),
 		signDocBytes,
-		feeDelegation,
 	)
 	if err != nil {
 		return apitypes.TypedData{}, fmt.Errorf("could not convert to EIP712 representation: %w", err)
@@ -188,9 +178,6 @@ func decodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 		return apitypes.TypedData{}, err
 	}
 
-	// Use first message to deduce fee payer
-	msg := msgs[0]
-
 	signerInfo := authInfo.SignerInfos[0]
 
 	chainID, err := evmostypes.ParseChainID(signDoc.ChainId)
@@ -201,11 +188,6 @@ func decodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	stdFee := &legacytx.StdFee{
 		Amount: authInfo.Fee.Amount,
 		Gas:    authInfo.Fee.GasLimit,
-	}
-
-	feePayer := msg.GetSigners()[0]
-	feeDelegation := &FeeDelegationOptions{
-		FeePayer: feePayer,
 	}
 
 	tip := authInfo.Tip
@@ -225,7 +207,6 @@ func decodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	typedData, err := WrapTxToTypedData(
 		chainID.Uint64(),
 		signBytes,
-		feeDelegation,
 	)
 	if err != nil {
 		return apitypes.TypedData{}, err
