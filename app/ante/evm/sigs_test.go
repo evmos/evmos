@@ -3,7 +3,7 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v11/tests"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -12,8 +12,8 @@ func (suite *AnteTestSuite) TestSignatures() {
 	suite.enableFeemarket = false
 	suite.SetupTest() // reset
 
-	addr, privKey := tests.NewAddrKey()
-	to := tests.GenerateAddress()
+	addr, privKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 
 	acc := statedb.NewEmptyAccount()
 	acc.Nonce = 1
@@ -21,7 +21,15 @@ func (suite *AnteTestSuite) TestSignatures() {
 
 	err := suite.app.EvmKeeper.SetAccount(suite.ctx, addr, *acc)
 	suite.Require().NoError(err)
-	msgEthereumTx := evmtypes.NewTx(suite.app.EvmKeeper.ChainID(), 1, &to, big.NewInt(10), 100000, big.NewInt(1), nil, nil, nil, nil)
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:  suite.app.EvmKeeper.ChainID(),
+		Nonce:    1,
+		To:       &to,
+		Amount:   big.NewInt(10),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1),
+	}
+	msgEthereumTx := evmtypes.NewTx(ethTxParams)
 	msgEthereumTx.From = addr.Hex()
 
 	// CreateTestTx will sign the msgEthereumTx but not sign the cosmos tx since we have signCosmosTx as false

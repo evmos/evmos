@@ -14,8 +14,8 @@ import (
 
 	"github.com/evmos/evmos/v11/app"
 	ibctesting "github.com/evmos/evmos/v11/ibc/testing"
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
@@ -71,7 +71,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	claimsRecord := types.NewClaimsRecord(sdk.NewInt(10000))
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	coins = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000)))
 
 	err = testutil.FundModuleAccount(suite.chainB.GetContext(), suite.chainB.App.(*app.Evmos).BankKeeper, types.ModuleName, coins)

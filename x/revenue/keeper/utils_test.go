@@ -7,30 +7,21 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/tests"
+	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 func (suite *KeeperTestSuite) SetupApp() {
@@ -39,7 +30,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
-	suite.signer = tests.NewSigner(priv)
+	suite.signer = utiltx.NewSigner(priv)
 
 	suite.denom = utils.BaseDenom
 
@@ -47,30 +38,10 @@ func (suite *KeeperTestSuite) SetupApp() {
 	privCons, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(privCons.PubKey().Address())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+	)
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
@@ -120,20 +91,11 @@ func (suite *KeeperTestSuite) Commit() {
 
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	header := suite.ctx.BlockHeader()
-	suite.app.EndBlock(abci.RequestEndBlock{Height: header.Height})
-	_ = suite.app.Commit()
-
-	header.Height++
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, t, nil)
+	suite.Require().NoError(err)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
+
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
@@ -173,7 +135,8 @@ func registerFee(
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address())
 	msg := types.NewMsgRegisterRevenue(*contractAddress, deployerAddress, withdrawerAddress, nonces)
 
-	res := deliverTx(priv, nil, msg)
+	res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+	s.Require().NoError(err)
 	s.Commit()
 
 	if res.IsOK() {
@@ -192,21 +155,20 @@ func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *commo
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		factoryAddress,
-		nil,
-		uint64(100000),
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		data,
-		nil,
-	)
+
+	ethTxParams := evmtypes.EvmTxArgs{
+		ChainID:  chainID,
+		Nonce:    nonce,
+		To:       factoryAddress,
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1000000000),
+		Input:    data,
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	s.Commit()
 
@@ -233,20 +195,20 @@ func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Addr
 
 	data := common.Hex2Bytes(contractCode)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTxContract(
-		chainID,
-		nonce,
-		nil,
-		gasLimit,
-		nil,
-		s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		big.NewInt(1),
-		data,
-		&ethtypes.AccessList{},
-	)
+	ethTxParams := evmtypes.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasLimit:  gasLimit,
+		GasTipCap: big.NewInt(1),
+		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+		Input:     data,
+		Accesses:  &ethtypes.AccessList{},
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	s.Commit()
 
 	ethereumTx := res.GetEvents()[11]
@@ -269,7 +231,8 @@ func contractInteract(
 	accesses *ethtypes.AccessList,
 ) abci.ResponseDeliverTx {
 	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, accesses)
-	res := deliverEthTx(priv, msgEthereumTx)
+	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
+	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
 	return res
 }
@@ -287,112 +250,18 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		to,
-		nil,
-		gasLimit,
-		gasPrice,
-		gasFeeCap,
-		gasTipCap,
-		data,
-		accesses,
-	)
+	ethTxParams := evmtypes.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        to,
+		GasPrice:  gasPrice,
+		GasLimit:  gasLimit,
+		GasTipCap: gasTipCap,
+		GasFeeCap: gasFeeCap,
+		Input:     data,
+		Accesses:  accesses,
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
-}
-
-func prepareEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) []byte {
-	// Sign transaction
-	err := msgEthereumTx.Sign(s.ethSigner, tests.NewSigner(priv))
-	s.Require().NoError(err)
-
-	// Assemble transaction from fields
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-	tx, err := msgEthereumTx.BuildTx(txBuilder, s.app.EvmKeeper.GetParams(s.ctx).EvmDenom)
-	s.Require().NoError(err)
-
-	// Encode transaction by default Tx encoder and broadcasted over the network
-	txEncoder := encodingConfig.TxConfig.TxEncoder()
-	bz, err := txEncoder(tx)
-	s.Require().NoError(err)
-
-	return bz
-}
-
-func deliverEthTx(priv *ethsecp256k1.PrivKey, msgEthereumTx *evmtypes.MsgEthereumTx) abci.ResponseDeliverTx {
-	bz := prepareEthTx(priv, msgEthereumTx)
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
-}
-
-func prepareCosmosTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) []byte {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	denom := utils.BaseDenom
-
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	txBuilder.SetGasLimit(1000000)
-	if gasPrice == nil {
-		_gasPrice := sdk.NewInt(1)
-		gasPrice = &_gasPrice
-	}
-	amt, _ := sdk.NewIntFromString("1000000000000000")
-	fees := &sdk.Coins{{Denom: denom, Amount: gasPrice.Mul(amt)}}
-	txBuilder.SetFeeAmount(*fees)
-	err := txBuilder.SetMsgs(msgs...)
-	s.Require().NoError(err)
-
-	seq, err := s.app.AccountKeeper.GetSequence(s.ctx, accountAddress)
-	s.Require().NoError(err)
-
-	// First round: we gather all the signer infos. We use the "set empty
-	// signature" hack to do that.
-	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
-		Data: &signing.SingleSignatureData{
-			SignMode:  encodingConfig.TxConfig.SignModeHandler().DefaultMode(),
-			Signature: nil,
-		},
-		Sequence: seq,
-	}
-
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := s.app.AccountKeeper.GetAccount(s.ctx, accountAddress).GetAccountNumber()
-	signerData := authsigning.SignerData{
-		ChainID:       s.ctx.ChainID(),
-		AccountNumber: accNumber,
-		Sequence:      seq,
-	}
-	sigV2, err = tx.SignWithPrivKey(
-		encodingConfig.TxConfig.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, encodingConfig.TxConfig,
-		seq,
-	)
-	s.Require().NoError(err)
-
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
-	s.Require().NoError(err)
-
-	// bz are bytes to be broadcasted over the network
-	bz, err := encodingConfig.TxConfig.TxEncoder()(txBuilder.GetTx())
-	s.Require().NoError(err)
-	return bz
-}
-
-func deliverTx(priv *ethsecp256k1.PrivKey, gasPrice *sdkmath.Int, msgs ...sdk.Msg) abci.ResponseDeliverTx { //nolint:unparam
-	bz := prepareCosmosTx(priv, gasPrice, msgs...)
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := s.app.BaseApp.DeliverTx(req)
-	return res
 }

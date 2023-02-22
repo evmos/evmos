@@ -1,22 +1,23 @@
 //go:build gofuzz || go1.18
 
-package types
+package types_test
 
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v11/tests"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/x/incentives/types"
 )
 
 func FuzzSplitGasMeterKey(f *testing.F) {
-	contract := tests.GenerateAddress()
-	user := tests.GenerateAddress()
+	contract := utiltx.GenerateAddress()
+	user := utiltx.GenerateAddress()
 
-	key := KeyPrefixGasMeter
+	key := types.KeyPrefixGasMeter
 	key = append(key, contract.Bytes()...)
 	key = append(key, user.Bytes()...)
 	f.Add(key)
 	f.Fuzz(func(t *testing.T, key []byte) {
-		SplitGasMeterKey(key)
+		types.SplitGasMeterKey(key)
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -13,12 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	ethlogger "github.com/ethereum/go-ethereum/eth/tracers/logger"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v11/tests"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v11/server/config"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -905,16 +904,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				chainID := suite.app.EvmKeeper.ChainID()
 				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
 				data := types.ERC20Contract.Bin
-				contractTx := types.NewTxContract(
-					chainID,
-					nonce,
-					nil,                             // amount
-					ethparams.TxGasContractCreation, // gasLimit
-					nil,                             // gasPrice
-					nil, nil,
-					data, // input
-					nil,  // accesses
-				)
+				ethTxParams := &types.EvmTxArgs{
+					ChainID:  chainID,
+					Nonce:    nonce,
+					GasLimit: ethparams.TxGasContractCreation,
+					Input:    data,
+				}
+				contractTx := types.NewTx(ethTxParams)
 
 				predecessors = append(predecessors, contractTx)
 				suite.Commit()
@@ -1160,7 +1156,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 }
 
 func (suite *KeeperTestSuite) TestNonceInQuery() {
-	address := tests.GenerateAddress()
+	address := utiltx.GenerateAddress()
 	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
@@ -1270,7 +1266,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 func (suite *KeeperTestSuite) TestEthCall() {
 	var req *types.EthCallRequest
 
-	address := tests.GenerateAddress()
+	address := utiltx.GenerateAddress()
 	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 

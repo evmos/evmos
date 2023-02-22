@@ -9,16 +9,17 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/encoding"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	proto "github.com/gogo/protobuf/proto"
-
-	"github.com/evmos/evmos/v11/tests"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	proto "github.com/gogo/protobuf/proto"
+
+	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/encoding"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestEvmDataEncoding(t *testing.T) {
@@ -60,7 +61,17 @@ func TestUnwrapEthererumMsg(t *testing.T) {
 	_, err = evmtypes.UnwrapEthereumMsg(&tx, common.Hash{})
 	require.NotNil(t, err)
 
-	msg := evmtypes.NewTx(big.NewInt(1), 0, &common.Address{}, big.NewInt(0), 0, big.NewInt(0), nil, nil, []byte{}, nil)
+	evmTxParams := &evmtypes.EvmTxArgs{
+		ChainID:  big.NewInt(1),
+		Nonce:    0,
+		To:       &common.Address{},
+		Amount:   big.NewInt(0),
+		GasLimit: 0,
+		GasPrice: big.NewInt(0),
+		Input:    []byte{},
+	}
+
+	msg := evmtypes.NewTx(evmTxParams)
 	err = builder.SetMsgs(msg)
 	require.Nil(t, err)
 
@@ -89,7 +100,7 @@ func TestBinSearch(t *testing.T) {
 }
 
 func TestTransactionLogsEncodeDecode(t *testing.T) {
-	addr := tests.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	txLogs := evmtypes.TransactionLogs{
 		Hash: common.BytesToHash([]byte("tx_hash")).String(),

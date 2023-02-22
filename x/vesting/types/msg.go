@@ -28,12 +28,15 @@ import (
 var (
 	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
 	_ sdk.Msg = &MsgClawback{}
+	_ sdk.Msg = &MsgConvertVestingAccount{}
+	_ sdk.Msg = &MsgUpdateVestingFunder{}
 )
 
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
 	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
+	TypeMsgConvertVestingAccount        = "convert_vesting_account"
 )
 
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
@@ -203,4 +206,36 @@ func (msg *MsgUpdateVestingFunder) GetSignBytes() []byte {
 func (msg MsgUpdateVestingFunder) GetSigners() []sdk.AccAddress {
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{funder}
+}
+
+// NewMsgConvertVestingAccount creates new instance of MsgConvertVestingAccount
+func NewMsgConvertVestingAccount(vestingAcc sdk.AccAddress) *MsgConvertVestingAccount {
+	return &MsgConvertVestingAccount{
+		VestingAddress: vestingAcc.String(),
+	}
+}
+
+// Route returns the name of the module
+func (msg MsgConvertVestingAccount) Route() string { return RouterKey }
+
+// Type returns the action
+func (msg MsgConvertVestingAccount) Type() string { return TypeMsgConvertVestingAccount }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgConvertVestingAccount) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid vesting address")
+	}
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgConvertVestingAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgConvertVestingAccount) GetSigners() []sdk.AccAddress {
+	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	return []sdk.AccAddress{vesting}
 }

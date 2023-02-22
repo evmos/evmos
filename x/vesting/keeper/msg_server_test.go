@@ -4,23 +4,26 @@ import (
 	"fmt"
 	"time"
 
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+	evmostypes "github.com/evmos/evmos/v11/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v11/tests"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/vesting/types"
 )
 
 var (
 	balances       = sdk.NewCoins(sdk.NewInt64Coin("test", 1000))
 	quarter        = sdk.NewCoins(sdk.NewInt64Coin("test", 250))
-	addr           = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr2          = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr3          = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr4          = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr           = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr2          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
@@ -232,7 +235,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"no clawback account",
 			func() {},
 			addr,
-			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			addr3,
 			suite.ctx.BlockTime(),
 			false,
@@ -349,7 +352,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			"non-existent vesting account",
 			func() {},
 			addr,
-			sdk.AccAddress(tests.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			addr3,
 			false,
 		},
@@ -443,7 +446,7 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
 	funder := sdk.AccAddress(types.ModuleName)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
@@ -459,7 +462,7 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
 	// Create and set clawback vesting account
 	vestingStart := s.ctx.BlockTime()
 	funder := sdk.AccAddress(types.ModuleName)
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
 	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
 
@@ -474,4 +477,113 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
 	// error on bad bytes
 	_, err = suite.app.AccountKeeper.UnmarshalAccount(bz[:len(bz)/2])
 	suite.Require().Error(err)
+}
+
+func (suite *KeeperTestSuite) TestConvertVestingAccount() {
+	startTime := s.ctx.BlockTime().Add(-5 * time.Second)
+	testCases := []struct {
+		name     string
+		malleate func() authtypes.AccountI
+		expPass  bool
+	}{
+		{
+			"fail - no account found",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				return baseAcc
+			},
+			false,
+		},
+		{
+			"fail - not a vesting account",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
+				return baseAcc
+			},
+			false,
+		},
+		{
+			"fail - unlocked & unvested",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				lockupPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				vestingPeriods := sdkvesting.Periods{
+					{Length: 0, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+					{Length: 2000, Amount: quarter},
+				}
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"fail - locked & vested",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, lockupPeriods, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"fail - locked & unvested",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
+				return vestingAcc
+			},
+			false,
+		},
+		{
+			"success - unlocked & vested convert to base account",
+			func() authtypes.AccountI {
+				from, priv := utiltx.NewAccAddressAndKey()
+				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
+				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
+				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, startTime, nil, vestingPeriods)
+				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
+				return vestingAcc
+			},
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.SetupTest() // reset
+		ctx := sdk.WrapSDKContext(suite.ctx)
+
+		acc := tc.malleate()
+
+		msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
+		res, err := suite.app.VestingKeeper.ConvertVestingAccount(ctx, msg)
+
+		if tc.expPass {
+			suite.Require().NoError(err)
+			suite.Require().NotNil(res)
+
+			account := suite.app.AccountKeeper.GetAccount(suite.ctx, acc.GetAddress())
+
+			_, ok := account.(vestingexported.VestingAccount)
+			suite.Require().False(ok)
+
+			_, ok = account.(evmostypes.EthAccountI)
+			suite.Require().True(ok)
+
+		} else {
+			suite.Require().Error(err)
+			suite.Require().Nil(res)
+		}
+	}
 }

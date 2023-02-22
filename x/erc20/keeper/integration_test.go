@@ -376,9 +376,9 @@ func convertCoin(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey,
 	addrBz := pk.PubKey().Address().Bytes()
 
 	convertCoinMsg := types.NewMsgConvertCoin(coin, common.BytesToAddress(addrBz), sdk.AccAddress(addrBz))
-	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertCoinMsg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertCoinMsg)
 	s.Require().NoError(err)
-	// res := deliverTx(pk, convertCoinMsg)
+
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert coin: %s", res.Log)
 }
 
@@ -386,7 +386,7 @@ func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey
 	addrBz := pk.PubKey().Address().Bytes()
 
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
-	res, err := testutil.DeliverTx(ctx, appEvmos, pk, convertERC20Msg)
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
 	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }

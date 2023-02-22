@@ -9,8 +9,8 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v11/tests"
-	"github.com/evmos/evmos/v11/testutil"
+	testutil "github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/claims/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
@@ -61,9 +61,9 @@ func (suite *KeeperTestSuite) TestEndBlock() {
 }
 
 func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
-	addr := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr2 := sdk.AccAddress(tests.GenerateAddress().Bytes())
-	addr3 := sdk.AccAddress(tests.GenerateAddress().Bytes())
+	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr2 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	addr3 := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name       string
@@ -104,7 +104,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			0,
 			func() {
 				bAcc := authtypes.NewBaseAccount(addr, nil, 0, 0)
-				funder := sdk.AccAddress(tests.GenerateAddress().Bytes())
+				funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
 
 				vestingAcc := vestingtypes.NewClawbackVestingAccount(bAcc, funder, coins, time.Now().UTC(), nil, nil)

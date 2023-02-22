@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/evmos/evmos/v11/tests"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -39,9 +39,9 @@ type KeeperTestSuite struct {
 var s *KeeperTestSuite
 
 var (
-	contract = tests.GenerateAddress()
-	deployer = sdk.AccAddress(tests.GenerateAddress().Bytes())
-	withdraw = sdk.AccAddress(tests.GenerateAddress().Bytes())
+	contract = utiltx.GenerateAddress()
+	deployer = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	withdraw = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 )
 
 func TestKeeperTestSuite(t *testing.T) {

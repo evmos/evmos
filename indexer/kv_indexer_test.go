@@ -12,7 +12,7 @@ import (
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	evmenc "github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/indexer"
-	"github.com/evmos/evmos/v11/tests"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/stretchr/testify/require"
@@ -26,13 +26,17 @@ func TestKVIndexer(t *testing.T) {
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	signer := tests.NewSigner(priv)
+	signer := utiltx.NewSigner(priv)
 	ethSigner := ethtypes.LatestSignerForChainID(nil)
 
 	to := common.BigToAddress(big.NewInt(1))
-	tx := types.NewTx(
-		nil, 0, &to, big.NewInt(1000), 21000, nil, nil, nil, nil, nil,
-	)
+	ethTxParams := types.EvmTxArgs{
+		Nonce:    0,
+		To:       &to,
+		Amount:   big.NewInt(1000),
+		GasLimit: 21000,
+	}
+	tx := types.NewTx(&ethTxParams)
 	tx.From = from.Hex()
 	require.NoError(t, tx.Sign(ethSigner, signer))
 	txHash := tx.AsTransaction().Hash()

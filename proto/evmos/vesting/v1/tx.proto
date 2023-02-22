@@ -24,6 +24,10 @@ service Msg {
   rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/update_vesting_funder";
   };
+  // ConvertVestingAccount converts a ClawbackVestingAccount to a Eth account
+  rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/convert_vesting_account";
+  };
 }
 
 // MsgCreateClawbackVestingAccount defines a message that enables creating a
@@ -91,3 +95,12 @@ message MsgUpdateVestingFunder {
 // MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response
 // type.
 message MsgUpdateVestingFunderResponse {}
+
+// MsgConvertVestingAccount defines a message that enables converting a vesting account to a eth account
+message MsgConvertVestingAccount {
+  // vesting_address is the address of the vesting account to convert
+  string vesting_address = 1;
+}
+
+// MsgConvertVestingAccountResponse defines the MsgConvertVestingAccount response type.
+message MsgConvertVestingAccountResponse {}
