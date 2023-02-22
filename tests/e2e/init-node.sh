@@ -84,6 +84,10 @@ if [ "$PRUNING" = "custom" ]; then
   sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 fi
 
+# make sure the localhost IP is 0.0.0.0
+sed -i 's/pprof_laddr = "localhost:6060"/pprof_laddr = "0.0.0.0:6060"/g' "$CONFIG_TOML"
+sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
+
 # Sign genesis transaction
 evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis

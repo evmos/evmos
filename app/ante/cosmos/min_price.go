@@ -77,10 +77,9 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		}
 	}
 
+	// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
 	if feeCoins == nil {
-		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
-			"fee not provided. Please use the --fees flag or the --gas-price flag to estimate the fee. The minimun global fee for this tx is: %s",
-			requiredFees)
+		feeCoins = requiredFees
 	}
 
 	if !feeCoins.IsAnyGTE(requiredFees) {

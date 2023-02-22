@@ -114,7 +114,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			true,
 		},
 		{
-			"fail, dynamic fee",
+			"success, dynamic fee - no fee amount specified, uses requiredFees",
 			deliverTxCtx,
 			MockEVMKeeper{
 				EnableLondonHF: true, BaseFee: big.NewInt(1),
@@ -124,9 +124,9 @@ func TestSDKTxFeeChecker(t *testing.T) {
 				txBuilder.SetGasLimit(1)
 				return txBuilder.GetTx()
 			},
-			"",
+			"1aevmos",
 			0,
-			false,
+			true,
 		},
 		{
 			"success, dynamic fee",
