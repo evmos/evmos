@@ -139,7 +139,7 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 	// deduct the fees
 	if !fees.IsZero() {
 		if err := dfd.deductFeesFromBalanceOrUnclaimedRewards(ctx, deductFeesFromAcc, fees); err != nil {
-			return fmt.Errorf("failed to deduct fees from %s: %w", deductFeesFrom.String(), err)
+			return err
 		}
 	}
 

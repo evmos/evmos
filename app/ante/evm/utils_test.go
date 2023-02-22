@@ -604,7 +604,7 @@ func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk
 	// Set up first account
 	//
 	addr, _ := testutiltx.NewAccAddressAndKey()
-	err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, initialBalance)
+	err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 1e18)
 	suite.Require().NoError(err, "failed to fund account")
 
 	// ----------------------------------------
@@ -615,14 +615,19 @@ func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk
 	//
 	privKey := ed25519.GenPrivKey()
 	addr2, _ := testutiltx.NewAccAddressAndKey()
-	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr2, initialBalance)
+	err = testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr2, 1e18)
 	suite.Require().NoError(err, "failed to fund account")
 
+	// 0% decimal for the staking commission
+	zeroDec := sdk.ZeroDec()
+
+	// Set up staking parameters
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
 	stakingParams.MinCommissionRate = zeroDec
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
+	// Set up staking using helper from sdk testing suite
 	stakingHelper := teststaking.NewHelper(suite.T(), suite.ctx, suite.app.StakingKeeper)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = utils.BaseDenom

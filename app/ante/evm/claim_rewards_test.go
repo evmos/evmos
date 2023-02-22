@@ -7,15 +7,6 @@ import (
 	"github.com/evmos/evmos/v11/utils"
 )
 
-var (
-	// define initial balance as sdk coins
-	balanceAmount  = sdk.NewInt(1e18)
-	initialBalance = sdk.Coins{sdk.Coin{Amount: balanceAmount, Denom: utils.BaseDenom}}
-
-	// 0% commission
-	zeroDec = sdk.ZeroDec()
-)
-
 // TestClaimSufficientStakingRewards tests the ClaimSufficientStakingRewards function
 func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 	// ----------------------------------------

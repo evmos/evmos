@@ -1,6 +1,7 @@
 package cosmos_test
 
 import (
+	"cosmossdk.io/math"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
@@ -15,61 +16,60 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// Testcase definitions
 	testcases := []struct {
 		name        string
-		malleate    func() testutiltx.CosmosTxArgs
+		balance     math.Int
+		rewards     math.Int
+		gas         uint64
 		checkTx     bool
 		simulate    bool
 		expPass     bool
 		errContains string
 	}{
 		{
-			name: "pass - sufficient balance to pay fees",
-			malleate: func() testutiltx.CosmosTxArgs {
-				// Fund account
-				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 1e18)
-				suite.Require().NoError(err, "failed to fund account")
-
-				return testutiltx.CosmosTxArgs{
-					TxCfg: suite.clientCtx.TxConfig,
-					Priv:  priv,
-					Gas:   0,
-				}
-			},
+			name:        "pass - sufficient balance to pay fees",
+			balance:     sdk.NewInt(1e18),
+			rewards:     sdk.NewInt(0),
+			gas:         0,
 			checkTx:     false,
 			simulate:    true,
 			expPass:     true,
 			errContains: "",
 		},
 		{
-			name: "fail - zero gas limit in check tx mode",
-			malleate: func() testutiltx.CosmosTxArgs {
-				// Fund account
-				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 300)
-				suite.Require().NoError(err, "failed to fund account")
-
-				// Set gas limit to zero for testing purposes
-				return testutiltx.CosmosTxArgs{
-					TxCfg: suite.clientCtx.TxConfig,
-					Priv:  priv,
-					Gas:   0,
-				}
-			},
+			name:        "fail - zero gas limit in check tx mode",
+			balance:     sdk.NewInt(1e18),
+			rewards:     sdk.NewInt(0),
+			gas:         0,
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
 			errContains: "must provide positive gas",
 		},
 		{
-			name: "fail - checkTx - insufficient funds and no staking rewards",
-			malleate: func() testutiltx.CosmosTxArgs {
-				suite.app.AccountKeeper.SetAccount(suite.ctx, suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
-
-				return testutiltx.CosmosTxArgs{
-					TxCfg: suite.clientCtx.TxConfig,
-					Priv:  priv,
-					Gas:   10_000_000,
-				}
-			},
+			name:        "fail - checkTx - insufficient funds and no staking rewards",
+			balance:     sdk.NewInt(0),
+			rewards:     sdk.NewInt(0),
+			gas:         10_000_000,
 			checkTx:     true,
+			simulate:    false,
+			expPass:     false,
+			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+		},
+		{
+			name:        "pass - insufficient funds but sufficient staking rewards",
+			balance:     sdk.NewInt(1e18),
+			rewards:     sdk.NewInt(1e18),
+			gas:         10_000_000,
+			checkTx:     false,
+			simulate:    false,
+			expPass:     true,
+			errContains: "",
+		},
+		{
+			name:        "fail - insufficient funds and insufficient staking rewards",
+			balance:     sdk.NewInt(1e5),
+			rewards:     sdk.NewInt(1e5),
+			gas:         10_000_000,
+			checkTx:     false,
 			simulate:    false,
 			expPass:     false,
 			errContains: "insufficient funds and failed to claim sufficient staking rewards",
@@ -87,12 +87,19 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
 			)
 
-			// set up the testcase
-			args := tc.malleate()
+			// prepare the testcase
+			suite.PrepareAccountsForDelegationRewards(addr, tc.balance, tc.rewards)
 
 			// Create an arbitrary message for testing purposes
 			msg := sdktestutil.NewTestMsg(addr)
-			args.Msgs = []sdk.Msg{msg}
+
+			// Set up the transaction arguments
+			args := testutiltx.CosmosTxArgs{
+				TxCfg: suite.clientCtx.TxConfig,
+				Priv:  priv,
+				Gas:   tc.gas,
+				Msgs:  []sdk.Msg{msg},
+			}
 
 			// Create a transaction out of the message
 			tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, args)
