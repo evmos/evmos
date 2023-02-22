@@ -61,7 +61,7 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
-	if err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
 		return common.Address{}, err
 	}
 
@@ -96,28 +96,31 @@ func DeployContractWithFactory(
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
-	if err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
+	if _, err := checkResponseTx(res, evmosApp.AppCodec()); err != nil {
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
 	return crypto.CreateAddress(factoryAddress, factoryNonce), res, err
 }
 
-// checkResponseTx checks that the transaction was executed successfully
-func checkResponseTx(r abci.ResponseDeliverTx, cdc codec.Codec) error {
+// CheckEthTxResponse checks that the transaction was executed successfully
+func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthereumTxResponse, error) {
 	if !r.IsOK() {
-		return fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
+		return nil, fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
 	}
 	var txData sdk.TxMsgData
 	if err := cdc.Unmarshal(r.Data, &txData); err != nil {
-		return err
+		return nil, err
 	}
-	var ethRes evm.MsgEthereumTxResponse
-	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &ethRes); err != nil {
-		return err
+	
+	var res *evm.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, res); err != nil {
+		return nil, err
 	}
-	if ethRes.Failed() {
-		return fmt.Errorf("tx failed. VmError: %s", ethRes.VmError)
+	
+	if res.Failed() {
+		return nil, fmt.Errorf("tx failed. VmError: %s", ethRes.VmError)
 	}
-	return nil
+	
+	return res, nil
 }
