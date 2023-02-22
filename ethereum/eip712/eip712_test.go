@@ -3,9 +3,8 @@ package eip712_test
 import (
 	"bytes"
 	"fmt"
-	goMath "math"
+	sdkmath "math"
 	"math/big"
-	"reflect"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -564,7 +563,7 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 		flattenedMsgJSON, ok := flattenedMsg.(map[string]interface{})
 		suite.Require().True(ok)
 
-		suite.Require().True(reflect.DeepEqual(flattenedMsgJSON, msg))
+		suite.Require().Equal(flattenedMsgJSON, msg)
 	}
 
 	// Verify new payload does not have msgs field
@@ -589,7 +588,6 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 		suite.Require().True(ok)
 
 		suite.Require().Equal(obj, flattenedObj)
-		suite.Require().True(reflect.DeepEqual(obj, flattenedObj))
 	}
 }
 
@@ -615,7 +613,7 @@ func (suite *EIP712TestSuite) verifyBasicTypedData(signDoc []byte, feePayer sdk.
 	originalFlattenedMsg, ok := flattened.Value().(map[string]interface{})
 	suite.Require().True(ok)
 
-	suite.Require().True(reflect.DeepEqual(typedData.Message, originalFlattenedMsg))
+	suite.Require().Equal(typedData.Message, originalFlattenedMsg)
 }
 
 // TestFlattenPayloadErrorHandling tests error handling in TypedData generation, specifically
@@ -680,7 +678,7 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 	suite.Require().ErrorContains(err, "maximum number of duplicates")
 
 	// ChainID overflow
-	_, err = eip712.WrapTxToTypedData(goMath.MaxUint64, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }] }`).Raw), &eip712.FeeDelegationOptions{
+	_, err = eip712.WrapTxToTypedData(sdkmath.MaxUint64, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }] }`).Raw), &eip712.FeeDelegationOptions{
 		FeePayer: sdk.AccAddress{},
 	})
 	suite.Require().ErrorContains(err, "chainID")

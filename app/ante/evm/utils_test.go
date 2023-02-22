@@ -330,7 +330,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAd
 
 	msgVote := govtypesv1.NewMsgVote(from, 1, govtypesv1.VoteOption_VOTE_OPTION_YES, "")
 
-	valEthAddr := testutil.GenerateAddress()
+	valEthAddr := utiltx.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgDelegate := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 
