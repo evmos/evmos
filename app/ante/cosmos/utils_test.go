@@ -5,29 +5,17 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/evmos/evmos/v11/app"
-	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
 var _ sdk.AnteHandler = (&MockAnteHandler{}).AnteHandle
@@ -96,7 +84,7 @@ func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.A
 	return testPrivKeys, testAddresses, nil
 }
 
-func createTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
+func createTx(priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 
@@ -143,80 +131,4 @@ func createTx(priv *ethsecp256k1.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	}
 
 	return txBuilder.GetTx(), nil
-}
-
-func createEIP712CosmosTx(
-	from sdk.AccAddress, priv cryptotypes.PrivKey, msgs []sdk.Msg,
-) (sdk.Tx, error) {
-	var err error
-
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
-	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
-
-	// GenerateTypedData TypedData
-	registry := codectypes.NewInterfaceRegistry()
-	types.RegisterInterfaces(registry)
-	ethermintCodec := codec.NewProtoCodec(registry)
-	cryptocodec.RegisterInterfaces(registry)
-
-	coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
-	amount := sdk.NewCoins(coinAmount)
-	gas := uint64(200000)
-
-	fee := legacytx.NewStdFee(gas, amount) //nolint: staticcheck
-	data := legacytx.StdSignBytes(chainID, 0, 0, 0, fee, msgs, "", nil)
-	typedData, err := eip712.WrapTxToTypedData(ethermintCodec, 9000, msgs[0], data, &eip712.FeeDelegationOptions{
-		FeePayer: from,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	sigHash, _, err := apitypes.TypedDataAndHash(typedData)
-	if err != nil {
-		return nil, err
-	}
-
-	// Sign typedData
-	keyringSigner := utiltx.NewSigner(priv)
-	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
-	if err != nil {
-		return nil, err
-	}
-	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
-
-	// Add ExtensionOptionsWeb3Tx extension
-	var option *codectypes.Any
-	option, err = codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
-		FeePayer:         from.String(),
-		TypedDataChainID: 9000,
-		FeePayerSig:      signature,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	builder, _ := txBuilder.(authtx.ExtensionOptionsTxBuilder)
-
-	builder.SetExtensionOptions(option)
-	builder.SetFeeAmount(amount)
-	builder.SetGasLimit(gas)
-
-	sigsV2 := signing.SignatureV2{
-		PubKey: pubKey,
-		Data: &signing.SingleSignatureData{
-			SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-		},
-		Sequence: 0,
-	}
-
-	if err = builder.SetSignatures(sigsV2); err != nil {
-		return nil, err
-	}
-
-	if err = builder.SetMsgs(msgs...); err != nil {
-		return nil, err
-	}
-
-	return builder.GetTx(), err
 }

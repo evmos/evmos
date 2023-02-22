@@ -75,7 +75,18 @@ func DeliverTx(
 	msgs ...sdk.Msg,
 ) (abci.ResponseDeliverTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
-	tx, err := tx.PrepareCosmosTx(ctx, txConfig, appEvmos, priv, gasPrice, msgs...)
+	tx, err := tx.PrepareCosmosTx(
+		ctx,
+		appEvmos,
+		tx.CosmosTxInput{
+			TxCfg:    txConfig,
+			Priv:     priv,
+			ChainID:  ctx.ChainID(),
+			Gas:      10_000_000,
+			GasPrice: gasPrice,
+			Msgs:     msgs,
+		},
+	)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
@@ -109,7 +120,18 @@ func CheckTx(
 ) (abci.ResponseCheckTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
-	tx, err := tx.PrepareCosmosTx(ctx, txConfig, appEvmos, priv, gasPrice, msgs...)
+	tx, err := tx.PrepareCosmosTx(
+		ctx,
+		appEvmos,
+		tx.CosmosTxInput{
+			TxCfg:    txConfig,
+			Priv:     priv,
+			ChainID:  ctx.ChainID(),
+			GasPrice: gasPrice,
+			Gas:      10_000_000,
+			Msgs:     msgs,
+		},
+	)
 	if err != nil {
 		return abci.ResponseCheckTx{}, err
 	}
