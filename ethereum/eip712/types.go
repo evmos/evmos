@@ -90,7 +90,7 @@ func createEIP712Types(messagePayload eip712MessagePayload) (apitypes.Types, err
 	}
 
 	for i := 0; i < messagePayload.numPayloadMsgs; i++ {
-		msgField := flattenedMsgFieldForIndex(i)
+		msgField := msgFieldForIndex(i)
 		msg := messagePayload.payload.Get(msgField)
 
 		if !msg.IsObject() {

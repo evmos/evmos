@@ -37,12 +37,12 @@ const (
 
 // createEIP712MessagePayload generates the EIP-712 message payload corresponding to the input data.
 func createEIP712MessagePayload(data []byte) (eip712MessagePayload, error) {
-	rawPayload, err := unmarshalBytesToJSONObject(data)
+	basicPayload, err := unmarshalBytesToJSONObject(data)
 	if err != nil {
 		return eip712MessagePayload{}, err
 	}
 
-	payload, numPayloadMsgs, err := FlattenPayloadMessages(rawPayload)
+	payload, numPayloadMsgs, err := FlattenPayloadMessages(basicPayload)
 	if err != nil {
 		return eip712MessagePayload{}, errorsmod.Wrap(err, "failed to flatten payload JSON messages")
 	}
@@ -81,47 +81,31 @@ func unmarshalBytesToJSONObject(data []byte) (gjson.Result, error) {
 // them as key-value pairs of "msg{i}": {Msg}, rather than as an array of Msgs.
 // We do this to support messages with different schemas.
 func FlattenPayloadMessages(payload gjson.Result) (gjson.Result, int, error) {
+	flattened := payload
 	var err error
-	flattenedRaw := payload.Raw
 
-	msgs, err := getPayloadMsgs(payload)
+	msgs, err := getPayloadMessages(payload)
 	if err != nil {
 		return gjson.Result{}, 0, err
 	}
 
-	numMsgs := len(msgs)
-
 	for i, msg := range msgs {
-		if !msg.IsObject() {
-			return gjson.Result{}, 0, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "msg at index %d is not valid JSON: %v", i, msg)
-		}
-
-		msgField := flattenedMsgFieldForIndex(i)
-
-		if gjson.Get(flattenedRaw, msgField).Exists() {
-			return gjson.Result{}, 0, errorsmod.Wrapf(
-				errortypes.ErrInvalidRequest,
-				"malformed payload received, did not expect to find key with field %v", msgField,
-			)
-		}
-
-		flattenedRaw, err = sjson.SetRaw(flattenedRaw, msgField, msg.Raw)
+		flattened, err = payloadWithNewMessage(flattened, msg, i)
 		if err != nil {
 			return gjson.Result{}, 0, err
 		}
 	}
 
-	flattenedRaw, err = sjson.Delete(flattenedRaw, PAYLOAD_MSGS)
+	flattened, err = payloadWithoutMsgsField(flattened)
 	if err != nil {
 		return gjson.Result{}, 0, err
 	}
 
-	flattenedJSON := gjson.Parse(flattenedRaw)
-	return flattenedJSON, numMsgs, nil
+	return flattened, len(msgs), nil
 }
 
-// getPayloadMsgs processes and returns the payload messages as a JSON array.
-func getPayloadMsgs(payload gjson.Result) ([]gjson.Result, error) {
+// getPayloadMessages processes and returns the payload messages as a JSON array.
+func getPayloadMessages(payload gjson.Result) ([]gjson.Result, error) {
 	rawMsgs := payload.Get(PAYLOAD_MSGS)
 
 	if !rawMsgs.Exists() {
@@ -135,8 +119,43 @@ func getPayloadMsgs(payload gjson.Result) ([]gjson.Result, error) {
 	return rawMsgs.Array(), nil
 }
 
-// flattenedMsgFieldForIndex returns the payload field for a given message post-flattening.
+// payloadWithNewMessage returns the updated payload object with the message
+// set at the field corresponding to the index.
+func payloadWithNewMessage(payload gjson.Result, msg gjson.Result, index int) (gjson.Result, error) {
+	field := msgFieldForIndex(index)
+
+	if !msg.IsObject() {
+		return gjson.Result{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "msg at index %d is not valid JSON: %v", index, msg)
+	}
+
+	if payload.Get(field).Exists() {
+		return gjson.Result{}, errorsmod.Wrapf(
+			errortypes.ErrInvalidRequest,
+			"malformed payload received, did not expect to find key with field %v", field,
+		)
+	}
+
+	newRaw, err := sjson.SetRaw(payload.Raw, field, msg.Raw)
+	if err != nil {
+		return gjson.Result{}, err
+	}
+
+	return gjson.Parse(newRaw), nil
+}
+
+// msgFieldForIndex returns the payload field for a given message post-flattening.
 // e.g. msgs[2] is moved to 'msg2'
-func flattenedMsgFieldForIndex(i int) string {
+func msgFieldForIndex(i int) string {
 	return fmt.Sprintf("msg%d", i)
+}
+
+// payloadWithoutMsgsField returns the updated payload without the "msgs" array
+// field, which is obsolete after flattening.
+func payloadWithoutMsgsField(payload gjson.Result) (gjson.Result, error) {
+	newRaw, err := sjson.Delete(payload.Raw, PAYLOAD_MSGS)
+	if err != nil {
+		return gjson.Result{}, err
+	}
+
+	return gjson.Parse(newRaw), nil
 }
