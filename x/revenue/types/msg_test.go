@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
@@ -27,11 +27,11 @@ func TestMsgsTestSuite(t *testing.T) {
 }
 
 func (suite *MsgsTestSuite) SetupTest() {
-	deployer := testutil.GenerateAddress()
+	deployer := utiltx.GenerateAddress()
 	suite.contract = crypto.CreateAddress(deployer, 1)
 	suite.deployer = sdk.AccAddress(deployer.Bytes())
 	suite.deployerStr = suite.deployer.String()
-	suite.withdrawerStr = sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
+	suite.withdrawerStr = sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String()
 }
 
 func (suite *MsgsTestSuite) TestMsgRegisterRevenueGetters() {
@@ -224,7 +224,7 @@ func (suite *MsgsTestSuite) TestMsgUpdateRevenueGetters() {
 }
 
 func (suite *MsgsTestSuite) TestMsgUpdateRevenueNew() {
-	withdrawerStr := sdk.AccAddress(testutil.GenerateAddress().Bytes()).String()
+	withdrawerStr := sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String()
 	testCases := []struct {
 		msg        string
 		contract   string

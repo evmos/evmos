@@ -9,7 +9,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	length "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/erc20/types"
 )
 
@@ -128,11 +128,11 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 		expectPass  bool
 	}{
 		// Valid tests
-		{msg: "Register token pair - valid pair enabled", title: "test", description: "test desc", pair: types.TokenPair{testutil.GenerateAddress().String(), "test", true, types.OWNER_MODULE}, expectPass: true},
-		{msg: "Register token pair - valid pair dissabled", title: "test", description: "test desc", pair: types.TokenPair{testutil.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: true},
+		{msg: "Register token pair - valid pair enabled", title: "test", description: "test desc", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", true, types.OWNER_MODULE}, expectPass: true},
+		{msg: "Register token pair - valid pair dissabled", title: "test", description: "test desc", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: true},
 		// Missing params valid
-		{msg: "Register token pair - invalid missing title ", title: "", description: "test desc", pair: types.TokenPair{testutil.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: false},
-		{msg: "Register token pair - invalid missing description ", title: "test", description: "", pair: types.TokenPair{testutil.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid missing title ", title: "", description: "test desc", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: false},
+		{msg: "Register token pair - invalid missing description ", title: "test", description: "", pair: types.TokenPair{utiltx.GenerateAddress().String(), "test", false, types.OWNER_MODULE}, expectPass: false},
 		// Invalid address
 		{msg: "Register token pair - invalid address (no hex)", title: "test", description: "test desc", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ", "test", true, types.OWNER_MODULE}, expectPass: false},
 		{msg: "Register token pair - invalid address (invalid length 1)", title: "test", description: "test desc", pair: types.TokenPair{"0x5dCA2483280D9727c80b5518faC4556617fb19", "test", true, types.OWNER_MODULE}, expectPass: false},

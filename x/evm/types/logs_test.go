@@ -5,14 +5,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 )
 
 func TestTransactionLogsValidate(t *testing.T) {
-	addr := testutil.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	testCases := []struct {
 		name    string
@@ -96,7 +96,7 @@ func TestTransactionLogsValidate(t *testing.T) {
 }
 
 func TestValidateLog(t *testing.T) {
-	addr := testutil.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	testCases := []struct {
 		name    string
@@ -169,7 +169,7 @@ func TestValidateLog(t *testing.T) {
 }
 
 func TestConversionFunctions(t *testing.T) {
-	addr := testutil.GenerateAddress().String()
+	addr := utiltx.GenerateAddress().String()
 
 	txLogs := types.TransactionLogs{
 		Hash: common.BytesToHash([]byte("tx_hash")).String(),

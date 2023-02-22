@@ -3,13 +3,13 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v11/app/ante/evm"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -17,8 +17,8 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	suite.enableFeemarket = true
 	suite.SetupTest()
 	dec := evm.NewGasWantedDecorator(suite.app.EvmKeeper, suite.app.FeeMarketKeeper)
-	from, fromPrivKey := testutil.NewAddrKey()
-	to := testutil.GenerateAddress()
+	from, fromPrivKey := utiltx.NewAddrKey()
+	to := utiltx.GenerateAddress()
 
 	testCases := []struct {
 		name              string
@@ -85,7 +85,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := dec.AnteHandle(suite.ctx, tc.malleate(), false, NextFn)
+			_, err := dec.AnteHandle(suite.ctx, tc.malleate(), false, testutil.NextFn)
 			suite.Require().NoError(err)
 
 			gasWanted := suite.app.FeeMarketKeeper.GetTransientGasWanted(suite.ctx)
