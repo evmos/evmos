@@ -42,7 +42,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		expErrMsg string
 	}{
 		{
-			name: "fail - submit upgrade proposal, no fees & insufficient gas",
+			name: "fail - submit upgrade proposal, no fees (defaults to 'auto') & insufficient gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
 					"v11.0.0",
@@ -53,7 +53,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 				)
 			},
 			expPass:   false,
-			expErrMsg: "insufficient fee", // TODO when the PR https://github.com/evmos/evmos/pull/1386 is merged, this may fail with out of gas error
+			expErrMsg: "out of gas",
 			// when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk and included on this repo, will get an error that cannot define gas flag when using fees=auto (which is the default)
 		},
 		{
