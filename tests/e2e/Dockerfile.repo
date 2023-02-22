@@ -8,7 +8,6 @@ RUN git clone "https://github.com/evmos/evmos.git"
 WORKDIR /go/src/github.com/evmos/evmos
 
 RUN apt-get update -y
-RUN apt-get install git -y
 
 RUN git checkout ${INITIAL_VERSION}
 
@@ -16,8 +15,10 @@ RUN make build
 
 FROM golang:1.20.0-bullseye
 
-RUN apt-get update -y
-RUN apt-get install ca-certificates jq -y
+RUN apt-get update \ 
+&& apt-get install jq=1.6-2.1 -y --no-install-recommends \ 
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /go/src/github.com/evmos/evmos
 
