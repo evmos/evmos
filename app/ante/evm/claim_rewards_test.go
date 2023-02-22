@@ -1,14 +1,10 @@
 package evm_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
-	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -99,51 +95,4 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			}
 		})
 	}
-}
-
-// BasicSetupForClaimRewardsTest is a helper function, that creates a validator and a delegator
-// and funds them with some tokens. It also sets up the staking keeper to include a self-delegation
-// of the validator and a delegation from the delegator to the validator.
-func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk.ValAddress) {
-	// reset historical count
-	suite.app.DistrKeeper.DeleteAllValidatorHistoricalRewards(suite.ctx)
-
-	// ----------------------------------------
-	// Set up first account
-	//
-	addr, _ := testutiltx.NewAccAddressAndKey()
-	err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, initialBalance)
-	suite.Require().NoError(err, "failed to fund account")
-
-	// ----------------------------------------
-	// Set up validator
-	//
-	// This account gets funded with the same initial balance as the first account, which
-	// will be fully used to self-delegate upon creation of the validator.
-	//
-	privKey := ed25519.GenPrivKey()
-	addr2, _ := testutiltx.NewAccAddressAndKey()
-	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr2, initialBalance)
-	suite.Require().NoError(err, "failed to fund account")
-
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	stakingHelper := teststaking.NewHelper(suite.T(), suite.ctx, suite.app.StakingKeeper)
-	stakingHelper.Commission = stakingtypes.NewCommissionRates(fivePercent, fivePercent, fivePercent)
-	stakingHelper.Denom = utils.BaseDenom
-
-	valAddr := sdk.ValAddress(addr2.Bytes())
-	//stakingHelper.CreateValidatorWithValPower(valAddr, privKey.PubKey(), int64(10), true)
-	stakeAmount := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, int64(1))
-	suite.T().Logf("stake amount: %s (1e%d)", stakeAmount.String(), len(stakeAmount.String())-1)
-	stakingHelper.CreateValidator(valAddr, privKey.PubKey(), stakeAmount, true)
-	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(123456789))
-
-	// end block to bond validator and increase block height
-	staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
-	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
-
-	return addr, valAddr
 }

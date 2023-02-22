@@ -8,21 +8,16 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
@@ -30,18 +25,26 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	sdkante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
-	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-
-	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evtypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	cryptocodec "github.com/evmos/evmos/v11/crypto/codec"
+	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/ethereum/eip712"
+	"github.com/evmos/evmos/v11/testutil"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -107,7 +110,7 @@ func (suite *AnteTestSuite) CreateTestTxBuilder(
 		builder.SetExtensionOptions(option)
 	}
 
-	err = msg.Sign(suite.ethSigner, utiltx.NewSigner(priv))
+	err = msg.Sign(suite.ethSigner, testutiltx.NewSigner(priv))
 	suite.Require().NoError(err)
 
 	msg.From = ""
@@ -180,7 +183,7 @@ func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgSend(from sdk.AccAddress
 
 func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgDelegate(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) client.TxBuilder {
 	// Build MsgSend
-	valEthAddr := utiltx.GenerateAddress()
+	valEthAddr := testutiltx.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
 	msgSend := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 	return suite.CreateTestEIP712SingleMessageTxBuilder(from, priv, chainID, gas, gasAmount, msgSend)
@@ -234,7 +237,7 @@ func (suite *AnteTestSuite) CreateTestEIP712GrantAllowance(from sdk.AccAddress, 
 		SpendLimit: spendLimit,
 		Expiration: &threeHours,
 	}
-	granted := utiltx.GenerateAddress()
+	granted := testutiltx.GenerateAddress()
 	grantedAddr := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, granted.Bytes())
 	msgGrant, err := feegrant.NewMsgGrantAllowance(basic, from, grantedAddr.GetAddress())
 	suite.Require().NoError(err)
@@ -407,7 +410,7 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	suite.Require().NoError(err)
 
 	// Sign typedData
-	keyringSigner := utiltx.NewSigner(priv)
+	keyringSigner := testutiltx.NewSigner(priv)
 	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
 	suite.Require().NoError(err)
 	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
@@ -627,4 +630,50 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 	suite.Require().NoError(err)
 
 	return txBuilder
+}
+
+// BasicSetupForClaimRewardsTest is a helper function, that creates a validator and a delegator
+// and funds them with some tokens. It also sets up the staking keeper to include a self-delegation
+// of the validator and a delegation from the delegator to the validator.
+func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk.ValAddress) {
+	// reset historical count
+	suite.app.DistrKeeper.DeleteAllValidatorHistoricalRewards(suite.ctx)
+
+	// ----------------------------------------
+	// Set up first account
+	//
+	addr, _ := testutiltx.NewAccAddressAndKey()
+	err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, initialBalance)
+	suite.Require().NoError(err, "failed to fund account")
+
+	// ----------------------------------------
+	// Set up validator
+	//
+	// This account gets funded with the same initial balance as the first account, which
+	// will be fully used to self-delegate upon creation of the validator.
+	//
+	privKey := ed25519.GenPrivKey()
+	addr2, _ := testutiltx.NewAccAddressAndKey()
+	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr2, initialBalance)
+	suite.Require().NoError(err, "failed to fund account")
+
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
+	stakingHelper := teststaking.NewHelper(suite.T(), suite.ctx, suite.app.StakingKeeper)
+	stakingHelper.Commission = stakingtypes.NewCommissionRates(fivePercent, fivePercent, fivePercent)
+	stakingHelper.Denom = utils.BaseDenom
+
+	valAddr := sdk.ValAddress(addr2.Bytes())
+	stakeAmount := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, int64(1))
+	suite.T().Logf("stake amount: %s (1e%d)", stakeAmount.String(), len(stakeAmount.String())-1)
+	stakingHelper.CreateValidator(valAddr, privKey.PubKey(), stakeAmount, true)
+	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(123456789))
+
+	// end block to bond validator and increase block height
+	staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
+	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
+
+	return addr, valAddr
 }
