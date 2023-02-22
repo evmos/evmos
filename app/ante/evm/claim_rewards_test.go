@@ -13,8 +13,8 @@ var (
 	balanceAmount  = sdk.NewInt(1e18)
 	initialBalance = sdk.Coins{sdk.Coin{Amount: balanceAmount, Denom: utils.BaseDenom}}
 
-	// 5% commission
-	fivePercent = sdk.NewDecWithPrec(5, 2)
+	// 0% commission
+	zeroDec = sdk.ZeroDec()
 )
 
 // TestClaimSufficientStakingRewards tests the ClaimSufficientStakingRewards function

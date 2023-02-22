@@ -659,10 +659,11 @@ func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.MinCommissionRate = zeroDec
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	stakingHelper := teststaking.NewHelper(suite.T(), suite.ctx, suite.app.StakingKeeper)
-	stakingHelper.Commission = stakingtypes.NewCommissionRates(fivePercent, fivePercent, fivePercent)
+	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = utils.BaseDenom
 
 	valAddr := sdk.ValAddress(addr2.Bytes())
