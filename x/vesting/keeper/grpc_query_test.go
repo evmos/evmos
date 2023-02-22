@@ -99,6 +99,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 			suite.SetupTest() // reset
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
+			suite.Commit()
 
 			res, err := suite.queryClient.Balances(ctx, req)
 			if tc.expPass {
