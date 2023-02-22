@@ -10,7 +10,7 @@ import (
 
 	ethante "github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v11/x/vesting/types"
 )
@@ -31,19 +31,17 @@ var (
 
 // TestEthVestingTransactionDecorator tests the EthVestingTransactionDecorator ante handler.
 func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
-	addr := utiltx.GenerateAddress()
-	tx := evmtypes.NewTx(
-		suite.app.EvmKeeper.ChainID(),
-		1,
-		&addr,
-		big.NewInt(1000000000),
-		100000,
-		big.NewInt(1000000000),
-		nil,
-		nil,
-		nil,
-		nil,
-	)
+	addr := testutiltx.GenerateAddress()
+
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:  suite.app.EvmKeeper.ChainID(),
+		Nonce:    1,
+		To:       &addr,
+		Amount:   big.NewInt(1000000000),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1000000000),
+	}
+	tx := evmtypes.NewTx(ethTxParams)
 	tx.From = addr.Hex()
 
 	testcases := []struct {
@@ -65,7 +63,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 		},
 		{
 			"fail - invalid transaction",
-			&invalidTx{},
+			&testutiltx.InvalidTx{},
 			func() {},
 			false,
 			"invalid message type",
@@ -118,7 +116,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 			tc.malleate()
 
 			dec := ethante.NewEthVestingTransactionDecorator(suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.EvmKeeper)
-			_, err := dec.AnteHandle(suite.ctx, tc.tx, false, NextFn)
+			_, err := dec.AnteHandle(suite.ctx, tc.tx, false, testutil.NextFn)
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)

@@ -56,29 +56,13 @@ const (
 
 // NewTx returns a reference to a new Ethereum transaction message.
 func NewTx(
-	chainID *big.Int, nonce uint64, to *common.Address, amount *big.Int,
-	gasLimit uint64, gasPrice, gasFeeCap, gasTipCap *big.Int, input []byte, accesses *ethtypes.AccessList,
+	tx *EvmTxArgs,
 ) *MsgEthereumTx {
-	return newMsgEthereumTx(chainID, nonce, to, amount, gasLimit, gasPrice, gasFeeCap, gasTipCap, input, accesses)
-}
-
-// NewTxContract returns a reference to a new Ethereum transaction
-// message designated for contract creation.
-func NewTxContract(
-	chainID *big.Int,
-	nonce uint64,
-	amount *big.Int,
-	gasLimit uint64,
-	gasPrice, gasFeeCap, gasTipCap *big.Int,
-	input []byte,
-	accesses *ethtypes.AccessList,
-) *MsgEthereumTx {
-	return newMsgEthereumTx(chainID, nonce, nil, amount, gasLimit, gasPrice, gasFeeCap, gasTipCap, input, accesses)
+	return newMsgEthereumTx(tx)
 }
 
 func newMsgEthereumTx(
-	chainID *big.Int, nonce uint64, to *common.Address, amount *big.Int,
-	gasLimit uint64, gasPrice, gasFeeCap, gasTipCap *big.Int, input []byte, accesses *ethtypes.AccessList,
+	tx *EvmTxArgs,
 ) *MsgEthereumTx {
 	var (
 		cid, amt, gp *sdkmath.Int
@@ -86,60 +70,60 @@ func newMsgEthereumTx(
 		txData       TxData
 	)
 
-	if to != nil {
-		toAddr = to.Hex()
+	if tx.To != nil {
+		toAddr = tx.To.Hex()
 	}
 
-	if amount != nil {
-		amountInt := sdkmath.NewIntFromBigInt(amount)
+	if tx.Amount != nil {
+		amountInt := sdkmath.NewIntFromBigInt(tx.Amount)
 		amt = &amountInt
 	}
 
-	if chainID != nil {
-		chainIDInt := sdkmath.NewIntFromBigInt(chainID)
+	if tx.ChainID != nil {
+		chainIDInt := sdkmath.NewIntFromBigInt(tx.ChainID)
 		cid = &chainIDInt
 	}
 
-	if gasPrice != nil {
-		gasPriceInt := sdkmath.NewIntFromBigInt(gasPrice)
+	if tx.GasPrice != nil {
+		gasPriceInt := sdkmath.NewIntFromBigInt(tx.GasPrice)
 		gp = &gasPriceInt
 	}
 
 	switch {
-	case accesses == nil:
+	case tx.Accesses == nil:
 		txData = &LegacyTx{
-			Nonce:    nonce,
 			To:       toAddr,
 			Amount:   amt,
-			GasLimit: gasLimit,
 			GasPrice: gp,
-			Data:     input,
+			Nonce:    tx.Nonce,
+			GasLimit: tx.GasLimit,
+			Data:     tx.Input,
 		}
-	case accesses != nil && gasFeeCap != nil && gasTipCap != nil:
-		gtc := sdkmath.NewIntFromBigInt(gasTipCap)
-		gfc := sdkmath.NewIntFromBigInt(gasFeeCap)
+	case tx.Accesses != nil && tx.GasFeeCap != nil && tx.GasTipCap != nil:
+		gtc := sdkmath.NewIntFromBigInt(tx.GasTipCap)
+		gfc := sdkmath.NewIntFromBigInt(tx.GasFeeCap)
 
 		txData = &DynamicFeeTx{
 			ChainID:   cid,
-			Nonce:     nonce,
-			To:        toAddr,
 			Amount:    amt,
-			GasLimit:  gasLimit,
+			To:        toAddr,
 			GasTipCap: &gtc,
 			GasFeeCap: &gfc,
-			Data:      input,
-			Accesses:  NewAccessList(accesses),
+			Nonce:     tx.Nonce,
+			GasLimit:  tx.GasLimit,
+			Data:      tx.Input,
+			Accesses:  NewAccessList(tx.Accesses),
 		}
-	case accesses != nil:
+	case tx.Accesses != nil:
 		txData = &AccessListTx{
 			ChainID:  cid,
-			Nonce:    nonce,
+			Nonce:    tx.Nonce,
 			To:       toAddr,
 			Amount:   amt,
-			GasLimit: gasLimit,
+			GasLimit: tx.GasLimit,
 			GasPrice: gp,
-			Data:     input,
-			Accesses: NewAccessList(accesses),
+			Data:     tx.Input,
+			Accesses: NewAccessList(tx.Accesses),
 		}
 	default:
 	}
