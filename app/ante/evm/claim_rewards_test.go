@@ -2,7 +2,6 @@ package evm_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
@@ -39,10 +38,6 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 				)
 				suite.Require().NoError(err, "failed to fund distribution module account")
 				suite.app.AccountKeeper.SetModuleAccount(suite.ctx, distrAcc)
-
-				// end block and increase block height
-				staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
-				suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
 
 				// allocate rewards to validator
 				validator := suite.app.StakingKeeper.Validator(suite.ctx, valAddr)
