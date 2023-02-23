@@ -172,9 +172,9 @@ func (suite *AnteTestSuite) TxForLegacyTypedData(txBuilder client.TxBuilder) sdk
 		// we return an empty Tx to avoid panics.
 		emptyTxBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
 		return emptyTxBuilder.GetTx()
-	} else {
-		return txBuilder.GetTx()
 	}
+
+	return txBuilder.GetTx()
 }
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {
@@ -459,16 +459,14 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 		Msgs:    msgs,
 	}
 
-	eip712TxArgs := utiltx.EIP712TxArgs{
-		CosmosTxArgs:       cosmosTxArgs,
-		UseLegacyExtension: suite.useLegacyEIP712Extension,
-		UseLegacyTypedData: suite.useLegacyEIP712TypedData,
-	}
-
 	return utiltx.PrepareEIP712CosmosTx(
 		suite.ctx,
 		suite.app,
-		eip712TxArgs,
+		utiltx.EIP712TxArgs{
+			CosmosTxArgs:       cosmosTxArgs,
+			UseLegacyExtension: suite.useLegacyEIP712Extension,
+			UseLegacyTypedData: suite.useLegacyEIP712TypedData,
+		},
 	)
 }
 

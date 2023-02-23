@@ -224,31 +224,6 @@ func createTypedData(args typedDataArgs, useLegacy bool) (apitypes.TypedData, er
 	return eip712.WrapTxToTypedData(args.chainID, args.data)
 }
 
-// getTxSignatureV2 returns the SignatureV2 object corresponding to
-// the arguments, using the legacy implementation as needed.
-func getTxSignatureV2(args signatureV2Args, useLegacy bool) signing.SignatureV2 {
-	if useLegacy {
-		return signing.SignatureV2{
-			PubKey: args.pubKey,
-			Data: &signing.SingleSignatureData{
-				SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-			},
-			Sequence: args.nonce,
-		}
-	}
-
-	// Must use SIGN_MODE_DIRECT, since Amino has some trouble parsing certain Any values from a SignDoc
-	// with the Legacy EIP-712 encodings. This is not an issue with the latest encoding.
-	return signing.SignatureV2{
-		PubKey: args.pubKey,
-		Data: &signing.SingleSignatureData{
-			SignMode:  signing.SignMode_SIGN_MODE_DIRECT,
-			Signature: args.signature,
-		},
-		Sequence: args.nonce,
-	}
-}
-
 // setBuilderLegacyWeb3Extension creates a legacy ExtensionOptionsWeb3Tx and
 // appends it to the builder options.
 func setBuilderLegacyWeb3Extension(builder authtx.ExtensionOptionsTxBuilder, args legacyWeb3ExtensionArgs) error {
@@ -263,4 +238,29 @@ func setBuilderLegacyWeb3Extension(builder authtx.ExtensionOptionsTxBuilder, arg
 
 	builder.SetExtensionOptions(option)
 	return nil
+}
+
+// getTxSignatureV2 returns the SignatureV2 object corresponding to
+// the arguments, using the legacy implementation as needed.
+func getTxSignatureV2(args signatureV2Args, useLegacyExtension bool) signing.SignatureV2 {
+	if useLegacyExtension {
+		return signing.SignatureV2{
+			PubKey: args.pubKey,
+			Data: &signing.SingleSignatureData{
+				SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
+			},
+			Sequence: args.nonce,
+		}
+	}
+
+	// Must use SIGN_MODE_DIRECT, since Amino has some trouble parsing certain Any values from a SignDoc
+	// with the Legacy EIP-712 TypedData encodings. This is not an issue with the latest encoding.
+	return signing.SignatureV2{
+		PubKey: args.pubKey,
+		Data: &signing.SingleSignatureData{
+			SignMode:  signing.SignMode_SIGN_MODE_DIRECT,
+			Signature: args.signature,
+		},
+		Sequence: args.nonce,
+	}
 }

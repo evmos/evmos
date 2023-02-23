@@ -411,16 +411,15 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 					Fees:    fees,
 					Msgs:    tc.msgs,
 				}
-				eip712TxArgs := utiltx.EIP712TxArgs{
-					CosmosTxArgs:       cosmosTxArgs,
-					UseLegacyExtension: true,
-					UseLegacyTypedData: true,
-				}
 
 				tx, err = utiltx.CreateEIP712CosmosTx(
 					suite.ctx,
 					suite.app,
-					eip712TxArgs,
+					utiltx.EIP712TxArgs{
+						CosmosTxArgs:       cosmosTxArgs,
+						UseLegacyExtension: true,
+						UseLegacyTypedData: true,
+					},
 				)
 			} else {
 				tx, err = createTx(suite.priv, tc.msgs...)
