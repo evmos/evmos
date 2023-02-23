@@ -464,8 +464,9 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712MultipleDifferentMsgs(from, privKey, suite.ctx.ChainID(), gas, amount)
-				return txBuilder.GetTx()
+				txBuilder, err := suite.CreateTestEIP712MultipleDifferentMsgs(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
@@ -475,8 +476,9 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712SameMsgDifferentSchemas(from, privKey, suite.ctx.ChainID(), gas, amount)
-				return txBuilder.GetTx()
+				txBuilder, err := suite.CreateTestEIP712SameMsgDifferentSchemas(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
@@ -486,8 +488,9 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712ZeroValueArray(from, privKey, suite.ctx.ChainID(), gas, amount)
-				return txBuilder.GetTx()
+				txBuilder, err := suite.CreateTestEIP712ZeroValueArray(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
@@ -497,8 +500,9 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712ZeroValueNumber(from, privKey, suite.ctx.ChainID(), gas, amount)
-				return txBuilder.GetTx()
+				txBuilder, err := suite.CreateTestEIP712ZeroValueNumber(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
 			}, false, false, !suite.useLegacyEIP712TypedData,
 		},
 		{
@@ -508,7 +512,8 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712MsgTransfer(from, privKey, suite.ctx.ChainID(), gas, amount)
+				txBuilder, err := suite.CreateTestEIP712MsgTransfer(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, true,
 		},
@@ -519,7 +524,8 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				amount := sdk.NewCoins(coinAmount)
 				gas := uint64(200000)
-				txBuilder := suite.CreateTestEIP712MsgTransferWithoutMemo(from, privKey, suite.ctx.ChainID(), gas, amount)
+				txBuilder, err := suite.CreateTestEIP712MsgTransferWithoutMemo(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, true,
 		},

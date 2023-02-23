@@ -403,17 +403,24 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			if tc.isEIP712 {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
+				cosmosTxArgs := utiltx.CosmosTxArgs{
+					TxCfg:   suite.clientCtx.TxConfig,
+					Priv:    suite.priv,
+					ChainID: suite.ctx.ChainID(),
+					Gas:     200000,
+					Fees:    fees,
+					Msgs:    tc.msgs,
+				}
+				eip712TxArgs := utiltx.EIP712TxArgs{
+					CosmosTxArgs:       cosmosTxArgs,
+					UseLegacyExtension: true,
+					UseLegacyTypedData: true,
+				}
+
 				tx, err = utiltx.CreateEIP712CosmosTx(
 					suite.ctx,
 					suite.app,
-					utiltx.CosmosTxArgs{
-						TxCfg:   suite.clientCtx.TxConfig,
-						Priv:    suite.priv,
-						ChainID: suite.ctx.ChainID(),
-						Gas:     200000,
-						Fees:    fees,
-						Msgs:    tc.msgs,
-					},
+					eip712TxArgs,
 				)
 			} else {
 				tx, err = createTx(suite.priv, tc.msgs...)
