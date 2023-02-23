@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
+	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -241,30 +242,27 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	dynamicFeeTx.From = addr.Hex()
 	dynamicFeeTxPriority := int64(1)
 
-	// store context before testcase execution, so it can always be reset
-	defaultCtx := suite.ctx
-
 	var vmdb *statedb.StateDB
 
 	testCases := []struct {
 		name        string
 		tx          sdk.Tx
 		gasLimit    uint64
-		malleate    func()
+		malleate    func(ctx sdk.Context) sdk.Context
 		expPass     bool
 		expPanic    bool
 		expPriority int64
-		postCheck   func()
+		postCheck   func(ctx sdk.Context)
 	}{
 		{
 			"invalid transaction type",
 			&testutiltx.InvalidTx{},
 			math.MaxUint64,
-			func() {},
+			func(ctx sdk.Context) sdk.Context { return ctx },
 			false,
 			false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"sender not found",
@@ -276,118 +274,119 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				GasPrice: big.NewInt(1),
 			}),
 			math.MaxUint64,
-			func() {},
+			func(ctx sdk.Context) sdk.Context { return ctx },
 			false, false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"gas limit too low",
 			tx,
 			math.MaxUint64,
-			func() {},
+			func(ctx sdk.Context) sdk.Context { return ctx },
 			false, false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"gas limit above block gas limit",
 			tx3,
 			math.MaxUint64,
-			func() {},
+			func(ctx sdk.Context) sdk.Context { return ctx },
 			false, false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"not enough balance for fees",
 			tx2,
 			math.MaxUint64,
-			func() {},
+			func(ctx sdk.Context) sdk.Context { return ctx },
 			false, false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"not enough tx gas",
 			tx2,
 			0,
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e6))
+				return ctx
 			},
 			false, true,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"not enough block gas",
 			tx2,
 			0,
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e6))
-				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1))
+				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1))
 			},
 			false, true,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"success - legacy tx",
 			tx2,
 			tx2GasLimit, // it's capped
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e16))
-				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(10000000000000000000))
+				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 			},
 			true, false,
 			tx2Priority,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"success - dynamic fee tx",
 			dynamicFeeTx,
 			tx2GasLimit, // it's capped
-			func() {
-				vmdb.AddBalance(addr, big.NewInt(1e15))
-				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(10000000000000000000))
+			func(ctx sdk.Context) sdk.Context {
+				vmdb.AddBalance(addr, big.NewInt(1e16))
+				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 			},
 			true, false,
 			dynamicFeeTxPriority,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"success - gas limit on gasMeter is set on ReCheckTx mode",
 			dynamicFeeTx,
 			0, // for reCheckTX mode, gas limit should be set to 0
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e15))
-				suite.ctx = suite.ctx.WithIsReCheckTx(true)
+				return ctx.WithIsReCheckTx(true)
 			},
 			true, false,
 			0,
-			func() {},
+			func(ctx sdk.Context) {},
 		},
 		{
 			"success - legacy tx - insufficient funds but enough staking rewards",
 			tx2,
 			tx2GasLimit, // it's capped
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e6))
-				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
+				ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 
 				ctx, err := testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), suite.ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				suite.ctx = ctx
+				return ctx
 			},
 			true, false,
 			tx2Priority,
-			func() {
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
+			func(ctx sdk.Context) {
+				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
 				suite.Require().True(
 					balance.Amount.GT(sdk.NewInt(1e6)),
-					"after withdrawing staking rewards, the balance should have increased.",
+					"the fees are paid after withdrawing (a surplus amount of) staking rewards, so it should be higher than the initial balance",
 				)
 			},
 		},
@@ -395,24 +394,25 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			"success - legacy tx - enough funds so no staking rewards should be used",
 			tx2,
 			tx2GasLimit, // it's capped
-			func() {
+			func(ctx sdk.Context) sdk.Context {
 				vmdb.AddBalance(addr, big.NewInt(1e16))
-				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
+				ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
+
+				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
+				suite.T().Logf("pre balance: %s", balance)
 
 				// NOTE: a certain balance has to be assigned to the account to allow for the delegation
 				ctx, err := testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), suite.ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				suite.ctx = ctx
 
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
-				suite.T().Logf("pre balance: %s", balance)
+				return ctx
 			},
 			true, false,
 			tx2Priority,
-			func() {
-				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
+			func(ctx sdk.Context) {
+				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
 				suite.T().Logf("post balance: %s", balance)
 				suite.Require().True(
 					balance.Amount.LT(sdk.NewInt(1e16)),
@@ -423,7 +423,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				// to the validator to establish a 50/50 split between self-delegation and the account delegation
 				suite.Require().Equal(
 					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(2e16))),
-					suite.app.DistrKeeper.GetTotalRewards(suite.ctx),
+					suite.app.DistrKeeper.GetTotalRewards(ctx),
 					"the total rewards should be the same as after the setup, since the fees are paid using the account balance",
 				)
 			},
@@ -432,19 +432,20 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			vmdb = suite.StateDB()
-			suite.ctx = defaultCtx // reset context before executing testcases
-			tc.malleate()
+			cacheCtx, _ := suite.ctx.CacheContext()
+			// Create new stateDB for each test case from the cached context
+			vmdb = statedb.New(cacheCtx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+			cacheCtx = tc.malleate(cacheCtx)
 			suite.Require().NoError(vmdb.Commit())
 
 			if tc.expPanic {
 				suite.Require().Panics(func() {
-					_, _ = dec.AnteHandle(suite.ctx.WithIsCheckTx(true).WithGasMeter(sdk.NewGasMeter(1)), tc.tx, false, testutil.NextFn)
+					_, _ = dec.AnteHandle(cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewGasMeter(1)), tc.tx, false, testutil.NextFn)
 				})
 				return
 			}
 
-			ctx, err := dec.AnteHandle(suite.ctx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()), tc.tx, false, testutil.NextFn)
+			ctx, err := dec.AnteHandle(cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()), tc.tx, false, testutil.NextFn)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(tc.expPriority, ctx.Priority())
@@ -454,8 +455,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			suite.Require().Equal(tc.gasLimit, ctx.GasMeter().Limit())
 
 			// check state after the test case
-			suite.ctx = ctx
-			tc.postCheck()
+			tc.postCheck(ctx)
 		})
 	}
 }
