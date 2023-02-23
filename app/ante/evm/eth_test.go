@@ -375,9 +375,11 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				vmdb.AddBalance(addr, big.NewInt(1e6))
 				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 
-				PrepareAccountsForDelegationRewards(
-					suite, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+				ctx, err := testutil.PrepareAccountsForDelegationRewards(
+					suite.T(), suite.ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
+				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
+				suite.ctx = ctx
 			},
 			true, false,
 			tx2Priority,
@@ -398,14 +400,20 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 
 				// NOTE: a certain balance has to be assigned to the account to allow for the delegation
-				PrepareAccountsForDelegationRewards(
-					suite, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+				ctx, err := testutil.PrepareAccountsForDelegationRewards(
+					suite.T(), suite.ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
+				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
+				suite.ctx = ctx
+
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
+				suite.T().Logf("pre balance: %s", balance)
 			},
 			true, false,
 			tx2Priority,
 			func() {
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
+				suite.T().Logf("post balance: %s", balance)
 				suite.Require().True(
 					balance.Amount.LT(sdk.NewInt(1e16)),
 					"the fees are paid using the available balance, so it should be lower than the initial balance",

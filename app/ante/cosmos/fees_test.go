@@ -90,7 +90,9 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			)
 
 			// prepare the testcase
-			PrepareAccountsForDelegationRewards(suite, addr, tc.balance, tc.rewards)
+			ctx, err := testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards)
+			suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
+			suite.ctx = ctx
 
 			// Create an arbitrary message for testing purposes
 			msg := sdktestutil.NewTestMsg(addr)
