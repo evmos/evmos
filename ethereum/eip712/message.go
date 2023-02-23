@@ -35,7 +35,8 @@ const (
 	PAYLOAD_MSGS = "msgs"
 )
 
-// createEIP712MessagePayload generates the EIP-712 message payload corresponding to the input data.
+// createEIP712MessagePayload generates the EIP-712 message payload
+// corresponding to the input data.
 func createEIP712MessagePayload(data []byte) (eip712MessagePayload, error) {
 	basicPayload, err := unmarshalBytesToJSONObject(data)
 	if err != nil {
@@ -120,19 +121,19 @@ func getPayloadMessages(payload gjson.Result) ([]gjson.Result, error) {
 }
 
 // payloadWithNewMessage returns the updated payload object with the message
-// set at the field corresponding to the index.
+// set at the field corresponding to index.
 func payloadWithNewMessage(payload gjson.Result, msg gjson.Result, index int) (gjson.Result, error) {
 	field := msgFieldForIndex(index)
-
-	if !msg.IsObject() {
-		return gjson.Result{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "msg at index %d is not valid JSON: %v", index, msg)
-	}
 
 	if payload.Get(field).Exists() {
 		return gjson.Result{}, errorsmod.Wrapf(
 			errortypes.ErrInvalidRequest,
-			"malformed payload received, did not expect to find key with field %v", field,
+			"malformed payload received, did not expect to find key at field %v", field,
 		)
+	}
+
+	if !msg.IsObject() {
+		return gjson.Result{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "msg at index %d is not valid JSON: %v", index, msg)
 	}
 
 	newRaw, err := sjson.SetRaw(payload.Raw, field, msg.Raw)
@@ -144,13 +145,13 @@ func payloadWithNewMessage(payload gjson.Result, msg gjson.Result, index int) (g
 }
 
 // msgFieldForIndex returns the payload field for a given message post-flattening.
-// e.g. msgs[2] is moved to 'msg2'
+// e.g. msgs[2] becomes 'msg2'
 func msgFieldForIndex(i int) string {
 	return fmt.Sprintf("msg%d", i)
 }
 
 // payloadWithoutMsgsField returns the updated payload without the "msgs" array
-// field, which is obsolete after flattening.
+// field, which flattening makes obsolete.
 func payloadWithoutMsgsField(payload gjson.Result) (gjson.Result, error) {
 	newRaw, err := sjson.Delete(payload.Raw, PAYLOAD_MSGS)
 	if err != nil {
