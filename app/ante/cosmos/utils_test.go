@@ -132,7 +132,11 @@ func createTx(priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 //     If the given balance is zero, the account will be created with zero balance.
 //   - Set up a validator with zero commission and delegate to it -> the account delegation will be 50% of the total delegation.
 //   - Allocate rewards to the validator.
-func (suite *AnteTestSuite) PrepareAccountsForDelegationRewards(addr sdk.AccAddress, balance, rewards sdkmath.Int) {
+func PrepareAccountsForDelegationRewards(suite *AnteTestSuite, addr sdk.AccAddress, balance, rewards sdkmath.Int) {
+	// reset historical count in distribution keeper which is necessary
+	// for the delegation rewards to be calculated correctly
+	suite.app.DistrKeeper.DeleteAllValidatorHistoricalRewards(suite.ctx)
+
 	if balance.IsZero() {
 		suite.app.AccountKeeper.SetAccount(suite.ctx, suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, addr))
 	} else {
@@ -142,10 +146,6 @@ func (suite *AnteTestSuite) PrepareAccountsForDelegationRewards(addr sdk.AccAddr
 	}
 
 	if !rewards.IsZero() {
-		// reset historical count in distribution keeper which is necessary
-		// for the delegation rewards to be calculated correctly
-		suite.app.DistrKeeper.DeleteAllValidatorHistoricalRewards(suite.ctx)
-
 		// Set up validator and delegate to it
 		privKey := ed25519.GenPrivKey()
 		addr2, _ := testutiltx.NewAccAddressAndKey()

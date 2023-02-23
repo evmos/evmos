@@ -14,6 +14,8 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	addr, priv := testutiltx.NewAccAddressAndKey()
 
 	// Testcase definitions
+	// TODO: Add post checks for testcases to see if the correct amount of fees were deducted
+	// TODO: Add multiple delegations
 	testcases := []struct {
 		name        string
 		balance     math.Int
@@ -88,7 +90,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			)
 
 			// prepare the testcase
-			suite.PrepareAccountsForDelegationRewards(addr, tc.balance, tc.rewards)
+			PrepareAccountsForDelegationRewards(suite, addr, tc.balance, tc.rewards)
 
 			// Create an arbitrary message for testing purposes
 			msg := sdktestutil.NewTestMsg(addr)
