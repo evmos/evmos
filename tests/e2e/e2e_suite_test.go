@@ -30,6 +30,12 @@ const (
 
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
+
+	// registryDockerFile builds the image using the docker image registry
+	registryDockerFile = "./upgrade/Dockerfile.init"
+
+	// repoDockerFile builds the image from the repository (used when the images are not pushed to the registry, e.g. main)
+	repoDockerFile = "./Dockerfile.repo"
 )
 
 type IntegrationTestSuite struct {
@@ -60,11 +66,11 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 // runInitialNode builds a docker image capable of running an Evmos node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
-func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
+func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, dockerFile string) {
 	err := s.upgradeManager.BuildImage(
 		version.ImageName,
 		version.ImageTag,
-		"./upgrade/Dockerfile.init",
+		dockerFile,
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
@@ -108,6 +114,8 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 		s.upgradeParams.ChainID,
 		s.upgradeManager.UpgradeHeight,
 		isLegacyProposal,
+		"--fees=500aevmos",
+		"--gas=500000",
 	)
 	s.Require().NoErrorf(
 		err,
@@ -138,7 +146,7 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 func (s *IntegrationTestSuite) voteForProposal(id int) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id)
+	exec, err := s.upgradeManager.CreateVoteProposalExec(s.upgradeParams.ChainID, id, "--fees=500aevmos", "--gas=500000")
 	s.Require().NoError(err, "can't create vote for proposal exec")
 	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoErrorf(
@@ -264,8 +272,8 @@ func (s *IntegrationTestSuite) TearDownSuite() {
 		s.T().Logf("skipping cleanup... container %s will be left running", s.upgradeManager.ContainerID())
 		return
 	}
-	s.T().Log("tearing down e2e integration test suite...")
 
+	s.T().Log("tearing down e2e integration test suite...")
 	s.T().Log("killing node...")
 	err := s.upgradeManager.KillCurrentNode()
 	s.Require().NoError(err, "can't kill current node")

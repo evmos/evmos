@@ -21,12 +21,12 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/utils"
 )
 
@@ -35,35 +35,65 @@ var (
 	DefaultFee = sdk.NewCoin(utils.BaseDenom, sdk.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
 )
 
+// CosmosTxArgs contains the params to create a cosmos tx
+type CosmosTxArgs struct {
+	// TxCfg is the client transaction config
+	TxCfg client.TxConfig
+	// Priv is the private key that will be used to sign the tx
+	Priv cryptotypes.PrivKey
+	// ChainID is the chain's id on cosmos format, e.g. 'evmos_9000-1'
+	ChainID string
+	// Gas to be used on the tx
+	Gas uint64
+	// GasPrice to use on tx
+	GasPrice *sdkmath.Int
+	// Fees is the fee to be used on the tx (amount and denom)
+	Fees sdk.Coins
+	// Msgs slice of messages to include on the tx
+	Msgs []sdk.Msg
+}
+
 // PrepareCosmosTx creates a cosmos tx and signs it with the provided messages and private key.
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
 	ctx sdk.Context,
-	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
-	gasPrice *sdkmath.Int,
-	msgs ...sdk.Msg,
+	args CosmosTxArgs,
 ) (authsigning.Tx, error) {
-	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
-	txBuilder := txCfg.NewTxBuilder()
+	txBuilder := args.TxCfg.NewTxBuilder()
 
-	gasLimit := int64(10_000_000)
-	txBuilder.SetGasLimit(uint64(gasLimit))
+	txBuilder.SetGasLimit(args.Gas)
 
 	var fees sdk.Coins
-	if gasPrice != nil {
-		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: gasPrice.MulRaw(gasLimit)}}
+	if args.GasPrice != nil {
+		fees = sdk.Coins{{Denom: utils.BaseDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}}
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}
 
 	txBuilder.SetFeeAmount(fees)
-	if err := txBuilder.SetMsgs(msgs...); err != nil {
+	if err := txBuilder.SetMsgs(args.Msgs...); err != nil {
 		return nil, err
 	}
 
-	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, accountAddress)
+	return signCosmosTx(
+		ctx,
+		appEvmos,
+		args,
+		txBuilder,
+	)
+}
+
+// signCosmosTx signs the cosmos transaction on the txBuilder provided using
+// the provided private key
+func signCosmosTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	args CosmosTxArgs,
+	txBuilder client.TxBuilder,
+) (authsigning.Tx, error) {
+	addr := sdk.AccAddress(args.Priv.PubKey().Address().Bytes())
+	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +101,9 @@ func PrepareCosmosTx(
 	// First round: we gather all the signer infos. We use the "set empty
 	// signature" hack to do that.
 	sigV2 := signing.SignatureV2{
-		PubKey: priv.PubKey(),
+		PubKey: args.Priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  txCfg.SignModeHandler().DefaultMode(),
+			SignMode:  args.TxCfg.SignModeHandler().DefaultMode(),
 			Signature: nil,
 		},
 		Sequence: seq,
@@ -86,15 +116,16 @@ func PrepareCosmosTx(
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, accountAddress).GetAccountNumber()
+	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
-		ChainID:       ctx.ChainID(),
+		ChainID:       args.ChainID,
 		AccountNumber: accNumber,
 		Sequence:      seq,
 	}
 	sigV2, err = tx.SignWithPrivKey(
-		txCfg.SignModeHandler().DefaultMode(), signerData,
-		txBuilder, priv, txCfg,
+		args.TxCfg.SignModeHandler().DefaultMode(),
+		signerData,
+		txBuilder, args.Priv, args.TxCfg,
 		seq,
 	)
 	if err != nil {

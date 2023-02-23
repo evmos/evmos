@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"math/big"
-	"strings"
 	"time"
 
 	. "github.com/onsi/gomega"
@@ -13,7 +12,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
@@ -22,10 +20,6 @@ import (
 	"github.com/evmos/evmos/v11/x/revenue/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 func (suite *KeeperTestSuite) SetupApp() {
@@ -42,30 +36,10 @@ func (suite *KeeperTestSuite) SetupApp() {
 	privCons, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(privCons.PubKey().Address())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+	)
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
@@ -171,79 +145,6 @@ func registerFee(
 		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
-}
-
-func deployContractWithFactory(priv *ethsecp256k1.PrivKey, factoryAddress *common.Address) common.Address {
-	factoryNonce := getNonce(factoryAddress.Bytes())
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := getNonce(from.Bytes())
-	data := make([]byte, 0)
-
-	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:  chainID,
-		Nonce:    nonce,
-		To:       factoryAddress,
-		GasLimit: 100000,
-		GasPrice: big.NewInt(1000000000),
-		Input:    data,
-	}
-	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
-	msgEthereumTx.From = from.String()
-
-	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
-	Expect(err).To(BeNil())
-	Expect(res.IsOK()).To(Equal(true), res.GetLog())
-	s.Commit()
-
-	ethereumTx := res.GetEvents()[12]
-	Expect(ethereumTx.Type).To(Equal("tx_log"))
-	Expect(string(ethereumTx.Attributes[0].Key)).To(Equal("txLog"))
-	txLog := string(ethereumTx.Attributes[0].Value)
-
-	contractAddress := crypto.CreateAddress(*factoryAddress, factoryNonce)
-	Expect(
-		strings.Contains(txLog, strings.ToLower(contractAddress.String()[2:])),
-	).To(BeTrue(), "log topic does not match created contract address")
-
-	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc, "contract not created")
-	s.Require().True(acc.IsContract(), "not a contract")
-	return contractAddress
-}
-
-func deployContract(priv *ethsecp256k1.PrivKey, contractCode string) common.Address {
-	chainID := s.app.EvmKeeper.ChainID()
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := getNonce(from.Bytes())
-
-	data := common.Hex2Bytes(contractCode)
-	gasLimit := uint64(100000)
-	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		GasLimit:  gasLimit,
-		GasTipCap: big.NewInt(1),
-		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		Input:     data,
-		Accesses:  &ethtypes.AccessList{},
-	}
-	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
-	msgEthereumTx.From = from.String()
-
-	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
-	Expect(err).To(BeNil())
-	s.Commit()
-
-	ethereumTx := res.GetEvents()[11]
-	Expect(ethereumTx.Type).To(Equal("ethereum_tx"))
-	Expect(string(ethereumTx.Attributes[1].Key)).To(Equal("ethereumTxHash"))
-
-	contractAddress := crypto.CreateAddress(from, nonce)
-	acc := s.app.EvmKeeper.GetAccountWithoutBalance(s.ctx, contractAddress)
-	s.Require().NotEmpty(acc)
-	s.Require().True(acc.IsContract())
-	return contractAddress
 }
 
 func contractInteract(

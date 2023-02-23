@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
@@ -30,6 +31,7 @@ type KeeperTestSuite struct {
 	consAddress      sdk.ConsAddress
 	clientCtx        client.Context
 	ethSigner        ethtypes.Signer
+	priv             cryptotypes.PrivKey
 	signer           keyring.Signer
 	mintFeeCollector bool
 }

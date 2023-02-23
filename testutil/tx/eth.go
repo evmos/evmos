@@ -16,20 +16,23 @@
 package tx
 
 import (
+	"encoding/json"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v11/server/config"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -39,7 +42,7 @@ import (
 func PrepareEthTx(
 	txCfg client.TxConfig,
 	appEvmos *app.Evmos,
-	priv *ethsecp256k1.PrivKey,
+	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
@@ -99,7 +102,15 @@ func PrepareEthTx(
 // It offers the ability to increment the nonce by a given amount in case one wants to set up
 // multiple transactions that are supposed to be executed one after another.
 // Should this not be the case, just pass in zero.
-func CreateEthTx(ctx sdk.Context, appEvmos *app.Evmos, privKey *ethsecp256k1.PrivKey, from sdk.AccAddress, dest sdk.AccAddress, amount *big.Int, nonceIncrement int) (*evmtypes.MsgEthereumTx, error) {
+func CreateEthTx(
+	ctx sdk.Context,
+	appEvmos *app.Evmos,
+	privKey cryptotypes.PrivKey,
+	from sdk.AccAddress,
+	dest sdk.AccAddress,
+	amount *big.Int,
+	nonceIncrement int,
+) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
 	chainID := appEvmos.EvmKeeper.ChainID()
@@ -129,4 +140,33 @@ func CreateEthTx(ctx sdk.Context, appEvmos *app.Evmos, privKey *ethsecp256k1.Pri
 	}
 
 	return msgEthereumTx, nil
+}
+
+// GasLimit estimates the gas limit for the provided parameters. To achieve
+// this, need to provide the corresponding QueryClient to call the
+// `eth_estimateGas` rpc method. If not provided, returns a default value
+func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
+	// default gas limit (used if no queryClientEvm is provided)
+	gas := uint64(100000000000)
+
+	if queryClientEvm != nil {
+		args, err := json.Marshal(&evmtypes.TransactionArgs{
+			From: &from,
+			Data: (*hexutil.Bytes)(&data),
+		})
+		if err != nil {
+			return gas, err
+		}
+
+		goCtx := sdk.WrapSDKContext(ctx)
+		res, err := queryClientEvm.EstimateGas(goCtx, &evmtypes.EthCallRequest{
+			Args:   args,
+			GasCap: config.DefaultGasCap,
+		})
+		if err != nil {
+			return gas, err
+		}
+		gas = res.Gas
+	}
+	return gas, nil
 }

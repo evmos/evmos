@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"encoding/json"
+	"math"
 	"math/big"
 	"testing"
 	"time"
@@ -12,19 +13,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -60,6 +57,7 @@ type KeeperTestSuite struct {
 	consAddress      sdk.ConsAddress
 	clientCtx        client.Context //nolint:unused
 	ethSigner        ethtypes.Signer
+	priv             cryptotypes.PrivKey
 	validator        stakingtypes.Validator
 	signer           keyring.Signer
 	mintFeeCollector bool
@@ -84,6 +82,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
 	require.NoError(t, err)
+	suite.priv = priv
 	suite.address = common.BytesToAddress(priv.PubKey().Address().Bytes())
 	suite.signer = utiltx.NewSigner(priv)
 
@@ -95,30 +94,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// init app
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: consAddress.Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+	)
+	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
 	// query clients
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
@@ -143,6 +122,16 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
+
+	// fund signer acc to pay for tx fees
+	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	err = testutil.FundAccount(
+		suite.ctx,
+		suite.app.BankKeeper,
+		suite.priv.PubKey().Address().Bytes(),
+		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
+	)
+	suite.Require().NoError(err)
 
 	// TODO change to setup with 1 validator
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 2)
@@ -234,57 +223,17 @@ func (b *MockICS4Wrapper) SendPacket(
 
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
-
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", name, symbol, decimals)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
-	args, err := json.Marshal(&evm.TransactionArgs{
-		From: &suite.address,
-		Data: (*hexutil.Bytes)(&data),
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	res, err := suite.queryClientEvm.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
-
-	ethTxParams := evm.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		GasLimit:  res.Gas,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     data,
-		Accesses:  &ethtypes.AccessList{},
-	}
-	erc20DeployTx := evm.NewTx(&ethTxParams)
-
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	suite.Require().Empty(rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce), nil
+	suite.Commit()
+	addr, err := testutil.DeployContract(
+		suite.ctx,
+		suite.app,
+		suite.priv,
+		suite.queryClientEvm,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		name, symbol, decimals,
+	)
+	suite.Commit()
+	return addr, err
 }
 
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -45,6 +46,7 @@ type KeeperTestSuite struct {
 	validator      stakingtypes.Validator
 	clientCtx      client.Context
 	ethSigner      ethtypes.Signer
+	priv           cryptotypes.PrivKey
 	signer         keyring.Signer
 }
 
