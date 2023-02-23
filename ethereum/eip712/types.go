@@ -102,20 +102,20 @@ func createEIP712Types(messagePayload eip712MessagePayload) (apitypes.Types, err
 }
 
 // addMsgTypesToRoot adds all types for the given message
-// to eip712Types, recursively handling sub-fields.
-func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msgJSON gjson.Result) (err error) {
+// to eip712Types, recursively handling object sub-fields.
+func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msg gjson.Result) (err error) {
 	defer doRecover(&err)
 
-	if !msgJSON.IsObject() {
+	if !msg.IsObject() {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "message is not valid JSON, cannot parse types")
 	}
 
-	msgRootType, err := msgRootType(msgJSON)
+	msgRootType, err := msgRootType(msg)
 	if err != nil {
 		return err
 	}
 
-	msgTypeDef, err := recursivelyAddTypesToRoot(eip712Types, msgRootType, ROOT_PREFIX, msgJSON)
+	msgTypeDef, err := recursivelyAddTypesToRoot(eip712Types, msgRootType, ROOT_PREFIX, msg)
 	if err != nil {
 		return err
 	}
@@ -127,19 +127,19 @@ func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msgJSON gjso
 
 // msgRootType parses the message and returns the formatted
 // type signature corresponding to the message type.
-func msgRootType(msgJSON gjson.Result) (string, error) {
-	msgType := msgJSON.Get(MSG_TYPE).Str
+func msgRootType(msg gjson.Result) (string, error) {
+	msgType := msg.Get(MSG_TYPE).Str
 	if msgType == "" {
 		// .Str is empty for arrays and objects
 		return "", errorsmod.Wrap(errortypes.ErrInvalidType, "malformed message type value, expected type string")
 	}
 
-	// For example, convert cosmos-sdk/MsgSend to TypeMsgSend
-	typeTokens := strings.Split(msgType, "/")
-	msgSignature := typeTokens[len(typeTokens)-1]
-	msgType = fmt.Sprintf("%v%v", TYPE_PREFIX, msgSignature)
+	// Convert e.g. cosmos-sdk/MsgSend to TypeMsgSend
+	typeTokenized := strings.Split(msgType, "/")
+	msgSignature := typeTokenized[len(typeTokenized)-1]
+	rootType := fmt.Sprintf("%v%v", TYPE_PREFIX, msgSignature)
 
-	return msgType, nil
+	return rootType, nil
 }
 
 // addMsgTypeDefToTxSchema adds the message's field-type pairing
@@ -213,8 +213,9 @@ func recursivelyAddTypesToRoot(
 		// Handle object types recursively. Note that nested array types are not supported
 		// in EIP-712, so we can exclude that case.
 		if field.IsObject() {
-			subFieldPrefix := prefixForSubField(prefix, fieldName)
-			fieldTypeDef, err := recursivelyAddTypesToRoot(typeMap, rootType, subFieldPrefix, field)
+			fieldPrefix := prefixForSubField(prefix, fieldName)
+
+			fieldTypeDef, err := recursivelyAddTypesToRoot(typeMap, rootType, fieldPrefix, field)
 			if err != nil {
 				return "", err
 			}
@@ -294,7 +295,7 @@ func addTypesToRoot(typeMap apitypes.Types, typeDef string, types []apitypes.Typ
 	indexAsDuplicate := 0
 
 	for {
-		indexedTypeDef = computeIndexedTypeDef(typeDef, indexAsDuplicate)
+		indexedTypeDef = typeDefWithIndex(typeDef, indexAsDuplicate)
 		existingTypes, foundElement := typeMap[indexedTypeDef]
 
 		// Found identical duplicate, so we can simply return
@@ -320,9 +321,9 @@ func addTypesToRoot(typeMap apitypes.Types, typeDef string, types []apitypes.Typ
 	return indexedTypeDef, nil
 }
 
-// computeIndexedTypeDef creates a duplicate-indexed type definition
+// typeDefWithIndex creates a duplicate-indexed type definition
 // to differentiate between different schemas with the same name.
-func computeIndexedTypeDef(typeDef string, index int) string {
+func typeDefWithIndex(typeDef string, index int) string {
 	return fmt.Sprintf("%v%d", typeDef, index)
 }
 
