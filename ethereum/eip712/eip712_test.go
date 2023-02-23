@@ -595,6 +595,25 @@ func (suite *EIP712TestSuite) TestTypedDataEdgeCases() {
 	// Skip null type, since we don't expect any in the payload
 	suite.Require().Equal(len(types), 0)
 
+	// Boolean value
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": true } }] }`).Raw))
+	suite.Require().NoError(err)
+	types = typedData.Types["TypeValue0"]
+	suite.Require().Equal(len(types), 1)
+	suite.Require().Equal(types[0], apitypes.Type{
+		Name: "field",
+		Type: "bool",
+	})
+
+	// Empty array
+	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "field": [] } }] }`).Raw))
+	suite.Require().NoError(err)
+	types = typedData.Types["TypeValue0"]
+	suite.Require().Equal(types[0], apitypes.Type{
+		Name: "field",
+		Type: "string[]",
+	})
+
 	// Simple arrays
 	typedData, err = eip712.WrapTxToTypedData(0, []byte(gjson.Parse(`{"msgs": [{ "type": "MsgSend", "value": { "array": [1, 2, 3] } }] }`).Raw))
 	suite.Require().NoError(err)

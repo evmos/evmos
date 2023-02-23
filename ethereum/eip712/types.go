@@ -245,6 +245,7 @@ func sortedJSONKeys(json gjson.Result) ([]string, error) {
 
 	keys := make([]string, len(jsonMap))
 	i := 0
+	// #nosec G705 for map iteration
 	for k := range jsonMap {
 		keys[i] = k
 		i++
