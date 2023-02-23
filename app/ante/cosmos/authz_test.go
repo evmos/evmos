@@ -16,6 +16,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	testutil "github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -262,8 +263,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			tx, err := createTx(testPrivKeys[0], tc.msgs...)
 			require.NoError(t, err)
 
-			mmd := MockAnteHandler{}
-			_, err = decorator.AnteHandle(ctx, tx, false, mmd.AnteHandle)
+			_, err = decorator.AnteHandle(ctx, tx, false, testutil.NextFn)
 			if tc.expectedErr != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tc.expectedErr)
