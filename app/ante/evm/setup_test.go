@@ -14,14 +14,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
 	ante "github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
 	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
@@ -40,10 +38,6 @@ type AnteTestSuite struct {
 }
 
 const TestGasLimit uint64 = 100000
-
-func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
-}
 
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false

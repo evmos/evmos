@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 
-	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -100,7 +99,7 @@ func (suite *AnteTestSuite) TestNewEthAccountVerificationDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			vmdb = suite.StateDB()
+			vmdb = testutil.NewStateDB(suite.ctx, suite.app.EvmKeeper)
 			tc.malleate()
 			suite.Require().NoError(vmdb.Commit())
 
@@ -434,7 +433,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 		suite.Run(tc.name, func() {
 			cacheCtx, _ := suite.ctx.CacheContext()
 			// Create new stateDB for each test case from the cached context
-			vmdb = statedb.New(cacheCtx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+			vmdb = testutil.NewStateDB(cacheCtx, suite.app.EvmKeeper)
 			cacheCtx = tc.malleate(cacheCtx)
 			suite.Require().NoError(vmdb.Commit())
 
@@ -519,7 +518,7 @@ func (suite *AnteTestSuite) TestCanTransferDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			vmdb = suite.StateDB()
+			vmdb = testutil.NewStateDB(suite.ctx, suite.app.EvmKeeper)
 			tc.malleate()
 			suite.Require().NoError(vmdb.Commit())
 
