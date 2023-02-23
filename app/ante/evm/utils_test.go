@@ -29,17 +29,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -591,55 +587,4 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 	suite.Require().NoError(err)
 
 	return txBuilder
-}
-
-// BasicSetupForClaimRewardsTest is a helper function, that creates a validator and a delegator
-// and funds them with some tokens. It also sets up the staking keeper to include a self-delegation
-// of the validator and a delegation from the delegator to the validator.
-func (suite *AnteTestSuite) BasicSetupForClaimRewardsTest() (sdk.AccAddress, sdk.ValAddress) {
-	// reset historical count
-	suite.app.DistrKeeper.DeleteAllValidatorHistoricalRewards(suite.ctx)
-
-	// ----------------------------------------
-	// Set up first account
-	//
-	addr, _ := testutiltx.NewAccAddressAndKey()
-	err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr, 1e18)
-	suite.Require().NoError(err, "failed to fund account")
-
-	// ----------------------------------------
-	// Set up validator
-	//
-	// This account gets funded with the same initial balance as the first account, which
-	// will be fully used to self-delegate upon creation of the validator.
-	//
-	privKey := ed25519.GenPrivKey()
-	addr2, _ := testutiltx.NewAccAddressAndKey()
-	err = testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, addr2, 1e18)
-	suite.Require().NoError(err, "failed to fund account")
-
-	// 0% decimal for the staking commission
-	zeroDec := sdk.ZeroDec()
-
-	// Set up staking parameters
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
-	stakingParams.MinCommissionRate = zeroDec
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-
-	// Set up staking using helper from sdk testing suite
-	stakingHelper := teststaking.NewHelper(suite.T(), suite.ctx, suite.app.StakingKeeper)
-	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-	stakingHelper.Denom = utils.BaseDenom
-
-	valAddr := sdk.ValAddress(addr2.Bytes())
-	stakeAmount := sdk.NewInt(1e10)
-	stakingHelper.CreateValidator(valAddr, privKey.PubKey(), stakeAmount, true)
-	stakingHelper.Delegate(addr, valAddr, sdk.NewInt(1e10))
-
-	// end block to bond validator and increase block height
-	staking.EndBlocker(suite.ctx, suite.app.StakingKeeper)
-	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() + 1)
-
-	return addr, valAddr
 }
