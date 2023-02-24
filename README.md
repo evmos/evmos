@@ -44,6 +44,11 @@ that is fully compatible and interoperable with Ethereum.
 It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/)
 which runs on top of the [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
 
+## Documentation
+
+Our documentation is hosted in a [separate repository](https://github.com/evmos/docs) and can be found at [docs.evmos.org](https://docs.evmos.org).
+Head over there and check it out.
+
 **Note**: Requires [Go 1.19+](https://golang.org/dl/)
 
 ## Installation
@@ -71,7 +76,7 @@ The following chat channels and forums are a great spot to ask questions about E
 - [Evmos Twitter](https://twitter.com/EvmosOrg)
 - [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://commonwealth.im/evmos)
-- [Tharsis Twitter](https://twitter.com/TharsisHQ)
+- [Evmos Twitter](https://twitter.com/EvmosOrg)
 
 ## Contributing
 
