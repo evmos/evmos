@@ -57,7 +57,7 @@ func ClaimStakingRewardsIfNecessary(
 
 	// attempt to claim enough staking rewards to cover the fees
 	return ClaimSufficientStakingRewards(
-		ctx, stakingKeeper, distributionKeeper, addr, sdk.NewCoins(difference),
+		ctx, stakingKeeper, distributionKeeper, addr, difference,
 	)
 }
 
@@ -69,7 +69,7 @@ func ClaimSufficientStakingRewards(
 	stakingKeeper StakingKeeper,
 	distributionKeeper DistributionKeeper,
 	addr sdk.AccAddress,
-	amount sdk.Coins,
+	amount sdk.Coin,
 ) error {
 	var (
 		err     error
@@ -79,10 +79,6 @@ func ClaimSufficientStakingRewards(
 
 	// Allocate a cached context to avoid writing to state if there are not enough rewards
 	cacheCtx, writeFn := ctx.CacheContext()
-
-	// Get the amount of the staking denom
-	stakingDenom := stakingKeeper.BondDenom(ctx)
-	baseAmount := amount.AmountOf(stakingDenom)
 
 	// Iterate through delegations and get the rewards if any are unclaimed.
 	// The loop stops once a sufficient amount was withdrawn.
@@ -96,7 +92,7 @@ func ClaimSufficientStakingRewards(
 			}
 			rewards = rewards.Add(reward...)
 
-			return rewards.AmountOf(stakingDenom).GTE(baseAmount)
+			return rewards.AmountOf(amount.Denom).GTE(amount.Amount)
 		},
 	)
 
@@ -106,7 +102,7 @@ func ClaimSufficientStakingRewards(
 	}
 
 	// only write to state if there are enough rewards to cover the transaction fees
-	if rewards.AmountOf(stakingDenom).LT(baseAmount) {
+	if rewards.AmountOf(amount.Denom).LT(amount.Amount) {
 		return fmt.Errorf("insufficient staking rewards to cover transaction fees")
 	}
 	writeFn() // commit state changes

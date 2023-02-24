@@ -110,7 +110,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			addr, _ := testutiltx.NewAccAddressAndKey()
 			tc.malleate(addr)
 
-			amount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(tc.amount)))
+			amount := sdk.NewCoin(utils.BaseDenom, sdk.NewInt(tc.amount))
 			err := anteutils.ClaimSufficientStakingRewards(suite.ctx, suite.app.StakingKeeper, suite.app.DistrKeeper, addr, amount)
 
 			if tc.expErr {
