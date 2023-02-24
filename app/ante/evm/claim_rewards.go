@@ -20,8 +20,46 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
+
+// ClaimStakingRewardsIfNecessary checks if the given address has enough balance to cover the
+// given amount. If not, it attempts to claim enough staking rewards to cover the amount.
+func ClaimStakingRewardsIfNecessary(
+	ctx sdk.Context,
+	bankKeeper BankKeeper,
+	distributionKeeper DistributionKeeper,
+	stakingKeeper StakingKeeper,
+	addr sdk.AccAddress,
+	amount sdk.Coins,
+) error {
+	stakingDenom := stakingKeeper.BondDenom(ctx)
+	found, amountInStakingDenom := amount.Find(stakingDenom)
+	if !found {
+		// TODO: Should we return an error here? If the fees are not in the staking denom?
+		return nil
+	}
+
+	// TODO: Is this only giving the spendable balance or also the locked balance?
+	balance := bankKeeper.GetBalance(ctx, addr, stakingDenom)
+	if balance.IsNegative() {
+		return errortypes.ErrInsufficientFunds.Wrapf("balance of %s in %s is negative", addr, stakingDenom)
+	}
+
+	// check if the account has enough balance to cover the fees
+	if balance.IsGTE(amountInStakingDenom) {
+		return nil
+	}
+
+	// Calculate the amount of staking rewards needed to cover the fees
+	difference := amountInStakingDenom.Sub(balance)
+
+	// attempt to claim enough staking rewards to cover the fees
+	return ClaimSufficientStakingRewards(
+		ctx, stakingKeeper, distributionKeeper, addr, sdk.NewCoins(difference),
+	)
+}
 
 // ClaimSufficientStakingRewards checks if the account has enough staking rewards unclaimed
 // to cover the given amount. If more than enough rewards are unclaimed, only those up to

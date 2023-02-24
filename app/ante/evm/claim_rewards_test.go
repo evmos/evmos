@@ -48,7 +48,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			},
 		},
 		{
-			name: "pass - Out of multiple outstanding rewards only those necessary are withdrawn",
+			name: "pass - out of multiple outstanding rewards only those necessary are withdrawn",
 			malleate: func(addr sdk.AccAddress) {
 				// NOTE: To enable executing the post check in a deterministic way, we only test with two
 				// assigned rewards, of which one is sufficient to cover the transaction fees and the other
