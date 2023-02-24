@@ -19,13 +19,13 @@ package testutil
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v11/app"
@@ -114,10 +114,14 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		// TODO: Replace this with testutil.Commit? Will only be possible after test suite setup cleanup
 		// because some suites use an initial height != 1, which is not accounted for, so there's a mismatch of expected vs. actual block height
+		ctx, err := Commit(ctx, app, time.Second*2, nil)
+		if err != nil {
+			return sdk.Context{}, err
+		}
 
-		// end block to bond validator and increase block height
-		staking.EndBlocker(ctx, app.StakingKeeper)
-		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+		//// end block to bond validator and increase block height
+		//staking.EndBlocker(ctx, app.StakingKeeper)
+		//ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)
