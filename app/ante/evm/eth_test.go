@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"math"
 	"math/big"
 
@@ -370,23 +371,27 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			tx2,
 			tx2GasLimit, // it's capped
 			func(ctx sdk.Context) sdk.Context {
-				vmdb.AddBalance(addr, big.NewInt(1e6))
-				ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
-
 				ctx, err := testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.ZeroInt(), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				return ctx
+				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 			},
 			true, false,
 			tx2Priority,
 			func(ctx sdk.Context) {
 				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
-				suite.Require().True(
-					balance.Amount.GT(sdk.NewInt(1e6)),
+				suite.Require().False(
+					balance.Amount.IsZero(),
 					"the fees are paid after withdrawing (a surplus amount of) staking rewards, so it should be higher than the initial balance",
 				)
+
+				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
+					ctx,
+					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: sdk.AccAddress(addr.Bytes()).String()},
+				)
+				suite.Require().NoError(err, "error while querying delegation total rewards")
+				suite.Require().Nil(resp.Total, "the total rewards should be nil after withdrawing all of them")
 			},
 		},
 		{
@@ -394,35 +399,33 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			tx2,
 			tx2GasLimit, // it's capped
 			func(ctx sdk.Context) sdk.Context {
-				vmdb.AddBalance(addr, big.NewInt(1e16))
-				ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
-
-				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
-				suite.T().Logf("pre balance: %s", balance)
-
-				// NOTE: a certain balance has to be assigned to the account to allow for the delegation
 				ctx, err := testutil.PrepareAccountsForDelegationRewards(
 					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
 
-				return ctx
+				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
 			},
 			true, false,
 			tx2Priority,
 			func(ctx sdk.Context) {
 				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
-				suite.T().Logf("post balance: %s", balance)
 				suite.Require().True(
 					balance.Amount.LT(sdk.NewInt(1e16)),
 					"the fees are paid using the available balance, so it should be lower than the initial balance",
 				)
 
-				// NOTE: 2e16 is the total rewards because there are 2*1e16 rewards being allocated
-				// to the validator to establish a 50/50 split between self-delegation and the account delegation
+				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
+					ctx,
+					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: sdk.AccAddress(addr.Bytes()).String()},
+				)
+				suite.Require().NoError(err, "error while querying delegation total rewards")
+
+				// NOTE: the total rewards should be the same as after the setup, since
+				// the fees are paid using the account balance
 				suite.Require().Equal(
-					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(2e16))),
-					suite.app.DistrKeeper.GetTotalRewards(ctx),
+					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e16))),
+					resp.Total,
 					"the total rewards should be the same as after the setup, since the fees are paid using the account balance",
 				)
 			},

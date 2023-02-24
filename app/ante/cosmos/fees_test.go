@@ -27,7 +27,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - sufficient balance to pay fees",
 			balance:     sdk.NewInt(1e18),
-			rewards:     sdk.NewInt(0),
+			rewards:     sdk.ZeroInt(),
 			gas:         0,
 			checkTx:     false,
 			simulate:    true,
@@ -46,8 +46,8 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "fail - checkTx - insufficient funds and no staking rewards",
-			balance:     sdk.NewInt(0),
-			rewards:     sdk.NewInt(0),
+			balance:     sdk.ZeroInt(),
+			rewards:     sdk.ZeroInt(),
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -56,7 +56,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
-			balance:     sdk.NewInt(1e18),
+			balance:     sdk.ZeroInt(),
 			rewards:     sdk.NewInt(1e18),
 			gas:         10_000_000,
 			checkTx:     false,
