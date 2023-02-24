@@ -166,7 +166,7 @@ import (
 	"github.com/evmos/evmos/v11/x/recovery"
 	recoverykeeper "github.com/evmos/evmos/v11/x/recovery/keeper"
 	recoverytypes "github.com/evmos/evmos/v11/x/recovery/types"
-	"github.com/evmos/evmos/v11/x/revenue/v1"
+	revenue "github.com/evmos/evmos/v11/x/revenue/v1"
 	revenuekeeper "github.com/evmos/evmos/v11/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v11/x/revenue/v1/types"
 	"github.com/evmos/evmos/v11/x/vesting"

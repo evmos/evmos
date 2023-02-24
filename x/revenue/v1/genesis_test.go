@@ -17,7 +17,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 
 	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/x/revenue/v1"
+	revenue "github.com/evmos/evmos/v11/x/revenue/v1"
 	"github.com/evmos/evmos/v11/x/revenue/v1/types"
 )
 
