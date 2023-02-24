@@ -33,33 +33,67 @@ import (
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.
 //
+// Balance is the amount of tokens that will be left in the account after the setup is done.
+// For each defined reward, a validator is created and tokens are allocated to it using the distribution keeper,
+// such that the given amount of tokens is outstanding as a staking reward for the account.
+//
 // The setup is done in the following way:
 //   - Fund the account with the given address with the given balance.
-//     If the given balance is zero, the account will be created with zero balance.
+//   - If the given balance is zero, the account will be created with zero balance.
+//
+// For every reward defined in the rewards argument, the following steps are executed:
 //   - Set up a validator with zero commission and delegate to it -> the account delegation will be 50% of the total delegation.
 //   - Allocate rewards to the validator.
 //
 // The function returns the updated context along with a potential error.
-func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app.Evmos, addr sdk.AccAddress, balance, rewards sdkmath.Int) (sdk.Context, error) {
-	if balance.IsZero() {
+func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app.Evmos, addr sdk.AccAddress, balance sdkmath.Int, rewards ...sdkmath.Int) (sdk.Context, error) {
+	var (
+		totalRewards       = sdk.ZeroInt()
+		totalNeededBalance = sdk.ZeroInt()
+	)
+
+	// Calculate the necessary amount of tokens to fund the account in order for the desired residual balance to
+	// be left after creating validators and delegating to them.
+	for _, reward := range rewards {
+		totalRewards = totalRewards.Add(reward)
+	}
+	totalNeededBalance = balance.Add(totalRewards)
+
+	if totalNeededBalance.IsZero() {
 		app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr))
 	} else {
 		// Fund account with enough tokens to stake them
-		err := FundAccountWithBaseDenom(ctx, app.BankKeeper, addr, balance.Int64())
+		err := FundAccountWithBaseDenom(ctx, app.BankKeeper, addr, totalNeededBalance.Int64())
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to fund account: %s", err.Error())
 		}
 	}
 
-	if !rewards.IsZero() {
-		// reset historical count in distribution keeper which is necessary
-		// for the delegation rewards to be calculated correctly
-		app.DistrKeeper.DeleteAllValidatorHistoricalRewards(ctx)
+	if totalRewards.IsZero() {
+		return ctx, nil
+	}
+
+	// reset historical count in distribution keeper which is necessary
+	// for the delegation rewards to be calculated correctly
+	app.DistrKeeper.DeleteAllValidatorHistoricalRewards(ctx)
+
+	// set distribution module account balance which pays out the rewards
+	distrAcc := app.DistrKeeper.GetDistributionAccount(ctx)
+	err := FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, totalRewards)))
+	if err != nil {
+		return sdk.Context{}, fmt.Errorf("failed to fund distribution module account: %s", err.Error())
+	}
+	app.AccountKeeper.SetModuleAccount(ctx, distrAcc)
+
+	for _, reward := range rewards {
+		if reward.IsZero() {
+			continue
+		}
 
 		// Set up validator and delegate to it
 		privKey := ed25519.GenPrivKey()
 		addr2, _ := testutiltx.NewAccAddressAndKey()
-		err := FundAccountWithBaseDenom(ctx, app.BankKeeper, addr2, rewards.Int64())
+		err := FundAccountWithBaseDenom(ctx, app.BankKeeper, addr2, reward.Int64())
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to fund validator account: %s", err.Error())
 		}
@@ -77,25 +111,17 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		valAddr := sdk.ValAddress(addr2.Bytes())
 		// self-delegate the same amount of tokens as the delegate address also stakes
 		// this ensures, that the delegation rewards are 50% of the total rewards
-		stakingHelper.CreateValidator(valAddr, privKey.PubKey(), rewards, true)
-		stakingHelper.Delegate(addr, valAddr, rewards)
+		stakingHelper.CreateValidator(valAddr, privKey.PubKey(), reward, true)
+		stakingHelper.Delegate(addr, valAddr, reward)
 
 		// TODO: Replace this with testutil.Commit?
 		// end block to bond validator and increase block height
 		staking.EndBlocker(ctx, app.StakingKeeper)
 		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
-		// set distribution module account balance which pays out the rewards
-		distrAcc := app.DistrKeeper.GetDistributionAccount(ctx)
-		err = FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, rewards)))
-		if err != nil {
-			return sdk.Context{}, fmt.Errorf("failed to fund distribution module account: %s", err.Error())
-		}
-		app.AccountKeeper.SetModuleAccount(ctx, distrAcc)
-
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)
-		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, rewards.Mul(sdk.NewInt(2))))
+		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(sdk.NewInt(2))))
 		app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards)
 	}
 
