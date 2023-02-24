@@ -73,6 +73,7 @@ type DynamicFeeEVMKeeper interface {
 // StakingKeeper defines the exposed interface for using functionality of the staking keeper
 // in the context of the evm AnteHandler package.
 type StakingKeeper interface {
+	BondDenom(ctx sdk.Context) string
 	IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool))
 }
 

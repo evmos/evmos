@@ -26,7 +26,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/utils"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -204,7 +203,8 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		// Check if the fees exceed the spendable account balance.
 		// TODO: Is this only giving the spendable balance or also the locked balance?
 		from := msgEthTx.GetFrom()
-		balance := egcd.bankKeeper.GetBalance(ctx, from, utils.BaseDenom)
+		stakingDenom := egcd.stakingKeeper.BondDenom(ctx)
+		balance := egcd.bankKeeper.GetBalance(ctx, from, stakingDenom)
 		if balance.IsLT(fees[0]) {
 			difference := fees[0].Sub(balance)
 			// Try to claim enough staking rewards to cover the difference between the

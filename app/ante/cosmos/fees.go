@@ -158,23 +158,34 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 // deductFeesFromBalanceOrUnclaimedRewards tries to deduct the fees from the account balance.
 // If the account balance is not enough, it tries to claim enough staking rewards to cover the fees.
 // If the account does not have sufficient staking rewards, it returns an error.
-func (dfd DeductFeeDecorator) deductFeesFromBalanceOrUnclaimedRewards(ctx sdk.Context, deductFeesFromAcc authtypes.AccountI, fees sdk.Coins) error {
-	balance := dfd.bankKeeper.GetBalance(ctx, deductFeesFromAcc.GetAddress(), fees[0].Denom)
-	if balance.IsLT(fees[0]) {
-		difference := fees[0].Sub(balance)
+func (dfd DeductFeeDecorator) deductFeesFromBalanceOrUnclaimedRewards(
+	ctx sdk.Context,
+	account authtypes.AccountI,
+	fees sdk.Coins,
+) error {
+	stakingDenom := dfd.stakingKeeper.BondDenom(ctx)
+	balance := dfd.bankKeeper.GetBalance(ctx, account.GetAddress(), stakingDenom)
+	if !balance.IsPositive() {
+		return errortypes.ErrInsufficientFunds.Wrapf("balance of %s in %s is not positive", account.GetAddress(), stakingDenom)
+	}
+
+	found, feesInStakingDenom := fees.Find(stakingDenom)
+	if found && balance.IsLT(feesInStakingDenom) {
+		difference := feesInStakingDenom.Sub(balance)
 		// Try to claim enough staking rewards to cover the difference between the
 		// transaction cost and the account balance.
-		err := evm.ClaimSufficientStakingRewards(ctx, dfd.stakingKeeper, dfd.distributionKeeper, deductFeesFromAcc.GetAddress(), sdk.Coins{difference})
+		err := evm.ClaimSufficientStakingRewards(ctx, dfd.stakingKeeper, dfd.distributionKeeper, account.GetAddress(), sdk.Coins{difference})
 		if err != nil {
 			return errortypes.ErrInsufficientFunds.Wrapf(
 				"insufficient funds and failed to claim sufficient staking rewards for %s to pay for fees; %s",
-				deductFeesFromAcc.GetAddress(),
+				account.GetAddress(),
 				err.Error(),
 			)
 		}
 	}
+
 	// deduct the fees if possible
-	return authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees)
+	return authante.DeductFees(dfd.bankKeeper, ctx, account, fees)
 }
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per

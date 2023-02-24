@@ -21,34 +21,44 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v11/utils"
 )
 
 // ClaimSufficientStakingRewards checks if the account has enough staking rewards unclaimed
 // to cover the given amount. If more than enough rewards are unclaimed, only those up to
 // the given amount are claimed.
-func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper, distributionKeeper DistributionKeeper, addr sdk.AccAddress, amount sdk.Coins) error {
+func ClaimSufficientStakingRewards(
+	ctx sdk.Context,
+	stakingKeeper StakingKeeper,
+	distributionKeeper DistributionKeeper,
+	addr sdk.AccAddress,
+	amount sdk.Coins,
+) error {
 	var (
 		err     error
 		reward  sdk.Coins
 		rewards sdk.Coins
-
-		// baseAmount defines the amount to be claimed in the base denomination
-		baseAmount = amount.AmountOf(utils.BaseDenom)
 	)
 
+	// Allocate a cached context to avoid writing to state if there are not enough rewards
 	cacheCtx, writeFn := ctx.CacheContext()
 
-	// iterate through all delegations and get the rewards if any are unclaimed.
+	// Get the amount of the staking denom
+	stakingDenom := stakingKeeper.BondDenom(ctx)
+	baseAmount := amount.AmountOf(stakingDenom)
+
+	// Iterate through delegations and get the rewards if any are unclaimed.
+	// The loop stops once a sufficient amount was withdrawn.
 	stakingKeeper.IterateDelegations(
-		cacheCtx, addr, func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
+		cacheCtx,
+		addr,
+		func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
 			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, delegation.GetValidatorAddr())
 			if err != nil {
 				return true
 			}
 			rewards = rewards.Add(reward...)
 
-			return rewards.AmountOf(utils.BaseDenom).GTE(baseAmount)
+			return rewards.AmountOf(stakingDenom).GTE(baseAmount)
 		},
 	)
 
@@ -58,7 +68,7 @@ func ClaimSufficientStakingRewards(ctx sdk.Context, stakingKeeper StakingKeeper,
 	}
 
 	// only write to state if there are enough rewards to cover the transaction fees
-	if rewards.AmountOf(utils.BaseDenom).LT(baseAmount) {
+	if rewards.AmountOf(stakingDenom).LT(baseAmount) {
 		return fmt.Errorf("insufficient staking rewards to cover transaction fees")
 	}
 	writeFn() // commit state changes
