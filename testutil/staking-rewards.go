@@ -47,17 +47,13 @@ import (
 //
 // The function returns the updated context along with a potential error.
 func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app.Evmos, addr sdk.AccAddress, balance sdkmath.Int, rewards ...sdkmath.Int) (sdk.Context, error) {
-	var (
-		totalRewards       = sdk.ZeroInt()
-		totalNeededBalance = sdk.ZeroInt()
-	)
-
 	// Calculate the necessary amount of tokens to fund the account in order for the desired residual balance to
 	// be left after creating validators and delegating to them.
+	totalRewards := sdk.ZeroInt()
 	for _, reward := range rewards {
 		totalRewards = totalRewards.Add(reward)
 	}
-	totalNeededBalance = balance.Add(totalRewards)
+	totalNeededBalance := balance.Add(totalRewards)
 
 	if totalNeededBalance.IsZero() {
 		app.AccountKeeper.SetAccount(ctx, app.AccountKeeper.NewAccountWithAddress(ctx, addr))
