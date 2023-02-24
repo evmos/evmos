@@ -28,6 +28,10 @@ import (
 	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 )
 
+// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
+// the effective fee should be deducted later, and the priority should be returned in abci response.
+type TxFeeChecker func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error)
+
 // DeductFeeDecorator deducts fees from the first signer of the tx.
 // If the first signer does not have the funds to pay for the fees,
 // and does not have enough unclaimed staking rewards, then return
@@ -41,7 +45,7 @@ type DeductFeeDecorator struct {
 	distributionKeeper anteutils.DistributionKeeper
 	feegrantKeeper     authante.FeegrantKeeper
 	stakingKeeper      anteutils.StakingKeeper
-	txFeeChecker       authante.TxFeeChecker
+	txFeeChecker       TxFeeChecker
 }
 
 // NewDeductFeeDecorator returns a new DeductFeeDecorator.
@@ -51,7 +55,7 @@ func NewDeductFeeDecorator(
 	dk anteutils.DistributionKeeper,
 	fk authante.FeegrantKeeper,
 	sk anteutils.StakingKeeper,
-	tfc authante.TxFeeChecker,
+	tfc TxFeeChecker,
 ) DeductFeeDecorator {
 	if tfc == nil {
 		tfc = checkTxFeeWithValidatorMinGasPrices
@@ -86,12 +90,16 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 
 	fee := feeTx.GetFee()
 	if !simulate {
-		fee, priority, err = dfd.txFeeChecker(ctx, tx)
+		fee, priority, err = dfd.txFeeChecker(ctx, feeTx)
 		if err != nil {
 			return ctx, err
 		}
 	}
-	if err := dfd.checkDeductFee(ctx, tx, fee); err != nil {
+
+	feePayer := feeTx.FeePayer()
+	feeGranter := feeTx.FeeGranter()
+
+	if err = dfd.deductFee(ctx, tx, fee, feePayer, feeGranter); err != nil {
 		return ctx, err
 	}
 
@@ -100,20 +108,18 @@ func (dfd DeductFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	return next(newCtx, tx, simulate)
 }
 
-// checkDeductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
+// deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
 // If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
-func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.Coins) error {
-	feeTx, ok := sdkTx.(sdk.FeeTx)
-	if !ok {
-		return errorsmod.Wrap(errortypes.ErrTxDecode, "Tx must implement the FeeTx interface")
+func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.Coins, feePayer, feeGranter sdk.AccAddress) error {
+	if fees.IsZero() {
+		return nil
 	}
 
 	if addr := dfd.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName); addr == nil {
 		return fmt.Errorf("fee collector module account (%s) has not been set", authtypes.FeeCollectorName)
 	}
 
-	feePayer := feeTx.FeePayer()
-	feeGranter := feeTx.FeeGranter()
+	// by default, deduct fees from feePayer address
 	deductFeesFrom := feePayer
 
 	// if feegranter is set, then deduct the fee from the feegranter account.
@@ -121,7 +127,9 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 	if feeGranter != nil {
 		if dfd.feegrantKeeper == nil {
 			return errortypes.ErrInvalidRequest.Wrap("fee grants are not enabled")
-		} else if !feeGranter.Equals(feePayer) {
+		}
+
+		if !feeGranter.Equals(feePayer) {
 			err := dfd.feegrantKeeper.UseGrantedFees(ctx, feeGranter, feePayer, fees, sdkTx.GetMsgs())
 			if err != nil {
 				return errorsmod.Wrapf(err, "%s does not not allow to pay fees for %s", feeGranter, feePayer)
@@ -137,10 +145,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 	}
 
 	// deduct the fees
-	if !fees.IsZero() {
-		if err := deductFeesFromBalanceOrUnclaimedStakingRewards(ctx, dfd, deductFeesFromAcc, fees); err != nil {
-			return fmt.Errorf("insufficient funds and failed to claim sufficient staking rewards to pay for fees: %w", err)
-		}
+	if err := deductFeesFromBalanceOrUnclaimedStakingRewards(ctx, dfd, deductFeesFromAcc, fees); err != nil {
+		return fmt.Errorf("insufficient funds and failed to claim sufficient staking rewards to pay for fees: %w", err)
 	}
 
 	events := sdk.Events{
@@ -172,12 +178,7 @@ func deductFeesFromBalanceOrUnclaimedStakingRewards(
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per
 // unit of gas is fixed and set by each validator, and the tx priority is computed from the gas price.
-func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
-	feeTx, ok := tx.(sdk.FeeTx)
-	if !ok {
-		return nil, 0, errorsmod.Wrap(errortypes.ErrTxDecode, "Tx must be a FeeTx")
-	}
-
+func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
 	feeCoins := feeTx.GetFee()
 	gas := feeTx.GetGas()
 
@@ -185,26 +186,38 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.Tx) (sdk.Coins,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
 	// is only ran on CheckTx.
 	if ctx.IsCheckTx() {
-		minGasPrices := ctx.MinGasPrices()
-		if !minGasPrices.IsZero() {
-			requiredFees := make(sdk.Coins, len(minGasPrices))
-
-			// Determine the required fees by multiplying each required minimum gas
-			// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-			glDec := sdk.NewDec(int64(gas)) //#nosec G701 -- gosec warning about integer overflow is not relevant here
-			for i, gp := range minGasPrices {
-				fee := gp.Amount.Mul(glDec)
-				requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-			}
-
-			if !feeCoins.IsAnyGTE(requiredFees) {
-				return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "insufficient fees; got: %s required: %s", feeCoins, requiredFees)
-			}
+		if err := checkFeeCoinsAgainstMinGasPrices(ctx, feeCoins, gas); err != nil {
+			return nil, 0, err
 		}
 	}
 
 	priority := getTxPriority(feeCoins, int64(gas)) //#nosec G701 -- gosec warning about integer overflow is not relevant here
 	return feeCoins, priority, nil
+}
+
+// checkFeeCoinsAgainstMinGasPrices checks if the provided fee coins are greater than or equal to the
+// required fees, that are based on the minimum gas prices and the gas. If not, it will return an error.
+func checkFeeCoinsAgainstMinGasPrices(ctx sdk.Context, feeCoins sdk.Coins, gas uint64) error {
+	minGasPrices := ctx.MinGasPrices()
+	if minGasPrices.IsZero() {
+		return nil
+	}
+
+	requiredFees := make(sdk.Coins, len(minGasPrices))
+
+	// Determine the required fees by multiplying each required minimum gas
+	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
+	glDec := sdk.NewDec(int64(gas)) //#nosec G701 -- gosec warning about integer overflow is not relevant here
+	for i, gp := range minGasPrices {
+		fee := gp.Amount.Mul(glDec)
+		requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+	}
+
+	if !feeCoins.IsAnyGTE(requiredFees) {
+		return errorsmod.Wrapf(errortypes.ErrInsufficientFee, "insufficient fees; got: %s required: %s", feeCoins, requiredFees)
+	}
+
+	return nil
 }
 
 // getTxPriority returns a naive tx priority based on the amount of the smallest denomination of the gas price
