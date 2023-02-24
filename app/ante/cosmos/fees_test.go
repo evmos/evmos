@@ -7,6 +7,7 @@ import (
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/utils"
 )
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
@@ -23,6 +24,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		simulate    bool
 		expPass     bool
 		errContains string
+		postCheck   func()
 	}{
 		{
 			name:        "pass - sufficient balance to pay fees",
@@ -53,6 +55,16 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			simulate:    false,
 			expPass:     false,
 			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			postCheck: func() {
+				// the balance should not have changed
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				suite.Require().Equal(sdk.ZeroInt(), balance.Amount, "expected balance to be zero")
+
+				// the rewards should not have changed
+				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				suite.Require().NoError(err, "failed to get total delegation rewards")
+				suite.Require().Empty(rewards, "expected rewards to be zero")
+			},
 		},
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
@@ -63,6 +75,19 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			simulate:    false,
 			expPass:     true,
 			errContains: "",
+			postCheck: func() {
+				// the balance should not have changed
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				suite.Require().False(
+					balance.Amount.IsZero(),
+					"expected balance to have increased after withdrawing a surplus amount of staking rewards",
+				)
+
+				// the rewards should not have changed
+				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				suite.Require().NoError(err, "failed to get total delegation rewards")
+				suite.Require().Empty(rewards, "expected all rewards to be withdrawn")
+			},
 		},
 		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
@@ -73,6 +98,19 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			simulate:    false,
 			expPass:     false,
 			errContains: "insufficient funds and failed to claim sufficient staking rewards",
+			postCheck: func() {
+				// the balance should not have changed
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				suite.Require().Equal(sdk.NewInt(1e5), balance.Amount, "expected balance to be unchanged")
+
+				// the rewards should not have changed
+				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
+				suite.Require().NoError(err, "failed to get total delegation rewards")
+				suite.Require().Equal(
+					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e5))),
+					rewards,
+					"expected rewards to be unchanged")
+			},
 		},
 	}
 
@@ -116,6 +154,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			} else {
 				suite.Require().Error(err, "expected error")
 				suite.Require().ErrorContains(err, tc.errContains)
+			}
+
+			// run the post check
+			if tc.postCheck != nil {
+				tc.postCheck()
 			}
 		})
 	}
