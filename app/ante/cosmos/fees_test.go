@@ -14,8 +14,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	addr, priv := testutiltx.NewAccAddressAndKey()
 
 	// Testcase definitions
-	// TODO: Add post checks for testcases to see if the correct amount of fees were deducted
-	// TODO: Add multiple delegations
 	testcases := []struct {
 		name        string
 		balance     math.Int
