@@ -1,8 +1,8 @@
-package evm_test
+package utils_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
@@ -111,7 +111,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			tc.malleate(addr)
 
 			amount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(tc.amount)))
-			err := evm.ClaimSufficientStakingRewards(suite.ctx, suite.app.StakingKeeper, suite.app.DistrKeeper, addr, amount)
+			err := anteutils.ClaimSufficientStakingRewards(suite.ctx, suite.app.StakingKeeper, suite.app.DistrKeeper, addr, amount)
 
 			if tc.expErr {
 				suite.Require().Error(err)

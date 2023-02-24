@@ -52,7 +52,7 @@ type StakingKeeper interface {
 	GetUnbondingDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.UnbondingDelegation
 	GetValidator(ctx sdk.Context, valAddr sdk.ValAddress) (stakingtypes.Validator, bool)
 
-	// Support iterating delegations for use in handler_options.go
+	// Support iterating delegations for use in ante handlers
 	IterateDelegations(ctx sdk.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool))
 
 	// Support functions for Agoric's custom stakingkeeper logic on vestingkeeper

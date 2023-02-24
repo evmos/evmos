@@ -27,6 +27,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibcante "github.com/cosmos/ibc-go/v6/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v11/app/ante/evm"
@@ -42,7 +43,7 @@ type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
-	DistributionKeeper     evmante.DistributionKeeper
+	DistributionKeeper     anteutils.DistributionKeeper
 	IBCKeeper              *ibckeeper.Keeper
 	StakingKeeper          vestingtypes.StakingKeeper
 	FeeMarketKeeper        evmante.FeeMarketKeeper

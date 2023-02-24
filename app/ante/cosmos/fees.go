@@ -18,6 +18,7 @@ package cosmos
 
 import (
 	"fmt"
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
@@ -25,7 +26,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v11/app/ante/evm"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.
@@ -38,9 +38,9 @@ import (
 type DeductFeeDecorator struct {
 	accountKeeper      authante.AccountKeeper
 	bankKeeper         BankKeeper
-	distributionKeeper evm.DistributionKeeper
+	distributionKeeper anteutils.DistributionKeeper
 	feegrantKeeper     authante.FeegrantKeeper
-	stakingKeeper      evm.StakingKeeper
+	stakingKeeper      anteutils.StakingKeeper
 	txFeeChecker       authante.TxFeeChecker
 }
 
@@ -48,9 +48,9 @@ type DeductFeeDecorator struct {
 func NewDeductFeeDecorator(
 	ak authante.AccountKeeper,
 	bk BankKeeper,
-	dk evm.DistributionKeeper,
+	dk anteutils.DistributionKeeper,
 	fk authante.FeegrantKeeper,
-	sk evm.StakingKeeper,
+	sk anteutils.StakingKeeper,
 	tfc authante.TxFeeChecker,
 ) DeductFeeDecorator {
 	if tfc == nil {
@@ -138,14 +138,8 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 
 	// deduct the fees
 	if !fees.IsZero() {
-		if err := evm.ClaimStakingRewardsIfNecessary(
-			ctx, dfd.bankKeeper, dfd.distributionKeeper, dfd.stakingKeeper, deductFeesFromAcc.GetAddress(), fees,
-		); err != nil {
-			return err
-		}
-
-		if err := authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees); err != nil {
-			return err
+		if err := deductFeesFromBalanceOrUnclaimedStakingRewards(ctx, dfd, deductFeesFromAcc, fees); err != nil {
+			return fmt.Errorf("insufficient funds and failed to claim sufficient staking rewards to pay for fees: %w", err)
 		}
 	}
 
@@ -159,6 +153,21 @@ func (dfd DeductFeeDecorator) checkDeductFee(ctx sdk.Context, sdkTx sdk.Tx, fees
 	ctx.EventManager().EmitEvents(events)
 
 	return nil
+}
+
+// deductFeesFromBalanceOrUnclaimedStakingRewards tries to deduct the fees from the account balance.
+// If the account balance is not enough, it tries to claim enough staking rewards to cover the fees.
+func deductFeesFromBalanceOrUnclaimedStakingRewards(
+	ctx sdk.Context, dfd DeductFeeDecorator, deductFeesFromAcc authtypes.AccountI, fees sdk.Coins,
+) error {
+	err := anteutils.ClaimStakingRewardsIfNecessary(
+		ctx, dfd.bankKeeper, dfd.distributionKeeper, dfd.stakingKeeper, deductFeesFromAcc.GetAddress(), fees,
+	)
+	if err != nil {
+		return err
+	}
+
+	return authante.DeductFees(dfd.bankKeeper, ctx, deductFeesFromAcc, fees)
 }
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per

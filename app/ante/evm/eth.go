@@ -17,6 +17,7 @@
 package evm
 
 import (
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"math"
 	"math/big"
 
@@ -105,19 +106,19 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 // EthGasConsumeDecorator validates enough intrinsic gas for the transaction and
 // gas consumption.
 type EthGasConsumeDecorator struct {
-	bankKeeper         BankKeeper
-	distributionKeeper DistributionKeeper
+	bankKeeper         anteutils.BankKeeper
+	distributionKeeper anteutils.DistributionKeeper
 	evmKeeper          EVMKeeper
-	stakingKeeper      StakingKeeper
+	stakingKeeper      anteutils.StakingKeeper
 	maxGasWanted       uint64
 }
 
 // NewEthGasConsumeDecorator creates a new EthGasConsumeDecorator
 func NewEthGasConsumeDecorator(
-	bankKeeper BankKeeper,
-	distributionKeeper DistributionKeeper,
+	bankKeeper anteutils.BankKeeper,
+	distributionKeeper anteutils.DistributionKeeper,
 	evmKeeper EVMKeeper,
-	stakingKeeper StakingKeeper,
+	stakingKeeper anteutils.StakingKeeper,
 	maxGasWanted uint64,
 ) EthGasConsumeDecorator {
 	return EthGasConsumeDecorator{
@@ -204,7 +205,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		}
 
 		// If the account balance is not sufficient, try to withdraw enough staking rewards
-		err = ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
+		err = anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
 		if err != nil {
 			return ctx, err
 		}

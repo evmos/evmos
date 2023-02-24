@@ -27,6 +27,8 @@ import (
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
+var TestString = "test123"
+
 // NewAnteHandler returns an ante handler responsible for attempting to route an
 // Ethereum or SDK transaction to an internal ante handler for performing
 // transaction-level processing (e.g. fee payment, signature verification) before
