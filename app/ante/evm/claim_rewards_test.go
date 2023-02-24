@@ -78,9 +78,8 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 
 				// NOTE: The only valid options (because of the non-deterministic iteration over rewards) are a
 				// balance of 2e14 (only withdraw reward B) or 3e14 (A+B), which is why we check for both of them.
-				if balance.Amount.Equal(sdk.NewInt(2e14)) {
-					// Check that only the necessary rewards are withdrawn (=1e14+2e14), which means that there is an outstanding
-					// reward of 2e13
+				switch {
+				case balance.Amount.Equal(sdk.NewInt(2e14)):
 					suite.Require().NotNil(resp.Total, "expected rewards in one denomination yet to be withdrawn")
 					suite.Require().Equal(1, len(resp.Total), "expected rewards in one denomination yet to be withdrawn")
 					suite.Require().Equal(
@@ -88,9 +87,9 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 						resp.Total[0],
 						"expected total rewards with an amount of 1e14 yet to be withdrawn",
 					)
-				} else if balance.Amount.Equal(sdk.NewInt(3e14)) {
+				case balance.Amount.Equal(sdk.NewInt(3e14)):
 					suite.Require().Nil(resp.Total, "expected no rewards to be left to withdraw")
-				} else {
+				default:
 					suite.Require().Fail("unexpected balance", "balance: %v", balance)
 				}
 			},
