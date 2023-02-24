@@ -2,7 +2,6 @@ package evm_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
@@ -43,12 +42,9 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			postCheck: func(addr sdk.AccAddress) {
 				// Check that the necessary rewards are withdrawn, which means that there are no outstanding
 				// rewards left
-				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
-					suite.ctx,
-					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: addr.String()},
-				)
+				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
-				suite.Require().Empty(resp.Total, "expected no total rewards to be left")
+				suite.Require().Empty(rewards, "expected no total rewards to be left")
 			},
 		},
 		{
@@ -70,10 +66,7 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
-				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
-					suite.ctx,
-					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: addr.String()},
-				)
+				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 
 				// NOTE: The only valid options (because of the non-deterministic iteration over rewards, see comment above)
@@ -81,15 +74,14 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 				// Any other balance fails the test.
 				switch {
 				case balance.Amount.Equal(sdk.NewInt(2e14)):
-					suite.Require().NotNil(resp.Total, "expected rewards in one denomination yet to be withdrawn")
-					suite.Require().Equal(1, len(resp.Total), "expected rewards in one denomination yet to be withdrawn")
+					suite.Require().NotNil(rewards, "expected rewards in one denomination yet to be withdrawn")
 					suite.Require().Equal(
-						sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e14)),
-						resp.Total[0],
+						sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e14))),
+						rewards,
 						"expected total rewards with an amount of 1e14 yet to be withdrawn",
 					)
 				case balance.Amount.Equal(sdk.NewInt(3e14)):
-					suite.Require().Nil(resp.Total, "expected no rewards to be left to withdraw")
+					suite.Require().Nil(rewards, "expected no rewards left to withdraw")
 				default:
 					suite.Require().Fail("unexpected balance", "balance: %v", balance)
 				}

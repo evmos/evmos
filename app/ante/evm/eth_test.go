@@ -1,7 +1,6 @@
 package evm_test
 
 import (
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"math"
 	"math/big"
 
@@ -386,12 +385,9 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 					"the fees are paid after withdrawing (a surplus amount of) staking rewards, so it should be higher than the initial balance",
 				)
 
-				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
-					ctx,
-					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: sdk.AccAddress(addr.Bytes()).String()},
-				)
+				rewards, err := testutil.GetTotalDelegationRewards(ctx, suite.app.DistrKeeper, sdk.AccAddress(addr.Bytes()))
 				suite.Require().NoError(err, "error while querying delegation total rewards")
-				suite.Require().Nil(resp.Total, "the total rewards should be nil after withdrawing all of them")
+				suite.Require().Nil(rewards, "the total rewards should be nil after withdrawing all of them")
 			},
 		},
 		{
@@ -415,17 +411,14 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 					"the fees are paid using the available balance, so it should be lower than the initial balance",
 				)
 
-				resp, err := suite.app.DistrKeeper.DelegationTotalRewards(
-					ctx,
-					&distributiontypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: sdk.AccAddress(addr.Bytes()).String()},
-				)
+				rewards, err := testutil.GetTotalDelegationRewards(ctx, suite.app.DistrKeeper, sdk.AccAddress(addr.Bytes()))
 				suite.Require().NoError(err, "error while querying delegation total rewards")
 
 				// NOTE: the total rewards should be the same as after the setup, since
 				// the fees are paid using the account balance
 				suite.Require().Equal(
 					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e16))),
-					resp.Total,
+					rewards,
 					"the total rewards should be the same as after the setup, since the fees are paid using the account balance",
 				)
 			},

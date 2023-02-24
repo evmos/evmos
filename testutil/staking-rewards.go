@@ -23,6 +23,8 @@ import (
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -110,7 +112,9 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingHelper.CreateValidator(valAddr, privKey.PubKey(), reward, true)
 		stakingHelper.Delegate(addr, valAddr, reward)
 
-		// TODO: Replace this with testutil.Commit?
+		// TODO: Replace this with testutil.Commit? Will only be possible after test suite setup cleanup
+		// because some suites use an initial height != 1, which is not accounted for, so there's a mismatch of expected vs. actual block height
+
 		// end block to bond validator and increase block height
 		staking.EndBlocker(ctx, app.StakingKeeper)
 		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -122,4 +126,20 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 	}
 
 	return ctx, nil
+}
+
+// GetTotalDelegationRewards returns the total delegation rewards that are currently
+// outstanding for the given address.
+func GetTotalDelegationRewards(ctx sdk.Context, distributionKeeper distributionkeeper.Keeper, addr sdk.AccAddress) (sdk.DecCoins, error) {
+	resp, err := distributionKeeper.DelegationTotalRewards(
+		ctx,
+		&distributiontypes.QueryDelegationTotalRewardsRequest{
+			DelegatorAddress: addr.String(),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Total, nil
 }
