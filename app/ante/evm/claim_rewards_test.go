@@ -76,8 +76,9 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 				)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 
-				// NOTE: The only valid options (because of the non-deterministic iteration over rewards) are a
-				// balance of 2e14 (only withdraw reward B) or 3e14 (A+B), which is why we check for both of them.
+				// NOTE: The only valid options (because of the non-deterministic iteration over rewards, see comment above)
+				// are a balance of 2e14 (only withdraw reward B) or 3e14 (A+B), which is why we check for both of them.
+				// Any other balance fails the test.
 				switch {
 				case balance.Amount.Equal(sdk.NewInt(2e14)):
 					suite.Require().NotNil(resp.Total, "expected rewards in one denomination yet to be withdrawn")
