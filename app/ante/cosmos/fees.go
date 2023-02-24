@@ -28,10 +28,6 @@ import (
 	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 )
 
-// TxFeeChecker check if the provided fee is enough and returns the effective fee and tx priority,
-// the effective fee should be deducted later, and the priority should be returned in abci response.
-type TxFeeChecker func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error)
-
 // DeductFeeDecorator deducts fees from the first signer of the tx.
 // If the first signer does not have the funds to pay for the fees,
 // and does not have enough unclaimed staking rewards, then return
@@ -45,7 +41,7 @@ type DeductFeeDecorator struct {
 	distributionKeeper anteutils.DistributionKeeper
 	feegrantKeeper     authante.FeegrantKeeper
 	stakingKeeper      anteutils.StakingKeeper
-	txFeeChecker       TxFeeChecker
+	txFeeChecker       anteutils.TxFeeChecker
 }
 
 // NewDeductFeeDecorator returns a new DeductFeeDecorator.
@@ -55,7 +51,7 @@ func NewDeductFeeDecorator(
 	dk anteutils.DistributionKeeper,
 	fk authante.FeegrantKeeper,
 	sk anteutils.StakingKeeper,
-	tfc TxFeeChecker,
+	tfc anteutils.TxFeeChecker,
 ) DeductFeeDecorator {
 	if tfc == nil {
 		tfc = checkTxFeeWithValidatorMinGasPrices
