@@ -15,8 +15,8 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		name string
 		// malleate sets up the test case specific state, i.e. delegations and assigning rewards
 		malleate func(addr sdk.AccAddress)
-		// amount specifies the necessary amount of rewards to be withdrawn
-		amount int64
+		// amount specifies the necessary coins to be withdrawn
+		amount sdk.Coins
 		// expErr defines whether the test case is expected to return an error
 		expErr bool
 		// expErrContains defines the error message that is expected to be returned
@@ -34,7 +34,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				suite.ctx = ctx
 			},
-			amount: 1000,
+			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				// Check that the necessary rewards are withdrawn, which means that there are no outstanding
@@ -59,7 +59,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				suite.ctx = ctx
 			},
-			amount: 2e14,
+			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e14)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
@@ -72,7 +72,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				switch {
 				case balance.Amount.Equal(sdk.NewInt(2e14)):
 					suite.Require().Equal(
-						sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e14))),
+						sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: sdk.NewDec(1e14)}},
 						rewards,
 						"expected total rewards with an amount of 1e14 yet to be withdrawn",
 					)
@@ -92,7 +92,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				suite.ctx = ctx
 			},
-			amount: 1000,
+			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
 			expErr: false,
 			postCheck: func(addr sdk.AccAddress) {
 				// balance should be unchanged as no rewards should have been withdrawn
@@ -103,7 +103,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 				suite.Require().Equal(
-					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e18))),
+					sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: sdk.NewDec(1e18)}},
 					rewards,
 					"expected total rewards with an amount of 1e18 yet to be withdrawn",
 				)
@@ -112,14 +112,22 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		{
 			name:        "fail - insufficient staking rewards to withdraw",
 			malleate:    func(addr sdk.AccAddress) {},
-			amount:      1000,
+			amount:      sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
 			expErr:      true,
 			errContains: "insufficient staking rewards to cover transaction fees",
 		},
 		{
 			name:     "pass - zero amount to be claimed",
 			malleate: func(addr sdk.AccAddress) {},
+			amount:   sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.ZeroInt()}},
 			expErr:   false,
+		},
+		{
+			name:        "fail - wrong coin denom",
+			malleate:    func(addr sdk.AccAddress) {},
+			amount:      sdk.Coins{sdk.Coin{Denom: "wrongCoin", Amount: sdk.NewInt(1000)}},
+			expErr:      true,
+			errContains: "wrong fee denomination",
 		},
 	}
 
@@ -129,8 +137,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 			addr, _ := testutiltx.NewAccAddressAndKey()
 			tc.malleate(addr)
 
-			amount := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(tc.amount)))
-			err := anteutils.ClaimStakingRewardsIfNecessary(suite.ctx, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper, addr, amount)
+			err := anteutils.ClaimStakingRewardsIfNecessary(suite.ctx, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.StakingKeeper, addr, tc.amount)
 
 			if tc.expErr {
 				suite.Require().Error(err)

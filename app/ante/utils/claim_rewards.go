@@ -38,7 +38,7 @@ func ClaimStakingRewardsIfNecessary(
 	found, amountInStakingDenom := amount.Find(stakingDenom)
 	if !found {
 		return errortypes.ErrInsufficientFee.Wrapf(
-			"the specified fees need to be specified using the staking denomination %q", amount, stakingDenom,
+			"wrong fee denomination; got: %s; required: %s", amount, stakingDenom,
 		)
 	}
 
