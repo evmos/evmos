@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### API Breaking
 
+- [#1426](https://github.com/evmos/evmos/pull/1426) Move `revenue` module files into `v1` directory.
 - [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
 
 ### Improvements

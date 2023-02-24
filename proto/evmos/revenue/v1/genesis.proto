@@ -4,7 +4,7 @@ package evmos.revenue.v1;
 import "evmos/revenue/v1/revenue.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v11/x/revenue/types";
+option go_package = "github.com/evmos/evmos/v11/x/revenue/v1/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {
