@@ -17,7 +17,6 @@
 package evm
 
 import (
-	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"math"
 	"math/big"
 
@@ -27,6 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"

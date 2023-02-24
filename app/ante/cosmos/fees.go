@@ -18,7 +18,6 @@ package cosmos
 
 import (
 	"fmt"
-	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
@@ -26,6 +25,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.
