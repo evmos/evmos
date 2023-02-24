@@ -10,9 +10,6 @@ import (
 
 // TestClaimSufficientStakingRewards tests the ClaimSufficientStakingRewards function
 func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
-	// ----------------------------------------
-	// Define testcases
-	//
 	testcases := []struct {
 		// testcase name
 		name string
@@ -101,9 +98,6 @@ func (suite *AnteTestSuite) TestClaimSufficientStakingRewards() {
 		},
 	}
 
-	// ----------------------------------------
-	// Run testcases
-	//
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
