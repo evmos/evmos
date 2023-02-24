@@ -37,8 +37,9 @@ func ClaimStakingRewardsIfNecessary(
 	stakingDenom := stakingKeeper.BondDenom(ctx)
 	found, amountInStakingDenom := amount.Find(stakingDenom)
 	if !found {
-		// TODO: Should we return an error here? If the fees are not in the staking denom?
-		return nil
+		return errortypes.ErrInsufficientFee.Wrapf(
+			"the specified fees need to be specified using the staking denomination %q", amount, stakingDenom,
+		)
 	}
 
 	// TODO: Is this only giving the spendable balance or also the locked balance?
