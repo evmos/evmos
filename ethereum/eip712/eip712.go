@@ -36,10 +36,7 @@ func WrapTxToTypedData(
 		return apitypes.TypedData{}, err
 	}
 
-	domain, err := createEIP712Domain(chainID)
-	if err != nil {
-		return apitypes.TypedData{}, err
-	}
+	domain := createEIP712Domain(chainID)
 
 	typedData := apitypes.TypedData{
 		Types:       types,
