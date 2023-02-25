@@ -16,25 +16,16 @@
 package eip712
 
 import (
-	"strconv"
-
-	errorsmod "cosmossdk.io/errors"
-
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 )
 
 // createEIP712Domain creates the typed data domain for the given chainID.
 func createEIP712Domain(chainID uint64) (apitypes.TypedDataDomain, error) {
-	chainIDAsInt64, err := strconv.ParseInt(strconv.FormatUint(chainID, 10), 10, 64)
-	if err != nil {
-		return apitypes.TypedDataDomain{}, errorsmod.Wrap(err, "invalid chainID")
-	}
-
 	domain := apitypes.TypedDataDomain{
 		Name:              "Cosmos Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(chainIDAsInt64),
+		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}

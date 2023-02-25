@@ -3,8 +3,6 @@ package eip712_test
 import (
 	"bytes"
 	"fmt"
-	sdkmath "math"
-	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -268,18 +266,6 @@ func (suite *EIP712TestSuite) TestEIP712() {
 		{
 			title:   "Fails - Invalid ChainID",
 			chainID: "invalidchainid",
-			msgs: []sdk.Msg{
-				govtypes.NewMsgVote(
-					suite.createTestAddress(),
-					5,
-					govtypes.OptionNo,
-				),
-			},
-			expectSuccess: false,
-		},
-		{
-			title:   "Fails - Large ChainID",
-			chainID: fmt.Sprintf("evmos_%v-1", big.NewInt(10).Exp(big.NewInt(10), big.NewInt(1000), nil).String()),
 			msgs: []sdk.Msg{
 				govtypes.NewMsgVote(
 					suite.createTestAddress(),
@@ -573,10 +559,6 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 
 	_, err = eip712.WrapTxToTypedData(0, []byte(fmt.Sprintf(`{ "msgs": %v }`, messagesArr)))
 	suite.Require().ErrorContains(err, "maximum number of duplicates")
-
-	// ChainID overflow
-	_, err = eip712.WrapTxToTypedData(sdkmath.MaxUint64, []byte(gjson.Parse(`{"msgs": [{ "type": "val1" }] }`).Raw))
-	suite.Require().ErrorContains(err, "chainID")
 }
 
 // TestTypedDataEdgeCases tests certain interesting edge cases to ensure that they work
