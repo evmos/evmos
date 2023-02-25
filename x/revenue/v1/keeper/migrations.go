@@ -13,37 +13,30 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
-package eip712
+
+package keeper
 
 import (
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	v2 "github.com/evmos/evmos/v11/x/revenue/v1/migrations/v2"
+	"github.com/evmos/evmos/v11/x/revenue/v1/types"
 )
 
-// WrapTxToTypedData wraps an Amino-encoded Cosmos Tx JSON SignDoc
-// bytestream into an EIP712-compatible TypedData request.
-func WrapTxToTypedData(
-	chainID uint64,
-	data []byte,
-) (apitypes.TypedData, error) {
-	messagePayload, err := createEIP712MessagePayload(data)
-	message := messagePayload.message
-	if err != nil {
-		return apitypes.TypedData{}, err
+// Migrator is a struct for handling in-place store migrations.
+type Migrator struct {
+	keeper         Keeper
+	legacySubspace types.Subspace
+}
+
+// NewMigrator returns a new Migrator.
+func NewMigrator(keeper Keeper, legacySubspace types.Subspace) Migrator {
+	return Migrator{
+		keeper:         keeper,
+		legacySubspace: legacySubspace,
 	}
+}
 
-	types, err := createEIP712Types(messagePayload)
-	if err != nil {
-		return apitypes.TypedData{}, err
-	}
-
-	domain := createEIP712Domain(chainID)
-
-	typedData := apitypes.TypedData{
-		Types:       types,
-		PrimaryType: txField,
-		Domain:      domain,
-		Message:     message,
-	}
-
-	return typedData, nil
+// Migrate1to2 migrates the store from consensus version 1 to 2
+func (m Migrator) Migrate1to2(ctx sdk.Context) error {
+	return v2.MigrateStore(ctx, m.keeper.storeKey, m.legacySubspace, m.keeper.cdc)
 }

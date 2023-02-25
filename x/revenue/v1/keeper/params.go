@@ -13,37 +13,36 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
-package eip712
+
+package keeper
 
 import (
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/evmos/evmos/v11/x/revenue/v1/types"
 )
 
-// WrapTxToTypedData wraps an Amino-encoded Cosmos Tx JSON SignDoc
-// bytestream into an EIP712-compatible TypedData request.
-func WrapTxToTypedData(
-	chainID uint64,
-	data []byte,
-) (apitypes.TypedData, error) {
-	messagePayload, err := createEIP712MessagePayload(data)
-	message := messagePayload.message
+// GetParams returns the total set of revenue parameters.
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamsKey)
+	if bz == nil {
+		return params
+	}
+
+	k.cdc.MustUnmarshal(bz, &params)
+	return params
+}
+
+// SetParams sets the revenue params in a single key
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
+	store := ctx.KVStore(k.storeKey)
+	bz, err := k.cdc.Marshal(&params)
 	if err != nil {
-		return apitypes.TypedData{}, err
+		return err
 	}
 
-	types, err := createEIP712Types(messagePayload)
-	if err != nil {
-		return apitypes.TypedData{}, err
-	}
+	store.Set(types.ParamsKey, bz)
 
-	domain := createEIP712Domain(chainID)
-
-	typedData := apitypes.TypedData{
-		Types:       types,
-		PrimaryType: txField,
-		Domain:      domain,
-		Message:     message,
-	}
-
-	return typedData, nil
+	return nil
 }
