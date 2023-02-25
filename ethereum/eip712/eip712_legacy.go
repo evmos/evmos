@@ -41,9 +41,6 @@ type FeeDelegationOptions struct {
 
 const (
 	typeDefPrefix = "_"
-	ethBool       = "bool"
-	ethInt64      = "int64"
-	ethString     = "string"
 )
 
 // LegacyWrapTxToTypedData is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data

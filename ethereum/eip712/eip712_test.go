@@ -39,7 +39,7 @@ import (
 // here and included with the ante_tests.
 
 const (
-	MSGS_FIELD_NAME = "msgs"
+	msgsFieldName = "msgs"
 )
 
 type EIP712TestSuite struct {
@@ -447,7 +447,7 @@ func (suite *EIP712TestSuite) verifyPayloadAgainstFlattened(payload gjson.Result
 // verifyPayloadMapAgainstFlattenedMap directly compares two JSON maps in Go representations to
 // test flattening.
 func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[string]interface{}, flattened map[string]interface{}) {
-	interfaceMessages, ok := original[MSGS_FIELD_NAME]
+	interfaceMessages, ok := original[msgsFieldName]
 	suite.Require().True(ok)
 
 	messages, ok := interfaceMessages.([]interface{})
@@ -465,7 +465,7 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 	}
 
 	// Verify new payload does not have msgs field
-	_, ok = flattened[MSGS_FIELD_NAME]
+	_, ok = flattened[msgsFieldName]
 	suite.Require().False(ok)
 
 	// Verify number of total keys
@@ -478,7 +478,7 @@ func (suite *EIP712TestSuite) verifyPayloadMapAgainstFlattenedMap(original map[s
 
 	// Verify contents of remaining keys
 	for k, obj := range original {
-		if k == MSGS_FIELD_NAME {
+		if k == msgsFieldName {
 			continue
 		}
 
@@ -546,7 +546,7 @@ func (suite *EIP712TestSuite) TestTypedDataErrorHandling() {
 
 	// Max duplicate type recursion depth
 	messagesArr := new(bytes.Buffer)
-	maxRecursionDepth := eip712.MAX_TYPEDEF_DUPLICATES + 1
+	maxRecursionDepth := 1001
 
 	messagesArr.WriteString("[")
 	for i := 0; i < maxRecursionDepth; i++ {

@@ -32,7 +32,7 @@ type eip712MessagePayload struct {
 }
 
 const (
-	PAYLOAD_MSGS = "msgs"
+	payloadMsgsField = "msgs"
 )
 
 // createEIP712MessagePayload generates the EIP-712 message payload
@@ -107,7 +107,7 @@ func FlattenPayloadMessages(payload gjson.Result) (gjson.Result, int, error) {
 
 // getPayloadMessages processes and returns the payload messages as a JSON array.
 func getPayloadMessages(payload gjson.Result) ([]gjson.Result, error) {
-	rawMsgs := payload.Get(PAYLOAD_MSGS)
+	rawMsgs := payload.Get(payloadMsgsField)
 
 	if !rawMsgs.Exists() {
 		return nil, errorsmod.Wrap(errortypes.ErrInvalidRequest, "no messages found in payload, unable to parse")
@@ -153,7 +153,7 @@ func msgFieldForIndex(i int) string {
 // payloadWithoutMsgsField returns the updated payload without the "msgs" array
 // field, which flattening makes obsolete.
 func payloadWithoutMsgsField(payload gjson.Result) (gjson.Result, error) {
-	newRaw, err := sjson.Delete(payload.Raw, PAYLOAD_MSGS)
+	newRaw, err := sjson.Delete(payload.Raw, payloadMsgsField)
 	if err != nil {
 		return gjson.Result{}, err
 	}

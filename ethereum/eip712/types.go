@@ -32,17 +32,17 @@ import (
 )
 
 const (
-	ROOT_PREFIX = "_"
-	TYPE_PREFIX = "Type"
+	rootPrefix = "_"
+	typePrefix = "Type"
 
-	TX_FIELD   = "Tx"
-	ETH_BOOL   = "bool"
-	ETH_INT64  = "int64"
-	ETH_STRING = "string"
+	txField   = "Tx"
+	ethBool   = "bool"
+	ethInt64  = "int64"
+	ethString = "string"
 
-	MSG_TYPE = "type"
+	msgTypeField = "type"
 
-	MAX_TYPEDEF_DUPLICATES = 1000
+	maxDuplicateTypeDefs = 1000
 )
 
 // getEIP712Types creates and returns the EIP-712 types
@@ -115,7 +115,7 @@ func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msg gjson.Re
 		return err
 	}
 
-	msgTypeDef, err := recursivelyAddTypesToRoot(eip712Types, msgRootType, ROOT_PREFIX, msg)
+	msgTypeDef, err := recursivelyAddTypesToRoot(eip712Types, msgRootType, rootPrefix, msg)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func addMsgTypesToRoot(eip712Types apitypes.Types, msgField string, msg gjson.Re
 // msgRootType parses the message and returns the formatted
 // type signature corresponding to the message type.
 func msgRootType(msg gjson.Result) (string, error) {
-	msgType := msg.Get(MSG_TYPE).Str
+	msgType := msg.Get(msgTypeField).Str
 	if msgType == "" {
 		// .Str is empty for arrays and objects
 		return "", errorsmod.Wrap(errortypes.ErrInvalidType, "malformed message type value, expected type string")
@@ -137,15 +137,15 @@ func msgRootType(msg gjson.Result) (string, error) {
 	// Convert e.g. cosmos-sdk/MsgSend to TypeMsgSend
 	typeTokenized := strings.Split(msgType, "/")
 	msgSignature := typeTokenized[len(typeTokenized)-1]
-	rootType := fmt.Sprintf("%v%v", TYPE_PREFIX, msgSignature)
+	rootType := fmt.Sprintf("%v%v", typePrefix, msgSignature)
 
 	return rootType, nil
 }
 
 // addMsgTypeDefToTxSchema adds the message's field-type pairing
 // to the Tx schema.
-func addMsgTypeDefToTxSchema(eip712Types apitypes.Types, msgField string, msgTypeDef string) {
-	eip712Types[TX_FIELD] = append(eip712Types[TX_FIELD], apitypes.Type{
+func addMsgTypeDefToTxSchema(eip712Types apitypes.Types, msgField, msgTypeDef string) {
+	eip712Types[txField] = append(eip712Types[txField], apitypes.Type{
 		Name: msgField,
 		Type: msgTypeDef,
 	})
@@ -262,7 +262,7 @@ func sortedJSONKeys(json gjson.Result) ([]string, error) {
 // prefix. This value will represent the types key within
 // the EIP-712 types map.
 func typeDefForPrefix(prefix, rootType string) string {
-	if prefix == ROOT_PREFIX {
+	if prefix == rootPrefix {
 		return rootType
 	}
 	return sanitizeTypedef(prefix)
@@ -312,7 +312,7 @@ func addTypesToRoot(typeMap apitypes.Types, typeDef string, types []apitypes.Typ
 
 		indexAsDuplicate++
 
-		if indexAsDuplicate == MAX_TYPEDEF_DUPLICATES {
+		if indexAsDuplicate == maxDuplicateTypeDefs {
 			return "", errorsmod.Wrap(errortypes.ErrInvalidRequest, "exceeded maximum number of duplicates for a single type definition")
 		}
 	}
@@ -356,8 +356,8 @@ func sanitizeTypedef(str string) string {
 	parts := strings.Split(str, ".")
 
 	for _, part := range parts {
-		if part == ROOT_PREFIX {
-			buf.WriteString(TYPE_PREFIX)
+		if part == rootPrefix {
+			buf.WriteString(typePrefix)
 			continue
 		}
 
@@ -376,11 +376,11 @@ func sanitizeTypedef(str string) string {
 func getEthTypeForJSON(json gjson.Result) string {
 	switch json.Type {
 	case gjson.True, gjson.False:
-		return ETH_BOOL
+		return ethBool
 	case gjson.Number:
-		return ETH_INT64
+		return ethInt64
 	case gjson.String:
-		return ETH_STRING
+		return ethString
 	case gjson.JSON:
 		// Array or Object type
 		return ""

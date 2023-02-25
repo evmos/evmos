@@ -43,7 +43,7 @@ func WrapTxToTypedData(
 
 	typedData := apitypes.TypedData{
 		Types:       types,
-		PrimaryType: TX_FIELD,
+		PrimaryType: txField,
 		Domain:      domain,
 		Message:     message,
 	}
