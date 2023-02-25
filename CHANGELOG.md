@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
 - (ante) [#1403](https://github.com/evmos/evmos/pull/1403) Update `AnteHandler` decorator for `x/authz` messages to run in deliverTx mode
+- (eip712) [#1390](https://github.com/evmos/evmos/pull/1390) Refactor EIP-712 message handling to support multiple message schemas
 
 ### API Breaking
 
