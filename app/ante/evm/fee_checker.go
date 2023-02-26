@@ -72,6 +72,11 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 			}
 		}
 
+		// priority fee cannot be negative
+		if maxPriorityPrice.Sign() == -1 {
+			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "priority fee is negative")
+		}
+
 		gas := feeTx.GetGas()
 		feeCoins := feeTx.GetFee()
 		fee := feeCoins.AmountOfNoDenomValidation(denom)
