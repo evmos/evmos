@@ -208,7 +208,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			MockEVMKeeper{
 				EnableLondonHF: true, BaseFee: big.NewInt(10),
 			},
-			func() sdk.Tx {
+			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
 				txBuilder.SetGasLimit(1)
 				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(sdk.NewInt(10)))))
