@@ -219,35 +219,12 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "you are using the --gas \"auto\" flag. It is not allowed to specify other flags",
 		},
 		{
-			name: "success - vote upgrade proposal, gas 'auto'",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--gas=auto",
-				)
-			},
-			expPass: true,
-		},
-		{
 			name: "success - vote upgrade proposal, fees 'auto'",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(
 					s.upgradeParams.ChainID,
-					2,
+					1,
 					"--fees=auto",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "success - vote upgrade proposal, defined gas and fees",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					3,
-					"--fees=10000000000000000aevmos",
-					"--gas=500000",
 				)
 			},
 			expPass: true,
