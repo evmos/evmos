@@ -67,6 +67,11 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 			}
 		}
 
+		// priority fee cannot be negative
+		if maxPriorityPrice.IsNegative() {
+			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "max priority price cannot be negative")
+		}
+
 		gas := feeTx.GetGas()
 		feeCoins := feeTx.GetFee()
 		fee := feeCoins.AmountOfNoDenomValidation(denom)

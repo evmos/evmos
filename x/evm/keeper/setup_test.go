@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/evmos/v11/utils"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -184,6 +186,10 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
+
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
