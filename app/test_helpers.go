@@ -169,9 +169,9 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 
 	}
 	// set validators and delegations
-	stakingparams := stakingtypes.DefaultParams()
-	stakingparams.BondDenom = utils.BaseDenom
-	stakingGenesis := stakingtypes.NewGenesisState(stakingparams, validators, delegations)
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = utils.BaseDenom
+	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
