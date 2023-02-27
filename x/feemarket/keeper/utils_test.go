@@ -2,9 +2,10 @@ package keeper_test
 
 import (
 	"encoding/json"
-	"github.com/evmos/evmos/v11/utils"
 	"math/big"
 	"time"
+
+	"github.com/evmos/evmos/v11/utils"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -80,7 +81,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = utils.BaseDenom
 	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
-	
+
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())

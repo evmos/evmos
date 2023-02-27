@@ -334,8 +334,8 @@ func (suite *KeeperTestSuite) TestGasToRefund() {
 			vmdb.AddRefund(10)
 
 			if tc.expPanic {
+				//nolint:all
 				panicF := func() {
-					//nolint:all
 					keeper.GasToRefund(vmdb.GetRefund(), tc.gasconsumed, tc.refundQuotient)
 				}
 				suite.Require().Panics(panicF)
