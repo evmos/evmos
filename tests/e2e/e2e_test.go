@@ -42,7 +42,22 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 		expErrMsg string
 	}{
 		{
-			name: "fail - submit upgrade proposal, no fees & insufficient gas",
+			name: "fail - submit upgrade proposal, invalid flags combination (gas-prices & fees)",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+					"--fees=5000000000aevmos",
+					"--gas-prices=50000aevmos",
+				)
+			},
+			expPass:   false,
+			expErrMsg: "cannot provide both fees and gas prices",
+		},
+		{
+			name: "fail - submit upgrade proposal, no fees (defaults to required fees) & insufficient gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
 					"v11.0.0",
@@ -54,7 +69,6 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass:   false,
 			expErrMsg: "out of gas",
-			// when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk and included on this repo, will get an error that cannot define gas flag when using fees=auto (which is the default)
 		},
 		{
 			name: "fail - submit upgrade proposal, insufficient fees",
@@ -87,6 +101,18 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "out of gas",
 		},
 		{
+			name: "success - submit upgrade proposal, no fees (defaults to required fees) & default gas",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+				)
+			},
+			expPass: true,
+		},
+		{
 			name: "success - submit upgrade proposal, defined fees & gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
@@ -114,59 +140,45 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
-		// TODO uncomment this test when the PR https://github.com/evmos/evmos/pull/1386 is merged - will fail with error saying cannot use --gas flag with fees=auto
-		// {
-		// 	name: "fail - submit upgrade proposal, no fees (defaults to 'auto') & sufficient gas",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateSubmitProposalExec(
-		// 			"v11.0.0",
-		// 			s.upgradeParams.ChainID,
-		// 			5000,
-		// 			true,
-		// 			"--gas=1500000",
-		// 		)
-		// 	},
-		// 	expPass: false,
-		// },
-		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
-		// {
-		// 	name: "success - submit upgrade proposal, no fees (defaults to 'auto')",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateSubmitProposalExec(
-		// 			"v11.0.0",
-		// 			s.upgradeParams.ChainID,
-		// 			5000,
-		// 			true,
-		// 		)
-		// 	},
-		// 	expPass: true,
-		// },
-		// {
-		// 	name: "success - submit upgrade proposal, gas 'auto'",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateSubmitProposalExec(
-		// 			"v11.0.0",
-		// 			s.upgradeParams.ChainID,
-		// 			5000,
-		// 			true,
-		// 			"--gas=auto",
-		// 		)
-		// 	},
-		// 	expPass: true,
-		// },
-		// {
-		// 	name: "success - submit upgrade proposal, fees 'auto'",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateSubmitProposalExec(
-		// 			"v11.0.0",
-		// 			s.upgradeParams.ChainID,
-		// 			5000,
-		// 			true,
-		// 			"--fees=auto",
-		// 		)
-		// 	},
-		// 	expPass: true,
-		// },
+		{
+			name: "success - submit upgrade proposal, no fees (defaults to required fees) & sufficient gas",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+					"--gas=1500000",
+				)
+			},
+			expPass: true,
+		},
+		{
+			name: "success - submit upgrade proposal, gas 'auto'",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+					"--gas=auto",
+				)
+			},
+			expPass: true,
+		},
+		{
+			name: "success - submit upgrade proposal, fees 'auto'",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateSubmitProposalExec(
+					"v11.0.0",
+					s.upgradeParams.ChainID,
+					5000,
+					true,
+					"--fees=auto",
+				)
+			},
+			expPass: true,
+		},
 		{
 			name: "fail - vote upgrade proposal, insufficient fees",
 			cmd: func() (string, error) {
@@ -181,53 +193,42 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "insufficient fee",
 		},
 		{
-			name: "fail - vote upgrade proposal, insufficient gas",
+			name: "fail - vote upgrade proposal, incorrect flag combination (using fees 'auto' and specific gas)",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(
 					s.upgradeParams.ChainID,
 					1,
-					"--fees=10000000000000000aevmos",
-					"--gas=100",
+					"--fees=auto",
+					"--gas=500000",
 				)
 			},
 			expPass:   false,
-			expErrMsg: "out of gas",
+			expErrMsg: "you are using the --fees \"auto\" flag. It is not allowed to specify other flags",
 		},
 		{
-			name: "success - vote upgrade proposal, defined gas and fees",
+			name: "fail - vote upgrade proposal, incorrect flag combination (using gas 'auto' and specific fees)",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(
 					s.upgradeParams.ChainID,
 					1,
-					"--fees=10000000000000000aevmos",
-					"--gas=500000",
+					"--gas=auto",
+					"--fees=500000aevmos",
+				)
+			},
+			expPass:   false,
+			expErrMsg: "you are using the --gas \"auto\" flag. It is not allowed to specify other flags",
+		},
+		{
+			name: "success - vote upgrade proposal, fees 'auto'",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateVoteProposalExec(
+					s.upgradeParams.ChainID,
+					1,
+					"--fees=auto",
 				)
 			},
 			expPass: true,
 		},
-		// TODO uncomment these tests when the PR https://github.com/evmos/cosmos-sdk/pull/8 on cosmos-sdk is merged and that version is used on Evmos
-		// {
-		// 	name: "success - vote upgrade proposal, gas 'auto'",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateVoteProposalExec(
-		// 		s.upgradeParams.ChainID,
-		// 		1,
-		// 		"--gas=auto",
-		// 	  )
-		// 	},
-		// 	expPass:   true,
-		// },
-		// {
-		// 	name: "success - vote upgrade proposal, fees 'auto'",
-		// 	cmd: func() (string, error) {
-		// 		return s.upgradeManager.CreateVoteProposalExec(
-		// 		s.upgradeParams.ChainID,
-		// 		1,
-		// 		"--fees=auto",
-		// 	)
-		// 	},
-		// 	expPass:   true,
-		// },
 	}
 
 	for _, tc := range testCases {
@@ -248,8 +249,8 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 				)
 			} else {
 				s.Require().Truef(
-					strings.Contains(outBuf.String(), tc.expErrMsg),
-					"tx returned code 0 but with unexpected error:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
+					strings.Contains(outBuf.String(), tc.expErrMsg) || strings.Contains(errBuf.String(), tc.expErrMsg),
+					"tx returned non code 0 but with unexpected error:\nstdout: %s\nstderr: %s", outBuf.String(), errBuf.String(),
 				)
 			}
 		})
