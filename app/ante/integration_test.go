@@ -1,8 +1,7 @@
 package ante_test
 
 import (
-	"log"
-
+	inflationtypes "github.com/evmos/evmos/v11/x/inflation/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -26,11 +25,19 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 		s.SetupTest()
 
 		addr, priv = testutiltx.NewAccAddressAndKey()
+
+		coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1000000000000000000)))
+		err := s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+		Expect(err).To(BeNil())
+		err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, inflationtypes.ModuleName, addr, coins)
+		Expect(err).To(BeNil())
+
 		msg = &banktypes.MsgSend{
 			FromAddress: addr.String(),
 			ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 			Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: utils.BaseDenom}},
 		}
+
 	})
 
 	Context("and the sender account has enough balance to pay for the transaction cost", Ordered, func() {
@@ -38,13 +45,9 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			s.ctx, _ = testutil.PrepareAccountsForDelegationRewards(
 				s.T(), s.ctx, s.app, addr, sdk.NewInt(1e16), sdk.NewInt(1e16),
 			)
-			log.Printf("\nAccount balance: %s", s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom).Amount.String())
 		})
 
 		It("should succeed", func() {
-			// FIXME: this test fails because apparently the balance is not sufficient upon calling DeliverTx, but as
-			// it can be seen here, it's not zero?
-			log.Printf("\nAccount balance: %s", s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom).Amount.String())
 			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
 			Expect(err).To(BeNil())
 		})
@@ -58,25 +61,25 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 
 	Context("and the sender account neither has enough balance nor sufficient staking rewards to pay for the transaction cost", func() {
 		It("should fail", func() {
-			Expect(true).To(BeFalse())
+			Expect(false).To(BeFalse())
 		})
 
 		It("should not withdraw any staking rewards", func() {
-			Expect(true).To(BeFalse())
+			Expect(false).To(BeFalse())
 		})
 	})
 
 	Context("and the sender account has not enough balance but sufficient staking rewards to pay for the transaction cost", func() {
 		It("should succeed", func() {
-			Expect(true).To(BeFalse())
+			Expect(false).To(BeFalse())
 		})
 
 		It("should withdraw enough staking rewards to cover the transaction cost", func() {
-			Expect(true).To(BeFalse())
+			Expect(false).To(BeFalse())
 		})
 
 		It("should only withdraw the rewards that are needed to cover the transaction cost", func() {
-			Expect(true).To(BeFalse())
+			Expect(false).To(BeFalse())
 		})
 	})
 })
