@@ -1,7 +1,7 @@
 package ante_test
 
 import (
-	"log"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -34,25 +34,26 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 	})
 
 	Context("and the sender account has enough balance to pay for the transaction cost", Ordered, func() {
+		var (
+			rewardsAmt = sdk.NewInt(1e5)
+			balance    = sdk.NewInt(1e18)
+		)
 		BeforeAll(func() {
+			var err error
 			s.ctx, _ = testutil.PrepareAccountsForDelegationRewards(
-				s.T(), s.ctx, s.app, addr, sdk.NewInt(1e16), sdk.NewInt(1e16),
+				s.T(), s.ctx, s.app, addr, balance, rewardsAmt,
 			)
-			log.Printf("\nAccount balance: %s", s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom).Amount.String())
+			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+			Expect(err).To(BeNil())
 		})
 
-		It("should succeed", func() {
-			// FIXME: this test fails because apparently the balance is not sufficient upon calling DeliverTx, but as
-			// it can be seen here, it's not zero?
-			log.Printf("\nAccount balance: %s", s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom).Amount.String())
+		It("should succeed & not withdraw any staking rewards", func() {
 			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
 			Expect(err).To(BeNil())
-		})
 
-		It("should not withdraw any staking rewards", func() {
 			rewards, err := testutil.GetTotalDelegationRewards(s.ctx, s.app.DistrKeeper, addr)
 			Expect(err).To(BeNil())
-			Expect(rewards).To(Equal(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e16)))))
+			Expect(rewards).To(Equal(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, rewardsAmt))))
 		})
 	})
 
