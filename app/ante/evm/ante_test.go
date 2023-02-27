@@ -458,6 +458,78 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 			}, false, false, true,
 		},
 		{
+			"success- DeliverTx EIP712 Multiple Different Msgs",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712MultipleDifferentMsgs(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Same Msgs, Different Schemas",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712SameMsgDifferentSchemas(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Zero Value Array (Should Not Omit Field)",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712ZeroValueArray(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 Zero Value Number (Should Not Omit Field)",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712ZeroValueNumber(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.RequireErrorForLegacyTypedData(err)
+				return suite.TxForLegacyTypedData(txBuilder)
+			}, false, false, !suite.useLegacyEIP712TypedData,
+		},
+		{
+			"success- DeliverTx EIP712 MsgTransfer",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712MsgTransfer(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
+				return txBuilder.GetTx()
+			}, false, false, true,
+		},
+		{
+			"success- DeliverTx EIP712 MsgTransfer Without Memo",
+			func() sdk.Tx {
+				from := acc.GetAddress()
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				amount := sdk.NewCoins(coinAmount)
+				gas := uint64(200000)
+				txBuilder, err := suite.CreateTestEIP712MsgTransferWithoutMemo(from, privKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
+				return txBuilder.GetTx()
+			}, false, false, true,
+		},
+		{
 			"fails - DeliverTx EIP712 Multiple Signers",
 			func() sdk.Tx {
 				from := acc.GetAddress()

@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/evmos/evmos/v11/utils"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -75,6 +77,10 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
+
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)

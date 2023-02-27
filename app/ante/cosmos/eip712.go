@@ -49,7 +49,7 @@ func init() {
 
 // Deprecated: LegacyEip712SigVerificationDecorator Verify all signatures for a tx and return an error if any are invalid. Note,
 // the LegacyEip712SigVerificationDecorator decorator will not get executed on ReCheck.
-// NOTE: As of v0.20.0, EIP-712 signature verification is handled by the ethsecp256k1 public key (see ethsecp256k1.go)
+// NOTE: As of v10, EIP-712 signature verification is handled by the ethsecp256k1 public key (see ethsecp256k1.go)
 //
 // CONTRACT: Pubkeys are set in context for all signers before this decorator runs
 // CONTRACT: Tx must implement SigVerifiableTx interface
@@ -239,7 +239,7 @@ func VerifySignature(
 			FeePayer: feePayer,
 		}
 
-		typedData, err := eip712.WrapTxToTypedData(evmosCodec, extOpt.TypedDataChainID, msgs[0], txBytes, feeDelegation)
+		typedData, err := eip712.LegacyWrapTxToTypedData(evmosCodec, extOpt.TypedDataChainID, msgs[0], txBytes, feeDelegation)
 		if err != nil {
 			return errorsmod.Wrap(err, "failed to create EIP-712 typed data from tx")
 		}
