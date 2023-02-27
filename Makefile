@@ -242,14 +242,6 @@ else
 	@echo "solcjs already installed; skipping..."
 endif
 
-docs-tools:
-ifeq (, $(shell which yarn))
-	@echo "Installing yarn..."
-	@npm install -g yarn
-else
-	@echo "yarn already installed; skipping..."
-endif
-
 tools: tools-stamp
 tools-stamp: contract-tools docs-tools statik runsim
 	# Create dummy file to satisfy dependency and avoid
@@ -261,13 +253,7 @@ tools-clean:
 	rm -f $(RUNSIM)
 	rm -f tools-stamp
 
-docs-tools-stamp: docs-tools
-	# Create dummy file to satisfy dependency and avoid
-	# rebuilding when this Makefile target is hit twice
-	# in a row.
-	touch $@
-
-.PHONY: runsim statik tools contract-tools docs-tools tools-stamp tools-clean docs-tools-stamp
+.PHONY: runsim statik tools contract-tools tools-stamp tools-clean
 
 go.sum: go.mod
 	echo "Ensure dependencies have not been modified ..." >&2
@@ -293,36 +279,8 @@ update-swagger-docs: statik
 .PHONY: update-swagger-docs
 
 godocs:
-	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/evmos/evmos/types"
+	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/evmos/evmos"
 	godoc -http=:6060
-
-# Start docs site at localhost:8080
-docs-serve:
-	@cd docs && \
-	yarn && \
-	yarn run serve
-
-# Build the site into docs/.vuepress/dist
-build-docs:
-	@$(MAKE) docs-tools-stamp && \
-	cd docs && \
-	yarn && \
-	yarn run build
-
-# This builds a docs site for each branch/tag in `./docs/versions`
-# and copies each site to a version prefixed path. The last entry inside
-# the `versions` file will be the default root index.html.
-build-docs-versioned:
-	@$(MAKE) docs-tools-stamp && \
-	cd docs && \
-	while read -r branch path_prefix; do \
-		(git checkout $${branch} && npm install && VUEPRESS_BASE="/$${path_prefix}/" npm run build) ; \
-		mkdir -p ~/output/$${path_prefix} ; \
-		cp -r .vuepress/dist/* ~/output/$${path_prefix}/ ; \
-		cp ~/output/$${path_prefix}/index.html ~/output ; \
-	done < versions ;
-
-.PHONY: docs-serve build-docs build-docs-versioned
 
 ###############################################################################
 ###                           Tests & Simulation                            ###

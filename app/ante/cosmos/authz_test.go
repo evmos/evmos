@@ -16,6 +16,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
+	testutil "github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -52,7 +54,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -60,7 +62,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&evmtypes.MsgEthereumTx{},
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -68,7 +70,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			[]sdk.Msg{
 				&stakingtypes.MsgCancelUnbondingDelegation{},
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -81,7 +83,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -94,7 +96,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -107,7 +109,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -120,7 +122,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					&distantFuture,
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -134,7 +136,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
 					)}),
 			},
-			true,
+			false,
 			nil,
 		},
 		{
@@ -147,7 +149,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -171,7 +173,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -185,7 +187,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -203,7 +205,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -221,7 +223,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 		{
@@ -250,7 +252,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					},
 				),
 			},
-			true,
+			false,
 			sdkerrors.ErrUnauthorized,
 		},
 	}
@@ -261,8 +263,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 			tx, err := createTx(testPrivKeys[0], tc.msgs...)
 			require.NoError(t, err)
 
-			mmd := MockAnteHandler{}
-			_, err = decorator.AnteHandle(ctx, tx, false, mmd.AnteHandle)
+			_, err = decorator.AnteHandle(ctx, tx, false, testutil.NextFn)
 			if tc.expectedErr != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tc.expectedErr)
@@ -274,7 +275,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 }
 
 func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
-	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(10)
+	_, testAddresses, err := generatePrivKeyAddressPairs(10)
 	suite.Require().NoError(err)
 
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -400,9 +401,28 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 
 			if tc.isEIP712 {
-				tx, err = createEIP712CosmosTx(testAddresses[0], testPrivKeys[0], tc.msgs)
+				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20))
+				fees := sdk.NewCoins(coinAmount)
+				cosmosTxArgs := utiltx.CosmosTxArgs{
+					TxCfg:   suite.clientCtx.TxConfig,
+					Priv:    suite.priv,
+					ChainID: suite.ctx.ChainID(),
+					Gas:     200000,
+					Fees:    fees,
+					Msgs:    tc.msgs,
+				}
+
+				tx, err = utiltx.CreateEIP712CosmosTx(
+					suite.ctx,
+					suite.app,
+					utiltx.EIP712TxArgs{
+						CosmosTxArgs:       cosmosTxArgs,
+						UseLegacyExtension: true,
+						UseLegacyTypedData: true,
+					},
+				)
 			} else {
-				tx, err = createTx(testPrivKeys[0], tc.msgs...)
+				tx, err = createTx(suite.priv, tc.msgs...)
 			}
 			suite.Require().NoError(err)
 
@@ -418,13 +438,12 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
-			// TODO uncomment this on v12 release. ATM the anteHandler works on CheckTx mode
-			// resDeliverTx := suite.app.DeliverTx(
-			// 	abci.RequestDeliverTx{
-			// 		Tx: bz,
-			// 	},
-			// )
-			// suite.Require().Equal(resDeliverTx.Code, tc.expectedCode, resDeliverTx.Log)
+			resDeliverTx := suite.app.DeliverTx(
+				abci.RequestDeliverTx{
+					Tx: bz,
+				},
+			)
+			suite.Require().Equal(resDeliverTx.Code, tc.expectedCode, resDeliverTx.Log)
 		})
 	}
 }

@@ -627,24 +627,62 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 
 func (suite *KeeperTestSuite) TestAddLog() {
 	addr, privKey := utiltx.NewAddrKey()
-	msg := types.NewTx(big.NewInt(1), 0, &suite.address, big.NewInt(1), 100000, big.NewInt(1), nil, nil, []byte("test"), nil)
+	ethTxParams := &types.EvmTxArgs{
+		ChainID:  big.NewInt(1),
+		Nonce:    0,
+		To:       &suite.address,
+		Amount:   big.NewInt(1),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1),
+		Input:    []byte("test"),
+	}
+	msg := types.NewTx(ethTxParams)
 	msg.From = addr.Hex()
 
 	tx := suite.CreateTestTx(msg, privKey)
 	msg, _ = tx.GetMsgs()[0].(*types.MsgEthereumTx)
 	txHash := msg.AsTransaction().Hash()
 
-	msg2 := types.NewTx(big.NewInt(1), 1, &suite.address, big.NewInt(1), 100000, big.NewInt(1), nil, nil, []byte("test"), nil)
+	ethTx2Params := &types.EvmTxArgs{
+		ChainID:  big.NewInt(1),
+		Nonce:    2,
+		To:       &suite.address,
+		Amount:   big.NewInt(1),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1),
+		Input:    []byte("test"),
+	}
+	msg2 := types.NewTx(ethTx2Params)
 	msg2.From = addr.Hex()
 
-	msg3 := types.NewTx(big.NewInt(1), 0, &suite.address, big.NewInt(1), 100000, nil, big.NewInt(1), big.NewInt(1), []byte("test"), nil)
+	ethTx3Params := &types.EvmTxArgs{
+		ChainID:   big.NewInt(1),
+		Nonce:     0,
+		To:        &suite.address,
+		Amount:    big.NewInt(1),
+		GasLimit:  100000,
+		GasFeeCap: big.NewInt(1),
+		GasTipCap: big.NewInt(1),
+		Input:     []byte("test"),
+	}
+	msg3 := types.NewTx(ethTx3Params)
 	msg3.From = addr.Hex()
 
 	tx3 := suite.CreateTestTx(msg3, privKey)
 	msg3, _ = tx3.GetMsgs()[0].(*types.MsgEthereumTx)
 	txHash3 := msg3.AsTransaction().Hash()
 
-	msg4 := types.NewTx(big.NewInt(1), 1, &suite.address, big.NewInt(1), 100000, nil, big.NewInt(1), big.NewInt(1), []byte("test"), nil)
+	ethTx4Params := &types.EvmTxArgs{
+		ChainID:   big.NewInt(1),
+		Nonce:     1,
+		To:        &suite.address,
+		Amount:    big.NewInt(1),
+		GasLimit:  100000,
+		GasFeeCap: big.NewInt(1),
+		GasTipCap: big.NewInt(1),
+		Input:     []byte("test"),
+	}
+	msg4 := types.NewTx(ethTx4Params)
 	msg4.From = addr.Hex()
 
 	testCases := []struct {

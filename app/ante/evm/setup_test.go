@@ -29,14 +29,16 @@ import (
 type AnteTestSuite struct {
 	suite.Suite
 
-	ctx             sdk.Context
-	app             *app.Evmos
-	clientCtx       client.Context
-	anteHandler     sdk.AnteHandler
-	ethSigner       types.Signer
-	enableFeemarket bool
-	enableLondonHF  bool
-	evmParamsOption func(*evmtypes.Params)
+	ctx                      sdk.Context
+	app                      *app.Evmos
+	clientCtx                client.Context
+	anteHandler              sdk.AnteHandler
+	ethSigner                types.Signer
+	enableFeemarket          bool
+	enableLondonHF           bool
+	evmParamsOption          func(*evmtypes.Params)
+	useLegacyEIP712Extension bool
+	useLegacyEIP712TypedData bool
 }
 
 const TestGasLimit uint64 = 100000
@@ -113,5 +115,19 @@ func (suite *AnteTestSuite) SetupTest() {
 func TestAnteTestSuite(t *testing.T) {
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF: true,
+	})
+
+	// Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
+	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
+	suite.Run(t, &AnteTestSuite{
+		enableLondonHF:           true,
+		useLegacyEIP712Extension: true,
+		useLegacyEIP712TypedData: true,
+	})
+
+	suite.Run(t, &AnteTestSuite{
+		enableLondonHF:           true,
+		useLegacyEIP712Extension: false,
+		useLegacyEIP712TypedData: true,
 	})
 }

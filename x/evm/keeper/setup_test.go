@@ -25,6 +25,7 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
@@ -34,9 +35,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 type KeeperTestSuite struct {
@@ -161,29 +159,11 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 		)
 	}
 
-	suite.ctx = suite.app.NewContext(checkTx, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9000-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9000-1", suite.consAddress,
+		tmhash.Sum([]byte("app")), tmhash.Sum([]byte("validators")),
+	)
+	suite.ctx = suite.app.NewContext(checkTx, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)

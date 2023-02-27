@@ -227,18 +227,18 @@ func buildEthTx(
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		to,
-		nil,
-		gasLimit,
-		gasPrice,
-		gasFeeCap,
-		gasTipCap,
-		data,
-		accesses,
-	)
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:   chainID,
+		To:        to,
+		Nonce:     nonce,
+		GasLimit:  gasLimit,
+		GasPrice:  gasPrice,
+		GasTipCap: gasTipCap,
+		GasFeeCap: gasFeeCap,
+		Accesses:  accesses,
+		Input:     data,
+	}
+	msgEthereumTx := evmtypes.NewTx(ethTxParams)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
 }

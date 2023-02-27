@@ -43,13 +43,19 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (contracts) [#1306](https://github.com/evmos/evmos/pull/1306) Migrate `contracts` directory to evmos repository
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
+- (ante) [#1403](https://github.com/evmos/evmos/pull/1403) Update `AnteHandler` decorator for `x/authz` messages to run in deliverTx mode
+- (eip712) [#1390](https://github.com/evmos/evmos/pull/1390) Refactor EIP-712 message handling to support multiple message schemas
 
 ### API Breaking
 
+- [#1426](https://github.com/evmos/evmos/pull/1426) Move `revenue` module files into `v1` directory.
 - [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
 
 ### Improvements
 
+- (test) [#1402](https://github.com/evmos/evmos/pull/1402) Refactor NewTx function arguments
+- (test) [#1415](https://github.com/evmos/evmos/pull/1415) Refactor InvalidTx type and NextFn used in AnteHandler tests
+- (vesting) [#1400](https://github.com/evmos/evmos/pull/1400) Add convert vesting account message
 - (test) [#1393](https://github.com/evmos/evmos/pull/1393) Move utilities from `tests` folder to `testutil` package
 - (test) [\#1391](https://github.com/evmos/evmos/pull/1391) Refactor test files
 - (claims) [#1378](https://github.com/evmos/evmos/pull/1378) Validate authorized channels when updating claims params
@@ -68,9 +74,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
 - (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 - (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
+- (cli) [#1386](https://github.com/evmos/evmos/pull/1386) Use required fees (i.e `--fees=auto`) as default if fees are not specified
+- (test) [#1408](https://github.com/evmos/evmos/pull/1408) Refactor `DeployContract` and `DeployContractWithFactory` functions used for tests
+- (test) [#1417](https://github.com/evmos/evmos/pull/1417) Refactor EIP-712 transactions helper functions used on tests
 
 ### Bug Fixes
 
+- (ante) [#1433](https://github.com/evmos/evmos/pull/1433) Add max priority fee check on `FeeChecker`.
 - (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
 
 ## [v11.0.2] - 2023-02-10
@@ -301,7 +311,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [\#663](https://github.com/evmos/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/evmos/ethermint/releases/tag/v0.16.1)
 - (claims) [\#605](https://github.com/evmos/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
 - (erc20) [\#602](https://github.com/evmos/evmos/pull/602) Modified `RegisterERC20` proposals.
-Fix erc20 name sanitization to allow spaces on token name.
+  Fix erc20 name sanitization to allow spaces on token name.
 
 ### API Breaking
 
@@ -364,7 +374,7 @@ Fix erc20 name sanitization to allow spaces on token name.
 
 - (app) [\#555](https://github.com/evmos/evmos/pull/555) `v4.0.0` upgrade logic.
 - (p2p) [\#541](https://github.com/evmos/evmos/pull/541) Increase default inbound connections and use 8:1 ratio of inbound:outbound.
-Add default seeds to reduce the need for configuration.
+  Add default seeds to reduce the need for configuration.
 - (deps) [\#528](https://github.com/evmos/evmos/pull/528) Bump Cosmos SDK to [`v0.45.4`](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.4)
 
 ## [v3.0.0] - 2022-04-22
@@ -467,7 +477,7 @@ Add default seeds to reduce the need for configuration.
 - [\#184](https://github.com/evmos/evmos/pull/184) Add claims module for claiming the airdrop tokens.
 - [\#183](https://github.com/evmos/evmos/pull/183) Add epoch module for incentives.
 - [\#202](https://github.com/evmos/evmos/pull/202) Add custom configuration for state sync snapshots and tendermint p2p peers.
-This introduces a custom `InitCmd` function.
+  This introduces a custom `InitCmd` function.
 - [\#176](https://github.com/evmos/evmos/pull/176) Add `x/incentives` module.
 
 ### Improvements

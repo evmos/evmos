@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -32,11 +31,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 	dbm "github.com/tendermint/tm-db"
 )
 
@@ -53,29 +48,11 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9000-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9000-1", suite.consAddress, nil, nil,
+	)
+
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.FeeMarketKeeper)
@@ -145,7 +122,7 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	err := fundAccount(s.app.BankKeeper, s.ctx, address, initBalance)
+	err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, initBalance)
 	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
@@ -158,16 +135,6 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 	}
 	s.Commit()
 	return privKey, msg
-}
-
-// fundAccount is a utility function that funds an account by minting and
-// sending the coins to the address.
-func fundAccount(bankKeeper bankkeeper.Keeper, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	if err := bankKeeper.MintCoins(ctx, evmtypes.ModuleName, amounts); err != nil {
-		return err
-	}
-
-	return bankKeeper.SendCoinsFromModuleToAccount(ctx, evmtypes.ModuleName, addr, amounts)
 }
 
 func setupChain(localMinGasPricesStr string) {
@@ -227,18 +194,18 @@ func buildEthTx(
 	nonce := getNonce(from.Bytes())
 	data := make([]byte, 0)
 	gasLimit := uint64(100000)
-	msgEthereumTx := evmtypes.NewTx(
-		chainID,
-		nonce,
-		to,
-		nil,
-		gasLimit,
-		gasPrice,
-		gasFeeCap,
-		gasTipCap,
-		data,
-		accesses,
-	)
+	ethTxParams := &evmtypes.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        to,
+		GasLimit:  gasLimit,
+		GasPrice:  gasPrice,
+		GasFeeCap: gasFeeCap,
+		GasTipCap: gasTipCap,
+		Input:     data,
+		Accesses:  accesses,
+	}
+	msgEthereumTx := evmtypes.NewTx(ethTxParams)
 	msgEthereumTx.From = from.String()
 	return msgEthereumTx
 }

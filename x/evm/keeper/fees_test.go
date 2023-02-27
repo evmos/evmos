@@ -230,7 +230,18 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 				gasPrice = tc.gasPrice.BigInt()
 			}
 
-			tx := evmtypes.NewTx(zeroInt.BigInt(), 1, &to, amount, tc.gasLimit, gasPrice, gasFeeCap, gasTipCap, nil, tc.accessList)
+			ethTxParams := &evmtypes.EvmTxArgs{
+				ChainID:   zeroInt.BigInt(),
+				Nonce:     1,
+				To:        &to,
+				Amount:    amount,
+				GasLimit:  tc.gasLimit,
+				GasPrice:  gasPrice,
+				GasFeeCap: gasFeeCap,
+				GasTipCap: gasTipCap,
+				Accesses:  tc.accessList,
+			}
+			tx := evmtypes.NewTx(ethTxParams)
 			tx.From = tc.from
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)
@@ -468,7 +479,18 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 			err := vmdb.Commit()
 			suite.Require().NoError(err, "Unexpected error while committing to vmdb: %d", err)
 
-			tx := evmtypes.NewTx(zeroInt.BigInt(), 1, &suite.address, amount, tc.gasLimit, gasPrice, gasFeeCap, gasTipCap, nil, tc.accessList)
+			ethTxParams := &evmtypes.EvmTxArgs{
+				ChainID:   zeroInt.BigInt(),
+				Nonce:     1,
+				To:        &suite.address,
+				Amount:    amount,
+				GasLimit:  tc.gasLimit,
+				GasPrice:  gasPrice,
+				GasFeeCap: gasFeeCap,
+				GasTipCap: gasTipCap,
+				Accesses:  tc.accessList,
+			}
+			tx := evmtypes.NewTx(ethTxParams)
 			tx.From = tc.from
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)

@@ -3,12 +3,12 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v11/app/ante/evm"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v11/app/ante/evm"
+	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -74,8 +74,9 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-				tx := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, suite.ctx.ChainID(), gas, amount)
-				return tx.GetTx()
+				builder, err := suite.CreateTestEIP712TxBuilderMsgSend(acc.GetAddress(), fromPrivKey, suite.ctx.ChainID(), gas, amount)
+				suite.Require().NoError(err)
+				return builder.GetTx()
 			},
 		},
 	}
@@ -85,7 +86,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := dec.AnteHandle(suite.ctx, tc.malleate(), false, NextFn)
+			_, err := dec.AnteHandle(suite.ctx, tc.malleate(), false, testutil.NextFn)
 			suite.Require().NoError(err)
 
 			gasWanted := suite.app.FeeMarketKeeper.GetTransientGasWanted(suite.ctx)

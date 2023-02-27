@@ -95,18 +95,15 @@ func (suite *BackendTestSuite) SetupTest() {
 
 // buildEthereumTx returns an example legacy Ethereum transaction
 func (suite *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byte) {
-	msgEthereumTx := evmtypes.NewTx(
-		suite.backend.chainID,
-		uint64(0),
-		&common.Address{},
-		big.NewInt(0),
-		100000,
-		big.NewInt(1),
-		nil,
-		nil,
-		nil,
-		nil,
-	)
+	ethTxParams := evmtypes.EvmTxArgs{
+		ChainID:  suite.backend.chainID,
+		Nonce:    uint64(0),
+		To:       &common.Address{},
+		Amount:   big.NewInt(0),
+		GasLimit: 100000,
+		GasPrice: big.NewInt(1),
+	}
+	msgEthereumTx := evmtypes.NewTx(&ethTxParams)
 
 	// A valid msg should have empty `From`
 	msgEthereumTx.From = suite.from.Hex()
