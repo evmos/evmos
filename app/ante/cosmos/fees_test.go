@@ -112,6 +112,16 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 					"expected rewards to be unchanged")
 			},
 		},
+		{
+			name:        "fail - provided fees < required fees",
+			balance:     sdk.NewInt(1e18),
+			rewards:     sdk.ZeroInt(),
+			gas:         100_000_000_000_000_000,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     false,
+			errContains: "insufficient fees",
+		},
 	}
 
 	// Test execution
