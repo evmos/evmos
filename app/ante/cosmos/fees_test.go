@@ -16,6 +16,7 @@ import (
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	var (
+		dfd cosmosante.DeductFeeDecorator
 		// General setup
 		addr, priv = testutiltx.NewAccAddressAndKey()
 		// fee granter
@@ -242,6 +243,35 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				suite.Require().Equal(initBalance, balance.Amount, "expected balance to be unchanged")
 			},
 		},
+		{
+			name:        "fail - authorized fee granter but no feegrant keeper on decorator",
+			balance:     initBalance,
+			rewards:     zero,
+			gas:         10_000_000,
+			feeGranter:  fgAddr,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     false,
+			errContains: "fee grants are not enabled",
+			malleate: func() {
+				// Fund the fee granter
+				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, fgAddr, initBalance.Int64())
+				suite.Require().NoError(err)
+				// grant the fees
+				grant := sdk.NewCoins(sdk.NewCoin(
+					utils.BaseDenom, initBalance,
+				))
+				err = suite.app.FeeGrantKeeper.GrantAllowance(suite.ctx, fgAddr, addr, &feegrant.BasicAllowance{
+					SpendLimit: grant,
+				})
+				suite.Require().NoError(err)
+
+				// remove the feegrant keeper from the decorator
+				dfd = cosmosante.NewDeductFeeDecorator(
+					suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, nil, suite.app.StakingKeeper, nil,
+				)
+			},
+		},
 	}
 
 	// Test execution
@@ -250,7 +280,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			suite.SetupTest()
 
 			// Create a new DeductFeeDecorator
-			dfd := cosmosante.NewDeductFeeDecorator(
+			dfd = cosmosante.NewDeductFeeDecorator(
 				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
 			)
 
