@@ -7,9 +7,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/evmos/evmos/v11/app/ante/evm"
 	"github.com/evmos/evmos/v11/testutil"
 	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	"github.com/evmos/evmos/v11/types"
+	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 )
 
@@ -24,6 +27,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 		name              string
 		expectedGasWanted uint64
 		malleate          func() sdk.Tx
+		expPass           bool
 	}{
 		{
 			"Cosmos Tx",
@@ -35,9 +39,10 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			true,
 		},
 		{
 			"Ethereum Legacy Tx",
@@ -46,6 +51,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
 				return suite.CreateTestTx(msg, fromPrivKey, 1, false)
 			},
+			true,
 		},
 		{
 			"Ethereum Access List Tx",
@@ -55,6 +61,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, &emptyAccessList)
 				return suite.CreateTestTx(msg, fromPrivKey, 1, false)
 			},
+			true,
 		},
 		{
 			"Ethereum Dynamic Fee Tx (EIP1559)",
@@ -64,6 +71,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), big.NewInt(100), big.NewInt(50), &emptyAccessList)
 				return suite.CreateTestTx(msg, fromPrivKey, 1, false)
 			},
+			true,
 		},
 		{
 			"EIP712 message",
@@ -78,6 +86,24 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				suite.Require().NoError(err)
 				return builder.GetTx()
 			},
+			true,
+		},
+		{
+			"Cosmos Tx - gasWanted > max block gas",
+			TestGasLimit,
+			func() sdk.Tx {
+				denom := evmtypes.DefaultEVMDenom
+				testMsg := banktypes.MsgSend{
+					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
+					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
+					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
+				}
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
+				limit := types.BlockGasLimit(suite.ctx)
+				txBuilder.SetGasLimit(limit + 5)
+				return txBuilder.GetTx()
+			},
+			false,
 		},
 	}
 
@@ -87,11 +113,15 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			_, err := dec.AnteHandle(suite.ctx, tc.malleate(), false, testutil.NextFn)
-			suite.Require().NoError(err)
+			if tc.expPass {
+				suite.Require().NoError(err)
 
-			gasWanted := suite.app.FeeMarketKeeper.GetTransientGasWanted(suite.ctx)
-			expectedGasWanted += tc.expectedGasWanted
-			suite.Require().Equal(expectedGasWanted, gasWanted)
+				gasWanted := suite.app.FeeMarketKeeper.GetTransientGasWanted(suite.ctx)
+				expectedGasWanted += tc.expectedGasWanted
+				suite.Require().Equal(expectedGasWanted, gasWanted)
+			} else {
+				suite.Require().Error(err)
+			}
 		})
 	}
 }

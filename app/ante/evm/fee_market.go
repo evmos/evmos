@@ -20,6 +20,8 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/evmos/evmos/v11/types"
 )
 
 // GasWantedDecorator keeps track of the gasWanted amount on the current block in transient store
@@ -55,6 +57,17 @@ func (gwd GasWantedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	}
 
 	gasWanted := feeTx.GetGas()
+	// return error if the tx gas is greater than the block limit (max gas)
+	blockGasLimit := types.BlockGasLimit(ctx)
+	if gasWanted > blockGasLimit {
+		return ctx, errorsmod.Wrapf(
+			errortypes.ErrOutOfGas,
+			"tx gas (%d) exceeds block gas limit (%d)",
+			gasWanted,
+			blockGasLimit,
+		)
+	}
+
 	isBaseFeeEnabled := gwd.feeMarketKeeper.GetBaseFeeEnabled(ctx)
 
 	// Add total gasWanted to cumulative in block transientStore in FeeMarket module
