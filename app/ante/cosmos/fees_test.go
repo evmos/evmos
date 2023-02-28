@@ -1,9 +1,12 @@
 package cosmos_test
 
 import (
+	"fmt"
+
 	"cosmossdk.io/math"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	cosmosante "github.com/evmos/evmos/v11/app/ante/cosmos"
 	"github.com/evmos/evmos/v11/testutil"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
@@ -11,9 +14,15 @@ import (
 )
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
-	// General setup
-	addr, priv := testutiltx.NewAccAddressAndKey()
-	lowGasPrice := math.NewInt(1)
+	var (
+		// General setup
+		addr, priv = testutiltx.NewAccAddressAndKey()
+		// fee granter
+		fgAddr, _   = testutiltx.NewAccAddressAndKey()
+		initBalance = sdk.NewInt(1e18)
+		lowGasPrice = math.NewInt(1)
+	)
+
 	// Testcase definitions
 	testcases := []struct {
 		name        string
@@ -21,6 +30,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		rewards     math.Int
 		gas         uint64
 		gasPrice    *math.Int
+		feeGranter  sdk.AccAddress
 		checkTx     bool
 		simulate    bool
 		expPass     bool
@@ -30,7 +40,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	}{
 		{
 			name:        "pass - sufficient balance to pay fees",
-			balance:     sdk.NewInt(1e18),
+			balance:     initBalance,
 			rewards:     sdk.ZeroInt(),
 			gas:         0,
 			checkTx:     false,
@@ -40,7 +50,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "fail - zero gas limit in check tx mode",
-			balance:     sdk.NewInt(1e18),
+			balance:     initBalance,
 			rewards:     sdk.NewInt(0),
 			gas:         0,
 			checkTx:     true,
@@ -71,7 +81,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
 			balance:     sdk.ZeroInt(),
-			rewards:     sdk.NewInt(1e18),
+			rewards:     initBalance,
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
@@ -115,8 +125,8 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
-			name:        "fail - provided fees < required fees",
-			balance:     sdk.NewInt(1e18),
+			name:        "fail - sufficient balance to pay fees but provided fees < required fees",
+			balance:     initBalance,
 			rewards:     sdk.ZeroInt(),
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
@@ -133,8 +143,8 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
-			name:        "success - min gas prices is zero",
-			balance:     sdk.NewInt(1e18),
+			name:        "success - sufficient balance to pay fees & min gas prices is zero",
+			balance:     initBalance,
 			rewards:     sdk.ZeroInt(),
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
@@ -148,6 +158,46 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 						sdk.NewDecCoin(utils.BaseDenom, sdk.ZeroInt()),
 					),
 				)
+			},
+		},
+		{
+			name:        "fail - with not authorized fee granter",
+			balance:     initBalance,
+			rewards:     sdk.ZeroInt(),
+			gas:         10_000_000,
+			feeGranter:  fgAddr,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     false,
+			errContains: fmt.Sprintf("%s does not not allow to pay fees for %s", fgAddr, addr),
+		},
+		{
+			name:        "success - with authorized fee granter",
+			balance:     initBalance,
+			rewards:     sdk.ZeroInt(),
+			gas:         10_000_000,
+			feeGranter:  fgAddr,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     true,
+			errContains: "",
+			malleate: func() {
+				// Fund the fee granter
+				err := testutil.FundAccountWithBaseDenom(suite.ctx, suite.app.BankKeeper, fgAddr, initBalance.Int64())
+				suite.Require().NoError(err)
+				// grant the fees
+				grant := sdk.NewCoins(sdk.NewCoin(
+					utils.BaseDenom, initBalance,
+				))
+				err = suite.app.FeeGrantKeeper.GrantAllowance(suite.ctx, fgAddr, addr, &feegrant.BasicAllowance{
+					SpendLimit: grant,
+				})
+				suite.Require().NoError(err)
+			},
+			postCheck: func() {
+				// the tx sender balance should not have changed
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				suite.Require().Equal(initBalance, balance.Amount, "expected balance to be unchanged")
 			},
 		},
 	}
@@ -176,11 +226,12 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 
 			// Set up the transaction arguments
 			args := testutiltx.CosmosTxArgs{
-				TxCfg:    suite.clientCtx.TxConfig,
-				Priv:     priv,
-				Gas:      tc.gas,
-				GasPrice: tc.gasPrice,
-				Msgs:     []sdk.Msg{msg},
+				TxCfg:      suite.clientCtx.TxConfig,
+				Priv:       priv,
+				Gas:        tc.gas,
+				GasPrice:   tc.gasPrice,
+				FeeGranter: tc.feeGranter,
+				Msgs:       []sdk.Msg{msg},
 			}
 
 			// Create a transaction out of the message
