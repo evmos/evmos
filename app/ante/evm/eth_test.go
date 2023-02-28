@@ -374,8 +374,9 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.ZeroInt(), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
+				return ctx.
+					WithBlockGasMeter(sdk.NewGasMeter(1e19)).
+					WithBlockHeight(ctx.BlockHeight() + 1)
 			},
 			true, false,
 			tx2Priority,
@@ -400,8 +401,9 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
 				)
 				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-				return ctx.WithBlockGasMeter(sdk.NewGasMeter(1e19))
+				return ctx.
+					WithBlockGasMeter(sdk.NewGasMeter(1e19)).
+					WithBlockHeight(ctx.BlockHeight() + 1)
 			},
 			true, false,
 			tx2Priority,
