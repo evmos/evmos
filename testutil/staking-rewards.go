@@ -112,12 +112,9 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingHelper.CreateValidator(valAddr, privKey.PubKey(), reward, true)
 		stakingHelper.Delegate(addr, valAddr, reward)
 
-		// TODO: Replace this with testutil.Commit? Will only be possible after test suite setup cleanup
-		// because some suites use an initial height != 1, which is not accounted for, so there's a mismatch of expected vs. actual block height
-
 		// end block to bond validator and increase block height
+		// Not using Commit() here because code panics due to invalid block height
 		staking.EndBlocker(ctx, app.StakingKeeper)
-		ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)

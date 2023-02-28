@@ -135,6 +135,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
 	)
 	suite.Require().NoError(err)
+
+	header := suite.ctx.BlockHeader()
+	suite.ctx = suite.ctx.WithBlockHeight(header.Height - 1)
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+	suite.Require().NoError(err)
 }
 
 func TestAnteTestSuite(t *testing.T) {
