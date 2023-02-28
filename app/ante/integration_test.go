@@ -2,7 +2,6 @@ package ante_test
 
 import (
 	sdkmath "cosmossdk.io/math"
-	"fmt"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"time"
@@ -105,7 +104,7 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e8), Denom: utils.BaseDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1), Denom: utils.BaseDenom}},
 			}
 
 			s.ctx, _ = testutil.PrepareAccountsForDelegationRewards(
@@ -116,20 +115,16 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			Expect(err).To(BeNil())
 		})
 
-		It("should succeed", func() {
-			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
-			fmt.Println(err)
-			Expect(err).To(BeNil())
-		})
-
 		It("should withdraw enough staking rewards to cover the transaction cost", func() {
-			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			rewards, err := testutil.GetTotalDelegationRewards(s.ctx, s.app.DistrKeeper, addr)
 			Expect(err).To(BeNil())
-			fmt.Print(res.GasWanted, res.GasUsed)
-		})
+			Expect(rewards).To(Equal(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, rewardsAmt))))
 
-		It("should only withdraw the rewards that are needed to cover the transaction cost", func() {
-			Expect(false).To(BeFalse())
+			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
+			Expect(balance.Amount).To(Equal(sdk.NewInt(0)))
+
+			_, err = testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			Expect(err).To(BeNil())
 		})
 	})
 })

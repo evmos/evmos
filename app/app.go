@@ -864,6 +864,7 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 		EvmKeeper:              app.EvmKeeper,
 		StakingKeeper:          app.StakingKeeper,
 		FeegrantKeeper:         app.FeeGrantKeeper,
+		DistributionKeeper:     app.DistrKeeper,
 		IBCKeeper:              app.IBCKeeper,
 		FeeMarketKeeper:        app.FeeMarketKeeper,
 		SignModeHandler:        txConfig.SignModeHandler(),
