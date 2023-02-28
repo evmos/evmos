@@ -1,10 +1,11 @@
 package ante_test
 
 import (
+	"time"
+
 	sdkmath "cosmossdk.io/math"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
