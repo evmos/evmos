@@ -13,18 +13,20 @@ import (
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// General setup
 	addr, priv := testutiltx.NewAccAddressAndKey()
-
+	lowGasPrice := math.NewInt(1)
 	// Testcase definitions
 	testcases := []struct {
 		name        string
 		balance     math.Int
 		rewards     math.Int
 		gas         uint64
+		gasPrice    *math.Int
 		checkTx     bool
 		simulate    bool
 		expPass     bool
 		errContains string
 		postCheck   func()
+		malleate    func()
 	}{
 		{
 			name:        "pass - sufficient balance to pay fees",
@@ -116,11 +118,37 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			name:        "fail - provided fees < required fees",
 			balance:     sdk.NewInt(1e18),
 			rewards:     sdk.ZeroInt(),
-			gas:         100_000_000_000_000_000,
+			gas:         10_000_000,
+			gasPrice:    &lowGasPrice,
 			checkTx:     true,
 			simulate:    false,
 			expPass:     false,
 			errContains: "insufficient fees",
+			malleate: func() {
+				suite.ctx = suite.ctx.WithMinGasPrices(
+					sdk.NewDecCoins(
+						sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(10_000)),
+					),
+				)
+			},
+		},
+		{
+			name:        "success - min gas prices is zero",
+			balance:     sdk.NewInt(1e18),
+			rewards:     sdk.ZeroInt(),
+			gas:         10_000_000,
+			gasPrice:    &lowGasPrice,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     true,
+			errContains: "",
+			malleate: func() {
+				suite.ctx = suite.ctx.WithMinGasPrices(
+					sdk.NewDecCoins(
+						sdk.NewDecCoin(utils.BaseDenom, sdk.ZeroInt()),
+					),
+				)
+			},
 		},
 	}
 
@@ -128,6 +156,9 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+			if tc.malleate != nil {
+				tc.malleate()
+			}
 			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx)
 
 			// Create a new DeductFeeDecorator
@@ -145,10 +176,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 
 			// Set up the transaction arguments
 			args := testutiltx.CosmosTxArgs{
-				TxCfg: suite.clientCtx.TxConfig,
-				Priv:  priv,
-				Gas:   tc.gas,
-				Msgs:  []sdk.Msg{msg},
+				TxCfg:    suite.clientCtx.TxConfig,
+				Priv:     priv,
+				Gas:      tc.gas,
+				GasPrice: tc.gasPrice,
+				Msgs:     []sdk.Msg{msg},
 			}
 
 			// Create a transaction out of the message
