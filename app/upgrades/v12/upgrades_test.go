@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -65,14 +64,13 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	// send funds to the community pool
 	priv, err := ethsecp256k1.GenerateKey()
 	suite.Require().NoError(err)
-	address := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	sender := sdk.AccAddress(address.Bytes())
+	sender := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
 	res, ok := sdk.NewIntFromString(v12.MaxRecover)
 	suite.Require().True(ok)
 
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, res))
-	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, address.Bytes(), coins)
+	err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, sender, coins)
 	suite.Require().NoError(err)
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
