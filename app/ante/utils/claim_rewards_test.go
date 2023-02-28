@@ -1,6 +1,8 @@
 package utils_test
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"github.com/evmos/evmos/v11/testutil"
@@ -28,11 +30,13 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		{
 			name: "pass - sufficient rewards can be withdrawn",
 			malleate: func(addr sdk.AccAddress) {
-				ctx, err := testutil.PrepareAccountsForDelegationRewards(
+				var err error
+				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
 					suite.T(), suite.ctx, suite.app, addr, sdk.ZeroInt(), sdk.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx = ctx
+				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
 			expErr: false,
@@ -53,11 +57,13 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				// This means, that e.g. if reward C is sufficient, but A and B are not,
 				// all of the options [A], [B-A], [B-C-A] or [C-A] are possible to be withdrawn, which
 				// increases the complexity of assertions.
-				ctx, err := testutil.PrepareAccountsForDelegationRewards(
+				var err error
+				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
 					suite.T(), suite.ctx, suite.app, addr, sdk.ZeroInt(), sdk.NewInt(1e14), sdk.NewInt(2e14),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx = ctx
+				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e14)}},
 			expErr: false,
@@ -86,11 +92,13 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 		{
 			name: "pass - user has enough balance to cover transaction fees",
 			malleate: func(addr sdk.AccAddress) {
-				ctx, err := testutil.PrepareAccountsForDelegationRewards(
+				var err error
+				suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(
 					suite.T(), suite.ctx, suite.app, addr, sdk.NewInt(1e15), sdk.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx = ctx
+				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
 			expErr: false,
