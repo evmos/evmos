@@ -17,8 +17,7 @@
 package utils
 
 import (
-	"fmt"
-
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -99,12 +98,12 @@ func ClaimSufficientStakingRewards(
 
 	// check if there was an error while iterating delegations
 	if err != nil {
-		return fmt.Errorf("error while withdrawing delegation rewards: %s", err)
+		return errorsmod.Wrap(err, "error while withdrawing delegation rewards")
 	}
 
 	// only write to state if there are enough rewards to cover the transaction fees
 	if rewards.AmountOf(amount.Denom).LT(amount.Amount) {
-		return fmt.Errorf("insufficient staking rewards to cover transaction fees")
+		return errortypes.ErrInsufficientFee.Wrapf("insufficient staking rewards to cover transaction fees")
 	}
 	writeFn() // commit state changes
 	return nil
