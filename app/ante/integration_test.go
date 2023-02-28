@@ -48,8 +48,9 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 		})
 
 		It("should succeed & not withdraw any staking rewards", func() {
-			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
 			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(BeTrue())
 
 			rewards, err := testutil.GetTotalDelegationRewards(s.ctx, s.app.DistrKeeper, addr)
 			Expect(err).To(BeNil())
@@ -82,7 +83,8 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 		})
 
 		It("should fail", func() {
-			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			Expect(res.IsOK()).To(BeTrue())
 			Expect(err).To(HaveOccurred())
 		})
 
@@ -124,7 +126,8 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
 			Expect(balance.Amount).To(Equal(sdk.NewInt(0)))
 
-			_, err = testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			Expect(res.IsOK()).To(BeTrue())
 			Expect(err).To(BeNil())
 		})
 	})
