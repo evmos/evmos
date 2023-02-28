@@ -19,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
@@ -107,6 +108,11 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.anteHandler = anteHandler
 	suite.ethSigner = types.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+
+	var err error
+	suite.ctx = suite.ctx.WithBlockHeight(suite.ctx.BlockHeight() - 1)
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+	suite.Require().NoError(err)
 }
 
 func TestAnteTestSuite(t *testing.T) {
