@@ -22,6 +22,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		fgAddr, _   = testutiltx.NewAccAddressAndKey()
 		initBalance = sdk.NewInt(1e18)
 		lowGasPrice = math.NewInt(1)
+		zero        = sdk.ZeroInt()
 	)
 
 	// Testcase definitions
@@ -42,7 +43,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - sufficient balance to pay fees",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         0,
 			checkTx:     false,
 			simulate:    true,
@@ -52,7 +53,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - zero gas limit in check tx mode",
 			balance:     initBalance,
-			rewards:     sdk.NewInt(0),
+			rewards:     zero,
 			gas:         0,
 			checkTx:     true,
 			simulate:    false,
@@ -61,8 +62,8 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "fail - checkTx - insufficient funds and no staking rewards",
-			balance:     sdk.ZeroInt(),
-			rewards:     sdk.ZeroInt(),
+			balance:     zero,
+			rewards:     zero,
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -71,7 +72,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			postCheck: func() {
 				// the balance should not have changed
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
-				suite.Require().Equal(sdk.ZeroInt(), balance.Amount, "expected balance to be zero")
+				suite.Require().Equal(zero, balance.Amount, "expected balance to be zero")
 
 				// there should be no rewards
 				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
@@ -81,7 +82,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		},
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
-			balance:     sdk.ZeroInt(),
+			balance:     zero,
 			rewards:     initBalance,
 			gas:         10_000_000,
 			checkTx:     false,
@@ -128,7 +129,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - sufficient balance to pay fees but provided fees < required fees",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -146,7 +147,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees & min gas prices is zero",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -156,7 +157,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			malleate: func() {
 				suite.ctx = suite.ctx.WithMinGasPrices(
 					sdk.NewDecCoins(
-						sdk.NewDecCoin(utils.BaseDenom, sdk.ZeroInt()),
+						sdk.NewDecCoin(utils.BaseDenom, zero),
 					),
 				)
 			},
@@ -164,7 +165,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees (fees > required fees)",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -179,9 +180,32 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
+			name:        "success - zero fees",
+			balance:     initBalance,
+			rewards:     zero,
+			gas:         100,
+			gasPrice:    &zero,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     true,
+			errContains: "",
+			malleate: func() {
+				suite.ctx = suite.ctx.WithMinGasPrices(
+					sdk.NewDecCoins(
+						sdk.NewDecCoin(utils.BaseDenom, zero),
+					),
+				)
+			},
+			postCheck: func() {
+				// the tx sender balance should not have changed
+				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
+				suite.Require().Equal(initBalance, balance.Amount, "expected balance to be unchanged")
+			},
+		},
+		{
 			name:        "fail - with not authorized fee granter",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -192,7 +216,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - with authorized fee granter",
 			balance:     initBalance,
-			rewards:     sdk.ZeroInt(),
+			rewards:     zero,
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
