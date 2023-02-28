@@ -162,10 +162,9 @@ func (dfd DeductFeeDecorator) deductFee(ctx sdk.Context, sdkTx sdk.Tx, fees sdk.
 func deductFeesFromBalanceOrUnclaimedStakingRewards(
 	ctx sdk.Context, dfd DeductFeeDecorator, deductFeesFromAcc authtypes.AccountI, fees sdk.Coins,
 ) error {
-	err := anteutils.ClaimStakingRewardsIfNecessary(
+	if err := anteutils.ClaimStakingRewardsIfNecessary(
 		ctx, dfd.bankKeeper, dfd.distributionKeeper, dfd.stakingKeeper, deductFeesFromAcc.GetAddress(), fees,
-	)
-	if err != nil {
+	); err != nil {
 		return err
 	}
 

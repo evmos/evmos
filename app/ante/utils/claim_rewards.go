@@ -41,7 +41,6 @@ func ClaimStakingRewardsIfNecessary(
 		)
 	}
 
-	// TODO: Is this only giving the spendable balance or also the locked balance?
 	balance := bankKeeper.GetBalance(ctx, addr, stakingDenom)
 	if balance.IsNegative() {
 		return errortypes.ErrInsufficientFunds.Wrapf("balance of %s in %s is negative", addr, stakingDenom)
