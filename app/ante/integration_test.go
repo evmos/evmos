@@ -112,13 +112,13 @@ var _ = Describe("when sending a Cosmos transaction", func() {
 				s.T(), s.ctx, s.app, addr, balance, rewardsAmt,
 			)
 			var err error
-			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*1, nil)
+			s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
 			Expect(err).To(BeNil())
 		})
 
 		It("should succeed", func() {
-			res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
-			fmt.Println(res, err)
+			_, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+			fmt.Println(err)
 			Expect(err).To(BeNil())
 		})
 
