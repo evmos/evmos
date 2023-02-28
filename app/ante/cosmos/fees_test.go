@@ -207,10 +207,6 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-			if tc.malleate != nil {
-				tc.malleate()
-			}
-			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx)
 
 			// Create a new DeductFeeDecorator
 			dfd := cosmosante.NewDeductFeeDecorator(
@@ -236,6 +232,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 				FeeGranter: tc.feeGranter,
 				Msgs:       []sdk.Msg{msg},
 			}
+
+			if tc.malleate != nil {
+				tc.malleate()
+			}
+			suite.ctx = suite.ctx.WithIsCheckTx(tc.checkTx)
 
 			// Create a transaction out of the message
 			tx, err := testutiltx.PrepareCosmosTx(suite.ctx, suite.app, args)
