@@ -116,7 +116,6 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		// Not using Commit() here because code panics due to invalid block height
 		staking.EndBlocker(ctx, app.StakingKeeper)
 
-
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(sdk.NewInt(2))))
