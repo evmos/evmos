@@ -162,6 +162,23 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 			},
 		},
 		{
+			name:        "success - sufficient balance to pay fees (fees > required fees)",
+			balance:     initBalance,
+			rewards:     sdk.ZeroInt(),
+			gas:         10_000_000,
+			checkTx:     true,
+			simulate:    false,
+			expPass:     true,
+			errContains: "",
+			malleate: func() {
+				suite.ctx = suite.ctx.WithMinGasPrices(
+					sdk.NewDecCoins(
+						sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(100)),
+					),
+				)
+			},
+		},
+		{
 			name:        "fail - with not authorized fee granter",
 			balance:     initBalance,
 			rewards:     sdk.ZeroInt(),
