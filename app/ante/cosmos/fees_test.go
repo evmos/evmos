@@ -1,7 +1,7 @@
 package cosmos_test
 
 import (
-  "fmt"
+	"fmt"
 	"time"
 
 	"cosmossdk.io/math"
