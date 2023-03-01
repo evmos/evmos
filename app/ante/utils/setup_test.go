@@ -1,4 +1,4 @@
-package evm_test
+package utils_test
 
 import (
 	"math"
@@ -16,9 +16,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v11/app"
-	ante "github.com/evmos/evmos/v11/app/ante"
+	"github.com/evmos/evmos/v11/app/ante"
 	"github.com/evmos/evmos/v11/encoding"
 	"github.com/evmos/evmos/v11/ethereum/eip712"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/utils"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
@@ -27,19 +28,15 @@ import (
 type AnteTestSuite struct {
 	suite.Suite
 
-	ctx                      sdk.Context
-	app                      *app.Evmos
-	clientCtx                client.Context
-	anteHandler              sdk.AnteHandler
-	ethSigner                types.Signer
-	enableFeemarket          bool
-	enableLondonHF           bool
-	evmParamsOption          func(*evmtypes.Params)
-	useLegacyEIP712Extension bool
-	useLegacyEIP712TypedData bool
+	ctx             sdk.Context
+	app             *app.Evmos
+	clientCtx       client.Context
+	anteHandler     sdk.AnteHandler
+	ethSigner       types.Signer
+	enableFeemarket bool
+	enableLondonHF  bool
+	evmParamsOption func(*evmtypes.Params)
 }
-
-const TestGasLimit uint64 = 100000
 
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
@@ -73,7 +70,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		return genesis
 	})
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
@@ -111,24 +108,14 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.anteHandler = anteHandler
 	suite.ethSigner = types.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+	suite.Require().NoError(err)
 }
 
 func TestAnteTestSuite(t *testing.T) {
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF: true,
-	})
-
-	// Re-run the tests with EIP-712 Legacy encodings to ensure backwards compatibility.
-	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF:           true,
-		useLegacyEIP712Extension: true,
-		useLegacyEIP712TypedData: true,
-	})
-
-	suite.Run(t, &AnteTestSuite{
-		enableLondonHF:           true,
-		useLegacyEIP712Extension: false,
-		useLegacyEIP712TypedData: true,
 	})
 }
