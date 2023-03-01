@@ -16,7 +16,6 @@
 package evm
 
 import (
-	"fmt"
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
@@ -25,6 +24,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	evmostypes "github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/types"
 )
@@ -35,15 +35,10 @@ import (
 // a) feeCap = tx.fees / tx.gas
 // b) tipFeeCap = tx.MaxPriorityPrice (default) or MaxInt64
 // - when `ExtensionOptionDynamicFeeTx` is omitted, `tipFeeCap` defaults to `MaxInt64`.
-// - when london hardfork is not enabled, it fallbacks to SDK default behavior (validator min-gas-prices).
+// - when london hardfork is not enabled, it falls back to SDK default behavior (validator min-gas-prices).
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
-func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
-	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
-		feeTx, ok := tx.(sdk.FeeTx)
-		if !ok {
-			return nil, 0, fmt.Errorf("tx must be a FeeTx")
-		}
-
+func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
+	return func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
 		if ctx.BlockHeight() == 0 {
 			// genesis transactions: fallback to min-gas-price logic
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
@@ -63,7 +58,7 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 		maxPriorityPrice := sdkmath.NewInt(math.MaxInt64)
 
 		// get the priority tip cap from the extension option.
-		if hasExtOptsTx, ok := tx.(authante.HasExtensionOptionsTx); ok {
+		if hasExtOptsTx, ok := feeTx.(authante.HasExtensionOptionsTx); ok {
 			for _, opt := range hasExtOptsTx.GetExtensionOptions() {
 				if extOpt, ok := opt.GetCachedValue().(*evmostypes.ExtensionOptionDynamicFeeTx); ok {
 					maxPriorityPrice = extOpt.MaxPriorityPrice
