@@ -1263,8 +1263,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v12.UpgradeName:
 		// rename recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added:   []string{recoverytypes.StoreKey},
-			Deleted: []string{"recoveryv1"},
+			Renamed: []storetypes.StoreRename{
+				{
+					OldKey: "recoveryv1",
+					NewKey: recoverytypes.StoreKey,
+				},
+			},
 		}
 	}
 
