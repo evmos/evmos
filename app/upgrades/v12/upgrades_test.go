@@ -1,7 +1,6 @@
 package v12_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -85,15 +84,15 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 
 	// store the addresses on a map to check if there're
 	// duplicated addresses
-	uniqueAddrs := make(map[string]struct{})
+	uniqueAddrs := make(map[string]bool)
 
 	// check balance of affected accounts
 	for i := range v12.Accounts {
 		addr := sdk.MustAccAddressFromBech32(v12.Accounts[i][0])
 		// check for duplicated addresses
-		_, found := uniqueAddrs[v12.Accounts[i][0]]
-		suite.Require().False(found, fmt.Sprintf("found account %s duplicated", v12.Accounts[i][0]))
-		uniqueAddrs[v12.Accounts[i][0]] = struct{}{}
+		found := uniqueAddrs[v12.Accounts[i][0]]
+		suite.Require().False(found, "found account %s duplicated", v12.Accounts[i][0])
+		uniqueAddrs[v12.Accounts[i][0]] = true
 
 		res, ok := sdk.NewIntFromString(v12.Accounts[i][1])
 		suite.Require().True(ok)
