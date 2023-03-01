@@ -49,6 +49,8 @@ type CosmosTxArgs struct {
 	GasPrice *sdkmath.Int
 	// Fees is the fee to be used on the tx (amount and denom)
 	Fees sdk.Coins
+	// FeeGranter is the account address of the fee granter
+	FeeGranter sdk.AccAddress
 	// Msgs slice of messages to include on the tx
 	Msgs []sdk.Msg
 }
@@ -75,6 +77,8 @@ func PrepareCosmosTx(
 	if err := txBuilder.SetMsgs(args.Msgs...); err != nil {
 		return nil, err
 	}
+
+	txBuilder.SetFeeGranter(args.FeeGranter)
 
 	return signCosmosTx(
 		ctx,

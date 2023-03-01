@@ -95,6 +95,10 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
 
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
 	infCtx := suite.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 
@@ -130,6 +134,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		suite.priv.PubKey().Address().Bytes(),
 		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
 	)
+	suite.Require().NoError(err)
+
+	header := suite.ctx.BlockHeader()
+	suite.ctx = suite.ctx.WithBlockHeight(header.Height - 1)
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
 	suite.Require().NoError(err)
 }
 

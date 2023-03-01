@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+
 package evm
 
 import (
@@ -25,6 +26,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
+	anteutils "github.com/evmos/evmos/v11/app/ante/utils"
 	"github.com/evmos/evmos/v11/types"
 	"github.com/evmos/evmos/v11/x/evm/keeper"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
@@ -49,7 +51,7 @@ func NewEthAccountVerificationDecorator(ak evmtypes.AccountKeeper, ek EVMKeeper)
 }
 
 // AnteHandle validates checks that the sender balance is greater than the total transaction cost.
-// The account will be set to store if it doesn't exis, i.e cannot be found on store.
+// The account will be set to store if it doesn't exist, i.e. cannot be found on store.
 // This AnteHandler decorator will fail if:
 // - any of the msgs is not a MsgEthereumTx
 // - from address is empty
@@ -104,23 +106,34 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 // EthGasConsumeDecorator validates enough intrinsic gas for the transaction and
 // gas consumption.
 type EthGasConsumeDecorator struct {
-	evmKeeper    EVMKeeper
-	maxGasWanted uint64
+	bankKeeper         anteutils.BankKeeper
+	distributionKeeper anteutils.DistributionKeeper
+	evmKeeper          EVMKeeper
+	stakingKeeper      anteutils.StakingKeeper
+	maxGasWanted       uint64
 }
 
 // NewEthGasConsumeDecorator creates a new EthGasConsumeDecorator
 func NewEthGasConsumeDecorator(
+	bankKeeper anteutils.BankKeeper,
+	distributionKeeper anteutils.DistributionKeeper,
 	evmKeeper EVMKeeper,
+	stakingKeeper anteutils.StakingKeeper,
 	maxGasWanted uint64,
 ) EthGasConsumeDecorator {
 	return EthGasConsumeDecorator{
+		bankKeeper,
+		distributionKeeper,
 		evmKeeper,
+		stakingKeeper,
 		maxGasWanted,
 	}
 }
 
 // AnteHandle validates that the Ethereum tx message has enough to cover intrinsic gas
 // (during CheckTx only) and that the sender has enough balance to pay for the gas cost.
+// If the balance is not sufficient, it will be attempted to withdraw enough staking rewards
+// for the payment.
 //
 // Intrinsic gas for a transaction is the amount of gas that the transaction uses before the
 // transaction is executed. The gas is a constant value plus any cost incurred by additional bytes
@@ -130,7 +143,7 @@ func NewEthGasConsumeDecorator(
 // - the message is not a MsgEthereumTx
 // - sender account cannot be found
 // - transaction's gas limit is lower than the intrinsic gas
-// - user doesn't have enough balance to deduct the transaction fees (gas_limit * gas_price)
+// - user has neither enough balance nor staking rewards to deduct the transaction fees (gas_limit * gas_price)
 // - transaction or block gas meter runs out of gas
 // - sets the gas meter limit
 // - gas limit is greater than the block gas meter limit
@@ -150,6 +163,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	}
 
 	evmParams := egcd.evmKeeper.GetParams(ctx)
+	evmDenom := evmParams.GetEvmDenom()
 	chainCfg := evmParams.GetChainConfig()
 	ethCfg := chainCfg.EthereumConfig(egcd.evmKeeper.ChainID())
 
@@ -167,6 +181,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		if !ok {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
 		}
+		from := msgEthTx.GetFrom()
 
 		txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
 		if err != nil {
@@ -184,11 +199,15 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			gasWanted += txData.GetGas()
 		}
 
-		evmDenom := evmParams.GetEvmDenom()
-
 		fees, err := keeper.VerifyFee(txData, evmDenom, baseFee, homestead, istanbul, ctx.IsCheckTx())
 		if err != nil {
 			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
+		}
+
+		// If the account balance is not sufficient, try to withdraw enough staking rewards
+		err = anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
+		if err != nil {
+			return ctx, err
 		}
 
 		err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.HexToAddress(msgEthTx.From))
@@ -217,8 +236,8 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	// return error if the tx gas is greater than the block limit (max gas)
 
 	// NOTE: it's important here to use the gas wanted instead of the gas consumed
-	// from the tx gas pool. The later only has the value so far since the
-	// EthSetupContextDecorator so it will never exceed the block gas limit.
+	// from the tx gas pool. The latter only has the value so far since the
+	// EthSetupContextDecorator, so it will never exceed the block gas limit.
 	if gasWanted > blockGasLimit {
 		return ctx, errorsmod.Wrapf(
 			errortypes.ErrOutOfGas,
@@ -228,7 +247,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		)
 	}
 
-	// Set tx GasMeter with a limit of GasWanted (i.e gas limit from the Ethereum tx).
+	// Set tx GasMeter with a limit of GasWanted (i.e. gas limit from the Ethereum tx).
 	// The gas consumed will be then reset to the gas used by the state transition
 	// in the EVM.
 
@@ -332,7 +351,7 @@ func NewEthIncrementSenderSequenceDecorator(ak evmtypes.AccountKeeper) EthIncrem
 	}
 }
 
-// AnteHandle handles incrementing the sequence of the signer (i.e sender). If the transaction is a
+// AnteHandle handles incrementing the sequence of the signer (i.e. sender). If the transaction is a
 // contract creation, the nonce will be incremented during the transaction execution and not within
 // this AnteHandler decorator.
 func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {

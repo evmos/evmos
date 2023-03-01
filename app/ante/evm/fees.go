@@ -60,7 +60,7 @@ func NewEthMempoolFeeDecorator(ek EVMKeeper) EthMempoolFeeDecorator {
 	}
 }
 
-// AnteHandle ensures that the that the effective fee from the transaction is greater than the
+// AnteHandle ensures that the effective fee from the transaction is greater than the
 // minimum global fee, which is defined by the  MinGasPrice (parameter) * GasLimit (tx argument).
 func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
