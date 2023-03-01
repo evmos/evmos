@@ -22,7 +22,7 @@ const (
 	ModuleName = "recovery"
 
 	// StoreKey to be used when creating the KVStore
-	StoreKey = "recoveryv1"
+	StoreKey = "recovery"
 
 	// RouterKey to be used for message routing
 	RouterKey = ModuleName
