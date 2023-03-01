@@ -225,6 +225,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 					s.upgradeParams.ChainID,
 					1,
 					"--fees=auto",
+					"--gas-adjustment=1.3",
 				)
 			},
 			expPass: true,
