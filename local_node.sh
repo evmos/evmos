@@ -122,6 +122,15 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
         sed -i 's/prometheus-retention-time  = "0"/prometheus-retention-time  = "1000000000000"/g' "$APP_TOML"
         sed -i 's/enabled = false/enabled = true/g' "$APP_TOML"
     fi
+	
+	# Change proposal periods to pass within a reasonable time for local testing
+	cat $HOMEDIR/config/genesis.json | jq '.app_state["gov"]["deposit_params"]["max_deposit_period"]="30s"' > $HOMEDIR/config/tmp_genesis.json && mv $HOMEDIR/config/tmp_genesis.json $HOMEDIR/config/genesis.json
+	cat $HOMEDIR/config/genesis.json | jq '.app_state["gov"]["voting_params"]["voting_period"]="30s"' > $HOMEDIR/config/tmp_genesis.json && mv $HOMEDIR/config/tmp_genesis.json $HOMEDIR/config/genesis.json
+
+	# set custom pruning settings
+	sed -i 's/pruning = "default"/pruning = "custom"/g' $APP_TOML
+	sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' $APP_TOML
+	sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' $APP_TOML
 
 	# Allocate genesis accounts (cosmos formatted addresses)
 	for KEY in "${KEYS[@]}"; do
@@ -153,4 +162,4 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start --metrics --pruning=nothing "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
+evmosd start --metrics "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --home "$HOMEDIR"
