@@ -1261,15 +1261,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
 		}
 	case v12.UpgradeName:
-		// rename recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Renamed: []storetypes.StoreRename{
-				{
-					OldKey: "recoveryv1",
-					NewKey: recoverytypes.StoreKey,
-				},
-			},
-		}
+		// no store upgrades
 	}
 
 	if storeUpgrades != nil {
