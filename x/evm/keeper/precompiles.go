@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
 )
