@@ -11,14 +11,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	"github.com/evmos/evmos/v11/x/revenue/types"
 )
 
 func (suite *KeeperTestSuite) TestRegisterRevenue() {
-	deployer := testutil.GenerateAddress()
-	fakeDeployer := testutil.GenerateAddress()
+	deployer := utiltx.GenerateAddress()
+	fakeDeployer := utiltx.GenerateAddress()
 	contract1 := crypto.CreateAddress(deployer, 1)
 	factory1 := contract1
 	factory2 := crypto.CreateAddress(factory1, 0)
@@ -226,10 +226,10 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 }
 
 func (suite *KeeperTestSuite) TestUpdateRevenue() {
-	deployer := testutil.GenerateAddress()
+	deployer := utiltx.GenerateAddress()
 	deployerAddr := sdk.AccAddress(deployer.Bytes())
-	withdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	newWithdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	withdrawer := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	newWithdrawer := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	contract1 := crypto.CreateAddress(deployer, 1)
 	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
 	contractAccount := statedb.Account{
@@ -460,10 +460,10 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 }
 
 func (suite *KeeperTestSuite) TestCancelRevenue() {
-	deployer := testutil.GenerateAddress()
+	deployer := utiltx.GenerateAddress()
 	deployerAddr := sdk.AccAddress(deployer.Bytes())
-	withdrawer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
-	fakeDeployer := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	withdrawer := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	fakeDeployer := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	contract1 := crypto.CreateAddress(deployer, 1)
 	codeHash := common.Hex2Bytes("fa98cd094c09bb300de0037ba34e94f569b145ce8baa36ed863a08d7b7433f8d")
 	contractAccount := statedb.Account{

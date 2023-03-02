@@ -6,10 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -19,14 +15,15 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -55,11 +52,9 @@ func (*MsgRegisterRevenue) ProtoMessage()    {}
 func (*MsgRegisterRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{0}
 }
-
 func (m *MsgRegisterRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgRegisterRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgRegisterRevenue.Marshal(b, m, deterministic)
@@ -72,15 +67,12 @@ func (m *MsgRegisterRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-
 func (m *MsgRegisterRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgRegisterRevenue.Merge(m, src)
 }
-
 func (m *MsgRegisterRevenue) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgRegisterRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgRegisterRevenue.DiscardUnknown(m)
 }
@@ -116,7 +108,8 @@ func (m *MsgRegisterRevenue) GetNonces() []uint64 {
 }
 
 // MsgRegisterRevenueResponse defines the MsgRegisterRevenue response type
-type MsgRegisterRevenueResponse struct{}
+type MsgRegisterRevenueResponse struct {
+}
 
 func (m *MsgRegisterRevenueResponse) Reset()         { *m = MsgRegisterRevenueResponse{} }
 func (m *MsgRegisterRevenueResponse) String() string { return proto.CompactTextString(m) }
@@ -124,11 +117,9 @@ func (*MsgRegisterRevenueResponse) ProtoMessage()    {}
 func (*MsgRegisterRevenueResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{1}
 }
-
 func (m *MsgRegisterRevenueResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgRegisterRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgRegisterRevenueResponse.Marshal(b, m, deterministic)
@@ -141,15 +132,12 @@ func (m *MsgRegisterRevenueResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-
 func (m *MsgRegisterRevenueResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgRegisterRevenueResponse.Merge(m, src)
 }
-
 func (m *MsgRegisterRevenueResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgRegisterRevenueResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgRegisterRevenueResponse.DiscardUnknown(m)
 }
@@ -174,11 +162,9 @@ func (*MsgUpdateRevenue) ProtoMessage()    {}
 func (*MsgUpdateRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{2}
 }
-
 func (m *MsgUpdateRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgUpdateRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateRevenue.Marshal(b, m, deterministic)
@@ -191,15 +177,12 @@ func (m *MsgUpdateRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-
 func (m *MsgUpdateRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateRevenue.Merge(m, src)
 }
-
 func (m *MsgUpdateRevenue) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgUpdateRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateRevenue.DiscardUnknown(m)
 }
@@ -228,7 +211,8 @@ func (m *MsgUpdateRevenue) GetWithdrawerAddress() string {
 }
 
 // MsgUpdateRevenueResponse defines the MsgUpdateRevenue response type
-type MsgUpdateRevenueResponse struct{}
+type MsgUpdateRevenueResponse struct {
+}
 
 func (m *MsgUpdateRevenueResponse) Reset()         { *m = MsgUpdateRevenueResponse{} }
 func (m *MsgUpdateRevenueResponse) String() string { return proto.CompactTextString(m) }
@@ -236,11 +220,9 @@ func (*MsgUpdateRevenueResponse) ProtoMessage()    {}
 func (*MsgUpdateRevenueResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{3}
 }
-
 func (m *MsgUpdateRevenueResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgUpdateRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateRevenueResponse.Marshal(b, m, deterministic)
@@ -253,15 +235,12 @@ func (m *MsgUpdateRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-
 func (m *MsgUpdateRevenueResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateRevenueResponse.Merge(m, src)
 }
-
 func (m *MsgUpdateRevenueResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgUpdateRevenueResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateRevenueResponse.DiscardUnknown(m)
 }
@@ -283,11 +262,9 @@ func (*MsgCancelRevenue) ProtoMessage()    {}
 func (*MsgCancelRevenue) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{4}
 }
-
 func (m *MsgCancelRevenue) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgCancelRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCancelRevenue.Marshal(b, m, deterministic)
@@ -300,15 +277,12 @@ func (m *MsgCancelRevenue) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-
 func (m *MsgCancelRevenue) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCancelRevenue.Merge(m, src)
 }
-
 func (m *MsgCancelRevenue) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgCancelRevenue) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCancelRevenue.DiscardUnknown(m)
 }
@@ -330,7 +304,8 @@ func (m *MsgCancelRevenue) GetDeployerAddress() string {
 }
 
 // MsgCancelRevenueResponse defines the MsgCancelRevenue response type
-type MsgCancelRevenueResponse struct{}
+type MsgCancelRevenueResponse struct {
+}
 
 func (m *MsgCancelRevenueResponse) Reset()         { *m = MsgCancelRevenueResponse{} }
 func (m *MsgCancelRevenueResponse) String() string { return proto.CompactTextString(m) }
@@ -338,11 +313,9 @@ func (*MsgCancelRevenueResponse) ProtoMessage()    {}
 func (*MsgCancelRevenueResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{5}
 }
-
 func (m *MsgCancelRevenueResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgCancelRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCancelRevenueResponse.Marshal(b, m, deterministic)
@@ -355,15 +328,12 @@ func (m *MsgCancelRevenueResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-
 func (m *MsgCancelRevenueResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCancelRevenueResponse.Merge(m, src)
 }
-
 func (m *MsgCancelRevenueResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgCancelRevenueResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCancelRevenueResponse.DiscardUnknown(m)
 }
@@ -385,11 +355,9 @@ func (*MsgUpdateParams) ProtoMessage()    {}
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{6}
 }
-
 func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateParams.Marshal(b, m, deterministic)
@@ -402,15 +370,12 @@ func (m *MsgUpdateParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-
 func (m *MsgUpdateParams) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateParams.Merge(m, src)
 }
-
 func (m *MsgUpdateParams) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgUpdateParams) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateParams.DiscardUnknown(m)
 }
@@ -433,7 +398,8 @@ func (m *MsgUpdateParams) GetParams() Params {
 
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
-type MsgUpdateParamsResponse struct{}
+type MsgUpdateParamsResponse struct {
+}
 
 func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse{} }
 func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
@@ -441,11 +407,9 @@ func (*MsgUpdateParamsResponse) ProtoMessage()    {}
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2a6d23524264890a, []int{7}
 }
-
 func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgUpdateParamsResponse.Marshal(b, m, deterministic)
@@ -458,15 +422,12 @@ func (m *MsgUpdateParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-
 func (m *MsgUpdateParamsResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgUpdateParamsResponse.Merge(m, src)
 }
-
 func (m *MsgUpdateParamsResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgUpdateParamsResponse.DiscardUnknown(m)
 }
@@ -527,10 +488,8 @@ var fileDescriptor_2a6d23524264890a = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ context.Context
-	_ grpc.ClientConn
-)
+var _ context.Context
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -611,20 +570,18 @@ type MsgServer interface {
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
-type UnimplementedMsgServer struct{}
+type UnimplementedMsgServer struct {
+}
 
 func (*UnimplementedMsgServer) RegisterRevenue(ctx context.Context, req *MsgRegisterRevenue) (*MsgRegisterRevenueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterRevenue not implemented")
 }
-
 func (*UnimplementedMsgServer) UpdateRevenue(ctx context.Context, req *MsgUpdateRevenue) (*MsgUpdateRevenueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRevenue not implemented")
 }
-
 func (*UnimplementedMsgServer) CancelRevenue(ctx context.Context, req *MsgCancelRevenue) (*MsgCancelRevenueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelRevenue not implemented")
 }
-
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
 }
@@ -1016,7 +973,6 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *MsgRegisterRevenue) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1137,11 +1093,9 @@ func (m *MsgUpdateParamsResponse) Size() (n int) {
 func sovTx(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *MsgRegisterRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1364,7 +1318,6 @@ func (m *MsgRegisterRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgRegisterRevenueResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1415,7 +1368,6 @@ func (m *MsgRegisterRevenueResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgUpdateRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1562,7 +1514,6 @@ func (m *MsgUpdateRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgUpdateRevenueResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1613,7 +1564,6 @@ func (m *MsgUpdateRevenueResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgCancelRevenue) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1728,7 +1678,6 @@ func (m *MsgCancelRevenue) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgCancelRevenueResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1779,7 +1728,6 @@ func (m *MsgCancelRevenueResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1895,7 +1843,6 @@ func (m *MsgUpdateParams) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1946,7 +1893,6 @@ func (m *MsgUpdateParamsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipTx(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

@@ -47,3 +47,13 @@ The funding address of an existing clawback vesting account can be updated only 
    2. the vesting account exists and is a clawback vesting account
    3. account funder is same as in msg
 3. Update the vesting account funder with the new funder address.
+
+## Convert Vesting Account
+
+Once all tokens are vested, the vesting account can be converted to an `ETHAccount`
+
+1. Owner of vesting account submits a `MsgConvertVestingAccount` through one of the clients.
+2. Check if
+   1. the vesting account exists and is a clawback vesting account
+   2. the vesting account's vesting and locked schedules have concluded
+3. Convert the vesting account to an `EthAccount`

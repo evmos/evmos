@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"math/big"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,10 +12,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v11/server/config"
+	"github.com/evmos/evmos/v11/testutil"
 	"github.com/evmos/evmos/v11/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
@@ -25,15 +26,9 @@ func (suite *KeeperTestSuite) EvmDenom() string {
 
 // Commit and begin new block
 func (suite *KeeperTestSuite) Commit() {
-	_ = suite.app.Commit()
-	header := suite.ctx.BlockHeader()
-	header.Height++
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.NewContext(false, header)
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, 0*time.Second, nil)
+	suite.Require().NoError(err)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
@@ -70,28 +65,24 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			data,                   // input
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			GasLimit:  res.Gas,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasTipCap: big.NewInt(1),
+			Input:     data,
+			Accesses:  &ethtypes.AccessList{},
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			nil, nil,
-			data, // input
-			nil,  // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			GasLimit: res.Gas,
+			Input:    data,
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()
@@ -122,30 +113,26 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		ercTransferTx = evmtypes.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			transferData,
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			To:        &contractAddr,
+			GasLimit:  res.Gas,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasTipCap: big.NewInt(1),
+			Input:     transferData,
+			Accesses:  &ethtypes.AccessList{},
+		}
+		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		ercTransferTx = evmtypes.NewTx(
-			chainID,
-			nonce,
-			&contractAddr,
-			nil,
-			res.Gas,
-			nil,
-			nil, nil,
-			transferData,
-			nil,
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			To:       &contractAddr,
+			GasLimit: res.Gas,
+			Input:    transferData,
+		}
+		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	ercTransferTx.From = suite.address.Hex()
@@ -180,28 +167,24 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
-			big.NewInt(1),
-			data,                   // input
-			&ethtypes.AccessList{}, // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:   chainID,
+			Nonce:     nonce,
+			GasLimit:  res.Gas,
+			Input:     data,
+			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			Accesses:  &ethtypes.AccessList{},
+			GasTipCap: big.NewInt(1),
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	} else {
-		erc20DeployTx = evmtypes.NewTxContract(
-			chainID,
-			nonce,
-			nil,     // amount
-			res.Gas, // gasLimit
-			nil,     // gasPrice
-			nil, nil,
-			data, // input
-			nil,  // accesses
-		)
+		ethTxParams := &evmtypes.EvmTxArgs{
+			ChainID:  chainID,
+			Nonce:    nonce,
+			GasLimit: res.Gas,
+			Input:    data,
+		}
+		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
 	erc20DeployTx.From = suite.address.Hex()

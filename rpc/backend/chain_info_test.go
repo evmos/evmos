@@ -16,7 +16,7 @@ import (
 
 	"github.com/evmos/evmos/v11/rpc/backend/mocks"
 	rpc "github.com/evmos/evmos/v11/rpc/types"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
 )
@@ -190,7 +190,7 @@ func (suite *BackendTestSuite) TestChainId() {
 }
 
 func (suite *BackendTestSuite) TestGetCoinbase() {
-	validatorAcc := sdk.AccAddress(testutil.GenerateAddress().Bytes())
+	validatorAcc := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	testCases := []struct {
 		name         string
 		registerMock func()
@@ -404,7 +404,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 			1,
 			1,
 			nil,
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			false,
 		},
 		{
@@ -433,7 +433,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				GasUsedRatio: []float64{0},
 				Reward:       [][]*hexutil.Big{{(*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0)), (*hexutil.Big)(big.NewInt(0))}},
 			},
-			sdk.AccAddress(testutil.GenerateAddress().Bytes()),
+			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			true,
 		},
 	}

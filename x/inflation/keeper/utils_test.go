@@ -5,15 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v11/testutil"
 	epochstypes "github.com/evmos/evmos/v11/x/epochs/types"
 	evm "github.com/evmos/evmos/v11/x/evm/types"
 	"github.com/evmos/evmos/v11/x/inflation/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 // Test helpers
@@ -24,30 +20,10 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app = app.Setup(checkTx, nil)
 
 	// setup context
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
-		Height:          1,
-		ChainID:         "evmos_9001-1",
-		Time:            time.Now().UTC(),
-		ProposerAddress: suite.consAddress.Bytes(),
-
-		Version: tmversion.Consensus{
-			Block: version.BlockProtocol,
-		},
-		LastBlockId: tmproto.BlockID{
-			Hash: tmhash.Sum([]byte("block_id")),
-			PartSetHeader: tmproto.PartSetHeader{
-				Total: 11,
-				Hash:  tmhash.Sum([]byte("partset_header")),
-			},
-		},
-		AppHash:            tmhash.Sum([]byte("app")),
-		DataHash:           tmhash.Sum([]byte("data")),
-		EvidenceHash:       tmhash.Sum([]byte("evidence")),
-		ValidatorsHash:     tmhash.Sum([]byte("validators")),
-		NextValidatorsHash: tmhash.Sum([]byte("next_validators")),
-		ConsensusHash:      tmhash.Sum([]byte("consensus")),
-		LastResultsHash:    tmhash.Sum([]byte("last_result")),
-	})
+	header := testutil.NewHeader(
+		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+	)
+	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
 
 	// setup query helpers
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
@@ -70,17 +46,9 @@ func (suite *KeeperTestSuite) Commit() {
 }
 
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
-	_ = suite.app.Commit()
-	header := suite.ctx.BlockHeader()
-	header.Height++
-	header.Time = header.Time.Add(t)
-	suite.app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
-	// update ctx
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
-
+	var err error
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, t, nil)
+	suite.Require().NoError(err)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	evm.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
 	suite.queryClientEvm = evm.NewQueryClient(queryHelper)

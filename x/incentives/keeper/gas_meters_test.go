@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 
 	"github.com/evmos/evmos/v11/x/incentives/types"
 )
@@ -117,8 +117,8 @@ func (suite *KeeperTestSuite) GetGasMeter() {
 		{"nil addresses", common.Address{}, common.Address{}, false},
 		{"nil contract", common.Address{}, participant, false},
 		{"nil paricipant", contract, common.Address{}, false},
-		{"unknown contract", testutil.GenerateAddress(), participant, false},
-		{"unknown participant", contract, testutil.GenerateAddress(), false},
+		{"unknown contract", utiltx.GenerateAddress(), participant, false},
+		{"unknown participant", contract, utiltx.GenerateAddress(), false},
 		{"valid id", contract, participant, true},
 	}
 	for _, tc := range testCases {

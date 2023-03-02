@@ -21,7 +21,7 @@ import (
 	"github.com/evmos/evmos/v11/app"
 	"github.com/evmos/evmos/v11/crypto/hd"
 	"github.com/evmos/evmos/v11/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v11/testutil"
+	utiltx "github.com/evmos/evmos/v11/testutil/tx"
 	"github.com/evmos/evmos/v11/utils"
 	"github.com/stretchr/testify/suite"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -73,7 +73,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 
 	suite.ledger = mocks.NewSECP256K1(s.T())
 
-	ethAddr, s.privKey = testutil.NewAddrKey()
+	ethAddr, s.privKey = utiltx.NewAddrKey()
 
 	s.Require().NoError(err)
 	suite.pubKey = s.privKey.PubKey()
@@ -82,7 +82,7 @@ func (suite *LedgerTestSuite) SetupTest() {
 }
 
 func (suite *LedgerTestSuite) SetupEvmosApp() {
-	consAddress := sdk.ConsAddress(testutil.GenerateAddress().Bytes())
+	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())

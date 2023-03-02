@@ -5,19 +5,16 @@ package types
 
 import (
 	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-
-	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -49,11 +46,9 @@ func (*EventEthereumTx) ProtoMessage()    {}
 func (*EventEthereumTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_432e0d592184bde3, []int{0}
 }
-
 func (m *EventEthereumTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventEthereumTx.Marshal(b, m, deterministic)
@@ -66,15 +61,12 @@ func (m *EventEthereumTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-
 func (m *EventEthereumTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventEthereumTx.Merge(m, src)
 }
-
 func (m *EventEthereumTx) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventEthereumTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventEthereumTx.DiscardUnknown(m)
 }
@@ -142,11 +134,9 @@ func (*EventTxLog) ProtoMessage()    {}
 func (*EventTxLog) Descriptor() ([]byte, []int) {
 	return fileDescriptor_432e0d592184bde3, []int{1}
 }
-
 func (m *EventTxLog) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventTxLog) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventTxLog.Marshal(b, m, deterministic)
@@ -159,15 +149,12 @@ func (m *EventTxLog) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *EventTxLog) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventTxLog.Merge(m, src)
 }
-
 func (m *EventTxLog) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventTxLog) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventTxLog.DiscardUnknown(m)
 }
@@ -197,11 +184,9 @@ func (*EventMessage) ProtoMessage()    {}
 func (*EventMessage) Descriptor() ([]byte, []int) {
 	return fileDescriptor_432e0d592184bde3, []int{2}
 }
-
 func (m *EventMessage) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventMessage.Marshal(b, m, deterministic)
@@ -214,15 +199,12 @@ func (m *EventMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-
 func (m *EventMessage) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventMessage.Merge(m, src)
 }
-
 func (m *EventMessage) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventMessage) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventMessage.DiscardUnknown(m)
 }
@@ -262,11 +244,9 @@ func (*EventBlockBloom) ProtoMessage()    {}
 func (*EventBlockBloom) Descriptor() ([]byte, []int) {
 	return fileDescriptor_432e0d592184bde3, []int{3}
 }
-
 func (m *EventBlockBloom) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventBlockBloom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventBlockBloom.Marshal(b, m, deterministic)
@@ -279,15 +259,12 @@ func (m *EventBlockBloom) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-
 func (m *EventBlockBloom) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventBlockBloom.Merge(m, src)
 }
-
 func (m *EventBlockBloom) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventBlockBloom) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventBlockBloom.DiscardUnknown(m)
 }
@@ -526,7 +503,6 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *EventEthereumTx) Size() (n int) {
 	if m == nil {
 		return 0
@@ -616,11 +592,9 @@ func (m *EventBlockBloom) Size() (n int) {
 func sovEvents(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *EventEthereumTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -895,7 +869,6 @@ func (m *EventEthereumTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventTxLog) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -978,7 +951,6 @@ func (m *EventTxLog) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventMessage) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1125,7 +1097,6 @@ func (m *EventMessage) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventBlockBloom) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1208,7 +1179,6 @@ func (m *EventBlockBloom) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipEvents(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
