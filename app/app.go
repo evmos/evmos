@@ -466,7 +466,9 @@ func NewEvmos(
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
-	evmKeeper.WithPrecompiles(evmkeeper.AvailablePrecompiles(stakingKeeper))
+	evmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(stakingKeeper, app.AuthzKeeper),
+	)
 
 	app.EvmKeeper = evmKeeper
 

@@ -17,11 +17,12 @@ import (
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
+	authzKeeper authzkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load staking precompile: %w", err))
 	}
