@@ -141,6 +141,7 @@ import (
 	"github.com/evmos/evmos/v11/app/ante"
 	v10 "github.com/evmos/evmos/v11/app/upgrades/v10"
 	v11 "github.com/evmos/evmos/v11/app/upgrades/v11"
+	v12 "github.com/evmos/evmos/v11/app/upgrades/v12"
 	v8 "github.com/evmos/evmos/v11/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v11/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v11/app/upgrades/v8_2"
@@ -1210,6 +1211,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v12 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v12.UpgradeName,
+		v12.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.DistrKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1250,6 +1260,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
 		}
+	case v12.UpgradeName:
+		// no store upgrades
 	}
 
 	if storeUpgrades != nil {
