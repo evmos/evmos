@@ -31,8 +31,8 @@ parent:
   <a href="https://github.com/evmos/evmos/actions?query=branch%3Amain+workflow%3ALint">
     <img alt="Lint Status" src="https://github.com/evmos/evmos/actions/workflows/lint.yml/badge.svg?branch=main" />
   </a>
-  <a href="https://codecov.io/gh/tharsis/evmos">
-    <img alt="Code Coverage" src="https://codecov.io/gh/tharsis/evmos/branch/main/graph/badge.svg" />
+  <a href="https://codecov.io/gh/evmos/evmos">
+    <img alt="Code Coverage" src="https://codecov.io/gh/evmos/evmos/branch/main/graph/badge.svg" />
   </a>
   <a href="https://twitter.com/EvmosOrg">
     <img alt="Twitter Follow Evmos" src="https://img.shields.io/twitter/follow/EvmosOrg"/>
