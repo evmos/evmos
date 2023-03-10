@@ -49,7 +49,7 @@ which runs on top of the [Tendermint Core](https://github.com/tendermint/tenderm
 Our documentation is hosted in a [separate repository](https://github.com/evmos/docs) and can be found at [docs.evmos.org](https://docs.evmos.org).
 Head over there and check it out.
 
-**Note**: Requires [Go 1.19+](https://golang.org/dl/)
+**Note**: Requires [Go 1.20+](https://golang.org/dl/)
 
 ## Installation
 
