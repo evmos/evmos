@@ -17,14 +17,10 @@
 package ante
 
 import (
-	"fmt"
-	"runtime/debug"
-
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 // NewAnteHandler returns an ante handler responsible for attempting to route an
@@ -36,8 +32,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ctx sdk.Context, tx sdk.Tx, sim bool,
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
-
-		defer Recover(ctx.Logger(), &err)
 
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
@@ -73,24 +67,5 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		}
 
 		return anteHandler(ctx, tx, sim)
-	}
-}
-
-func Recover(logger tmlog.Logger, err *error) {
-	if r := recover(); r != nil {
-		*err = errorsmod.Wrapf(errortypes.ErrPanic, "%v", r)
-
-		if e, ok := r.(error); ok {
-			logger.Error(
-				"ante handler panicked",
-				"error", e,
-				"stack trace", string(debug.Stack()),
-			)
-		} else {
-			logger.Error(
-				"ante handler panicked",
-				"recover", fmt.Sprintf("%v", r),
-			)
-		}
 	}
 }

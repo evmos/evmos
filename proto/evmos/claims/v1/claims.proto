@@ -3,7 +3,7 @@ package evmos.claims.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v11/x/claims/types";
+option go_package = "github.com/evmos/evmos/v12/x/claims/types";
 
 // Action defines the list of available actions to claim the airdrop tokens.
 enum Action {

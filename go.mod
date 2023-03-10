@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v11
+module github.com/evmos/evmos/v12
 
 go 1.20
 
@@ -100,6 +100,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
+	github.com/evmos/evmos/v11 v11.0.0-20230209000703-068762f0a69e // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect

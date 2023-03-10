@@ -22,7 +22,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v12/types"
 )
 
 // constants

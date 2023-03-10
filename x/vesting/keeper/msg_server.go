@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"time"
 
-	evmostypes "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v12/types"
 
 	"github.com/armon/go-metrics"
 
@@ -33,7 +33,7 @@ import (
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v11/x/vesting/types"
+	"github.com/evmos/evmos/v12/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
