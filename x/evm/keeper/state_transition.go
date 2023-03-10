@@ -23,9 +23,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
-	"github.com/evmos/evmos/v11/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	"github.com/evmos/evmos/v12/x/evm/statedb"
+	"github.com/evmos/evmos/v12/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"

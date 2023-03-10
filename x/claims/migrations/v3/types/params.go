@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v12/utils"
+	"github.com/evmos/evmos/v12/x/claims/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"

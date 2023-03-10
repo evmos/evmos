@@ -26,11 +26,11 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 
 	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
-	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v12/x/claims/types"
 )
 
 var (

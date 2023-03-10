@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v12/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 

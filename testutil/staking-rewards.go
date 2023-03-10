@@ -28,9 +28,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v11/app"
-	testutiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v12/app"
+	testutiltx "github.com/evmos/evmos/v12/testutil/tx"
+	"github.com/evmos/evmos/v12/utils"
 )
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.

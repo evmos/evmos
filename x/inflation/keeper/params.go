@@ -18,7 +18,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/x/inflation/types"
+	"github.com/evmos/evmos/v12/x/inflation/types"
 )
 
 // GetParams returns the total set of inflation parameters.

@@ -15,9 +15,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/testutil/tx"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/testutil/tx"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // DeployContract deploys a contract with the provided private key,
