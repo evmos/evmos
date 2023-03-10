@@ -389,7 +389,11 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	}
 	// refund gas
 	temporaryGasUsed := msg.Gas() - leftoverGas
-	leftoverGas += GasToRefund(stateDB.GetRefund(), temporaryGasUsed, refundQuotient)
+	refund := GasToRefund(stateDB.GetRefund(), temporaryGasUsed, refundQuotient)
+
+	// update leftoverGas and temporaryGasUsed with refund amount
+	leftoverGas += refund
+	temporaryGasUsed -= refund
 
 	// EVM execution error needs to be available for the JSON-RPC client
 	var vmError string

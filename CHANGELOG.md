@@ -85,6 +85,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#1433](https://github.com/evmos/evmos/pull/1433) Add max priority fee check on `FeeChecker`.
 - (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
 - (ante) [#1435](https://github.com/evmos/evmos/pull/1435) Add block gas limit check for cosmos transactions
+- (evm) [#1452](https://github.com/evmos/evmos/pull/1452) Consider refund amount on `gasUsed` calculation
 
 ## [v11.0.2] - 2023-02-10
 
