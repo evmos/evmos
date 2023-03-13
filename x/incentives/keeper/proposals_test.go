@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can copy locks here because it is a test
@@ -120,6 +120,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			tc.malleate()
 
@@ -197,6 +198,7 @@ func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can co
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			tc.malleate()
 

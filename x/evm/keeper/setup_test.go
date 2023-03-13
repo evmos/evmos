@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/evmos/v12/utils"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -22,14 +24,14 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v11/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v12/encoding"
+	"github.com/evmos/evmos/v12/testutil"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -184,6 +186,10 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT) {
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
+
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)

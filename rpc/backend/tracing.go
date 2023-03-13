@@ -22,8 +22,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v12/rpc/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 	"github.com/pkg/errors"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )

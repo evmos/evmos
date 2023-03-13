@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestDistributeIncentives() {
@@ -62,6 +62,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			// Mint tokens in module account
 			err := suite.app.BankKeeper.MintCoins(

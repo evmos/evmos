@@ -23,7 +23,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // EthMinGasPriceDecorator will check if the transaction's fee is at least as large
@@ -60,7 +60,7 @@ func NewEthMempoolFeeDecorator(ek EVMKeeper) EthMempoolFeeDecorator {
 	}
 }
 
-// AnteHandle ensures that the that the effective fee from the transaction is greater than the
+// AnteHandle ensures that the effective fee from the transaction is greater than the
 // minimum global fee, which is defined by the  MinGasPrice (parameter) * GasLimit (tx argument).
 func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
@@ -108,7 +108,14 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
 
 		requiredFee := minGasPrice.Mul(gasLimit)
-		fee := sdk.NewDecFromBigInt(feeAmt)
+
+		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
+		var fee sdk.Dec
+		if feeAmt == nil {
+			fee = requiredFee
+		} else {
+			fee = sdk.NewDecFromBigInt(feeAmt)
+		}
 
 		if fee.LT(requiredFee) {
 			return ctx, errorsmod.Wrapf(

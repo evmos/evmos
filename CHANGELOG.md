@@ -44,13 +44,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (proto) [#1305](https://github.com/evmos/evmos/pull/1305) Migrate Ethermint proto files
 - (ante) [#1266](https://github.com/evmos/evmos/pull/1266) Use `DynamicFeeChecker` for Cosmos txs.
 - (ante) [#1403](https://github.com/evmos/evmos/pull/1403) Update `AnteHandler` decorator for `x/authz` messages to run in deliverTx mode
+- (eip712) [#1390](https://github.com/evmos/evmos/pull/1390) Refactor EIP-712 message handling to support multiple message schemas
+- (ante) [#1405](https://github.com/evmos/evmos/pull/1405) Enable fees to be deducted from unclaimed staking rewards
 
 ### API Breaking
 
+- [#1426](https://github.com/evmos/evmos/pull/1426) Move `revenue` module files into `v1` directory.
 - [#1355](https://github.com/evmos/evmos/pull/1355) Remove `vm` package from EVM.
 
 ### Improvements
 
+- (tests) [#1434](https://github.com/evmos/evmos/pull/1434) Set default staking denom to `aevmos` in `evm` and `feemarket` tests
 - (test) [#1402](https://github.com/evmos/evmos/pull/1402) Refactor NewTx function arguments
 - (test) [#1415](https://github.com/evmos/evmos/pull/1415) Refactor InvalidTx type and NextFn used in AnteHandler tests
 - (vesting) [#1400](https://github.com/evmos/evmos/pull/1400) Add convert vesting account message
@@ -72,10 +76,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1369](https://github.com/evmos/evmos/pull/1369) Refactor code to use `BaseDenom` for simplification
 - (cli) [#1371](https://github.com/evmos/evmos/pull/1371) Improve cli error messages
 - (ante) [#1380](https://github.com/evmos/evmos/pull/1380) Split vesting decorators between `evm` and `cosmos` packages
+- (cli) [#1386](https://github.com/evmos/evmos/pull/1386) Use required fees (i.e `--fees=auto`) as default if fees are not specified
+- (test) [#1408](https://github.com/evmos/evmos/pull/1408) Refactor `DeployContract` and `DeployContractWithFactory` functions used for tests
+- (test) [#1417](https://github.com/evmos/evmos/pull/1417) Refactor EIP-712 transactions helper functions used on tests
 
 ### Bug Fixes
 
+- (ante) [#1433](https://github.com/evmos/evmos/pull/1433) Add max priority fee check on `FeeChecker`.
 - (ci) [#1383](https://github.com/evmos/evmos/pull/1383) Fix go-releaser error when building macOS binaries
+- (ante) [#1435](https://github.com/evmos/evmos/pull/1435) Add block gas limit check for cosmos transactions
+- (evm) [#1452](https://github.com/evmos/evmos/pull/1452) Consider refund amount on `gasUsed` calculation
 
 ## [v11.0.2] - 2023-02-10
 

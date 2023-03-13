@@ -8,15 +8,16 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 type KeeperTestSuite struct {
@@ -30,6 +31,7 @@ type KeeperTestSuite struct {
 	consAddress      sdk.ConsAddress
 	clientCtx        client.Context
 	ethSigner        ethtypes.Signer
+	priv             cryptotypes.PrivKey
 	signer           keyring.Signer
 	mintFeeCollector bool
 }

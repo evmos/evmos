@@ -24,8 +24,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 
-	"github.com/evmos/evmos/v11/x/incentives/keeper"
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/incentives/keeper"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 // InitGenesis import module genesis

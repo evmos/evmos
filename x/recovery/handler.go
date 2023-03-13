@@ -20,7 +20,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v11/x/recovery/types"
+	"github.com/evmos/evmos/v12/x/recovery/types"
 )
 
 // NewHandler returns a handler for recovery type messages.

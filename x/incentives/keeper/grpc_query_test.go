@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestIncentives() {
@@ -66,6 +66,7 @@ func (suite *KeeperTestSuite) TestIncentives() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
@@ -139,6 +140,7 @@ func (suite *KeeperTestSuite) TestIncentive() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
@@ -226,6 +228,7 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()
@@ -313,6 +316,7 @@ func (suite *KeeperTestSuite) TestGasMeter() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			tc.malleate()

@@ -12,10 +12,10 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/x/evm/keeper"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
-	"github.com/evmos/evmos/v11/x/evm/types"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	"github.com/evmos/evmos/v12/x/evm/keeper"
+	"github.com/evmos/evmos/v12/x/evm/statedb"
+	"github.com/evmos/evmos/v12/x/evm/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -334,8 +334,8 @@ func (suite *KeeperTestSuite) TestGasToRefund() {
 			vmdb.AddRefund(10)
 
 			if tc.expPanic {
+				//nolint:all
 				panicF := func() {
-					//nolint:all
 					keeper.GasToRefund(vmdb.GetRefund(), tc.gasconsumed, tc.refundQuotient)
 				}
 				suite.Require().Panics(panicF)

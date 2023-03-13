@@ -15,12 +15,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v12/utils"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/testutil"
-	"github.com/evmos/evmos/v11/x/erc20/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/testutil"
+	"github.com/evmos/evmos/v12/x/erc20/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {
@@ -174,15 +174,18 @@ var _ = Describe("ERC20:", Ordered, func() {
 		})
 		Context("with deployed contracts", func() {
 			BeforeEach(func() {
+				var err error
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
-				contract, _ = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
-				contract2, _ = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+				contract, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+				s.Require().NoError(err)
+				contract2, err = s.DeployContract(erc20Name, erc20Symbol, erc20Decimals)
+				s.Require().NoError(err)
 
 				coins := sdk.NewCoins(
 					sdk.NewCoin("aevmos", fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 				)
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
+				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
 				s.Commit()
 			})

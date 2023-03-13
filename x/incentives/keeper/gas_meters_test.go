@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
 
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestGetIncentivesGasMeters() {
@@ -46,6 +46,7 @@ func (suite *KeeperTestSuite) TestGetIncentivesGasMeters() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			tc.malleate()
 			res := suite.app.IncentivesKeeper.GetIncentivesGasMeters(suite.ctx)
@@ -91,6 +92,7 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeters() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			tc.malleate()
 			res := suite.app.IncentivesKeeper.GetIncentiveGasMeters(
@@ -104,6 +106,7 @@ func (suite *KeeperTestSuite) TestGetIncentiveGasMeters() {
 }
 
 func (suite *KeeperTestSuite) GetGasMeter() {
+	suite.deployContracts()
 	expGm := types.NewGasMeter(contract, participant, 1)
 	suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, expGm)
 	suite.Commit()
@@ -137,6 +140,7 @@ func (suite *KeeperTestSuite) GetGasMeter() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteGasMeter() {
+	suite.deployContracts()
 	regGm := types.NewGasMeter(contract, participant, 1)
 	suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, regGm)
 	suite.Commit()

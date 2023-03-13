@@ -5,7 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v11/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/incentives/types"
 )
 
 func (suite *KeeperTestSuite) TestGetAllIncentives() {
@@ -45,6 +45,7 @@ func (suite *KeeperTestSuite) TestGetAllIncentives() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
+			suite.deployContracts()
 
 			tc.malleate()
 			res := suite.app.IncentivesKeeper.GetAllIncentives(suite.ctx)
@@ -55,6 +56,7 @@ func (suite *KeeperTestSuite) TestGetAllIncentives() {
 }
 
 func (suite *KeeperTestSuite) TestGetIncetive() {
+	suite.deployContracts()
 	expIn := types.NewIncentive(contract, allocations, epochs)
 	suite.app.IncentivesKeeper.SetIncentive(suite.ctx, expIn)
 	suite.Commit()
@@ -79,6 +81,7 @@ func (suite *KeeperTestSuite) TestGetIncetive() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteIncentiveAndUpdateAllocationMeters() {
+	suite.deployContracts()
 	// Register Incentive
 	_, err := suite.app.IncentivesKeeper.RegisterIncentive(
 		suite.ctx,
@@ -121,6 +124,7 @@ func (suite *KeeperTestSuite) TestDeleteIncentiveAndUpdateAllocationMeters() {
 }
 
 func (suite *KeeperTestSuite) TestIsIncentiveRegistered() {
+	suite.deployContracts()
 	regIn := types.NewIncentive(contract, allocations, epochs)
 	suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
 	suite.Commit()

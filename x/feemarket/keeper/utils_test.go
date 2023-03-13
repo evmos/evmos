@@ -5,6 +5,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/evmos/evmos/v12/utils"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -19,14 +21,14 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v11/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/evmos/evmos/v11/x/feemarket/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v12/encoding"
+	"github.com/evmos/evmos/v12/testutil"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v12/x/feemarket/types"
 
 	"github.com/stretchr/testify/require"
 
@@ -75,6 +77,10 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
+
+	stakingParams := stakingtypes.DefaultParams()
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)

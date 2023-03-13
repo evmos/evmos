@@ -54,7 +54,7 @@ func (m *Manager) CreateExec(cmd []string, containerID string) (string, error) {
 }
 
 // CreateSubmitProposalExec creates a gov tx to submit an upgrade proposal to the chain
-func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint, legacy bool) (string, error) {
+func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgradeHeight uint, legacy bool, flags ...string) (string, error) {
 	var upgradeInfo, proposalType string
 	if legacy {
 		upgradeInfo = "--no-validate"
@@ -81,9 +81,8 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 		"--yes",
 		"--keyring-backend=test",
 		"--log_format=json",
-		"--fees=500aevmos",
-		"--gas=500000",
 	}
+	cmd = append(cmd, flags...)
 	// increment proposal counter to use proposal number for deposit && voting
 	m.proposalCounter++
 	return m.CreateExec(cmd, m.ContainerID())
@@ -112,7 +111,7 @@ func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, err
 }
 
 // CreateVoteProposalExec creates gov tx to vote 'yes' on the proposal with the given id
-func (m *Manager) CreateVoteProposalExec(chainID string, id int) (string, error) {
+func (m *Manager) CreateVoteProposalExec(chainID string, id int, flags ...string) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",
@@ -126,8 +125,7 @@ func (m *Manager) CreateVoteProposalExec(chainID string, id int) (string, error)
 		"--yes",
 		"--keyring-backend=test",
 		"--log_format=json",
-		"--fees=500aevmos",
-		"--gas=500000",
 	}
+	cmd = append(cmd, flags...)
 	return m.CreateExec(cmd, m.ContainerID())
 }

@@ -27,7 +27,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 )
 
@@ -237,7 +237,17 @@ func (pubKey PubKey) verifySignatureAsEIP712(msg, sig []byte) bool {
 		return false
 	}
 
-	return pubKey.verifySignatureECDSA(eip712Bytes, sig)
+	if pubKey.verifySignatureECDSA(eip712Bytes, sig) {
+		return true
+	}
+
+	// Try verifying the signature using the legacy EIP-712 encoding
+	legacyEIP712Bytes, err := eip712.LegacyGetEIP712BytesForMsg(msg)
+	if err != nil {
+		return false
+	}
+
+	return pubKey.verifySignatureECDSA(legacyEIP712Bytes, sig)
 }
 
 // Perform standard ECDSA signature verification for the given raw bytes and signature.

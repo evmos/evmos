@@ -24,8 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
-	evmostypes "github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v12/types"
+	"github.com/evmos/evmos/v12/utils"
 )
 
 var (
@@ -192,7 +192,7 @@ func validatePrecompiles(i interface{}) error {
 			return fmt.Errorf("duplicate precompile %s", precompile)
 		}
 
-		if err := evmostypes.ValidateAddress(precompile); err != nil {
+		if err := types.ValidateAddress(precompile); err != nil {
 			return fmt.Errorf("invalid precompile %s", precompile)
 		}
 

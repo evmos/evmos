@@ -34,10 +34,10 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 	"github.com/cosmos/ibc-go/v6/testing/mock"
 
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	evmostypes "github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/utils"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	"github.com/evmos/evmos/v12/utils"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains

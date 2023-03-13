@@ -8,16 +8,17 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/x/vesting/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/x/vesting/types"
 )
 
 var (
@@ -45,6 +46,7 @@ type KeeperTestSuite struct {
 	validator      stakingtypes.Validator
 	clientCtx      client.Context
 	ethSigner      ethtypes.Signer
+	priv           cryptotypes.PrivKey
 	signer         keyring.Signer
 }
 

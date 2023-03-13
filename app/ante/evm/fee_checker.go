@@ -16,7 +16,6 @@
 package evm
 
 import (
-	"fmt"
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
@@ -25,8 +24,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
-	evmostypes "github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/x/evm/types"
+	anteutils "github.com/evmos/evmos/v12/app/ante/utils"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	"github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // NewDynamicFeeChecker returns a `TxFeeChecker` that applies a dynamic fee to
@@ -35,15 +35,10 @@ import (
 // a) feeCap = tx.fees / tx.gas
 // b) tipFeeCap = tx.MaxPriorityPrice (default) or MaxInt64
 // - when `ExtensionOptionDynamicFeeTx` is omitted, `tipFeeCap` defaults to `MaxInt64`.
-// - when london hardfork is not enabled, it fallbacks to SDK default behavior (validator min-gas-prices).
+// - when london hardfork is not enabled, it falls back to SDK default behavior (validator min-gas-prices).
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
-func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
-	return func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
-		feeTx, ok := tx.(sdk.FeeTx)
-		if !ok {
-			return nil, 0, fmt.Errorf("tx must be a FeeTx")
-		}
-
+func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
+	return func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
 		if ctx.BlockHeight() == 0 {
 			// genesis transactions: fallback to min-gas-price logic
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
@@ -63,7 +58,7 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 		maxPriorityPrice := sdkmath.NewInt(math.MaxInt64)
 
 		// get the priority tip cap from the extension option.
-		if hasExtOptsTx, ok := tx.(authante.HasExtensionOptionsTx); ok {
+		if hasExtOptsTx, ok := feeTx.(authante.HasExtensionOptionsTx); ok {
 			for _, opt := range hasExtOptsTx.GetExtensionOptions() {
 				if extOpt, ok := opt.GetCachedValue().(*evmostypes.ExtensionOptionDynamicFeeTx); ok {
 					maxPriorityPrice = extOpt.MaxPriorityPrice
@@ -72,12 +67,22 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) authante.TxFeeChecker {
 			}
 		}
 
+		// priority fee cannot be negative
+		if maxPriorityPrice.IsNegative() {
+			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "max priority price cannot be negative")
+		}
+
 		gas := feeTx.GetGas()
 		feeCoins := feeTx.GetFee()
 		fee := feeCoins.AmountOfNoDenomValidation(denom)
 
 		feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
 		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
+
+		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
+		if feeCoins == nil {
+			feeCap = baseFeeInt
+		}
 
 		if feeCap.LT(baseFeeInt) {
 			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "got: %s%s required: %s%s. Please retry using the --gas-prices or --fees flag", feeCap, denom, baseFeeInt, denom)
@@ -124,6 +129,11 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coi
 		for i, gp := range minGasPrices {
 			fee := gp.Amount.Mul(glDec)
 			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+		}
+
+		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
+		if feeCoins == nil {
+			feeCoins = requiredFees
 		}
 
 		if !feeCoins.IsAnyGTE(requiredFees) {
