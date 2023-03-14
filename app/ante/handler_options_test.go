@@ -134,6 +134,23 @@ func (suite *AnteTestSuite) TestValidateHandlerOptions() {
 			false,
 		},
 		{
+			"fail - empty tx fee checker",
+			ante.HandlerOptions{
+				Cdc:                suite.app.AppCodec(),
+				AccountKeeper:      suite.app.AccountKeeper,
+				BankKeeper:         suite.app.BankKeeper,
+				DistributionKeeper: suite.app.DistrKeeper,
+				IBCKeeper:          suite.app.IBCKeeper,
+				StakingKeeper:      suite.app.StakingKeeper,
+				FeeMarketKeeper:    suite.app.FeeMarketKeeper,
+				EvmKeeper:          suite.app.EvmKeeper,
+				SigGasConsumer:     ante.SigVerificationGasConsumer,
+				SignModeHandler:    suite.app.GetTxConfig().SignModeHandler(),
+				TxFeeChecker:       nil,
+			},
+			false,
+		},
+		{
 			"success - default app options",
 			ante.HandlerOptions{
 				Cdc:                    suite.app.AppCodec(),

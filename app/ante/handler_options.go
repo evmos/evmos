@@ -88,6 +88,9 @@ func (options HandlerOptions) Validate() error {
 	if options.DistributionKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "distribution keeper is required for AnteHandler")
 	}
+	if options.TxFeeChecker == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "tx fee checker is required for AnteHandler")
+	}
 	return nil
 }
 
