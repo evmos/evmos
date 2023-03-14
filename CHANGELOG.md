@@ -79,6 +79,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1386](https://github.com/evmos/evmos/pull/1386) Use required fees (i.e `--fees=auto`) as default if fees are not specified
 - (test) [#1408](https://github.com/evmos/evmos/pull/1408) Refactor `DeployContract` and `DeployContractWithFactory` functions used for tests
 - (test) [#1417](https://github.com/evmos/evmos/pull/1417) Refactor EIP-712 transactions helper functions used on tests
+- (ante) [#1468](https://github.com/evmos/evmos/pull/1468) Add TxFeeChecker requirement
 
 ### Bug Fixes
 
