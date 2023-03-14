@@ -57,7 +57,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expErrMsg: "cannot provide both fees and gas prices",
 		},
 		{
-			name: "fail - submit upgrade proposal, no fees (defaults to required fees) & insufficient gas",
+			name: "fail - submit upgrade proposal, no fees & insufficient gas",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateSubmitProposalExec(
 					"v11.0.0",
@@ -100,18 +100,19 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expPass:   false,
 			expErrMsg: "out of gas",
 		},
-		{
-			name: "success - submit upgrade proposal, no fees (defaults to required fees) & default gas",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-				)
-			},
-			expPass: true,
-		},
+		// TODO uncomment when reimplement the fees 'auto' flag
+		// {
+		// 	name: "success - submit upgrade proposal, no fees (defaults to required fees) & default gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
 		{
 			name: "success - submit upgrade proposal, defined fees & gas",
 			cmd: func() (string, error) {
@@ -140,45 +141,46 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
-		{
-			name: "success - submit upgrade proposal, no fees (defaults to required fees) & sufficient gas",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--gas=1500000",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "success - submit upgrade proposal, gas 'auto'",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--gas=auto",
-				)
-			},
-			expPass: true,
-		},
-		{
-			name: "success - submit upgrade proposal, fees 'auto'",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateSubmitProposalExec(
-					"v11.0.0",
-					s.upgradeParams.ChainID,
-					5000,
-					true,
-					"--fees=auto",
-				)
-			},
-			expPass: true,
-		},
+		// TODO uncomment when reimplement the fees 'auto' flag
+		// {
+		// 	name: "success - submit upgrade proposal, no fees (defaults to required fees) & sufficient gas",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--gas=1500000",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// {
+		// 	name: "success - submit upgrade proposal, gas 'auto'",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--gas=auto",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
+		// {
+		// 	name: "success - submit upgrade proposal, fees 'auto'",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateSubmitProposalExec(
+		// 			"v11.0.0",
+		// 			s.upgradeParams.ChainID,
+		// 			5000,
+		// 			true,
+		// 			"--fees=auto",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
 		{
 			name: "fail - vote upgrade proposal, insufficient fees",
 			cmd: func() (string, error) {
@@ -192,44 +194,46 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expPass:   false,
 			expErrMsg: "insufficient fee",
 		},
+		// TODO uncomment when reimplement the fees 'auto' flag
+		// {
+		// 	name: "fail - vote upgrade proposal, incorrect flag combination (using fees 'auto' and specific gas)",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 			s.upgradeParams.ChainID,
+		// 			1,
+		// 			"--fees=auto",
+		// 			"--gas=500000",
+		// 		)
+		// 	},
+		// 	expPass:   false,
+		// 	expErrMsg: "you are using the --fees \"auto\" flag. It is not allowed to specify other flags",
+		// },
 		{
-			name: "fail - vote upgrade proposal, incorrect flag combination (using fees 'auto' and specific gas)",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--fees=auto",
-					"--gas=500000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "you are using the --fees \"auto\" flag. It is not allowed to specify other flags",
-		},
-		{
-			name: "fail - vote upgrade proposal, incorrect flag combination (using gas 'auto' and specific fees)",
+			name: "success - vote upgrade proposal (using gas 'auto' and specific fees)",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(
 					s.upgradeParams.ChainID,
 					1,
 					"--gas=auto",
+					"--gas-adjustment=1.4",
 					"--fees=500000aevmos",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "you are using the --gas \"auto\" flag. It is not allowed to specify other flags",
-		},
-		{
-			name: "success - vote upgrade proposal, fees 'auto'",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--fees=auto",
-					"--gas-adjustment=1.3",
 				)
 			},
 			expPass: true,
 		},
+		// TODO uncomment when reimplement the fees 'auto' flag
+		// {
+		// 	name: "success - vote upgrade proposal, fees 'auto'",
+		// 	cmd: func() (string, error) {
+		// 		return s.upgradeManager.CreateVoteProposalExec(
+		// 			s.upgradeParams.ChainID,
+		// 			1,
+		// 			"--fees=auto",
+		// 			"--gas-adjustment=1.3",
+		// 		)
+		// 	},
+		// 	expPass: true,
+		// },
 	}
 
 	for _, tc := range testCases {
