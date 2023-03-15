@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/evmos/evmos/v12/tests/e2e/upgrade"
@@ -28,12 +29,29 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 }
 
 func (s *IntegrationTestSuite) TestCLITxs() {
-	mainBranch := upgrade.VersionConfig{
-		ImageTag:  "main",
-		ImageName: "evmos",
-	}
+	const (
+		name    = "evmos"
+		version = "latest"
+	)
+	// get the head of the current branch
+	// to run the tests agains the last
+	branch, err := getCurrentBranch()
+	s.Require().NoError(err)
 
-	s.runInitialNode(mainBranch, repoDockerFile)
+	err = s.upgradeManager.BuildImage(
+		name,
+		version,
+		repoDockerFile,
+		".",
+		map[string]string{"BRANCH_NAME": branch},
+	)
+	s.Require().NoError(err, "can't build container for e2e test")
+
+	node := upgrade.NewNode(name, version)
+	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
+
+	err = s.upgradeManager.RunNode(node)
+	s.Require().NoError(err, "can't run node with Evmos version: %s", version)
 
 	testCases := []struct {
 		name      string

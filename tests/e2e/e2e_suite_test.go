@@ -74,7 +74,7 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, doc
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
-	s.Require().NoError(err, "can't build container with Evmos version: %s", version)
+	s.Require().NoError(err, "can't build container with Evmos version: %s", version.ImageTag)
 
 	node := upgrade.NewNode(version.ImageName, version.ImageTag)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
