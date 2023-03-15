@@ -80,7 +80,7 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
 
 		if feeCap.LT(baseFeeInt) {
-			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using the --gas-prices or --fees flag", feeCap, denom, baseFeeInt, denom)
+			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using the --gas-prices or a higher fee using the --fees flag", feeCap, denom, baseFeeInt, denom)
 		}
 
 		// calculate the effective gas price using the EIP-1559 logic.
