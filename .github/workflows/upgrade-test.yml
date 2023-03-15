@@ -1,4 +1,4 @@
-name: Upgrade Test
+name: E2E Test
 on:
   pull_request:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  test-e2e-upgrade:
+  test-e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v3
@@ -24,8 +24,8 @@ jobs:
             go.mod
             go.sum
             tests/e2e/*
-      - name: Test E2E upgrade
+      - name: Test E2E
         run: |
-          make test-upgrade
+          make test-e2e
         if: env.GIT_DIFF
 
