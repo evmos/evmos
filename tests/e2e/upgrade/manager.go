@@ -71,7 +71,7 @@ func NewManager(networkName string) (*Manager, error) {
 // BuildImage builds a docker image to run in the provided context directory
 // with <name>:<version> as the image target
 func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args map[string]string) error {
-	buildArgs := make([]docker.BuildArg, len(args))
+	buildArgs := make([]docker.BuildArg, 0, len(args))
 	for k, v := range args {
 		bArg := docker.BuildArg{
 			Name:  k,

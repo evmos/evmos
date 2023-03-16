@@ -17,7 +17,7 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 	for idx, version := range s.upgradeParams.Versions {
 		if idx == 0 {
 			// start initial node
-			s.runInitialNode(version, registryDockerFile)
+			s.runInitialNode(version)
 			continue
 		}
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
@@ -30,11 +30,11 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 
 func (s *IntegrationTestSuite) TestCLITxs() {
 	const (
-		name    = "evmos"
+		name    = "e2e-test/evmos"
 		version = "latest"
 	)
-	// get the head of the current branch
-	// to run the tests agains the last
+	// get the current branch name
+	// to run the tests agains the last changes
 	branch, err := getCurrentBranch()
 	s.Require().NoError(err)
 
@@ -51,7 +51,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
 
 	err = s.upgradeManager.RunNode(node)
-	s.Require().NoError(err, "can't run node with Evmos version: %s", version)
+	s.Require().NoError(err, "can't run node Evmos using branch %s", branch)
 
 	testCases := []struct {
 		name      string
@@ -86,7 +86,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 				)
 			},
 			expPass:   false,
-			expErrMsg: "out of gas",
+			expErrMsg: "gas prices too low",
 		},
 		{
 			name: "fail - submit upgrade proposal, insufficient fees",
@@ -166,8 +166,8 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 					s.upgradeParams.ChainID,
 					1,
 					"--gas=auto",
-					"--gas-adjustment=1.4",
-					"--fees=500000aevmos",
+					"--gas-adjustment=1.5",
+					"--fees=10000000000000000aevmos",
 				)
 			},
 			expPass: true,

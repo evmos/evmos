@@ -66,11 +66,11 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 // runInitialNode builds a docker image capable of running an Evmos node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
-func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, dockerFile string) {
+func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	err := s.upgradeManager.BuildImage(
 		version.ImageName,
 		version.ImageTag,
-		dockerFile,
+		registryDockerFile,
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
