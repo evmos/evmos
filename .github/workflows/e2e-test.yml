@@ -1,14 +1,14 @@
-name: Upgrade Test Release
+name: E2E Test
 on:
   pull_request:
     branches:
-      - release/**
+      - main
   push:
     branches:
-      - release/**
+      - main
 
 jobs:
-  test-e2e-upgrade:
+  test-e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-go@v4
@@ -19,11 +19,13 @@ jobs:
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
-            **/**.sol
-            **/**.go
+            app/app.go
+            app/upgrades/*
             go.mod
             go.sum
-      - name: Test E2E upgrade
+            tests/e2e/*
+      - name: Test E2E
         run: |
-          make test-upgrade
+          make test-e2e
         if: env.GIT_DIFF
+
