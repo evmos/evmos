@@ -17,7 +17,7 @@ as it allows for initializing multiple Evmos chains with different versions.
 
 ### Quick Start
 
-To run a chain e2e test, execute:
+To run the e2e tests, execute:
 
 ```shell
 make test-e2e
