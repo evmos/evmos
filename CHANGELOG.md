@@ -91,6 +91,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1452](https://github.com/evmos/evmos/pull/1452) Consider refund amount on `gasUsed` calculation
 - (evm) [#1466](https://github.com/evmos/evmos/pull/1466) Add `gasUsed` field in Ethereum transaction receipt
 - (cli) [#1467](https://github.com/evmos/evmos/pull/1467) Rollback fees `auto` flag logic
+- (ci) [#1476](https://github.com/evmos/evmos/pull/1476) Fix go-releaser configuration to be consistent with previous version binaries naming
 
 ## [v11.0.2] - 2023-02-10
 
