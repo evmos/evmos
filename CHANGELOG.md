@@ -82,6 +82,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#1468](https://github.com/evmos/evmos/pull/1468) Add TxFeeChecker requirement
 - (deps) [#1473](https://github.com/evmos/evmos/pull/1473) Bump Cosmos SDK version to [v0.46.10-alpha.ledger.2](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.10-alpha.ledger.2)
 - (ante) [#1470](https://github.com/evmos/evmos/pull/1470) Improve error message on `DynamicFeeChecker` ante handler
+- (test) [#1484](https://github.com/evmos/evmos/pull/1484) Update e2e test: refactor Makefile command and use latest changes for the tests
 
 ### Bug Fixes
 
