@@ -18,6 +18,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -104,7 +105,7 @@ func (k Keeper) ConvertERC20(
 			"contract", pair.Erc20Address,
 		)
 		// NOTE: return nil error to persist the changes from the deletion
-		return nil, nil
+		return nil, errorsmod.Wrap(types.ErrUndefinedOwner, fmt.Sprintf("deleting token pair, account is nil: %v", acc == nil))
 	}
 
 	// Check ownership and execute conversion
