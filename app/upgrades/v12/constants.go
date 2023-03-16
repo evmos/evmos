@@ -18,9 +18,9 @@ package v12
 
 const (
 	// UpgradeName is the shared upgrade plan name for mainnet
-	UpgradeName = "v12.0.0-rc2"
+	UpgradeName = "v12.0.0-rc4"
 	// UpgradeInfo defines the binaries that will be used for the upgrade
-	UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc2/evmos_12.0.0-rc2_Darwin_arm64.tar.gz","darwin/amd64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc2/evmos_12.0.0-rc2_Darwin_amd64.tar.gz","linux/arm64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc2/evmos_12.0.0-rc2_Linux_arm64.tar.gz","linux/amd64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc2/evmos_12.0.0-rc2_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc2/evmos_12.0.0-rc2_Windows_x86_64.zip"}}'`
+	UpgradeInfo = `'{"binaries":{"darwin/arm64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc4/evmos_12.0.0-rc4_Darwin_arm64.tar.gz","darwin/amd64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc4/evmos_12.0.0-rc4_Darwin_amd64.tar.gz","linux/arm64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc4/evmos_12.0.0-rc4_Linux_arm64.tar.gz","linux/amd64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc4/evmos_12.0.0-rc4_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evmos/evmos/releases/download/v12.0.0-rc4/evmos_12.0.0-rc4_Windows_x86_64.zip"}}'`
 	// TODO this is dummy data, update this with the real amount
 	// MaxRecover is the maximum amount of coins to be redistributed in the upgrade
 	MaxRecover = "2000000000000000000"
