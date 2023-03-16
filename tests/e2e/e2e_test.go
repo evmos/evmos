@@ -3,8 +3,6 @@ package e2e
 import (
 	"context"
 	"strings"
-
-	"github.com/evmos/evmos/v12/tests/e2e/upgrade"
 )
 
 // TestUpgrade tests if an Evmos node can be upgraded from one version to another.
@@ -16,7 +14,7 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 	for idx, version := range s.upgradeParams.Versions {
 		if idx == 0 {
 			// start initial node
-			s.runInitialNode(version, registryDockerFile)
+			s.runInitialNode(version)
 			continue
 		}
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
@@ -27,13 +25,11 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 	s.T().Logf("SUCCESS")
 }
 
+// TestCLITxs executes different types of transactions against an Evmos node
+// using the CLI client. The node used for the test has the latest changes introduced.
 func (s *IntegrationTestSuite) TestCLITxs() {
-	mainBranch := upgrade.VersionConfig{
-		ImageTag:  "main",
-		ImageName: "evmos",
-	}
-
-	s.runInitialNode(mainBranch, repoDockerFile)
+	// start a node
+	s.runNodeWithCurrentChanges()
 
 	testCases := []struct {
 		name      string
@@ -68,7 +64,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 				)
 			},
 			expPass:   false,
-			expErrMsg: "out of gas",
+			expErrMsg: "gas prices too low",
 		},
 		{
 			name: "fail - submit upgrade proposal, insufficient fees",
@@ -148,8 +144,8 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 					s.upgradeParams.ChainID,
 					1,
 					"--gas=auto",
-					"--gas-adjustment=1.4",
-					"--fees=500000aevmos",
+					"--gas-adjustment=1.5",
+					"--fees=10000000000000000aevmos",
 				)
 			},
 			expPass: true,

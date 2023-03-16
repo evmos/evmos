@@ -307,7 +307,7 @@ $(TEST_TARGETS): run-tests
 test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=atomic
 test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
-test-upgrade:
+test-e2e:
 	@if [ -z "$(TARGET_VERSION)" ]; then \
 		echo "Building docker image from local codebase"; \
 		make build-docker; \
