@@ -102,7 +102,7 @@ func (s *IntegrationTestSuite) runNodeWithCurrentChanges() {
 		version = "latest"
 	)
 	// get the current branch name
-	// to run the tests agains the last changes
+	// to run the tests against the last changes
 	branch, err := getCurrentBranch()
 	s.Require().NoError(err)
 

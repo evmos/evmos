@@ -30,7 +30,7 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 func (s *IntegrationTestSuite) TestCLITxs() {
 	// start a node
 	s.runNodeWithCurrentChanges()
-	
+
 	testCases := []struct {
 		name      string
 		cmd       func() (string, error)

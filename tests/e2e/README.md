@@ -8,12 +8,12 @@ as it allows for initializing multiple Evmos chains with different versions.
 - [End-to-End Testing Suite](#end-to-end-testing-suite)
     - [Quick Start](#quick-start)
     - [Upgrade Process](#upgrade-process)
-  - [Test Suite Structure](#test-suite-structure)
-    - [`e2e` Package](#e2e-package)
-    - [`upgrade` Package](#upgrade-package)
-    - [Version retrieve](#version-retrieve)
-    - [Testing Results](#testing-results)
-  - [Running multiple upgrades](#running-multiple-upgrades)
+    - [Test Suite Structure](#test-suite-structure)
+      - [`e2e` Package](#e2e-package)
+      - [`upgrade` Package](#upgrade-package)
+      - [Version retrieve](#version-retrieve)
+      - [Testing Results](#testing-results)
+   - [Running multiple upgrades](#running-multiple-upgrades)
 
 ### Quick Start
 

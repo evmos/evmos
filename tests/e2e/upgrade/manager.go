@@ -85,7 +85,7 @@ func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args 
 		BuildArgs:  buildArgs,
 		// rebuild the image every time in case there were changes
 		// and the image is cached
-		NoCache:    true,
+		NoCache: true,
 		// name with tag, e.g. evmos:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,
