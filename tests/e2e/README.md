@@ -13,7 +13,7 @@ as it allows for initializing multiple Evmos chains with different versions.
       - [`upgrade` Package](#upgrade-package)
       - [Version retrieve](#version-retrieve)
       - [Testing Results](#testing-results)
-   - [Running multiple upgrades](#running-multiple-upgrades)
+    - [Running multiple upgrades](#running-multiple-upgrades)
 
 ### Quick Start
 
