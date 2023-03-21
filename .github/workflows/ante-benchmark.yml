@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'app/ante/**'
 
 jobs:
   ante-benchmark-test:
@@ -16,6 +14,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Check changed files
+        uses: technote-space/get-diff-action@v6.1.2
+        with:
+          PATTERNS: |
+            app/ante/*
 
       - name: Setup Golang
         uses: actions/setup-go@v4
@@ -25,4 +29,4 @@ jobs:
 
       - name: Run benchmark tests
         run: go test -bench=. ./app/ante/... -benchtime=1000x
-        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.changed_files, 'app/ante/') }}
+        if: env.GIT_DIFF
