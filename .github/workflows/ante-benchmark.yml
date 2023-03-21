@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths: 
+      - 'app/ante/**'
   pull_request:
     branches:
       - main
+    paths: 
+      - 'app/ante/**'
 
 jobs:
   ante-benchmark-test:
@@ -14,12 +18,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Check changed files
-        uses: technote-space/get-diff-action@v6.1.2
-        with:
-          PATTERNS: |
-            app/ante/*
 
       - name: Setup Golang
         uses: actions/setup-go@v4
