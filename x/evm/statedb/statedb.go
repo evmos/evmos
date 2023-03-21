@@ -217,6 +217,8 @@ func (s *StateDB) HasSuicided(addr common.Address) bool {
 // AddPreimage performs a no-op since the EnablePreimageRecording flag is disabled
 // on the vm.Config during state transitions. No store trie preimages are written
 // to the database.
+//
+//nolint:all
 func (s *StateDB) AddPreimage(hash common.Hash, preimage []byte) {}
 
 // getStateObject retrieves a state object given by the address, returning nil if

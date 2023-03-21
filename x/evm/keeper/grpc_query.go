@@ -289,6 +289,7 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 	}
 
 	// Binary search the gas requirement, as it may be higher than the amount used
+	//nolint:all
 	var (
 		lo  = ethparams.TxGas - 1
 		hi  uint64
@@ -314,6 +315,7 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 	if req.GasCap != 0 && hi > req.GasCap {
 		hi = req.GasCap
 	}
+	//nolint:all
 	cap = hi
 	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress), chainID)
 	if err != nil {

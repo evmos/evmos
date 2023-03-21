@@ -117,6 +117,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			// Get bip39 mnemonic
 			var mnemonic string
+			//nolint:all
 			recover, _ := cmd.Flags().GetBool(genutilcli.FlagRecover)
 			if recover {
 				inBuf := bufio.NewReader(cmd.InOrStdin())

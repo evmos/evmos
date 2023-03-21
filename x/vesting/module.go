@@ -71,7 +71,7 @@ func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 }
 
 // ValidateGenesis performs genesis state validation. Currently, this is a no-op.
-func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, _ json.RawMessage) error {
 	return nil
 }
 

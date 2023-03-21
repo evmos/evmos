@@ -26,7 +26,7 @@ type MockTransferKeeper struct {
 	bankkeeper.Keeper
 }
 
-func (m *MockTransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
+func (m *MockTransferKeeper) GetDenomTrace(_ sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
 	args := m.Called(mock.Anything, denomTraceHash)
 	return args.Get(0).(transfertypes.DenomTrace), args.Bool(1)
 }

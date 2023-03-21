@@ -196,6 +196,7 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 	// Get bip39 mnemonic
 	var mnemonic, bip39Passphrase string
 
+	//nolint:all
 	recover, _ := cmd.Flags().GetBool(flagRecover)
 	if recover {
 		mnemonic, err = input.GetString("Enter your bip39 mnemonic", inBuf)

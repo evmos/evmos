@@ -75,7 +75,7 @@ func DeployContractWithFactory(
 	evmosApp *app.Evmos,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
-	queryClientEvm evm.QueryClient,
+	_ evm.QueryClient,
 ) (common.Address, abci.ResponseDeliverTx, error) {
 	chainID := evmosApp.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())

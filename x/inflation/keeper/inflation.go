@@ -119,7 +119,7 @@ func (k Keeper) AllocateExponentialInflation(
 // GetAllocationProportion calculates the proportion of coins that is to be
 // allocated during inflation for a given distribution.
 func (k Keeper) GetProportions(
-	ctx sdk.Context,
+	_ sdk.Context,
 	coin sdk.Coin,
 	distribution sdk.Dec,
 ) sdk.Coin {

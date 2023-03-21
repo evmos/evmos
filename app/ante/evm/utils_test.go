@@ -78,6 +78,8 @@ func (suite *AnteTestSuite) BuildTestEthTx(
 }
 
 // CreateTestTx is a helper function to create a tx given multiple inputs.
+//
+//nolint:all
 func (suite *AnteTestSuite) CreateTestTx(
 	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
 	unsetExtensionOptions ...bool,
@@ -446,6 +448,7 @@ func (suite *AnteTestSuite) CreateTestEIP712SingleMessageTxBuilder(
 	)
 }
 
+//nolint:all
 func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 	from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins, msgs []sdk.Msg,
 ) (client.TxBuilder, error) {

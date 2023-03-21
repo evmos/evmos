@@ -25,7 +25,9 @@ type MockIBCModule struct {
 
 // OnChanOpenInit implements the Module interface
 // It calls the underlying app's OnChanOpenInit callback.
-func (m MockIBCModule) OnChanOpenInit( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all // we can copy locks here because it is a test
+func (m MockIBCModule) OnChanOpenInit(
 	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
@@ -41,7 +43,9 @@ func (m MockIBCModule) OnChanOpenInit( //nolint:govet // we can copy locks here 
 
 // OnChanOpenTry implements the Module interface.
 // It calls the underlying app's OnChanOpenTry callback.
-func (m MockIBCModule) OnChanOpenTry( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnChanOpenTry(
 	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
@@ -57,7 +61,9 @@ func (m MockIBCModule) OnChanOpenTry( //nolint:govet // we can copy locks here b
 
 // OnChanOpenAck implements the Module interface.
 // It calls the underlying app's OnChanOpenAck callback.
-func (m MockIBCModule) OnChanOpenAck( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
 	channelID,
@@ -70,7 +76,9 @@ func (m MockIBCModule) OnChanOpenAck( //nolint:govet // we can copy locks here b
 
 // OnChanOpenConfirm implements the Module interface.
 // It calls the underlying app's OnChanOpenConfirm callback.
-func (m MockIBCModule) OnChanOpenConfirm( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnChanOpenConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -81,7 +89,9 @@ func (m MockIBCModule) OnChanOpenConfirm( //nolint:govet // we can copy locks he
 
 // OnChanCloseInit implements the Module interface
 // It calls the underlying app's OnChanCloseInit callback.
-func (m MockIBCModule) OnChanCloseInit( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnChanCloseInit(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -92,7 +102,9 @@ func (m MockIBCModule) OnChanCloseInit( //nolint:govet // we can copy locks here
 
 // OnChanCloseConfirm implements the Module interface.
 // It calls the underlying app's OnChanCloseConfirm callback.
-func (m MockIBCModule) OnChanCloseConfirm( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnChanCloseConfirm(
 	ctx sdk.Context,
 	portID,
 	channelID string,
@@ -103,7 +115,9 @@ func (m MockIBCModule) OnChanCloseConfirm( //nolint:govet // we can copy locks h
 
 // OnRecvPacket implements the Module interface.
 // It calls the underlying app's OnRecvPacket callback.
-func (m MockIBCModule) OnRecvPacket( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
@@ -114,7 +128,9 @@ func (m MockIBCModule) OnRecvPacket( //nolint:govet // we can copy locks here be
 
 // OnAcknowledgementPacket implements the Module interface.
 // It calls the underlying app's OnAcknowledgementPacket callback.
-func (m MockIBCModule) OnAcknowledgementPacket( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	acknowledgement []byte,
@@ -126,7 +142,9 @@ func (m MockIBCModule) OnAcknowledgementPacket( //nolint:govet // we can copy lo
 
 // OnTimeoutPacket implements the Module interface.
 // It calls the underlying app's OnTimeoutPacket callback.
-func (m MockIBCModule) OnTimeoutPacket( //nolint:govet // we can copy locks here because it is a test
+//
+//nolint:all
+func (m MockIBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,

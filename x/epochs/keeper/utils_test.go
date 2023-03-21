@@ -12,7 +12,7 @@ import (
 )
 
 // Test helpers
-func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+func (suite *KeeperTestSuite) DoSetupTest(_ require.TestingT) {
 	checkTx := false
 
 	// init app
