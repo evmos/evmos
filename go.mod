@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-rc.0
 	github.com/armon/go-metrics v0.4.1
-	github.com/btcsuite/btcd v0.23.4
+	github.com/btcsuite/btcd v0.23.3
 	github.com/btcsuite/btcd/btcutil v1.1.3
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.46.10
