@@ -645,6 +645,8 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 	}
 }
 
+// prepareAccount is a helper function that asigns the corresponding
+// balance and rewards to the provided account
 func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards sdkmath.Int) sdk.Context {
 	ctx, err := testutil.PrepareAccountsForDelegationRewards(
 		suite.T(), ctx, suite.app, addr, balance, rewards,

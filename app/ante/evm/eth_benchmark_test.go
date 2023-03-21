@@ -65,7 +65,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 				// Create new stateDB for each test case from the cached context
 				vmdb = testutil.NewStateDB(cacheCtx, s.app.EvmKeeper)
 				cacheCtx = s.prepareAccount(cacheCtx, addr.Bytes(), tc.balance, tc.rewards)
-				vmdb.Commit()
+				s.Require().NoError(vmdb.Commit())
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
