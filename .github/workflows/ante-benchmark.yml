@@ -29,4 +29,4 @@ jobs:
 
       - name: Run benchmark tests
         run: go test -bench=. ./app/ante/... -benchtime=1000x
-        if: env.GIT_DIFF
+
