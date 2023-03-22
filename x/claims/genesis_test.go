@@ -12,13 +12,13 @@ import (
 	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/version"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/claims"
-	"github.com/evmos/evmos/v11/x/claims/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/testutil"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	"github.com/evmos/evmos/v12/utils"
+	"github.com/evmos/evmos/v12/x/claims"
+	"github.com/evmos/evmos/v12/x/claims/types"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 )
 
 type GenesisTestSuite struct {

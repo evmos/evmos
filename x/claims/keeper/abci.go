@@ -22,9 +22,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	evmostypes "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v12/types"
 
-	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v12/x/claims/types"
 )
 
 // EndBlocker checks if the airdrop claiming period has ended in order to

@@ -11,11 +11,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/testutil"
-	utiltx "github.com/evmos/evmos/v11/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	"github.com/evmos/evmos/v11/x/revenue/v1/types"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v12/testutil"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v12/x/revenue/v1/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -694,7 +694,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey,
 						factoryAddress,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()
@@ -795,7 +794,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey1,
 						factory1Address,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()
@@ -807,7 +805,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey1,
 						factory2Address,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()

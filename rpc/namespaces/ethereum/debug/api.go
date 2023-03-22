@@ -29,7 +29,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 
 	stderrors "github.com/pkg/errors"
 
@@ -39,8 +39,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/evmos/evmos/v11/rpc/backend"
-	rpctypes "github.com/evmos/evmos/v11/rpc/types"
+	"github.com/evmos/evmos/v12/rpc/backend"
+	rpctypes "github.com/evmos/evmos/v12/rpc/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 

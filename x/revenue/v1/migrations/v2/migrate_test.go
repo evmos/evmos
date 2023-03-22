@@ -6,14 +6,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/evmos/evmos/v11/encoding"
-	v2 "github.com/evmos/evmos/v11/x/revenue/v1/migrations/v2"
-	v2types "github.com/evmos/evmos/v11/x/revenue/v1/migrations/v2/types"
-	"github.com/evmos/evmos/v11/x/revenue/v1/types"
+	"github.com/evmos/evmos/v12/encoding"
+	v2 "github.com/evmos/evmos/v12/x/revenue/v1/migrations/v2"
+	v2types "github.com/evmos/evmos/v12/x/revenue/v1/migrations/v2/types"
+	"github.com/evmos/evmos/v12/x/revenue/v1/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/app"
+	"github.com/evmos/evmos/v12/app"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +27,7 @@ func newMockSubspace(ps v2types.V2Params, storeKey, transientKey storetypes.Stor
 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
-func (ms mockSubspace) GetParamSetIfExists(ctx sdk.Context, ps types.LegacyParams) {
+func (ms mockSubspace) GetParamSetIfExists(_ sdk.Context, ps types.LegacyParams) {
 	*ps.(*v2types.V2Params) = ms.ps
 }
 

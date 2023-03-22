@@ -12,7 +12,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 
-	"github.com/evmos/evmos/v11/x/recovery/types"
+	"github.com/evmos/evmos/v12/x/recovery/types"
 )
 
 var _ types.TransferKeeper = &MockTransferKeeper{}
@@ -26,7 +26,7 @@ type MockTransferKeeper struct {
 	bankkeeper.Keeper
 }
 
-func (m *MockTransferKeeper) GetDenomTrace(ctx sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
+func (m *MockTransferKeeper) GetDenomTrace(_ sdk.Context, denomTraceHash tmbytes.HexBytes) (transfertypes.DenomTrace, bool) {
 	args := m.Called(mock.Anything, denomTraceHash)
 	return args.Get(0).(transfertypes.DenomTrace), args.Bool(1)
 }

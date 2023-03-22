@@ -19,11 +19,11 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v11/types"
+	evmostypes "github.com/evmos/evmos/v12/types"
 
-	utils "github.com/evmos/evmos/v11/utils"
-	incentivestypes "github.com/evmos/evmos/v11/x/incentives/types"
-	"github.com/evmos/evmos/v11/x/inflation/types"
+	utils "github.com/evmos/evmos/v12/utils"
+	incentivestypes "github.com/evmos/evmos/v12/x/incentives/types"
+	"github.com/evmos/evmos/v12/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team
@@ -119,7 +119,7 @@ func (k Keeper) AllocateExponentialInflation(
 // GetAllocationProportion calculates the proportion of coins that is to be
 // allocated during inflation for a given distribution.
 func (k Keeper) GetProportions(
-	ctx sdk.Context,
+	_ sdk.Context,
 	coin sdk.Coin,
 	distribution sdk.Dec,
 ) sdk.Coin {

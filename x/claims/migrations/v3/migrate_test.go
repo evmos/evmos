@@ -8,11 +8,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/encoding"
-	v3 "github.com/evmos/evmos/v11/x/claims/migrations/v3"
-	v3types "github.com/evmos/evmos/v11/x/claims/migrations/v3/types"
-	"github.com/evmos/evmos/v11/x/claims/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/encoding"
+	v3 "github.com/evmos/evmos/v12/x/claims/migrations/v3"
+	v3types "github.com/evmos/evmos/v12/x/claims/migrations/v3/types"
+	"github.com/evmos/evmos/v12/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,7 +26,7 @@ func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.Stor
 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
-func (ms mockSubspace) GetParamSetIfExists(ctx sdk.Context, ps types.LegacyParams) {
+func (ms mockSubspace) GetParamSetIfExists(_ sdk.Context, ps types.LegacyParams) {
 	*ps.(*v3types.V3Params) = ms.ps
 }
 

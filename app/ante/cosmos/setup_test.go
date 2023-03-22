@@ -19,18 +19,18 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/app/ante"
-	evmante "github.com/evmos/evmos/v11/app/ante/evm"
-	"github.com/evmos/evmos/v11/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/testutil"
-	"github.com/evmos/evmos/v11/types"
-	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/app/ante"
+	evmante "github.com/evmos/evmos/v12/app/ante/evm"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v12/encoding"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
+	"github.com/evmos/evmos/v12/testutil"
+	"github.com/evmos/evmos/v12/types"
+	"github.com/evmos/evmos/v12/utils"
+	"github.com/evmos/evmos/v12/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 )
 
 type AnteTestSuite struct {
@@ -95,6 +95,10 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
 
+	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+
 	infCtx := suite.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 
@@ -130,6 +134,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		suite.priv.PubKey().Address().Bytes(),
 		sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amt)),
 	)
+	suite.Require().NoError(err)
+
+	header := suite.ctx.BlockHeader()
+	suite.ctx = suite.ctx.WithBlockHeight(header.Height - 1)
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
 	suite.Require().NoError(err)
 }
 

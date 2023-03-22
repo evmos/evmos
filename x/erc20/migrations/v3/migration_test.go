@@ -5,17 +5,17 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/encoding"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/encoding"
 
-	v3types "github.com/evmos/evmos/v11/x/erc20/migrations/v3/types"
+	v3types "github.com/evmos/evmos/v12/x/erc20/migrations/v3/types"
 
-	"github.com/evmos/evmos/v11/x/erc20/types"
+	"github.com/evmos/evmos/v12/x/erc20/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v11/x/erc20/migrations/v3"
+	"github.com/evmos/evmos/v12/x/erc20/migrations/v3"
 )
 
 type mockSubspace struct {
@@ -28,7 +28,7 @@ func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.Stor
 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
+func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
 	*ps.(*v3types.V3Params) = ms.ps
 }
 

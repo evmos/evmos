@@ -14,16 +14,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/app"
-	ante "github.com/evmos/evmos/v11/app/ante"
-	"github.com/evmos/evmos/v11/encoding"
-	"github.com/evmos/evmos/v11/ethereum/eip712"
-	"github.com/evmos/evmos/v11/utils"
-	"github.com/evmos/evmos/v11/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v11/x/feemarket/types"
+	"github.com/evmos/evmos/v12/app"
+	ante "github.com/evmos/evmos/v12/app/ante"
+	"github.com/evmos/evmos/v12/encoding"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
+	"github.com/evmos/evmos/v12/utils"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 )
 
 type AnteTestSuite struct {
@@ -42,10 +40,6 @@ type AnteTestSuite struct {
 }
 
 const TestGasLimit uint64 = 100000
-
-func (suite *AnteTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
-}
 
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
@@ -84,6 +78,11 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
 
+	// set staking denomination to Evmos denom
+	params := suite.app.StakingKeeper.GetParams(suite.ctx)
+	params.BondDenom = utils.BaseDenom
+	suite.app.StakingKeeper.SetParams(suite.ctx, params)
+
 	infCtx := suite.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 
@@ -97,15 +96,17 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.Require().NotNil(suite.app.AppCodec())
 
 	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
-		Cdc:             suite.app.AppCodec(),
-		AccountKeeper:   suite.app.AccountKeeper,
-		BankKeeper:      suite.app.BankKeeper,
-		EvmKeeper:       suite.app.EvmKeeper,
-		FeegrantKeeper:  suite.app.FeeGrantKeeper,
-		IBCKeeper:       suite.app.IBCKeeper,
-		FeeMarketKeeper: suite.app.FeeMarketKeeper,
-		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:  ante.SigVerificationGasConsumer,
+		Cdc:                suite.app.AppCodec(),
+		AccountKeeper:      suite.app.AccountKeeper,
+		BankKeeper:         suite.app.BankKeeper,
+		DistributionKeeper: suite.app.DistrKeeper,
+		EvmKeeper:          suite.app.EvmKeeper,
+		FeegrantKeeper:     suite.app.FeeGrantKeeper,
+		IBCKeeper:          suite.app.IBCKeeper,
+		StakingKeeper:      suite.app.StakingKeeper,
+		FeeMarketKeeper:    suite.app.FeeMarketKeeper,
+		SignModeHandler:    encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:     ante.SigVerificationGasConsumer,
 	})
 
 	suite.anteHandler = anteHandler

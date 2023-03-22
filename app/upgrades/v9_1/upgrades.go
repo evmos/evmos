@@ -26,7 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/evmos/evmos/v11/utils"
+	"github.com/evmos/evmos/v12/utils"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v9
@@ -95,9 +95,5 @@ func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keepe
 		Denom:  "aevmos",
 		Amount: amount,
 	}
-
-	if err := dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to); err != nil {
-		return err
-	}
-	return nil
+	return dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to)
 }

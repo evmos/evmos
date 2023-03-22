@@ -11,9 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/x/claims/types"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/x/claims/types"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 

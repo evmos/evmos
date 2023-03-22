@@ -42,11 +42,11 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/evmos/evmos/v11/rpc/ethereum/pubsub"
-	rpcfilters "github.com/evmos/evmos/v11/rpc/namespaces/ethereum/eth/filters"
-	"github.com/evmos/evmos/v11/rpc/types"
-	"github.com/evmos/evmos/v11/server/config"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v12/rpc/ethereum/pubsub"
+	rpcfilters "github.com/evmos/evmos/v12/rpc/namespaces/ethereum/eth/filters"
+	"github.com/evmos/evmos/v12/rpc/types"
+	"github.com/evmos/evmos/v12/server/config"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 type WebsocketsServer interface {
@@ -691,7 +691,7 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 	return unsubFn, nil
 }
 
-func (api *pubSubAPI) subscribeSyncing(wsConn *wsConn, subID rpc.ID) (pubsub.UnsubscribeFunc, error) {
+func (api *pubSubAPI) subscribeSyncing(_ *wsConn, _ rpc.ID) (pubsub.UnsubscribeFunc, error) {
 	return nil, errors.New("syncing subscription is not implemented")
 }
 

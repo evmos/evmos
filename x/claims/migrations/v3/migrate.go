@@ -21,8 +21,8 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v3types "github.com/evmos/evmos/v11/x/claims/migrations/v3/types"
-	"github.com/evmos/evmos/v11/x/claims/types"
+	v3types "github.com/evmos/evmos/v12/x/claims/migrations/v3/types"
+	"github.com/evmos/evmos/v12/x/claims/types"
 )
 
 // MigrateStore migrates the x/claims module state from the consensus version 2 to

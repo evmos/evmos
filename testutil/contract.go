@@ -15,9 +15,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v11/app"
-	"github.com/evmos/evmos/v11/testutil/tx"
-	evm "github.com/evmos/evmos/v11/x/evm/types"
+	"github.com/evmos/evmos/v12/app"
+	"github.com/evmos/evmos/v12/testutil/tx"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // DeployContract deploys a contract with the provided private key,
@@ -75,7 +75,6 @@ func DeployContractWithFactory(
 	evmosApp *app.Evmos,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
-	queryClientEvm evm.QueryClient,
 ) (common.Address, abci.ResponseDeliverTx, error) {
 	chainID := evmosApp.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())

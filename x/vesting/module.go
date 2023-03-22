@@ -34,9 +34,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/evmos/evmos/v11/x/vesting/client/cli"
-	"github.com/evmos/evmos/v11/x/vesting/keeper"
-	"github.com/evmos/evmos/v11/x/vesting/types"
+	"github.com/evmos/evmos/v12/x/vesting/client/cli"
+	"github.com/evmos/evmos/v12/x/vesting/keeper"
+	"github.com/evmos/evmos/v12/x/vesting/types"
 )
 
 var (
@@ -71,7 +71,7 @@ func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 }
 
 // ValidateGenesis performs genesis state validation. Currently, this is a no-op.
-func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, _ json.RawMessage) error {
 	return nil
 }
 

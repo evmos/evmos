@@ -18,6 +18,7 @@ package backend
 import (
 	"fmt"
 	"math"
+	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -26,9 +27,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	rpctypes "github.com/evmos/evmos/v11/rpc/types"
-	"github.com/evmos/evmos/v11/types"
-	evmtypes "github.com/evmos/evmos/v11/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v12/rpc/types"
+	"github.com/evmos/evmos/v12/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 	"github.com/pkg/errors"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
@@ -138,6 +139,17 @@ func (b *Backend) getTransactionByHashPending(txHash common.Hash) (*rpctypes.RPC
 	return nil, nil
 }
 
+// GetGasUsed returns gasUsed from transaction
+func (b *Backend) GetGasUsed(res *types.TxResult, price *big.Int, gas uint64) uint64 {
+	// patch gasUsed if tx is reverted and happened before height on which fixed was introduced
+	// to return real gas charged
+	// more info at https://github.com/evmos/ethermint/pull/1557
+	if res.Failed && res.Height < b.cfg.JSONRPC.FixRevertGasRefundHeight {
+		return new(big.Int).Mul(price, new(big.Int).SetUint64(gas)).Uint64()
+	}
+	return res.GasUsed
+}
+
 // GetTransactionReceipt returns the transaction receipt identified by hash.
 func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error) {
 	hexTx := hash.Hex()
@@ -226,6 +238,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		// They are stored in the chain database.
 		"transactionHash": hash,
 		"contractAddress": nil,
+		"gasUsed":         hexutil.Uint64(b.GetGasUsed(res, txData.GetGasPrice(), txData.GetGas())),
 
 		// Inclusion information: These fields provide information about the inclusion of the
 		// transaction corresponding to this receipt.
