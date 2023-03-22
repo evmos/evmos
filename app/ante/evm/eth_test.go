@@ -4,7 +4,6 @@ import (
 	"math"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
@@ -643,16 +642,4 @@ func (suite *AnteTestSuite) TestEthIncrementSenderSequenceDecorator() {
 			}
 		})
 	}
-}
-
-// prepareAccount is a helper function that asigns the corresponding
-// balance and rewards to the provided account
-func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards sdkmath.Int) sdk.Context {
-	ctx, err := testutil.PrepareAccountsForDelegationRewards(
-		suite.T(), ctx, suite.app, addr, balance, rewards,
-	)
-	suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-	return ctx.
-		WithBlockGasMeter(sdk.NewGasMeter(1e19)).
-		WithBlockHeight(ctx.BlockHeight() + 1)
 }
