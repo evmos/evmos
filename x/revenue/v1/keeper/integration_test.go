@@ -694,7 +694,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey,
 						factoryAddress,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()
@@ -795,7 +794,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey1,
 						factory1Address,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()
@@ -807,7 +805,6 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 						s.app,
 						deployerKey1,
 						factory2Address,
-						s.queryClientEvm,
 					)
 					Expect(err).To(BeNil())
 					s.Commit()

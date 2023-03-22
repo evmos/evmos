@@ -68,8 +68,7 @@ func (b *MockBankKeeper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAdd
 	return args.Error(0)
 }
 
-//nolint:all
-func (b *MockBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (b *MockBankKeeper) MintCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
