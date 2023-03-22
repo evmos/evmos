@@ -37,11 +37,8 @@ func ValidateEpochIdentifierInterface(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	if err := ValidateEpochIdentifierString(v); err != nil {
-		return err
-	}
 
-	return nil
+	return ValidateEpochIdentifierString(v)
 }
 
 // ValidateEpochIdentifierInterface performs a stateless
