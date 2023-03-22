@@ -28,7 +28,7 @@ func newMockSubspace(ps v3types.V3Params, storeKey, transientKey storetypes.Stor
 	return mockSubspace{ps: ps, storeKey: storeKey, transientKey: transientKey}
 }
 
-func (ms mockSubspace) GetParamSet(ctx sdk.Context, ps types.LegacyParams) {
+func (ms mockSubspace) GetParamSet(_ sdk.Context, ps types.LegacyParams) {
 	*ps.(*v3types.V3Params) = ms.ps
 }
 
