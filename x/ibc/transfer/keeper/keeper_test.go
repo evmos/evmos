@@ -184,13 +184,13 @@ type MockChannelKeeper struct {
 	mock.Mock
 }
 
-//nolint:all
+//nolint:revive // allow unused parameters to indicate expected signature
 func (b *MockChannelKeeper) GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool) {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Get(0).(channeltypes.Channel), true
 }
 
-//nolint:all
+//nolint:revive // allow unused parameters to indicate expected signature
 func (b *MockChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channelID string) (uint64, bool) {
 	_ = b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return 1, true
@@ -206,12 +206,12 @@ func (b *MockICS4Wrapper) WriteAcknowledgement(_ sdk.Context, _ *capabilitytypes
 	return nil
 }
 
-//nolint:all
+//nolint:revive // allow unused parameters to indicate expected signature
 func (b *MockICS4Wrapper) GetAppVersion(ctx sdk.Context, portID string, channelID string) (string, bool) {
 	return "", false
 }
 
-//nolint:all
+//nolint:revive // allow unused parameters to indicate expected signature
 func (b *MockICS4Wrapper) SendPacket(
 	ctx sdk.Context,
 	channelCap *capabilitytypes.Capability,

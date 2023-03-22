@@ -56,14 +56,13 @@ type MockBankKeeper struct {
 	mock.Mock
 }
 
-//nolint:all
-func (b *MockBankKeeper) SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromModuleToAccount(_ sdk.Context, _ string, _ sdk.AccAddress, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
 //nolint:all
-func (b *MockBankKeeper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromAccountToModule(_ sdk.Context, _ sdk.AccAddress, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
@@ -74,8 +73,7 @@ func (b *MockBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk.C
 	return args.Error(0)
 }
 
-//nolint:all
-func (b *MockBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (b *MockBankKeeper) BurnCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
@@ -99,14 +97,12 @@ func (b *MockBankKeeper) GetDenomMetaData(ctx sdk.Context, denom string) (bankty
 func (b *MockBankKeeper) SetDenomMetaData(_ sdk.Context, _ banktypes.Metadata) {
 }
 
-//nolint:all
-func (b *MockBankKeeper) HasSupply(ctx sdk.Context, denom string) bool {
+func (b *MockBankKeeper) HasSupply(_ sdk.Context, _ string) bool {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Bool(0)
 }
 
-//nolint:all
-func (b *MockBankKeeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin {
+func (b *MockBankKeeper) GetBalance(_ sdk.Context, _ sdk.AccAddress, _ string) sdk.Coin {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(sdk.Coin)
 }

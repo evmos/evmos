@@ -59,9 +59,7 @@ func (h Hooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr s
 // AfterProposalVote is called after a vote on a proposal is cast. Once the vote
 // is successfully included, the claimable amount for the user's claims record
 // vote action is claimed and the transferred to the user address.
-//
-//nolint:all
-func (k Keeper) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
+func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, _ sdk.AccAddress) {
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, voterAddr)
@@ -144,27 +142,20 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, _ *ethtypes.
 // ________________________________________________________________________________________
 
 // governance hooks
-//
-//nolint:all
-func (h Hooks) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {
+func (h Hooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
 }
 
-//nolint:all
-func (h Hooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {
+func (h Hooks) AfterProposalVotingPeriodEnded(_ sdk.Context, _ uint64) {
 }
 
-//nolint:all
-func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {}
+func (h Hooks) AfterProposalSubmission(_ sdk.Context, _ uint64) {}
 
-//nolint:all
-func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, depositorAddr sdk.AccAddress) {
+func (h Hooks) AfterProposalDeposit(_ sdk.Context, _ uint64, _ sdk.AccAddress) {
 }
 
-//nolint:all
-func (h Hooks) AfterProposalInactive(ctx sdk.Context, proposalID uint64) {}
+func (h Hooks) AfterProposalInactive(_ sdk.Context, _ uint64) {}
 
-//nolint:all
-func (h Hooks) AfterProposalActive(ctx sdk.Context, proposalID uint64) {}
+func (h Hooks) AfterProposalActive(_ sdk.Context, _ uint64) {}
 
 // staking hooks
 func (h Hooks) AfterValidatorCreated(_ sdk.Context, _ sdk.ValAddress) error {

@@ -79,7 +79,7 @@ func (suite *AnteTestSuite) BuildTestEthTx(
 
 // CreateTestTx is a helper function to create a tx given multiple inputs.
 //
-//nolint:all
+//nolint:revive
 func (suite *AnteTestSuite) CreateTestTx(
 	msg *evmtypes.MsgEthereumTx, priv cryptotypes.PrivKey, accNum uint64, signCosmosTx bool,
 	unsetExtensionOptions ...bool,
