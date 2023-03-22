@@ -290,8 +290,8 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 
 	// Binary search the gas requirement, as it may be higher than the amount used
 	var (
-		lo  = ethparams.TxGas - 1
-		hi  uint64
+		lo     = ethparams.TxGas - 1
+		hi     uint64
 		gasCap uint64
 	)
 

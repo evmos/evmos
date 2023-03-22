@@ -61,7 +61,6 @@ func (b *MockBankKeeper) SendCoinsFromModuleToAccount(_ sdk.Context, _ string, _
 	return args.Error(0)
 }
 
-//nolint:all
 func (b *MockBankKeeper) SendCoinsFromAccountToModule(_ sdk.Context, _ sdk.AccAddress, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)

@@ -59,7 +59,7 @@ func (h Hooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr s
 // AfterProposalVote is called after a vote on a proposal is cast. Once the vote
 // is successfully included, the claimable amount for the user's claims record
 // vote action is claimed and the transferred to the user address.
-func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, _ sdk.AccAddress) {
+func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, voterAddr sdk.AccAddress) {
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, voterAddr)
