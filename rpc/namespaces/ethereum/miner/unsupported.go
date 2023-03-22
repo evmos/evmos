@@ -52,8 +52,7 @@ func (api *API) SetGasLimit(_ hexutil.Uint64) bool {
 // transaction pool.
 // Unsupported in Ethermint
 //
-//nolint:all
-func (api *API) Start(threads *int) error {
+func (api *API) Start(_ *int) error {
 	api.logger.Debug("miner_start")
 	api.logger.Debug("Unsupported rpc function: miner_start")
 	return errors.New("unsupported rpc function: miner_start")

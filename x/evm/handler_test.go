@@ -545,7 +545,7 @@ func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 	suite.SignTx(tx)
 
 	defer func() {
-		//nolint:all
+		//nolint:revive // allow empty code block that just contains TODO in test code
 		if r := recover(); r != nil {
 			// TODO: snapshotting logic
 		} else {
