@@ -20,12 +20,12 @@ type MockEVMKeeper struct {
 	mock.Mock
 }
 
-func (m *MockEVMKeeper) GetParams(ctx sdk.Context) evm.Params {
+func (m *MockEVMKeeper) GetParams(_ sdk.Context) evm.Params {
 	args := m.Called(mock.Anything)
 	return args.Get(0).(evm.Params)
 }
 
-func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account {
+func (m *MockEVMKeeper) GetAccountWithoutBalance(_ sdk.Context, _ common.Address) *statedb.Account {
 	args := m.Called(mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil
@@ -33,7 +33,7 @@ func (m *MockEVMKeeper) GetAccountWithoutBalance(ctx sdk.Context, addr common.Ad
 	return args.Get(0).(*statedb.Account)
 }
 
-func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evm.EthCallRequest) (*evm.EstimateGasResponse, error) {
+func (m *MockEVMKeeper) EstimateGas(_ context.Context, _ *evm.EthCallRequest) (*evm.EstimateGasResponse, error) {
 	args := m.Called(mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -41,7 +41,7 @@ func (m *MockEVMKeeper) EstimateGas(c context.Context, req *evm.EthCallRequest) 
 	return args.Get(0).(*evm.EstimateGasResponse), args.Error(1)
 }
 
-func (m *MockEVMKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evm.MsgEthereumTxResponse, error) {
+func (m *MockEVMKeeper) ApplyMessage(_ sdk.Context, _ core.Message, _ vm.EVMLogger, _ bool) (*evm.MsgEthereumTxResponse, error) {
 	args := m.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 
 	if args.Get(0) == nil {
@@ -56,50 +56,51 @@ type MockBankKeeper struct {
 	mock.Mock
 }
 
-func (b *MockBankKeeper) SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromModuleToAccount(_ sdk.Context, _ string, _ sdk.AccAddress, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromAccountToModule(_ sdk.Context, _ sdk.AccAddress, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (b *MockBankKeeper) MintCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (b *MockBankKeeper) BurnCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) IsSendEnabledCoin(ctx sdk.Context, coin sdk.Coin) bool {
+func (b *MockBankKeeper) IsSendEnabledCoin(_ sdk.Context, _ sdk.Coin) bool {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Bool(0)
 }
 
-func (b *MockBankKeeper) BlockedAddr(addr sdk.AccAddress) bool {
+func (b *MockBankKeeper) BlockedAddr(_ sdk.AccAddress) bool {
 	args := b.Called(mock.Anything)
 	return args.Bool(0)
 }
 
+//nolint:all
 func (b *MockBankKeeper) GetDenomMetaData(ctx sdk.Context, denom string) (banktypes.Metadata, bool) {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(banktypes.Metadata), args.Bool(1)
 }
 
-func (b *MockBankKeeper) SetDenomMetaData(ctx sdk.Context, denomMetaData banktypes.Metadata) {
+func (b *MockBankKeeper) SetDenomMetaData(_ sdk.Context, _ banktypes.Metadata) {
 }
 
-func (b *MockBankKeeper) HasSupply(ctx sdk.Context, denom string) bool {
+func (b *MockBankKeeper) HasSupply(_ sdk.Context, _ string) bool {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Bool(0)
 }
 
-func (b *MockBankKeeper) GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin {
+func (b *MockBankKeeper) GetBalance(_ sdk.Context, _ sdk.AccAddress, _ string) sdk.Coin {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(sdk.Coin)
 }

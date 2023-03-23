@@ -24,24 +24,23 @@ func (suite *TokenPairTestSuite) TestTokenPairNew() {
 		msg          string
 		erc20Address common.Address
 		denom        string
-		enabled      bool
 		owner        types.Owner
 		expectPass   bool
 	}{
-		{msg: "Register token pair - invalid starts with number", erc20Address: utiltx.GenerateAddress(), denom: "1test", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
-		{msg: "Register token pair - invalid char '('", erc20Address: utiltx.GenerateAddress(), denom: "(test", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
-		{msg: "Register token pair - invalid char '^'", erc20Address: utiltx.GenerateAddress(), denom: "^test", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid starts with number", erc20Address: utiltx.GenerateAddress(), denom: "1test", owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid char '('", erc20Address: utiltx.GenerateAddress(), denom: "(test", owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid char '^'", erc20Address: utiltx.GenerateAddress(), denom: "^test", owner: types.OWNER_MODULE, expectPass: false},
 		// TODO: (guille) should the "\" be allowed to support unicode names?
-		{msg: "Register token pair - invalid char '\\'", erc20Address: utiltx.GenerateAddress(), denom: "-test", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid char '\\'", erc20Address: utiltx.GenerateAddress(), denom: "-test", owner: types.OWNER_MODULE, expectPass: false},
 		// Invalid length
-		{msg: "Register token pair - invalid length token (0)", erc20Address: utiltx.GenerateAddress(), denom: "", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
-		{msg: "Register token pair - invalid length token (1)", erc20Address: utiltx.GenerateAddress(), denom: "a", enabled: true, owner: types.OWNER_MODULE, expectPass: false},
-		{msg: "Register token pair - invalid length token (128)", erc20Address: utiltx.GenerateAddress(), denom: strings.Repeat("a", 129), enabled: true, owner: types.OWNER_MODULE, expectPass: false},
-		{msg: "Register token pair - pass", erc20Address: utiltx.GenerateAddress(), denom: "test", enabled: true, owner: types.OWNER_MODULE, expectPass: true},
+		{msg: "Register token pair - invalid length token (0)", erc20Address: utiltx.GenerateAddress(), denom: "", owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid length token (1)", erc20Address: utiltx.GenerateAddress(), denom: "a", owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - invalid length token (128)", erc20Address: utiltx.GenerateAddress(), denom: strings.Repeat("a", 129), owner: types.OWNER_MODULE, expectPass: false},
+		{msg: "Register token pair - pass", erc20Address: utiltx.GenerateAddress(), denom: "test", owner: types.OWNER_MODULE, expectPass: true},
 	}
 
 	for i, tc := range testCases {
-		tp := types.NewTokenPair(tc.erc20Address, tc.denom, tc.enabled, tc.owner)
+		tp := types.NewTokenPair(tc.erc20Address, tc.denom, tc.owner)
 		err := tp.Validate()
 
 		if tc.expectPass {
@@ -78,7 +77,7 @@ func (suite *TokenPairTestSuite) TestTokenPair() {
 func (suite *TokenPairTestSuite) TestGetID() {
 	addr := utiltx.GenerateAddress()
 	denom := "test"
-	pair := types.NewTokenPair(addr, denom, true, types.OWNER_MODULE)
+	pair := types.NewTokenPair(addr, denom, types.OWNER_MODULE)
 	id := pair.GetID()
 	expID := tmhash.Sum([]byte(addr.String() + "|" + denom))
 	suite.Require().Equal(expID, id)
@@ -87,7 +86,7 @@ func (suite *TokenPairTestSuite) TestGetID() {
 func (suite *TokenPairTestSuite) TestGetERC20Contract() {
 	expAddr := utiltx.GenerateAddress()
 	denom := "test"
-	pair := types.NewTokenPair(expAddr, denom, true, types.OWNER_MODULE)
+	pair := types.NewTokenPair(expAddr, denom, types.OWNER_MODULE)
 	addr := pair.GetERC20Contract()
 	suite.Require().Equal(expAddr, addr)
 }

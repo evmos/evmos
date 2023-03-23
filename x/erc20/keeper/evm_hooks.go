@@ -61,7 +61,7 @@ func (h Hooks) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *etht
 // `ConvertERC20` msg does not trigger the hook as it only calls `ApplyMessage`.
 func (k Keeper) PostTxProcessing(
 	ctx sdk.Context,
-	msg core.Message,
+	_ core.Message,
 	receipt *ethtypes.Receipt,
 ) error {
 	params := k.GetParams(ctx)
