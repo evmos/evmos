@@ -545,6 +545,7 @@ func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 	suite.SignTx(tx)
 
 	defer func() {
+		//nolint:revive // allow empty code block that just contains TODO in test code
 		if r := recover(); r != nil {
 			// TODO: snapshotting logic
 		} else {
@@ -766,13 +767,13 @@ func (suite *EvmTestSuite) TestContractDeploymentRevert() {
 // DummyHook implements EvmHooks interface
 type DummyHook struct{}
 
-func (dh *DummyHook) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (dh *DummyHook) PostTxProcessing(_ sdk.Context, _ core.Message, _ *ethtypes.Receipt) error {
 	return nil
 }
 
 // FailureHook implements EvmHooks interface
 type FailureHook struct{}
 
-func (dh *FailureHook) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (dh *FailureHook) PostTxProcessing(_ sdk.Context, _ core.Message, _ *ethtypes.Receipt) error {
 	return errors.New("mock error")
 }

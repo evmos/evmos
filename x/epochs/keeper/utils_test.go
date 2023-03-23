@@ -8,11 +8,10 @@ import (
 	"github.com/evmos/evmos/v12/testutil"
 	"github.com/evmos/evmos/v12/x/epochs/types"
 	evm "github.com/evmos/evmos/v12/x/evm/types"
-	"github.com/stretchr/testify/require"
 )
 
 // Test helpers
-func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
+func (suite *KeeperTestSuite) DoSetupTest() {
 	checkTx := false
 
 	// init app

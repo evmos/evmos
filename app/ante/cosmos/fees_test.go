@@ -2,10 +2,8 @@ package cosmos_test
 
 import (
 	"fmt"
-	"time"
 
 	"cosmossdk.io/math"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
@@ -13,6 +11,21 @@ import (
 	testutiltx "github.com/evmos/evmos/v12/testutil/tx"
 	"github.com/evmos/evmos/v12/utils"
 )
+
+type deductFeeDecoratorTestCase struct {
+	name        string
+	balance     math.Int
+	rewards     math.Int
+	gas         uint64
+	gasPrice    *math.Int
+	feeGranter  sdk.AccAddress
+	checkTx     bool
+	simulate    bool
+	expPass     bool
+	errContains string
+	postCheck   func()
+	malleate    func()
+}
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	var (
@@ -27,20 +40,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	)
 
 	// Testcase definitions
-	testcases := []struct {
-		name        string
-		balance     math.Int
-		rewards     math.Int
-		gas         uint64
-		gasPrice    *math.Int
-		feeGranter  sdk.AccAddress
-		checkTx     bool
-		simulate    bool
-		expPass     bool
-		errContains string
-		postCheck   func()
-		malleate    func()
-	}{
+	testcases := []deductFeeDecoratorTestCase{
 		{
 			name:        "pass - sufficient balance to pay fees",
 			balance:     initBalance,
@@ -277,32 +277,10 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// Test execution
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
+			var args testutiltx.CosmosTxArgs
 			suite.SetupTest()
-
-			// Create a new DeductFeeDecorator
-			dfd = cosmosante.NewDeductFeeDecorator(
-				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
-			)
-
-			// prepare the testcase
-			var err error
-			suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards)
-			suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-			suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
-			suite.Require().NoError(err)
-
-			// Create an arbitrary message for testing purposes
-			msg := sdktestutil.NewTestMsg(addr)
-
-			// Set up the transaction arguments
-			args := testutiltx.CosmosTxArgs{
-				TxCfg:      suite.clientCtx.TxConfig,
-				Priv:       priv,
-				Gas:        tc.gas,
-				GasPrice:   tc.gasPrice,
-				FeeGranter: tc.feeGranter,
-				Msgs:       []sdk.Msg{msg},
-			}
+			// make the setup for the test case
+			dfd, args = suite.setupDeductFeeDecoratorTestCase(addr, priv, tc)
 
 			if tc.malleate != nil {
 				tc.malleate()

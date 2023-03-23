@@ -77,8 +77,5 @@ func ReturnFundsFromCommunityPoolToAccount(ctx sdk.Context, dk distrKeeper.Keepe
 		Amount: amount,
 	}
 
-	if err := dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to); err != nil {
-		return err
-	}
-	return nil
+	return dk.DistributeFromFeePool(ctx, sdk.Coins{balance}, to)
 }

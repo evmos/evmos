@@ -13,7 +13,7 @@ import (
 func (suite *KeeperTestSuite) TestMintingEnabled() {
 	sender := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	receiver := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	expPair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", true, types.OWNER_MODULE)
+	expPair := types.NewTokenPair(utiltx.GenerateAddress(), "coin", types.OWNER_MODULE)
 	id := expPair.GetID()
 
 	testCases := []struct {
