@@ -572,17 +572,17 @@ func (k *Keeper) traceTx(
 
 	tracer = logger.NewStructLogger(&logConfig)
 
-	tCtx := &tracers.Context{
-		BlockHash: txConfig.BlockHash,
-		TxIndex:   int(txConfig.TxIndex),
-		TxHash:    txConfig.TxHash,
-	}
+	//tCtx := &tracers.Context{
+	//	BlockHash: txConfig.BlockHash,
+	//	TxIndex:   int(txConfig.TxIndex),
+	//	TxHash:    txConfig.TxHash,
+	//}
 
-	if traceConfig.Tracer != "" {
-		if tracer, err = tracers.New(traceConfig.Tracer, tCtx, tracerJSONConfig); err != nil {
-			return nil, 0, status.Error(codes.Internal, err.Error())
-		}
-	}
+	//if traceConfig.Tracer != "" {
+	//	if tracer, err = tracers.New(traceConfig.Tracer, tCtx, tracerJSONConfig); err != nil {
+	//		return nil, 0, status.Error(codes.Internal, err.Error())
+	//	}
+	//}
 
 	// Define a meaningful timeout of a single transaction trace
 	if traceConfig.Timeout != "" {
