@@ -108,14 +108,7 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
 
 		requiredFee := minGasPrice.Mul(gasLimit)
-
-		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
-		var fee sdk.Dec
-		if feeAmt == nil {
-			fee = requiredFee
-		} else {
-			fee = sdk.NewDecFromBigInt(feeAmt)
-		}
+		fee := sdk.NewDecFromBigInt(feeAmt)
 
 		if fee.LT(requiredFee) {
 			return ctx, errorsmod.Wrapf(

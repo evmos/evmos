@@ -100,6 +100,6 @@ func TestRetrieveUpgradesList(t *testing.T) {
 
 	// check if all entries in the list match a semantic versioning pattern
 	for _, upgrade := range upgradeList {
-		require.Regexp(t, `^v\d+\.\d+\.\d+$`, upgrade, "expected upgrade version to be in semantic versioning format")
+		require.Regexp(t, `^v\d+\.\d+\.\d+(-rc\d+)*$`, upgrade, "expected upgrade version to be in semantic versioning format")
 	}
 }

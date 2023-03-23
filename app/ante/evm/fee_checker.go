@@ -79,13 +79,8 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 		feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
 		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
 
-		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
-		if feeCoins == nil {
-			feeCap = baseFeeInt
-		}
-
 		if feeCap.LT(baseFeeInt) {
-			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "got: %s%s required: %s%s. Please retry using the --gas-prices or --fees flag", feeCap, denom, baseFeeInt, denom)
+			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFeeInt, denom)
 		}
 
 		// calculate the effective gas price using the EIP-1559 logic.
@@ -129,11 +124,6 @@ func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coi
 		for i, gp := range minGasPrices {
 			fee := gp.Amount.Mul(glDec)
 			requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
-		}
-
-		// Fees not provided (or flag "auto"). Then use the base fee to make the check pass
-		if feeCoins == nil {
-			feeCoins = requiredFees
 		}
 
 		if !feeCoins.IsAnyGTE(requiredFees) {
