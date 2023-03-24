@@ -96,6 +96,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1467](https://github.com/evmos/evmos/pull/1467) Rollback fees `auto` flag logic
 - (ci) [#1476](https://github.com/evmos/evmos/pull/1476) Fix go-releaser configuration to be consistent with previous version binaries naming
 - (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+- (upgrade) [#1493](https://github.com/evmos/evmos/pull/1493) Add decay bug affected accounts
 
 ## [v11.0.2] - 2023-02-10
 
