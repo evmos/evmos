@@ -71,7 +71,7 @@ func NewManager(networkName string) (*Manager, error) {
 // BuildImage builds a docker image to run in the provided context directory
 // with <name>:<version> as the image target
 func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args map[string]string) error {
-	buildArgs := make([]docker.BuildArg, len(args))
+	buildArgs := make([]docker.BuildArg, 0, len(args))
 	for k, v := range args {
 		bArg := docker.BuildArg{
 			Name:  k,
@@ -83,6 +83,9 @@ func (m *Manager) BuildImage(name, version, dockerFile, contextDir string, args 
 		// local Dockerfile path
 		Dockerfile: dockerFile,
 		BuildArgs:  buildArgs,
+		// rebuild the image every time in case there were changes
+		// and the image is cached
+		NoCache: true,
 		// name with tag, e.g. evmos:v9.0.0
 		Name:         fmt.Sprintf("%s:%s", name, version),
 		OutputStream: io.Discard,

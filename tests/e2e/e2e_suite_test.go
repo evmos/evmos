@@ -66,15 +66,15 @@ func (s *IntegrationTestSuite) SetupSuite() {
 
 // runInitialNode builds a docker image capable of running an Evmos node with the given version.
 // After a successful build, it runs the container and checks if the node can produce blocks.
-func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, dockerFile string) {
+func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig) {
 	err := s.upgradeManager.BuildImage(
 		version.ImageName,
 		version.ImageTag,
-		dockerFile,
+		registryDockerFile,
 		".",
 		map[string]string{"INITIAL_VERSION": version.ImageTag},
 	)
-	s.Require().NoError(err, "can't build container with Evmos version: %s", version)
+	s.Require().NoError(err, "can't build container with Evmos version: %s", version.ImageTag)
 
 	node := upgrade.NewNode(version.ImageName, version.ImageTag)
 	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
@@ -90,6 +90,36 @@ func (s *IntegrationTestSuite) runInitialNode(version upgrade.VersionConfig, doc
 	s.Require().NoError(err)
 
 	s.T().Logf("successfully started node with version: [%s]", version.ImageTag)
+}
+
+// runNodeWithCurrentChanges builds a docker image using the current branch of the Evmos repository.
+// Before running the node, runs a script to modify some configurations for the tests
+// (e.g.: gov proposal voting period, setup accounts, balances, etc..)
+// After a successful build, runs the container.
+func (s *IntegrationTestSuite) runNodeWithCurrentChanges() {
+	const (
+		name    = "e2e-test/evmos"
+		version = "latest"
+	)
+	// get the current branch name
+	// to run the tests against the last changes
+	branch, err := getCurrentBranch()
+	s.Require().NoError(err)
+
+	err = s.upgradeManager.BuildImage(
+		name,
+		version,
+		repoDockerFile,
+		".",
+		map[string]string{"BRANCH_NAME": branch},
+	)
+	s.Require().NoError(err, "can't build container for e2e test")
+
+	node := upgrade.NewNode(name, version)
+	node.SetEnvVars([]string{fmt.Sprintf("CHAIN_ID=%s", s.upgradeParams.ChainID)})
+
+	err = s.upgradeManager.RunNode(node)
+	s.Require().NoError(err, "can't run node Evmos using branch %s", branch)
 }
 
 // proposeUpgrade submits an upgrade proposal to the chain that schedules an upgrade to

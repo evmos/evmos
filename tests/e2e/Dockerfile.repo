@@ -1,5 +1,6 @@
-ARG INITIAL_VERSION
 FROM golang:1.20.0-bullseye AS build-env
+
+ARG BRANCH_NAME
 
 WORKDIR /go/src/github.com/evmos/
 
@@ -9,7 +10,7 @@ WORKDIR /go/src/github.com/evmos/evmos
 
 RUN apt-get update -y
 
-RUN git checkout ${INITIAL_VERSION}
+RUN git checkout ${BRANCH_NAME}
 
 RUN make build
 

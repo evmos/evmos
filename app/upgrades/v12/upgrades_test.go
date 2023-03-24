@@ -85,7 +85,6 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	// store the addresses on a map to check if there're
 	// duplicated addresses
 	uniqueAddrs := make(map[string]bool)
-
 	// check balance of affected accounts
 	for i := range v12.Accounts {
 		addr := sdk.MustAccAddressFromBech32(v12.Accounts[i][0])
@@ -102,5 +101,5 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	}
 
 	balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().True(balanceAfter.IsZero())
+	suite.Require().True(balanceAfter.IsZero(), "Community pool balance should be zero after the distribution, but is %d", balanceAfter.AmountOf(utils.BaseDenom))
 }
