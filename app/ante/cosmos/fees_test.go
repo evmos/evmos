@@ -15,7 +15,7 @@ import (
 type deductFeeDecoratorTestCase struct {
 	name        string
 	balance     math.Int
-	rewards     math.Int
+	rewards     []math.Int
 	gas         uint64
 	gasPrice    *math.Int
 	feeGranter  sdk.AccAddress
@@ -24,6 +24,7 @@ type deductFeeDecoratorTestCase struct {
 	expPass     bool
 	errContains string
 	postCheck   func()
+	setup       func()
 	malleate    func()
 }
 
@@ -44,7 +45,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - sufficient balance to pay fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         0,
 			checkTx:     false,
 			simulate:    true,
@@ -54,7 +55,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - zero gas limit in check tx mode",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         0,
 			checkTx:     true,
 			simulate:    false,
@@ -64,7 +65,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - checkTx - insufficient funds and no staking rewards",
 			balance:     zero,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -84,7 +85,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
 			balance:     zero,
-			rewards:     initBalance,
+			rewards:     []math.Int{initBalance},
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
@@ -107,7 +108,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
 			balance:     sdk.NewInt(1e5),
-			rewards:     sdk.NewInt(1e5),
+			rewards:     []math.Int{sdk.NewInt(1e5)},
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
@@ -130,7 +131,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - sufficient balance to pay fees but provided fees < required fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -148,7 +149,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees & min gas prices is zero",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -166,7 +167,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees (fees > required fees)",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -183,7 +184,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - zero fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         100,
 			gasPrice:    &zero,
 			checkTx:     true,
@@ -206,7 +207,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - with not authorized fee granter",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -217,7 +218,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - with authorized fee granter",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -246,7 +247,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - authorized fee granter but no feegrant keeper on decorator",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,

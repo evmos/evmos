@@ -3,7 +3,9 @@ package cosmos_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v12/testutil"
 	testutiltx "github.com/evmos/evmos/v12/testutil/tx"
@@ -22,13 +24,55 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		{
 			name:     "sufficient balance to pay fees",
 			balance:  sdk.NewInt(1e18),
-			rewards:  sdk.ZeroInt(),
+			rewards:  []sdkmath.Int{sdk.ZeroInt()},
 			simulate: true,
 		},
 		{
 			name:    "insufficient funds but sufficient staking rewards",
 			balance: sdk.ZeroInt(),
-			rewards: sdk.NewInt(1e18),
+			rewards: []sdkmath.Int{sdk.NewInt(1e18)},
+			gas:     10_000_000,
+		},
+		{
+			name:     "sufficient balance to pay fees with 10.000 users staking",
+			balance:  sdk.NewInt(1e18),
+			rewards:  []sdkmath.Int{sdk.ZeroInt()},
+			simulate: true,
+			setup: func() {
+				var err error
+				usersCount := 10_000
+				// setup other users rewards
+				for i := 0; i < usersCount; i++ {
+					userAddr, _ := testutiltx.NewAccAddressAndKey()
+					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
+					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
+				}
+				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				s.Require().NoError(err)
+			},
+		},
+		{
+			name:    "insufficient funds but sufficient staking rewards with 10.000 users staking",
+			balance: sdk.ZeroInt(),
+			rewards: []sdkmath.Int{sdk.NewInt(1e18)},
+			gas:     10_000_000,
+			setup: func() {
+				var err error
+				usersCount := 10_000
+				// setup other users rewards
+				for i := 0; i < usersCount; i++ {
+					userAddr, _ := testutiltx.NewAccAddressAndKey()
+					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
+					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
+				}
+				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				s.Require().NoError(err)
+			},
+		},
+		{
+			name:    "insufficient funds but sufficient staking rewards - 110 delegations",
+			balance: sdk.ZeroInt(),
+			rewards: intSlice(110, sdk.NewInt(1e14)),
 			gas:     10_000_000,
 		},
 	}
@@ -36,6 +80,9 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 	b.ResetTimer()
 
 	for _, tc := range testCases {
+		if tc.setup != nil {
+			tc.setup()
+		}
 		b.Run(fmt.Sprintf("Case: %s", tc.name), func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
 				// Stop the timer to perform expensive test setup

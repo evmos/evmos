@@ -136,7 +136,7 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 
 	// prepare the testcase
 	var err error
-	suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards)
+	suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards...)
 	suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
 	suite.Require().NoError(err)
@@ -153,4 +153,13 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 		FeeGranter: tc.feeGranter,
 		Msgs:       []sdk.Msg{msg},
 	}
+}
+
+// intSlice creates a slice of sdk.Int with the specified size and same value
+func intSlice(size int, value sdkmath.Int) []sdkmath.Int {
+	slc := make([]sdkmath.Int, size)
+	for i := 0; i < len(slc); i++ {
+		slc[i] = value
+	}
+	return slc
 }
