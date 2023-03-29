@@ -25,8 +25,8 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/miguelmota/go-ethereum-hdwallet v0.1.1
-	github.com/onsi/ginkgo/v2 v2.9.1
-	github.com/onsi/gomega v1.27.4
+	github.com/onsi/ginkgo/v2 v2.9.2
+	github.com/onsi/gomega v1.27.5
 	github.com/ory/dockertest/v3 v3.9.1
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
@@ -111,7 +111,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
+	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/gateway v1.1.0 // indirect
 	github.com/golang/glog v1.0.0 // indirect
@@ -119,7 +119,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/gops v0.3.27 // indirect
 	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
@@ -150,7 +149,6 @@ require (
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
-	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -171,7 +169,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
@@ -182,7 +179,6 @@ require (
 	github.com/rs/zerolog v1.27.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
-	github.com/shirou/gopsutil/v3 v3.23.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -201,8 +197,6 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-	github.com/xlab/treeprint v1.1.0 // indirect
-	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
@@ -221,7 +215,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
-	rsc.io/goversion v1.2.0 // indirect
 )
 
 replace (
@@ -232,7 +225,7 @@ replace (
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.24-0.20230224142729-a4867b20faf5
 	// use latest precompiles
-	github.com/evmos/precompiles => github.com/evmos/precompiles v0.0.0-20230324094222-d138e211ba60
+	github.com/evmos/precompiles => github.com/evmos/precompiles v0.0.0-20230329152147-6f46c10e1f55
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
 	// use cosmos flavored protobufs
