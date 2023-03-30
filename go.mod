@@ -225,7 +225,7 @@ replace (
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.24-0.20230224142729-a4867b20faf5
 	// use latest precompiles
-	github.com/evmos/precompiles => github.com/evmos/precompiles v0.0.0-20230329152147-6f46c10e1f55
+	github.com/evmos/precompiles => github.com/evmos/precompiles v0.0.0-20230330084124-5b001b358dbd
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
 	// use cosmos flavored protobufs

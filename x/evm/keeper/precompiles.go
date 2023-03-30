@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"golang.org/x/exp/maps"
 
@@ -10,6 +11,7 @@ import (
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	distprecompile "github.com/evmos/precompiles/precompiles/distribution"
 	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
 )
 
@@ -17,6 +19,7 @@ import (
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
+	distributionKeeper distributionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
@@ -27,7 +30,13 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load staking precompile: %w", err))
 	}
 
+	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
+	}
+
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
+	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	return precompiles
 }
 

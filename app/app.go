@@ -468,7 +468,7 @@ func NewEvmos(
 	)
 
 	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(stakingKeeper, app.AuthzKeeper),
+		evmkeeper.AvailablePrecompiles(stakingKeeper, app.DistrKeeper, app.AuthzKeeper),
 	)
 
 	app.EvmKeeper = evmKeeper
