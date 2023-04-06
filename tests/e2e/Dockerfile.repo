@@ -1,4 +1,4 @@
-FROM golang:1.20.0-bullseye AS build-env
+FROM golang:1.20.3-bullseye AS build-env
 
 ARG BRANCH_NAME
 
