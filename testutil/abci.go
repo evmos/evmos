@@ -63,7 +63,49 @@ func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.Valida
 		Header: header,
 	})
 
-	return app.BaseApp.NewContext(false, header), nil
+	return ctx.WithBlockHeader(header), nil
+}
+
+// CommitKeepingCurrentCtx commits a block at a given time keeping the current ctx settings
+// This is useful to keep test settings that could be affected by EndBlockers, e.g.
+// setting a baseFee == 0 and expecting this condition to continue after commit
+func CommitKeepingCurrentCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+	header := ctx.BlockHeader()
+
+	if vs != nil {
+		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
+
+		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
+		if err != nil {
+			return ctx, err
+		}
+		header.ValidatorsHash = vs.Hash()
+		header.NextValidatorsHash = nextVals.Hash()
+	} else {
+		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+	}
+
+	_ = app.Commit()
+
+	header.Height++
+	header.Time = header.Time.Add(t)
+	header.AppHash = app.LastCommitID().Hash
+
+	app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
+
+	// NewContext function keeps the multistore
+	// but resets other context fields
+	newCtx := app.BaseApp.NewContext(false, header)
+	// set the reseted fields to keep the current ctx settings	
+	newCtx = newCtx.WithGasMeter(ctx.GasMeter())
+	newCtx = newCtx.WithMinGasPrices(ctx.MinGasPrices())
+	newCtx = newCtx.WithEventManager(ctx.EventManager())
+	newCtx = newCtx.WithKVGasConfig(ctx.KVGasConfig())
+	newCtx = newCtx.WithTransientKVGasConfig(ctx.TransientKVGasConfig())
+
+	return newCtx, nil
 }
 
 // DeliverTx delivers a cosmos tx for a given set of msgs

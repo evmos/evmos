@@ -138,7 +138,7 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 	var err error
 	suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards...)
 	suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+	suite.ctx, err = testutil.CommitKeepingCurrentCtx(suite.ctx, suite.app, time.Second*0, nil)
 	suite.Require().NoError(err)
 
 	// Create an arbitrary message for testing purposes

@@ -47,7 +47,7 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				s.ctx, err = testutil.CommitKeepingCurrentCtx(s.ctx, s.app, time.Second*0, nil)
 				s.Require().NoError(err)
 			},
 		},
@@ -65,7 +65,7 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
-				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
+				s.ctx, err = testutil.CommitKeepingCurrentCtx(s.ctx, s.app, time.Second*0, nil)
 				s.Require().NoError(err)
 			},
 		},

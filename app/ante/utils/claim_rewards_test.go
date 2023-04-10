@@ -35,7 +35,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 					suite.T(), suite.ctx, suite.app, addr, sdk.ZeroInt(), sdk.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.ctx, err = testutil.CommitKeepingCurrentCtx(suite.ctx, suite.app, time.Second*0, nil)
 				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
@@ -62,7 +62,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 					suite.T(), suite.ctx, suite.app, addr, sdk.ZeroInt(), sdk.NewInt(1e14), sdk.NewInt(2e14),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.ctx, err = testutil.CommitKeepingCurrentCtx(suite.ctx, suite.app, time.Second*0, nil)
 				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e14)}},
@@ -97,7 +97,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 					suite.T(), suite.ctx, suite.app, addr, sdk.NewInt(1e15), sdk.NewInt(1e18),
 				)
 				suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-				suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
+				suite.ctx, err = testutil.CommitKeepingCurrentCtx(suite.ctx, suite.app, time.Second*0, nil)
 				suite.Require().NoError(err)
 			},
 			amount: sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1000)}},
