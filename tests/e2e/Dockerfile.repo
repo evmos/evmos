@@ -1,4 +1,4 @@
-FROM golang:1.20.0-bullseye AS build-env
+FROM golang:1.20.3-bullseye AS build-env
 
 ARG BRANCH_NAME
 
@@ -14,7 +14,7 @@ RUN git checkout ${BRANCH_NAME}
 
 RUN make build
 
-FROM golang:1.20.0-bullseye
+FROM golang:1.20.3-bullseye
 
 RUN apt-get update \ 
 && apt-get install jq=1.6-2.1 -y --no-install-recommends \ 

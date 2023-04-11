@@ -13,6 +13,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
+	"github.com/evmos/evmos/v12/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -651,4 +652,16 @@ func (suite *AnteTestSuite) CreateTestSingleSignedTx(privKey cryptotypes.PrivKey
 	suite.Require().NoError(err)
 
 	return txBuilder
+}
+
+// prepareAccount is a helper function that asigns the corresponding
+// balance and rewards to the provided account
+func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress, balance, rewards sdkmath.Int) sdk.Context {
+	ctx, err := testutil.PrepareAccountsForDelegationRewards(
+		suite.T(), ctx, suite.app, addr, balance, rewards,
+	)
+	suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
+	return ctx.
+		WithBlockGasMeter(sdk.NewGasMeter(1e19)).
+		WithBlockHeight(ctx.BlockHeight() + 1)
 }

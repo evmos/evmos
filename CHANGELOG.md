@@ -83,7 +83,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1473](https://github.com/evmos/evmos/pull/1473) Bump Cosmos SDK version to [v0.46.10-alpha.ledger.2](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.10-alpha.ledger.2)
 - (ante) [#1470](https://github.com/evmos/evmos/pull/1470) Improve error message on `DynamicFeeChecker` ante handler
 - (test) [#1484](https://github.com/evmos/evmos/pull/1484) Update e2e test: refactor Makefile command and use latest changes for the tests
+- (test) [#1486](https://github.com/evmos/evmos/pull/1486) Add benchmark tests for `DeductFeeDecorator` and `EthGasConsumeDecorator` ante handler decorators
 - (deps) [#1488](https://github.com/evmos/evmos/pull/1488) Bump btcd version to [`v0.23.3`](https://github.com/btcsuite/btcd/releases/tag/v0.23.3)
+- (deps) [#1492](https://github.com/evmos/evmos/pull/1492) Bump Cosmos SDK version to [`v0.46.11-alpha.ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.11-alpha.ledger) & use cometbft [`v0.34.27`](https://github.com/cometbft/cometbft/releases/tag/v0.34.27) replacement for Tendermint import
 
 ### Bug Fixes
 
@@ -95,6 +97,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1467](https://github.com/evmos/evmos/pull/1467) Rollback fees `auto` flag logic
 - (ci) [#1476](https://github.com/evmos/evmos/pull/1476) Fix go-releaser configuration to be consistent with previous version binaries naming
 - (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+- (upgrade) [#1493](https://github.com/evmos/evmos/pull/1493) Add decay bug affected accounts
 
 ## [v11.0.2] - 2023-02-10
 
