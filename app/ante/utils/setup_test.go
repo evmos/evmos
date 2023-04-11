@@ -110,7 +110,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ethSigner = types.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
 	var err error
-	suite.ctx, err = testutil.CommitKeepingCurrentCtx(suite.ctx, suite.app, time.Second*0, nil)
+	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
 	suite.Require().NoError(err)
 }
 
