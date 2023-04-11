@@ -49,6 +49,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v12.1.0] - 2023-03-24
 
+### Improvements
+
+- (deps) [#1498](https://github.com/evmos/evmos/pull/1498) Bump Cosmos SDK version to [v0.46.10-ledger.1](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.10-ledger.1)
+- (lint) [#1487](https://github.com/evmos/evmos/pull/1487) Fix lint issues created by new `golangci-lint` version
+
+## [v12.0.0] - 2023-03-23
+
 ### State Machine Breaking
 
 - (evm)[#1308](https://github.com/evmos/evmos/pull/1308) Migrate `evm` and `feemarket` types
@@ -92,10 +99,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1408](https://github.com/evmos/evmos/pull/1408) Refactor `DeployContract` and `DeployContractWithFactory` functions used for tests
 - (test) [#1417](https://github.com/evmos/evmos/pull/1417) Refactor EIP-712 transactions helper functions used on tests
 - (ante) [#1468](https://github.com/evmos/evmos/pull/1468) Add TxFeeChecker requirement
+- (deps) [#1473](https://github.com/evmos/evmos/pull/1473) Bump Cosmos SDK version to [v0.46.10-alpha.ledger.2](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.10-alpha.ledger.2)
 - (ante) [#1470](https://github.com/evmos/evmos/pull/1470) Improve error message on `DynamicFeeChecker` ante handler
 - (test) [#1484](https://github.com/evmos/evmos/pull/1484) Update e2e test: refactor Makefile command and use latest changes for the tests
-- (deps) [#1498](https://github.com/evmos/evmos/pull/1498) Bump Cosmos SDK version to [v0.46.10-ledger.1](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.10-ledger.1)
-- (lint) [#1487](https://github.com/evmos/evmos/pull/1487) Fix lint issues created by new `golangci-lint` version
 
 ### Bug Fixes
 
