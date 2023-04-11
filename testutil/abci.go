@@ -97,9 +97,9 @@ func CommitKeepingCurrentCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, v
 
 	// NewContext function keeps the multistore
 	// but resets other context fields
+	// GasMeter is set as InfiniteGasMeter
 	newCtx := app.BaseApp.NewContext(false, header)
 	// set the reseted fields to keep the current ctx settings
-	newCtx = newCtx.WithGasMeter(ctx.GasMeter())
 	newCtx = newCtx.WithMinGasPrices(ctx.MinGasPrices())
 	newCtx = newCtx.WithEventManager(ctx.EventManager())
 	newCtx = newCtx.WithKVGasConfig(ctx.KVGasConfig())
