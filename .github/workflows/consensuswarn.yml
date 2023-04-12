@@ -1,4 +1,4 @@
-name: "Warn about consensus code changes"
+name: "Consensus Warn"
 
 on:
   pull_request_target:
