@@ -1,18 +1,15 @@
-FROM golang:1.20.2-bullseye AS build-env
+FROM golang:1.20.3-bullseye AS build-env
 
 WORKDIR /go/src/github.com/evmos/evmos
-
-RUN apt-get update -y
-RUN apt-get install git -y
 
 COPY . .
 
 RUN make build
 
-FROM golang:1.20.2-bullseye
+FROM golang:1.20.3-bullseye
 
-RUN apt-get update -y
-RUN apt-get install ca-certificates jq -y
+RUN apt-get update  \ 
+&& apt-get install ca-certificates jq=1.6-2.1 -y --no-install-recommends
 
 WORKDIR /root
 
