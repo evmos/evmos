@@ -46,6 +46,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+  
+## [v12.1.2] - 2023-04-14
+
+### Bug Fixes
+
 - (rpc) [#1431](https://github.com/evmos/evmos/pull/1431) Fix websocket connection id parsing
 
 ## [v12.1.1] - 2023-04-14
