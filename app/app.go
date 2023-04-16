@@ -467,10 +467,6 @@ func NewEvmos(
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(stakingKeeper, app.DistrKeeper, app.AuthzKeeper),
-	)
-
 	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
@@ -519,6 +515,11 @@ func NewEvmos(
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
+	)
+
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	evmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(stakingKeeper, app.DistrKeeper, app.AuthzKeeper),
 	)
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
