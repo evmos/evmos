@@ -41,6 +41,8 @@ type ContractCallArgs struct {
 	Contract ContractArgs
 	// Nonce is the nonce to use for the transaction.
 	Nonce *big.Int
+	// Amount is the aevmos amount to send in the transaction.
+	Amount *big.Int
 	// GasLimit to use for the transaction
 	GasLimit uint64
 	// PrivKey is the private key to be used for the transaction.
@@ -131,15 +133,21 @@ func DeployContractWithFactory(
 
 // CheckEthTxResponse checks that the transaction was executed successfully
 func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthereumTxResponse, error) {
+	var (
+		res    evm.MsgEthereumTxResponse
+		txData sdk.TxMsgData
+	)
+
 	if !r.IsOK() {
 		return nil, fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
 	}
-	var txData sdk.TxMsgData
 	if err := cdc.Unmarshal(r.Data, &txData); err != nil {
 		return nil, err
 	}
 
-	var res evm.MsgEthereumTxResponse
+	if len(txData.MsgResponses) != 1 {
+		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
 	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &res); err != nil {
 		return nil, err
 	}
@@ -152,11 +160,8 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 }
 
 // CallContract is a helper function to call any arbitrary smart contract.
-func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (res abci.ResponseDeliverTx, ethRes evm.MsgEthereumTxResponse, err error) {
-	var (
-		txData sdk.TxMsgData
-		nonce  uint64
-	)
+func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (res abci.ResponseDeliverTx, ethRes *evm.MsgEthereumTxResponse, err error) {
+	var nonce  uint64
 	var (
 		gasLimit = args.GasLimit
 		cdc      = evmosApp.AppCodec()
@@ -196,7 +201,7 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 		ChainID:   evmosApp.EvmKeeper.ChainID(),
 		Nonce:     nonce,
 		To:        &args.Contract.Addr,
-		Amount:    nil,
+		Amount:    args.Amount,
 		GasLimit:  gasLimit,
 		GasPrice:  app.MainnetMinGasPrices.BigInt(),
 		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
@@ -210,19 +215,10 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 	if err != nil {
 		return res, ethRes, fmt.Errorf("error during deliver tx: %s", err)
 	}
-	if !res.IsOK() {
-		return res, ethRes, fmt.Errorf("error during deliver tx: %v", res.Log)
-	}
-
-	if err = cdc.Unmarshal(res.Data, &txData); err != nil {
-		return res, ethRes, fmt.Errorf("error while unmarshaling tx data: %v", err)
-	}
-	if len(txData.MsgResponses) != 1 {
-		return res, ethRes, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
-	}
-
-	if err = proto.Unmarshal(txData.MsgResponses[0].Value, &ethRes); err != nil {
-		return res, ethRes, fmt.Errorf("error while unmarshaling ethereum tx response: %v", err)
+	
+	ethRes, err = CheckEthTxResponse(res, cdc)
+	if err != nil {
+		return res, ethRes, fmt.Errorf("error at CheckEthTxResponse: %s", err)
 	}
 
 	return res, ethRes, nil
