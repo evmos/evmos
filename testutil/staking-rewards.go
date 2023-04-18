@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"testing"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -37,7 +36,7 @@ import (
 )
 
 // CreateValidator creates a validator with the provided public key and stake amount
-func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt math.Int) {
+func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
 	zeroDec := sdk.ZeroDec()
 	stakingParams := sk.GetParams(ctx)
 	stakingParams.BondDenom = sk.BondDenom(ctx)

@@ -23,24 +23,28 @@ import (
 	evm "github.com/evmos/evmos/v12/x/evm/types"
 )
 
-// ContractCallArgs is the arguments for calling a smart contract.
-type ContractCallArgs struct {
+// ContractArgs are the params used for calling a smart contract.
+type ContractArgs struct {
 	// Addr is the address of the contract to call.
 	Addr common.Address
 	// ABI is the ABI of the contract to call.
 	ABI abi.ABI
 	// MethodName is the name of the method to call.
 	MethodName string
+	// Args are the arguments to pass to the method.
+	Args []interface{}
+}
+
+// ContractCallArgs is the arguments for calling a smart contract.
+type ContractCallArgs struct {
+	// Contract are the contract-specific arguments required for the contract call.
+	Contract ContractArgs
 	// Nonce is the nonce to use for the transaction.
 	Nonce *big.Int
 	// GasLimit to use for the transaction
 	GasLimit uint64
-	// NewHeight is the new height to use for the context.
-	NewHeight *big.Int
 	// PrivKey is the private key to be used for the transaction.
 	PrivKey cryptotypes.PrivKey
-	// Args are the arguments to pass to the method.
-	Args []interface{}
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -150,10 +154,12 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 // CallContract is a helper function to call any arbitrary smart contract.
 func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (res abci.ResponseDeliverTx, ethRes evm.MsgEthereumTxResponse, err error) {
 	var (
-		nonce    uint64
+		txData sdk.TxMsgData
+		nonce  uint64
+	)
+	var (
 		gasLimit = args.GasLimit
 		cdc      = evmosApp.AppCodec()
-		txData   sdk.TxMsgData
 	)
 
 	pk, ok := args.PrivKey.(*ethsecp256k1.PrivKey)
@@ -181,7 +187,7 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 	}
 
 	// Create MsgEthereumTx that calls the contract
-	input, err := args.ABI.Pack(args.MethodName, args.Args...)
+	input, err := args.Contract.ABI.Pack(args.Contract.MethodName, args.Contract.Args...)
 	if err != nil {
 		return res, ethRes, fmt.Errorf("error while packing the input: %v", err)
 	}
@@ -189,7 +195,7 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 	msg := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:   evmosApp.EvmKeeper.ChainID(),
 		Nonce:     nonce,
-		To:        &args.Addr,
+		To:        &args.Contract.Addr,
 		Amount:    nil,
 		GasLimit:  gasLimit,
 		GasPrice:  app.MainnetMinGasPrices.BigInt(),
@@ -208,16 +214,14 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 		return res, ethRes, fmt.Errorf("error during deliver tx: %v", res.Log)
 	}
 
-	err = cdc.Unmarshal(res.Data, &txData)
-	if err != nil {
+	if err = cdc.Unmarshal(res.Data, &txData); err != nil {
 		return res, ethRes, fmt.Errorf("error while unmarshaling tx data: %v", err)
 	}
 	if len(txData.MsgResponses) != 1 {
 		return res, ethRes, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
 	}
 
-	err = proto.Unmarshal(txData.MsgResponses[0].Value, &ethRes)
-	if err != nil {
+	if err = proto.Unmarshal(txData.MsgResponses[0].Value, &ethRes); err != nil {
 		return res, ethRes, fmt.Errorf("error while unmarshaling ethereum tx response: %v", err)
 	}
 
