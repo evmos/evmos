@@ -161,7 +161,7 @@ func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthe
 
 // CallContract is a helper function to call any arbitrary smart contract.
 func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (res abci.ResponseDeliverTx, ethRes *evm.MsgEthereumTxResponse, err error) {
-	var nonce  uint64
+	var nonce uint64
 	var (
 		gasLimit = args.GasLimit
 		cdc      = evmosApp.AppCodec()
@@ -215,7 +215,7 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 	if err != nil {
 		return res, ethRes, fmt.Errorf("error during deliver tx: %s", err)
 	}
-	
+
 	ethRes, err = CheckEthTxResponse(res, cdc)
 	if err != nil {
 		return res, ethRes, fmt.Errorf("error at CheckEthTxResponse: %s", err)
