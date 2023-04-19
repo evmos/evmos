@@ -66,10 +66,10 @@ func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.Valida
 	return ctx.WithBlockHeader(header), nil
 }
 
-// CommitKeepingCurrentCtx commits a block at a given time keeping the current ctx settings
+// CommitAndCreateNewCtx commits a block at a given time creating a ctx with the current settings
 // This is useful to keep test settings that could be affected by EndBlockers, e.g.
 // setting a baseFee == 0 and expecting this condition to continue after commit
-func CommitKeepingCurrentCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+func CommitAndCreateNewCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
 	header := ctx.BlockHeader()
 
 	if vs != nil {
