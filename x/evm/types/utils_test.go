@@ -34,9 +34,9 @@ func TestEvmDataEncoding(t *testing.T) {
 		Ret: ret,
 	}
 
-	any := codectypes.UnsafePackAny(data)
+	anyData := codectypes.UnsafePackAny(data)
 	txData := &sdk.TxMsgData{
-		MsgResponses: []*codectypes.Any{any},
+		MsgResponses: []*codectypes.Any{anyData},
 	}
 
 	txDataBz, err := proto.Marshal(txData)

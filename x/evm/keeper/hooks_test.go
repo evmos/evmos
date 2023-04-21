@@ -19,7 +19,7 @@ type LogRecordHook struct {
 	Logs []*ethtypes.Log
 }
 
-func (dh *LogRecordHook) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (dh *LogRecordHook) PostTxProcessing(_ sdk.Context, _ core.Message, receipt *ethtypes.Receipt) error {
 	dh.Logs = receipt.Logs
 	return nil
 }
@@ -27,7 +27,7 @@ func (dh *LogRecordHook) PostTxProcessing(ctx sdk.Context, msg core.Message, rec
 // FailureHook always fail
 type FailureHook struct{}
 
-func (dh FailureHook) PostTxProcessing(ctx sdk.Context, msg core.Message, receipt *ethtypes.Receipt) error {
+func (dh FailureHook) PostTxProcessing(_ sdk.Context, _ core.Message, _ *ethtypes.Receipt) error {
 	return errors.New("post tx processing failed")
 }
 

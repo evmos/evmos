@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -213,8 +214,16 @@ func (s *websocketsServer) readLoop(wsConn *wsConn) {
 			continue
 		}
 
-		connID, ok := msg["id"].(float64)
-		if !ok {
+		var connID float64
+		switch id := msg["id"].(type) {
+		case string:
+			connID, err = strconv.ParseFloat(id, 64)
+		case float64:
+			connID = id
+		default:
+			err = fmt.Errorf("unknown type")
+		}
+		if err != nil {
 			s.sendErrResponse(
 				wsConn,
 				fmt.Errorf("invalid type for connection ID: %T", msg["id"]).Error(),
@@ -669,7 +678,7 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 	return unsubFn, nil
 }
 
-func (api *pubSubAPI) subscribeSyncing(wsConn *wsConn, subID rpc.ID) (pubsub.UnsubscribeFunc, error) {
+func (api *pubSubAPI) subscribeSyncing(_ *wsConn, _ rpc.ID) (pubsub.UnsubscribeFunc, error) {
 	return nil, errors.New("syncing subscription is not implemented")
 }
 

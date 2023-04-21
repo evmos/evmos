@@ -2,10 +2,8 @@ package cosmos_test
 
 import (
 	"fmt"
-	"time"
 
 	"cosmossdk.io/math"
-	sdktestutil "github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	cosmosante "github.com/evmos/evmos/v12/app/ante/cosmos"
@@ -13,6 +11,22 @@ import (
 	testutiltx "github.com/evmos/evmos/v12/testutil/tx"
 	"github.com/evmos/evmos/v12/utils"
 )
+
+type deductFeeDecoratorTestCase struct {
+	name        string
+	balance     math.Int
+	rewards     []math.Int
+	gas         uint64
+	gasPrice    *math.Int
+	feeGranter  sdk.AccAddress
+	checkTx     bool
+	simulate    bool
+	expPass     bool
+	errContains string
+	postCheck   func()
+	setup       func()
+	malleate    func()
+}
 
 func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	var (
@@ -27,24 +41,11 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	)
 
 	// Testcase definitions
-	testcases := []struct {
-		name        string
-		balance     math.Int
-		rewards     math.Int
-		gas         uint64
-		gasPrice    *math.Int
-		feeGranter  sdk.AccAddress
-		checkTx     bool
-		simulate    bool
-		expPass     bool
-		errContains string
-		postCheck   func()
-		malleate    func()
-	}{
+	testcases := []deductFeeDecoratorTestCase{
 		{
 			name:        "pass - sufficient balance to pay fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         0,
 			checkTx:     false,
 			simulate:    true,
@@ -54,7 +55,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - zero gas limit in check tx mode",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         0,
 			checkTx:     true,
 			simulate:    false,
@@ -64,7 +65,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - checkTx - insufficient funds and no staking rewards",
 			balance:     zero,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -84,7 +85,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "pass - insufficient funds but sufficient staking rewards",
 			balance:     zero,
-			rewards:     initBalance,
+			rewards:     []math.Int{initBalance},
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
@@ -107,7 +108,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - insufficient funds and insufficient staking rewards",
 			balance:     sdk.NewInt(1e5),
-			rewards:     sdk.NewInt(1e5),
+			rewards:     []math.Int{sdk.NewInt(1e5)},
 			gas:         10_000_000,
 			checkTx:     false,
 			simulate:    false,
@@ -130,7 +131,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - sufficient balance to pay fees but provided fees < required fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -148,7 +149,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees & min gas prices is zero",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			gasPrice:    &lowGasPrice,
 			checkTx:     true,
@@ -166,7 +167,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - sufficient balance to pay fees (fees > required fees)",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			checkTx:     true,
 			simulate:    false,
@@ -183,7 +184,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - zero fees",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         100,
 			gasPrice:    &zero,
 			checkTx:     true,
@@ -206,7 +207,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - with not authorized fee granter",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -217,7 +218,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "success - with authorized fee granter",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -246,7 +247,7 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 		{
 			name:        "fail - authorized fee granter but no feegrant keeper on decorator",
 			balance:     initBalance,
-			rewards:     zero,
+			rewards:     []math.Int{zero},
 			gas:         10_000_000,
 			feeGranter:  fgAddr,
 			checkTx:     true,
@@ -277,32 +278,10 @@ func (suite *AnteTestSuite) TestDeductFeeDecorator() {
 	// Test execution
 	for _, tc := range testcases {
 		suite.Run(tc.name, func() {
+			var args testutiltx.CosmosTxArgs
 			suite.SetupTest()
-
-			// Create a new DeductFeeDecorator
-			dfd = cosmosante.NewDeductFeeDecorator(
-				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.DistrKeeper, suite.app.FeeGrantKeeper, suite.app.StakingKeeper, nil,
-			)
-
-			// prepare the testcase
-			var err error
-			suite.ctx, err = testutil.PrepareAccountsForDelegationRewards(suite.T(), suite.ctx, suite.app, addr, tc.balance, tc.rewards)
-			suite.Require().NoError(err, "failed to prepare accounts for delegation rewards")
-			suite.ctx, err = testutil.Commit(suite.ctx, suite.app, time.Second*0, nil)
-			suite.Require().NoError(err)
-
-			// Create an arbitrary message for testing purposes
-			msg := sdktestutil.NewTestMsg(addr)
-
-			// Set up the transaction arguments
-			args := testutiltx.CosmosTxArgs{
-				TxCfg:      suite.clientCtx.TxConfig,
-				Priv:       priv,
-				Gas:        tc.gas,
-				GasPrice:   tc.gasPrice,
-				FeeGranter: tc.feeGranter,
-				Msgs:       []sdk.Msg{msg},
-			}
+			// make the setup for the test case
+			dfd, args = suite.setupDeductFeeDecoratorTestCase(addr, priv, tc)
 
 			if tc.malleate != nil {
 				tc.malleate()

@@ -370,13 +370,12 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			tx2,
 			tx2GasLimit, // it's capped
 			func(ctx sdk.Context) sdk.Context {
-				ctx, err := testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.ZeroInt(), sdk.NewInt(1e16),
+				return suite.prepareAccount(
+					ctx,
+					addr.Bytes(),
+					sdk.ZeroInt(),
+					sdk.NewInt(1e16),
 				)
-				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				return ctx.
-					WithBlockGasMeter(sdk.NewGasMeter(1e19)).
-					WithBlockHeight(ctx.BlockHeight() + 1)
 			},
 			true, false,
 			tx2Priority,
@@ -397,13 +396,12 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			tx2,
 			tx2GasLimit, // it's capped
 			func(ctx sdk.Context) sdk.Context {
-				ctx, err := testutil.PrepareAccountsForDelegationRewards(
-					suite.T(), ctx, suite.app, sdk.AccAddress(addr.Bytes()), sdk.NewInt(1e16), sdk.NewInt(1e16),
+				return suite.prepareAccount(
+					ctx,
+					addr.Bytes(),
+					sdk.NewInt(1e16),
+					sdk.NewInt(1e16),
 				)
-				suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
-				return ctx.
-					WithBlockGasMeter(sdk.NewGasMeter(1e19)).
-					WithBlockHeight(ctx.BlockHeight() + 1)
 			},
 			true, false,
 			tx2Priority,
