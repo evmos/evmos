@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/evmos/evmos/v12/app"
-	"github.com/evmos/evmos/v12/testutil"
-	epochstypes "github.com/evmos/evmos/v12/x/epochs/types"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
-	"github.com/evmos/evmos/v12/x/inflation/types"
+	"github.com/evmos/evmos/v13/app"
+	"github.com/evmos/evmos/v13/testutil"
+	epochstypes "github.com/evmos/evmos/v13/x/epochs/types"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v13/x/inflation/types"
 )
 
 // Test helpers
