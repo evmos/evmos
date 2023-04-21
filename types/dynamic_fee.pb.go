@@ -5,21 +5,18 @@ package types
 
 import (
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -39,11 +36,9 @@ func (*ExtensionOptionDynamicFeeTx) ProtoMessage()    {}
 func (*ExtensionOptionDynamicFeeTx) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9d7cf05c9992c480, []int{0}
 }
-
 func (m *ExtensionOptionDynamicFeeTx) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *ExtensionOptionDynamicFeeTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ExtensionOptionDynamicFeeTx.Marshal(b, m, deterministic)
@@ -56,15 +51,12 @@ func (m *ExtensionOptionDynamicFeeTx) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-
 func (m *ExtensionOptionDynamicFeeTx) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ExtensionOptionDynamicFeeTx.Merge(m, src)
 }
-
 func (m *ExtensionOptionDynamicFeeTx) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *ExtensionOptionDynamicFeeTx) XXX_DiscardUnknown() {
 	xxx_messageInfo_ExtensionOptionDynamicFeeTx.DiscardUnknown(m)
 }
@@ -94,8 +86,8 @@ var fileDescriptor_9d7cf05c9992c480 = []byte{
 	0x79, 0xe6, 0x95, 0x04, 0x09, 0xe4, 0x26, 0x56, 0x04, 0x40, 0x0d, 0x0a, 0x00, 0x99, 0xe3, 0x64,
 	0x75, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c,
 	0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c, 0x51, 0x0a, 0x48, 0x66, 0xa6, 0x96,
-	0x81, 0x8c, 0x84, 0x90, 0x65, 0x86, 0x86, 0x10, 0x13, 0x93, 0xd8, 0xc0, 0xee, 0x37, 0x06, 0x04,
-	0x00, 0x00, 0xff, 0xff, 0x7c, 0x1c, 0xc5, 0xba, 0x11, 0x01, 0x00, 0x00,
+	0x81, 0x8c, 0x84, 0x90, 0x65, 0x86, 0x46, 0x10, 0x13, 0x93, 0xd8, 0xc0, 0xee, 0x37, 0x06, 0x04,
+	0x00, 0x00, 0xff, 0xff, 0x05, 0x76, 0xb8, 0xab, 0x11, 0x01, 0x00, 0x00,
 }
 
 func (m *ExtensionOptionDynamicFeeTx) Marshal() (dAtA []byte, err error) {
@@ -142,7 +134,6 @@ func encodeVarintDynamicFee(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *ExtensionOptionDynamicFeeTx) Size() (n int) {
 	if m == nil {
 		return 0
@@ -157,11 +148,9 @@ func (m *ExtensionOptionDynamicFeeTx) Size() (n int) {
 func sovDynamicFee(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozDynamicFee(x uint64) (n int) {
 	return sovDynamicFee(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *ExtensionOptionDynamicFeeTx) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -246,7 +235,6 @@ func (m *ExtensionOptionDynamicFeeTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipDynamicFee(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
