@@ -1,4 +1,3 @@
-
 # License FAQ
 
 Find below an overview of Permissions and Limitations of the
@@ -100,11 +99,11 @@ author of Open (Source) For Business: A Practical Guide to Open Source Licensing
 Heather has been a pro-bono counsel to the Mozilla, GNOME, and Python foundations, as well as many other for-profit
 and non-profit open source projects.
 
-
 **Q: What will happen to Ethermint? Will it continue to be maintained?**
 
 **A:** Evmos stays the maintainer of the Ethermint repository, which will remain under the LGPL v3 license.
-New features developments that have been previously planned to be included on Ethermint are instead going to be part of Evmos SDK.
+New features developments that have been previously planned to be included
+on Ethermint are instead going to be part of Evmos SDK.
 For more information on the Evmos SDK, check out the Evmos Manifesto.
 
 **Q: Do I need a commercial permit when testing ENCL software?**
