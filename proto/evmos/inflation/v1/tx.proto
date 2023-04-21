@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "evmos/inflation/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v12/x/inflation/types";
+option go_package = "github.com/evmos/evmos/v13/x/inflation/types";
 
 // Msg defines the evm Msg service.
 service Msg {
