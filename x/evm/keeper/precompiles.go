@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"golang.org/x/exp/maps"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	distprecompile "github.com/evmos/precompiles/precompiles/distribution"
 	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
