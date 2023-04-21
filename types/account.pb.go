@@ -5,22 +5,19 @@ package types
 
 import (
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/cosmos/cosmos-sdk/x/auth/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -42,11 +39,9 @@ func (*EthAccount) ProtoMessage() {}
 func (*EthAccount) Descriptor() ([]byte, []int) {
 	return fileDescriptor_4edc057d42a619ef, []int{0}
 }
-
 func (m *EthAccount) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EthAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EthAccount.Marshal(b, m, deterministic)
@@ -59,15 +54,12 @@ func (m *EthAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *EthAccount) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EthAccount.Merge(m, src)
 }
-
 func (m *EthAccount) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EthAccount) XXX_DiscardUnknown() {
 	xxx_messageInfo_EthAccount.DiscardUnknown(m)
 }
@@ -100,8 +92,8 @@ var fileDescriptor_4edc057d42a619ef = []byte{
 	0x3e, 0x18, 0xce, 0xe6, 0x46, 0xae, 0x63, 0x92, 0xa8, 0xd4, 0x7d, 0xd1, 0x5d, 0x03, 0x3d, 0x7d,
 	0xa4, 0xcf, 0x36, 0x1c, 0x1b, 0x99, 0x73, 0xbd, 0x8b, 0x46, 0x1f, 0x25, 0x82, 0x79, 0x89, 0xe0,
 	0x77, 0x89, 0xe0, 0x6b, 0x85, 0x40, 0x5e, 0x21, 0xf0, 0x55, 0x21, 0x70, 0x1f, 0x1c, 0xa8, 0x89,
-	0xac, 0x16, 0xb3, 0x67, 0xc6, 0x98, 0x15, 0x89, 0x8f, 0x9b, 0xa8, 0xae, 0xfe, 0x02, 0x00, 0x00,
-	0xff, 0xff, 0xa7, 0x20, 0xb8, 0xfa, 0xb3, 0x01, 0x00, 0x00,
+	0xac, 0x16, 0xb3, 0x67, 0xc6, 0x86, 0x56, 0x24, 0x3e, 0x6e, 0xa2, 0xba, 0xfa, 0x0b, 0x00, 0x00,
+	0xff, 0xff, 0xde, 0x4a, 0xc5, 0xeb, 0xb3, 0x01, 0x00, 0x00,
 }
 
 func (m *EthAccount) Marshal() (dAtA []byte, err error) {
@@ -157,7 +149,6 @@ func encodeVarintAccount(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *EthAccount) Size() (n int) {
 	if m == nil {
 		return 0
@@ -178,11 +169,9 @@ func (m *EthAccount) Size() (n int) {
 func sovAccount(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozAccount(x uint64) (n int) {
 	return sovAccount(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *EthAccount) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -301,7 +290,6 @@ func (m *EthAccount) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipAccount(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

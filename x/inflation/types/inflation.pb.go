@@ -5,21 +5,18 @@ package types
 
 import (
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -52,11 +49,9 @@ func (*InflationDistribution) ProtoMessage()    {}
 func (*InflationDistribution) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d064cb35c3ff7df8, []int{0}
 }
-
 func (m *InflationDistribution) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *InflationDistribution) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_InflationDistribution.Marshal(b, m, deterministic)
@@ -69,15 +64,12 @@ func (m *InflationDistribution) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-
 func (m *InflationDistribution) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_InflationDistribution.Merge(m, src)
 }
-
 func (m *InflationDistribution) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *InflationDistribution) XXX_DiscardUnknown() {
 	xxx_messageInfo_InflationDistribution.DiscardUnknown(m)
 }
@@ -108,11 +100,9 @@ func (*ExponentialCalculation) ProtoMessage()    {}
 func (*ExponentialCalculation) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d064cb35c3ff7df8, []int{1}
 }
-
 func (m *ExponentialCalculation) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *ExponentialCalculation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_ExponentialCalculation.Marshal(b, m, deterministic)
@@ -125,15 +115,12 @@ func (m *ExponentialCalculation) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-
 func (m *ExponentialCalculation) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ExponentialCalculation.Merge(m, src)
 }
-
 func (m *ExponentialCalculation) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *ExponentialCalculation) XXX_DiscardUnknown() {
 	xxx_messageInfo_ExponentialCalculation.DiscardUnknown(m)
 }
@@ -153,7 +140,7 @@ var fileDescriptor_d064cb35c3ff7df8 = []byte{
 	// 371 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcd, 0x4e, 0xe3, 0x30,
 	0x10, 0xc7, 0xe3, 0xee, 0x87, 0xb4, 0xde, 0xdd, 0x76, 0x15, 0xed, 0xae, 0xa2, 0x3d, 0xa4, 0xab,
-	0x1e, 0x10, 0x07, 0x48, 0xa8, 0xb8, 0x72, 0x2a, 0x05, 0xa9, 0x37, 0xa8, 0xf8, 0x10, 0x5c, 0x22,
+	0x1e, 0x10, 0x07, 0x48, 0x54, 0xb8, 0x72, 0x2a, 0x05, 0xa9, 0x37, 0xa8, 0xf8, 0x10, 0x5c, 0x22,
 	0xc7, 0x35, 0xc1, 0x6a, 0xe2, 0x89, 0x6c, 0x27, 0xa4, 0x6f, 0xc1, 0x33, 0xf0, 0x34, 0x3d, 0xf6,
 	0x88, 0x38, 0x54, 0xa8, 0x7d, 0x0d, 0x0e, 0xc8, 0x49, 0x69, 0x7b, 0xce, 0x25, 0x19, 0xdb, 0xff,
 	0xf9, 0xd9, 0xf3, 0xb7, 0x07, 0x77, 0x58, 0x9e, 0x80, 0xf2, 0xb9, 0xb8, 0x8b, 0x89, 0xe6, 0x20,
@@ -173,7 +160,7 @@ var fileDescriptor_d064cb35c3ff7df8 = []byte{
 	0x65, 0xce, 0x97, 0x5a, 0xd0, 0xef, 0x09, 0x29, 0xae, 0x56, 0x88, 0xde, 0xe9, 0x74, 0xe1, 0xa2,
 	0xd9, 0xc2, 0x45, 0xaf, 0x0b, 0x17, 0x3d, 0x2e, 0x5d, 0x6b, 0xb6, 0x74, 0xad, 0xe7, 0xa5, 0x6b,
 	0xdd, 0xee, 0x6d, 0xe1, 0xaa, 0xb6, 0xa8, 0xbe, 0x79, 0xf7, 0xc0, 0x2f, 0xb6, 0x5a, 0xa4, 0x04,
-	0x87, 0x5f, 0xcb, 0x27, 0x7f, 0xf8, 0x1e, 0x00, 0x00, 0xff, 0xff, 0x53, 0x51, 0xc3, 0x26, 0x42,
+	0x87, 0x5f, 0xcb, 0x27, 0x7f, 0xf8, 0x1e, 0x00, 0x00, 0xff, 0xff, 0xd1, 0x67, 0xdb, 0xfb, 0x42,
 	0x03, 0x00, 0x00,
 }
 
@@ -314,7 +301,6 @@ func encodeVarintInflation(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *InflationDistribution) Size() (n int) {
 	if m == nil {
 		return 0
@@ -352,11 +338,9 @@ func (m *ExponentialCalculation) Size() (n int) {
 func sovInflation(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozInflation(x uint64) (n int) {
 	return sovInflation(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *InflationDistribution) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -509,7 +493,6 @@ func (m *InflationDistribution) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *ExponentialCalculation) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -730,7 +713,6 @@ func (m *ExponentialCalculation) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipInflation(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
