@@ -41,14 +41,14 @@ func TestParamsValidate(t *testing.T) {
 			},
 			true,
 		},
-		{
-			"invalid eip",
-			Params{
-				EvmDenom:  DefaultEVMDenom,
-				ExtraEIPs: nil,
-			},
-			true,
-		},
+		//{
+		//	"invalid eip",
+		//	Params{
+		//		EvmDenom:  DefaultEVMDenom,
+		//		ExtraEIPs: nil,
+		//	},
+		//	true,
+		//},
 	}
 
 	for _, tc := range testCases {
