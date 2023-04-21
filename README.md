@@ -78,6 +78,7 @@ The following chat channels and forums are a great spot to ask questions about E
 - [Evmos Forum](https://commonwealth.im/evmos)
 
 ## Licensing
+
 Starting from April 21th, 2023, the Evmos repository will update its License from GNU Lesser General Public License v3.0 (LGPLv3)
 to Evmos Non-Commercial License 1.0 (ENCL-1.0). This license applies to all software released from Evmos version 12 or 
 later, except for specific files, as follows, which will continue to be licensed under LGPLv3:
