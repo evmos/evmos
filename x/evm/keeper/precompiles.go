@@ -1,10 +1,9 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+//  SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package keeper
 
 import (
 	"fmt"
-
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"golang.org/x/exp/maps"

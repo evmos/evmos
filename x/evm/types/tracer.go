@@ -1,12 +1,11 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+//  SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package types
 
 import (
+	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 	"math/big"
 	"os"
-
-	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -85,8 +84,6 @@ func (dt NoOpTracer) CaptureFault(pc uint64, op vm.OpCode, gas, cost uint64, sco
 }
 
 // CaptureEnd implements vm.Tracer interface
-//
-//nolint:revive // allow unused parameters to indicate expected signature
 func (dt NoOpTracer) CaptureEnd(output []byte, gasUsed uint64, err error) {}
 
 // CaptureEnter implements vm.Tracer interface
