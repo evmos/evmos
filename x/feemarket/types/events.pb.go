@@ -5,19 +5,16 @@ package types
 
 import (
 	fmt "fmt"
+	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-
-	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -37,11 +34,9 @@ func (*EventFeeMarket) ProtoMessage()    {}
 func (*EventFeeMarket) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c6edce8d670faff7, []int{0}
 }
-
 func (m *EventFeeMarket) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventFeeMarket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventFeeMarket.Marshal(b, m, deterministic)
@@ -54,15 +49,12 @@ func (m *EventFeeMarket) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-
 func (m *EventFeeMarket) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventFeeMarket.Merge(m, src)
 }
-
 func (m *EventFeeMarket) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventFeeMarket) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventFeeMarket.DiscardUnknown(m)
 }
@@ -90,11 +82,9 @@ func (*EventBlockGas) ProtoMessage()    {}
 func (*EventBlockGas) Descriptor() ([]byte, []int) {
 	return fileDescriptor_c6edce8d670faff7, []int{1}
 }
-
 func (m *EventBlockGas) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *EventBlockGas) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_EventBlockGas.Marshal(b, m, deterministic)
@@ -107,15 +97,12 @@ func (m *EventBlockGas) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-
 func (m *EventBlockGas) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_EventBlockGas.Merge(m, src)
 }
-
 func (m *EventBlockGas) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *EventBlockGas) XXX_DiscardUnknown() {
 	xxx_messageInfo_EventBlockGas.DiscardUnknown(m)
 }
@@ -158,9 +145,9 @@ var fileDescriptor_c6edce8d670faff7 = []byte{
 	0x34, 0xaf, 0x44, 0x82, 0x09, 0x22, 0x0e, 0xe1, 0x39, 0xb9, 0x9d, 0x78, 0x24, 0xc7, 0x78, 0xe1,
 	0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70,
 	0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x4e, 0x7a, 0x66, 0x49, 0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0xae,
-	0x7e, 0x6a, 0x59, 0x6e, 0x7e, 0x31, 0x94, 0x2c, 0x33, 0x34, 0xd4, 0xaf, 0x40, 0xf2, 0x57, 0x49,
-	0x65, 0x41, 0x6a, 0x71, 0x12, 0x1b, 0xd8, 0x53, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x73,
-	0xd5, 0x53, 0x21, 0xfb, 0x00, 0x00, 0x00,
+	0x7e, 0x6a, 0x59, 0x6e, 0x7e, 0x31, 0x94, 0x2c, 0x33, 0x34, 0xd2, 0xaf, 0x40, 0xf2, 0x57, 0x49,
+	0x65, 0x41, 0x6a, 0x71, 0x12, 0x1b, 0xd8, 0x53, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xb0,
+	0xf8, 0xc7, 0x92, 0xfb, 0x00, 0x00, 0x00,
 }
 
 func (m *EventFeeMarket) Marshal() (dAtA []byte, err error) {
@@ -241,7 +228,6 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *EventFeeMarket) Size() (n int) {
 	if m == nil {
 		return 0
@@ -275,11 +261,9 @@ func (m *EventBlockGas) Size() (n int) {
 func sovEvents(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *EventFeeMarket) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -362,7 +346,6 @@ func (m *EventFeeMarket) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *EventBlockGas) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -477,7 +460,6 @@ func (m *EventBlockGas) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipEvents(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0

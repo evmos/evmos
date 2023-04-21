@@ -22,16 +22,34 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v12/app"
 	testutiltx "github.com/evmos/evmos/v12/testutil/tx"
 	"github.com/evmos/evmos/v12/utils"
 )
+
+// CreateValidator creates a validator with the provided public key and stake amount
+func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
+	zeroDec := sdk.ZeroDec()
+	stakingParams := sk.GetParams(ctx)
+	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams.MinCommissionRate = zeroDec
+	sk.SetParams(ctx, stakingParams)
+
+	stakingHelper := teststaking.NewHelper(t, ctx, sk)
+	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
+	stakingHelper.Denom = sk.BondDenom(ctx)
+
+	valAddr := sdk.ValAddress(pubKey.Address())
+	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)
+}
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.
 //

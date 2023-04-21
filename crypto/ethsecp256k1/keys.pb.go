@@ -5,20 +5,17 @@ package ethsecp256k1
 
 import (
 	fmt "fmt"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
-
-	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -39,11 +36,9 @@ func (*PubKey) ProtoMessage() {}
 func (*PubKey) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0c10cadcf35beb64, []int{0}
 }
-
 func (m *PubKey) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *PubKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_PubKey.Marshal(b, m, deterministic)
@@ -56,15 +51,12 @@ func (m *PubKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *PubKey) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_PubKey.Merge(m, src)
 }
-
 func (m *PubKey) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *PubKey) XXX_DiscardUnknown() {
 	xxx_messageInfo_PubKey.DiscardUnknown(m)
 }
@@ -91,11 +83,9 @@ func (*PrivKey) ProtoMessage()    {}
 func (*PrivKey) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0c10cadcf35beb64, []int{1}
 }
-
 func (m *PrivKey) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *PrivKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_PrivKey.Marshal(b, m, deterministic)
@@ -108,15 +98,12 @@ func (m *PrivKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *PrivKey) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_PrivKey.Merge(m, src)
 }
-
 func (m *PrivKey) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *PrivKey) XXX_DiscardUnknown() {
 	xxx_messageInfo_PrivKey.DiscardUnknown(m)
 }
@@ -151,9 +138,9 @@ var fileDescriptor_0c10cadcf35beb64 = []byte{
 	0x33, 0x28, 0x49, 0x73, 0xb1, 0x07, 0x14, 0x65, 0x96, 0x61, 0x55, 0xe2, 0xe4, 0x71, 0xe2, 0x91,
 	0x1c, 0xe3, 0x85, 0x47, 0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1,
 	0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c, 0x51, 0x7a, 0xe9, 0x99, 0x25, 0x19, 0xa5, 0x49, 0x7a,
-	0xc9, 0xf9, 0xb9, 0xfa, 0xa9, 0x65, 0xb9, 0xf9, 0xc5, 0x50, 0xb2, 0xcc, 0xd0, 0x10, 0xe6, 0x1d,
-	0x64, 0xe7, 0x25, 0xb1, 0x81, 0xdd, 0x63, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xbe, 0x60, 0x8d,
-	0x49, 0xf6, 0x00, 0x00, 0x00,
+	0xc9, 0xf9, 0xb9, 0xfa, 0xa9, 0x65, 0xb9, 0xf9, 0xc5, 0x50, 0xb2, 0xcc, 0xd0, 0x08, 0xe6, 0x1d,
+	0x64, 0xe7, 0x25, 0xb1, 0x81, 0xdd, 0x63, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xd2, 0x0b, 0x85,
+	0xec, 0xf6, 0x00, 0x00, 0x00,
 }
 
 func (m *PubKey) Marshal() (dAtA []byte, err error) {
@@ -227,7 +214,6 @@ func encodeVarintKeys(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *PubKey) Size() (n int) {
 	if m == nil {
 		return 0
@@ -257,11 +243,9 @@ func (m *PrivKey) Size() (n int) {
 func sovKeys(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozKeys(x uint64) (n int) {
 	return sovKeys(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *PubKey) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -346,7 +330,6 @@ func (m *PubKey) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *PrivKey) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -431,7 +414,6 @@ func (m *PrivKey) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipKeys(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
