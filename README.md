@@ -77,6 +77,46 @@ The following chat channels and forums are a great spot to ask questions about E
 - [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://commonwealth.im/evmos)
 
+## Licensing
+
+Starting from April 21th, 2023, the Evmos repository will update its License from
+GNU Lesser General Public License v3.0 (LGPLv3)
+to Evmos Non-Commercial License 1.0 (ENCL-1.0).
+This license applies to all software released from Evmos version 12 or
+later, except for specific files, as follows, which will continue to be licensed under LGPLv3:
+
+`x/revenue/v1/` (all files in this folder)
+
+`x/claims/genesis.go`
+
+`x/erc20/keeper/proposals.go`
+
+`x/erc20/types/utils.go`
+
+LGPLv3 will continue to apply to older versions (<v13.0.0) of Evmos repository. For more information see LICENSE.
+
+## SPDX Identifier
+
+The following header including a license identifier in SPDX short form has been added in all ENCL-1.0 files:
+
+```
+// Copyright Tharsis Labs Ltd.(Evmos)
+
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+```
+
+Exempted files contain the following SPDX ID:
+
+```
+// Copyright Tharsis Labs Ltd.(Evmos)
+
+// SPDX-License-Identifier:LGPL-3.0-only
+```
+
+## License FAQ
+
+For the full FAQ please check the [License FAQ](LICENSE_FAQ.md)
+
 ## Contributing
 
 Looking for a good place to start contributing?
