@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v12/x/erc20/types"
+	"github.com/evmos/evmos/v13/x/erc20/types"
 )
 
 // NewHandler defines the erc20 module handler instance

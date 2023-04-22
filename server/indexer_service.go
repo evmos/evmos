@@ -10,7 +10,7 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"github.com/tendermint/tendermint/types"
 
-	evmostypes "github.com/evmos/evmos/v12/types"
+	evmostypes "github.com/evmos/evmos/v13/types"
 )
 
 const (

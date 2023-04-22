@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	epochstypes "github.com/evmos/evmos/v12/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v13/x/epochs/types"
 )
 
 // ParamsKey params store key

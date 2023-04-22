@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 var ParamsKey = []byte("Params")

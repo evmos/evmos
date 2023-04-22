@@ -5,9 +5,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	utiltx "github.com/evmos/evmos/v12/testutil/tx"
-	"github.com/evmos/evmos/v12/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	utiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v13/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {

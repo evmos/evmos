@@ -19,10 +19,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v12/app"
-	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v12/testutil/tx"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v13/app"
+	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v13/testutil/tx"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.

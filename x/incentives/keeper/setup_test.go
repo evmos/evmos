@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 
-	"github.com/evmos/evmos/v12/app"
-	"github.com/evmos/evmos/v12/x/incentives/types"
+	"github.com/evmos/evmos/v13/app"
+	"github.com/evmos/evmos/v13/x/incentives/types"
 )
 
 type KeeperTestSuite struct {

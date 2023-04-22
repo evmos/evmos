@@ -6,11 +6,11 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v12/types"
+	evmostypes "github.com/evmos/evmos/v13/types"
 
-	utils "github.com/evmos/evmos/v12/utils"
-	incentivestypes "github.com/evmos/evmos/v12/x/incentives/types"
-	"github.com/evmos/evmos/v12/x/inflation/types"
+	utils "github.com/evmos/evmos/v13/utils"
+	incentivestypes "github.com/evmos/evmos/v13/x/incentives/types"
+	"github.com/evmos/evmos/v13/x/inflation/types"
 )
 
 // 200M token at year 4 allocated to the team
