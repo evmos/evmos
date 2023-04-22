@@ -1,26 +1,4 @@
-
 # License FAQ
-Find below an overview of Permissions and Limitations of the
-Evmos Non-Commercial License 1.0. For more information, check out the full ENCL-1.0 FAQ here.
-
-
-### Permissions
-- Private Use, including distribution and modification
-- Commercial use on designated blockchains
-- Commercial use with Evmos permit (to be separately negotiated)
-### Prohibited
-- Commercial use, other than on designated blockchains, without Evmos permit
-
-
-Evmos Non-Commercial License 1.0 (ENCL-1.0) was created by Tharsis Labs Ltd. (Evmos) to provide a mutually beneficial
-balance between the user benefits of our open software that is free of charge and provides open access to all of the
-product code for modification, distribution, auditability, etc., and the sustainability needs of our software developers
-to continue delivering product innovation and maintenance.
-The ENCL is structured to allow free of charge usage in all non-commercial cases and limited commercial use cases.
-ENCL gives users complete access to the source code so users can modify, distribute and enhance it, within the permitted purposes.
-This FAQ is designed to address questions for developers and companies interested in working on
-ENCL Software or adopting ENCL Software for commercial use.
-
 
 **Q: What is Evmos Non-Commercial License 1.0 (ENCL-1.0)?**
 
