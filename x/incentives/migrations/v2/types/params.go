@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v12/x/incentives/types"
+	"github.com/evmos/evmos/v13/x/incentives/types"
 
-	epochstypes "github.com/evmos/evmos/v12/x/epochs/types"
+	epochstypes "github.com/evmos/evmos/v13/x/epochs/types"
 )
 
 var _ types.LegacyParams = &V2Params{}

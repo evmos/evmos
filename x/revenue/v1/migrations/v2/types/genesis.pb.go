@@ -11,7 +11,7 @@ import (
 
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	"github.com/evmos/evmos/v12/x/revenue/v1/types"
+	"github.com/evmos/evmos/v13/x/revenue/v1/types"
 	proto "github.com/gogo/protobuf/proto"
 )
 

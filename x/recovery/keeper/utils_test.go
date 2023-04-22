@@ -9,12 +9,12 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
-	"github.com/evmos/evmos/v12/app"
-	ibctesting "github.com/evmos/evmos/v12/ibc/testing"
-	"github.com/evmos/evmos/v12/utils"
-	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v12/x/inflation/types"
-	"github.com/evmos/evmos/v12/x/recovery/types"
+	"github.com/evmos/evmos/v13/app"
+	ibctesting "github.com/evmos/evmos/v13/ibc/testing"
+	"github.com/evmos/evmos/v13/utils"
+	claimstypes "github.com/evmos/evmos/v13/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
+	"github.com/evmos/evmos/v13/x/recovery/types"
 )
 
 func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {

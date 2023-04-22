@@ -16,8 +16,8 @@ import (
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v12/ibc"
-	"github.com/evmos/evmos/v12/x/erc20/types"
+	"github.com/evmos/evmos/v13/ibc"
+	"github.com/evmos/evmos/v13/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically

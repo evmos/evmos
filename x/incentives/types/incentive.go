@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v12/types"
+	evmostypes "github.com/evmos/evmos/v13/types"
 )
 
 // NewIncentive returns an instance of Incentive

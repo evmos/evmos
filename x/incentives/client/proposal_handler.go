@@ -6,7 +6,7 @@ package client
 import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
-	"github.com/evmos/evmos/v12/x/incentives/client/cli"
+	"github.com/evmos/evmos/v13/x/incentives/client/cli"
 )
 
 var (

@@ -17,7 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v12/x/incentives/types"
+	"github.com/evmos/evmos/v13/x/incentives/types"
 )
 
 // NewRegisterIncentiveProposalCmd implements the command to submit a register

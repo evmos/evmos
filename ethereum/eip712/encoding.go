@@ -13,7 +13,7 @@ import (
 	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
 
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
-	evmostypes "github.com/evmos/evmos/v12/types"
+	evmostypes "github.com/evmos/evmos/v13/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 )

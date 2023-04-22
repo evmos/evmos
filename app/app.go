@@ -110,60 +110,61 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 
-	ethante "github.com/evmos/evmos/v12/app/ante/evm"
-	"github.com/evmos/evmos/v12/encoding"
-	"github.com/evmos/evmos/v12/ethereum/eip712"
-	srvflags "github.com/evmos/evmos/v12/server/flags"
-	evmostypes "github.com/evmos/evmos/v12/types"
-	"github.com/evmos/evmos/v12/x/evm"
-	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
-	"github.com/evmos/evmos/v12/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+	ethante "github.com/evmos/evmos/v13/app/ante/evm"
+	"github.com/evmos/evmos/v13/encoding"
+	"github.com/evmos/evmos/v13/ethereum/eip712"
+	srvflags "github.com/evmos/evmos/v13/server/flags"
+	evmostypes "github.com/evmos/evmos/v13/types"
+	"github.com/evmos/evmos/v13/x/evm"
+	evmkeeper "github.com/evmos/evmos/v13/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v13/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v13/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v12/client/docs/statik"
+	_ "github.com/evmos/evmos/v13/client/docs/statik"
 
-	"github.com/evmos/evmos/v12/app/ante"
-	v10 "github.com/evmos/evmos/v12/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v12/app/upgrades/v11"
-	v12 "github.com/evmos/evmos/v12/app/upgrades/v12"
-	v8 "github.com/evmos/evmos/v12/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v12/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v12/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v12/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v12/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v12/x/claims"
-	claimskeeper "github.com/evmos/evmos/v12/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
-	"github.com/evmos/evmos/v12/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v12/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v12/x/epochs/types"
-	"github.com/evmos/evmos/v12/x/erc20"
-	erc20client "github.com/evmos/evmos/v12/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v12/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v12/x/erc20/types"
-	"github.com/evmos/evmos/v12/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v12/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v12/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v12/x/incentives/types"
-	"github.com/evmos/evmos/v12/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v12/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v12/x/inflation/types"
-	"github.com/evmos/evmos/v12/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v12/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v12/x/recovery/types"
-	revenue "github.com/evmos/evmos/v12/x/revenue/v1"
-	revenuekeeper "github.com/evmos/evmos/v12/x/revenue/v1/keeper"
-	revenuetypes "github.com/evmos/evmos/v12/x/revenue/v1/types"
-	"github.com/evmos/evmos/v12/x/vesting"
-	vestingkeeper "github.com/evmos/evmos/v12/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v12/x/vesting/types"
+	"github.com/evmos/evmos/v13/app/ante"
+	v10 "github.com/evmos/evmos/v13/app/upgrades/v10"
+	v11 "github.com/evmos/evmos/v13/app/upgrades/v11"
+	v12 "github.com/evmos/evmos/v13/app/upgrades/v12"
+	v13 "github.com/evmos/evmos/v13/app/upgrades/v13"
+	v8 "github.com/evmos/evmos/v13/app/upgrades/v8"
+	v81 "github.com/evmos/evmos/v13/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v13/app/upgrades/v8_2"
+	v9 "github.com/evmos/evmos/v13/app/upgrades/v9"
+	v91 "github.com/evmos/evmos/v13/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v13/x/claims"
+	claimskeeper "github.com/evmos/evmos/v13/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v13/x/claims/types"
+	"github.com/evmos/evmos/v13/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v13/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v13/x/epochs/types"
+	"github.com/evmos/evmos/v13/x/erc20"
+	erc20client "github.com/evmos/evmos/v13/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v13/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v13/x/erc20/types"
+	"github.com/evmos/evmos/v13/x/incentives"
+	incentivesclient "github.com/evmos/evmos/v13/x/incentives/client"
+	incentiveskeeper "github.com/evmos/evmos/v13/x/incentives/keeper"
+	incentivestypes "github.com/evmos/evmos/v13/x/incentives/types"
+	"github.com/evmos/evmos/v13/x/inflation"
+	inflationkeeper "github.com/evmos/evmos/v13/x/inflation/keeper"
+	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
+	"github.com/evmos/evmos/v13/x/recovery"
+	recoverykeeper "github.com/evmos/evmos/v13/x/recovery/keeper"
+	recoverytypes "github.com/evmos/evmos/v13/x/recovery/types"
+	revenue "github.com/evmos/evmos/v13/x/revenue/v1"
+	revenuekeeper "github.com/evmos/evmos/v13/x/revenue/v1/keeper"
+	revenuetypes "github.com/evmos/evmos/v13/x/revenue/v1/types"
+	"github.com/evmos/evmos/v13/x/vesting"
+	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v12/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v13/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -1206,6 +1207,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v13 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v13.UpgradeName,
+		v13.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1247,6 +1256,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
 		}
 	case v12.UpgradeName:
+		// no store upgrades
+	case v13.UpgradeName:
 		// no store upgrades
 	}
 

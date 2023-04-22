@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 
-	"github.com/evmos/evmos/v12/x/erc20/types"
+	"github.com/evmos/evmos/v13/x/erc20/types"
 )
 
 var (
