@@ -17,7 +17,6 @@ This FAQ is designed to address questions for developers and companies
 interested in working on ENCL Software or adopting ENCL Software for commercial
 use.
 
-
 **Q: What is Evmos Non-Commercial License 1.0 (ENCL-1.0)?**
 
 **A:** ENCL is an alternative to closed-source or fully open source licensing
