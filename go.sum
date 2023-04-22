@@ -484,6 +484,8 @@ github.com/evmos/cosmos-sdk v0.46.10-ledger.0.20230320093522-9887f57c8139 h1:bFh
 github.com/evmos/cosmos-sdk v0.46.10-ledger.0.20230320093522-9887f57c8139/go.mod h1:opDBTPiPrOo781a1zT1Tadh2Runcm5Ko/KXI1hZCzRo=
 github.com/evmos/evmos-ledger-go v0.4.0 h1:WPa6TN9x7s/+1YCgvYGtzJrhlW/mIHtYM1DvNq/e2o0=
 github.com/evmos/evmos-ledger-go v0.4.0/go.mod h1:33X3wWcWZ68KD5Bj4aiED+/W57uO1VR+hbXBxkKDXsQ=
+github.com/evmos/evmos/v12 v12.0.0-20230419153903-118f5097c6ea h1:6TxMB3G3abmT/vdSPtiOgZHwTyBDn6B0DKdsA+IbFlY=
+github.com/evmos/evmos/v12 v12.0.0-20230419153903-118f5097c6ea/go.mod h1:9kgOJB/fZiqVAz4+05xk5/h3e++0dTHQINTTFxhMhlU=
 github.com/evmos/go-ethereum v1.10.24-0.20230224142729-a4867b20faf5 h1:ZNUIwLjNGX9kiTLmHz/niVg67Vc0po4S/Oc7Jww7chE=
 github.com/evmos/go-ethereum v1.10.24-0.20230224142729-a4867b20faf5/go.mod h1:n7VlOgCwYheLB/mi+V8ni2yf8K2qM3N9WAmalxkhk+c=
 github.com/evmos/precompiles v0.0.0-20230420213147-afba307ee5bd h1:wKiSqvlVOQZggMypxopyyrS0p34kSiJbls8zvCKwnis=
