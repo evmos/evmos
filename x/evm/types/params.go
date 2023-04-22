@@ -25,7 +25,6 @@ var (
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
 	// DefaultActivePrecompiles defines the default active precompiles
-	// TODO: testing if this fixes the issues with integration tests
 	DefaultActivePrecompiles = []string{"0x0000000000000000000000000000000000000800", "0x0000000000000000000000000000000000000801"}
 )
 
