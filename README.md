@@ -79,16 +79,19 @@ The following chat channels and forums are great spots to ask questions about Ev
 
 ## Licensing
 
-Starting from April 21st, 2023, the Evmos repository will update its License from GNU Lesser General Public License v3.0 (LGPLv3)
-to Evmos Non-Commercial License 1.0 (ENCL-1.0). This license applies to all software released from Evmos version 12 or
-later, except for specific files, as follows, which will continue to be licensed under LGPLv3:
+Starting from April 21st, 2023, the Evmos repository will update its License
+from GNU Lesser General Public License v3.0 (LGPLv3) to Evmos Non-Commercial
+License 1.0 (ENCL-1.0). This license applies to all software released from Evmos
+version 12 or later, except for specific files, as follows, which will continue
+to be licensed under LGPLv3:
 
 - `x/revenue/v1/` (all files in this folder)
 - `x/claims/genesis.go`
 - `x/erc20/keeper/proposals.go`
 - `x/erc20/types/utils.go`
 
-LGPLv3 will continue to apply to older versions (<v13.0.0) of the Evmos repository. For more information see LICENSE.
+LGPLv3 will continue to apply to older versions (<v13.0.0) of the Evmos
+repository. For more information see LICENSE.
 
 ### SPDX Identifier
 
@@ -113,7 +116,6 @@ Find below an overview of the Permissions and Limitations of the Evmos Non-Comme
 | Permissions                                                                                                                                                                  | Prohibited                                                                 |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | - Private Use, including distribution and modification<br />- Commercial use on designated blockchains<br />- Commercial use with Evmos permit (to be separately negotiated) | - Commercial use, other than on designated blockchains, without Evmos permit |
-
 
 ## Contributing
 
