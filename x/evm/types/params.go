@@ -25,7 +25,10 @@ var (
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
 	// DefaultActivePrecompiles defines the default active precompiles
-	DefaultActivePrecompiles = []string{"0x0000000000000000000000000000000000000800", "0x0000000000000000000000000000000000000801"}
+	DefaultActivePrecompiles = []string{
+		"0x0000000000000000000000000000000000000800",
+		"0x0000000000000000000000000000000000000801",
+	}
 )
 
 // AvailableExtraEIPs define the list of all EIPs that can be enabled by the
