@@ -49,15 +49,6 @@ func (s Storage) SortedKeys() []common.Hash {
 	return keys
 }
 
-func (s Storage) Copy() Storage {
-	cpy := make(Storage, len(s))
-	for key, value := range s {
-		cpy[key] = value
-	}
-
-	return cpy
-}
-
 // stateObject is the state of an acount
 type stateObject struct {
 	db *StateDB

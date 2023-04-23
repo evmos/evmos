@@ -13,7 +13,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
 )
 
 // revision is the identifier of a version of state.
@@ -53,45 +52,6 @@ type StateDB struct {
 
 	// Per-transaction access list
 	accessList *accessList
-
-	// Transient storage
-	transientStorage transientStorage
-}
-
-func (s *StateDB) GetTransientState(addr common.Address, key common.Hash) common.Hash {
-	return s.transientStorage.Get(addr, key)
-}
-
-func (s *StateDB) SetTransientState(addr common.Address, key, value common.Hash) {
-	s.transientStorage.Set(addr, key, value)
-}
-
-func (s *StateDB) Prepare(rules params.Rules, sender, coinbase common.Address, dst *common.Address, precompiles []common.Address, list ethtypes.AccessList) {
-	if rules.IsBerlin {
-		// Clear out any leftover from previous executions
-		al := newAccessList()
-		s.accessList = al
-
-		al.AddAddress(sender)
-		if dst != nil {
-			al.AddAddress(*dst)
-			// If it's a create-tx, the destination will be added inside evm.create
-		}
-		for _, addr := range precompiles {
-			al.AddAddress(addr)
-		}
-		for _, el := range list {
-			al.AddAddress(el.Address)
-			for _, key := range el.StorageKeys {
-				al.AddSlot(el.Address, key)
-			}
-		}
-		if rules.IsShanghai { // EIP-3651: warm coinbase
-			al.AddAddress(coinbase)
-		}
-	}
-	// Reset transient storage at the beginning of transaction execution
-	s.transientStorage = newTransientStorage()
 }
 
 // New creates a new state from a given trie.
