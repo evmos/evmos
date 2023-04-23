@@ -16,7 +16,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/evmos/evmos-ledger-go v0.4.0
-	github.com/evmos/precompiles v0.0.0-20230420213147-afba307ee5bd
+	github.com/evmos/precompiles v0.0.0-20230423102247-645f92e38b76
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
@@ -101,7 +101,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
-	github.com/evmos/evmos/v12 v12.0.0-20230419153903-118f5097c6ea // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
@@ -223,7 +222,7 @@ replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// use Cosmos-SDK fork to enable Ledger functionality
-	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.3
+	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.6
 	// use Evmos geth fork
 	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc1
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq

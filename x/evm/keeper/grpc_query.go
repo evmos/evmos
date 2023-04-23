@@ -567,7 +567,7 @@ func (k *Keeper) traceTx(
 	}
 
 	if traceConfig.Tracer != "" {
-		if tracer, err = tracers.DefaultDirectory.New(traceConfig.Tracer, tCtx, tracerJSONConfig); err != nil {
+		if tracer, err = tracers.New(traceConfig.Tracer, tCtx, tracerJSONConfig); err != nil {
 			return nil, 0, status.Error(codes.Internal, err.Error())
 		}
 	}
