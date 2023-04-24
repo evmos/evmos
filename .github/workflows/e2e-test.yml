@@ -10,6 +10,8 @@ on:
 jobs:
   test-e2e:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.PAT_CLASSIC }}
     steps:
       - uses: actions/setup-go@v4
         with:
@@ -28,15 +30,16 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git remote set-url origin https://${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos/evmos.git
-          git config --global --add url."https://${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos".insteadOf "git@github.com:evmos"
-          git config --global --add url."https://${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos".insteadOf "https://github.com/evmos"
+          git remote set-url origin https://github.com/evmos/evmos.git
+          git config --global --add url."https://github.com/evmos".insteadOf "git@github.com:evmos"
+          # git remote set-url origin https://${{ secrets.PAT_CLASSIC }}:x-oauth-basic@github.com/evmos/evmos.git
+          # git config --global --add url."https://${{ secrets.PAT_CLASSIC }}:x-oauth-basic@github.com/evmos".insteadOf "git@github.com:evmos"
+          # git config --global --add url."https://${{ secrets.PAT_CLASSIC }}:x-oauth-basic@github.com/evmos".insteadOf "https://github.com/evmos"
       - name: Test E2E
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
-          go get ${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos/precompiles
+          # go get ${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos/precompiles
+          go get github.com/evmos/precompiles
           make test-e2e
-        with:
-          token: ${{ secrets.CORE_PAT }}
         if: env.GIT_DIFF
 
