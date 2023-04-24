@@ -3,6 +3,8 @@
 
 package app
 
+// TODO: remove this change -- it's only to trigger the CI for the E2E tests
+
 import (
 	"context"
 	"encoding/json"

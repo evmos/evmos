@@ -10,6 +10,8 @@ on:
 jobs:
   test-e2e:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/setup-go@v4
         with:
@@ -26,6 +28,8 @@ jobs:
             tests/e2e/*
       - name: Test E2E
         run: |
+          go env -w GOPRIVATE=github.com/evmos/*
+          go get github.com/evmos/precompiles
           make test-e2e
         if: env.GIT_DIFF
 
