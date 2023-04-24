@@ -32,8 +32,8 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global credential.helper store
           git remote set-url origin https://${{ secrets.CORE_PAT }}@github.com/evmos/evmos.git
-          git config --global --add url."https://${{ secrets.CORE_PAT }}@github.com/evmos".insteadOf "git@github.com:evmos"
-          git config --global --add url."https://${{ secrets.CORE_PAT }}@github.com/evmos".insteadOf "https://github.com/evmos"
+          git config --global --add url."https://x-access-token:${{ secrets.CORE_PAT }}@github.com/evmos".insteadOf "git@github.com:evmos"
+          git config --global --add url."https://x-access-token:${{ secrets.CORE_PAT }}@github.com/evmos".insteadOf "https://github.com/evmos"
       - name: Test E2E
         env:
           GIT_TERMINAL_PROMPT: 0
