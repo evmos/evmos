@@ -489,8 +489,8 @@ github.com/evmos/evmos-ledger-go v0.4.0 h1:WPa6TN9x7s/+1YCgvYGtzJrhlW/mIHtYM1DvN
 github.com/evmos/evmos-ledger-go v0.4.0/go.mod h1:33X3wWcWZ68KD5Bj4aiED+/W57uO1VR+hbXBxkKDXsQ=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc1 h1:8+jrotZVyO0eIJGRGa1Kga3Fo7DjgFUE9rd6A8Yrbcg=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc1/go.mod h1:EYFyF19u3ezGLD4RqOkLq+ZCXzYbLoNDdZlMt7kyKFg=
-github.com/evmos/precompiles v0.0.0-20230423102247-645f92e38b76 h1:uDYcYYybli0yDWRrzm7FUj1gaFtXUPNPpMz/tYTryQg=
-github.com/evmos/precompiles v0.0.0-20230423102247-645f92e38b76/go.mod h1:mjn4tY8kiVwL+v+A+uWKraJmbpjniYGA0inREeKVdbQ=
+github.com/evmos/precompiles v0.0.0-20230424072603-c30314b7d71b h1:MP3RpjabXNcxbY+4eoOYIbHEEU8r40tlN6555KO33T8=
+github.com/evmos/precompiles v0.0.0-20230424072603-c30314b7d71b/go.mod h1:MnKfZNXZN6Yq/HOqnwnR6ma+0R6SbbIX+Wh4bYVx71k=
 github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c h1:8ISkoahWXwZR41ois5lSJBSVw4D0OV19Ht/JSTzvSv0=
 github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 h1:JWuenKqqX8nojtoVVWjGfOF9635RETekkoH6Cc9SX0A=
 github.com/facebookgo/subset v0.0.0-20200203212716-c811ad88dec4 h1:7HZCaLC5+BZpmbhCOZJ293Lz68O7PYrF2EzeiFMwCLk=
