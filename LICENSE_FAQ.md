@@ -112,10 +112,12 @@ under the LGPL v3 license. New features developments that have been previously
 planned to be included on Ethermint are instead going to be part of Evmos SDK.
 For more information on the Evmos SDK, check out the Evmos Manifesto.
 
+
 **Q: Do I need a commercial permit when testing ENCL software?**
 
 **A:** No. ENCL specifically allows non-commercial use (e.g. use, modification
 and distribution). That includes testing.
+
 
 **Q: If I have one copy of the software I am using for commercial purposes and other copies of the software 
 I am only using for non-commercial purposes, for which ones do I need to obtain a commercial permit?**
@@ -166,6 +168,7 @@ permissive licenses allow that.
 **A:** Yes, as long as you don’t include any of the ENCL code in the code for
 the software that’s being developed, and you do not make commercial use of the
 ENCL code in violation of the conditions of the license.
+
 
 **Q: I have written a code patch to an ENCL-1.0 project and would like the 
 ENCL-1.0 vendor to maintain the code as part of the ENCL-1.0 project. How do I contribute it?**
