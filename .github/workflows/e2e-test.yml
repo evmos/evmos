@@ -39,7 +39,7 @@ jobs:
           GIT_TERMINAL_PROMPT: 0
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
-          go get github.com/evmos/precompiles
+          go get ${{ secrets.CORE_PAT }}@github.com/evmos/precompiles
           make test-e2e
         if: env.GIT_DIFF
 
