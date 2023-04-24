@@ -32,7 +32,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global credential.helper store
           git remote set-url origin https://github.com/evmos/evmos.git
-          git config --global --add url."git@github.com/".insteadOf "https://github.com/"
+          git config --global --add url."git@github.com:".insteadOf "https://github.com/"
       - name: Test E2E
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
