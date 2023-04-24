@@ -26,6 +26,13 @@ jobs:
             go.mod
             go.sum
             tests/e2e/*
+      - name: Configure Git for HTTPS authentication
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+          git remote set-url origin https://github.com/evmos/evmos.git
+          git config --global --add url."https://github.com/".insteadOf "git://github.com/"
       - name: Test E2E
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
