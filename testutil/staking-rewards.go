@@ -133,7 +133,8 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 // GetTotalDelegationRewards returns the total delegation rewards that are currently
 // outstanding for the given address.
 func GetTotalDelegationRewards(ctx sdk.Context, distributionKeeper distributionkeeper.Keeper, addr sdk.AccAddress) (sdk.DecCoins, error) {
-	resp, err := distributionKeeper.DelegationTotalRewards(
+	querier := distributionkeeper.NewQuerier(distributionKeeper)
+	resp, err := querier.DelegationTotalRewards(
 		ctx,
 		&distributiontypes.QueryDelegationTotalRewardsRequest{
 			DelegatorAddress: addr.String(),

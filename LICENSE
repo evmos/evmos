@@ -1,53 +1,64 @@
-
 Evmos Non-Commercial License
 
 Version 1.0 dated April 21th, 2023
 
-This license contains the terms and conditions under which Tharsis Labs Ltd. (“Company”) makes available its Software.
-Your use of the Software is subject to these terms and conditions.
+This license contains the terms and conditions under which Tharsis Labs Ltd.
+(“Company”) makes available its Software. Your use of the Software is subject to
+these terms and conditions.
 
-Company grants you (“Licensee”) a license to use, modify, and redistribute the Software, but only
-(a) for Non-Commercial Use, or (b) for Commercial Use only on the Designated Blockchains.
+Company grants you (“Licensee”) a license to use, modify, and redistribute the
+Software, but only (a) for Non-Commercial Use, or (b) for Commercial Use only on
+the Designated Blockchains.
 
-If Licensee makes available a copy of the Software to any third party, the Software must be subject
-to the terms of this license only, and Licensee must provide a copy of this license to that third party.
-All restrictions and conditions of this license apply to the Software or any portion
-or modification of the Software made under this license.
+If Licensee makes available a copy of the Software to any third party, the
+Software must be subject to the terms of this license only, and Licensee must
+provide a copy of this license to that third party. All restrictions and
+conditions of this license apply to the Software or any portion or modification
+of the Software made under this license.
 
-These terms do not allow Licensee to sublicense or transfer any of Licensee’s rights to anyone else.
-These terms do not imply any other licenses not expressly granted in this license.
+These terms do not allow Licensee to sublicense or transfer any of Licensee’s
+rights to anyone else. These terms do not imply any other licenses not expressly
+granted in this license.
 
-If Licensee violates any of these terms or uses the Software in a way not authorized under this license,
-the license granted to Licensee ends immediately.
-If Licensee makes, or authorizes any other person to make, any written claim that the Software,
-or any other Evmos Product (see below), infringes or contributes to the infringement of any patent,
-all rights granted to Licensee under this license end immediately.
+If Licensee violates any of these terms or uses the Software in a way not
+authorized under this license, the license granted to Licensee ends immediately.
+If Licensee makes, or authorizes any other person to make, any written claim
+that the Software, or any other Evmos Product (see below), infringes or
+contributes to the infringement of any patent, all rights granted to Licensee
+under this license end immediately.
 
-As far as the law allows, the Software is provided AS IS, without any warranty or condition,
-and Company will not be liable to Licensee for any damages arising out of these terms
-or the use or nature of the Software, under any kind of legal claim.
+As far as the law allows, the Software is provided AS IS, without any warranty
+or condition, and Company will not be liable to Licensee for any damages arising
+out of these terms or the use or nature of the Software, under any kind of legal
+claim.
 
 Terms in this license are used as follows:
 
-“Software” means the blockchain software developed by the Company,
-which is the implementation of the Evmos blockchains available at “https://github.com/evmos/evmos”
-and the Evmos applications at “https://github.com/evmos/backend”
-and “https://github.com/evmos/apps” as may be updated from time to time.
+“Software” means the blockchain software developed by the Company, which is the
+implementation of the Evmos blockchains available at
+“https://github.com/evmos/evmos” and the Evmos applications at
+“https://github.com/evmos/backend” and “https://github.com/evmos/apps” as may be
+updated from time to time.
 
-"Designated Blockchains" refer to the version of the digital blockchain ledger that,
-at any given time, is recognized as canonical in accordance with the blockchain consensus.
+"Designated Blockchains" refer to the version of the digital blockchain ledger
+that, at any given time, is recognized as canonical in accordance with the
+blockchain consensus..
 
-A “Evmos Product” is any product or service offered by the Company or its affiliates.
+A “Evmos Product” is any product or service offered by the Company or its
+affiliates.
 
-“Non-Commercial Use” means academic, scientific, or research and development use,
-or evaluating the Software (such as. through auditing),
-but does not include the creation of a publicly available blockchain,
-precompiled smart contracts, or other distributed-ledger technology systems that facilitate any transaction of economic value.
+“Non-Commercial Use” means academic, scientific, or research and development
+use, or evaluating the Software (such as. through auditing), but does not
+include the creation of a publicly available blockchain, precompiled smart
+contracts, or other distributed-ledger technology systems that facilitate any
+transaction of economic value.
 
- “Commercial Use” is any use that is not a Non-Commercial Use.
+"Commercial Use” is any use that is not a Non-Commercial Use.
 
-To “use” means any use, modification, distribution or other exploitation of the Software or any part of it.
+To “use” means any use, modification, distribution or other exploitation of the
+Software or any part of it.
 
 -----------------------------------------------------------------------------
 
-For more information, please refer to the official ENCL-1.0 FAQ (https://github.com/evmos/evmos/blob/main/LICENSE_FAQ).
+For more information, please refer to the official ENCL-1.0 FAQ
+(https://github.com/evmos/evmos/blob/main/LICENSE_FAQ).

@@ -58,6 +58,11 @@ type Keeper struct {
 	hooks types.EvmHooks
 	// Legacy subspace
 	ss paramstypes.Subspace
+
+	// precompiles defines the map of all available precompiled smart contracts.
+	// Some these precompiled contracts might not be active depending on the EVM
+	// parameters.
+	precompiles map[common.Address]vm.PrecompiledContract
 }
 
 // NewKeeper generates new evm module keeper

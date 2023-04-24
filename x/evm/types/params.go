@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	"github.com/evmos/evmos/v13/types"
 	"github.com/evmos/evmos/v13/utils"
 )
 
@@ -23,6 +24,11 @@ var (
 	DefaultEnableCreate = true
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
+	// DefaultActivePrecompiles defines the default active precompiles
+	DefaultActivePrecompiles = []string{
+		"0x0000000000000000000000000000000000000800",
+		"0x0000000000000000000000000000000000000801",
+	}
 )
 
 // AvailableExtraEIPs define the list of all EIPs that can be enabled by the
@@ -33,7 +39,15 @@ var (
 var AvailableExtraEIPs = []int64{1344, 1884, 2200, 2929, 3198, 3529}
 
 // NewParams creates a new Params instance
-func NewParams(evmDenom string, allowUnprotectedTxs, enableCreate, enableCall bool, config ChainConfig, extraEIPs []int64) Params {
+func NewParams(
+	evmDenom string,
+	allowUnprotectedTxs,
+	enableCreate,
+	enableCall bool,
+	config ChainConfig,
+	extraEIPs []int64,
+	activePrecompiles ...string,
+) Params {
 	return Params{
 		EvmDenom:            evmDenom,
 		AllowUnprotectedTxs: allowUnprotectedTxs,
@@ -41,11 +55,14 @@ func NewParams(evmDenom string, allowUnprotectedTxs, enableCreate, enableCall bo
 		EnableCall:          enableCall,
 		ExtraEIPs:           extraEIPs,
 		ChainConfig:         config,
+		ActivePrecompiles:   activePrecompiles,
 	}
 }
 
 // DefaultParams returns default evm parameters
 // ExtraEIPs is empty to prevent overriding the latest hard fork instruction set
+// ActivePrecompiles is empty to prevent overriding the default precompiles
+// from the EVM configuration.
 func DefaultParams() Params {
 	return Params{
 		EvmDenom:            DefaultEVMDenom,
@@ -54,6 +71,7 @@ func DefaultParams() Params {
 		ChainConfig:         DefaultChainConfig(),
 		ExtraEIPs:           nil,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
+		ActivePrecompiles:   DefaultActivePrecompiles,
 	}
 }
 
@@ -79,7 +97,11 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return validateChainConfig(p.ChainConfig)
+	if err := validateChainConfig(p.ChainConfig); err != nil {
+		return err
+	}
+
+	return validatePrecompiles(p.ActivePrecompiles)
 }
 
 // EIPs returns the ExtraEIPS as a int slice
@@ -89,6 +111,21 @@ func (p Params) EIPs() []int {
 		eips[i] = int(eip)
 	}
 	return eips
+}
+
+// HasCustomPrecompiles returns true if the ActivePrecompiles slice is not empty.
+func (p Params) HasCustomPrecompiles() bool {
+	return len(p.ActivePrecompiles) > 0
+}
+
+// GetActivePrecompilesAddrs is a util function that the Active Precompiles
+// as a slice of addresses.
+func (p Params) GetActivePrecompilesAddrs() []common.Address {
+	precompiles := make([]common.Address, len(p.ActivePrecompiles))
+	for i, precompile := range p.ActivePrecompiles {
+		precompiles[i] = common.HexToAddress(precompile)
+	}
+	return precompiles
 }
 
 func validateEVMDenom(i interface{}) error {
@@ -130,6 +167,28 @@ func validateChainConfig(i interface{}) error {
 	}
 
 	return cfg.Validate()
+}
+
+func validatePrecompiles(i interface{}) error {
+	precompiles, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid precompile slice type: %T", i)
+	}
+
+	seenPrecompiles := make(map[string]bool)
+	for _, precompile := range precompiles {
+		if seenPrecompiles[precompile] {
+			return fmt.Errorf("duplicate precompile %s", precompile)
+		}
+
+		if err := types.ValidateAddress(precompile); err != nil {
+			return fmt.Errorf("invalid precompile %s", precompile)
+		}
+
+		seenPrecompiles[precompile] = true
+	}
+
+	return nil
 }
 
 // IsLondon returns if london hardfork is enabled.

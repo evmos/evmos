@@ -18,7 +18,7 @@ func TestParamsValidate(t *testing.T) {
 		{"default", DefaultParams(), false},
 		{
 			"valid",
-			NewParams("ara", false, true, true, DefaultChainConfig(), extraEips),
+			NewParams(DefaultEVMDenom, false, true, true, DefaultChainConfig(), extraEips),
 			false,
 		},
 		{
@@ -36,7 +36,7 @@ func TestParamsValidate(t *testing.T) {
 		{
 			"invalid eip",
 			Params{
-				EvmDenom:  "stake",
+				EvmDenom:  DefaultEVMDenom,
 				ExtraEIPs: []int64{1},
 			},
 			true,

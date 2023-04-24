@@ -318,6 +318,18 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	stateDB := statedb.New(ctx, k, txConfig)
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)
 
+	// set the custom precompiles to the EVM (if any)
+	if cfg.Params.HasCustomPrecompiles() {
+		customPrecompiles := cfg.Params.GetActivePrecompilesAddrs()
+
+		activePrecompiles := make([]common.Address, len(vm.PrecompiledAddressesBerlin)+len(customPrecompiles))
+		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
+		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
+
+		precompileMap := k.Precompiles(activePrecompiles...)
+		evm.WithPrecompiles(precompileMap, activePrecompiles)
+	}
+
 	leftoverGas := msg.Gas()
 
 	// Allow the tracer captures the tx level events, mainly the gas consumption.
@@ -349,7 +361,7 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	// access list preparation is moved from ante handler to here, because it's needed when `ApplyMessage` is called
 	// under contexts where ante handlers are not run, for example `eth_call` and `eth_estimateGas`.
 	if rules := cfg.ChainConfig.Rules(big.NewInt(ctx.BlockHeight()), cfg.ChainConfig.MergeNetsplitBlock != nil); rules.IsBerlin {
-		stateDB.PrepareAccessList(msg.From(), msg.To(), vm.ActivePrecompiles(rules), msg.AccessList())
+		stateDB.PrepareAccessList(msg.From(), msg.To(), evm.ActivePrecompiles(rules), msg.AccessList())
 	}
 
 	if contractCreation {

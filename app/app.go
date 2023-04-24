@@ -448,11 +448,13 @@ func NewEvmos(
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
-	app.EvmKeeper = evmkeeper.NewKeeper(
+	evmKeeper := evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, &stakingKeeper, app.FeeMarketKeeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
+
+	app.EvmKeeper = evmKeeper
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
@@ -500,6 +502,11 @@ func NewEvmos(
 			app.SlashingKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
+	)
+
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	evmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(stakingKeeper, app.DistrKeeper, app.AuthzKeeper),
 	)
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
