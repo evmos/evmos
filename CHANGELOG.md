@@ -39,7 +39,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (evm)[#1535](https://github.com/evmos/evmos/pull/1535) Add EVM extensions support
+### Improvements
+
+### Bug Fixes
+
+## [v13.0.0] - 2023-04-24 
+
+### State Machine Breaking
+
+- (evm) [#1535](https://github.com/evmos/evmos/pull/1535) Add EVM extensions support
 
 ### Improvements
 
@@ -50,7 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
-  
+
 ## [v12.1.2] - 2023-04-14
 
 ### Bug Fixes
