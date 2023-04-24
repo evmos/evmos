@@ -32,8 +32,6 @@ jobs:
           git config --global --add url."https://${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos".insteadOf "git@github.com:evmos"
           git config --global --add url."https://${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos".insteadOf "https://github.com/evmos"
       - name: Test E2E
-        env:
-          GIT_TERMINAL_PROMPT: 0
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
           go get ${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos/precompiles
