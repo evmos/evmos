@@ -10,8 +10,6 @@ on:
 jobs:
   test-e2e:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.CORE_PAT }}
     steps:
       - uses: actions/setup-go@v4
         with:
