@@ -1219,6 +1219,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v13.UpgradeName,
 		v13.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			*app.EvmKeeper,
 		),
 	)
 
