@@ -36,6 +36,7 @@ jobs:
       - name: Test E2E
         run: |
           go env -w GOPRIVATE=github.com/evmos/*
+          go env
           go get github.com/evmos/precompiles
           make test-e2e
         if: env.GIT_DIFF
