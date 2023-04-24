@@ -36,5 +36,7 @@ jobs:
           go env -w GOPRIVATE=github.com/evmos/*
           go get ${{ secrets.CORE_PAT }}:x-oauth-basic@github.com/evmos/precompiles
           make test-e2e
+        with:
+          token: ${{ secrets.CORE_PAT }}
         if: env.GIT_DIFF
 
