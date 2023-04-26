@@ -19,7 +19,7 @@ jobs:
         name: Get Github tag
         id: meta
         run: |
-          echo "::set-output name=tag::$(git describe --always --tags --match='v*')"
+          echo "tag=$(git describe --always --tags --match='v*')" >> $GITHUB_OUTPUT
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
