@@ -111,7 +111,8 @@ Exempted files contain the following SPDX ID:
 
 ### License FAQ
 
-Find below an overview of the Permissions and Limitations of the Evmos Non-Commercial License 1.0. For more information, check out the full ENCL-1.0 FAQ [here](/LICENSE_FAQ.md).
+Find below an overview of the Permissions and Limitations of the Evmos Non-Commercial License 1.0.
+For more information, check out the full ENCL-1.0 FAQ [here](/LICENSE_FAQ.md).
 
 | Permissions                                                                                                                                                                  | Prohibited                                                                 |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |

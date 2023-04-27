@@ -117,7 +117,8 @@ For more information on the Evmos SDK, check out the Evmos Manifesto.
 **A:** No. ENCL specifically allows non-commercial use (e.g. use, modification
 and distribution). That includes testing.
 
-**Q: If I have one copy of the software I am using for commercial purposes and other copies of the software I am only using for non-commercial purposes, for which ones do I need to obtain a commercial permit?**
+**Q: If I have one copy of the software I am using for commercial purposes and other copies of the software
+I am only using for non-commercial purposes, for which ones do I need to obtain a commercial permit?**
 
 **A:** You only need a commercial permit for any copies of the software that are
 running in commercial use, unless they are running on the Designated
@@ -150,7 +151,8 @@ code under an open source license.
 **A:** No, unless you have obtained a commercial permit for the ENCL code or can
 ensure compliance with the limitations in ENCL-1.0.
 
-**Q: If I modify the source code of software licensed under the ENCL-1.0, can I redistribute my modified version under an Open Source license, e.g. MIT or Apache 2.0?**
+**Q: If I modify the source code of software licensed under the ENCL-1.0,
+can I redistribute my modified version under an Open Source license, e.g. MIT or Apache 2.0?**
 
 **A:** No. Your modified version consists of the original software (which is
 under the ENCL-1.0) and your modifications, which together constitute a
@@ -165,7 +167,8 @@ permissive licenses allow that.
 the software that’s being developed, and you do not make commercial use of the
 ENCL code in violation of the conditions of the license.
 
-**Q: I have written a code patch to an ENCL-1.0 project and would like the ENCL-1.0 vendor to maintain the code as part of the ENCL-1.0 project. How do I contribute it?**
+**Q: I have written a code patch to an ENCL-1.0 project and would like the ENCL-1.0 vendor
+to maintain the code as part of the ENCL-1.0 project. How do I contribute it?**
 
 **A:** First, a big thank you! You can contribute the code to the official Evmos
 repository by following the contributing guidelines a nd the official Code of
