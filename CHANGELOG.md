@@ -43,8 +43,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+<<<<<<< HEAD
 - (deps) [#1566](https://github.com/evmos/evmos/pull/1566) Bump cosmos-sdk version to `v0.46.10-ledger.3`.
   Fix memory leak in `cosmos/iavl` package.
+=======
+- (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+- (ci) [#1546](https://github.com/evmos/evmos/pull/1546) Fix docker image push on release action
+>>>>>>> 6b607780 (fix: remove linux/836 from docker image CI  (#1546))
 
 ## [v12.1.2] - 2023-04-14
 
