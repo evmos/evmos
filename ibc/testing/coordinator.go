@@ -12,7 +12,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	ibchelpers "github.com/cosmos/ibc-go/v7/testing/simapp/helpers"
+	ibchelpers "github.com/cosmos/ibc-go/v7/testing/simapp"
 	"github.com/evmos/evmos/v13/app"
 	"github.com/stretchr/testify/require"
 )

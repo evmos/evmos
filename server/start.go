@@ -32,8 +32,8 @@ import (
 	"github.com/cometbft/cometbft/proxy"
 	"github.com/cometbft/cometbft/rpc/client/local"
 
-	"cosmossdk.io/rosetta"
-	crgserver "cosmossdk.io/rosetta/lib/server"
+	rosetta "cosmossdk.io/tools/rosetta"
+	crgserver "cosmossdk.io/tools/rosetta/lib/server"
 
 	ethmetricsexp "github.com/ethereum/go-ethereum/metrics/exp"
 
