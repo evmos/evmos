@@ -83,12 +83,12 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
 	var (
-		clientState    exported.ClientState
-		consensusState exported.ConsensusState
+		clientState    ibcexported.ClientState
+		consensusState ibcexported.ConsensusState
 	)
 
 	switch endpoint.ClientConfig.GetClientType() {
-	case exported.Tendermint:
+	case ibcexported.Tendermint:
 		tmConfig, ok := endpoint.ClientConfig.(*ibctesting.TendermintConfig)
 		require.True(endpoint.Chain.T, ok)
 
@@ -98,7 +98,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 			height, commitmenttypes.GetSDKSpecs(), ibctesting.UpgradePath, tmConfig.AllowUpdateAfterExpiry, tmConfig.AllowUpdateAfterMisbehaviour,
 		)
 		consensusState = endpoint.Counterparty.Chain.LastHeader.ConsensusState()
-	case exported.Solomachine:
+	case ibcexported.Solomachine:
 
 	default:
 		err = fmt.Errorf("client type %s is not supported", endpoint.ClientConfig.GetClientType())
@@ -129,10 +129,10 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 	// ensure counterparty has committed state
 	endpoint.Chain.Coordinator.CommitBlock(endpoint.Counterparty.Chain)
 
-	var header exported.Header
+	var header tmproto.Header
 
 	switch endpoint.ClientConfig.GetClientType() {
-	case exported.Tendermint:
+	case ibcexported.Tendermint:
 		header, err = endpoint.Chain.ConstructUpdateTMClientHeader(endpoint.Counterparty.Chain, endpoint.ClientID)
 
 	default:
@@ -533,18 +533,18 @@ func (endpoint *Endpoint) SetChannelClosed() error {
 
 // GetClientState retrieves the Client State for this endpoint. The
 // client state is expected to exist otherwise testing will fail.
-func (endpoint *Endpoint) GetClientState() exported.ClientState {
+func (endpoint *Endpoint) GetClientState() ibcexported.ClientState {
 	return endpoint.Chain.GetClientState(endpoint.ClientID)
 }
 
 // SetClientState sets the client state for this endpoint.
-func (endpoint *Endpoint) SetClientState(clientState exported.ClientState) {
+func (endpoint *Endpoint) SetClientState(clientState ibcexported.ClientState) {
 	endpoint.Chain.App.GetIBCKeeper().ClientKeeper.SetClientState(endpoint.Chain.GetContext(), endpoint.ClientID, clientState)
 }
 
 // GetConsensusState retrieves the Consensus State for this endpoint at the provided height.
 // The consensus state is expected to exist otherwise testing will fail.
-func (endpoint *Endpoint) GetConsensusState(height exported.Height) exported.ConsensusState {
+func (endpoint *Endpoint) GetConsensusState(height ibcexported.Height) ibcexported.ConsensusState {
 	consensusState, found := endpoint.Chain.GetConsensusState(endpoint.ClientID, height)
 	require.True(endpoint.Chain.T, found)
 
@@ -552,7 +552,7 @@ func (endpoint *Endpoint) GetConsensusState(height exported.Height) exported.Con
 }
 
 // SetConsensusState sets the consensus state for this endpoint.
-func (endpoint *Endpoint) SetConsensusState(consensusState exported.ConsensusState, height exported.Height) {
+func (endpoint *Endpoint) SetConsensusState(consensusState ibcexported.ConsensusState, height ibcexported.Height) {
 	endpoint.Chain.App.GetIBCKeeper().ClientKeeper.SetClientConsensusState(endpoint.Chain.GetContext(), endpoint.ClientID, height, consensusState)
 }
 
@@ -586,7 +586,7 @@ func (endpoint *Endpoint) SetChannel(channel channeltypes.Channel) {
 
 // QueryClientStateProof performs and abci query for a client stat associated
 // with this endpoint and returns the ClientState along with the proof.
-func (endpoint *Endpoint) QueryClientStateProof() (exported.ClientState, []byte) {
+func (endpoint *Endpoint) QueryClientStateProof() (ibcexported.ClientState, []byte) {
 	// retrieve client state to provide proof for
 	clientState := endpoint.GetClientState()
 

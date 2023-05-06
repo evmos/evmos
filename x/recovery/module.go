@@ -115,16 +115,8 @@ func (AppModule) Name() string {
 
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(&am.keeper))
-}
-
 func (AppModule) QuerierRoute() string {
 	return ""
-}
-
-func (AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
 }
 
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -163,10 +155,6 @@ func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
 
 func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{}
 }
 
 func (AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
