@@ -12,8 +12,7 @@ import (
 	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 )
@@ -223,7 +222,7 @@ func (endpoint *Endpoint) ConnOpenConfirm() error {
 	err := endpoint.UpdateClient()
 	require.NoError(endpoint.Chain.T, err)
 
-	connectionKey := host.ConnectionKey(endpoint.Counterparty.ConnectionID)
+	connectionKey := ibcexported.ConnectionKey(endpoint.Counterparty.ConnectionID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(connectionKey)
 
 	msg := connectiontypes.NewMsgConnectionOpenConfirm(
@@ -240,7 +239,7 @@ func (endpoint *Endpoint) ConnOpenConfirm() error {
 // client state, proof of the counterparty consensus state, the consensus state height, proof of
 // the counterparty connection, and the proof height for all the proofs returned.
 func (endpoint *Endpoint) QueryConnectionHandshakeProof() (
-	clientState exported.ClientState, proofClient,
+	clientState ibcexported.ClientState, proofClient,
 	proofConsensus []byte, consensusHeight clienttypes.Height,
 	proofConnection []byte, proofHeight clienttypes.Height,
 ) {
@@ -248,17 +247,17 @@ func (endpoint *Endpoint) QueryConnectionHandshakeProof() (
 	clientState = endpoint.Counterparty.Chain.GetClientState(endpoint.Counterparty.ClientID)
 
 	// query proof for the client state on the counterparty
-	clientKey := host.FullClientStateKey(endpoint.Counterparty.ClientID)
+	clientKey := ibcexported.FullClientStateKey(endpoint.Counterparty.ClientID)
 	proofClient, proofHeight = endpoint.Counterparty.QueryProof(clientKey)
 
 	consensusHeight = clientState.GetLatestHeight().(clienttypes.Height)
 
 	// query proof for the consensus state on the counterparty
-	consensusKey := host.FullConsensusStateKey(endpoint.Counterparty.ClientID, consensusHeight)
+	consensusKey := ibcexported.FullConsensusStateKey(endpoint.Counterparty.ClientID, consensusHeight)
 	proofConsensus, _ = endpoint.Counterparty.QueryProofAtHeight(consensusKey, proofHeight.GetRevisionHeight())
 
 	// query proof for the connection on the counterparty
-	connectionKey := host.ConnectionKey(endpoint.Counterparty.ConnectionID)
+	connectionKey := ibcexported.ConnectionKey(endpoint.Counterparty.ConnectionID)
 	proofConnection, _ = endpoint.Counterparty.QueryProofAtHeight(connectionKey, proofHeight.GetRevisionHeight())
 
 	return
@@ -292,7 +291,7 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 	err := endpoint.UpdateClient()
 	require.NoError(endpoint.Chain.T, err)
 
-	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
+	channelKey := ibcexported.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
 
 	msg := channeltypes.NewMsgChannelOpenTry(
@@ -324,7 +323,7 @@ func (endpoint *Endpoint) ChanOpenAck() error {
 	err := endpoint.UpdateClient()
 	require.NoError(endpoint.Chain.T, err)
 
-	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
+	channelKey := ibcexported.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
 
 	msg := channeltypes.NewMsgChannelOpenAck(
@@ -348,7 +347,7 @@ func (endpoint *Endpoint) ChanOpenConfirm() error {
 	err := endpoint.UpdateClient()
 	require.NoError(endpoint.Chain.T, err)
 
-	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
+	channelKey := ibcexported.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
 
 	msg := channeltypes.NewMsgChannelOpenConfirm(
@@ -415,7 +414,7 @@ func (endpoint *Endpoint) RecvPacket(packet channeltypes.Packet) error {
 // of the transaction is returned. The counterparty client is updated.
 func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk.Result, error) {
 	// get proof of packet commitment on source
-	packetKey := host.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
+	packetKey := ibcexported.PacketCommitmentKey(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.Chain.QueryProof(packetKey)
 
 	recvMsg := channeltypes.NewMsgRecvPacket(packet, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
@@ -435,7 +434,7 @@ func (endpoint *Endpoint) RecvPacketWithResult(packet channeltypes.Packet) (*sdk
 
 // WriteAcknowledgement writes an acknowledgement on the channel associated with the endpoint.
 // The counterparty client is updated.
-func (endpoint *Endpoint) WriteAcknowledgement(ack exported.Acknowledgement, packet exported.PacketI) error {
+func (endpoint *Endpoint) WriteAcknowledgement(ack ibcexported.Acknowledgement, packet ibcexported.PacketI) error {
 	channelCap := endpoint.Chain.GetChannelCapability(packet.GetDestPort(), packet.GetDestChannel())
 
 	// no need to send message, acting as a handler
@@ -453,7 +452,7 @@ func (endpoint *Endpoint) WriteAcknowledgement(ack exported.Acknowledgement, pac
 // AcknowledgePacket sends a MsgAcknowledgement to the channel associated with the endpoint.
 func (endpoint *Endpoint) AcknowledgePacket(packet channeltypes.Packet, ack []byte) error {
 	// get proof of acknowledgement on counterparty
-	packetKey := host.PacketAcknowledgementKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
+	packetKey := ibcexported.PacketAcknowledgementKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
 	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
 
 	ackMsg := channeltypes.NewMsgAcknowledgement(packet, ack, proof, proofHeight, endpoint.Chain.SenderAccount.GetAddress().String())
@@ -469,9 +468,9 @@ func (endpoint *Endpoint) TimeoutPacket(packet channeltypes.Packet) error {
 
 	switch endpoint.ChannelConfig.Order {
 	case channeltypes.ORDERED:
-		packetKey = host.NextSequenceRecvKey(packet.GetDestPort(), packet.GetDestChannel())
+		packetKey = ibcexported.NextSequenceRecvKey(packet.GetDestPort(), packet.GetDestChannel())
 	case channeltypes.UNORDERED:
-		packetKey = host.PacketReceiptKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
+		packetKey = ibcexported.PacketReceiptKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
 	default:
 		return fmt.Errorf("unsupported order type %s", endpoint.ChannelConfig.Order)
 	}
@@ -496,16 +495,16 @@ func (endpoint *Endpoint) TimeoutOnClose(packet channeltypes.Packet) error {
 
 	switch endpoint.ChannelConfig.Order {
 	case channeltypes.ORDERED:
-		packetKey = host.NextSequenceRecvKey(packet.GetDestPort(), packet.GetDestChannel())
+		packetKey = ibcexported.NextSequenceRecvKey(packet.GetDestPort(), packet.GetDestChannel())
 	case channeltypes.UNORDERED:
-		packetKey = host.PacketReceiptKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
+		packetKey = ibcexported.PacketReceiptKey(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
 	default:
 		return fmt.Errorf("unsupported order type %s", endpoint.ChannelConfig.Order)
 	}
 
 	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
 
-	channelKey := host.ChannelKey(packet.GetDestPort(), packet.GetDestChannel())
+	channelKey := ibcexported.ChannelKey(packet.GetDestPort(), packet.GetDestChannel())
 	proofClosed, _ := endpoint.Counterparty.QueryProof(channelKey)
 
 	nextSeqRecv, found := endpoint.Counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(endpoint.Counterparty.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
@@ -591,7 +590,7 @@ func (endpoint *Endpoint) QueryClientStateProof() (exported.ClientState, []byte)
 	// retrieve client state to provide proof for
 	clientState := endpoint.GetClientState()
 
-	clientKey := host.FullClientStateKey(endpoint.ClientID)
+	clientKey := ibcexported.FullClientStateKey(endpoint.ClientID)
 	proofClient, _ := endpoint.QueryProof(clientKey)
 
 	return clientState, proofClient

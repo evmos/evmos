@@ -122,18 +122,8 @@ func (am AppModule) NewHandler() sdk.Handler {
 	return nil
 }
 
-// Route returns the epochs module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, am.NewHandler())
-}
-
 // QuerierRoute returns the epochs module's query routing key.
 func (AppModule) QuerierRoute() string { return "" }
-
-// LegacyQuerierHandler returns the epochs module's Querier.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
 
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
@@ -182,11 +172,6 @@ func (AppModule) GenerateGenesisState(_ *module.SimulationState) {}
 // ProposalContents doesn't return any content functions for governance proposals.
 func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-// RandomizedParams creates randomizedepochs param changes for the simulator.
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{}
 }
 
 // RegisterStoreDecoder registers a decoder for supply module's types
