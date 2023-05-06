@@ -20,10 +20,10 @@ import (
 	"github.com/evmos/evmos/v13/utils"
 	"github.com/evmos/evmos/v13/x/feemarket/types"
 
+	"cosmossdk.io/simapp"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/simapp"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 )

@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 
+	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 
 	"github.com/evmos/evmos/v13/app"
 	"github.com/evmos/evmos/v13/crypto/hd"
