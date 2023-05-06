@@ -50,7 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
-  
+- (ci) [#1546](https://github.com/evmos/evmos/pull/1546) Fix docker image push on release action
+
 ## [v12.1.2] - 2023-04-14
 
 ### Bug Fixes

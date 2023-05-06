@@ -1,21 +1,19 @@
 name: Push to Buf Schema Registry
-# This workflow runs when changes to proto files are pushed to main
-# and then pushes these changes on to the Buf Schema Registry at
-# https://buf.build/evmos/evmos
+# This workflow runs when a new version tag is pushed to the repository.
+# It then pushes the Protobuf files corresponding to that tag on to the
+# Buf Schema Registry at https://buf.build/evmos/evmos
 on:
   push:
     tags:
       - "v*.*.*"
-    paths:
-      - "proto/**"
 
 jobs:
   push:
     runs-on: ubuntu-latest
+    env:
+      BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - uses: bufbuild/buf-setup-action@v1.17.0
       # Push Evmos protos to the Buf Schema Registry
       - uses: bufbuild/buf-push-action@v1.1.1
-        with:
-          buf_token: ${{ secrets.BUF_TOKEN }}
