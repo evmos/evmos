@@ -6,6 +6,7 @@ import (
 
 	. "github.com/onsi/gomega"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -19,7 +20,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/evmos/evmos/v13/x/revenue/v1/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 func (suite *KeeperTestSuite) SetupApp() {

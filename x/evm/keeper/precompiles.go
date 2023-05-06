@@ -11,8 +11,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	distprecompile "github.com/evmos/precompiles/precompiles/distribution"
-	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -25,18 +23,18 @@ func AvailablePrecompiles(
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to load staking precompile: %w", err))
-	}
+	//	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	//	if err != nil {
+	//		panic(fmt.Errorf("failed to load staking precompile: %w", err))
+	//	}
 
-	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
-	}
+	//	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, authzKeeper)
+	//	if err != nil {
+	//		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
+	//	}
 
-	precompiles[stakingPrecompile.Address()] = stakingPrecompile
-	precompiles[distributionPrecompile.Address()] = distributionPrecompile
+	//	precompiles[stakingPrecompile.Address()] = stakingPrecompile
+	//	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	return precompiles
 }
 

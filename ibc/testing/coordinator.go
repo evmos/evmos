@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
-	ibchelpers "github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibchelpers "github.com/cosmos/ibc-go/v7/testing/simapp/helpers"
 	"github.com/evmos/evmos/v13/app"
 	"github.com/stretchr/testify/require"
 )
