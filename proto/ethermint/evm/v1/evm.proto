@@ -3,7 +3,7 @@ package ethermint.evm.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v12/x/evm/types";
+option go_package = "github.com/evmos/evmos/v13/x/evm/types";
 
 // Params defines the EVM module parameters
 message Params {
@@ -21,6 +21,9 @@ message Params {
   // allow_unprotected_txs defines if replay-protected (i.e non EIP155
   // signed) transactions can be executed on the state machine.
   bool allow_unprotected_txs = 6;
+  // active_precompiles defines the slice of hex addresses of the precompiled
+  // contracts that are active
+  repeated string active_precompiles = 7;
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
