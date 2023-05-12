@@ -280,6 +280,9 @@ replace (
 
 // necessary replacements for interchaintest
 replace (
+	// local copy of interchaintest for WIP
+	github.com/strangelove-ventures/interchaintest/v6 => ../../strangelove-ventures/interchaintest
+
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 	github.com/vedhavyas/go-subkey => github.com/strangelove-ventures/go-subkey v1.0.7
