@@ -103,6 +103,9 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+	packetforwarding "github.com/strangelove-ventures/packet-forward-middleware/v6/router"
+	packetforwardkeeper "github.com/strangelove-ventures/packet-forward-middleware/v6/router/keeper"
+	packetforwardtypes "github.com/strangelove-ventures/packet-forward-middleware/v6/router/types"
 
 	ica "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts"
 	icahost "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/host"
@@ -316,6 +319,9 @@ type Evmos struct {
 	VestingKeeper    vestingkeeper.Keeper
 	RecoveryKeeper   *recoverykeeper.Keeper
 	RevenueKeeper    revenuekeeper.Keeper
+
+	// External keepers
+	PacketForwardKeeper *packetforwardkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -573,6 +579,19 @@ func NewEvmos(
 		app.ClaimsKeeper,
 	)
 
+	// Packet Forward Middleware
+	// Initialize packet forward middleware router
+	app.PacketForwardKeeper = packetforwardkeeper.NewKeeper(
+		appCodec,
+		app.keys[packetforwardtypes.StoreKey],
+		app.GetSubspace(packetforwardtypes.ModuleName),
+		app.TransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		app.DistrKeeper,
+		app.BankKeeper,
+		app.IBCKeeper.ChannelKeeper,
+	)
+
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
 	// Set the ICS4 wrappers for custom module middlewares
@@ -605,6 +624,7 @@ func NewEvmos(
 		 	- Recovery Middleware
 		 	- Airdrop Claims Middleware
 			- IBC Transfer
+			- IBC Packet Forwarding Middleware
 
 		SendPacket, since it is originating from the application to core IBC:
 		 	transferKeeper.SendPacket -> claim.SendPacket -> recovery.SendPacket -> erc20.SendPacket -> channel.SendPacket
@@ -620,6 +640,13 @@ func NewEvmos(
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
 	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
+	transferStack = packetforwarding.NewIBCMiddleware(
+		transfer.NewIBCModule(app.TransferKeeper),
+		app.PacketForwardKeeper,
+		0,
+		packetforwardkeeper.DefaultForwardTransferPacketTimeoutTimestamp,
+		packetforwardkeeper.DefaultRefundTransferPacketTimeoutTimestamp,
+	)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -665,9 +692,11 @@ func NewEvmos(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 
 		// ibc modules
+		packetforwarding.NewAppModule(app.PacketForwardKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		ica.NewAppModule(nil, &app.ICAHostKeeper),
 		transferModule,
+
 		// Ethermint app modules
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
