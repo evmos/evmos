@@ -227,6 +227,7 @@ var (
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{AppModuleBasic: &ibctransfer.AppModuleBasic{}},
+		packetforwarding.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
@@ -372,6 +373,8 @@ func NewEvmos(
 		feegrant.StoreKey, authzkeeper.StoreKey,
 		// ibc keys
 		ibchost.StoreKey, ibctransfertypes.StoreKey,
+		// external keys
+		packetforwardtypes.StoreKey,
 		// ica keys
 		icahosttypes.StoreKey,
 		// ethermint keys
