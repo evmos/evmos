@@ -44,12 +44,16 @@ that is fully compatible and interoperable with Ethereum.
 It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/)
 which runs on top of the [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
 
+## Quick Start
+
+To learn how Evmos works from a high-level perspective,
+go to the [Protocol Overview](https://docs.evmos.org/protocol) section of the documentation.
+You can also check the instructions to [Run a Node](https://docs.evmos.org/protocol/evmos-cli#run-an-evmos-node).
+
 ## Documentation
 
 Our documentation is hosted in a [separate repository](https://github.com/evmos/docs) and can be found at [docs.evmos.org](https://docs.evmos.org).
 Head over there and check it out.
-
-**Note**: Requires [Go 1.20+](https://golang.org/dl/)
 
 ## Installation
 
@@ -63,12 +67,6 @@ make install
 
 Or check out the latest [release](https://github.com/evmos/evmos/releases).
 
-## Quick Start
-
-To learn how Evmos works from a high-level perspective,
-go to the [Protocol Overview](https://docs.evmos.org/protocol) section of the documentation.
-You can also check the instructions to [Run a Node](https://docs.evmos.org/protocol/evmos-cli#run-an-evmos-node).
-
 ## Community
 
 The following chat channels and forums are great spots to ask questions about Evmos:
@@ -76,6 +74,18 @@ The following chat channels and forums are great spots to ask questions about Ev
 - [Evmos Twitter](https://twitter.com/EvmosOrg)
 - [Evmos Discord](https://discord.gg/evmos)
 - [Evmos Forum](https://commonwealth.im/evmos)
+
+## Contributing
+
+Looking for a good place to start contributing?
+Check out some
+[`good first issues`](https://github.com/evmos/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+
+For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
+
+## Careers
+
+See our open positions on [Greenhouse](https://boards.eu.greenhouse.io/evmos).
 
 ## Licensing
 
@@ -95,7 +105,7 @@ repository. For more information see LICENSE.
 
 ### SPDX Identifier
 
-The following header including a license identifier in SPDX short form has been added in all ENCL-1.0 files:
+The following header including a license identifier in SPDX short form has been added to all ENCL-1.0 files:
 
 ```go
 // Copyright Tharsis Labs Ltd.(Evmos)
@@ -117,15 +127,3 @@ For more information, check out the full ENCL-1.0 FAQ [here](/LICENSE_FAQ.md).
 | Permissions                                                                                                                                                                  | Prohibited                                                                 |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | - Private Use, including distribution and modification<br />- Commercial use on designated blockchains<br />- Commercial use with Evmos permit (to be separately negotiated) | - Commercial use, other than on designated blockchains, without Evmos permit |
-
-## Contributing
-
-Looking for a good place to start contributing?
-Check out some
-[`good first issues`](https://github.com/evmos/evmos/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
-
-For additional instructions, standards and style guides, please refer to the [Contributing](./CONTRIBUTING.md) document.
-
-## Careers
-
-See our open positions on [Greenhouse](https://boards.eu.greenhouse.io/evmos).
