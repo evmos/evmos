@@ -149,17 +149,17 @@ func LegacyEIP712Cmd() *cobra.Command {
 
 			stdTx, err := authclient.ReadTxFromFile(clientCtx, args[0])
 			if err != nil {
-				return errors.Wrapf(err, "read tx from file")
+				return errors.Wrap(err, "read tx from file")
 			}
 
 			txBytes, err := clientCtx.TxConfig.TxJSONEncoder()(stdTx)
 			if err != nil {
-				return errors.Wrapf(err, "encode tx")
+				return errors.Wrap(err, "encode tx")
 			}
 
 			chainID, err := evmos.ParseChainID(clientCtx.ChainID)
 			if err != nil {
-				return errors.Wrapf(err, "invalid chain ID passed as argument")
+				return errors.Wrap(err, "invalid chain ID passed as argument")
 			}
 
 			td, err := eip712.LegacyWrapTxToTypedData(clientCtx.Codec, chainID.Uint64(), stdTx.GetMsgs()[0], txBytes, nil)
