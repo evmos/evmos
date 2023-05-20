@@ -135,10 +135,11 @@ func RawBytesCmd() *cobra.Command {
 	}
 }
 
+// LegacyEIP712Cmd outputs types of legacy EIP712 typed data
 func LegacyEIP712Cmd() *cobra.Command {
 	return &cobra.Command{
 		Use:     "legacy-eip712 [file]",
-		Short:   "Output legacy eip712 type data according to the given transaction",
+		Short:   "Output types of legacy eip712 typed data according to the given transaction",
 		Example: fmt.Sprintf(`$ %s debug legacy-eip712 tx.json --chain-id evmosd_9000-1`, version.AppName),
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
