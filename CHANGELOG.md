@@ -35,6 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unrelased
+
+### Bug Fixes
+
+- (deps) [#1566](https://github.com/evmos/evmos/pull/1566) Bump cosmos-sdk version to `v0.46.10-ledger.3`.
+  Fix memory leak in `cosmos/iavl` package.
+
 ## [v12.1.2] - 2023-04-14
 
 ### Bug Fixes
