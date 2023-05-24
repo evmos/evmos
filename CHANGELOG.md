@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unrelased
+## [v12.1.3] - 2023-05-24
 
 ### Improvements
 
