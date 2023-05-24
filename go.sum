@@ -392,8 +392,8 @@ github.com/cosmos/gogoproto v1.4.8 h1:BrHKc6WFZt8+jRV71vKSQE+JrfF+JAnzrKo2VP7wIZ
 github.com/cosmos/gogoproto v1.4.8/go.mod h1:hnb0DIEWTv+wdNzNcqus5xCQXq5+CXauq1FJuurRfVY=
 github.com/cosmos/gorocksdb v1.2.0 h1:d0l3jJG8M4hBouIZq0mDUHZ+zjOx044J3nGRskwTb4Y=
 github.com/cosmos/gorocksdb v1.2.0/go.mod h1:aaKvKItm514hKfNJpUJXnnOWeBnk2GL4+Qw9NHizILw=
-github.com/cosmos/iavl v0.19.5 h1:rGA3hOrgNxgRM5wYcSCxgQBap7fW82WZgY78V9po/iY=
-github.com/cosmos/iavl v0.19.5/go.mod h1:X9PKD3J0iFxdmgNLa7b2LYWdsGd90ToV5cAONApkEPw=
+github.com/cosmos/iavl v0.19.6-0.20230519111437-94ab9b2ae595 h1:4le4qBywHO2/1TmnLnSTw2zLsgjHCwgmWsJNo/iQTi4=
+github.com/cosmos/iavl v0.19.6-0.20230519111437-94ab9b2ae595/go.mod h1:X9PKD3J0iFxdmgNLa7b2LYWdsGd90ToV5cAONApkEPw=
 github.com/cosmos/ibc-go/v6 v6.1.0 h1:o7oXws2vKkKfOFzJI+oNylRn44PCNt5wzHd/zKQKbvQ=
 github.com/cosmos/ibc-go/v6 v6.1.0/go.mod h1:CY3zh2HLfetRiW8LY6kVHMATe90Wj/UOoY8T6cuB0is=
 github.com/cosmos/keyring v1.2.0 h1:8C1lBP9xhImmIabyXW4c3vFjjLiBdGCmfLUfeZlV1Yo=
@@ -483,8 +483,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.m
 github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021/go.mod h1:AFq3mo9L8Lqqiid3OhADV3RfLJnjiw63cSpi+fDTRC0=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.6 h1:HDAuZBOTcGahoVw9QosGSqWLA9syHkbVgbCeZx4nvrg=
-github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.6/go.mod h1:bG4AkW9bqc8ycrryyKGQEl3YV9BY2wr6HggGq8kvcgM=
+github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.7 h1:V9XULWFI9XvWCFPRrQFKakTJMGDWnBBKuUus3/hDNLc=
+github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.7/go.mod h1:/OlGLg1wD56T4QkV1yuUwfiT8hAOcXIVNr799iqS0oo=
 github.com/evmos/evmos-ledger-go v0.4.0 h1:WPa6TN9x7s/+1YCgvYGtzJrhlW/mIHtYM1DvNq/e2o0=
 github.com/evmos/evmos-ledger-go v0.4.0/go.mod h1:33X3wWcWZ68KD5Bj4aiED+/W57uO1VR+hbXBxkKDXsQ=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc1 h1:8+jrotZVyO0eIJGRGa1Kga3Fo7DjgFUE9rd6A8Yrbcg=
