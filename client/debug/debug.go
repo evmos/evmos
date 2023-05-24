@@ -22,20 +22,17 @@ import (
 	"strconv"
 	"strings"
 
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
-	"github.com/evmos/evmos/v13/ethereum/eip712"
-	evmos "github.com/evmos/evmos/v13/types"
-	"github.com/pkg/errors"
-
-	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/bytes"
-
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
+	evmos "github.com/evmos/evmos/v12/types"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/bytes"
 )
 
 // Cmd creates a main CLI command
