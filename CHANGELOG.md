@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unrelased
 
+### Improvements
+
+- (cli) [#1556](https://github.com/evmos/evmos/pull/1556) Add CLI subcommand to debug legacy EIP712 transaction data
+
 ### Bug Fixes
 
 - (deps) [#1566](https://github.com/evmos/evmos/pull/1566) Bump cosmos-sdk version to `v0.46.10-ledger.3`.
