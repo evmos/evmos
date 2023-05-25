@@ -54,6 +54,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
 
+## [v12.1.3] - 2023-05-24
+
+### Improvements
+
+- (cli) [#1556](https://github.com/evmos/evmos/pull/1556) Add CLI subcommand to debug legacy EIP712 transaction data
+
+### Bug Fixes
+
+- (deps) [#1566](https://github.com/evmos/evmos/pull/1566) Bump cosmos-sdk version to `v0.46.10-ledger.3`.
+  Fix memory leak in `cosmos/iavl` package.
+
 ## [v12.1.2] - 2023-04-14
 
 ### Bug Fixes
