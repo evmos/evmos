@@ -11,13 +11,8 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.46.10
 	github.com/cosmos/go-bip39 v1.0.0
-<<<<<<< HEAD
-	github.com/cosmos/gogoproto v1.4.6
-	github.com/cosmos/ibc-go/v6 v6.1.0
-=======
 	github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/ibc-go/v6 v6.1.1
->>>>>>> b81378e7 (deps: bump ibc-go version (#1571))
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/evmos-ledger-go v0.3.0-rc0
@@ -46,11 +41,11 @@ require (
 	github.com/tyler-smith/go-bip39 v1.1.0
 	go.opencensus.io v0.24.0
 	golang.org/x/exp v0.0.0-20230131160201-f062dba9d201
-	golang.org/x/net v0.8.0
-	golang.org/x/text v0.8.0
+	golang.org/x/net v0.9.0
+	golang.org/x/text v0.9.0
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f
-	google.golang.org/grpc v1.53.0
-	google.golang.org/protobuf v1.29.0
+	google.golang.org/grpc v1.54.0
+	google.golang.org/protobuf v1.30.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -208,8 +203,8 @@ require (
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.107.0 // indirect
