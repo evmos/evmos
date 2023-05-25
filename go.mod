@@ -11,8 +11,13 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
 	github.com/cosmos/cosmos-sdk v0.46.10
 	github.com/cosmos/go-bip39 v1.0.0
+<<<<<<< HEAD
 	github.com/cosmos/gogoproto v1.4.6
 	github.com/cosmos/ibc-go/v6 v6.1.0
+=======
+	github.com/cosmos/gogoproto v1.4.8
+	github.com/cosmos/ibc-go/v6 v6.1.1
+>>>>>>> b81378e7 (deps: bump ibc-go version (#1571))
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/evmos-ledger-go v0.3.0-rc0
