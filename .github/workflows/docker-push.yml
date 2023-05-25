@@ -19,7 +19,7 @@ jobs:
         name: Get Github tag
         id: meta
         run: |
-          echo "::set-output name=tag::$(git describe --always --tags --match='v*')"
+          echo "tag=$(git describe --always --tags --match='v*')" >> $GITHUB_OUTPUT
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -39,5 +39,5 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64, linux/386, linux/arm64
+          platforms: linux/amd64, linux/arm64
           tags: tharsishq/evmos:latest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
