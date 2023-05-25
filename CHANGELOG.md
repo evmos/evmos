@@ -46,6 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1486](https://github.com/evmos/evmos/pull/1486) Add benchmark tests for `DeductFeeDecorator` and `EthGasConsumeDecorator` ante handler decorators
 - (deps) [#1488](https://github.com/evmos/evmos/pull/1488) Bump btcd version to [`v0.23.3`](https://github.com/btcsuite/btcd/releases/tag/v0.23.3)
 - (deps) [#1492](https://github.com/evmos/evmos/pull/1492) Bump Cosmos SDK version to [`v0.46.11-alpha.ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.11-alpha.ledger) & use cometbft [`v0.34.27`](https://github.com/cometbft/cometbft/releases/tag/v0.34.27) replacement for Tendermint import
+- (deps) [#1571](https://github.com/evmos/evmos/pull/1571) Bump IBC-go version to [`v6.1.1`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1)
 
 ### Bug Fixes
 
