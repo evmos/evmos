@@ -862,4 +862,224 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceNewFunder, bNewF)
 		s.Require().Equal(balanceGrantee, bG)
 	})
+
+	Context("governance clawback to community pool", func() {
+		BeforeEach(func() {
+			// enable governance clawback
+			s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, grantee)
+		})
+
+		It("should claw back unvested amount before cliff", func() {
+			ctx := sdk.WrapSDKContext(s.ctx)
+
+			// initial balances
+			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			balanceCommPool := pool.CommunityPool[0]
+
+			// Perform clawback before cliff
+			msg := types.NewMsgClawback(govAddr, grantee, dest)
+			_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil())
+
+			// All initial vesting amount goes to community pool instead of dest
+			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			bCP := pool.CommunityPool[0]
+
+			s.Require().Equal(bF, balanceFunder)
+			s.Require().Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount.Uint64(), bG.Amount.Uint64())
+			// destination address should remain unchanged
+			s.Require().Equal(balanceDest.Amount.Uint64(), bD.Amount.Uint64())
+			// vesting amount should go to community pool
+			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
+			s.Require().Equal(stakeDenom, bCP.Denom)
+		})
+
+		It("should claw back any unvested amount after cliff before unlocking", func() {
+			// Surpass cliff but not lockup duration
+			cliffDuration := time.Duration(cliffLength)
+			s.CommitAfter(cliffDuration * time.Second)
+
+			// Check that all tokens are locked and some, but not all tokens are vested
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
+			free = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+			vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+			expVestedAmount := amt.Mul(sdk.NewInt(cliff))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
+
+			s.Require().Equal(expVested, vested)
+			s.Require().True(expVestedAmount.GT(sdk.NewInt(0)))
+			s.Require().True(free.IsZero())
+			s.Require().Equal(vesting, vestingAmtTotal)
+
+			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			balanceCommPool := pool.CommunityPool[0]
+
+			// stake vested tokens
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
+			Expect(err).To(BeNil())
+
+			// Perform clawback
+			msg := types.NewMsgClawback(govAddr, grantee, dest)
+			ctx := sdk.WrapSDKContext(s.ctx)
+			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil())
+
+			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			bCP := pool.CommunityPool[0]
+
+			expClawback := clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
+
+			// Any unvested amount is clawed back to community pool
+			s.Require().Equal(balanceFunder, bF)
+			s.Require().Equal(balanceGrantee.Sub(expClawback[0]).Amount.Uint64(), bG.Amount.Uint64())
+			s.Require().Equal(balanceDest.Amount.Uint64(), bD.Amount.Uint64())
+			// vesting amount should go to community pool
+			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(expClawback[0].Amount.Int64())), bCP.Amount)
+			s.Require().Equal(stakeDenom, bCP.Denom)
+		})
+
+		It("should claw back any unvested amount after cliff and unlocking", func() {
+			// Surpass lockup duration
+			// A strict `if t < clawbackTime` comparison is used in ComputeClawback
+			// so, we increment the duration with 1 for the free token calculation to match
+			lockupDuration := time.Duration(lockupLength + 1)
+			s.CommitAfter(lockupDuration * time.Second)
+
+			// Check if some, but not all tokens are vested and unlocked
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
+			free = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+			vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+			expVestedAmount := amt.Mul(math.NewInt(lockup))
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
+			unvested := vestingAmtTotal.Sub(vested...)
+
+			s.Require().Equal(free, vested)
+			s.Require().Equal(expVested, vested)
+			s.Require().True(expVestedAmount.GT(sdk.NewInt(0)))
+			s.Require().Equal(vesting, unvested)
+
+			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			// stake vested tokens
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
+			Expect(err).To(BeNil())
+
+			// Perform clawback
+			msg := types.NewMsgClawback(funder, grantee, dest)
+			ctx := sdk.WrapSDKContext(s.ctx)
+			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil())
+
+			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+
+			// Any unvested amount is clawed back
+			s.Require().Equal(balanceFunder, bF)
+			s.Require().Equal(balanceGrantee.Sub(vesting[0]).Amount.Uint64(), bG.Amount.Uint64())
+			s.Require().Equal(balanceDest.Add(vesting[0]).Amount.Uint64(), bD.Amount.Uint64())
+		})
+
+		It("should not claw back any amount after vesting periods end", func() {
+			// Surpass vesting periods
+			vestingDuration := time.Duration(periodsTotal*vestingLength + 1)
+			s.CommitAfter(vestingDuration * time.Second)
+
+			// Check if some, but not all tokens are vested and unlocked
+			vested = clawbackAccount.GetVestedOnly(s.ctx.BlockTime())
+			unlocked = clawbackAccount.GetUnlockedOnly(s.ctx.BlockTime())
+			free = clawbackAccount.GetVestedCoins(s.ctx.BlockTime())
+			vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
+
+			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(math.NewInt(periodsTotal))))
+			unvested := vestingAmtTotal.Sub(vested...)
+
+			s.Require().Equal(free, vested)
+			s.Require().Equal(expVested, vested)
+			s.Require().Equal(expVested, vestingAmtTotal)
+			s.Require().Equal(unlocked, vestingAmtTotal)
+			s.Require().Equal(vesting, unvested)
+			s.Require().True(vesting.IsZero())
+
+			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			balanceCommPool := pool.CommunityPool[0]
+
+			// stake vested tokens
+			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
+			Expect(err).To(BeNil())
+
+			// Perform clawback
+			msg := types.NewMsgClawback(govAddr, grantee, dest)
+			ctx := sdk.WrapSDKContext(s.ctx)
+			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil())
+
+			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
+			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			bCP := pool.CommunityPool[0]
+
+			// No amount is clawed back
+			s.Require().Equal(balanceFunder, bF)
+			s.Require().Equal(balanceGrantee, bG)
+			s.Require().Equal(balanceDest, bD)
+			s.Require().Equal(balanceCommPool.Amount, bCP.Amount)
+		})
+
+		It("should update vesting funder and claw back unvested amount before cliff", func() {
+			ctx := sdk.WrapSDKContext(s.ctx)
+			newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+
+			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			balanceCommPool := pool.CommunityPool[0]
+
+			// Update clawback vesting account funder
+			updateFunderMsg := types.NewMsgUpdateVestingFunder(funder, newFunder, grantee)
+			_, err := s.app.VestingKeeper.UpdateVestingFunder(ctx, updateFunderMsg)
+			s.Require().NoError(err)
+
+			// Perform clawback before cliff - funds should go to new funder (no dest address defined)
+			msg := types.NewMsgClawback(govAddr, grantee, sdk.AccAddress([]byte{}))
+			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			s.Require().NoError(err)
+
+			// All initial vesting amount goes to funder
+			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
+			bNewF := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
+			bG := s.app.BankKeeper.GetBalance(s.ctx, grantee, stakeDenom)
+			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			bCP := pool.CommunityPool[0]
+
+			// Original funder balance should not change
+			s.Require().Equal(bF, balanceFunder)
+			// New funder should not get the vested tokens
+			s.Require().Equal(balanceNewFunder.Amount.Uint64(), bNewF.Amount.Uint64())
+			s.Require().Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount.Uint64(), bG.Amount.Uint64())
+			// vesting amount should go to community pool
+			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
+		})
+	})
 })
