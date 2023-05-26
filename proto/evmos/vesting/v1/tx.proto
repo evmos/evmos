@@ -3,7 +3,6 @@ package evmos.vesting.v1;
 
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
-import "cosmos_proto/cosmos.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
