@@ -5,7 +5,12 @@ package types
 
 const (
 	// ClawbackKey to be used in the KVStore to track team accounts subject to clawback from governance.
-	ClawbackKey = iota
+	prefixClawbackKey = iota
+)
+
+var (
+	// KeyPrefixClawbackKey is the prefix bytes for the EVM persistent store.
+	KeyPrefixClawbackKey = []byte{prefixClawbackKey}
 )
 
 const (

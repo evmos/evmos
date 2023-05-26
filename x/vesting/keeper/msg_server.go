@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 	"strconv"
 	"time"
@@ -243,7 +244,7 @@ func (k Keeper) GovernanceClawback(goCtx context.Context, msg *types.MsgGovClawb
 	}
 
 	// Check if the account is a team vesting account.
-	found := ctx.KVStore(k.storeKey).Has(addr.Bytes())
+	found := ctx.KVStore(k.storeKey).Has(bytes.Join([][]byte{types.KeyPrefixClawbackKey, addr.Bytes()}, []byte{}))
 	if !found {
 		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a team vesting account", msg.AccountAddress)
 	}
