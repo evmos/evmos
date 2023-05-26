@@ -7,6 +7,9 @@ const (
 	// ModuleName defines the module's name.
 	ModuleName = "vesting"
 
+	// ClawbackKey to be used in the KVStore to track team accounts subject to clawback from governance.
+	ClawbackKey = "clawback"
+
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
 

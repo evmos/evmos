@@ -5,22 +5,19 @@ package keeper
 
 import (
 	"context"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"strconv"
 	"time"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
-
-	"github.com/armon/go-metrics"
-
 	errorsmod "cosmossdk.io/errors"
+	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	evmostypes "github.com/evmos/evmos/v13/types"
 	"github.com/evmos/evmos/v13/x/vesting/types"
 )
 
@@ -237,6 +234,12 @@ func (k Keeper) GovernanceClawback(goCtx context.Context, msg *types.MsgGovClawb
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
 		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
+	}
+
+	// Check if the account is a team vesting account.
+	found := ctx.KVStore(k.storeKey).Has([]byte(types.ClawbackKey + addr.String()))
+	if !found {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a team vesting account", msg.AccountAddress)
 	}
 
 	// Check if account has a clawback account
