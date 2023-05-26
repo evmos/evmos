@@ -318,6 +318,37 @@ func (k Keeper) ConvertVestingAccount(
 	return &types.MsgConvertVestingAccountResponse{}, nil
 }
 
+
+// OptInGovernanceClawback enables the specified vesting account
+// to clawback its funds via governance.
+func (k Keeper) OptInGovernanceClawback(
+	goCtx context.Context,
+	msg *types.MsgOptInGovernanceClawback,
+) (*types.MsgOptInGovernanceClawbackResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	account := k.accountKeeper.GetAccount(ctx, address)
+
+	if account == nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
+	}
+
+	// Check if account is of VestingAccount interface
+	if _, ok := account.(vestingexported.VestingAccount); !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to vesting: %s", msg.VestingAddress)
+	}
+
+	// check if account is of type ClawbackVestingAccount
+	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
+	if !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
+	}
+
+	k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())	
+
+	return &types.MsgOptInGovernanceClawbackResponse{}, nil
+}
+
 // addGrant merges a new clawback vesting grant into an existing
 // ClawbackVestingAccount.
 func (k Keeper) addGrant(

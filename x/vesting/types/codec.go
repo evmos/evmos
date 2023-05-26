@@ -29,6 +29,7 @@ const (
 	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
 	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
 	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
+	optInGovernanceClawback      = "evmos/MsgOptInGovernanceClawback"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -66,6 +67,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCreateClawbackVestingAccount{},
 		&MsgUpdateVestingFunder{},
 		&MsgConvertVestingAccount{},
+		&MsgOptInGovernanceClawback{},
 	)
 
 	registry.RegisterImplementations(
@@ -84,4 +86,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
 	cdc.RegisterConcrete(&MsgConvertVestingAccount{}, convertVestingAccount, nil)
+	cdc.RegisterConcrete(&MsgOptInGovernanceClawback{}, optInGovernanceClawback, nil)
 }

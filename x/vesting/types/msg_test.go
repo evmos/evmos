@@ -410,3 +410,36 @@ func (suite *MsgsTestSuite) TestMsgConvertVestingAccount() {
 		}
 	}
 }
+
+func (suite *MsgsTestSuite) TestMsgOptInGovernanceClawback() {
+	testCases := []struct {
+		name    string
+		msg     *types.MsgOptInGovernanceClawback
+		expPass bool
+	}{
+		{
+			"fail - not a valid vesting address",
+			&types.MsgOptInGovernanceClawback{
+				"invalid_address",
+			},
+			false,
+		},
+
+		{
+			"pass - valid vesting address",
+			&types.MsgOptInGovernanceClawback{
+				sdk.AccAddress(utiltx.GenerateAddress().Bytes()).String(),
+			},
+			true,
+		},
+	}
+
+	for i, tc := range testCases {
+		err := tc.msg.ValidateBasic()
+		if tc.expPass {
+			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.name)
+		} else {
+			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.name)
+		}
+	}
+}
