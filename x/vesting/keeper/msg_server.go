@@ -236,22 +236,23 @@ func (k Keeper) GovernanceClawback(goCtx context.Context, msg *types.MsgGovClawb
 		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
 	}
 
-	// Check if the account is a team vesting account.
-	found := ctx.KVStore(k.storeKey).Has([]byte(types.ClawbackKey + addr.String()))
-	if !found {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a team vesting account", msg.AccountAddress)
-	}
-
 	// Check if account has a clawback account
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
 	}
 
+	// Check if the account is a team vesting account.
+	found := ctx.KVStore(k.storeKey).Has(addr.Bytes())
+	if !found {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a team vesting account", msg.AccountAddress)
+	}
+
 	// Return error if clawback is attempted before start time
 	if ctx.BlockTime().Before(va.StartTime) {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
 	}
+
 	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
 		// no-op, nothing to transfer
