@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (deps) [#1571](https://github.com/evmos/evmos/pull/1571) Bump IBC-go version to [`v6.1.1`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1)
+
 ### Bug Fixes
 
 - (ci) [#1546](https://github.com/evmos/evmos/pull/1546) Fix docker image push on release action
