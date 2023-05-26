@@ -201,11 +201,10 @@ func (k Keeper) Clawback(
 		}
 
 		dest = ak.GetModuleAddress(distributiontypes.ModuleName)
-	} else {
+
 		// Check if account funder is same as in msg
-		if va.FunderAddress != msg.FunderAddress {
-			return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
-		}
+	} else if va.FunderAddress != msg.FunderAddress {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
 	// Perform clawback transfer

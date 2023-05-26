@@ -715,6 +715,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceDest.Add(expClawback[0]).Amount.Uint64(), bD.Amount.Uint64())
 	})
 
+	//nolint:dupl
 	It("should claw back any unvested amount after cliff and unlocking", func() {
 		// Surpass lockup duration
 		// A strict `if t < clawbackTime` comparison is used in ComputeClawback
@@ -951,6 +952,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 			s.Require().Equal(stakeDenom, bCP.Denom)
 		})
 
+		//nolint:dupl
 		It("should claw back any unvested amount after cliff and unlocking", func() {
 			// Surpass lockup duration
 			// A strict `if t < clawbackTime` comparison is used in ComputeClawback
