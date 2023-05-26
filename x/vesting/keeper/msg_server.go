@@ -196,23 +196,21 @@ func (k Keeper) Clawback(
 
 	// Check to see if it's a governance proposal clawback
 	if k.authority.String() == msg.FunderAddress {
-		// Check if the account is a team vesting account.
-		if err := k.governanceClawback(ctx, addr, va); err != nil {
-			return nil, err
+		if !k.HasGovClawbackEnabled(ctx, addr) {
+			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", addr)
 		}
 
-		destinationAddress = ak.GetModuleAddress(distributiontypes.ModuleName).String()
+		dest = ak.GetModuleAddress(distributiontypes.ModuleName)
 	} else {
-
 		// Check if account funder is same as in msg
 		if va.FunderAddress != msg.FunderAddress {
 			return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
 		}
+	}
 
-		// Perform clawback transfer
-		if err := k.transferClawback(ctx, *va, dest); err != nil {
-			return nil, err
-		}
+	// Perform clawback transfer
+	if err := k.transferClawback(ctx, *va, dest); err != nil {
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvents(
@@ -383,9 +381,15 @@ func (k Keeper) transferClawback(
 	ethAccount.BaseAccount = updatedAcc.BaseAccount
 
 	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, &updatedAcc)
+	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	addr := updatedAcc.GetAddress()
+
+	// In case destination is community pool (e.g. Gov Clawback)
+	// call the corresponding function
+	if dest.String() == k.accountKeeper.GetModuleAddress(distributiontypes.ModuleName).String() {
+		return k.distributionKeeper.FundCommunityPool(ctx, toClawBack, addr)
+	}
 
 	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
 	// the amount is retrieved from `ComputeClawback`, which ensures correctness.
@@ -394,31 +398,4 @@ func (k Keeper) transferClawback(
 
 	// Transfer clawback to the destination (funder)
 	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
-}
-
-func (k Keeper) governanceClawback(
-	ctx sdk.Context,
-	addr sdk.AccAddress,
-	va *types.ClawbackVestingAccount,
-) error {
-	if !k.HasGovClawbackEnabled(ctx, addr) {
-		return errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", addr)
-	}
-
-	dk := k.distributionKeeper
-	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
-	if toClawBack.IsZero() {
-		// no-op, nothing to transfer
-		return nil
-	}
-
-	// convert the account back to a normal EthAccount
-	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
-	ethAccount.BaseAccount = updatedAcc.BaseAccount
-
-	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, ethAccount)
-
-	// Send the remaining unvested coins to the community pool.
-	return dk.FundCommunityPool(ctx, toClawBack, addr)
 }
