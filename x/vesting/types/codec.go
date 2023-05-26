@@ -11,6 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 var (
@@ -65,6 +66,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCreateClawbackVestingAccount{},
 		&MsgUpdateVestingFunder{},
 		&MsgConvertVestingAccount{},
+	)
+
+	registry.RegisterImplementations(
+		(*govv1beta1.Content)(nil),
+		&ClawbackProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
