@@ -192,8 +192,6 @@ func (k Keeper) Clawback(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
 	}
 
-	destinationAddress := msg.DestAddress
-
 	// Check to see if it's a governance proposal clawback
 	if k.authority.String() == msg.FunderAddress {
 		if !k.HasGovClawbackEnabled(ctx, addr) {
@@ -218,7 +216,7 @@ func (k Keeper) Clawback(
 				types.EventTypeClawback,
 				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
 				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
-				sdk.NewAttribute(types.AttributeKeyDestination, destinationAddress),
+				sdk.NewAttribute(types.AttributeKeyDestination, dest.String()),
 			),
 		},
 	)
