@@ -4,7 +4,6 @@
 package keeper
 
 import (
-	"bytes"
 	"context"
 	"strconv"
 	"time"
@@ -17,7 +16,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evmostypes "github.com/evmos/evmos/v13/types"
 	"github.com/evmos/evmos/v13/x/vesting/types"
 )
@@ -170,7 +169,7 @@ func (k Keeper) Clawback(
 		dest, _ = sdk.AccAddressFromBech32(msg.FunderAddress)
 	}
 
-	if bk.BlockedAddr(dest) {
+	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
 			"%s is not allowed to receive funds", msg.DestAddress,
 		)
@@ -186,6 +185,45 @@ func (k Keeper) Clawback(
 	va, ok := acc.(*types.ClawbackVestingAccount)
 	if !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
+	}
+
+	// Check to see if it's a governance proposal clawback
+	if k.authority.String() == msg.FunderAddress {
+		// Check if the account is a team vesting account.
+		key := append(types.KeyPrefixClawbackKey, addr.Bytes()...)
+		found := ctx.KVStore(k.storeKey).Has(key)
+		if !found {
+			return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a co-founding member vesting account", msg.AccountAddress)
+		}
+
+		dk := k.distributionKeeper
+		updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
+
+		// convert the account back to a normal EthAccount
+		ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
+		ethAccount.BaseAccount = updatedAcc.BaseAccount
+
+		// set the account with the updated values of the vesting schedule
+		k.accountKeeper.SetAccount(ctx, &updatedAcc)
+
+		// Send the remaining unvested coins to the community pool.
+		if err := dk.FundCommunityPool(ctx, toClawBack, addr); err != nil {
+			return nil, err
+		}
+
+		ctx.EventManager().EmitEvents(
+			sdk.Events{
+				sdk.NewEvent(
+					types.EventTypeClawback,
+					sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
+					sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
+					sdk.NewAttribute(types.AttributeKeyDestination, distributiontypes.ModuleName),
+				),
+			},
+		)
+
+		return &types.MsgClawbackResponse{}, nil
+
 	}
 
 	// Check if account funder is same as in msg
@@ -210,69 +248,6 @@ func (k Keeper) Clawback(
 				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
 				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
-			),
-		},
-	)
-
-	return &types.MsgClawbackResponse{}, nil
-}
-
-// GovernanceClawback removes the unvested amount from a ClawbackVestingAccount using a governance proposal.
-// The destination defaults to the community pool.
-func (k Keeper) GovernanceClawback(goCtx context.Context, msg *types.MsgGovClawback) (*types.MsgClawbackResponse, error) {
-	if k.authority.String() != msg.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), msg.Authority)
-	}
-
-	ak := k.accountKeeper
-	dk := k.distributionKeeper
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// NOTE: error checked during msg validation
-	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
-
-	// Check if account exists
-	acc := ak.GetAccount(ctx, addr)
-	if acc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
-	}
-
-	// Check if account has a clawback account
-	va, ok := acc.(*types.ClawbackVestingAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
-	}
-
-	// Check if the account is a team vesting account.
-	found := ctx.KVStore(k.storeKey).Has(bytes.Join([][]byte{types.KeyPrefixClawbackKey, addr.Bytes()}, []byte{}))
-	if !found {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s is not a team vesting account", msg.AccountAddress)
-	}
-
-	// Return error if clawback is attempted before start time
-	if ctx.BlockTime().Before(va.StartTime) {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
-	}
-
-	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
-	if toClawBack.IsZero() {
-		// no-op, nothing to transfer
-		return nil, nil
-	}
-
-	// Send the remaining unvested coins to the community pool.
-	if err := dk.FundCommunityPool(ctx, toClawBack, addr); err != nil {
-		return nil, err
-	}
-
-	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, &updatedAcc)
-
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeGovClawback,
-				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 			),
 		},
 	)

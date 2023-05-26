@@ -20,10 +20,6 @@ service Msg {
   rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
     option (google.api.http).get = "/evmos/vesting/v1/tx/clawback";
   };
-  // GovernanceClawback removes the unvested tokens from a ClawbackVestingAccount by governance proposal.
-  rpc GovernanceClawback(MsgGovClawback) returns (MsgClawbackResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/governance_clawback";
-  };
   // UpdateVestingFunder updates the funder address of an existing
   // ClawbackVestingAccount.
   rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
@@ -39,7 +35,6 @@ service Msg {
 // ClawbackVestingAccount.
 message MsgCreateClawbackVestingAccount {
   option (gogoproto.equal) = false;
-
   // from_address specifies the account to provide the funds and sign the
   // clawback request
   string from_address = 1;
@@ -81,16 +76,6 @@ message MsgClawback {
   // to. If empty, the tokens will be transferred back to the original funder of
   // the account.
   string dest_address = 3;
-}
-
-// MsgGovClawback defines a message that removes unvested tokens from a
-// ClawbackVestingAccount through a governance proposal.
-message MsgGovClawback {
-  // authority is the address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // account_address is the address of the ClawbackVestingAccount to claw back
-  // from.
-  string account_address = 2;
 }
 
 // MsgClawbackResponse defines the MsgClawback response type.

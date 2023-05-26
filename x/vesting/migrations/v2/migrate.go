@@ -3,7 +3,6 @@
 package v2
 
 import (
-	"bytes"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v13/x/vesting/types"
@@ -18,7 +17,8 @@ func MigrateStore(
 ) error {
 	store := ctx.KVStore(storeKey)
 	accAddr := sdk.MustAccAddressFromBech32("evmos19mqtl7pyvtazl85jlre9jltpuff9enjdn9m7hz")
-	store.Set(bytes.Join([][]byte{types.KeyPrefixClawbackKey, accAddr.Bytes()}, []byte{}), []byte{0x01})
+	key := append(types.KeyPrefixClawbackKey, accAddr.Bytes()...)
+	store.Set(key, []byte{0x01})
 
 	return nil
 }

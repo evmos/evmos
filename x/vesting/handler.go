@@ -23,9 +23,6 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		case *types.MsgClawback:
 			res, err := server.Clawback(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgGovClawback:
-			res, err := server.GovernanceClawback(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdateVestingFunder:
 			res, err := server.UpdateVestingFunder(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

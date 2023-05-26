@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"time"
 
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
@@ -24,6 +25,8 @@ var (
 	addr2          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	govAddr        = authtypes.NewModuleAddress(govtypes.ModuleName)
+	clawbackKey    = append(types.KeyPrefixClawbackKey, addr2.Bytes()...)
 	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
@@ -225,6 +228,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 	testCases := []struct {
 		name         string
 		malleate     func()
+		postCheck    func()
 		funder       sdk.AccAddress
 		addr         sdk.AccAddress
 		dest         sdk.AccAddress
@@ -233,6 +237,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 	}{
 		{
 			"no clawback account",
+			func() {},
 			func() {},
 			addr,
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
@@ -247,6 +252,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 				acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
 				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
 			},
+			func() {},
 			addr,
 			addr4,
 			addr3,
@@ -255,6 +261,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 		},
 		{
 			"wrong funder",
+			func() {},
 			func() {},
 			addr3,
 			addr2,
@@ -266,6 +273,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"before start time",
 			func() {
 			},
+			func() {},
 			addr,
 			addr2,
 			addr3,
@@ -276,6 +284,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"pass",
 			func() {
 			},
+			func() {},
 			addr,
 			addr2,
 			addr3,
@@ -286,7 +295,36 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			"pass - without dest",
 			func() {
 			},
+			func() {},
 			addr,
+			addr2,
+			sdk.AccAddress([]byte{}),
+			suite.ctx.BlockTime(),
+			true,
+		},
+		{
+			"fail - governance proposal without account in store",
+			func() {},
+			func() {},
+			govAddr,
+			addr2,
+			sdk.AccAddress([]byte{}),
+			suite.ctx.BlockTime(),
+			false,
+		},
+		{
+			"pass - governance proposal with account in store",
+			func() {
+				store := s.ctx.KVStore(s.app.GetKey(types.StoreKey))
+				store.Set(clawbackKey, []byte{0x01})
+
+			},
+			func() {
+				pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+				suite.Require().Equal(pool.CommunityPool[1].Amount, sdk.NewDecFromInt(sdk.NewInt(1000)))
+				suite.Require().Equal(pool.CommunityPool[1].Denom, "test")
+			},
+			govAddr,
 			addr2,
 			sdk.AccAddress([]byte{}),
 			suite.ctx.BlockTime(),
@@ -330,7 +368,10 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes, res)
 				suite.Require().Equal(sdk.NewInt64Coin("test", 0), balanceDest)
-				suite.Require().Equal(balances[0], balanceClaw)
+				if tc.dest.String() != "" {
+					suite.Require().Equal(balances[0], balanceClaw)
+				}
+				tc.postCheck()
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(res)
