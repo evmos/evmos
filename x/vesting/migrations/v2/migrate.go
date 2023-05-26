@@ -3,23 +3,35 @@
 package v2
 
 import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
+var addresses = []string{
+	"evmos19mqtl7pyvtazl85jlre9jltpuff9enjdn9m7hz",
+}
+
 // MigrateStore migrates the x/vesting module state from the consensus version 1 to
-// version 2. Specifically, it adds a new store key to track team accounts subject to
+// version 2. Specifically, it adds a new store key to enable team vesting accounts subject to
 // clawback from governance.
+// See Evmos Token Model blog post for details: https://medium.com/evmos/the-evmos-token-model-edc07014978b
 func MigrateStore(
 	ctx sdk.Context,
-	storeKey storetypes.StoreKey,
+	k VestingKeeper,
 ) error {
-	store := ctx.KVStore(storeKey)
-	accAddr := sdk.MustAccAddressFromBech32("evmos19mqtl7pyvtazl85jlre9jltpuff9enjdn9m7hz")
-	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, accAddr.Bytes()...)
-	store.Set(key, []byte{0x01})
+	logger := k.Logger(ctx)
+
+	for _, addr := range addresses {
+		accAddres := sdk.MustAccAddressFromBech32(addr)
+		k.SetGovClawbackEnabled(ctx, accAddres)
+		logger.Debug("enabled clawback via governance", "address", addr)
+	}
 
 	return nil
+}
+
+// VestingKeeper defines the expected keeper for vesting
+type VestingKeeper interface {
+	Logger(ctx sdk.Context) log.Logger
+	SetGovClawbackEnabled(ctx sdk.Context, address sdk.AccAddress)
 }

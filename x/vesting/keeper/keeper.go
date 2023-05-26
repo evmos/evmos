@@ -65,3 +65,11 @@ func (k Keeper) HasGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) bool
 	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
 	return ctx.KVStore(k.storeKey).Has(key)
 }
+
+// SetGovClawbackEnabled enables the given vesting account address to be clawed back
+// via governance.
+func (k Keeper) SetGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
+	//nolint:gocritic
+	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
+	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
+}

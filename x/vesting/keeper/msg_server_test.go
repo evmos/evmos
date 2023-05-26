@@ -308,24 +308,24 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			func() {},
 			govAddr,
 			addr2,
-			sdk.AccAddress([]byte{}),
+			sdk.AccAddress(s.address.Bytes()),
 			suite.ctx.BlockTime(),
 			false,
 		},
 		{
 			"pass - governance proposal with account in store",
 			func() {
-				store := s.ctx.KVStore(s.app.GetKey(types.StoreKey))
-				store.Set(clawbackKey, []byte{0x01})
+				s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, s.address.Bytes())
 			},
 			func() {
 				pool := s.app.DistrKeeper.GetFeePool(s.ctx)
 				suite.Require().Equal(pool.CommunityPool[1].Amount, sdk.NewDecFromInt(sdk.NewInt(1000)))
 				suite.Require().Equal(pool.CommunityPool[1].Denom, "test")
+				suite.Require().True(s.app.VestingKeeper.HasGovClawbackEnabled(s.ctx, s.address.Bytes()))
 			},
 			govAddr,
 			addr2,
-			sdk.AccAddress([]byte{}),
+			sdk.AccAddress(s.address.Bytes()),
 			suite.ctx.BlockTime(),
 			true,
 		},
