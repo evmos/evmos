@@ -290,11 +290,8 @@ func NewClawbackProposalCmd() *cobra.Command {
 				return err
 			}
 
-			if _, err := sdk.AccAddressFromBech32(args[0]); err != nil {
-				return err
-			}
-
 			from := clientCtx.GetFromAddress()
+			// check that args[0] is valid address in ValidateBasic()
 			content := types.NewClawbackProposal(title, description, args[0])
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
