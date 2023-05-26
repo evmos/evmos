@@ -8,7 +8,7 @@ const (
 	prefixGovClawbackEnabledKey = iota
 )
 
-// KeyPrefixClawbackKey is the prefix bytes for the EVM persistent store.
+// KeyPrefixGovClawbackEnabledKey is the prefix bytes for the EVM persistent store.
 var KeyPrefixGovClawbackEnabledKey = []byte{prefixGovClawbackEnabledKey}
 
 const (

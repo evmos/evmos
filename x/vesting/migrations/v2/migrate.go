@@ -17,7 +17,8 @@ func MigrateStore(
 ) error {
 	store := ctx.KVStore(storeKey)
 	accAddr := sdk.MustAccAddressFromBech32("evmos19mqtl7pyvtazl85jlre9jltpuff9enjdn9m7hz")
-	key := append(types.KeyPrefixClawbackKey, accAddr.Bytes()...)
+	//nolint:gocritic
+	key := append(types.KeyPrefixGovClawbackEnabledKey, accAddr.Bytes()...)
 	store.Set(key, []byte{0x01})
 
 	return nil

@@ -402,7 +402,7 @@ func (k Keeper) governanceClawback(
 	va *types.ClawbackVestingAccount,
 ) error {
 	if !k.HasGovClawbackEnabled(ctx, addr) {
-		return errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", msg.AccountAddress)
+		return errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", addr)
 	}
 
 	dk := k.distributionKeeper

@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"time"
 
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
@@ -12,6 +11,7 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/evmos/evmos/v13/testutil"
 	utiltx "github.com/evmos/evmos/v13/testutil/tx"
@@ -26,7 +26,7 @@ var (
 	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	govAddr        = authtypes.NewModuleAddress(govtypes.ModuleName)
-	clawbackKey    = append(types.KeyPrefixClawbackKey, addr2.Bytes()...)
+	clawbackKey    = append(types.KeyPrefixGovClawbackEnabledKey, addr2.Bytes()...)
 	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
@@ -317,7 +317,6 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			func() {
 				store := s.ctx.KVStore(s.app.GetKey(types.StoreKey))
 				store.Set(clawbackKey, []byte{0x01})
-
 			},
 			func() {
 				pool := s.app.DistrKeeper.GetFeePool(s.ctx)
