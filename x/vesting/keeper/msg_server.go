@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"context"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"strconv"
 	"time"
 
@@ -211,6 +212,62 @@ func (k Keeper) Clawback(
 				sdk.NewAttribute(types.AttributeKeyFunder, msg.FunderAddress),
 				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 				sdk.NewAttribute(types.AttributeKeyDestination, msg.DestAddress),
+			),
+		},
+	)
+
+	return &types.MsgClawbackResponse{}, nil
+}
+
+// GovernanceClawback removes the unvested amount from a ClawbackVestingAccount using a governance proposal.
+// The destination defaults to the community pool.
+func (k Keeper) GovernanceClawback(goCtx context.Context, msg *types.MsgGovClawback) (*types.MsgClawbackResponse, error) {
+	if k.authority.String() != msg.Authority {
+		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), msg.Authority)
+	}
+
+	ak := k.accountKeeper
+	dk := k.distributionKeeper
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// NOTE: error checked during msg validation
+	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
+
+	// Check if account exists
+	acc := ak.GetAccount(ctx, addr)
+	if acc == nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
+	}
+
+	// Check if account has a clawback account
+	va, ok := acc.(*types.ClawbackVestingAccount)
+	if !ok {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
+	}
+
+	// Return error if clawback is attempted before start time
+	if ctx.BlockTime().Before(va.StartTime) {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
+	}
+	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
+	if toClawBack.IsZero() {
+		// no-op, nothing to transfer
+		return nil, nil
+	}
+
+	// Send the remaining unvested coins to the community pool.
+	if err := dk.FundCommunityPool(ctx, toClawBack, addr); err != nil {
+		return nil, err
+	}
+
+	// set the account with the updated values of the vesting schedule
+	k.accountKeeper.SetAccount(ctx, &updatedAcc)
+
+	ctx.EventManager().EmitEvents(
+		sdk.Events{
+			sdk.NewEvent(
+				types.EventTypeGovClawback,
+				sdk.NewAttribute(types.AttributeKeyAccount, msg.AccountAddress),
 			),
 		},
 	)

@@ -22,6 +22,7 @@ var (
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
+	TypeMsgGovClawback                  = "gov_clawback"
 	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 	TypeMsgConvertVestingAccount        = "convert_vesting_account"
 )
@@ -145,6 +146,45 @@ func (msg *MsgClawback) GetSignBytes() []byte {
 func (msg MsgClawback) GetSigners() []sdk.AccAddress {
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{funder}
+}
+
+// NewMsgGovClawback creates new instance of MsgClawback. The dest address may be
+// nil - defaulting to the funder.
+func NewMsgGovClawback(authority, addr sdk.AccAddress) *MsgGovClawback {
+	return &MsgGovClawback{
+		Authority:      authority.String(),
+		AccountAddress: addr.String(),
+	}
+}
+
+// Route returns the message route for a MsgClawback.
+func (msg MsgGovClawback) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgClawback.
+func (msg MsgGovClawback) Type() string { return TypeMsgGovClawback }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgGovClawback) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.GetAuthority()); err != nil {
+		return errorsmod.Wrapf(err, "invalid funder address")
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.GetAccountAddress()); err != nil {
+		return errorsmod.Wrapf(err, "invalid account address")
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgGovClawback) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgGovClawback) GetSigners() []sdk.AccAddress {
+	authority := sdk.MustAccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{authority}
 }
 
 // NewMsgUpdateVestingFunder creates new instance of MsgUpdateVestingFunder

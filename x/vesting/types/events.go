@@ -7,6 +7,7 @@ package types
 const (
 	EventTypeCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	EventTypeClawback                     = "clawback"
+	EventTypeGovClawback                  = "gov_clawback"
 	EventTypeUpdateVestingFunder          = "update_vesting_funder"
 
 	AttributeKeyCoins       = "coins"
