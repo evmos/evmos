@@ -58,3 +58,9 @@ func NewKeeper(
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
+
+// HasGovClawbackEnabled checks if the given account has governance clawback enabled.
+func (k Keeper) HasGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) bool {
+	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
+	return ctx.KVStore(k.storeKey).Has(key)
+}
