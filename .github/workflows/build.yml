@@ -29,6 +29,7 @@ jobs:
             go.mod
             go.sum
       - run: |
+          go env -w GOPRIVATE=github.com/evmos/*
           make build
         env:
           EVMOS_CORE_PAT: "${{ secrets.GITHUB_TOKEN }}"
