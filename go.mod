@@ -2,6 +2,7 @@ module github.com/evmos/evmos/v13
 
 go 1.20
 
+// dummy comment to trigger CI build
 require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0
