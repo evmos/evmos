@@ -46,14 +46,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1486](https://github.com/evmos/evmos/pull/1486) Add benchmark tests for `DeductFeeDecorator` and `EthGasConsumeDecorator` ante handler decorators
 - (deps) [#1488](https://github.com/evmos/evmos/pull/1488) Bump btcd version to [`v0.23.3`](https://github.com/btcsuite/btcd/releases/tag/v0.23.3)
 - (deps) [#1492](https://github.com/evmos/evmos/pull/1492) Bump Cosmos SDK version to [`v0.46.11-alpha.ledger`](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.11-alpha.ledger) & use cometbft [`v0.34.27`](https://github.com/cometbft/cometbft/releases/tag/v0.34.27) replacement for Tendermint import
+
+### Bug Fixes
+
+- (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
+  Fix memory leak in `cosmos/iavl` package.
+
+## [v12.1.4] - 2023-05-26
+
+### Improvements
+
 - (deps) [#1571](https://github.com/evmos/evmos/pull/1571) Bump IBC-go version to [`v6.1.1`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1)
 
 ### Bug Fixes
 
-- (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
 - (ci) [#1546](https://github.com/evmos/evmos/pull/1546) Fix docker image push on release action
-- (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
-  Fix memory leak in `cosmos/iavl` package.
+- (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
 
 ## [v12.1.3] - 2023-05-24
 
