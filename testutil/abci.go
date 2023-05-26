@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	abci "github.com/tendermint/tendermint/abci/types"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/evmos/evmos/v13/app"
@@ -25,32 +26,34 @@ import (
 //  3. EndBlock
 //  4. Commit
 func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
-	header := ctx.BlockHeader()
-
-	if vs != nil {
-		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
-
-		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
-		if err != nil {
-			return ctx, err
-		}
-		header.ValidatorsHash = vs.Hash()
-		header.NextValidatorsHash = nextVals.Hash()
-	} else {
-		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+	header, err := commit(ctx, app, t, vs)
+	if err != nil {
+		return ctx, err
 	}
 
-	_ = app.Commit()
+	return ctx.WithBlockHeader(header), nil
+}
 
-	header.Height++
-	header.Time = header.Time.Add(t)
-	header.AppHash = app.LastCommitID().Hash
+// CommitAndCreateNewCtx commits a block at a given time creating a ctx with the current settings
+// This is useful to keep test settings that could be affected by EndBlockers, e.g.
+// setting a baseFee == 0 and expecting this condition to continue after commit
+func CommitAndCreateNewCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+	header, err := commit(ctx, app, t, vs)
+	if err != nil {
+		return ctx, err
+	}
 
-	app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
+	// NewContext function keeps the multistore
+	// but resets other context fields
+	// GasMeter is set as InfiniteGasMeter
+	newCtx := app.BaseApp.NewContext(false, header)
+	// set the reseted fields to keep the current ctx settings
+	newCtx = newCtx.WithMinGasPrices(ctx.MinGasPrices())
+	newCtx = newCtx.WithEventManager(ctx.EventManager())
+	newCtx = newCtx.WithKVGasConfig(ctx.KVGasConfig())
+	newCtx = newCtx.WithTransientKVGasConfig(ctx.TransientKVGasConfig())
 
-	return app.BaseApp.NewContext(false, header), nil
+	return newCtx, nil
 }
 
 // DeliverTx delivers a cosmos tx for a given set of msgs
@@ -155,6 +158,37 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 	}
 
 	return res, nil
+}
+
+// commit is a private helper function that runs the EndBlocker logic, commits the changes,
+// updates the header, runs the BeginBlocker function and returns the updated header
+func commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (tmproto.Header, error) {
+	header := ctx.BlockHeader()
+
+	if vs != nil {
+		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
+
+		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
+		if err != nil {
+			return header, err
+		}
+		header.ValidatorsHash = vs.Hash()
+		header.NextValidatorsHash = nextVals.Hash()
+	} else {
+		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+	}
+
+	_ = app.Commit()
+
+	header.Height++
+	header.Time = header.Time.Add(t)
+	header.AppHash = app.LastCommitID().Hash
+
+	app.BeginBlock(abci.RequestBeginBlock{
+		Header: header,
+	})
+
+	return header, nil
 }
 
 // checkTxBytes encodes a transaction and calls checkTx on the app.

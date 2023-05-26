@@ -49,8 +49,30 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+- (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
+  Fix memory leak in `cosmos/iavl` package.
+
+## [v12.1.4] - 2023-05-26
+
+### Improvements
+
+- (deps) [#1571](https://github.com/evmos/evmos/pull/1571) Bump IBC-go version to [`v6.1.1`](https://github.com/cosmos/ibc-go/releases/tag/v6.1.1)
+
+### Bug Fixes
+
 - (ci) [#1546](https://github.com/evmos/evmos/pull/1546) Fix docker image push on release action
+- (ci) [#1475](https://github.com/evmos/evmos/pull/1475) Fix version of GitHub action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon releases
+
+## [v12.1.3] - 2023-05-24
+
+### Improvements
+
+- (cli) [#1556](https://github.com/evmos/evmos/pull/1556) Add CLI subcommand to debug legacy EIP712 transaction data
+
+### Bug Fixes
+
+- (deps) [#1566](https://github.com/evmos/evmos/pull/1566) Bump cosmos-sdk version to `v0.46.10-ledger.3`.
+  Fix memory leak in `cosmos/iavl` package.
 
 ## [v12.1.2] - 2023-04-14
 
