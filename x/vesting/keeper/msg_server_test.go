@@ -26,7 +26,6 @@ var (
 	addr3          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	addr4          = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	govAddr        = authtypes.NewModuleAddress(govtypes.ModuleName)
-	clawbackKey    = append(types.KeyPrefixGovClawbackEnabledKey, addr2.Bytes()...)
 	lockupPeriods  = sdkvesting.Periods{{Length: 5000, Amount: balances}}
 	vestingPeriods = sdkvesting.Periods{
 		{Length: 2000, Amount: quarter},
@@ -315,13 +314,16 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 		{
 			"pass - governance proposal with account in store",
 			func() {
-				s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, s.address.Bytes())
+				s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, addr2)
 			},
 			func() {
 				pool := s.app.DistrKeeper.GetFeePool(s.ctx)
 				suite.Require().Equal(pool.CommunityPool[1].Amount, sdk.NewDecFromInt(sdk.NewInt(1000)))
 				suite.Require().Equal(pool.CommunityPool[1].Denom, "test")
-				suite.Require().True(s.app.VestingKeeper.HasGovClawbackEnabled(s.ctx, s.address.Bytes()))
+				suite.Require().True(s.app.VestingKeeper.HasGovClawbackEnabled(s.ctx, addr2))
+				// check account type was converted
+				acc := s.app.AccountKeeper.GetAccount(s.ctx, addr2)
+				suite.Require().IsType(&evmostypes.EthAccount{}, acc)
 			},
 			govAddr,
 			addr2,
@@ -367,7 +369,10 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes, res)
 				suite.Require().Equal(sdk.NewInt64Coin("test", 0), balanceDest)
-				if tc.dest.String() != "" {
+				// in case funder is gov address, clawbacked funds will go to community pool
+				if tc.funder.String() == govAddr.String() {
+					suite.Require().Equal(sdk.NewInt64Coin("test", 0), balanceClaw)
+				} else if tc.dest.String() != "" {
 					suite.Require().Equal(balances[0], balanceClaw)
 				}
 				tc.postCheck()

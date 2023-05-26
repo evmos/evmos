@@ -417,7 +417,7 @@ func (k Keeper) governanceClawback(
 	ethAccount.BaseAccount = updatedAcc.BaseAccount
 
 	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, &updatedAcc)
+	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	// Send the remaining unvested coins to the community pool.
 	return dk.FundCommunityPool(ctx, toClawBack, addr)
