@@ -143,17 +143,20 @@ build-reproducible: go.sum
 
 
 build-docker:
-	# TODO replace with kaniko
-	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
-	# update old container
-	$(DOCKER) rm evmos || true
-	# create a new container from the latest image
-	$(DOCKER) create --name evmos -t -i ${DOCKER_IMAGE}:latest evmos
-	# move the binaries to the ./build directory
-	mkdir -p ./build/
-	$(DOCKER) cp evmos:/usr/bin/evmosd ./build/
+	@echo "\nbuilding docker image ${DOCKER_IMAGE}:${DOCKER_TAG}"
+	@$(DOCKER) build \
+		--build-arg GIT_TOKEN=$(EVMOS_CORE_PAT) \
+		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	@echo "\ntagging docker image as ${DOCKER_IMAGE}:latest"
+	@$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+	@echo "\nremoving old container"
+	@$(DOCKER) rm evmos || true
+	@echo "\ncreating new container 'evmos' from the latest image"
+	@$(DOCKER) create --name evmos -t -i ${DOCKER_IMAGE}:latest evmos
+	@echo "\nmoving binaries to ./build directory"
+	@mkdir -p ./build/
+	@$(DOCKER) cp evmos:/usr/bin/evmosd ./build/
+	@echo "\nfinished"
 
 push-docker: build-docker
 	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}

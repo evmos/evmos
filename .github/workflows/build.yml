@@ -30,4 +30,6 @@ jobs:
             go.sum
       - run: |
           make build
+        env:
+          EVMOS_CORE_PAT: "${{ secrets.GITHUB_TOKEN }}"
         if: env.GIT_DIFF
