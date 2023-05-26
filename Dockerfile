@@ -19,8 +19,10 @@ WORKDIR /root
 
 COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /usr/bin/evmosd
 
-COPY ./local_node.sh .
+COPY ./tests/e2e/init-node.sh .
+
+RUN chmod +x init-node.sh
 
 EXPOSE 26656 26657 1317 9090 8545 8546
 
-CMD ["./local_node.sh"]
+CMD ["./init-node.sh"]
