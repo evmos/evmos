@@ -15,7 +15,7 @@ import (
 	"github.com/evmos/evmos/v13/x/vesting/types"
 )
 
-// NewErc20ProposalHandler creates a governance handler to manage new proposal types.
+// NewVestingProposalHandler creates a governance handler to manage new proposal types.
 func NewVestingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		switch c := content.(type) {

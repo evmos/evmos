@@ -259,8 +259,8 @@ func NewMsgOptInGovernanceClawbackCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "opt-in-gov-clawback VESTING_ACCOUNT_ADDRESS",
 		Short: "Enables a vesting account to clawback funds to community pool via governance.",
-		Long: "Enables a vesting account to clawback funds to community pool via a governance proposal of type ClawbackProposal (see the `clawback` command for more details). Beware that currently, once an address opts in to this functionality, it cannot be reverted",
-		Args: cobra.ExactArgs(1),
+		Long:  "Enables a vesting account to clawback funds to community pool via a governance proposal of type ClawbackProposal (see the `clawback` command for more details). Beware that currently, once an address opts in to this functionality, it cannot be reverted",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -291,8 +291,8 @@ func NewMsgOptInGovernanceClawbackCmd() *cobra.Command {
 //nolint:staticcheck
 func NewClawbackProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "clawback ADDRESS",
-		Args:    cobra.ExactArgs(1),
+		Use:     "clawback ADDRESS [DEST_ADDRESS]",
+		Args:    cobra.RangeArgs(1, 2),
 		Short:   "Submit a proposal to clawback funds from a ClawbackVestingAccount",
 		Long:    "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has opted in to this functionality.",
 		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal clawback <address> --from=<key_or_address>", version.AppName),
@@ -323,8 +323,16 @@ func NewClawbackProposalCmd() *cobra.Command {
 			}
 
 			from := clientCtx.GetFromAddress()
+
+			vestingAddress := args[0]
+
+			var destinationAddr string
+			if len(args) == 2 {
+				destinationAddr = args[1]
+			}
+
 			// check that args[0] is valid address in ValidateBasic()
-			content := types.NewClawbackProposal(title, description, args[0])
+			content := types.NewClawbackProposal(title, description, vestingAddress, destinationAddr)
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {

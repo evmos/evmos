@@ -23,7 +23,6 @@ var (
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
 	TypeMsgClawback                     = "clawback"
-	TypeMsgGovClawback                  = "gov_clawback"
 	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 	TypeMsgConvertVestingAccount        = "convert_vesting_account"
 	TypeMsgOptInGovernanceClawback      = "opt_in_gov_clawback"
