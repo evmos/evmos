@@ -22,11 +22,12 @@ func init() {
 }
 
 // NewClawbackProposal returns new instance of RegisterCoinProposal
-func NewClawbackProposal(title, description, address string) v1beta1.Content {
+func NewClawbackProposal(title, description, address, destinationAddress string) v1beta1.Content {
 	return &ClawbackProposal{
-		Title:       title,
-		Description: description,
-		Address:     address,
+		Title:              title,
+		Description:        description,
+		Address:            address,
+		DestinationAddress: destinationAddress,
 	}
 }
 
@@ -43,5 +44,12 @@ func (cbp *ClawbackProposal) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(cbp.Address); err != nil {
 		return errorsmod.Wrap(err, "vesting account address")
 	}
+
+	if cbp.DestinationAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(cbp.DestinationAddress); err != nil {
+			return errorsmod.Wrap(err, "vesting account destination address")
+		}
+	}
+
 	return v1beta1.ValidateAbstract(cbp)
 }

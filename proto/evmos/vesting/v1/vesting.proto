@@ -45,4 +45,9 @@ message ClawbackProposal {
   // address is the vesting account address
   // to clawback the funds from
   string address = 3;
+  // destination_address is the address that will receive
+  // the clawbacked funds from the given vesting account. When
+  // empty, proposal will return the coins to the vesting
+  // account funder.
+  string destination_address = 4;
 }

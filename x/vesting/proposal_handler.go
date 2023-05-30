@@ -35,14 +35,15 @@ func handleClawbackProposal(
 	k *keeper.Keeper,
 	p *types.ClawbackProposal,
 ) error {
-	govAddr := authtypes.NewModuleAddress(govtypes.ModuleName)
-	if _, err := k.Clawback(
-		ctx,
-		&types.MsgClawback{
-			FunderAddress:  govAddr.String(),
-			AccountAddress: p.Address,
-		},
-	); err != nil {
+	governanceAddr := authtypes.NewModuleAddress(govtypes.ModuleName)
+
+	msg := &types.MsgClawback{
+		FunderAddress:  governanceAddr.String(),
+		AccountAddress: p.Address,
+		DestAddress:    p.DestinationAddress,
+	}
+
+	if _, err := k.Clawback(ctx, msg); err != nil {
 		return err
 	}
 

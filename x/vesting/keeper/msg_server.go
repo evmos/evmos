@@ -166,19 +166,19 @@ func (k Keeper) Clawback(
 
 	// Default destination to funder address
 	if msg.DestAddress == "" {
-		dest, _ = sdk.AccAddressFromBech32(msg.FunderAddress)
+		dest = sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	}
 
 	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"%s is not allowed to receive funds", msg.DestAddress,
+			"account is not allowed to receive funds: %s", msg.DestAddress,
 		)
 	}
 
 	// Check if account exists
 	acc := ak.GetAccount(ctx, addr)
 	if acc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.AccountAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account does not exist: %s", msg.AccountAddress)
 	}
 
 	// Check if account has a clawback account
@@ -202,7 +202,7 @@ func (k Keeper) Clawback(
 
 		// Check if account funder is same as in msg
 	} else if va.FunderAddress != msg.FunderAddress {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "clawback can only be requested by original funder: %s", va.FunderAddress)
 	}
 
 	// Perform clawback transfer
@@ -259,7 +259,7 @@ func (k Keeper) UpdateVestingFunder(
 
 	// Check if account current funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be requested by original funder %s", va.FunderAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "clawback can only be requested by original funder %s", va.FunderAddress)
 	}
 
 	// Perform clawback account update
@@ -289,8 +289,8 @@ func (k Keeper) ConvertVestingAccount(
 ) (*types.MsgConvertVestingAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
-	account := k.accountKeeper.GetAccount(ctx, address)
 
+	account := k.accountKeeper.GetAccount(ctx, address)
 	if account == nil {
 		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
 	}
@@ -318,19 +318,21 @@ func (k Keeper) ConvertVestingAccount(
 	return &types.MsgConvertVestingAccountResponse{}, nil
 }
 
-
 // OptInGovernanceClawback enables the specified vesting account
-// to clawback its funds via governance.
+// to clawback its funds via governance. It fails if the
+// account is not vesting any coins.
 func (k Keeper) OptInGovernanceClawback(
 	goCtx context.Context,
 	msg *types.MsgOptInGovernanceClawback,
 ) (*types.MsgOptInGovernanceClawbackResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
-	account := k.accountKeeper.GetAccount(ctx, address)
 
+	// NOTE: already checked in msg.ValidateBasic
+	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+
+	account := k.accountKeeper.GetAccount(ctx, address)
 	if account == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account does not exist: %s", msg.VestingAddress)
 	}
 
 	// Check if account is of VestingAccount interface
@@ -341,10 +343,15 @@ func (k Keeper) OptInGovernanceClawback(
 	// check if account is of type ClawbackVestingAccount
 	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
 	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account is not a ClawbackVestingAccount: %s", msg.VestingAddress)
 	}
 
-	k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())	
+	// check if account has any vesting coins left
+	if len(vestingAcc.GetVestingCoins(ctx.BlockTime())) == 0 {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "no vesting coins in account: %s", msg.VestingAddress)
+	}
+
+	k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())
 
 	return &types.MsgOptInGovernanceClawbackResponse{}, nil
 }
@@ -366,8 +373,12 @@ func (k Keeper) addGrant(
 
 	// modify schedules for the new grant
 	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
-	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime,
-		va.GetVestingPeriods(), grantVestingPeriods)
+	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(
+		va.GetStartTime(),
+		grantStartTime,
+		va.GetVestingPeriods(),
+		grantVestingPeriods,
+	)
 
 	if newLockupStart != newVestingStart {
 		return errorsmod.Wrapf(
@@ -391,14 +402,15 @@ func (k Keeper) addGrant(
 }
 
 // transferClawback transfers unvested tokens in a ClawbackVestingAccount to
-// dest address, updates the lockup schedule and removes future vesting events.
+// the destination address. Then it, updates the lockup schedule, removes future
+// vesting events and disables clawback vesting from governance.
 func (k Keeper) transferClawback(
 	ctx sdk.Context,
-	va types.ClawbackVestingAccount,
-	dest sdk.AccAddress,
+	vestingAccount types.ClawbackVestingAccount,
+	destinationAddr sdk.AccAddress,
 ) error {
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
-	updatedAcc, toClawBack := va.ComputeClawback(ctx.BlockTime().Unix())
+	updatedAcc, toClawBack := vestingAccount.ComputeClawback(ctx.BlockTime().Unix())
 	if toClawBack.IsZero() {
 		// no-op, nothing to transfer
 		return nil
@@ -411,12 +423,16 @@ func (k Keeper) transferClawback(
 	// set the account with the updated values of the vesting schedule
 	k.accountKeeper.SetAccount(ctx, ethAccount)
 
-	addr := updatedAcc.GetAddress()
+	address := updatedAcc.GetAddress()
+
+	// Disable governance clawback for vesting account. If the account has this
+	// functionality disabled, this will no-op
+	k.DeleteGovClawbackEnabled(ctx, address)
 
 	// In case destination is community pool (e.g. Gov Clawback)
 	// call the corresponding function
-	if dest.String() == k.accountKeeper.GetModuleAddress(distributiontypes.ModuleName).String() {
-		return k.distributionKeeper.FundCommunityPool(ctx, toClawBack, addr)
+	if destinationAddr.String() == authtypes.NewModuleAddress(distributiontypes.ModuleName).String() {
+		return k.distributionKeeper.FundCommunityPool(ctx, toClawBack, address)
 	}
 
 	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
@@ -425,5 +441,5 @@ func (k Keeper) transferClawback(
 	// different denoms (because of store iteration).
 
 	// Transfer clawback to the destination (funder)
-	return k.bankKeeper.SendCoins(ctx, addr, dest, toClawBack)
+	return k.bankKeeper.SendCoins(ctx, address, destinationAddr, toClawBack)
 }

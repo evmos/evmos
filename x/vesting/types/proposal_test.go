@@ -22,11 +22,12 @@ func (suite *ProposalTestSuite) TestKeysTypes() {
 
 func (suite *ProposalTestSuite) TestClawbackProposal() {
 	testCases := []struct {
-		msg         string
-		title       string
-		description string
-		address     string
-		expectPass  bool
+		msg                string
+		title              string
+		description        string
+		address            string
+		destinationAddress string
+		expectPass         bool
 	}{
 		// Valid tests
 		{
@@ -62,7 +63,8 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 	}
 
 	for i, tc := range testCases {
-		tx := types.NewClawbackProposal(tc.title, tc.description, tc.address)
+		// TODO: add test case for destination address
+		tx := types.NewClawbackProposal(tc.title, tc.description, tc.address, tc.destinationAddress)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
