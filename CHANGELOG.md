@@ -37,13 +37,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v12.1.5] - 2023-06-08
 
-### Improvements
-
-- (deps) []() Bump SDK to v0.46.13
-
 ### Bug Fixes
 
-- (vesting) []() Apply ClawbackVestingAccount Barberry patch
+- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456) Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13
 
 
 ## [v12.1.4] - 2023-05-26
