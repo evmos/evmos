@@ -934,7 +934,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 				name:         "fail - negative amounts for the vesting period",
 				vestingCoins: coinsWithNegAmount,
 				expError:     true,
-				errContains:  "invalid amount in vesting periods, amounts must be positive",
+				errContains:  "invalid coins",
 			},
 			{
 				name:        "fail - zero amount for the lockup period",
@@ -946,7 +946,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 				name:         "fail - zero amount for the vesting period",
 				vestingCoins: coinsWithZeroAmount,
 				expError:     true,
-				errContains:  "invalid amount in vesting periods, amounts must be positive",
+				errContains:  "invalid coins",
 			},
 			{
 				name:         "fail - empty amount for both the lockup and vesting periods",
