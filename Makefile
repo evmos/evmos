@@ -143,8 +143,11 @@ build-reproducible: go.sum
 
 
 build-docker:
-	# TODO replace with kaniko
-	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	# Build args are necessary to allow the container to build with dependencies
+	# in a private repo
+	$(DOCKER) build \
+		--build-arg GIT_TOKEN=$(EVMOS_CORE_PAT) \
+		-t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
 	# update old container
