@@ -7,7 +7,7 @@ import (
 	"time"
 
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	"github.com/strangelove-ventures/interchaintest/v6"
+	interchaintest "github.com/strangelove-ventures/interchaintest/v6"
 	"github.com/strangelove-ventures/interchaintest/v6/ibc"
 	"github.com/strangelove-ventures/interchaintest/v6/testreporter"
 	"github.com/stretchr/testify/require"
@@ -26,15 +26,41 @@ func TestInterchain(t *testing.T) {
 	// Set up context
 	ctx := context.Background()
 
+	// Set number of nodes
+	numFns := 0
+	numVals := 1
+
 	// Set up the chain factory
 	chainFactory := interchaintest.NewBuiltinChainFactory(zaptest.NewLogger(t), []*interchaintest.ChainSpec{
 		{
-			Name:    "gaia",
-			Version: "v7.0.1",
+			Name:          "gaia",
+			Version:       "v7.0.1",
+			NumFullNodes:  &numFns,
+			NumValidators: &numVals,
 		},
 		{
-			Name:    "evmos",
-			Version: "v12.1.2",
+			ChainConfig: ibc.ChainConfig{
+				Type:     "cosmos",
+				Name:     "evmos",
+				ChainID:  "evmos_9000-1",
+				CoinType: "60",
+				Images: []ibc.DockerImage{
+					{
+						Repository: "tharsishq/evmos",
+						Version:    "latest",
+						UidGid:     "1025:1025",
+					},
+				},
+				Bin:            "evmosd",
+				Bech32Prefix:   "evmos",
+				Denom:          "aevmos",
+				GasPrices:      "0.0aevmos",
+				GasAdjustment:  1.3,
+				EncodingConfig: nil,
+				ExtraCodecs:    []string{"ethermint"},
+			},
+			NumFullNodes:  &numFns,
+			NumValidators: &numVals,
 		},
 	})
 
@@ -77,9 +103,8 @@ func TestInterchain(t *testing.T) {
 		Client:            client,
 		NetworkID:         network,
 		BlockDatabaseFile: interchaintest.DefaultBlockDatabaseFilepath(),
-
-		SkipPathCreation: false},
-	),
+		SkipPathCreation:  false,
+	}),
 	)
 
 	// Create and Fund User Wallets
@@ -113,7 +138,7 @@ func TestInterchain(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, tx.Validate())
 
-	// relay packets and acknoledgments
+	// relay packets and acknowledgements
 	require.NoError(t, r.FlushPackets(ctx, eRep, ibcPath, evmosChannelID))
 	require.NoError(t, r.FlushAcknowledgements(ctx, eRep, ibcPath, gaiaChannelID))
 
