@@ -863,3 +863,156 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 		s.Require().Equal(balanceGrantee, bG)
 	})
 })
+
+// Trying to replicate the faulty behaviour in MsgCreateClawbackVestingAccount,
+// that was disclosed as a potential attack vector in relation to the Barberry
+// security patch.
+//
+// It was possible to create a clawback vesting account with negative amounts.
+// Avoiding this requires an additional validation of the amount in the
+// MsgCreateClawbackVestingAccount's ValidateBasic method.
+var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
+	var (
+		// coinsNoNegAmount is a Coins struct with a positive and a negative amount of the same
+		// denomination.
+		coinsNoNegAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)},
+		}
+		// coinsWithNegAmount is a Coins struct with a positive and a negative amount of the same
+		// denomination.
+		coinsWithNegAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)},
+			sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(-1e18)},
+		}
+		// coinsWithZeroAmount is a Coins struct with a positive and a zero amount of the same
+		// denomination.
+		coinsWithZeroAmount = sdk.Coins{
+			sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)},
+			sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(0)},
+		}
+		// emptyCoins is an Coins struct
+		emptyCoins = sdk.Coins{}
+		// newAddr is account address of the vesting account to be created
+		newAddr = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+		// vestingLength is a period of time in seconds to be used for the creation of the vesting
+		// account.
+		vestingLength = int64(60 * 60 * 24 * 30) // 30 days in seconds
+	)
+
+	BeforeEach(func() {
+		s.SetupTest()
+	})
+
+	Context("when creating a clawback vesting account", func() {
+		var testcases = []struct {
+			name         string
+			lockupCoins  sdk.Coins
+			vestingCoins sdk.Coins
+			expError     bool
+			errContains  string
+		}{
+			{
+				name:        "pass - positive amounts for the lockup period",
+				lockupCoins: coinsNoNegAmount,
+			},
+			{
+				name:         "pass - positive amounts for the vesting period",
+				vestingCoins: coinsNoNegAmount,
+			},
+			{
+				name:         "pass - positive amounts for both the lockup and vesting periods",
+				lockupCoins:  coinsNoNegAmount,
+				vestingCoins: coinsNoNegAmount,
+			},
+			{
+				name:        "fail - negative amounts for the lockup period",
+				lockupCoins: coinsWithNegAmount,
+				expError:    true,
+				errContains: "invalid amount in lockup periods, amounts must be positive",
+			},
+			{
+				name:         "fail - negative amounts for the vesting period",
+				vestingCoins: coinsWithNegAmount,
+				expError:     true,
+				errContains:  "invalid coins: invalid request",
+			},
+			{
+				name:        "fail - zero amount for the lockup period",
+				lockupCoins: coinsWithZeroAmount,
+				expError:    true,
+				errContains: "invalid amount in lockup periods, amounts must be positive",
+			},
+			{
+				name:         "fail - zero amount for the vesting period",
+				vestingCoins: coinsWithZeroAmount,
+				expError:     true,
+				errContains:  "invalid coins: invalid request",
+			},
+			{
+				name:         "fail - empty amount for both the lockup and vesting periods",
+				lockupCoins:  emptyCoins,
+				vestingCoins: emptyCoins,
+				expError:     true,
+				errContains:  "vesting and/or lockup schedules must be present",
+			},
+		}
+
+		for _, tc := range testcases {
+			tc := tc
+			It(tc.name, func() {
+				var (
+					lockupPeriods  sdkvesting.Periods
+					vestingPeriods sdkvesting.Periods
+				)
+
+				if !tc.lockupCoins.Empty() {
+					lockupPeriods = sdkvesting.Periods{
+						sdkvesting.Period{Length: vestingLength, Amount: tc.lockupCoins},
+					}
+				}
+
+				if !tc.vestingCoins.Empty() {
+					vestingPeriods = sdkvesting.Periods{
+						sdkvesting.Period{Length: vestingLength, Amount: tc.vestingCoins},
+					}
+				}
+
+				// Create a clawback vesting account at the given address
+				msg := types.NewMsgCreateClawbackVestingAccount(
+					sdk.AccAddress(s.address.Bytes()),
+					newAddr,
+					s.ctx.BlockTime(),
+					lockupPeriods,
+					vestingPeriods,
+					true,
+				)
+
+				// Deliver transaction with message
+				res, err := testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msg)
+
+				// Get account at the new address
+				vacc := s.app.AccountKeeper.GetAccount(s.ctx, newAddr)
+
+				if tc.expError {
+					Expect(err).To(HaveOccurred(), "expected clawback vesting account creation to have failed")
+					Expect(err.Error()).To(ContainSubstring(tc.errContains), "expected clawback vesting account creation to have failed")
+
+					Expect(vacc).To(BeNil(), "expected clawback vesting account to not have been created")
+				} else {
+					Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
+					Expect(res.Code).To(Equal(uint32(0)), "failed to create clawback vesting account")
+					Expect(vacc).ToNot(BeNil(), "vesting account should have been created")
+
+					// Check that the vesting account has the correct balance
+					balance := s.app.BankKeeper.GetBalance(s.ctx, newAddr, utils.BaseDenom)
+					Expect(balance.Amount.Int64()).To(Equal(int64(1e18)), "vesting account has incorrect balance")
+
+					// Check that the vesting account has the correct vesting periods
+					pvacc, ok := vacc.(*types.ClawbackVestingAccount)
+					Expect(ok).To(BeTrue(), "vesting account is not a clawback vesting account")
+					Expect(pvacc.VestingPeriods).To(HaveLen(1), "vesting account has incorrect number of vesting periods")
+				}
+			})
+		}
+	})
+})

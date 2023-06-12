@@ -228,6 +228,8 @@ replace (
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
+	// replace broken goleveldb
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.27
+	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
 )

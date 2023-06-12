@@ -65,6 +65,9 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 		if period.Length < 1 {
 			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
+		if !period.Amount.IsAllPositive() {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in lockup periods, amounts must be positive")
+		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
 
@@ -73,9 +76,20 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 		if period.Length < 1 {
 			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
+		if !period.Amount.IsValid() {
+			return errortypes.ErrInvalidCoins.Wrap(period.Amount.String())
+		}
+		if !period.Amount.IsAllPositive() {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in vesting periods, amounts must be positive")
+		}
+
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
 
+    // If neither schedule is present, the message is invalid.
+	if len(lockupCoins) == 0 && len(vestingCoins) == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and/or lockup schedules must be present")
+	}
 	// If both schedules are present, the must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
 	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
