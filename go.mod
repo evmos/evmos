@@ -224,7 +224,7 @@ replace (
 	// use Cosmos-SDK fork to enable Ledger functionality
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.13-alpha.ledger.8
 	// use Evmos geth fork
-	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.27-0.20230515093947-d7a659397e07
+	github.com/ethereum/go-ethereum => github.com/evmos/go-ethereum v1.10.26-evmos-rc2
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1

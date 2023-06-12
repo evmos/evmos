@@ -39,10 +39,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (evm)[#1535](https://github.com/evmos/evmos/pull/1535) Add EVM extensions support
+- (vesting) [#1596](https://github.com/evmos/evmos/pull/1596) Add MsgCreateClawbackVestingAccount period validation
+- (evm) [#1535](https://github.com/evmos/evmos/pull/1535) Add EVM extensions support
 
 ### Improvements
 
+- (deps) [#1597](https://github.com/evmos/evmos/pull/1597) Bump geth fork
+- (deps) [#1595](https://github.com/evmos/evmos/pull/1595) Bump cometbft and goleveldb
 - (evm) [#1578](https://github.com/evmos/evmos/pull/1578#) Add support of ICS20 transfer extension
 - (test) [#1486](https://github.com/evmos/evmos/pull/1486) Add benchmark tests for `DeductFeeDecorator` and `EthGasConsumeDecorator` ante handler decorators
 - (deps) [#1488](https://github.com/evmos/evmos/pull/1488) Bump btcd version to [`v0.23.3`](https://github.com/btcsuite/btcd/releases/tag/v0.23.3)
