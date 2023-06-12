@@ -176,7 +176,7 @@ func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (
 
 	key, err := pk.ToECDSA()
 	if err != nil {
-		return
+		return res, ethRes, fmt.Errorf("error while converting private key to ECDSA: %v", err)
 	}
 
 	addr := crypto.PubkeyToAddress(key.PublicKey)
