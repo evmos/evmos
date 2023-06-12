@@ -42,7 +42,7 @@ func AvailablePrecompiles(
 
 	ibcTransferPrecompile, err := ics20.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
+		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
 	}
 
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
