@@ -26,8 +26,9 @@ var (
 	DefaultEnableCall = true
 	// DefaultActivePrecompiles defines the default active precompiles
 	DefaultActivePrecompiles = []string{
-		"0x0000000000000000000000000000000000000800",
-		"0x0000000000000000000000000000000000000801",
+		"0x0000000000000000000000000000000000000800", // Staking precompile
+		"0x0000000000000000000000000000000000000801", // Distribution precompile
+		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 	}
 )
 
