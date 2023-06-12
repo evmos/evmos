@@ -483,13 +483,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20210512163311-63b5d3c536b0/go.m
 github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021/go.mod h1:AFq3mo9L8Lqqiid3OhADV3RfLJnjiw63cSpi+fDTRC0=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-<<<<<<< HEAD
-github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.6 h1:HDAuZBOTcGahoVw9QosGSqWLA9syHkbVgbCeZx4nvrg=
-github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.6/go.mod h1:bG4AkW9bqc8ycrryyKGQEl3YV9BY2wr6HggGq8kvcgM=
-=======
 github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.8 h1:2/yS0Sl0uea7HunNCZORiPQhjH0b66yW/i7lLPIc1k0=
 github.com/evmos/cosmos-sdk v0.46.11-alpha.ledger.8/go.mod h1:/OlGLg1wD56T4QkV1yuUwfiT8hAOcXIVNr799iqS0oo=
->>>>>>> 1a3b3f3b (chore: add ics20 precompile (#1578))
 github.com/evmos/evmos-ledger-go v0.4.0 h1:WPa6TN9x7s/+1YCgvYGtzJrhlW/mIHtYM1DvNq/e2o0=
 github.com/evmos/evmos-ledger-go v0.4.0/go.mod h1:33X3wWcWZ68KD5Bj4aiED+/W57uO1VR+hbXBxkKDXsQ=
 github.com/evmos/go-ethereum v1.10.27-0.20230515093947-d7a659397e07 h1:cmDKNzEI8eJz0xS3mSIct0XNpBBRzyC/SQjLJptFmts=
