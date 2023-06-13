@@ -151,6 +151,7 @@ code under an open source license.
 **A:** No, unless you have obtained a commercial permit for the ENCL code or can
 ensure compliance with the limitations in ENCL-1.0.
 
+
 **Q: If I modify the source code of software licensed under the ENCL-1.0,
 can I redistribute my modified version under an Open Source license, e.g. MIT or Apache 2.0?**
 
