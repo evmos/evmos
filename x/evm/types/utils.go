@@ -57,7 +57,7 @@ func DecodeTransactionLogs(data []byte) (TransactionLogs, error) {
 	return logs, nil
 }
 
-// UnwrapEthereumMsg extract MsgEthereumTx from wrapping sdk.Tx
+// UnwrapEthereumMsg extracts MsgEthereumTx from wrapping sdk.Tx
 func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) {
 	if tx == nil {
 		return nil, fmt.Errorf("invalid tx: nil")
@@ -78,7 +78,7 @@ func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) 
 	return nil, fmt.Errorf("eth tx not found: %s", ethHash)
 }
 
-// BinSearch execute the binary search and hone in on an executable gas limit
+// BinSearch executes the binary search and hone in on an executable gas limit
 func BinSearch(lo, hi uint64, executable func(uint64) (bool, *MsgEthereumTxResponse, error)) (uint64, error) {
 	for lo+1 < hi {
 		mid := (hi + lo) / 2
@@ -98,7 +98,7 @@ func BinSearch(lo, hi uint64, executable func(uint64) (bool, *MsgEthereumTxRespo
 	return hi, nil
 }
 
-// EffectiveGasPrice compute the effective gas price based on eip-1159 rules
+// EffectiveGasPrice computes the effective gas price based on eip-1559 rules
 // `effectiveGasPrice = min(baseFee + tipCap, feeCap)`
 func EffectiveGasPrice(baseFee, feeCap, tipCap *big.Int) *big.Int {
 	return math.BigMin(new(big.Int).Add(tipCap, baseFee), feeCap)

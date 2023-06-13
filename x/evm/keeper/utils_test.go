@@ -27,7 +27,7 @@ func (suite *KeeperTestSuite) EvmDenom() string {
 // Commit and begin new block
 func (suite *KeeperTestSuite) Commit() {
 	var err error
-	suite.ctx, err = testutil.Commit(suite.ctx, suite.app, 0*time.Second, nil)
+	suite.ctx, err = testutil.CommitAndCreateNewCtx(suite.ctx, suite.app, 0*time.Second, nil)
 	suite.Require().NoError(err)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
