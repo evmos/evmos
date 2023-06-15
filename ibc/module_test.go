@@ -26,8 +26,9 @@ type MockIBCModule struct {
 // OnChanOpenInit implements the Module interface
 // It calls the underlying app's OnChanOpenInit callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanOpenInit(
 	ctx sdk.Context,
 	order channeltypes.Order,
@@ -45,8 +46,9 @@ func (m MockIBCModule) OnChanOpenInit(
 // OnChanOpenTry implements the Module interface.
 // It calls the underlying app's OnChanOpenTry callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanOpenTry(
 	ctx sdk.Context,
 	order channeltypes.Order,
@@ -64,8 +66,9 @@ func (m MockIBCModule) OnChanOpenTry(
 // OnChanOpenAck implements the Module interface.
 // It calls the underlying app's OnChanOpenAck callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
@@ -80,8 +83,9 @@ func (m MockIBCModule) OnChanOpenAck(
 // OnChanOpenConfirm implements the Module interface.
 // It calls the underlying app's OnChanOpenConfirm callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanOpenConfirm(
 	ctx sdk.Context,
 	portID,
@@ -94,8 +98,9 @@ func (m MockIBCModule) OnChanOpenConfirm(
 // OnChanCloseInit implements the Module interface
 // It calls the underlying app's OnChanCloseInit callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanCloseInit(
 	ctx sdk.Context,
 	portID,
@@ -108,8 +113,9 @@ func (m MockIBCModule) OnChanCloseInit(
 // OnChanCloseConfirm implements the Module interface.
 // It calls the underlying app's OnChanCloseConfirm callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnChanCloseConfirm(
 	ctx sdk.Context,
 	portID,
@@ -122,8 +128,9 @@ func (m MockIBCModule) OnChanCloseConfirm(
 // OnRecvPacket implements the Module interface.
 // It calls the underlying app's OnRecvPacket callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnRecvPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -136,8 +143,9 @@ func (m MockIBCModule) OnRecvPacket(
 // OnAcknowledgementPacket implements the Module interface.
 // It calls the underlying app's OnAcknowledgementPacket callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
@@ -151,8 +159,9 @@ func (m MockIBCModule) OnAcknowledgementPacket(
 // OnTimeoutPacket implements the Module interface.
 // It calls the underlying app's OnTimeoutPacket callback.
 //
+//	and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
+//
 //nolint:all // escaping govet since we can copy locks here as it is a test
-//              and escaping revive for unused parameters which are okay since they indicate the expected mocked interface
 func (m MockIBCModule) OnTimeoutPacket(
 	ctx sdk.Context,
 	packet channeltypes.Packet,
