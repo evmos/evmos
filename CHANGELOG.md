@@ -39,6 +39,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v13.0.0-rc2] - 2023-06-13 
 
+### Bug Fixes
+
+- (evm) [160](https://github.com/evmos/precompiles/pull/160) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
+
 ## [v13.0.0-rc2] - 2023-06-13
 
 ### State Machine Breaking
