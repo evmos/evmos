@@ -37,11 +37,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v13.0.0-rc2] - 2023-06-13 
+## [v13.0.0-rc3] - 2023-06-15
+
+### Bug Fixes
+
+- (evm) [160](https://github.com/evmos/precompiles/pull/160) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
+
+## [v13.0.0-rc2] - 2023-06-13
 
 ### State Machine Breaking
 
-- (backport) [#1599](https://github.com/evmos/evmos/pull/1599) Backport changes from `main` to `v13.0.x`
 - (vesting) [#1596](https://github.com/evmos/evmos/pull/1596) Add MsgCreateClawbackVestingAccount period validation
 - (evm) [#1535](https://github.com/evmos/evmos/pull/1535) Add EVM extensions support
 
