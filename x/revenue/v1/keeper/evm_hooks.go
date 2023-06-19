@@ -6,9 +6,9 @@ package keeper
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"golang.org/x/exp/slices"
 
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 
@@ -69,19 +69,28 @@ func (k Keeper) PostTxProcessing(
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
-	// distribute the fees to the contract deployer / withdraw address
-	err := k.bankKeeper.SendCoinsFromModuleToAccount(
-		ctx,
-		k.feeCollectorName,
-		withdrawer,
-		fees,
-	)
-	if err != nil {
-		return errorsmod.Wrapf(
-			err,
-			"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
-			fees, withdrawer, contract,
+	// Get available precompiles from evm params and check if contract is in the list
+	evmParams := k.evmKeeper.GetParams(ctx)
+	if slices.Contains(evmParams.ActivePrecompiles, contract.String()) {
+		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, contract.Bytes()); err != nil {
+			return err
+		}
+	} else {
+		// distribute the fees to the contract deployer / withdraw address
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx,
+			k.feeCollectorName,
+			withdrawer,
+			fees,
 		)
+
+		if err != nil {
+			return errorsmod.Wrapf(
+				err,
+				"fee collector account failed to distribute developer fees (%s) to withdraw address %s. contract %s",
+				fees, withdrawer, contract,
+			)
+		}
 	}
 
 	ctx.EventManager().EmitEvents(
