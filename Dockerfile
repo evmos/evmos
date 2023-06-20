@@ -4,7 +4,7 @@ WORKDIR /go/src/github.com/evmos/evmos
 
 COPY go.mod go.sum ./
 
-RUN set -eux; apk add --no-cache ca-certificates build-base=0.5-r3; apk add git=2.40.1-r0 linux-headers=6.3-r0
+RUN set -eux; apk add --no-cache ca-certificates=20230506-r0 build-base=0.5-r3 git=2.40.1-r0 linux-headers=6.3-r0
 
 RUN --mount=type=bind,target=. --mount=type=secret,id=GITHUB_TOKEN \
     git config --global url."https://$(cat /run/secrets/GITHUB_TOKEN)@github.com/".insteadOf "https://github.com/"; \
@@ -23,7 +23,7 @@ WORKDIR /root
 COPY --from=build-env /go/src/github.com/evmos/evmos/build/evmosd /usr/bin/evmosd
 COPY --from=build-env /go/bin/toml-cli /usr/bin/toml-cli
 
-RUN apk add --no-cache ca-certificates jq=1.6-r3 curl=8.1.2-r0 bash=5.2.15-r5 vim=9.0.1568-r0 lz4=1.9.4-r4 \
+RUN apk add --no-cache ca-certificates=20230506-r0 jq=1.6-r3 curl=8.1.2-r0 bash=5.2.15-r5 vim=9.0.1568-r0 lz4=1.9.4-r4 \
     && addgroup -g 1000 evmos \
     && adduser -S -h /home/evmos -D evmos -u 1000 -G evmos
 
