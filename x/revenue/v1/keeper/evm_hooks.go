@@ -83,7 +83,6 @@ func (k Keeper) PostTxProcessing(
 			withdrawer,
 			fees,
 		)
-
 		if err != nil {
 			return errorsmod.Wrapf(
 				err,
