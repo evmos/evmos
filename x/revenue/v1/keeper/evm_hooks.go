@@ -49,7 +49,6 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	contract := msg.To()
-	// TODO: contract here is always nil when calling the precompile
 	if contract == nil {
 		return nil
 	}
@@ -76,7 +75,7 @@ func (k Keeper) PostTxProcessing(
 
 	// Get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
-		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, contract.Bytes()); err != nil {
+		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
 			return err
 		}
 	} else {

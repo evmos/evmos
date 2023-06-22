@@ -488,24 +488,27 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				})
 
 				It("should transfer all tx fees to the community pool", func() {
-					// communityPoolBefore := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					communityPoolBefore := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 					contractAddress := common.HexToAddress("0x0000000000000000000000000000000000000800")
-					gasPrice := big.NewInt(7656250000)
+					gasTipCap := big.NewInt(100000)
+					gasFeeCap := new(big.Int).Add(s.app.FeeMarketKeeper.GetBaseFee(s.ctx), gasTipCap)
 					stakingPrecompile := s.app.EvmKeeper.Precompiles(contractAddress)[contractAddress].(*staking.Precompile)
 					data, err := stakingPrecompile.ABI.Pack("delegate", common.BytesToAddress(userAddress), s.validator.OperatorAddress, big.NewInt(1e18))
 					Expect(err).To(BeNil())
 					res := contractInteract(
 						userKey,
 						&contractAddress,
-						gasPrice,
 						nil,
-						nil,
+						gasFeeCap,
+						gasTipCap,
 						data,
 						&ethtypes.AccessList{},
 					)
 					Expect(res.IsOK()).To(BeTrue())
-					// communityCoins, _ := calculateFees(denom, params, res, gasPrice)
-					// communityCoinsDec := sdk.NewDecCoinFromCoin(communityCoins)
+					communityCoins, _ := calculateFees(denom, params, res, gasFeeCap)
+					communityCoinsDec := sdk.NewDecCoinFromCoin(communityCoins)
+					communityPoolAfter := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					Expect(communityPoolAfter).To(Equal(communityPoolBefore.Add(communityCoinsDec)))
 					s.Commit()
 				})
 			})

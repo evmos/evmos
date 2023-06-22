@@ -175,7 +175,7 @@ func buildEthTx(
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
-	gasLimit := uint64(100000)
+	gasLimit := uint64(10000000)
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,

@@ -23,6 +23,7 @@ type Keeper struct {
 	authority          sdk.AccAddress
 	bankKeeper         types.BankKeeper
 	evmKeeper          types.EVMKeeper
+	accountKeeper      types.AccountKeeper
 	distributionKeeper types.DistributionKeeper
 	feeCollectorName   string
 }
@@ -34,6 +35,7 @@ func NewKeeper(
 	authority sdk.AccAddress,
 	bk types.BankKeeper,
 	dk types.DistributionKeeper,
+	ak types.AccountKeeper,
 	evmKeeper types.EVMKeeper,
 	feeCollector string,
 ) Keeper {
@@ -44,6 +46,7 @@ func NewKeeper(
 		bankKeeper:         bk,
 		distributionKeeper: dk,
 		evmKeeper:          evmKeeper,
+		accountKeeper:      ak,
 		feeCollectorName:   feeCollector,
 	}
 }
