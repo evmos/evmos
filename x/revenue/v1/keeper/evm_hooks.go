@@ -49,19 +49,23 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	contract := msg.To()
+	// TODO: contract here is always nil when calling the precompile
 	if contract == nil {
 		return nil
 	}
 
-	// if the contract is not registered to receive fees, do nothing
-	revenue, found := k.GetRevenue(ctx, *contract)
-	if !found {
-		return nil
-	}
-
-	withdrawer := revenue.GetWithdrawerAddr()
-	if len(withdrawer) == 0 {
-		withdrawer = revenue.GetDeployerAddr()
+	evmParams := k.evmKeeper.GetParams(ctx)
+	var withdrawer sdk.AccAddress
+	if !slices.Contains(evmParams.ActivePrecompiles, contract.String()) {
+		// if the contract is not registered to receive fees, do nothing
+		revenue, found := k.GetRevenue(ctx, *contract)
+		if !found {
+			return nil
+		}
+		withdrawer = revenue.GetWithdrawerAddr()
+		if len(withdrawer) == 0 {
+			withdrawer = revenue.GetDeployerAddr()
+		}
 	}
 
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
@@ -70,7 +74,6 @@ func (k Keeper) PostTxProcessing(
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
 	// Get available precompiles from evm params and check if contract is in the list
-	evmParams := k.evmKeeper.GetParams(ctx)
 	if slices.Contains(evmParams.ActivePrecompiles, contract.String()) {
 		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, contract.Bytes()); err != nil {
 			return err
