@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 	"strings"
@@ -481,10 +482,16 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 		Describe("Funding community pool from precompiled contract calls", func() {
 			Context("calling a precompiled registered contract with 100/0 community pool revenue", func() {
+				var params types.Params
+
 				BeforeEach(func() {
-					params := s.app.RevenueKeeper.GetParams(s.ctx)
+					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
+					err := s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
+					if err != nil {
+						fmt.Println(err)
+						return
+					}
 				})
 
 				It("should transfer all tx fees to the community pool", func() {
