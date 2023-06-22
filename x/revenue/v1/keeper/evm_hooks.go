@@ -55,8 +55,9 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	evmParams := k.evmKeeper.GetParams(ctx)
+	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
 	var withdrawer sdk.AccAddress
-	if !slices.Contains(evmParams.ActivePrecompiles, contract.String()) {
+	if !containsPrecompile {
 		// if the contract is not registered to receive fees, do nothing
 		revenue, found := k.GetRevenue(ctx, *contract)
 		if !found {
@@ -74,7 +75,7 @@ func (k Keeper) PostTxProcessing(
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
 	// Get available precompiles from evm params and check if contract is in the list
-	if slices.Contains(evmParams.ActivePrecompiles, contract.String()) {
+	if containsPrecompile {
 		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, contract.Bytes()); err != nil {
 			return err
 		}
