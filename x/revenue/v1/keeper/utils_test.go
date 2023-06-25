@@ -76,7 +76,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
