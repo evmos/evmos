@@ -487,7 +487,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
 					params.DeveloperShares = sdk.NewDec(1)
-					err := s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
+					err := s.app.RevenueKeeper.SetParams(s.ctx, params)
 					if err != nil {
 						fmt.Println(err)
 						return
