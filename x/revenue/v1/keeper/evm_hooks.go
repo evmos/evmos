@@ -52,7 +52,25 @@ func (k Keeper) PostTxProcessing(
 	if !params.EnableRevenue {
 		return nil
 	}
+
 	evmParams := k.evmKeeper.GetParams(ctx)
+
+	var withdrawer sdk.AccAddress
+	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
+    // if the contract is not a precompile, check if the contract is registered in the revenue module.
+    // else, return and avoid performing unnecesary logic
+	if !containsPrecompile {
+		// if the contract is not registered to receive fees, do nothing
+		revenue, found := k.GetRevenue(ctx, *contract)
+		if !found {
+			return nil
+		}
+
+		withdrawer = revenue.GetWithdrawerAddr()
+		if len(withdrawer) == 0 {
+			withdrawer = revenue.GetDeployerAddr()
+		}
+	}
 
 	// calculate fees to be paid
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
@@ -60,24 +78,12 @@ func (k Keeper) PostTxProcessing(
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
-	var withdrawer sdk.AccAddress
-	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
 	// get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
 		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
 			return err
 		}
 	} else {
-		// if the contract is not registered to receive fees, do nothing
-		revenue, found := k.GetRevenue(ctx, *contract)
-		if !found {
-			return nil
-		}
-		withdrawer = revenue.GetWithdrawerAddr()
-		if len(withdrawer) == 0 {
-			withdrawer = revenue.GetDeployerAddr()
-		}
-
 		// distribute the fees to the contract deployer / withdraw address
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(
 			ctx,
