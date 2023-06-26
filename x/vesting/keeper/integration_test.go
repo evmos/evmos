@@ -864,7 +864,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", Ordered, func()
 	})
 })
 
-// Trying to replicate the faulty behaviour in MsgCreateClawbackVestingAccount,
+// Trying to replicate the faulty behavior in MsgCreateClawbackVestingAccount,
 // that was disclosed as a potential attack vector in relation to the Barberry
 // security patch.
 //
@@ -904,7 +904,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 	})
 
 	Context("when creating a clawback vesting account", func() {
-		var testcases = []struct {
+		testcases := []struct {
 			name         string
 			lockupCoins  sdk.Coins
 			vestingCoins sdk.Coins
