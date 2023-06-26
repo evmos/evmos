@@ -30,6 +30,11 @@ type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 }
 
+// DistributionKeeper defines the expected interface needed to send funds to the community pool.
+type DistributionKeeper interface {
+	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
+
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 type EVMKeeper interface {
 	EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, chainID *big.Int) (*statedb.EVMConfig, error)
