@@ -42,28 +42,27 @@ func (k Keeper) PostTxProcessing(
 	msg core.Message,
 	receipt *ethtypes.Receipt,
 ) error {
-	// check if the fees are globally enabled
-	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
-		return nil
-	}
-
 	contract := msg.To()
 	if contract == nil {
 		return nil
 	}
 
+	// check if the fees are globally enabled
+	params := k.GetParams(ctx)
+	if !params.EnableRevenue {
+		return nil
+	}
 	evmParams := k.evmKeeper.GetParams(ctx)
 
-    // calculate fees to be paid
+	// calculate fees to be paid
 	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
 	developerFee := (params.DeveloperShares).MulInt(txFee).TruncateInt()
 	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
 
-    var withdrawer sdk.AccAddress
-    containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
-	// Get available precompiles from evm params and check if contract is in the list
+	var withdrawer sdk.AccAddress
+	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
+	// get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
 		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
 			return err
