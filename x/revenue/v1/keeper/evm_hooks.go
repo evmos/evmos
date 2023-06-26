@@ -57,8 +57,8 @@ func (k Keeper) PostTxProcessing(
 
 	var withdrawer sdk.AccAddress
 	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
-    // if the contract is not a precompile, check if the contract is registered in the revenue module.
-    // else, return and avoid performing unnecesary logic
+	// if the contract is not a precompile, check if the contract is registered in the revenue module.
+	// else, return and avoid performing unnecessary logic
 	if !containsPrecompile {
 		// if the contract is not registered to receive fees, do nothing
 		revenue, found := k.GetRevenue(ctx, *contract)
