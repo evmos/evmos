@@ -54,9 +54,21 @@ func (k Keeper) PostTxProcessing(
 	}
 
 	evmParams := k.evmKeeper.GetParams(ctx)
-	containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
-	var withdrawer sdk.AccAddress
-	if !containsPrecompile {
+
+    // calculate fees to be paid
+	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
+	developerFee := (params.DeveloperShares).MulInt(txFee).TruncateInt()
+	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
+	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
+
+    var withdrawer sdk.AccAddress
+    containsPrecompile := slices.Contains(evmParams.ActivePrecompiles, contract.String())
+	// Get available precompiles from evm params and check if contract is in the list
+	if containsPrecompile {
+		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
+			return err
+		}
+	} else {
 		// if the contract is not registered to receive fees, do nothing
 		revenue, found := k.GetRevenue(ctx, *contract)
 		if !found {
@@ -66,19 +78,7 @@ func (k Keeper) PostTxProcessing(
 		if len(withdrawer) == 0 {
 			withdrawer = revenue.GetDeployerAddr()
 		}
-	}
 
-	txFee := sdk.NewIntFromUint64(receipt.GasUsed).Mul(sdk.NewIntFromBigInt(msg.GasPrice()))
-	developerFee := (params.DeveloperShares).MulInt(txFee).TruncateInt()
-	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
-	fees := sdk.Coins{{Denom: evmDenom, Amount: developerFee}}
-
-	// Get available precompiles from evm params and check if contract is in the list
-	if containsPrecompile {
-		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
-			return err
-		}
-	} else {
 		// distribute the fees to the contract deployer / withdraw address
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(
 			ctx,
