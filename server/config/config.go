@@ -28,6 +28,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
 const (
@@ -96,6 +97,8 @@ type Config struct {
 	EVM     EVMConfig     `mapstructure:"evm"`
 	JSONRPC JSONRPCConfig `mapstructure:"json-rpc"`
 	TLS     TLSConfig     `mapstructure:"tls"`
+
+	MemIAVL memiavlcfg.MemIAVLConfig `mapstructure:"memiavl"`
 }
 
 // EVMConfig defines the application configuration values for the EVM.
@@ -185,6 +188,7 @@ func AppConfig(denom string) (string, interface{}) {
 		EVM:     *DefaultEVMConfig(),
 		JSONRPC: *DefaultJSONRPCConfig(),
 		TLS:     *DefaultTLSConfig(),
+		MemIAVL: memiavlcfg.DefaultMemIAVLConfig(),
 	}
 
 	customAppTemplate := config.DefaultConfigTemplate + DefaultConfigTemplate
