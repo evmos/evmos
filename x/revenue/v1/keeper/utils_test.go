@@ -76,7 +76,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -153,9 +153,10 @@ func contractInteract(
 	gasPrice *big.Int,
 	gasFeeCap *big.Int,
 	gasTipCap *big.Int,
+	data []byte,
 	accesses *ethtypes.AccessList,
 ) abci.ResponseDeliverTx {
-	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, accesses)
+	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	Expect(err).To(BeNil())
 	Expect(res.IsOK()).To(Equal(true), res.GetLog())
@@ -168,13 +169,13 @@ func buildEthTx(
 	gasPrice *big.Int,
 	gasFeeCap *big.Int,
 	gasTipCap *big.Int,
+	data []byte,
 	accesses *ethtypes.AccessList,
 ) *evmtypes.MsgEthereumTx {
 	chainID := s.app.EvmKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := getNonce(from.Bytes())
-	data := make([]byte, 0)
-	gasLimit := uint64(100000)
+	gasLimit := uint64(10000000)
 	ethTxParams := evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,

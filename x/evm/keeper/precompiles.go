@@ -11,7 +11,10 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
+	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
 	distprecompile "github.com/evmos/precompiles/precompiles/distribution"
+	ics20 "github.com/evmos/precompiles/precompiles/ics20"
 	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
 )
 
@@ -21,6 +24,8 @@ func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	transferKeeper transferkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -35,8 +40,14 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
 	}
 
+	ibcTransferPrecompile, err := ics20.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
+	}
+
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
+	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	return precompiles
 }
 
