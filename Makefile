@@ -11,6 +11,13 @@ EVMOS_DIR = evmos
 BUILDDIR ?= $(CURDIR)/build
 HTTPS_GIT := https://github.com/evmos/evmos.git
 DOCKER := $(shell which docker)
+DOCKER_BUILDKIT=1
+DOCKER_ARGS=
+ifdef GITHUB_TOKEN
+	ifneq ($(strip $(GITHUB_TOKEN)),)
+		DOCKER_ARGS += --secret id=GITHUB_TOKEN
+	endif
+endif
 NAMESPACE := tharsishq
 PROJECT := evmos
 DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
@@ -144,16 +151,16 @@ build-reproducible: go.sum
 
 build-docker:
 	# TODO replace with kaniko
-	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_ARGS} .
 	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
-	# update old container
-	$(DOCKER) rm evmos || true
-	# create a new container from the latest image
-	$(DOCKER) create --name evmos -t -i ${DOCKER_IMAGE}:latest evmos
 	# move the binaries to the ./build directory
-	mkdir -p ./build/
-	$(DOCKER) cp evmos:/usr/bin/evmosd ./build/
+	mkdir -p ./build/.evmosd
+	echo '#!/usr/bin/env bash' > ./build/evmosd
+	echo "IMAGE_NAME=${DOCKER_IMAGE}:${COMMIT_HASH}" >> ./build/evmosd
+	echo 'SCRIPT_PATH=$$(cd $$(dirname $$0) && pwd -P)' >> ./build/evmosd
+	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
+	chmod +x ./build/evmosd
 
 push-docker: build-docker
 	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
