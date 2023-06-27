@@ -521,7 +521,7 @@ func NewEvmos(
 
 	app.RevenueKeeper = revenuekeeper.NewKeeper(
 		keys[revenuetypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.EvmKeeper,
+		app.BankKeeper, app.DistrKeeper, app.AccountKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
 	)
 
