@@ -33,3 +33,4 @@ WORKDIR /home/evmos
 EXPOSE 26656 26657 1317 9090 8545 8546
 
 CMD ["evmosd"]
+
