@@ -1,10 +1,11 @@
 import os
-import pytest
-import shutil
+
 import check_licenses as cl
+import pytest
 
 _FILE_WITH_LICENSE = "./app/app.go"
 _FILE_WITH_GETH_LICENSE = "./x/evm/statedb/journal.go"
+
 
 @pytest.fixture
 def cleanup():
@@ -12,6 +13,7 @@ def cleanup():
     file = "test.txt"
     if os.path.exists(file):
         os.remove(file)
+
 
 def test_check_license_in_file_no_license():
     file = "test.txt"

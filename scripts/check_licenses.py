@@ -3,13 +3,12 @@ import re
 import sys
 from typing import Dict, List
 
-
 FILTER: re.Pattern = re.compile(r'^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$')
 EXEMPT_FILES: List[str] = [
-    "x/revenue/v1/", # All files in this folder
-    "x/claims/genesis\.go$",
-    "x/erc20/keeper/proposals\.go$",
-    "x/erc20/types/utils\.go$",
+    r"x/revenue/v1/",  # All files in this folder
+    r"x/claims/genesis\.go$",
+    r"x/erc20/keeper/proposals\.go$",
+    r"x/erc20/types/utils\.go$",
 ]
 
 LGPL3_LICENSE = [
@@ -72,9 +71,10 @@ def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool 
     print(f" -> {n_files_geth} have a geth license")
     print(f" -> {n_files_lgpl3} have the LGPL3 license")
     print(f" -> {n_files_encl} have the ENCL license")
-    if len( files_with_wrong_license) > 0:
+    if len(files_with_wrong_license) > 0:
         print("---------------------------")
-        print(f" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!\n    Please check the output above.")
+        print(f""" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!
+    Please check the output above.""")
 
     return {
         "total": n_files,
