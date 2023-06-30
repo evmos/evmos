@@ -621,3 +621,11 @@ create-contracts-json:
 		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
 	done
 	@rm -rf tmp
+
+###############################################################################
+###                                Licenses                                 ###
+###############################################################################
+
+check-licenses:
+	@echo "Checking licenses..."
+	@python3 scripts/check_licenses.py .
