@@ -107,7 +107,7 @@ start_func() {
     "$PWD"/build/evmosd start --pruning=nothing --rpc.unsafe \
     --p2p.laddr tcp://$IP_ADDR:$NODE_P2P_PORT"$i" --address tcp://$IP_ADDR:$NODE_PORT"$i" --rpc.laddr tcp://$IP_ADDR:$NODE_RPC_PORT"$i" \
     --json-rpc.enable true --json-rpc.address=$IP_ADDR:$RPC_PORT"$i" \
-    --keyring-backend test --home "$DATA_DIR$i" \
+    --api.enable --keyring-backend test --home "$DATA_DIR$i" \
     >"$DATA_DIR"/node"$i".log 2>&1 & disown
 
     EVMOS_PID=$!
