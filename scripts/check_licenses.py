@@ -3,12 +3,15 @@ import re
 import sys
 from typing import Dict, List
 
-FILTER: re.Pattern = re.compile(r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
+FILTER: re.Pattern = re.compile(
+    r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
 EXEMPT_FILES: List[str] = [
     r"x/revenue/v1/",  # All files in this folder
     r"x/claims/genesis\.go$",
     r"x/erc20/keeper/proposals\.go$",
     r"x/erc20/types/utils\.go$",
+    r"proto/evmos/revenue/v1/",  # All files in this folder
+    r"proto/evmos/claims/v1/genesis\.proto$",
 ]
 
 LGPL3_LICENSE = [
@@ -50,7 +53,8 @@ def check_licenses_in_path(
             lgpl3 = check_if_in_exempt_files(full_path)
             checked_license = LGPL3_LICENSE if lgpl3 else ENCL_LICENSE
 
-            found = check_license_in_file(os.path.join(root, file), checked_license)
+            found = check_license_in_file(
+                os.path.join(root, file), checked_license)
             if found is True:
                 n_files_with += 1
                 if lgpl3:
