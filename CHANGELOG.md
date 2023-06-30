@@ -44,15 +44,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (revenue) [#1607](https://github.com/evmos/evmos/pull/1607) Route gas fees from calling EVM extensions to community pool
 - (docker) [#1606](https://github.com/evmos/evmos/pull/1606) Improve Dockerfile to reduce image size 
 
+### State Machine Breaking
+
+- (evm) [#1625](https://github.com/evmos/evmos/pull/1625) Migrate updated EVM extensions
+
 ## [v13.0.0-rc3] - 2023-06-15
 
 ### Bug Fixes
 
 - (evm) [1602](https://github.com/evmos/evmos/pull/1602) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
-
-### State Machine Breaking
-
-- (evm) [#1625](https://github.com/evmos/evmos/pull/1625) Migrate updated EVM extensions
 
 ## [v13.0.0-rc2] - 2023-06-13
 
