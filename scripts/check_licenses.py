@@ -74,7 +74,7 @@ def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool 
     print(f" -> {n_files_encl} have the ENCL license")
     if len( files_with_wrong_license) > 0:
         print("---------------------------")
-        print(f" -> {len(files_with_wrong_license)} files have the wrong or are missing a license!")
+        print(f" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!\n    Please check the output above.")
 
     return {
         "total": n_files,
