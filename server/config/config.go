@@ -169,7 +169,7 @@ func AppConfig(denom string) (string, interface{}) {
 
 	customAppTemplate := config.DefaultConfigTemplate + DefaultConfigTemplate
 
-	return customAppTemplate, customAppConfig
+	return customAppTemplate, *customAppConfig
 }
 
 // DefaultConfig returns server's default configuration.
