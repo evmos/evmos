@@ -13,9 +13,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
-	distprecompile "github.com/evmos/precompiles/precompiles/distribution"
-	ics20 "github.com/evmos/precompiles/precompiles/ics20"
-	stakingprecompile "github.com/evmos/precompiles/precompiles/staking"
+	distprecompile "github.com/evmos/evmos/v13/precompiles/distribution"
+	ics20 "github.com/evmos/evmos/v13/precompiles/ics20"
+	stakingprecompile "github.com/evmos/evmos/v13/precompiles/staking"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
