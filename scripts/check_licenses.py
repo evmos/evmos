@@ -3,7 +3,7 @@ import re
 import sys
 from typing import Dict, List
 
-FILTER: re.Pattern = re.compile(r'^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$')
+FILTER: re.Pattern = re.compile(r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
 EXEMPT_FILES: List[str] = [
     r"x/revenue/v1/",  # All files in this folder
     r"x/claims/genesis\.go$",
@@ -22,7 +22,9 @@ ENCL_LICENSE = [
 ]
 
 
-def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool = False) -> Dict[str, int]:
+def check_licenses_in_path(
+    path: str, name_filter: re.Pattern = re.compile(".*"), add: bool = False
+) -> Dict[str, int]:
     """
     Iterate over all files in the current directory and its subdirectories
     and check if the appropriate licenses are contained in the files.
@@ -40,7 +42,7 @@ def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool 
     for root, _, files in os.walk(path):
         for file in files:
             full_path = os.path.join(root, file)
-            if name_filter is not None and not name_filter.search(full_path):
+            if not name_filter.search(full_path):
                 continue
 
             n_files += 1
@@ -73,8 +75,10 @@ def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool 
     print(f" -> {n_files_encl} have the ENCL license")
     if len(files_with_wrong_license) > 0:
         print("---------------------------")
-        print(f""" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!
-    Please check the output above.""")
+        print(
+            f""" -> {len(files_with_wrong_license)} files have the wrong license or are missing a license altogether!
+    Please check the output above."""
+        )
 
     return {
         "total": n_files,
@@ -84,7 +88,7 @@ def check_licenses_in_path(path: str, name_filter: re.Pattern = None, add: bool 
         "license_removed": n_files_lic_removed,
         "lgpl3": n_files_lgpl3,
         "encl": n_files_encl,
-        "wrong_license": len(files_with_wrong_license)
+        "wrong_license": len(files_with_wrong_license),
     }
 
 
@@ -112,7 +116,7 @@ def check_license_in_file(file: str, checked_license: List[str]) -> bool | str:
         elif "ethereum" in lines[0].lower():
             return "geth"
 
-        for expected_line, line in zip(checked_license, lines[:len(checked_license)]):
+        for expected_line, line in zip(checked_license, lines[: len(checked_license)]):
             if line != expected_line:
                 print(" - ", file)
                 return False
