@@ -9,6 +9,8 @@ EXEMPT_FILES: List[str] = [
     r"x/claims/genesis\.go$",
     r"x/erc20/keeper/proposals\.go$",
     r"x/erc20/types/utils\.go$",
+    r"proto/evmos/revenue/v1/",  # All files in this folder
+    r"proto/evmos/claims/v1/genesis\.proto$",
 ]
 
 LGPL3_LICENSE = [
