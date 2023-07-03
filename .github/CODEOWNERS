@@ -2,16 +2,3 @@
 
 # Primary (global) repo maintainers
 *       @evmos/core-engineering
-
-# Documentation
-docs/ @danburck
-
-# Evmos Modules
-x/claims/ @ramacarlucho
-x/epochs/ @ramacarlucho
-x/erc20/ @ramacarlucho @hanchon
-x/revenue/ @ramacarlucho
-x/incentives/ @ramacarlucho
-x/inflation/ @ramacarlucho
-x/recovery/ @ramacarlucho
-x/vesting/ @ramacarlucho
