@@ -84,6 +84,11 @@ func (p Precompile) UnbondingDelegation(
 
 	res, err := queryServer.UnbondingDelegation(sdk.WrapSDKContext(ctx), req)
 	if err != nil {
+		// return empty unbonding delegation output if the unbonding delegation is not found
+		expError := fmt.Sprintf("unbonding delegation with delegator %s not found for validator %s", req.DelegatorAddr, req.ValidatorAddr)
+		if strings.Contains(err.Error(), expError) {
+			return method.Outputs.Pack([]UnbondingDelegationEntry{})
+		}
 		return nil, err
 	}
 

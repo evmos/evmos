@@ -155,6 +155,25 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
 		},
 		{
+			"success - no unbonding delegation found",
+			func(operatorAddress string) []interface{} {
+				addr, _ := testutiltx.NewAddrKey()
+				return []interface{}{
+					addr,
+					operatorAddress,
+				}
+			},
+			func(data []byte) {
+				var ubdOut staking.UnbondingDelegationOutput
+				err := s.precompile.UnpackIntoInterface(&ubdOut, staking.UnbondingDelegationMethod, data)
+				s.Require().NoError(err, "failed to unpack output")
+				s.Require().Len(ubdOut.Entries, 0)
+			},
+			100000,
+			false,
+			"",
+		},
+		{
 			"success",
 			func(operatorAddress string) []interface{} {
 				return []interface{}{

@@ -955,20 +955,19 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(unbondingDelegationOutput.Entries[0].Balance).To(Equal(undelAmount), "expected different balance")
 		})
 
-		It("should return an error if the unbonding delegation is not found", func() {
+		It("should return an empty slice if the unbonding delegation is not found", func() {
 			unbondingDelegationsArgs := defaultUnbondingDelegationArgs.WithArgs(
 				s.address,
 				valAddr2.String(),
 			)
 
-			delNotFoundCheck := defaultLogCheck.WithErrContains(
-				"unbonding delegation with delegator %s not found for validator %s",
-				sdk.AccAddress(s.address.Bytes()),
-				valAddr2,
-			)
-
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, delNotFoundCheck)
+			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			var unbondingDelegationOutput staking.UnbondingDelegationOutput
+			err = s.precompile.UnpackIntoInterface(&unbondingDelegationOutput, staking.UnbondingDelegationMethod, ethRes.Ret)
+			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
+			Expect(unbondingDelegationOutput.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
 		})
 	})
 
@@ -2342,9 +2341,13 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			queryUnbondingArgs := defaultQueryUnbondingArgs.WithArgs(
 				s.address, valAddr2.String(),
 			)
-
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, execRevertedCheck)
+			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			var unbondingDelegationOutput staking.UnbondingDelegationOutput
+			err = s.precompile.UnpackIntoInterface(&unbondingDelegationOutput, staking.UnbondingDelegationMethod, ethRes.Ret)
+			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
+			Expect(unbondingDelegationOutput.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
 		})
 
 		It("which exists should return the unbonding delegation", func() {
