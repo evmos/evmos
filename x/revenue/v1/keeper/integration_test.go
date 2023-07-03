@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/evmos/precompiles/precompiles/staking"
+	"github.com/evmos/evmos/v13/precompiles/staking"
 
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
