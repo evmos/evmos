@@ -71,6 +71,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
 
+## [v12.1.5] - 2023-06-08
+
+### Bug Fixes
+
+- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456) Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13
+
 ## [v12.1.4] - 2023-05-26
 
 ### Improvements
