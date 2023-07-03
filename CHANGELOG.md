@@ -37,11 +37,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+- (app) [#1623](https://github.com/evmos/evmos/pull/1623) Adjust default app config to disable all server options
+- (app) [#1619](https://github.com/evmos/evmos/pull/1619) Add snapshot commands to CLI
+- (revenue) [#1607](https://github.com/evmos/evmos/pull/1607) Route gas fees from calling EVM extensions to community pool
+- (docker) [#1606](https://github.com/evmos/evmos/pull/1606) Improve Dockerfile to reduce image size 
+
+### State Machine Breaking
+
+- (evm) [#1625](https://github.com/evmos/evmos/pull/1625) Migrate updated EVM extensions
+
 ## [v13.0.0-rc3] - 2023-06-15
 
 ### Bug Fixes
 
-- (evm) [160](https://github.com/evmos/precompiles/pull/160) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
+- (evm) [1602](https://github.com/evmos/evmos/pull/1602) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
 
 ## [v13.0.0-rc2] - 2023-06-13
 
@@ -63,6 +74,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
+
+## [v12.1.5] - 2023-06-08
+
+### Bug Fixes
+
+- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456) Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13
 
 ## [v12.1.4] - 2023-05-26
 
