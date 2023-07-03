@@ -151,7 +151,7 @@ build-reproducible: go.sum
 
 build-docker:
 	# TODO replace with kaniko
-	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_ARGS} .
+	DOCKER_BUILDKIT=1 $(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_ARGS} .
 	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
 	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
 	# move the binaries to the ./build directory
