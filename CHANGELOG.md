@@ -37,7 +37,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v13.0.1] - 2023-07-04
 
 ### Improvements
 
@@ -69,6 +69,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [1602](https://github.com/evmos/evmos/pull/1602) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
+- 
+## [v12.1.6] - 2023-07-04
+
+### Improvements
+
+- (deps) [#1635](https://github.com/evmos/evmos/pull/1635) Update cometbft `v0.34.29` with several minor bug fixes and low-severity security-fixes.
 
 ## [v12.1.5] - 2023-06-08
 
