@@ -25,6 +25,7 @@ func NewNode(repository, version string) *Node {
 		repository: repository,
 		version:    version,
 		RunOptions: &dockertest.RunOptions{
+			User:       "0:0",
 			Repository: repository,
 			Tag:        version,
 			// exposing JSON-RPC port by default to ping node after start
