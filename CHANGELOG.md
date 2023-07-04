@@ -69,7 +69,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [1602](https://github.com/evmos/evmos/pull/1602) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
-- 
+ 
 ## [v12.1.6] - 2023-07-04
 
 ### Improvements
