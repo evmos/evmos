@@ -101,7 +101,7 @@ func TestConcurrentSubscribeAndPublish(t *testing.T) {
 
 	emptyMsg := coretypes.ResultEvent{}
 
-	for i := 0; i< subscribersCount; i++ {
+	for i := 0; i < subscribersCount; i++ {
 		wg.Add(1)
 		// concurrently subscribe to the topic
 		go func() {
@@ -109,7 +109,7 @@ func TestConcurrentSubscribeAndPublish(t *testing.T) {
 			_, _, err := q.Subscribe(topicName)
 			require.NoError(t, err)
 		}()
-	
+
 		// send events to the topic
 		wg.Add(1)
 		go func() {
@@ -118,13 +118,12 @@ func TestConcurrentSubscribeAndPublish(t *testing.T) {
 		}()
 	}
 
-
 	// close channel to make test end
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		time.Sleep(2*time.Second)
+		time.Sleep(2 * time.Second)
 
 		close(lolSrc)
 	}()
