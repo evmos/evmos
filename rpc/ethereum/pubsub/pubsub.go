@@ -20,23 +20,23 @@ type EventBus interface {
 	Topics() []string
 }
 
-type Subscribers struct {
+type subscriptions struct {
 	mu          sync.Mutex
-	subscriptions map[string]map[uint64]chan<- coretypes.ResultEvent
+	subscribers map[string]map[uint64]chan<- coretypes.ResultEvent
 }
 
 type memEventBus struct {
 	topics          map[string]<-chan coretypes.ResultEvent
 	topicsMux       *sync.RWMutex
-	subscribers     Subscribers
+	subs            subscriptions
 	currentUniqueID uint64
 }
 
 func NewEventBus() EventBus {
 	return &memEventBus{
-		topics:         make(map[string]<-chan coretypes.ResultEvent),
-		topicsMux:      new(sync.RWMutex),
-		subscribers:    Subscribers{subscriptions: make(map[string]map[uint64]chan<- coretypes.ResultEvent)},
+		topics:    make(map[string]<-chan coretypes.ResultEvent),
+		topicsMux: new(sync.RWMutex),
+		subs:      subscriptions{subscribers: make(map[string]map[uint64]chan<- coretypes.ResultEvent)},
 	}
 }
 
@@ -90,19 +90,19 @@ func (m *memEventBus) Subscribe(name string) (<-chan coretypes.ResultEvent, Unsu
 	}
 
 	ch := make(chan coretypes.ResultEvent)
-	m.subscribers.mu.Lock()
-	defer m.subscribers.mu.Unlock()
+	m.subs.mu.Lock()
+	defer m.subs.mu.Unlock()
 
 	id := m.GenUniqueID()
-	if _, ok := m.subscribers.subscriptions[name]; !ok {
-		m.subscribers.subscriptions[name] = make(map[uint64]chan<- coretypes.ResultEvent)
+	if _, ok := m.subs.subscribers[name]; !ok {
+		m.subs.subscribers[name] = make(map[uint64]chan<- coretypes.ResultEvent)
 	}
-	m.subscribers.subscriptions[name][id] = ch
+	m.subs.subscribers[name][id] = ch
 
 	unsubscribe := func() {
-		m.subscribers.mu.Lock()
-		defer m.subscribers.mu.Unlock()
-		delete(m.subscribers.subscriptions[name], id)
+		m.subs.mu.Lock()
+		defer m.subs.mu.Unlock()
+		delete(m.subs.subscribers[name], id)
 	}
 
 	return ch, unsubscribe, nil
@@ -123,11 +123,11 @@ func (m *memEventBus) publishTopic(name string, src <-chan coretypes.ResultEvent
 }
 
 func (m *memEventBus) closeAllSubscribers(name string) {
-	m.subscribers.mu.Lock()
-	defer m.subscribers.mu.Unlock()
+	m.subs.mu.Lock()
+	defer m.subs.mu.Unlock()
 
-	subsribers := m.subscribers.subscriptions[name]
-	delete(m.subscribers.subscriptions, name)
+	subsribers := m.subs.subscribers[name]
+	delete(m.subs.subscribers, name)
 	// #nosec G705
 	for _, sub := range subsribers {
 		close(sub)
@@ -135,9 +135,9 @@ func (m *memEventBus) closeAllSubscribers(name string) {
 }
 
 func (m *memEventBus) publishAllSubscribers(name string, msg coretypes.ResultEvent) {
-	m.subscribers.mu.Lock()
-	defer m.subscribers.mu.Unlock()
-	subsribers := m.subscribers.subscriptions[name]
+	m.subs.mu.Lock()
+	defer m.subs.mu.Unlock()
+	subsribers := m.subs.subscribers[name]
 	// #nosec G705
 	for _, sub := range subsribers {
 		select {
