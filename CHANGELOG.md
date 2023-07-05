@@ -37,6 +37,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v13.0.2] - 2023-07-05
+
+### Bug Fixes
+
+- (upgrade) [#1644](https://github.com/evmos/evmos/pull/1644) Adjust upgrade constants
+- (ci) [#1642](https://github.com/evmos/evmos/pull/1642) Fix target folder in GH action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon release
+
 ## [v13.0.1] - 2023-07-04
 
 ### Improvements
