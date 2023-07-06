@@ -49,6 +49,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (evm) [#1625](https://github.com/evmos/evmos/pull/1625) Migrate updated EVM extensions
 
+### Bug Fixes
+
+- (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
+
 ## [v13.0.0-rc3] - 2023-06-15
 
 ### Bug Fixes
