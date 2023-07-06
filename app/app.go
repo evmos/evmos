@@ -180,7 +180,6 @@ import (
 	transferkeeper "github.com/evmos/evmos/v12/x/ibc/transfer/keeper"
 
 	memiavlstore "github.com/crypto-org-chain/cronos/store"
-	memiavlrootmulti "github.com/crypto-org-chain/cronos/store/rootmulti"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -362,7 +361,7 @@ func NewEvmos(
 	eip712.SetEncodingConfig(encodingConfig)
 
 	// setup memiavl if it's enabled in config
-	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, baseAppOptions)
+	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, true, baseAppOptions)
 
 	// NOTE we use custom transaction decoder that supports the sdk.Tx interface instead of sdk.StdTx
 	bApp := baseapp.NewBaseApp(
@@ -1280,8 +1279,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 func (app *Evmos) Close() error {
 	err := app.BaseApp.Close()
 
-	if cms, ok := app.CommitMultiStore().(*memiavlrootmulti.Store); ok {
-		return errors.Join(err, cms.WaitAsyncCommit())
+	if cms, ok := app.CommitMultiStore().(io.Closer); ok {
+		return errors.Join(err, cms.Close())
 	}
 
 	return err
