@@ -411,10 +411,10 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/creack/pty v1.1.11 h1:07n33Z8lZxZ2qwegKbObQohDhXDQxiMMz1NOUGYlesw=
 github.com/creack/pty v1.1.11/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
-github.com/crypto-org-chain/cronos/memiavl v0.0.3 h1:oNKmV2Vp14eeW4zN/Wvr6H4iYJ5j2YTYZqQwzKNeblM=
-github.com/crypto-org-chain/cronos/memiavl v0.0.3/go.mod h1:k3+p+k+HzXx+NoqULMKzai1WHm5z+9CYGO/T9EVbb4w=
-github.com/crypto-org-chain/cronos/store v0.0.3 h1:sOn2lCHPIbbC+bVXg/d38M8wrlmSjJcHifeExQVPvdc=
-github.com/crypto-org-chain/cronos/store v0.0.3/go.mod h1:jpkj59pegLuibS3LRb1ieD+tZG1qc78f4623fTyBa/4=
+github.com/crypto-org-chain/cronos/memiavl v0.0.4-0.20230705094240-373719727a8a h1:pdtcEn6Ay9iikzIbQFceUHXG4GWDPG7CDJB6BB1Vxl0=
+github.com/crypto-org-chain/cronos/memiavl v0.0.4-0.20230705094240-373719727a8a/go.mod h1:pfyf3023YUm3Q6AUOhBUfoPw7+P+r0GWQIUIojgluKU=
+github.com/crypto-org-chain/cronos/store v0.0.4-0.20230705094240-373719727a8a h1:dUGsei+D6y4lPf156woo96a84YR6fg4l7TcZDqRB/eo=
+github.com/crypto-org-chain/cronos/store v0.0.4-0.20230705094240-373719727a8a/go.mod h1:9TLhCjlOLpHNE7ZtxGmBnpwHZ9nys8E8Pogra8+vV28=
 github.com/cyberdelia/templates v0.0.0-20141128023046-ca7fffd4298c/go.mod h1:GyV+0YP4qX0UQ7r2MoYZ+AvYDp12OF5yg4q8rGnyNh4=
 github.com/cyphar/filepath-securejoin v0.2.3/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxGGx79pTxQpKOJNYHHl4=
 github.com/danieljoos/wincred v1.1.2 h1:QLdCxFs1/Yl4zduvBdcHB8goaYk9RARS2SgLLRuAyr0=

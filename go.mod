@@ -9,11 +9,11 @@ require (
 	github.com/btcsuite/btcd v0.22.2
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
-	github.com/cosmos/cosmos-sdk v0.46.13
+	github.com/cosmos/cosmos-sdk v0.46.14-0.20230705083228-b39cdb2e74ad
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.8
 	github.com/cosmos/ibc-go/v6 v6.1.1
-	github.com/crypto-org-chain/cronos/store v0.0.3
+	github.com/crypto-org-chain/cronos/store v0.0.4-0.20230705094240-373719727a8a
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/evmos-ledger-go v0.3.0-rc0
@@ -88,7 +88,7 @@ require (
 	github.com/cosmos/iavl v0.19.6 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/creachadair/taskgroup v0.3.2 // indirect
-	github.com/crypto-org-chain/cronos/memiavl v0.0.3 // indirect
+	github.com/crypto-org-chain/cronos/memiavl v0.0.4-0.20230705094240-373719727a8a // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
