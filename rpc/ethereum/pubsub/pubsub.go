@@ -123,20 +123,20 @@ func (m *memEventBus) closeAllSubscribers(name string) {
 	m.subscribersMux.Lock()
 	defer m.subscribersMux.Unlock()
 
-	subsribers := m.subscribers[name]
+	subscribers := m.subscribers[name]
 	delete(m.subscribers, name)
 	// #nosec G705
-	for _, sub := range subsribers {
+	for _, sub := range subscribers {
 		close(sub)
 	}
 }
 
 func (m *memEventBus) publishAllSubscribers(name string, msg coretypes.ResultEvent) {
 	m.subscribersMux.RLock()
-	subsribers := m.subscribers[name]
-	m.subscribersMux.RUnlock()
+	defer m.subscribersMux.RUnlock()
+	subscribers := m.subscribers[name]
 	// #nosec G705
-	for _, sub := range subsribers {
+	for _, sub := range subscribers {
 		select {
 		case sub <- msg:
 		default:
