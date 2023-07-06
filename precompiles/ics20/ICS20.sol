@@ -61,6 +61,7 @@ interface ICS20I {
         PageRequest memory pageRequest
     )
         external
+        view
         returns (
             DenomTrace[] memory denomTraces,
             PageResponse memory pageResponse
@@ -69,12 +70,12 @@ interface ICS20I {
     /// @dev DenomTrace defines a method for returning a denom trace.
     function denomTrace(
         string memory hash
-    ) external returns (DenomTrace memory denomTrace);
+    ) external view returns (DenomTrace memory denomTrace);
 
     /// @dev DenomHash defines a method for returning a hash of the denomination trace info.
     function denomHash(
         string memory trace
-    ) external returns (string memory hash);
+    ) external view returns (string memory hash);
 
     /// @dev Approves IBC transfer with a specific amount of tokens.
     /// @param spender spender The address which will spend the funds.
