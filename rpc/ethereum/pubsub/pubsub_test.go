@@ -85,3 +85,55 @@ func TestSubscribe(t *testing.T) {
 	wg.Wait()
 	time.Sleep(time.Second)
 }
+
+func TestConcurrentSubscribeAndPublish(t *testing.T) {
+	var (
+		wg        sync.WaitGroup
+		eb        = NewEventBus()
+		topicName = "lol"
+		topicCh   = make(chan coretypes.ResultEvent)
+		runsCount = 5
+	)
+
+	err := eb.AddTopic(topicName, topicCh)
+	require.NoError(t, err)
+
+	for i := 0; i < runsCount; i++ {
+		subscribeAndPublish(t, eb, topicName, topicCh)
+	}
+
+	// close channel to make test end
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		time.Sleep(2 * time.Second)
+		close(topicCh)
+	}()
+
+	wg.Wait()
+}
+
+func subscribeAndPublish(t *testing.T, eb EventBus, topic string, topicChan chan coretypes.ResultEvent) {
+	var (
+		wg               sync.WaitGroup
+		subscribersCount = 50
+		emptyMsg         = coretypes.ResultEvent{}
+	)
+	for i := 0; i < subscribersCount; i++ {
+		wg.Add(1)
+		// concurrently subscribe to the topic
+		go func() {
+			defer wg.Done()
+			_, _, err := eb.Subscribe(topic)
+			require.NoError(t, err)
+		}()
+
+		// send events to the topic
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			topicChan <- emptyMsg
+		}()
+	}
+	wg.Wait()
+}
