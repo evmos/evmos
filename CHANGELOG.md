@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (revenue) [#1607](https://github.com/evmos/evmos/pull/1607) Route gas fees from calling EVM extensions to community pool
 - (docker) [#1606](https://github.com/evmos/evmos/pull/1606) Improve Dockerfile to reduce image size 
 - (deps) [#1635](https://github.com/evmos/evmos/pull/1635) Update cometbft `v0.34.29` with several minor bug fixes and low-severity security-fixes.
+- (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 
 ### State Machine Breaking
 
