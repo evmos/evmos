@@ -533,17 +533,6 @@ func NewEvmos(
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
-	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
-			stakingKeeper,
-			app.DistrKeeper,
-			app.AuthzKeeper,
-			app.TransferKeeper,
-			app.IBCKeeper.ChannelKeeper,
-		),
-	)
-
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
@@ -559,6 +548,19 @@ func NewEvmos(
 		),
 	)
 
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	evmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(
+			stakingKeeper,
+			app.DistrKeeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.GovKeeper,
+			app.AccountKeeper,
+		),
+	)
+	
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),

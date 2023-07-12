@@ -5,6 +5,8 @@ package keeper
 
 import (
 	"fmt"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 
 	"golang.org/x/exp/maps"
 
@@ -19,6 +21,7 @@ import (
 	ics20 "github.com/evmos/evmos/v13/precompiles/ics20"
 	stakingprecompile "github.com/evmos/evmos/v13/precompiles/staking"
 	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
+	govprecompile "github.com/evmos/precompiles/precompiles/governance"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -29,6 +32,8 @@ func AvailablePrecompiles(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
+	govKeeper govkeeper.Keeper,
+	accKeeper authkeeper.AccountKeeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -48,9 +53,15 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
 	}
 
+	govPrecompile, err := govprecompile.NewPrecompile(govKeeper, accKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load governance precompile: %w", err))
+	}
+
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	precompiles[govPrecompile.Address()] = govPrecompile
 	return precompiles
 }
 
