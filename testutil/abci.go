@@ -3,6 +3,7 @@
 package testutil
 
 import (
+	"fmt"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -10,6 +11,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/gogoproto/proto"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -17,6 +19,7 @@ import (
 	"github.com/evmos/evmos/v13/app"
 	"github.com/evmos/evmos/v13/encoding"
 	"github.com/evmos/evmos/v13/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 // Commit commits a block at a given time. Reminder: At the end of each
@@ -97,7 +100,43 @@ func DeliverEthTx(
 	if err != nil {
 		return abci.ResponseDeliverTx{}, err
 	}
-	return BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
+	res, err := BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	if err := checkEthTxResponse(&res); err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+	return res, nil
+}
+
+// checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse
+func checkEthTxResponse(res *abci.ResponseDeliverTx) error {
+	var txData sdk.TxMsgData
+	if !res.IsOK() {
+		return fmt.Errorf("tx failed. Code: %d, Logs: %s", res.Code, res.Log)
+	}
+
+	cdc := encoding.MakeConfig(app.ModuleBasics).Codec
+	if err := cdc.Unmarshal(res.Data, &txData); err != nil {
+		return err
+	}
+
+	if len(txData.MsgResponses) != 1 {
+		return fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return err
+	}
+
+	if evmRes.Failed() {
+		return fmt.Errorf("tx failed. VmError: %v, Logs: %s", evmRes.VmError, res.GetLog())
+	}
+
+	return nil
 }
 
 // CheckTx checks a cosmos tx for a given set of msgs
