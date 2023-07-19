@@ -109,6 +109,29 @@ func DeliverEthTx(
 	return res, nil
 }
 
+// DeliverEthTx generates and broadcasts a Cosmos Tx populated with MsgEthereumTx messages.
+// If a private key is provided, it will attempt to sign all messages with the given private key,
+// otherwise, it will assume the messages have already been signed.
+func DeliverEthTxWithoutCheck(
+	appEvmos *app.Evmos,
+	priv cryptotypes.PrivKey,
+	msgs ...sdk.Msg,
+) (abci.ResponseDeliverTx, error) {
+	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+
+	tx, err := tx.PrepareEthTx(txConfig, appEvmos, priv, msgs...)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	res, err := BroadcastTxBytes(appEvmos, txConfig.TxEncoder(), tx)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, err
+	}
+
+	return res, nil
+}
+
 // CheckTx checks a cosmos tx for a given set of msgs
 func CheckTx(
 	ctx sdk.Context,
