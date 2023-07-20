@@ -47,9 +47,10 @@ func (k Keeper) PostTxProcessing(
 		return nil
 	}
 
-	// check if the fees are globally enabled
+	// check if the fees are globally enabled or if the
+	// developer shares are set to zero
 	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
+	if !params.EnableRevenue || params.DeveloperShares.IsZero() {
 		return nil
 	}
 

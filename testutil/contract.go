@@ -3,7 +3,6 @@
 package testutil
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 
@@ -20,7 +19,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v13/testutil/tx"
 	evm "github.com/evmos/evmos/v13/x/evm/types"
 )
@@ -134,94 +132,32 @@ func DeployContractWithFactory(
 }
 
 // CheckEthTxResponse checks that the transaction was executed successfully
-func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) (*evm.MsgEthereumTxResponse, error) {
-	var (
-		res    evm.MsgEthereumTxResponse
-		txData sdk.TxMsgData
-	)
-
+func CheckEthTxResponse(r abci.ResponseDeliverTx, cdc codec.Codec) ([]*evm.MsgEthereumTxResponse, error) {
 	if !r.IsOK() {
 		return nil, fmt.Errorf("tx failed. Code: %d, Logs: %s", r.Code, r.Log)
 	}
+
+	var txData sdk.TxMsgData
 	if err := cdc.Unmarshal(r.Data, &txData); err != nil {
 		return nil, err
 	}
 
-	if len(txData.MsgResponses) != 1 {
-		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
-	}
-	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &res); err != nil {
-		return nil, err
+	if len(txData.MsgResponses) == 0 {
+		return nil, fmt.Errorf("no message responses found")
 	}
 
-	if res.Failed() {
-		return nil, fmt.Errorf("tx failed. VmError: %s", res.VmError)
+	responses := make([]*evm.MsgEthereumTxResponse, 0, len(txData.MsgResponses))
+	for i := range txData.MsgResponses {
+		var res evm.MsgEthereumTxResponse
+		if err := proto.Unmarshal(txData.MsgResponses[i].Value, &res); err != nil {
+			return nil, err
+		}
+
+		if res.Failed() {
+			return nil, fmt.Errorf("tx failed. VmError: %s", res.VmError)
+		}
+		responses = append(responses, &res)
 	}
 
-	return &res, nil
-}
-
-// CallContract is a helper function to call any arbitrary smart contract.
-func CallContract(ctx sdk.Context, evmosApp *app.Evmos, args ContractCallArgs) (res abci.ResponseDeliverTx, ethRes *evm.MsgEthereumTxResponse, err error) {
-	var nonce uint64
-	var (
-		gasLimit = args.GasLimit
-		cdc      = evmosApp.AppCodec()
-	)
-
-	pk, ok := args.PrivKey.(*ethsecp256k1.PrivKey)
-	if !ok {
-		return res, ethRes, errors.New("error while casting type ethsecp256k1.PrivKey on provided private key")
-	}
-
-	key, err := pk.ToECDSA()
-	if err != nil {
-		return res, ethRes, fmt.Errorf("error while converting private key to ECDSA: %v", err)
-	}
-
-	addr := crypto.PubkeyToAddress(key.PublicKey)
-
-	if args.Nonce == nil {
-		nonce = evmosApp.EvmKeeper.GetNonce(ctx, addr)
-	} else {
-		nonce = args.Nonce.Uint64()
-	}
-
-	// if gas limit not provided
-	// use default
-	if args.GasLimit == 0 {
-		gasLimit = 1000000
-	}
-
-	// Create MsgEthereumTx that calls the contract
-	input, err := args.Contract.ABI.Pack(args.Contract.MethodName, args.Contract.Args...)
-	if err != nil {
-		return res, ethRes, fmt.Errorf("error while packing the input: %v", err)
-	}
-
-	msg := evm.NewTx(&evm.EvmTxArgs{
-		ChainID:   evmosApp.EvmKeeper.ChainID(),
-		Nonce:     nonce,
-		To:        &args.Contract.Addr,
-		Amount:    args.Amount,
-		GasLimit:  gasLimit,
-		GasPrice:  app.MainnetMinGasPrices.BigInt(),
-		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     input,
-		Accesses:  &ethtypes.AccessList{},
-	})
-	msg.From = addr.Hex()
-
-	res, err = DeliverEthTx(evmosApp, args.PrivKey, msg)
-	if err != nil {
-		return res, ethRes, fmt.Errorf("error during deliver tx: %s", err)
-	}
-
-	ethRes, err = CheckEthTxResponse(res, cdc)
-	if err != nil {
-		return res, ethRes, fmt.Errorf("error at CheckEthTxResponse: %s", err)
-	}
-
-	return res, ethRes, nil
+	return responses, nil
 }
