@@ -91,7 +91,7 @@ func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
-		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
+		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.NextAccountNumber(suite.ctx))
 		suite.Require().NoError(err)
 		expAccNum[i] = baseAcc.AccountNumber
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)

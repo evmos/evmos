@@ -228,6 +228,7 @@ func (s *PrecompileTestSuite) TestRun() {
 					1000,
 					time.Now().Add(time.Hour),
 					sdk.NewInt(1000),
+					0,
 				)
 				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
 
@@ -298,6 +299,7 @@ func (s *PrecompileTestSuite) TestRun() {
 					time.Now().Add(time.Hour),
 					sdk.NewInt(1000),
 					sdk.NewDec(1),
+					0,
 				)
 
 				s.app.StakingKeeper.SetRedelegation(s.ctx, redelegation)
@@ -342,6 +344,7 @@ func (s *PrecompileTestSuite) TestRun() {
 					1000,
 					time.Now().Add(time.Hour),
 					sdk.NewInt(1000),
+					0,
 				)
 				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
 
