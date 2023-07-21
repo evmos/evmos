@@ -86,7 +86,8 @@ func CreateUpgradeHandler(
 		// InitGenesis function.
 		vm[icatypes.ModuleName] = ica.AppModule{}.ConsensusVersion()
 
-		_ = mm.Modules[icatypes.ModuleName].InitGenesis(ctx, icatypes.ModuleCdc, bz)
+		m := mm.Modules[icatypes.ModuleName].(module.HasGenesis)
+		m.InitGenesis(ctx, icatypes.ModuleCdc, bz)
 
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
