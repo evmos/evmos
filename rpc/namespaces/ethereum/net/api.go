@@ -27,7 +27,7 @@ func NewPublicAPI(clientCtx client.Context) *PublicAPI {
 
 	return &PublicAPI{
 		networkVersion: chainIDEpoch.Uint64(),
-		tmClient:       clientCtx.Client,
+		tmClient:       clientCtx.Client.(rpcclient.Client),
 	}
 }
 

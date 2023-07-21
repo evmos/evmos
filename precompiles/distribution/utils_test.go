@@ -94,7 +94,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -242,7 +242,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 		s.Require().NoError(err)
 
 		// end block to bond validator and increase block height
-		sdkstaking.EndBlocker(s.ctx, s.app.StakingKeeper)
+		sdkstaking.EndBlocker(s.ctx, &s.app.StakingKeeper)
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(sdk.NewInt(2))))
 		s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, r.Validator, allocatedRewards)

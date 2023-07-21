@@ -16,7 +16,6 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -137,7 +136,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(chainID string, valSet *tmt
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -397,9 +396,6 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	evmParams.EvmDenom = utils.BaseDenom
 	err := s.app.EvmKeeper.SetParams(s.chainA.GetContext(), evmParams)
 	s.Require().NoError(err)
-
-	// Increase max gas
-	simtestutil.DefaultGenTxGas = uint64(1_000_000_000)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
 	validators := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)

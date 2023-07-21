@@ -4,15 +4,16 @@
 package ibctesting
 
 import (
+	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	"github.com/evmos/evmos/v13/app"
 	"github.com/stretchr/testify/require"
 )

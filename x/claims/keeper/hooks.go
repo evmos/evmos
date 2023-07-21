@@ -181,6 +181,10 @@ func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec
 	return nil
 }
 
+func (h Hooks) AfterUnbondingInitiated(ctx sdk.Context, id uint64) error {
+	return nil
+}
+
 // IBC callbacks and transfer handlers
 
 // SendPacket implements the ICS4Wrapper interface from the transfer module. It

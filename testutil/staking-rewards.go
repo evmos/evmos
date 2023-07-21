@@ -30,7 +30,7 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 	stakingParams.MinCommissionRate = zeroDec
 	sk.SetParams(ctx, stakingParams)
 
-	stakingHelper := teststaking.NewHelper(t, ctx, sk)
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = sk.BondDenom(ctx)
 
@@ -107,7 +107,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingParams.MinCommissionRate = zeroDec
 		app.StakingKeeper.SetParams(ctx, stakingParams)
 
-		stakingHelper := teststaking.NewHelper(t, ctx, app.StakingKeeper)
+		stakingHelper := teststaking.NewHelper(t, ctx, &app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 		stakingHelper.Denom = utils.BaseDenom
 
@@ -119,7 +119,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		// end block to bond validator and increase block height
 		// Not using Commit() here because code panics due to invalid block height
-		staking.EndBlocker(ctx, app.StakingKeeper)
+		staking.EndBlocker(ctx, &app.StakingKeeper)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)
