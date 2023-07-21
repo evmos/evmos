@@ -9,6 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -35,9 +38,6 @@ import (
 	"github.com/evmos/evmos/v13/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"golang.org/x/exp/slices"
 )
 

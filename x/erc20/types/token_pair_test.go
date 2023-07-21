@@ -8,7 +8,7 @@ import (
 	utiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/x/erc20/types"
 	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 )
 
 type TokenPairTestSuite struct {

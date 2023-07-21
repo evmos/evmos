@@ -14,8 +14,8 @@ import (
 	"github.com/evmos/evmos/v13/encoding"
 	"github.com/evmos/evmos/v13/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 )
 
 var _ DynamicFeeEVMKeeper = MockEVMKeeper{}

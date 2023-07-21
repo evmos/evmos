@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/evmos/evmos/v13/rpc/backend"
 	rpctypes "github.com/evmos/evmos/v13/rpc/types"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 // HandlerT keeps track of the cpu profiler and trace execution

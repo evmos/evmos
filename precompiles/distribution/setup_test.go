@@ -18,7 +18,7 @@ import (
 	evmosapp "github.com/evmos/evmos/v13/app"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/stretchr/testify/suite"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 var s *PrecompileTestSuite

@@ -21,7 +21,7 @@ import (
 	"github.com/evmos/evmos/v13/rpc/namespaces/ethereum/web3"
 	"github.com/evmos/evmos/v13/types"
 
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 )
 
 // RPC namespaces and API version

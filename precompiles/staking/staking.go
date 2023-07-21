@@ -18,7 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v13/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

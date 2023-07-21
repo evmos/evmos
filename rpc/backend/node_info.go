@@ -25,7 +25,7 @@ import (
 	"github.com/evmos/evmos/v13/server/config"
 	"github.com/evmos/evmos/v13/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 // Accounts returns the list of accounts available to this node.

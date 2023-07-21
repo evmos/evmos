@@ -1,21 +1,22 @@
 # Evmos Contributor Guidelines
 
 <!-- markdown-link-check-disable -->
-* [General Procedure](#general_procedure)
-* [Architecture Decision Records (ADR)](#adr)
-* [Forking](#forking)
-* [Dependencies](#dependencies)
-* [Protobuf](#protobuf)
-* [Development Procedure](#dev_procedure)
-* [Testing](#testing)
-* [Updating Documentation](#updating_doc)
-* [Branching Model and Release](#braching_model_and_release)
-    * [Commit messages](#commit_messages)
-    * [PR Targeting](#pr_targeting)
-    * [Pull Requests](#pull_requests)
-    * [Process for reviewing PRs](#reviewing_prs)
-    * [Pull Merge Procedure](#pull_merge_procedure)
-    * [Release Procedure](#release_procedure)
+- [Evmos Contributor Guidelines](#evmos-contributor-guidelines)
+  - [General Procedure](#general-procedure)
+  - [Architecture Decision Records (ADR)](#architecture-decision-records-adr)
+  - [Forking](#forking)
+  - [Dependencies](#dependencies)
+  - [Protobuf](#protobuf)
+  - [Development Procedure](#development-procedure)
+  - [Testing](#testing)
+  - [Updating Documentation](#updating-documentation)
+  - [Branching Model and Release](#branching-model-and-release)
+    - [Commit messages](#commit-messages)
+    - [PR Targeting](#pr-targeting)
+    - [Pull Requests](#pull-requests)
+    - [Process for reviewing PRs](#process-for-reviewing-prs)
+    - [Pull Merge Procedure](#pull-merge-procedure)
+    - [Release Procedure](#release-procedure)
 <!-- markdown-link-check-enable -->
 
 ## <span id="general_procedure">General Procedure</span>
@@ -143,7 +144,7 @@ on `go mod tidy -v`.
 ## <span id="protobuf">Protobuf</span>
 
 We use [Protocol Buffers](https://developers.google.com/protocol-buffers) along
-with [gogoproto](https://github.com/gogo/protobuf) to generate code for use in Evmos.
+with [gogoproto](https://github.com/cosmos/protobuf) to generate code for use in Evmos.
 
 For deterministic behavior around Protobuf tooling, everything is containerized using Docker. Make sure to have Docker
 installed on your machine, or head to [Docker's website](https://docs.docker.com/get-docker/) to install it.

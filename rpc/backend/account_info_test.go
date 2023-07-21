@@ -8,7 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	tmrpcclient "github.com/tendermint/tendermint/rpc/client"
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/evmos/evmos/v13/rpc/backend/mocks"

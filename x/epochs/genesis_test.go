@@ -6,7 +6,7 @@ import (
 
 	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	simapp "github.com/evmos/evmos/v13/app"
 	"github.com/evmos/evmos/v13/x/epochs"

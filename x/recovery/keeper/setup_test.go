@@ -17,7 +17,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 
 	"github.com/evmos/evmos/v13/app"
 	claimstypes "github.com/evmos/evmos/v13/x/claims/types"

@@ -12,7 +12,7 @@ import (
 	rpctypes "github.com/evmos/evmos/v13/rpc/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/pkg/errors"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 )
 
 // TraceTransaction returns the structured logs created during the execution of EVM
