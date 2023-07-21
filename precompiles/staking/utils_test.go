@@ -488,7 +488,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 		Amount:              sdk.NewCoin(s.bondDenom, sdk.NewIntFromBigInt(redelAmt)),
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
 		if _, err := msgSrv.BeginRedelegate(s.ctx, &msg); err != nil {

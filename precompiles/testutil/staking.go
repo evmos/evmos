@@ -23,7 +23,7 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 	stakingParams.MinCommissionRate = zeroDec
 	sk.SetParams(ctx, stakingParams)
 
-	stakingHelper := teststaking.NewHelper(t, ctx, sk)
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = sk.BondDenom(ctx)
 

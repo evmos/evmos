@@ -20,13 +20,13 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v13/utils"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/evmos/v13/utils"
 )
 
 type UpgradeTestSuite struct {
@@ -107,9 +107,9 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 		validator, err := stakingtypes.NewValidator(valAddr, suite.consKey, stakingtypes.Description{})
 		suite.Require().NoError(err)
 
-		validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
+		validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
 
-		err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+		err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 		suite.Require().NoError(err)
 		err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 		suite.Require().NoError(err)

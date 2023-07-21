@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/cometbft/cometbft/abci/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 )
 

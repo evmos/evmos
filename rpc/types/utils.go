@@ -3,7 +3,6 @@
 package types
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"math/big"
@@ -13,6 +12,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -80,7 +80,11 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 
 // BlockMaxGasFromConsensusParams returns the gas limit for the current block from the chain consensus params.
 func BlockMaxGasFromConsensusParams(goCtx context.Context, clientCtx client.Context, blockHeight int64) (int64, error) {
-	resConsParams, err := clientCtx.Client.ConsensusParams(goCtx, &blockHeight)
+	tmrpcClient, ok := clientCtx.Client.(tmrpcclient.Client)
+	if !ok {
+		panic("incorrect tm rpc client")
+	}
+	resConsParams, err := tmrpcClient.ConsensusParams(goCtx, &blockHeight)
 	defaultGasLimit := int64(^uint32(0)) // #nosec G701
 	if err != nil {
 		return defaultGasLimit, err
@@ -224,7 +228,7 @@ func BaseFeeFromEvents(events []abci.Event) *big.Int {
 		}
 
 		for _, attr := range event.Attributes {
-			if bytes.Equal(attr.Key, []byte(feemarkettypes.AttributeKeyBaseFee)) {
+			if attr.Key == feemarkettypes.AttributeKeyBaseFee {
 				result, success := new(big.Int).SetString(string(attr.Value), 10)
 				if success {
 					return result
