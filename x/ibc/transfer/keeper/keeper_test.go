@@ -196,6 +196,7 @@ func (b *MockChannelKeeper) GetNextSequenceSend(ctx sdk.Context, portID, channel
 	return 1, true
 }
 
+//nolint:revive // allow unused parameters to indicate expected signature
 func (b *MockChannelKeeper) GetAllChannelsWithPortPrefix(ctx sdk.Context, portPrefix string) []channeltypes.IdentifiedChannel {
 	return []channeltypes.IdentifiedChannel{}
 }

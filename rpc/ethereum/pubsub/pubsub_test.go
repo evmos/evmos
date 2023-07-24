@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddTopic(t *testing.T) {

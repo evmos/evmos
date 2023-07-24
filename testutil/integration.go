@@ -40,11 +40,11 @@ func SubmitProposal(
 	}
 
 	submitEvent := res.GetEvents()[eventNum]
-	if submitEvent.Type != "submit_proposal" || string(submitEvent.Attributes[0].Key) != "proposal_id" {
+	if submitEvent.Type != "submit_proposal" || submitEvent.Attributes[0].Key != "proposal_id" {
 		return id, errorsmod.Wrapf(errorsmod.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
 	}
 
-	return strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	return strconv.ParseUint(submitEvent.Attributes[0].Value, 10, 64)
 }
 
 // Delegate delivers a delegate tx

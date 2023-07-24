@@ -181,7 +181,7 @@ func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec
 	return nil
 }
 
-func (h Hooks) AfterUnbondingInitiated(ctx sdk.Context, id uint64) error {
+func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	return nil
 }
 
