@@ -12,8 +12,8 @@ import (
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -299,7 +299,7 @@ var xxx_messageInfo_ExtensionOptionsEthereumTx proto.InternalMessageInfo
 type MsgEthereumTxResponse struct {
 	// hash of the ethereum transaction in hex format. This hash differs from the
 	// Tendermint sha256 hash of the transaction bytes. See
-	// https://github.com/cometbft/cometbft/issues/6539 for reference
+	// https://github.com/tendermint/tendermint/issues/6539 for reference
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
 	// logs contains the transaction hash and the proto-compatible ethereum
 	// logs.

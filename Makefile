@@ -390,7 +390,7 @@ protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(pro
 # NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
 #
-proto-all: proto-format proto-lint proto-gen
+proto-all: proto-format proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
@@ -405,11 +405,6 @@ proto-swagger-gen:
 proto-format:
 	@echo "Formatting Protobuf files"
 	$(protoImage) find ./ -name *.proto -exec clang-format -i {} \;
-
-# NOTE: The linter configuration lives in .protolint.yaml
-proto-lint:
-	@echo "Linting Protobuf files"
-	$(protoImage) lint ./proto
 
 proto-check-breaking:
 	@echo "Checking Protobuf files for breaking changes"
