@@ -13,6 +13,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -190,6 +191,13 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	db := dbm.NewMemDB()
 	cfg := encoding.MakeConfig(ModuleBasics)
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simutils.EmptyAppOptions{})
+	app := NewEvmos(
+		log.NewNopLogger(),
+		db, nil, true,
+		map[int64]bool{},
+		DefaultNodeHome, 5, cfg,
+		simutils.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(utils.MainnetChainID + "-1"),
+	)
 	return app, NewDefaultGenesisState()
 }
