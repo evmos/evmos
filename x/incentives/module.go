@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -156,10 +155,6 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 
 func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-func (am AppModule) RandomizedParams(_ *rand.Rand) []simtypes.LegacyParamChange {
-	return []simtypes.LegacyParamChange{}
 }
 
 func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {

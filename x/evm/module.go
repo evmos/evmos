@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -164,11 +163,6 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper, am.ak)
 	return cdc.MustMarshalJSON(gs)
-}
-
-// RandomizedParams creates randomized evm param changes for the simulator.
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.LegacyParamChange {
-	return nil
 }
 
 // RegisterStoreDecoder registers a decoder for evm module's types

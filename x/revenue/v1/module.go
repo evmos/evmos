@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -186,11 +185,6 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 // ProposalContents returns content functions for governance proposals.
 func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-// RandomizedParams creates randomized fees param changes for the simulator.
-func (am AppModule) RandomizedParams(_ *rand.Rand) []simtypes.LegacyParamChange {
-	return []simtypes.LegacyParamChange{}
 }
 
 // RegisterStoreDecoder registers a decoder for fees module's types.

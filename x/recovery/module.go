@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -151,10 +150,6 @@ func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
 
 func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.LegacyParamChange {
-	return []simtypes.LegacyParamChange{}
 }
 
 func (AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {

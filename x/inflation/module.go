@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -188,11 +187,6 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 // ProposalContents doesn't return any content functions for governance proposals.
 func (am AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
 	return []simtypes.WeightedProposalContent{}
-}
-
-// RandomizedParams creates randomized inflation param changes for the simulator.
-func (am AppModule) RandomizedParams(_ *rand.Rand) []simtypes.LegacyParamChange {
-	return []simtypes.LegacyParamChange{}
 }
 
 // RegisterStoreDecoder registers a decoder for inflation module's types.
