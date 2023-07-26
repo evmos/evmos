@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/cometbft/cometbft/libs/log"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTPSCounter(t *testing.T) {

@@ -55,7 +55,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	require.NoError(t, err)
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
@@ -140,9 +141,9 @@ func registerFee(
 	if res.IsOK() {
 		registerEvent := res.GetEvents()[8]
 		Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterRevenue))
-		Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
-		Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
-		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
+		Expect(registerEvent.Attributes[0].Key).To(Equal(sdk.AttributeKeySender))
+		Expect(registerEvent.Attributes[1].Key).To(Equal(types.AttributeKeyContract))
+		Expect(registerEvent.Attributes[2].Key).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
 }

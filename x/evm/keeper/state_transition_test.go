@@ -5,6 +5,9 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -16,9 +19,6 @@ import (
 	"github.com/evmos/evmos/v13/x/evm/keeper"
 	"github.com/evmos/evmos/v13/x/evm/statedb"
 	"github.com/evmos/evmos/v13/x/evm/types"
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {

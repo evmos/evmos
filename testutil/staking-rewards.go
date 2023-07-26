@@ -20,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v13/app"
 	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/utils"
+	"github.com/stretchr/testify/require"
 )
 
 // CreateValidator creates a validator with the provided public key and stake amount
@@ -28,7 +29,8 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 	stakingParams := sk.GetParams(ctx)
 	stakingParams.BondDenom = sk.BondDenom(ctx)
 	stakingParams.MinCommissionRate = zeroDec
-	sk.SetParams(ctx, stakingParams)
+	err := sk.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
 
 	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
@@ -105,7 +107,8 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingParams := app.StakingKeeper.GetParams(ctx)
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
-		app.StakingKeeper.SetParams(ctx, stakingParams)
+		err = app.StakingKeeper.SetParams(ctx, stakingParams)
+		require.NoError(t, err)
 
 		stakingHelper := teststaking.NewHelper(t, ctx, &app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)

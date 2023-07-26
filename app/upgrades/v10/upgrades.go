@@ -40,5 +40,5 @@ func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) {
 		MinCommissionRate: sdk.NewDecWithPrec(5, 2), // 5%
 	}
 
-	sk.SetParams(ctx, stakingParams)
+	sk.SetParams(ctx, stakingParams) //nolint:errcheck
 }

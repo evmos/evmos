@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,6 @@ import (
 	"github.com/evmos/evmos/v13/precompiles/ics20"
 	"github.com/evmos/evmos/v13/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

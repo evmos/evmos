@@ -26,8 +26,8 @@ func CreateUpgradeHandler(
 		// v14 upgrade handler
 		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-		// !! If not migrating to v0.47 in this upgrade, 
-		// !! make sure to move it to the corresponding upgrade 
+		// !! If not migrating to v0.47 in this upgrade,
+		// !! make sure to move it to the corresponding upgrade
 		// Migrate Tendermint consensus parameters from x/params module to a
 		// dedicated x/consensus module.
 		baseapp.MigrateParams(ctx, baseAppLegacySS, &ck)

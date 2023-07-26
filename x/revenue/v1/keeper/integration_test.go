@@ -319,7 +319,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 					Expect(res.IsOK()).To(Equal(true), "contract registration failed: "+res.GetLog())
 
 					registerEvent := res.GetEvents()[8]
-					Expect(string(registerEvent.Attributes[2].Value)).ToNot(Equal(deployerAddress.String()))
+					Expect(registerEvent.Attributes[2].Value).ToNot(Equal(deployerAddress.String()))
 
 					fee, isRegistered := s.app.RevenueKeeper.GetRevenue(s.ctx, contractAddress)
 					Expect(isRegistered).To(Equal(true))

@@ -6,8 +6,8 @@ package types
 import (
 	context "context"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

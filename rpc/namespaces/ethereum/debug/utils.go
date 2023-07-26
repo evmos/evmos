@@ -9,8 +9,8 @@ import (
 	"runtime/pprof"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cometbft/cometbft/libs/log"
+	"github.com/cosmos/cosmos-sdk/server"
 )
 
 // isCPUProfileConfigurationActivated checks if cpuprofile was configured via flag
