@@ -15,6 +15,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
@@ -89,8 +90,16 @@ func Setup(
 	}
 
 	db := dbm.NewMemDB()
+	chainID := utils.MainnetChainID + "-1"
 
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simutils.EmptyAppOptions{})
+	app := NewEvmos(
+		log.NewNopLogger(),
+		db, nil, true, map[int64]bool{},
+		DefaultNodeHome, 5,
+		encoding.MakeConfig(ModuleBasics),
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(chainID),
+	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
@@ -113,7 +122,7 @@ func Setup(
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         utils.MainnetChainID + "-1",
+				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -197,7 +206,7 @@ func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		map[int64]bool{},
 		DefaultNodeHome, 5, cfg,
 		simutils.NewAppOptionsWithFlagHome(DefaultNodeHome),
-		baseapp.SetChainID(utils.MainnetChainID + "-1"),
+		baseapp.SetChainID(utils.MainnetChainID+"-1"),
 	)
 	return app, NewDefaultGenesisState()
 }
