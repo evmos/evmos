@@ -1288,6 +1288,21 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// !! ATTENTION !!
+	// v14 upgrade handler
+	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
+	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
+	// baseAppLegacySS := app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
+	// app.UpgradeKeeper.SetUpgradeHandler(
+	// 	v14.UpgradeName,
+	// 	v14.CreateUpgradeHandler(
+	// 		app.mm, app.configurator,
+	// 		app.ConsensusParamsKeeper,
+	// 		baseAppLegacySS,
+	// 	),
+	// )
+	// !! ATTENTION !!
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1339,6 +1354,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
 		// storeUpgrades = &storetypes.StoreUpgrades{
 		// 	Added: []string{
+		// 		consensusparamtypes.StoreKey,
 		// 		crisistypes.ModuleName,
 		// 	},
 		// }
