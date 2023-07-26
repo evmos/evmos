@@ -1332,6 +1332,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// no store upgrades
 	case v13.UpgradeName:
 		// no store upgrades
+
+		// !! ATTENTION !!
+		// case v14.UpgradeName:
+		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
+		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
+		// storeUpgrades = &storetypes.StoreUpgrades{
+		// 	Added: []string{
+		// 		crisistypes.ModuleName,
+		// 	},
+		// }
+		// !! ATTENTION !!
 	}
 
 	if storeUpgrades != nil {
