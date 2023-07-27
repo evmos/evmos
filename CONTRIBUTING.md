@@ -74,7 +74,7 @@ Check out our [good first issues](https://github.com/evmos/evmos/issues?q=label%
 ## <span id="adr">Architecture Decision Records (ADR)</span>
 
 When proposing an architecture decision for Evmos,
-please create an [ADR](https://github.com/evmos/evmos/blob/main/docs/architecture/README.md)
+please create an ADR
 so further discussions can be made.
 We are following this process so all involved parties are in agreement
 before any party begins coding the proposed implementation.
