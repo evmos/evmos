@@ -75,7 +75,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	// Init app
-	chainID := utils.TestnetChainID+"-1"
+	chainID := utils.TestnetChainID + "-1"
 	suite.app = app.Setup(checkTx, nil, chainID)
 
 	// Set Context

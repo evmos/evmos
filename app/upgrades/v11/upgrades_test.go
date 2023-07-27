@@ -120,7 +120,7 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
-	suite.SetupTest(utils.MainnetChainID)
+	suite.SetupTest(utils.MainnetChainID + "-1")
 
 	// fund some escrow accounts
 	existingAccounts := 30

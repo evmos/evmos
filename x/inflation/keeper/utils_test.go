@@ -21,7 +21,7 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 	suite.app = app.Setup(checkTx, nil, chainID)
 
 	// setup context
-	// use same 
+	// use same
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
