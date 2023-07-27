@@ -532,8 +532,6 @@ func NewEvmos(
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	// NOTE: Distr, Slashing and Claim must be created before calling the Hooks method to avoid returning a Keeper without its table generated
-	app.StakingKeeper = *stakingKeeper
-
 	stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
@@ -541,6 +539,8 @@ func NewEvmos(
 			app.ClaimsKeeper.Hooks(),
 		),
 	)
+
+	app.StakingKeeper = *stakingKeeper
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], appCodec,
