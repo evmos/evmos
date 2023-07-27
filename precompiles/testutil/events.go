@@ -30,7 +30,7 @@ func CheckAuthorizationEvents(event abi.Event, precompileAddr, granter, grantee 
 	Expect(err).To(BeNil(), "failed to unmarshal log")
 
 	// Check the key of the log is the expected one
-	Expect(attr.Key).To(Equal([]byte(evmtypes.AttributeKeyTxLog)), "expected different key for log")
+	Expect(attr.Key).To(Equal(evmtypes.AttributeKeyTxLog), "expected different key for log")
 
 	// Check if the log has the expected indexed fields and data
 	Expect(log.Address).To(Equal(precompileAddr.String()), "expected different address in event")
