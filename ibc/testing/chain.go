@@ -28,10 +28,14 @@ import (
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
-var ChainIDPrefix = utils.TestnetChainID + "-"
+var (
+	ChainIDPrefix = utils.MainnetChainID + "-"
+	ChainIDSuffix = ""
+)
 
 func init() {
 	ibcgotesting.ChainIDPrefix = ChainIDPrefix
+	ibcgotesting.ChainIDSuffix = ChainIDSuffix
 }
 
 // NewTestChain initializes a new TestChain instance with a single validator set using a

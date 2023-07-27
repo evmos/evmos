@@ -78,7 +78,7 @@ var (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(chainID string, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -148,7 +148,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(chainID string, valSet *tmt
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:         chainID,
+			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: evmosapp.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
@@ -162,7 +162,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(chainID string, valSet *tmt
 	header := evmosutil.NewHeader(
 		2,
 		time.Now().UTC(),
-		chainID,
+		cmn.DefaultChainID,
 		sdk.ConsAddress(validators[0].GetOperator()),
 		tmhash.Sum([]byte("app")),
 		tmhash.Sum([]byte("validators")),
@@ -206,7 +206,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 		CurrentTime: time.Date(time.Now().Year()+1, 1, 2, 0, 0, 0, 0, time.UTC),
 	}
 	// Create 2 Evmos chains
-	chains[cmn.DefaultChainID] = s.NewTestChainWithValSet(s.coordinator, cmn.DefaultChainID, s.valSet, signersByAddress)
+	chains[cmn.DefaultChainID] = s.NewTestChainWithValSet(s.coordinator, s.valSet, signersByAddress)
 	// TODO: Figure out if we want to make the second chain keepers accessible to the tests to check the state
 	chainID2 := utils.MainnetChainID + "-2"
 	chains[chainID2] = ibctesting.NewTestChain(s.T(), s.coordinator, chainID2)
@@ -221,7 +221,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	}
 }
 
-func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, chainID string, valSet *tmtypes.ValidatorSet, signers map[string]tmtypes.PrivValidator) *ibctesting.TestChain {
+func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, valSet *tmtypes.ValidatorSet, signers map[string]tmtypes.PrivValidator) *ibctesting.TestChain {
 	// generate genesis account
 	addr, priv := evmosutiltx.NewAddrKey()
 	s.privKey = priv
@@ -244,11 +244,11 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
 	}
 
-	s.SetupWithGenesisValSet(chainID, s.valSet, []authtypes.GenesisAccount{acc}, balance)
+	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{
-		ChainID: chainID,
+		ChainID: cmn.DefaultChainID,
 		Height:  1,
 		Time:    coord.CurrentTime.UTC(),
 	}
@@ -284,7 +284,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	chain := &ibctesting.TestChain{
 		T:              s.T(),
 		Coordinator:    coord,
-		ChainID:        chainID,
+		ChainID:        cmn.DefaultChainID,
 		App:            s.app,
 		CurrentHeader:  header,
 		QueryServer:    s.app.GetIBCKeeper(),
