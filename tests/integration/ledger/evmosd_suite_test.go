@@ -85,10 +85,11 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	chainID := utils.MainnetChainID + "-1"
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-1",
+		ChainID:         chainID,
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 

@@ -72,6 +72,7 @@ func init() {
 func Setup(
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
+	chainID string,
 ) *Evmos {
 	privVal := mock.NewPV()
 	pubKey, _ := privVal.GetPubKey()
@@ -89,8 +90,6 @@ func Setup(
 	}
 
 	db := dbm.NewMemDB()
-	chainID := utils.MainnetChainID + "-1"
-
 	app := NewEvmos(
 		log.NewNopLogger(),
 		db, nil, true, map[int64]bool{},

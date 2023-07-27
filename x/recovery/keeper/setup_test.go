@@ -43,9 +43,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 

@@ -76,7 +76,6 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
-	suite.app.EvmKeeper.WithChainID(suite.ctx)
 
 	// set staking denomination to Evmos denom
 	params := suite.app.StakingKeeper.GetParams(suite.ctx)

@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (suite *KeeperTestSuite) SetupApp() {
+func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	t := suite.T()
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(privCons.PubKey().Address())
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())

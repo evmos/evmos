@@ -37,7 +37,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 )
 
-func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
+func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {
 	t := suite.T()
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9000-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
@@ -107,8 +107,8 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 
 // setupTestWithContext sets up a test chain with an example Cosmos send msg,
 // given a local (validator config) and a global (feemarket param) minGasPrice
-func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
-	privKey, msg := setupTest(valMinGasPrice + s.denom)
+func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice sdk.Dec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
+	privKey, msg := setupTest(valMinGasPrice + s.denom, chainID)
 	params := types.DefaultParams()
 	params.MinGasPrice = minGasPrice
 	err := s.app.FeeMarketKeeper.SetParams(s.ctx, params)
@@ -119,8 +119,8 @@ func setupTestWithContext(valMinGasPrice string, minGasPrice sdk.Dec, baseFee sd
 	return privKey, msg
 }
 
-func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
-	setupChain(localMinGasPrices)
+func setupTest(localMinGasPrices, chainID string) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
+	setupChain(localMinGasPrices, chainID)
 
 	address, privKey := utiltx.NewAccAddressAndKey()
 	amount, ok := sdkmath.NewIntFromString("10000000000000000000")
@@ -144,11 +144,10 @@ func setupTest(localMinGasPrices string) (*ethsecp256k1.PrivKey, banktypes.MsgSe
 	return privKey, msg
 }
 
-func setupChain(localMinGasPricesStr string) {
+func setupChain(localMinGasPricesStr string, chainID string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
-	chainID := utils.TestnetChainID + "-1"
 	newapp := app.NewEvmos(
 		log.NewNopLogger(),
 		db,
@@ -180,7 +179,7 @@ func setupChain(localMinGasPricesStr string) {
 	)
 
 	s.app = newapp
-	s.SetupApp(false)
+	s.SetupApp(false, chainID)
 }
 
 func getNonce(addressBytes []byte) uint64 {

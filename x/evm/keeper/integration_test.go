@@ -206,7 +206,7 @@ func setupChain(localMinGasPricesStr string) {
 	)
 
 	s.app = newapp
-	s.SetupApp(false)
+	s.SetupApp(false, chainID)
 }
 
 func getNonce(addressBytes []byte) uint64 {

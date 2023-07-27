@@ -54,7 +54,7 @@ func EthSetup(isCheckTx bool, patchGenesis func(*Evmos, simapp.GenesisState) sim
 
 // EthSetupWithDB initializes a new EvmosApp. A Nop logger is set in EvmosApp.
 func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Evmos, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *Evmos {
-	chainID := utils.MainnetChainID + "-1"
+	chainID := utils.TestnetChainID + "-1"
 	app := NewEvmos(log.NewNopLogger(),
 		db,
 		nil,
