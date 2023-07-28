@@ -40,7 +40,7 @@ func init() {
 }
 
 // DefaultTestingAppInit defines the IBC application used for testing
-var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
+var DefaultTestingAppInit func(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
 // Evmos testing.
@@ -195,16 +195,20 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 }
 
 // SetupTestingApp initializes the IBC-go testing application
-func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	db := dbm.NewMemDB()
-	cfg := encoding.MakeConfig(ModuleBasics)
-	app := NewEvmos(
-		log.NewNopLogger(),
-		db, nil, true,
-		map[int64]bool{},
-		DefaultNodeHome, 5, cfg,
-		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
-		baseapp.SetChainID(utils.MainnetChainID+"-1"),
-	)
-	return app, NewDefaultGenesisState()
+// need to keep this design to comply with the ibctesting SetupTestingApp func
+// and be able to set the chainID for the tests properly
+func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		db := dbm.NewMemDB()
+		cfg := encoding.MakeConfig(ModuleBasics)
+		app := NewEvmos(
+			log.NewNopLogger(),
+			db, nil, true,
+			map[int64]bool{},
+			DefaultNodeHome, 5, cfg,
+			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			baseapp.SetChainID(chainID),
+		)
+		return app, NewDefaultGenesisState()
+	}
 }

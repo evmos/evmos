@@ -30,11 +30,10 @@ func NewCoordinator(t *testing.T, nEVMChains, mCosmosChains int) *ibctesting.Coo
 		CurrentTime: globalStartTime,
 	}
 
-	// setup EVM chains
-	ibctesting.DefaultTestingAppInit = DefaultTestingAppInit
-
 	for i := 1; i <= nEVMChains; i++ {
 		chainID := ibctesting.GetChainID(i)
+		// setup EVM chains
+		ibctesting.DefaultTestingAppInit = DefaultTestingAppInit(chainID)
 		chains[chainID] = NewTestChain(t, coord, chainID)
 	}
 
