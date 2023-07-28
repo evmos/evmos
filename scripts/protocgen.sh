@@ -19,5 +19,6 @@ for dir in $proto_dirs; do
 done
 
 # move proto files to the right places
+ls -la
 cp -r github.com/evmos/evmos/v*/* ./
 rm -rf github.com
