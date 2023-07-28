@@ -300,8 +300,9 @@ func (k Keeper) ConvertVestingAccount(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
 	}
 
-	// check if account  has any vesting coins left
-	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
+	// check if account has any vesting coins left
+	vetingCoinsLeft := vestingAcc.GetVestingCoins(ctx.BlockTime())
+	if vetingCoinsLeft.Len() > 0 {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 
