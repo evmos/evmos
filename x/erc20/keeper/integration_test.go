@@ -102,7 +102,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 		govParams := s.app.GovKeeper.GetParams(s.ctx)
 		govParams.Quorum = "0.0000000001"
-		s.app.GovKeeper.SetParams(s.ctx, govParams)
+		err := s.app.GovKeeper.SetParams(s.ctx, govParams)
+		Expect(err).To(BeNil())
 	})
 
 	Describe("Submitting a token pair proposal through governance", func() {

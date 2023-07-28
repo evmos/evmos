@@ -27,8 +27,10 @@ import (
 	"github.com/evmos/evmos/v13/utils"
 )
 
-// need this to make it compatible with the SetupTestinApp func on ibctesting pkg
-var DefaultTestingAppInit func(chainID string) (func() (ibcgotesting.TestingApp, map[string]json.RawMessage)) = evmosapp.SetupTestingApp
+// DefaultTestingAppInit is a test helper function used to initialize an App
+// on the ibc testing pkg
+// need this design to make it compatible with the SetupTestinApp func on ibctesting pkg
+var DefaultTestingAppInit func(chainID string) func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = evmosapp.SetupTestingApp
 
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
