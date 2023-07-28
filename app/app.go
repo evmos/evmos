@@ -1302,7 +1302,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// 	v14.CreateUpgradeHandler(
 	// 		app.mm, app.configurator,
 	// 		app.ConsensusParamsKeeper,
+	// 		app.IBCKeeper.ClientKeeper,
 	// 		baseAppLegacySS,
+	// 		app.appCodec,
 	// 	),
 	// )
 	// !! ATTENTION !!
