@@ -186,7 +186,7 @@ func RegisterBlockResultsWithEventLog(client *mocks.Client, height int64) (*tmrp
 				Type: evmtypes.EventTypeTxLog,
 				Attributes: []abci.EventAttribute{{
 					Key:   evmtypes.AttributeKeyTxLog,
-					Value: "{\"test\": \"hello\"}",
+					Value: "{\"test\": \"hello\"}",	// TODO refactor the value to unmarshall to a evmtypes.Log struct successfully
 					Index: true,
 				}},
 			}}},
