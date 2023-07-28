@@ -100,10 +100,9 @@ var _ = Describe("ERC20:", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
-		// TODO fix this
-		// tallyParams := s.app.GovKeeper.GetTallyParams(s.ctx)
-		// tallyParams.Quorum = "0.0000000001"
-		// s.app.GovKeeper.SetTallyParams(s.ctx, tallyParams)
+		govParams := s.app.GovKeeper.GetParams(s.ctx)
+		govParams.Quorum = "0.0000000001"
+		s.app.GovKeeper.SetParams(s.ctx, govParams)
 	})
 
 	Describe("Submitting a token pair proposal through governance", func() {
