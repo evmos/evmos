@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
 
 	"golang.org/x/exp/maps"
