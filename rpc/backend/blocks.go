@@ -3,7 +3,6 @@
 package backend
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 	"math/big"
@@ -358,7 +357,7 @@ func (b *Backend) BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.
 		}
 
 		for _, attr := range event.Attributes {
-			if bytes.Equal([]byte(attr.Key), bAttributeKeyEthereumBloom) {
+			if attr.Key == evmtypes.AttributeKeyEthereumBloom {
 				return ethtypes.BytesToBloom([]byte(attr.Value)), nil
 			}
 		}

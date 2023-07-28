@@ -100,12 +100,12 @@ func (b *Backend) CurrentHeader() *ethtypes.Header {
 // PendingTransactions returns the transactions that are in the transaction pool
 // and have a from address that is one of the accounts this node manages.
 func (b *Backend) PendingTransactions() ([]*sdk.Tx, error) {
-	sc, ok := b.clientCtx.Client.(tmrpcclient.Client)
+	mc, ok := b.clientCtx.Client.(tmrpcclient.MempoolClient)
 	if !ok {
 		return nil, errors.New("invalid rpc client")
 	}
 
-	res, err := sc.UnconfirmedTxs(b.ctx, nil)
+	res, err := mc.UnconfirmedTxs(b.ctx, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -863,7 +863,7 @@ func (suite *BackendTestSuite) TestBlockBloom() {
 					{
 						Type: evmtypes.EventTypeBlockBloom,
 						Attributes: []types.EventAttribute{
-							{Key: string(bAttributeKeyEthereumBloom)},
+							{Key: evmtypes.AttributeKeyEthereumBloom},
 						},
 					},
 				},
@@ -1584,7 +1584,7 @@ func (suite *BackendTestSuite) TestEthBlockFromTendermintBlock() {
 					{
 						Type: evmtypes.EventTypeBlockBloom,
 						Attributes: []types.EventAttribute{
-							{Key: string(bAttributeKeyEthereumBloom)},
+							{Key: evmtypes.AttributeKeyEthereumBloom},
 						},
 					},
 				},
