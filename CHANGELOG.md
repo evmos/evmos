@@ -37,6 +37,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v14.0.0] - 2023-07-31
+
 ## [v13.0.2] - 2023-07-05
 
 ### Bug Fixes
@@ -49,7 +51,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (deps) [#1635](https://github.com/evmos/evmos/pull/1635) Update cometbft `v0.34.29` with several minor bug fixes and low-severity security-fixes.
- 
+
 ## [v13.0.0] - 2023-07-03
 
 ### Improvements
@@ -57,7 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#1623](https://github.com/evmos/evmos/pull/1623) Adjust default app config to disable all server options
 - (app) [#1619](https://github.com/evmos/evmos/pull/1619) Add snapshot commands to CLI
 - (revenue) [#1607](https://github.com/evmos/evmos/pull/1607) Route gas fees from calling EVM extensions to community pool
-- (docker) [#1606](https://github.com/evmos/evmos/pull/1606) Improve Dockerfile to reduce image size 
+- (docker) [#1606](https://github.com/evmos/evmos/pull/1606) Improve Dockerfile to reduce image size
 - (deps) [#1597](https://github.com/evmos/evmos/pull/1597) Bump geth fork
 - (deps) [#1595](https://github.com/evmos/evmos/pull/1595) Bump cometbft and goleveldb
 - (evm) [#1578](https://github.com/evmos/evmos/pull/1578#) Add support of ICS20 transfer extension
@@ -76,7 +78,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [1602](https://github.com/evmos/evmos/pull/1602) Fixed hard coded BaseDenom and wrong comparison for MaxUint256
 - (deps) [#1567](https://github.com/evmos/evmos/pull/1567) Bump cosmos-sdk version to `v0.46.11-alpha.ledger.7`.
   Fix memory leak in `cosmos/iavl` package.
- 
+
 ## [v12.1.6] - 2023-07-04
 
 ### Improvements
