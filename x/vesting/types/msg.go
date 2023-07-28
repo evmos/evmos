@@ -86,7 +86,7 @@ func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
 
-    // If neither schedule is present, the message is invalid.
+	// If neither schedule is present, the message is invalid.
 	if len(lockupCoins) == 0 && len(vestingCoins) == 0 {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and/or lockup schedules must be present")
 	}

@@ -16,7 +16,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/evmos/evmos-ledger-go v0.4.0
-	github.com/evmos/precompiles v0.0.0-20230612174323-5d708df47c51
+	github.com/evmos/precompiles v0.0.0-00010101000000-000000000000
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.3
 	github.com/gorilla/mux v1.8.0
@@ -232,5 +232,5 @@ replace (
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	// use cometbft
-	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
+	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.29
 )
