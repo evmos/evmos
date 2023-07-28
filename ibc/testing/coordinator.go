@@ -181,7 +181,7 @@ func SignAndDeliver(
 		rand.New(rand.NewSource(time.Now().UnixNano())), //nolint:gosec
 		txCfg,
 		msgs,
-		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
+		fee,
 		simtestutil.DefaultGenTxGas,
 		chainID,
 		accNums,
