@@ -20,7 +20,7 @@ jobs:
             buf.work.yaml
             buf.gen.yaml
       - run: |
-          sudo make proto-gen
+          make proto-gen
         if: env.GIT_DIFF
 
   lint:

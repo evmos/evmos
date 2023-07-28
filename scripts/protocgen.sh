@@ -13,7 +13,6 @@ for dir in $proto_dirs; do
   for file in $proto_files; do
     # Check if the go_package in the file is pointing to evmos
     if grep -q "option go_package.*evmos" "$file"; then
-      echo "$file"
       buf generate --template proto/buf.gen.gogo.yaml "$file"
     fi
   done
