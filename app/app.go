@@ -140,6 +140,7 @@ import (
 	v11 "github.com/evmos/evmos/v13/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v13/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v13/app/upgrades/v13"
+	v14 "github.com/evmos/evmos/v13/app/upgrades/v14"
 	v8 "github.com/evmos/evmos/v13/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v13/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v13/app/upgrades/v8_2"
@@ -1298,17 +1299,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 	// v14 upgrade handler
 	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-	// baseAppLegacySS := app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
-	// app.UpgradeKeeper.SetUpgradeHandler(
-	// 	v14.UpgradeName,
-	// 	v14.CreateUpgradeHandler(
-	// 		app.mm, app.configurator,
-	// 		app.ConsensusParamsKeeper,
-	// 		app.IBCKeeper.ClientKeeper,
-	// 		baseAppLegacySS,
-	// 		app.appCodec,
-	// 	),
-	// )
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v14.UpgradeName,
+		v14.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.ConsensusParamsKeeper,
+			app.IBCKeeper.ClientKeeper,
+			app.ParamsKeeper,
+			app.appCodec,
+		),
+	)
 	// !! ATTENTION !!
 
 	// When a planned update height is reached, the old binary will panic
@@ -1354,18 +1354,18 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v12.UpgradeName:
 		// no store upgrades
 	case v13.UpgradeName:
-		// no store upgrades
+	// no store upgrades
 
-		// !! ATTENTION !!
-		// case v14.UpgradeName:
+	// !! ATTENTION !!
+	case v14.UpgradeName:
 		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
-		// storeUpgrades = &storetypes.StoreUpgrades{
-		// 	Added: []string{
-		// 		consensusparamtypes.StoreKey,
-		// 		crisistypes.ModuleName,
-		// 	},
-		// }
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{
+				consensusparamtypes.StoreKey,
+				crisistypes.ModuleName,
+			},
+		}
 		// !! ATTENTION !!
 	}
 
