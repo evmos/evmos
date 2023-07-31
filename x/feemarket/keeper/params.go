@@ -22,7 +22,7 @@ func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 		k.cdc.MustUnmarshal(bz, &params)
 	}
 
-	// full-fill nil params for legacy blocks
+	// zero the nil params for legacy blocks
 	if params.MinGasPrice.IsNil() {
 		params.MinGasPrice = sdk.ZeroDec()
 	}
