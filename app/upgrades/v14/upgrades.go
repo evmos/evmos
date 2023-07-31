@@ -47,7 +47,7 @@ func CreateUpgradeHandler(
 		// !! make sure to move it to the corresponding upgrade
 		// Migrate Tendermint consensus parameters from x/params module to a
 		// dedicated x/consensus module.
-		
+
 		// Set param key table for params module migration
 		for _, subspace := range pk.GetSubspaces() {
 			var keyTable paramstypes.KeyTable
