@@ -49,4 +49,8 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err := cfg.RegisterMigration(types.ModuleName, 1, m.MigrateTraces); err != nil {
 		panic(fmt.Sprintf("failed to migrate transfer app from version 1 to 2: %v", err))
 	}
+
+	if err := cfg.RegisterMigration(types.ModuleName, 2, m.MigrateTotalEscrowForDenom); err != nil {
+		panic(fmt.Sprintf("failed to migrate transfer app from version 2 to 3: %v", err))
+	}
 }

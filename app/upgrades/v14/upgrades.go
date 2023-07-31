@@ -21,6 +21,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctmmigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
@@ -67,6 +68,8 @@ func CreateUpgradeHandler(
 				keyTable = govv1.ParamKeyTable() //nolint:staticcheck
 			case crisistypes.ModuleName:
 				keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
+			case ibctransfertypes.ModuleName:
+				keyTable = ibctransfertypes.ParamKeyTable()
 			case evmtypes.ModuleName:
 				keyTable = evmtypes.ParamKeyTable() //nolint:staticcheck
 			case feemarkettypes.ModuleName:
