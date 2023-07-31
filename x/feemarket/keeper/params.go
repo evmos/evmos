@@ -11,16 +11,25 @@ import (
 )
 
 // GetParams returns the total set of fee market parameters.
-func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
+func (k Keeper) GetParams(ctx sdk.Context) types.Params {
+	var params types.Params
+
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamsKey)
 	if len(bz) == 0 {
-		var p types.Params
-		k.ss.GetParamSetIfExists(ctx, &p)
-		return p
+		k.ss.GetParamSetIfExists(ctx, &params)
+	} else {
+		k.cdc.MustUnmarshal(bz, &params)
 	}
 
-	k.cdc.MustUnmarshal(bz, &params)
+	// full-fill nil params for legacy blocks
+	if params.MinGasPrice.IsNil() {
+		params.MinGasPrice = sdk.ZeroDec()
+	}
+	if params.MinGasMultiplier.IsNil() {
+		params.MinGasMultiplier = sdk.ZeroDec()
+	}
+
 	return params
 }
 
