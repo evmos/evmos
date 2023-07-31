@@ -202,7 +202,9 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	// wait for proposed upgrade height
 	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
-	buildDir := strings.Split(s.upgradeParams.MountPath, ":")[0]
+	dirs := strings.Split(s.upgradeParams.MountPath, ":")
+	buildDir := dirs[0]
+	rootDir := dirs[1]
 
 	s.T().Log("exporting state to local...")
 	// export node .evmosd to local build/
@@ -217,7 +219,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 
 	node := upgrade.NewNode(targetRepo, targetVersion)
 	node.Mount(s.upgradeParams.MountPath)
-	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID)})
+	node.SetCmd([]string{"evmosd", "start", fmt.Sprintf("--chain-id=%s", s.upgradeParams.ChainID), fmt.Sprintf("--home=%s.evmosd", rootDir)})
 	err = s.upgradeManager.RunNode(node)
 	s.Require().NoError(err, "can't mount and run upgraded node container")
 

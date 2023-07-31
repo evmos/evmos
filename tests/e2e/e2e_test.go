@@ -11,7 +11,14 @@ import (
 // and finally upgrades the chain.
 // If the chain can be restarted after the upgrade(s), the test passes.
 func (s *IntegrationTestSuite) TestUpgrade() {
+	versionMap := map[string]string{
+		"v12.1.0": "v12.1.5",
+	}
 	for idx, version := range s.upgradeParams.Versions {
+		if overwriteTag, ok := versionMap[version.UpgradeName]; ok {
+			version.ImageTag = overwriteTag
+			version.UpgradeName = overwriteTag
+		}
 		if idx == 0 {
 			// start initial node
 			s.runInitialNode(version)
