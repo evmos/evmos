@@ -8,6 +8,10 @@ import (
 
 func (suite *KeeperTestSuite) TestSetGetParams() {
 	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+	suite.Require().Equal(false, params.BaseFee.IsNil())
+	suite.Require().Equal(false, params.MinGasPrice.IsNil())
+	suite.Require().Equal(false, params.MinGasMultiplier.IsNil())
+
 	err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 	testCases := []struct {
