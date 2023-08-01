@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"fmt"
+
 	"golang.org/x/exp/maps"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -17,9 +18,9 @@ import (
 	distprecompile "github.com/evmos/evmos/v13/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v13/precompiles/ics20"
 	stakingprecompile "github.com/evmos/evmos/v13/precompiles/staking"
+	vestingprecompile "github.com/evmos/evmos/v13/precompiles/vesting"
 	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
-	vestingprecompile "github.com/evmos/precompiles/precompiles/vesting"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
