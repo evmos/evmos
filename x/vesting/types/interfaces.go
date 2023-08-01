@@ -19,6 +19,8 @@ type AccountKeeper interface {
 	SetAccount(sdk.Context, authtypes.AccountI)
 	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	IterateAccounts(ctx sdk.Context, process func(authtypes.AccountI) bool)
+	RemoveAccount(ctx sdk.Context, acc authtypes.AccountI)
 }
 
 // BankKeeper defines the expected interface contract the vesting module requires

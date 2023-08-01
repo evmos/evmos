@@ -1,0 +1,47 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.vesting.v2;
+
+option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
+
+// EventCreateClawbackVestingAccount defines the event type
+// for creating a clawback vesting account
+message EventCreateClawbackVestingAccount {
+  // funder is the address of the funder
+  string funder = 1;
+  // vesting_account is the address of the created vesting account
+  string vesting_account = 2;
+}
+
+// EventFundVestingAccount defines the event type for funding a vesting account
+message EventFundVestingAccount {
+  // funder is the address of the funder
+  string funder = 1;
+  // coins to be vested
+  string coins = 2;
+  // start_time is the time when the coins start to vest
+  string start_time = 3;
+  // vesting_account is the address of the recipient
+  string vesting_account = 5;
+}
+
+// EventClawback defines the event type for clawback
+message EventClawback {
+  // funder is the address of the funder
+  string funder = 1;
+  // account is the address of the account
+  string account = 2;
+  // destination is the address of the destination
+  string destination = 3;
+}
+
+// EventUpdateVestingFunder defines the event type for updating the vesting funder
+message EventUpdateVestingFunder {
+  // funder is the address of the funder
+  string funder = 1;
+  // account is the address of the account
+  string account = 2;
+  // new_funder is the address of the new funder
+  string new_funder = 3;
+}
