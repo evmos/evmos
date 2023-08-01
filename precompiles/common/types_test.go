@@ -5,8 +5,8 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/utils"
 	"github.com/stretchr/testify/require"
 )
 

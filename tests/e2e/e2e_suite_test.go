@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v13/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v14/utils"
 )
 
 const (

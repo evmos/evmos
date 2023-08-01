@@ -11,7 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	migrationtypes "github.com/evmos/evmos/v13/x/vesting/migrations/types"
+	migrationtypes "github.com/evmos/evmos/v14/x/vesting/migrations/types"
 )
 
 var (

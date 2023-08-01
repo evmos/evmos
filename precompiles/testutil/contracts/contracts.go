@@ -10,11 +10,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

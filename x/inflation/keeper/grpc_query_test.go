@@ -6,8 +6,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/x/inflation/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/x/inflation/types"
 )
 
 func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl

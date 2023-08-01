@@ -14,9 +14,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/ethereum/go-ethereum/common"
-	evmostypes "github.com/evmos/evmos/v13/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
 
-	"github.com/evmos/evmos/v13/x/revenue/v1/types"
+	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 )
 
 var _ types.QueryServer = Keeper{}

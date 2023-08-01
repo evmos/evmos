@@ -9,7 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +17,7 @@ import (
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}

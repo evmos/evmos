@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+
 	//nolint:stylecheck,revive // it's common practice to use the global imports for Ginkgo and Gomega
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

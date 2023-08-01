@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
-	"github.com/evmos/evmos/v13/x/revenue/v1/types"
+	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 	"github.com/stretchr/testify/suite"
 )
 

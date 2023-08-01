@@ -14,9 +14,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	rpctypes "github.com/evmos/evmos/v13/rpc/types"
-	"github.com/evmos/evmos/v13/types"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v14/rpc/types"
+	"github.com/evmos/evmos/v14/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/pkg/errors"
 	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )

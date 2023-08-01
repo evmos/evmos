@@ -9,10 +9,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/ics20"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
+	"github.com/evmos/evmos/v14/utils"
 )
 
 type allowanceTestCase struct {

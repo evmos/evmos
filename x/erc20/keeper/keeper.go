@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v13/x/erc20/types"
+	"github.com/evmos/evmos/v14/x/erc20/types"
 )
 
 // Keeper of this module maintains collections of erc20.

@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/evmos/evmos/v13/precompiles/staking"
+	"github.com/evmos/evmos/v14/precompiles/staking"
 
 	"github.com/ethereum/go-ethereum/common"
 	. "github.com/onsi/ginkgo/v2"
@@ -14,11 +14,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v13/testutil"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	"github.com/evmos/evmos/v13/x/revenue/v1/types"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v14/testutil"
+	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )

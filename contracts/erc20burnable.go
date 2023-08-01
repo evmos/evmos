@@ -6,7 +6,7 @@ import (
 	_ "embed" // embed compiled smart contract
 	"encoding/json"
 
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 var (

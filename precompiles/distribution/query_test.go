@@ -12,11 +12,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/evmos/evmos/v13/testutil"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v14/testutil"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/distribution"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/distribution"
 )
 
 var (

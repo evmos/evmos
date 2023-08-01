@@ -12,8 +12,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/x/evm/types"
 )
 
 func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {

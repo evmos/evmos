@@ -14,7 +14,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	porttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 
-	"github.com/evmos/evmos/v13/x/claims/types"
+	"github.com/evmos/evmos/v14/x/claims/types"
 )
 
 // Keeper struct
