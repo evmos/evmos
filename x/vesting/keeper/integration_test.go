@@ -5,19 +5,18 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v13/testutil"
 	utiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/utils"
 	"github.com/evmos/evmos/v13/x/vesting/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 // TestClawbackAccount is a struct to store all relevant information that is corresponding
@@ -94,9 +93,10 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 	accountGasCoverage := sdk.NewCoins(sdk.NewCoin(stakeDenom, math.NewInt(1e16)))
 
 	var (
-		clawbackAccount *types.ClawbackVestingAccount
-		unvested        sdk.Coins
-		vested          sdk.Coins
+		clawbackAccount   *types.ClawbackVestingAccount
+		unvested          sdk.Coins
+		vested            sdk.Coins
+		twoThirdsOfVested sdk.Coins
 	)
 
 	dest := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
@@ -155,7 +155,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("cannot delegate tokens", func() {
-			err := delegate(clawbackAccount, math.NewInt(100))
+			_, err := delegate(testAccounts[0], accountGasCoverage.Add(sdk.NewCoin(stakeDenom, math.NewInt(1))))
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -218,15 +218,50 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, amt.Mul(sdk.NewInt(cliff))))
 			s.Require().NotEqual(vestingAmtTotal, vested)
 			s.Require().Equal(expVested, vested)
+
+			twoThirdsOfVested = vested.Sub(vested.QuoInt(sdk.NewInt(3))...)
 		})
 
-		It("can delegate vested tokens", func() {
-			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
+		It("can delegate vested tokens and update spendable balance", func() {
+			testAccount := testAccounts[0]
+			// Verify that the total spendable coins decreases after staking
+			// vested tokens.
+			spendablePre := s.app.BankKeeper.SpendableCoins(s.ctx, testAccount.address)
+
+			_, err := delegate(testAccount, vested)
 			Expect(err).To(BeNil())
+
+			spendablePost := s.app.BankKeeper.SpendableCoins(s.ctx, testAccount.address)
+			Expect(spendablePost.AmountOf(stakeDenom).GT(spendablePre.AmountOf(stakeDenom)))
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom))
+			_, err := delegate(testAccounts[0], vestingAmtTotal)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("cannot delegate unvested tokens in batches", func() {
+			msg, err := delegate(testAccounts[0], twoThirdsOfVested)
+			Expect(err).To(BeNil())
+
+			msgServer := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
+			_, err = msgServer.Delegate(s.ctx, msg)
+			Expect(err).ToNot(HaveOccurred(), "error while executing the delegate message")
+
+			_, err = delegate(testAccounts[0], twoThirdsOfVested)
+			Expect(err).ToNot(BeNil())
+		})
+
+		It("cannot delegate then send tokens", func() {
+			_, err := delegate(testAccounts[0], twoThirdsOfVested)
+			Expect(err).To(BeNil())
+
+			err = s.app.BankKeeper.SendCoins(
+				s.ctx,
+				clawbackAccount.GetAddress(),
+				dest,
+				twoThirdsOfVested,
+			)
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -467,12 +502,12 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 		})
 
 		It("can delegate vested tokens", func() {
-			err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
+			_, err := delegate(testAccounts[0], vested)
 			Expect(err).To(BeNil())
 		})
 
 		It("cannot delegate unvested tokens", func() {
-			err := delegate(clawbackAccount, vestingAmtTotal.AmountOf(stakeDenom))
+			_, err := delegate(testAccounts[0], vestingAmtTotal)
 			Expect(err).ToNot(BeNil())
 		})
 
@@ -723,10 +758,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
-		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
-		Expect(err).To(BeNil())
-
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
@@ -770,10 +801,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
 
-		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
-		Expect(err).To(BeNil())
-
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
@@ -814,10 +841,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-
-		// stake vested tokens
-		err := delegate(clawbackAccount, vested.AmountOf(stakeDenom))
-		Expect(err).To(BeNil())
 
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
@@ -952,6 +975,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 			funder,
 			vestingAddr,
 		)
+
 		res, err := testutil.DeliverTx(s.ctx, s.app, vestingPriv, &gasPrice, msgCreate)
 		Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
 		txCost = gasPrice.Int64() * res.GasWanted
@@ -974,15 +998,18 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 			{
 				name:        "pass - positive amounts for the lockup period",
 				lockupCoins: coinsNoNegAmount,
+				expError:    false,
 			},
 			{
 				name:         "pass - positive amounts for the vesting period",
 				vestingCoins: coinsNoNegAmount,
+				expError:     false,
 			},
 			{
 				name:         "pass - positive amounts for both the lockup and vesting periods",
 				lockupCoins:  coinsNoNegAmount,
 				vestingCoins: coinsNoNegAmount,
+				expError:     false,
 			},
 			{
 				name:        "fail - negative amounts for the lockup period",
