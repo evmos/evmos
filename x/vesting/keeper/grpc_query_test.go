@@ -7,7 +7,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/evmos/v13/testutil"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/x/vesting/types"
 )
 
@@ -16,7 +15,6 @@ func (suite *KeeperTestSuite) TestBalances() {
 		req    *types.QueryBalancesRequest
 		expRes *types.QueryBalancesResponse
 	)
-	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
 		name     string
@@ -43,7 +41,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 			"invalid account - not found",
 			func() {
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 			},
 			false,
@@ -51,12 +49,12 @@ func (suite *KeeperTestSuite) TestBalances() {
 		{
 			"invalid account - not clawback vesting account",
 			func() {
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr)
+				baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
 				acc := suite.app.AccountKeeper.NewAccount(suite.ctx, baseAccount)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 			},
 			false,
@@ -65,24 +63,33 @@ func (suite *KeeperTestSuite) TestBalances() {
 			"valid",
 			func() {
 				vestingStart := s.ctx.BlockTime()
-				funder := sdk.AccAddress(types.ModuleName)
-				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, funder, balances)
-				suite.Require().NoError(err)
+
+				// fund the vesting account with coins to initialize it and
+				// then send all balances to the funding account
+				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
+				suite.Require().NoError(err, "error while funding the target account")
+				err = s.app.BankKeeper.SendCoins(suite.ctx, vestingAddr, funder, balances)
+				suite.Require().NoError(err, "error while sending coins to the funder account")
 
 				msg := types.NewMsgCreateClawbackVestingAccount(
 					funder,
-					addr,
+					vestingAddr,
+				)
+				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
+				suite.Require().NoError(err, "error while creating the vesting account")
+
+				msgFund := types.NewMsgFundVestingAccount(
+					funder,
+					vestingAddr,
 					vestingStart,
 					lockupPeriods,
 					vestingPeriods,
-					false,
 				)
-				ctx := sdk.WrapSDKContext(suite.ctx)
-				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
-				suite.Require().NoError(err)
+				_, err = suite.app.VestingKeeper.FundVestingAccount(sdk.WrapSDKContext(suite.ctx), msgFund)
+				suite.Require().NoError(err, "error while funding the vesting account")
 
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 				expRes = &types.QueryBalancesResponse{
 					Locked:   balances,

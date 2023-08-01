@@ -29,6 +29,9 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		case *types.MsgConvertVestingAccount:
 			res, err := server.ConvertVestingAccount(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgFundVestingAccount:
+			res, err := server.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			return nil, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}

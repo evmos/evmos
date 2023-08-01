@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/onsi/gomega"
-
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -14,11 +12,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-
 	"github.com/evmos/evmos/v13/app"
 	cosmosante "github.com/evmos/evmos/v13/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v13/app/ante/evm"
@@ -32,7 +28,7 @@ import (
 	epochstypes "github.com/evmos/evmos/v13/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/evmos/evmos/v13/x/vesting/types"
-
+	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/require"
 )
 
@@ -215,17 +211,11 @@ func assertEthSucceeds(testAccounts []TestClawbackAccount, funder sdk.AccAddress
 
 // delegate is a helper function which creates a message to delegate a given amount of tokens
 // to a validator and checks if the Cosmos vesting delegation decorator returns no error.
-func delegate(clawbackAccount *types.ClawbackVestingAccount, amount sdkmath.Int) error {
-	addr, err := sdk.AccAddressFromBech32(clawbackAccount.Address)
-	s.Require().NoError(err)
-
-	val, err := sdk.ValAddressFromBech32("evmosvaloper1z3t55m0l9h0eupuz3dp5t5cypyv674jjn4d6nn")
-	s.Require().NoError(err)
-	delegateMsg := stakingtypes.NewMsgDelegate(addr, val, sdk.NewCoin(utils.BaseDenom, amount))
-
-	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, types.ModuleCdc)
-	err = testutil.ValidateAnteForMsgs(s.ctx, dec, delegateMsg)
-	return err
+func delegate(account TestClawbackAccount, coins sdk.Coins) (*stakingtypes.MsgDelegate, error) {
+	msg := stakingtypes.NewMsgDelegate(account.address, s.validator.GetOperator(), coins[0])
+	dec := cosmosante.NewVestingDelegationDecorator(s.app.AccountKeeper, s.app.StakingKeeper, s.app.BankKeeper, types.ModuleCdc)
+	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msg)
+	return msg, err
 }
 
 // validateEthVestingTransactionDecorator is a helper function to execute the eth vesting transaction decorator

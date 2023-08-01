@@ -21,6 +21,13 @@ var (
 	DefaultExpirationDuration = time.Hour * 24 * 365
 	// DefaultChainID is the standard chain id used for testing purposes
 	DefaultChainID = evmosutils.MainnetChainID + "-1"
+	// DefaultPrecompilesBech32 is the standard bech32 address for the precompiles
+	DefaultPrecompilesBech32 = []string{
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqq4xrkxv", // Staking precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
+	}
 )
 
 // Coin defines a struct that stores all needed information about a coin

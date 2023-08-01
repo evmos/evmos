@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (vesting)[GHSA-m99c-q26r-m7m7](https://github.com/evmos/evmos-ghsa-m99c-q26r-m7m7) Add FundVestingAccount transaction and refactor vesting flow
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 
 ### Bug Fixes
