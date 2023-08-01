@@ -5,9 +5,6 @@ package keeper
 
 import (
 	"fmt"
-
-	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
-
 	"golang.org/x/exp/maps"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -18,10 +15,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v13/precompiles/distribution"
-	ics20 "github.com/evmos/evmos/v13/precompiles/ics20"
+	ics20precompile "github.com/evmos/evmos/v13/precompiles/ics20"
 	stakingprecompile "github.com/evmos/evmos/v13/precompiles/staking"
 	transferkeeper "github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
-	vesting "github.com/evmos/precompiles/precompiles/vesting"
+	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
+	vestingprecompile "github.com/evmos/precompiles/precompiles/vesting"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -47,12 +45,12 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
 	}
 
-	ibcTransferPrecompile, err := ics20.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
+	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vesting.NewPrecompile(vestingKeeper, authzKeeper)
+	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
