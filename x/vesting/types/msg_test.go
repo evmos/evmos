@@ -1,9 +1,10 @@
 package types_test
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"testing"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
