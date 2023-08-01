@@ -35,13 +35,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v14.0.0-rc1] - 2023-08-01
 
 ### Improvements
 
 - (vesting)[#1672](https://github.com/evmos/evmos/pull/1672) Port `vesting` precompile code and refactor integration tests
 - (vesting)[#1667](https://github.com/evmos/evmos/pull/1667) Add support for vesting precompile in the `evm` module
-- (vesting)[GHSA-m99c-q26r-m7m7](https://github.com/evmos/evmos-ghsa-m99c-q26r-m7m7) Add FundVestingAccount transaction and refactor vesting flow
+- (vesting)[GHSA-m99c-q26r-m7m7](https://github.com/evmos/evmos-ghsa-m99c-q26r-m7m7) Add `FundVestingAccount` transaction and refactor vesting flow
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 
 ### Bug Fixes
