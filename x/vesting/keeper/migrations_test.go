@@ -11,8 +11,8 @@ import (
 	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
 )
 
-func (s *KeeperTestSuite) TestMigration() {
-	s.SetupTest()
+func (suite *KeeperTestSuite) TestMigration() {
+	suite.SetupTest()
 
 	// Create account addresses for testing
 	vestingAddr, _ := testutiltx.NewAccAddressAndKey()
@@ -29,19 +29,19 @@ func (s *KeeperTestSuite) TestMigration() {
 		LockupPeriods:      lockupPeriods,
 		VestingPeriods:     vestingPeriods,
 	}
-	s.app.AccountKeeper.SetAccount(s.ctx, oldAccount)
+	suite.app.AccountKeeper.SetAccount(suite.ctx, oldAccount)
 
-	foundAcc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
-	s.Require().NotNil(foundAcc, "vesting account not found")
-	s.Require().IsType(&v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
+	foundAcc := suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
+	suite.Require().NotNil(foundAcc, "vesting account not found")
+	suite.Require().IsType(&v1vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v1 clawback vesting account")
 
 	// migrate
-	migrator := keeper.NewMigrator(s.app.VestingKeeper)
-	err = migrator.Migrate1to2(s.ctx)
-	s.Require().NoError(err, "migration failed")
+	migrator := keeper.NewMigrator(suite.app.VestingKeeper)
+	err = migrator.Migrate1to2(suite.ctx)
+	suite.Require().NoError(err, "migration failed")
 
 	// check that the account is now a v2 base vesting account
-	foundAcc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
-	s.Require().NotNil(foundAcc, "vesting account not found")
-	s.Require().IsType(&vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
+	foundAcc = suite.app.AccountKeeper.GetAccount(suite.ctx, vestingAddr)
+	suite.Require().NotNil(foundAcc, "vesting account not found")
+	suite.Require().IsType(&vestingtypes.ClawbackVestingAccount{}, foundAcc, "vesting account is not a v2 base vesting account")
 }
