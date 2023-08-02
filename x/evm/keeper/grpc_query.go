@@ -25,6 +25,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	ethparams "github.com/ethereum/go-ethereum/params"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	evmostypes "github.com/evmos/evmos/v13/types"
 	"github.com/evmos/evmos/v13/x/evm/statedb"
@@ -401,6 +402,13 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 	ctx = ctx.WithBlockHeight(contextHeight)
 	ctx = ctx.WithBlockTime(req.BlockTime)
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
+
+	// to get the base fee we only need the block max gas in the consensus params
+	ctx = ctx.WithConsensusParams(&abci.ConsensusParams{
+		Block: &abci.BlockParams{MaxGas: req.BlockMaxGas},
+	})
+	ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(uint64(req.BlockMaxGas)))
+
 	chainID, err := getChainID(ctx, req.ChainId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -409,10 +417,24 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
+
+	// compute and use base fee of the height that is being traced
+	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	if baseFee != nil {
+		cfg.BaseFee = baseFee
+	}
+
 	signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
 
 	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
+
+	// store initial gas and reset gas meter per transaction
+	// to avoid stacking the gas used of every predecessor in the same gas meter
+	initialGas := ctx.GasMeter().GasConsumed()
+
 	for i, tx := range req.Predecessors {
+		// reset gas meter for each transaction
+		k.ResetGasMeterAndConsumeGas(ctx, initialGas)
 		ethTx := tx.AsTransaction()
 		msg, err := ethTx.AsMessage(signer, cfg.BaseFee)
 		if err != nil {
@@ -478,6 +500,13 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	ctx = ctx.WithBlockHeight(contextHeight)
 	ctx = ctx.WithBlockTime(req.BlockTime)
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
+
+	// to get the base fee we only need the block max gas in the consensus params
+	ctx = ctx.WithConsensusParams(&abci.ConsensusParams{
+		Block: &abci.BlockParams{MaxGas: req.BlockMaxGas},
+	})
+	ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(uint64(req.BlockMaxGas)))
+
 	chainID, err := getChainID(ctx, req.ChainId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -487,12 +516,26 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to load evm config")
 	}
+
+	// compute and use base fee of height that is being traced
+	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	if baseFee != nil {
+		cfg.BaseFee = baseFee
+	}
+
 	signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
 	txsLength := len(req.Txs)
 	results := make([]*types.TxTraceResult, 0, txsLength)
 
 	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
+
+	// store initial gas and reset gas meter per transaction
+	// to avoid stacking the gas used of every predecessor in the same gas meter
+	initialGas := ctx.GasMeter().GasConsumed()
+
 	for i, tx := range req.Txs {
+		// reset gas meter for each transaction
+		k.ResetGasMeterAndConsumeGas(ctx, initialGas)
 		result := types.TxTraceResult{}
 		ethTx := tx.AsTransaction()
 		txConfig.TxHash = ethTx.Hash()
