@@ -85,7 +85,7 @@ using the fund-vesting-account subcommand.`,
 // NewMsgFundVestingAccountCmd returns a CLI command handler for funding a clawback vesting account.
 func NewMsgFundVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fund-vesting-account TO_ADDRESS AMOUNT",
+		Use:   "fund-vesting-account TO_ADDRESS",
 		Short: "Fund a vesting account with an allocation of tokens.",
 		Long: `Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
 If both files are given, they must describe schedules for the same total amount.
