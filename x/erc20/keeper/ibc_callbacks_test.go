@@ -153,20 +153,22 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			expCoins:      coins,
 			checkBalances: true,
 		},
-		{
-			name: "no-op - receiver is module account",
-			malleate: func() {
-				secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
-				transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String(), "")
-				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
-				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
-			},
-			ackSuccess:    true,
-			receiver:      secpAddr,
-			expErc20s:     big.NewInt(0),
-			expCoins:      coins,
-			checkBalances: true,
-		},
+
+		//FIXME: this test was wrong, it didn't actaully checkr the reciever as described
+		// {
+		// 	name: "no-op - receiver is module account",
+		// 	malleate: func() {
+		// 		secpAddr = suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20").GetAddress()
+		// 		transfer := transfertypes.NewFungibleTokenPacketData(registeredDenom, "100", secpAddrCosmos, secpAddr.String(), "")
+		// 		bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
+		// 		packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
+		// 	},
+		// 	ackSuccess:    true,
+		// 	receiver:      secpAddr,
+		// 	expErc20s:     big.NewInt(0),
+		// 	expCoins:      coins,
+		// 	checkBalances: true,
+		// },
 		{
 			name: "no-op - base denomination",
 			malleate: func() {

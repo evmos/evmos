@@ -104,9 +104,18 @@ func (k Keeper) OnRecvPacket(
 
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	if len(pairID) == 0 {
-		// short-circuit: if the denom is not registered, conversion will fail
-		// so we can continue with the rest of the stack
-		return ack
+		if transfertypes.ReceiverChainIsSource(packet.SourcePort, packet.SourceChannel, data.Denom) {
+			return ack
+		}
+		//skip the first packet, as the bank don't have token and registration is not possible
+		if !k.bankKeeper.HasSupply(ctx, coin.Denom) {
+			return ack
+		}
+		err := k.AutoRegisterCoin(ctx, coin.Denom, data.Denom)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(errorsmod.Wrapf(err, "failed to auto register new IBC token"))
+		}
+		pairID = k.GetTokenPairID(ctx, coin.Denom)
 	}
 
 	pair, _ := k.GetTokenPair(ctx, pairID)
