@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### Improvements
+
+- (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
+
 ## [v14.0.0-rc1] - 2023-08-01
 
 ### Improvements
