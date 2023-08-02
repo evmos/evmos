@@ -20,10 +20,8 @@ import (
 
 // Transaction command flags
 const (
-	FlagDelayed  = "delayed"
 	FlagDest     = "dest"
 	FlagLockup   = "lockup"
-	FlagMerge    = "merge"
 	FlagVesting  = "vesting"
 	FlagClawback = "clawback"
 	FlagFunder   = "funder"
@@ -158,7 +156,6 @@ with a start time and an array of coins strings and durations relative to the st
 		},
 	}
 
-	cmd.Flags().Bool(FlagMerge, false, "Merge new amount and schedule with existing ClawbackVestingAccount, if any")
 	cmd.Flags().String(FlagLockup, "", "path to file containing unlocking periods")
 	cmd.Flags().String(FlagVesting, "", "path to file containing vesting periods")
 	flags.AddTxFlagsToCmd(cmd)
