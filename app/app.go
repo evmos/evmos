@@ -13,10 +13,10 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/evmos/evmos/v13/precompiles/common"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -130,6 +130,7 @@ import (
 	v11 "github.com/evmos/evmos/v13/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v13/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v13/app/upgrades/v13"
+	v14 "github.com/evmos/evmos/v13/app/upgrades/v14"
 	v8 "github.com/evmos/evmos/v13/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v13/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v13/app/upgrades/v8_2"
@@ -507,11 +508,6 @@ func NewEvmos(
 		),
 	)
 
-	// We call this after setting the hooks to ensure that the hooks are set on the keeper
-	evmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(stakingKeeper, app.DistrKeeper, app.AuthzKeeper),
-	)
-
 	app.VestingKeeper = vestingkeeper.NewKeeper(
 		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
@@ -529,8 +525,28 @@ func NewEvmos(
 
 	app.RevenueKeeper = revenuekeeper.NewKeeper(
 		keys[revenuetypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.BankKeeper, app.EvmKeeper,
+		app.BankKeeper, app.DistrKeeper, app.AccountKeeper, app.EvmKeeper,
 		authtypes.FeeCollectorName,
+	)
+
+	app.TransferKeeper = transferkeeper.NewKeeper(
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
+		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
+		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
+		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+	)
+
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	evmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(
+			stakingKeeper,
+			app.DistrKeeper,
+			app.VestingKeeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+		),
 	)
 
 	epochsKeeper := epochskeeper.NewKeeper(appCodec, keys[epochstypes.StoreKey])
@@ -555,14 +571,6 @@ func NewEvmos(
 			app.RevenueKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
-	)
-
-	app.TransferKeeper = transferkeeper.NewKeeper(
-		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-		app.ClaimsKeeper, // ICS4 Wrapper: claims IBC middleware
-		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
-		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
 
 	app.RecoveryKeeper = recoverykeeper.NewKeeper(
@@ -966,6 +974,10 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
 	}
 
+	for _, precompile := range common.DefaultPrecompilesBech32 {
+		blockedAddrs[precompile] = true
+	}
+
 	return blockedAddrs
 }
 
@@ -1132,7 +1144,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	// ethermint subspaces
-	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint: staticcheck
+	paramsKeeper.Subspace(evmtypes.ModuleName).WithKeyTable(evmtypes.ParamKeyTable()) //nolint:staticcheck
 	paramsKeeper.Subspace(feemarkettypes.ModuleName).WithKeyTable(feemarkettypes.ParamKeyTable())
 	// evmos subspaces
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
@@ -1223,6 +1235,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v13.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			*app.EvmKeeper,
+		),
+	)
+
+	// v14 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v14.UpgradeName,
+		v14.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.VestingKeeper,
 		),
 	)
 

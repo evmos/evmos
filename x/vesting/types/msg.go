@@ -4,85 +4,71 @@
 package types
 
 import (
+	"bytes"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
 	_ sdk.Msg = &MsgCreateClawbackVestingAccount{}
+	_ sdk.Msg = &MsgFundVestingAccount{}
 	_ sdk.Msg = &MsgClawback{}
 	_ sdk.Msg = &MsgConvertVestingAccount{}
 	_ sdk.Msg = &MsgUpdateVestingFunder{}
 	_ sdk.Msg = &MsgOptInGovernanceClawback{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 const (
 	TypeMsgCreateClawbackVestingAccount = "create_clawback_vesting_account"
+	TypeMsgFundVestingAccount           = "fund_vesting_account"
 	TypeMsgClawback                     = "clawback"
 	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 	TypeMsgConvertVestingAccount        = "convert_vesting_account"
 	TypeMsgOptInGovernanceClawback      = "opt_in_gov_clawback"
+	TypeMsgUpdateParams                 = "update_params"
 )
 
 // NewMsgCreateClawbackVestingAccount creates new instance of MsgCreateClawbackVestingAccount
 func NewMsgCreateClawbackVestingAccount(
-	fromAddr, toAddr sdk.AccAddress,
-	startTime time.Time,
-	lockupPeriods,
-	vestingPeriods sdkvesting.Periods,
-	merge bool,
+	funderAddr sdk.AccAddress,
+	vestingAddr sdk.AccAddress,
 ) *MsgCreateClawbackVestingAccount {
 	return &MsgCreateClawbackVestingAccount{
-		FromAddress:    fromAddr.String(),
-		ToAddress:      toAddr.String(),
-		StartTime:      startTime,
-		LockupPeriods:  lockupPeriods,
-		VestingPeriods: vestingPeriods,
-		Merge:          merge,
+		FunderAddress:  funderAddr.String(),
+		VestingAddress: vestingAddr.String(),
 	}
 }
 
 // Route returns the name of the module
 func (msg MsgCreateClawbackVestingAccount) Route() string { return RouterKey }
 
-// Type returns the the action
+// Type returns the message type for a MsgCreateClawbackVestingAccount
 func (msg MsgCreateClawbackVestingAccount) Type() string { return TypeMsgCreateClawbackVestingAccount }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateClawbackVestingAccount) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.FromAddress); err != nil {
-		return errorsmod.Wrapf(err, "invalid from address")
+	funderAcc, err := sdk.AccAddressFromBech32(msg.FunderAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid funder address")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.ToAddress); err != nil {
-		return errorsmod.Wrapf(err, "invalid to address")
+	if equal := bytes.Compare(funderAcc.Bytes(), common.Address{}.Bytes()); equal == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "funder address cannot be the zero address")
 	}
 
-	lockupCoins := sdk.NewCoins()
-	for i, period := range msg.LockupPeriods {
-		if period.Length < 1 {
-			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
-		}
-		lockupCoins = lockupCoins.Add(period.Amount...)
+	vestingAcc, err := sdk.AccAddressFromBech32(msg.VestingAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid vesting address")
 	}
 
-	vestingCoins := sdk.NewCoins()
-	for i, period := range msg.VestingPeriods {
-		if period.Length < 1 {
-			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
-		}
-		vestingCoins = vestingCoins.Add(period.Amount...)
-	}
-
-	// If both schedules are present, the must describe the same total amount.
-	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
-	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
-		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
-		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+	if equal := bytes.Compare(vestingAcc.Bytes(), common.Address{}.Bytes()); equal == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "vesting address cannot be the zero address")
 	}
 
 	return nil
@@ -95,7 +81,96 @@ func (msg *MsgCreateClawbackVestingAccount) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgCreateClawbackVestingAccount) GetSigners() []sdk.AccAddress {
-	from := sdk.MustAccAddressFromBech32(msg.FromAddress)
+	from := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	return []sdk.AccAddress{from}
+}
+
+// NewMsgFundVestingAccount creates new instance of MsgFundVestingAccount
+func NewMsgFundVestingAccount(
+	funderAddr, vestingAddr sdk.AccAddress,
+	startTime time.Time,
+	lockupPeriods,
+	vestingPeriods sdkvesting.Periods,
+) *MsgFundVestingAccount {
+	return &MsgFundVestingAccount{
+		FunderAddress:  funderAddr.String(),
+		VestingAddress: vestingAddr.String(),
+		StartTime:      startTime,
+		LockupPeriods:  lockupPeriods,
+		VestingPeriods: vestingPeriods,
+	}
+}
+
+// Route returns the name of the module
+func (msg MsgFundVestingAccount) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgFundVestingAccount
+func (msg MsgFundVestingAccount) Type() string { return TypeMsgFundVestingAccount }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgFundVestingAccount) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.FunderAddress); err != nil {
+		return errorsmod.Wrapf(err, "invalid funder address")
+	}
+
+	vestingAddr, err := sdk.AccAddressFromBech32(msg.VestingAddress)
+	if err != nil {
+		return errorsmod.Wrapf(err, "invalid vesting address")
+	}
+
+	if equal := bytes.Compare(vestingAddr.Bytes(), common.Address{}.Bytes()); equal == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "vesting address cannot be the zero address")
+	}
+
+	lockupCoins := sdk.NewCoins()
+	for i, period := range msg.LockupPeriods {
+		if period.Length < 1 {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+		}
+		if !period.Amount.IsAllPositive() {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in lockup periods, amounts must be positive")
+		}
+		lockupCoins = lockupCoins.Add(period.Amount...)
+	}
+
+	vestingCoins := sdk.NewCoins()
+	for i, period := range msg.VestingPeriods {
+		if period.Length < 1 {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
+		}
+		if !period.Amount.IsValid() {
+			return errortypes.ErrInvalidCoins.Wrap(period.Amount.String())
+		}
+		if !period.Amount.IsAllPositive() {
+			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in vesting periods, amounts must be positive")
+		}
+
+		vestingCoins = vestingCoins.Add(period.Amount...)
+	}
+
+	// If neither schedule is present, the message is invalid.
+	if len(lockupCoins) == 0 && len(vestingCoins) == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and/or lockup schedules must be present")
+	}
+
+	// If both schedules are present, they must describe the same total amount.
+	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
+	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
+		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
+		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
+	}
+
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgFundVestingAccount) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgFundVestingAccount) GetSigners() []sdk.AccAddress {
+	from := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	return []sdk.AccAddress{from}
 }
 
@@ -106,6 +181,7 @@ func NewMsgClawback(funder, addr, dest sdk.AccAddress) *MsgClawback {
 	if dest != nil {
 		destString = dest.String()
 	}
+
 	return &MsgClawback{
 		FunderAddress:  funder.String(),
 		AccountAddress: addr.String(),
@@ -170,8 +246,13 @@ func (msg MsgUpdateVestingFunder) ValidateBasic() error {
 		return errorsmod.Wrapf(err, "invalid funder address")
 	}
 
-	if _, err := sdk.AccAddressFromBech32(msg.GetNewFunderAddress()); err != nil {
+	newFunderAddr, err := sdk.AccAddressFromBech32(msg.GetNewFunderAddress())
+	if err != nil {
 		return errorsmod.Wrapf(err, "invalid new funder address")
+	}
+
+	if equal := bytes.Compare(newFunderAddr.Bytes(), common.Address{}.Bytes()); equal == 0 {
+		return errorsmod.Wrapf(errortypes.ErrInvalidAddress, "new funder address cannot be the zero address")
 	}
 
 	// New funder address can not be equal to current funder address
@@ -260,3 +341,29 @@ func (msg MsgOptInGovernanceClawback) GetSigners() []sdk.AccAddress {
 	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 	return []sdk.AccAddress{vesting}
 }
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (msg *MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errorsmod.Wrap(err, "invalid authority address")
+	}
+
+	return msg.Params.Validate()
+}
+
+// GetSignBytes implements the LegacyMsg interface.
+func (msg MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
+}
+
+// Route returns the name of the module
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type returns the message type for a MsgCreateClawbackVestingAccount
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }

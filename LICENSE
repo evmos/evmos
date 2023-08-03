@@ -16,6 +16,12 @@ provide a copy of this license to that third party. All restrictions and
 conditions of this license apply to the Software or any portion or modification
 of the Software made under this license.
 
+Licensee must ensure that any third party who gets a copy of any part of the
+Software from Licensee also gets a copy of the terms of this license or the
+respective license URL, as well as copies of any plain-text lines beginning
+with Required Notice that the licensor provided with the software.
+For example: "Required Notice: Copyright Tharsis Labs Ltd. (https://github.com/evmos/evmos)".
+
 These terms do not allow Licensee to sublicense or transfer any of Licensee’s
 rights to anyone else. These terms do not imply any other licenses not expressly
 granted in this license.
@@ -42,7 +48,10 @@ updated from time to time.
 
 "Designated Blockchains" refer to the version of the digital blockchain ledger
 that, at any given time, is recognized as canonical in accordance with the
-blockchain consensus..
+blockchain consensus. The initial Designated Blockchains shall be the Evmos
+blockchains, identified by the Ethereum Improvement Proposal 155 (EIP-155)
+chain identifiers 9000 (testing network or "testnet") and 9001 (main network
+or mainnet).
 
 A “Evmos Product” is any product or service offered by the Company or its
 affiliates.

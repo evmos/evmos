@@ -45,6 +45,7 @@ func NewTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		NewMsgCreateClawbackVestingAccountCmd(),
+		NewMsgFundVestingAccountCmd(),
 		NewMsgClawbackCmd(),
 		NewMsgUpdateVestingFunderCmd(),
 		NewMsgConvertVestingAccountCmd(),
@@ -58,8 +59,40 @@ func NewTxCmd() *cobra.Command {
 // MsgCreateClawbackVestingAccount transaction.
 func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-clawback-vesting-account TO_ADDRESS",
-		Short: "Create a new vesting account funded with an allocation of tokens, subject to clawback.",
+		Use:   "create-clawback-vesting-account FUNDER_ADDRESS",
+		Short: "Create a new vesting account at the address of the sender with a designated funder.",
+		Long: `A new clawback vesting account is created for the sender account, if it is not already of such type.
+Only the designated funder will be able to define lockup and vesting schedules and has to do so
+using the fund-vesting-account subcommand.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			funder, err := sdk.AccAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreateClawbackVestingAccount(funder, clientCtx.GetFromAddress())
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	return cmd
+}
+
+// NewMsgFundVestingAccountCmd returns a CLI command handler for funding a clawback vesting account.
+func NewMsgFundVestingAccountCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "fund-vesting-account TO_ADDRESS AMOUNT",
+		Short: "Fund a vesting account with an allocation of tokens.",
 		Long: `Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
 If both files are given, they must describe schedules for the same total amount.
 If one file is omitted, it will default to a schedule that immediately unlocks or vests the entire amount.
@@ -120,9 +153,7 @@ with a start time and an array of coins strings and durations relative to the st
 
 			commonStart, _ := types.AlignSchedules(lockupStart, vestingStart, lockupPeriods, vestingPeriods)
 
-			merge, _ := cmd.Flags().GetBool(FlagMerge)
-
-			msg := types.NewMsgCreateClawbackVestingAccount(clientCtx.GetFromAddress(), toAddr, time.Unix(commonStart, 0), lockupPeriods, vestingPeriods, merge)
+			msg := types.NewMsgFundVestingAccount(clientCtx.GetFromAddress(), toAddr, time.Unix(commonStart, 0), lockupPeriods, vestingPeriods)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

@@ -18,6 +18,24 @@ import (
 )
 
 const (
+	// DefaultAPIEnable is the default value for the parameter that defines if the cosmos REST API server is enabled
+	DefaultAPIEnable = false
+
+	// DefaultGRPCEnable is the default value for the parameter that defines if the gRPC server is enabled
+	DefaultGRPCEnable = false
+
+	// DefaultGRPCWebEnable is the default value for the parameter that defines if the gRPC web server is enabled
+	DefaultGRPCWebEnable = false
+
+	// DefaultJSONRPCEnable is the default value for the parameter that defines if the JSON-RPC server is enabled
+	DefaultJSONRPCEnable = false
+
+	// DefaultRosettaEnable is the default value for the parameter that defines if the Rosetta API server is enabled
+	DefaultRosettaEnable = false
+
+	// DefaultTelemetryEnable is the default value for the parameter that defines if the telemetry is enabled
+	DefaultTelemetryEnable = false
+
 	// DefaultGRPCAddress is the default address the gRPC server binds to.
 	DefaultGRPCAddress = "0.0.0.0:9900"
 
@@ -149,7 +167,7 @@ type TLSConfig struct {
 func AppConfig(denom string) (string, interface{}) {
 	// Optionally allow the chain developer to overwrite the SDK's default
 	// server config.
-	srvCfg := config.DefaultConfig()
+	customAppConfig := DefaultConfig()
 
 	// The SDK's default minimum gas price is set to "" (empty value) inside
 	// app.toml. If left empty by validators, the node will halt on startup.
@@ -164,25 +182,25 @@ func AppConfig(denom string) (string, interface{}) {
 	//
 	// In evmos, we set the min gas prices to 0.
 	if denom != "" {
-		srvCfg.MinGasPrices = "0" + denom
-	}
-
-	customAppConfig := Config{
-		Config:  *srvCfg,
-		EVM:     *DefaultEVMConfig(),
-		JSONRPC: *DefaultJSONRPCConfig(),
-		TLS:     *DefaultTLSConfig(),
+		customAppConfig.Config.MinGasPrices = "0" + denom
 	}
 
 	customAppTemplate := config.DefaultConfigTemplate + DefaultConfigTemplate
 
-	return customAppTemplate, customAppConfig
+	return customAppTemplate, *customAppConfig
 }
 
 // DefaultConfig returns server's default configuration.
 func DefaultConfig() *Config {
+	defaultSDKConfig := config.DefaultConfig()
+	defaultSDKConfig.API.Enable = DefaultAPIEnable
+	defaultSDKConfig.GRPC.Enable = DefaultGRPCEnable
+	defaultSDKConfig.GRPCWeb.Enable = DefaultGRPCWebEnable
+	defaultSDKConfig.Rosetta.Enable = DefaultRosettaEnable
+	defaultSDKConfig.Telemetry.Enabled = DefaultTelemetryEnable
+
 	return &Config{
-		Config:  *config.DefaultConfig(),
+		Config:  *defaultSDKConfig,
 		EVM:     *DefaultEVMConfig(),
 		JSONRPC: *DefaultJSONRPCConfig(),
 		TLS:     *DefaultTLSConfig(),
@@ -219,7 +237,7 @@ func GetAPINamespaces() []string {
 // DefaultJSONRPCConfig returns an EVM config with the JSON-RPC API enabled by default
 func DefaultJSONRPCConfig() *JSONRPCConfig {
 	return &JSONRPCConfig{
-		Enable:                   true,
+		Enable:                   false,
 		API:                      GetDefaultAPINamespaces(),
 		Address:                  DefaultJSONRPCAddress,
 		WsAddress:                DefaultJSONRPCWsAddress,

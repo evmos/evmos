@@ -1,0 +1,156 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.vesting.v2;
+
+import "cosmos/vesting/v1beta1/vesting.proto";
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "google/api/annotations.proto";
+import "cosmos/msg/v1/msg.proto";
+import "google/protobuf/timestamp.proto";
+import "evmos/vesting/v2/genesis.proto";
+
+option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
+
+// Msg defines the vesting Msg service.
+service Msg {
+  // CreateClawbackVestingAccount creats a vesting account that is subject to clawback.
+  rpc CreateClawbackVestingAccount(MsgCreateClawbackVestingAccount) returns (MsgCreateClawbackVestingAccountResponse) {
+    option (google.api.http).get = "/evmos/vesting/v2/tx/create_clawback_vesting_account";
+  }
+  // FundVestingAccount funds an existing ClawbackVestingAccount with tokens
+  // according to the vesting and lockup schedules.
+  rpc FundVestingAccount(MsgFundVestingAccount) returns (MsgFundVestingAccountResponse) {
+    option (google.api.http).get = "/evmos/vesting/v2/tx/fund_vesting_account";
+  }
+  // Clawback removes the unvested tokens from a ClawbackVestingAccount.
+  rpc Clawback(MsgClawback) returns (MsgClawbackResponse) {
+    option (google.api.http).get = "/evmos/vesting/v2/tx/clawback";
+  }
+  // UpdateVestingFunder updates the funder address of an existing
+  // ClawbackVestingAccount.
+  rpc UpdateVestingFunder(MsgUpdateVestingFunder) returns (MsgUpdateVestingFunderResponse) {
+    option (google.api.http).get = "/evmos/vesting/v2/tx/update_vesting_funder";
+  }
+  // ConvertVestingAccount converts a ClawbackVestingAccount to a Eth account
+  rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
+    option (google.api.http).get = "/evmos/vesting/v2/tx/convert_vesting_account";
+  }
+  // OptInGovernanceClawback executes the logic to register the provided vesting account
+  // as a vesting account which can be clawbacked via a governance proposal
+  rpc OptInGovernanceClawback(MsgOptInGovernanceClawback) returns (MsgOptInGovernanceClawbackResponse) {
+    option (google.api.http).get = "/evmos/vesting/v1/tx/opt_in_gov_clawback";
+  };
+  // UpdateParams defined a governance operation for updating the x/vesting module parameters.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+}
+
+// MsgCreateClawbackVestingAccount defines a message that enables creating a
+// ClawbackVestingAccount.
+message MsgCreateClawbackVestingAccount {
+  option (gogoproto.equal) = false;
+  option (cosmos.msg.v1.signer) = "vesting_address";
+  // funder_address specifies the account that will be able to fund the vesting account
+  string funder_address = 1;
+  // vesting_address specifies the address that will receive the vesting tokens
+  string vesting_address = 2;
+}
+
+// MsgCreateClawbackVestingAccountResponse defines the
+// MsgCreateClawbackVestingAccount response type.
+message MsgCreateClawbackVestingAccountResponse {}
+
+// MsgFundVestingAccount defines a message that enables funding an existing clawback
+// vesting account.
+message MsgFundVestingAccount {
+  option (cosmos.msg.v1.signer) = "funder_address";
+  // funder_address specifies the account that funds the vesting account
+  string funder_address = 1;
+  // vesting_address specifies the account that receives the funds
+  string vesting_address = 2;
+  // start_time defines the time at which the vesting period begins
+  google.protobuf.Timestamp start_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // lockup_periods defines the unlocking schedule relative to the start_time
+  repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+  ];
+  // vesting_periods defines the vesting schedule relative to the start_time
+  repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+  ];
+}
+
+// MsgFundVestingAccountResponse defines the
+// MsgFundVestingAccount response type.
+message MsgFundVestingAccountResponse {}
+
+// MsgClawback defines a message that removes unvested tokens from a
+// ClawbackVestingAccount.
+message MsgClawback {
+  option (cosmos.msg.v1.signer) = "funder_address";
+  // funder_address is the address which funded the account
+  string funder_address = 1;
+  // account_address is the address of the ClawbackVestingAccount to claw back
+  // from.
+  string account_address = 2;
+  // dest_address specifies where the clawed-back tokens should be transferred
+  // to. If empty, the tokens will be transferred back to the original funder of
+  // the account.
+  string dest_address = 3;
+}
+
+// MsgClawbackResponse defines the MsgClawback response type.
+message MsgClawbackResponse {}
+
+// MsgUpdateVestingFunder defines a message that updates the funder account of a
+// ClawbackVestingAccount.
+message MsgUpdateVestingFunder {
+  option (cosmos.msg.v1.signer) = "funder_address";
+  // funder_address is the current funder address of the ClawbackVestingAccount
+  string funder_address = 1;
+  // new_funder_address is the new address to replace the existing funder_address
+  string new_funder_address = 2;
+  // vesting_address is the address of the ClawbackVestingAccount being updated
+  string vesting_address = 3;
+}
+
+// MsgUpdateVestingFunderResponse defines the MsgUpdateVestingFunder response
+// type.
+message MsgUpdateVestingFunderResponse {}
+
+// MsgConvertVestingAccount defines a message that enables converting a vesting account to a eth account
+message MsgConvertVestingAccount {
+  // vesting_address is the address of the vesting account to convert
+  string vesting_address = 1;
+}
+
+// MsgConvertVestingAccountResponse defines the MsgConvertVestingAccount response type.
+message MsgConvertVestingAccountResponse {}
+
+// MsgOptInGovernanceClawback defines a message that enables clawback of a vesting account via governance proposal
+message MsgOptInGovernanceClawback {
+  // vesting_address is the address of the vesting account to clawback
+  string vesting_address = 1;
+}
+
+// MsgOptInGovernanceClawbackResponse defines the MsgOptInGovernanceClawback response
+// type.
+message MsgOptInGovernanceClawbackResponse {}
+
+// MsgUpdateParams defines a Msg for updating the x/revenue module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/revenue parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
