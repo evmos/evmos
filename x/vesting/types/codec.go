@@ -30,7 +30,6 @@ const (
 	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
 	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
 	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
-	optInGovernanceClawback      = "evmos/MsgOptInGovernanceClawback"
 	fundVestingAccount           = "evmos/MsgFundVestingAccount"
 	updateParams                 = "evmos/vesting/MsgUpdateParams"
 )
@@ -73,7 +72,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateVestingFunder{},
 		&MsgFundVestingAccount{},
 		&MsgConvertVestingAccount{},
-		&MsgOptInGovernanceClawback{},
 		&MsgUpdateParams{},
 	)
 
@@ -93,7 +91,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
 	cdc.RegisterConcrete(&MsgConvertVestingAccount{}, convertVestingAccount, nil)
-	cdc.RegisterConcrete(&MsgOptInGovernanceClawback{}, optInGovernanceClawback, nil)
 	cdc.RegisterConcrete(&MsgFundVestingAccount{}, fundVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 }

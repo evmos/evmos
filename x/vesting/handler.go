@@ -29,9 +29,6 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 		case *types.MsgConvertVestingAccount:
 			res, err := server.ConvertVestingAccount(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgOptInGovernanceClawback:
-			res, err := server.OptInGovernanceClawback(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgFundVestingAccount:
 			res, err := server.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

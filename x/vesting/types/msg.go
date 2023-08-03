@@ -20,7 +20,6 @@ var (
 	_ sdk.Msg = &MsgClawback{}
 	_ sdk.Msg = &MsgConvertVestingAccount{}
 	_ sdk.Msg = &MsgUpdateVestingFunder{}
-	_ sdk.Msg = &MsgOptInGovernanceClawback{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -30,7 +29,6 @@ const (
 	TypeMsgClawback                     = "clawback"
 	TypeMsgUpdateVestingFunder          = "update_vesting_funder"
 	TypeMsgConvertVestingAccount        = "convert_vesting_account"
-	TypeMsgOptInGovernanceClawback      = "opt_in_gov_clawback"
 	TypeMsgUpdateParams                 = "update_params"
 )
 
@@ -306,38 +304,6 @@ func (msg *MsgConvertVestingAccount) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgConvertVestingAccount) GetSigners() []sdk.AccAddress {
-	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
-	return []sdk.AccAddress{vesting}
-}
-
-// NewMsgOptInGovernanceClawback creates new instance of MsgOptInGovernanceClawback
-func NewMsgOptInGovernanceClawback(vestingAcc sdk.AccAddress) *MsgOptInGovernanceClawback {
-	return &MsgOptInGovernanceClawback{
-		VestingAddress: vestingAcc.String(),
-	}
-}
-
-// Route returns the name of the module
-func (msg MsgOptInGovernanceClawback) Route() string { return RouterKey }
-
-// Type returns the action
-func (msg MsgOptInGovernanceClawback) Type() string { return TypeMsgOptInGovernanceClawback }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgOptInGovernanceClawback) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.GetVestingAddress()); err != nil {
-		return errorsmod.Wrapf(err, "invalid vesting address")
-	}
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgOptInGovernanceClawback) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgOptInGovernanceClawback) GetSigners() []sdk.AccAddress {
 	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 	return []sdk.AccAddress{vesting}
 }

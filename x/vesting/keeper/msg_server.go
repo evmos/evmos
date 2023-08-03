@@ -78,6 +78,10 @@ func (k Keeper) CreateClawbackVestingAccount(
 	}
 	ak.SetAccount(ctx, vestingAcc)
 
+	if msg.EnableGovClawback {
+		k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())
+	}
+
 	telemetry.IncrCounter(
 		float32(ctx.GasMeter().GasConsumed()),
 		"tx", "create_clawback_vesting_account", "gas_used",
@@ -380,50 +384,6 @@ func (k Keeper) ConvertVestingAccount(
 	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
-}
-
-// OptInGovernanceClawback enables the specified vesting account
-// to clawback its funds via governance. It fails if the
-// account is not vesting any coins.
-func (k Keeper) OptInGovernanceClawback(
-	goCtx context.Context,
-	msg *types.MsgOptInGovernanceClawback,
-) (*types.MsgOptInGovernanceClawbackResponse, error) {
-	// Check if governance clawback is enabled
-	params := k.GetParams(sdk.UnwrapSDKContext(goCtx))
-	if !params.EnableGovClawback {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "governance clawback is not enabled")
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// NOTE: already checked in msg.ValidateBasic
-	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
-
-	account := k.accountKeeper.GetAccount(ctx, address)
-	if account == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account does not exist: %s", msg.VestingAddress)
-	}
-
-	// Check if account is of VestingAccount interface
-	if _, ok := account.(vestingexported.VestingAccount); !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to vesting: %s", msg.VestingAddress)
-	}
-
-	// check if account is of type ClawbackVestingAccount
-	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account is not a ClawbackVestingAccount: %s", msg.VestingAddress)
-	}
-
-	// check if account has any vesting coins left
-	if len(vestingAcc.GetVestingCoins(ctx.BlockTime())) == 0 {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "no vesting coins in account: %s", msg.VestingAddress)
-	}
-
-	k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())
-
-	return &types.MsgOptInGovernanceClawbackResponse{}, nil
 }
 
 // UpdateParams defines a method for updating vesting params

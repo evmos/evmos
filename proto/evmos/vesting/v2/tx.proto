@@ -37,11 +37,6 @@ service Msg {
   rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
     option (google.api.http).get = "/evmos/vesting/v2/tx/convert_vesting_account";
   }
-  // OptInGovernanceClawback executes the logic to register the provided vesting account
-  // as a vesting account which can be clawbacked via a governance proposal
-  rpc OptInGovernanceClawback(MsgOptInGovernanceClawback) returns (MsgOptInGovernanceClawbackResponse) {
-    option (google.api.http).get = "/evmos/vesting/v1/tx/opt_in_gov_clawback";
-  };
   // UpdateParams defined a governance operation for updating the x/vesting module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -56,6 +51,8 @@ message MsgCreateClawbackVestingAccount {
   string funder_address = 1;
   // vesting_address specifies the address that will receive the vesting tokens
   string vesting_address = 2;
+  // enable_gov_clawback specifies whether the governance module can clawback this account
+  bool enable_gov_clawback = 3;
 }
 
 // MsgCreateClawbackVestingAccountResponse defines the
@@ -130,16 +127,6 @@ message MsgConvertVestingAccount {
 
 // MsgConvertVestingAccountResponse defines the MsgConvertVestingAccount response type.
 message MsgConvertVestingAccountResponse {}
-
-// MsgOptInGovernanceClawback defines a message that enables clawback of a vesting account via governance proposal
-message MsgOptInGovernanceClawback {
-  // vesting_address is the address of the vesting account to clawback
-  string vesting_address = 1;
-}
-
-// MsgOptInGovernanceClawbackResponse defines the MsgOptInGovernanceClawback response
-// type.
-message MsgOptInGovernanceClawbackResponse {}
 
 // MsgUpdateParams defines a Msg for updating the x/revenue module parameters.
 message MsgUpdateParams {
