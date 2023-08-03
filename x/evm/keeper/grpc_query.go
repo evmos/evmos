@@ -427,13 +427,11 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 
 	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
 
-	// store initial gas and reset gas meter per transaction
-	// to avoid stacking the gas used of every predecessor in the same gas meter
-	initialGas := ctx.GasMeter().GasConsumed()
+	// gas used at this point corresponds to GetProposerAddress & CalculateBaseFee
+	// need to reset gas meter per transaction to be consistent with tx execution
+	// and avoid stacking the gas used of every predecessor in the same gas meter
 
 	for i, tx := range req.Predecessors {
-		// reset gas meter for each transaction
-		k.ResetGasMeterAndConsumeGas(ctx, initialGas)
 		ethTx := tx.AsTransaction()
 		msg, err := ethTx.AsMessage(signer, cfg.BaseFee)
 		if err != nil {
@@ -441,7 +439,8 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		}
 		txConfig.TxHash = ethTx.Hash()
 		txConfig.TxIndex = uint(i)
-		rsp, err := k.ApplyMessageWithConfig(ctx, msg, types.NewNoOpTracer(), true, cfg, txConfig)
+		// reset gas meter for each transaction
+		rsp, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(sdk.NewInfiniteGasMeter()), msg, types.NewNoOpTracer(), true, cfg, txConfig)
 		if err != nil {
 			continue
 		}
@@ -459,8 +458,7 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		// ignore error. default to no traceConfig
 		_ = json.Unmarshal([]byte(req.TraceConfig.TracerJsonConfig), &tracerConfig)
 	}
-	
-	k.ResetGasMeterAndConsumeGas(ctx, initialGas)
+
 	result, _, err := k.traceTx(ctx, cfg, txConfig, signer, tx, req.TraceConfig, false, tracerConfig)
 	if err != nil {
 		// error will be returned with detail status from traceTx
@@ -528,13 +526,7 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 
 	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
 
-	// store initial gas and reset gas meter per transaction
-	// to avoid stacking the gas used of every predecessor in the same gas meter
-	initialGas := ctx.GasMeter().GasConsumed()
-
 	for i, tx := range req.Txs {
-		// reset gas meter for each transaction
-		k.ResetGasMeterAndConsumeGas(ctx, initialGas)
 		result := types.TxTraceResult{}
 		ethTx := tx.AsTransaction()
 		txConfig.TxHash = ethTx.Hash()
@@ -632,7 +624,9 @@ func (k *Keeper) traceTx(
 		}
 	}()
 
-	res, err := k.ApplyMessageWithConfig(ctx, msg, tracer, commitMessage, cfg, txConfig)
+	// reset gas meter for tx
+	// to be consistent with tx execution gas meter
+	res, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(sdk.NewInfiniteGasMeter()), msg, tracer, commitMessage, cfg, txConfig)
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())
 	}
