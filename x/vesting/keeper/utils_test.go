@@ -105,6 +105,9 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
 	suite.validator = validators[0]
 
+	err = s.app.VestingKeeper.SetParams(s.ctx, types.DefaultParams())
+	require.NoError(t, err)
+
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
