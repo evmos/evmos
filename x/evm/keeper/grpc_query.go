@@ -505,7 +505,6 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	ctx = ctx.WithConsensusParams(&abci.ConsensusParams{
 		Block: &abci.BlockParams{MaxGas: req.BlockMaxGas},
 	})
-	ctx = ctx.WithBlockGasMeter(sdk.NewGasMeter(uint64(req.BlockMaxGas)))
 
 	chainID, err := getChainID(ctx, req.ChainId)
 	if err != nil {
