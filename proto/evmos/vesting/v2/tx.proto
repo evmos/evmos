@@ -3,13 +3,13 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
-import "cosmos/vesting/v1beta1/vesting.proto";
-import "gogoproto/gogo.proto";
-import "cosmos_proto/cosmos.proto";
-import "google/api/annotations.proto";
 import "cosmos/msg/v1/msg.proto";
-import "google/protobuf/timestamp.proto";
+import "cosmos/vesting/v1beta1/vesting.proto";
+import "cosmos_proto/cosmos.proto";
 import "evmos/vesting/v2/genesis.proto";
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
 
