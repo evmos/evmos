@@ -15,13 +15,21 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamsKey)
 	if len(bz) == 0 {
-		var p types.Params
-		k.ss.GetParamSetIfExists(ctx, &p)
-		return p
+		k.ss.GetParamSetIfExists(ctx, &params)
+	} else {
+		k.cdc.MustUnmarshal(bz, &params)
 	}
 
-	k.cdc.MustUnmarshal(bz, &params)
-	return params
+	// zero the nil params for legacy blocks
+	if params.MinGasPrice.IsNil() {
+		params.MinGasPrice = sdk.ZeroDec()
+	}
+
+	if params.MinGasMultiplier.IsNil() {
+		params.MinGasMultiplier = sdk.ZeroDec()
+	}
+
+	return
 }
 
 // SetParams sets the fee market params in a single key
