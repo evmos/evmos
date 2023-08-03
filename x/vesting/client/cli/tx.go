@@ -20,10 +20,8 @@ import (
 
 // Transaction command flags
 const (
-	FlagDelayed  = "delayed"
 	FlagDest     = "dest"
 	FlagLockup   = "lockup"
-	FlagMerge    = "merge"
 	FlagVesting  = "vesting"
 	FlagClawback = "clawback"
 	FlagFunder   = "funder"
@@ -87,7 +85,7 @@ using the fund-vesting-account subcommand.`,
 // NewMsgFundVestingAccountCmd returns a CLI command handler for funding a clawback vesting account.
 func NewMsgFundVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fund-vesting-account TO_ADDRESS AMOUNT",
+		Use:   "fund-vesting-account TO_ADDRESS",
 		Short: "Fund a vesting account with an allocation of tokens.",
 		Long: `Must provide a lockup periods file (--lockup), a vesting periods file (--vesting), or both.
 If both files are given, they must describe schedules for the same total amount.
@@ -158,7 +156,6 @@ with a start time and an array of coins strings and durations relative to the st
 		},
 	}
 
-	cmd.Flags().Bool(FlagMerge, false, "Merge new amount and schedule with existing ClawbackVestingAccount, if any")
 	cmd.Flags().String(FlagLockup, "", "path to file containing unlocking periods")
 	cmd.Flags().String(FlagVesting, "", "path to file containing vesting periods")
 	flags.AddTxFlagsToCmd(cmd)
