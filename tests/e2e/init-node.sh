@@ -97,6 +97,9 @@ evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chai
 ## 4. Run `gentx` in each of those folders
 ## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
+# Enable the APIs for the tests to be successful
+sed -i 's/enable = false/enable = true/g' "$APP_TOML"
+
 # Collect genesis tx
 evmosd collect-gentxs
 
@@ -104,4 +107,4 @@ evmosd collect-gentxs
 evmosd validate-genesis
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.enable true --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable
+evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3
