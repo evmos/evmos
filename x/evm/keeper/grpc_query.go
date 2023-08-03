@@ -440,7 +440,7 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		txConfig.TxHash = ethTx.Hash()
 		txConfig.TxIndex = uint(i)
 		// reset gas meter for each transaction
-		rsp, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(sdk.NewInfiniteGasMeter()), msg, types.NewNoOpTracer(), true, cfg, txConfig)
+		rsp, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())), msg, types.NewNoOpTracer(), true, cfg, txConfig)
 		if err != nil {
 			continue
 		}
@@ -626,7 +626,7 @@ func (k *Keeper) traceTx(
 
 	// reset gas meter for tx
 	// to be consistent with tx execution gas meter
-	res, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(sdk.NewInfiniteGasMeter()), msg, tracer, commitMessage, cfg, txConfig)
+	res, err := k.ApplyMessageWithConfig(ctx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())), msg, tracer, commitMessage, cfg, txConfig)
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())
 	}
