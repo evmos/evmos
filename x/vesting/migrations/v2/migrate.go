@@ -10,10 +10,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-var addresses = []string{
-	"evmos19mqtl7pyvtazl85jlre9jltpuff9enjdn9m7hz",
-}
-
 // VestingKeeper defines the expected keeper for vesting
 type VestingKeeper interface {
 	Logger(ctx sdk.Context) log.Logger
@@ -27,6 +23,8 @@ func MigrateStore(
 	k VestingKeeper,
 	ak vestingtypes.AccountKeeper,
 ) error {
+	logger := k.Logger(ctx)
+
 	ak.IterateAccounts(ctx, func(account accounttypes.AccountI) bool {
 		if oldAccount, ok := account.(*v1vestingtypes.ClawbackVestingAccount); ok {
 			newAccount := &vestingtypes.ClawbackVestingAccount{
@@ -38,17 +36,12 @@ func MigrateStore(
 			}
 			ak.RemoveAccount(ctx, oldAccount)
 			ak.SetAccount(ctx, newAccount)
+			k.SetGovClawbackEnabled(ctx, newAccount.GetAddress())
+			logger.Debug("enabled clawback via governance", "address", newAccount.Address)
 		}
+
 		return false
 	})
-
-	logger := k.Logger(ctx)
-
-	for _, addr := range addresses {
-		accAddres := sdk.MustAccAddressFromBech32(addr)
-		k.SetGovClawbackEnabled(ctx, accAddres)
-		logger.Debug("enabled clawback via governance", "address", addr)
-	}
 
 	return nil
 }
