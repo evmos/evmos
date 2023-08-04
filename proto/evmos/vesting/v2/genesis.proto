@@ -3,7 +3,15 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "gogoproto/gogo.proto";
+
 option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
+
+// GenesisState defines the module's genesis state
+message GenesisState {
+  // params are the vesting module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+}
 
 // Params defines the vesting module params
 message Params {
