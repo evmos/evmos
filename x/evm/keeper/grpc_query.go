@@ -25,7 +25,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	abci "github.com/tendermint/tendermint/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	evmostypes "github.com/evmos/evmos/v13/types"
 	"github.com/evmos/evmos/v13/x/evm/statedb"
@@ -404,8 +404,8 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
 
 	// to get the base fee we only need the block max gas in the consensus params
-	ctx = ctx.WithConsensusParams(&abci.ConsensusParams{
-		Block: &abci.BlockParams{MaxGas: req.BlockMaxGas},
+	ctx = ctx.WithConsensusParams(&tmproto.ConsensusParams{
+		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
 	chainID, err := getChainID(ctx, req.ChainId)
@@ -501,8 +501,8 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
 
 	// to get the base fee we only need the block max gas in the consensus params
-	ctx = ctx.WithConsensusParams(&abci.ConsensusParams{
-		Block: &abci.BlockParams{MaxGas: req.BlockMaxGas},
+	ctx = ctx.WithConsensusParams(&tmproto.ConsensusParams{
+		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
 	chainID, err := getChainID(ctx, req.ChainId)
