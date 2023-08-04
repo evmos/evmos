@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"io"
 	"net/http"
 	"os"
@@ -1247,6 +1248,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v14rc2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v14rc2.UpgradeName,
+		v14rc2.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.VestingKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1290,6 +1300,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v12.UpgradeName:
 		// no store upgrades
 	case v13.UpgradeName:
+		// no store upgrades
+	case v14.UpgradeName:
+		// no store upgrades
+	case v14rc2.UpgradeName:
 		// no store upgrades
 	}
 
