@@ -53,12 +53,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (vesting)[#1672](https://github.com/evmos/evmos/pull/1672) Port `vesting` precompile code and refactor integration tests
 - (vesting)[#1667](https://github.com/evmos/evmos/pull/1667) Add support for vesting precompile in the `evm` module
-- (vesting) Add `FundVestingAccount` transaction and refactor vesting flow
+- (vesting) Refactor vesting flow
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 
 ### Bug Fixes
 
-- (vesting) Fix vesting unvested token delegation bug.
+- (vesting) Fix vesting bug.
 - (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
 - (rpc) [#1655](https://github.com/evmos/evmos/pull/1655) Avoid channel get changed when concurrent subscribe happens.
 - (revenue) [#1659](https://github.com/evmos/evmos/pull/1659) Check if DevelopersShares are set to 0
