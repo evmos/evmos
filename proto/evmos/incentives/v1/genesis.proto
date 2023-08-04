@@ -6,7 +6,7 @@ import "evmos/incentives/v1/incentives.proto";
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/evmos/evmos/v13/x/incentives/types";
+option go_package = "github.com/evmos/evmos/v14/x/incentives/types";
 
 // GenesisState defines the module's genesis state.
 message GenesisState {

@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/evmos/evmos/v13/x/epochs/types"
+	"github.com/evmos/evmos/v14/x/epochs/types"
 )
 
 // Keeper of this module maintains collections of epochs and hooks.

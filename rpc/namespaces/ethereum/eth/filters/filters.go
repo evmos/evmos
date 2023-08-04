@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v13/rpc/backend"
-	"github.com/evmos/evmos/v13/rpc/types"
+	"github.com/evmos/evmos/v14/rpc/backend"
+	"github.com/evmos/evmos/v14/rpc/types"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/tendermint/libs/log"
