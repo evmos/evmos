@@ -27,8 +27,8 @@ func MigrateStore(
 	logger := k.Logger(ctx)
 
 	ak.IterateAccounts(ctx, func(account accounttypes.AccountI) bool {
-		if oldAccount, ok := account.(*v1vestingtypes.ClawbackVestingAccount); ok {
-			if utils.IsMainnet(ctx.ChainID()) {
+		if utils.IsMainnet(ctx.ChainID()) {
+			if oldAccount, ok := account.(*v1vestingtypes.ClawbackVestingAccount); ok {
 				newAccount := &vestingtypes.ClawbackVestingAccount{
 					BaseVestingAccount: oldAccount.BaseVestingAccount,
 					FunderAddress:      oldAccount.FunderAddress,
@@ -41,11 +41,13 @@ func MigrateStore(
 				k.SetGovClawbackEnabled(ctx, newAccount.GetAddress())
 				logger.Debug("enabled clawback via governance", "address", newAccount.Address)
 			}
-			k.SetGovClawbackEnabled(ctx, oldAccount.GetAddress())
-			logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
-
+		} else {
+			if oldAccount, ok := account.(*vestingtypes.ClawbackVestingAccount); ok {
+				k.SetGovClawbackEnabled(ctx, oldAccount.GetAddress())
+				logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
+			}
 		}
-
+		
 		return false
 	})
 
