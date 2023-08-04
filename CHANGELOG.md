@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 <!-- markdown-link-check-disable-next-line -->
 - (vesting)[GHSA-m99c-q26r-m7m7](https://github.com/evmos/evmos-ghsa-m99c-q26r-m7m7) Add `FundVestingAccount` transaction and refactor vesting flow
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
+- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
 
 ### Bug Fixes
 
