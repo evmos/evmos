@@ -257,6 +257,8 @@ message QueryTraceTxRequest {
   bytes proposer_address = 8 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.ConsAddress"];
   // chain_id is the the eip155 chain id parsed from the requested block header
   int64 chain_id = 9;
+  // block_max_gas of the block of the requested transaction
+  int64 block_max_gas = 10;  
 }
 
 // QueryTraceTxResponse defines TraceTx response
@@ -281,6 +283,8 @@ message QueryTraceBlockRequest {
   bytes proposer_address = 8 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.ConsAddress"];
   // chain_id is the eip155 chain id parsed from the requested block header
   int64 chain_id = 9;
+  // block_max_gas of the traced block
+  int64 block_max_gas = 10;
 }
 
 // QueryTraceBlockResponse defines TraceBlock response
