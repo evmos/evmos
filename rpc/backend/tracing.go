@@ -85,6 +85,11 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		return nil, fmt.Errorf("invalid transaction type %T", tx)
 	}
 
+	cp, err := b.clientCtx.Client.ConsensusParams(b.ctx, &blk.Block.Height)
+	if err != nil {
+		return nil, err
+	}
+
 	traceTxRequest := evmtypes.QueryTraceTxRequest{
 		Msg:             ethMessage,
 		Predecessors:    predecessors,
@@ -93,6 +98,7 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		BlockHash:       common.Bytes2Hex(blk.BlockID.Hash),
 		ProposerAddress: sdk.ConsAddress(blk.Block.ProposerAddress),
 		ChainId:         b.chainID.Int64(),
+		BlockMaxGas:     cp.ConsensusParams.Block.MaxGas,
 	}
 
 	if config != nil {
@@ -164,6 +170,11 @@ func (b *Backend) TraceBlock(height rpctypes.BlockNumber,
 	}
 	ctxWithHeight := rpctypes.ContextWithHeight(int64(contextHeight))
 
+	cp, err := b.clientCtx.Client.ConsensusParams(b.ctx, &block.Block.Height)
+	if err != nil {
+		return nil, err
+	}
+
 	traceBlockRequest := &evmtypes.QueryTraceBlockRequest{
 		Txs:             txsMessages,
 		TraceConfig:     config,
@@ -172,6 +183,7 @@ func (b *Backend) TraceBlock(height rpctypes.BlockNumber,
 		BlockHash:       common.Bytes2Hex(block.BlockID.Hash),
 		ProposerAddress: sdk.ConsAddress(block.Block.ProposerAddress),
 		ChainId:         b.chainID.Int64(),
+		BlockMaxGas:     cp.ConsensusParams.Block.MaxGas,
 	}
 
 	res, err := b.queryClient.TraceBlock(ctxWithHeight, traceBlockRequest)
