@@ -38,14 +38,20 @@ type Period struct {
 
 // NewMsgCreateClawbackVestingAccount creates a new MsgCreateClawbackVestingAccount instance.
 func NewMsgCreateClawbackVestingAccount(args []interface{}) (*vestingtypes.MsgCreateClawbackVestingAccount, common.Address, common.Address, error) {
-	funderAddress, vestingAddress, err := validateBasicArgs(args, 2)
+	funderAddress, vestingAddress, err := validateBasicArgs(args, 3)
 	if err != nil {
 		return nil, common.Address{}, common.Address{}, err
 	}
 
+	enableGovClawback, ok := args[2].(bool)
+	if !ok {
+		return nil, common.Address{}, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "enableGovClawback", true, args[2])
+	}
+
 	msg := &vestingtypes.MsgCreateClawbackVestingAccount{
-		FunderAddress:  sdk.AccAddress(funderAddress.Bytes()).String(),
-		VestingAddress: sdk.AccAddress(vestingAddress.Bytes()).String(),
+		FunderAddress:     sdk.AccAddress(funderAddress.Bytes()).String(),
+		VestingAddress:    sdk.AccAddress(vestingAddress.Bytes()).String(),
+		EnableGovClawback: enableGovClawback,
 	}
 
 	if err := msg.ValidateBasic(); err != nil {

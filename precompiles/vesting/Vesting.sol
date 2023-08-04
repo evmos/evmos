@@ -33,9 +33,11 @@ interface VestingI {
     /// @dev Defines a method for creating a new clawback vesting account.
     /// @param funderAddress The address of the account that will fund the vesting account.
     /// @param vestingAddress The address of the account that will receive the vesting account.
+    /// @param enableGovClawback If the vesting account will be subject to governance clawback.
     function createClawbackVestingAccount(
         address funderAddress,
-        address vestingAddress
+        address vestingAddress,
+        bool enableGovClawback
     ) external returns (bool success);
 
     /// @dev Defines a method for funding a vesting account.

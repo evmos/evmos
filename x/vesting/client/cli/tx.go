@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -56,12 +57,12 @@ func NewTxCmd() *cobra.Command {
 // MsgCreateClawbackVestingAccount transaction.
 func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-clawback-vesting-account FUNDER_ADDRESS",
+		Use:   "create-clawback-vesting-account FUNDER_ADDRESS ENABLE_GOV_CLAWBACK",
 		Short: "Create a new vesting account at the address of the sender with a designated funder.",
 		Long: `A new clawback vesting account is created for the sender account, if it is not already of such type.
 Only the designated funder will be able to define lockup and vesting schedules and has to do so
 using the fund-vesting-account subcommand.`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -73,7 +74,12 @@ using the fund-vesting-account subcommand.`,
 				return err
 			}
 
-			msg := types.NewMsgCreateClawbackVestingAccount(funder, clientCtx.GetFromAddress())
+			enableGovClawback, err := strconv.ParseBool(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreateClawbackVestingAccount(funder, clientCtx.GetFromAddress(), enableGovClawback)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

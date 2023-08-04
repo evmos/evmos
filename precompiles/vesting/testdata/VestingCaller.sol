@@ -12,13 +12,16 @@ contract VestingCaller {
     /// @dev Defines a method to test creating a new clawback vesting account.
     /// @param funder The address of the account that will fund the vesting account.
     /// @param to The address of the account that will receive the vesting account.
+    /// @param enableGovClawback If the vesting account will be subject to governance clawback.
     function createClawbackVestingAccount(
         address funder,
-        address to
+        address to,
+        bool enableGovClawback
     ) public {
         bool success = vesting.VESTING_CONTRACT.createClawbackVestingAccount(
             funder,
-            to
+            to,
+            enableGovClawback
         );
         require(success, "VestingCaller: create clawback vesting account failed");
     }
@@ -83,7 +86,7 @@ contract VestingCaller {
 
     /// @dev Converts a smart contract address to a vesting account on top of it being a smart contract
     function createClawbackVestingAccountForContract() public {
-        bool success = vesting.VESTING_CONTRACT.createClawbackVestingAccount(msg.sender, address(this));
+        bool success = vesting.VESTING_CONTRACT.createClawbackVestingAccount(msg.sender, address(this), false);
         require(success, "VestingCaller: create clawback vesting account for contract failed");
     }
 

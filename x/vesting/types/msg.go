@@ -36,10 +36,12 @@ const (
 func NewMsgCreateClawbackVestingAccount(
 	funderAddr sdk.AccAddress,
 	vestingAddr sdk.AccAddress,
+	enableGovClawback bool,
 ) *MsgCreateClawbackVestingAccount {
 	return &MsgCreateClawbackVestingAccount{
-		FunderAddress:  funderAddr.String(),
-		VestingAddress: vestingAddr.String(),
+		FunderAddress:     funderAddr.String(),
+		VestingAddress:    vestingAddr.String(),
+		EnableGovClawback: enableGovClawback,
 	}
 }
 

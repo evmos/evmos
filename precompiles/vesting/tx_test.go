@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 			200000,
 			func(data []byte) {},
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
 		{
 			name: "fail - different origin than vesting address",
@@ -63,6 +63,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{
 					funderAddr,
 					differentAddr,
+					false,
 				}
 			},
 			gas:         200000,
@@ -75,6 +76,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{
 					funderAddr,
 					s.address,
+					false,
 				}
 			},
 			20000,

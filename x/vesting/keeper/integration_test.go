@@ -665,7 +665,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(balanceGrantee.IsZero()).To(BeTrue(), "expected balance of vesting account to be zero")
 		Expect(balanceDest.IsZero()).To(BeTrue(), "expected destination balance to be zero")
 
-		msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr)
+		msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
 
 		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(s.ctx), msg)
 		Expect(err).ToNot(HaveOccurred(), "expected creating clawback vesting account to succeed")
@@ -707,7 +707,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, emptyVestingAddr, vestingAmtTotal)
 		Expect(err).ToNot(HaveOccurred(), "failed to fund target account")
 
-		msg := types.NewMsgCreateClawbackVestingAccount(funder, emptyVestingAddr)
+		msg := types.NewMsgCreateClawbackVestingAccount(funder, emptyVestingAddr, false)
 
 		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(s.ctx), msg)
 		Expect(err).ToNot(HaveOccurred(), "expected creating clawback vesting account to succeed")
@@ -1212,6 +1212,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 		msgCreate := types.NewMsgCreateClawbackVestingAccount(
 			funder,
 			vestingAddr,
+			false,
 		)
 
 		res, err := testutil.DeliverTx(s.ctx, s.app, vestingPriv, &gasPrice, msgCreate)

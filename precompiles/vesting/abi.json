@@ -290,6 +290,11 @@
         "internalType": "address",
         "name": "vestingAddress",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enableGovClawback",
+        "type": "bool"
       }
     ],
     "name": "createClawbackVestingAccount",

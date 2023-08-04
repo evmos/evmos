@@ -29,6 +29,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 	msg := types.NewMsgCreateClawbackVestingAccount(
 		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+		false,
 	)
 	suite.Require().Equal(types.RouterKey, msg.Route())
 	suite.Require().Equal(types.TypeMsgCreateClawbackVestingAccount, msg.Type())
@@ -43,7 +44,7 @@ func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountGetters() {
 func (suite *MsgsTestSuite) TestMsgCreateClawbackVestingAccountNew() {
 	funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 	vestingAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr)
+	msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
 	suite.Require().Equal(funder.String(), msg.FunderAddress)
 	suite.Require().Equal(vestingAddr.String(), msg.VestingAddress)
 }
