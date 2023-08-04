@@ -40,11 +40,9 @@ func MigrateStore(
 				ak.SetAccount(ctx, newAccount)
 				k.SetGovClawbackEnabled(ctx, newAccount.GetAddress())
 				logger.Debug("enabled clawback via governance", "address", newAccount.Address)
-			} else {
-				k.SetGovClawbackEnabled(ctx, oldAccount.GetAddress())
-				logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
-
 			}
+			k.SetGovClawbackEnabled(ctx, oldAccount.GetAddress())
+			logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
 
 		}
 
