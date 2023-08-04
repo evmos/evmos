@@ -183,7 +183,7 @@ Where metadata.json contains (example):
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck,nolintlint
 			if err != nil {
 				return err
 			}
@@ -221,12 +221,12 @@ Where metadata.json contains (example):
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck,nolintlint
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck,nolintlint
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {

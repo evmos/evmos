@@ -55,13 +55,13 @@ func CreateUpgradeHandler(
 			case authtypes.ModuleName:
 				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 			case banktypes.ModuleName:
-				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck,nolintlint
 			case stakingtypes.ModuleName:
 				keyTable = stakingtypes.ParamKeyTable()
 			case minttypes.ModuleName:
 				keyTable = minttypes.ParamKeyTable() //nolint:staticcheck
 			case distrtypes.ModuleName:
-				keyTable = distrtypes.ParamKeyTable() //nolint:staticcheck
+				keyTable = distrtypes.ParamKeyTable() //nolint:staticcheck,nolintlint
 			case slashingtypes.ModuleName:
 				keyTable = slashingtypes.ParamKeyTable() //nolint:staticcheck
 			case govtypes.ModuleName:
