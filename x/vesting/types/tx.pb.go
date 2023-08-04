@@ -554,11 +554,11 @@ func (m *MsgConvertVestingAccountResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgConvertVestingAccountResponse proto.InternalMessageInfo
 
-// MsgUpdateParams defines a Msg for updating the x/revenue module parameters.
+// MsgUpdateParams defines a Msg for updating the x/vesting module parameters.
 type MsgUpdateParams struct {
 	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// params defines the x/revenue parameters to update.
+	// params defines the x/vesting parameters to update.
 	// NOTE: All parameters must be supplied.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
