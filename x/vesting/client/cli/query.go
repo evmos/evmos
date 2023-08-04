@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetBalancesCmd(),
+		GetParamsCmd(),
 	)
 	return cmd
 }
@@ -56,6 +57,34 @@ func GetBalancesCmd() *cobra.Command {
 
 			return clientCtx.PrintString(
 				fmt.Sprintf("Locked: %s\nUnvested: %s\nVested: %s\n", res.Locked, res.Unvested, res.Vested))
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetParamsCmd queries the vesting module parameters
+func GetParamsCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Short: "Gets the vesting params",
+		Long:  "Gets the vesting module parameters",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
 		},
 	}
 

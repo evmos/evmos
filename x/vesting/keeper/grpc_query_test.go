@@ -74,6 +74,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 				msg := types.NewMsgCreateClawbackVestingAccount(
 					funder,
 					vestingAddr,
+					false,
 				)
 				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
 				suite.Require().NoError(err, "error while creating the vesting account")

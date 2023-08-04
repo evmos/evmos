@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 
 			// create a clawback vesting account if necessary
 			if tc.initClawback {
-				msgCreate := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr)
+				msgCreate := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr, false)
 				resCreate, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msgCreate)
 				suite.Require().NoError(err)
 				suite.Require().Equal(&types.MsgCreateClawbackVestingAccountResponse{}, resCreate)
@@ -188,7 +188,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr, balances)
 				suite.Require().NoError(err)
 
-				msg := types.NewMsgCreateClawbackVestingAccount(funderAddr, vestingAddr)
+				msg := types.NewMsgCreateClawbackVestingAccount(funderAddr, vestingAddr, false)
 				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 				suite.Require().NoError(err, "failed to create vesting account")
 			},
@@ -232,7 +232,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 
 			tc.malleate(tc.funder, tc.vestingAddr)
 
-			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr)
+			msg := types.NewMsgCreateClawbackVestingAccount(tc.funder, tc.vestingAddr, false)
 			res, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
 
 			if tc.expPass {
@@ -369,7 +369,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 
 			// Create Clawback Vesting Account
 			if tc.initClawback {
-				createMsg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr)
+				createMsg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, true)
 				createRes, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, createMsg)
 				suite.Require().NoError(err)
 				suite.Require().NotNil(createRes)
@@ -494,7 +494,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 
 			// Create Clawback Vesting Account
 			if tc.initClawback {
-				createMsg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr)
+				createMsg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
 				createRes, err := suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, createMsg)
 				suite.Require().NoError(err)
 				suite.Require().NotNil(createRes)

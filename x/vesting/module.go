@@ -54,13 +54,18 @@ func (AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) 
 }
 
 // DefaultGenesis returns the module's default genesis state as raw bytes.
-func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
-	return []byte("{}")
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
+	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation. Currently, this is a no-op.
-func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, _ json.RawMessage) error {
-	return nil
+// ValidateGenesis performs genesis state validation of the vesting module.
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
+	var genesisState types.GenesisState
+	if err := cdc.UnmarshalJSON(bz, &genesisState); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
+
+	return genesisState.Validate()
 }
 
 // RegisterRESTRoutes registers module's REST handlers. Currently, this is a no-op.
@@ -148,8 +153,12 @@ func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
 	return nil
 }
 
-// InitGenesis performs a no-op.
-func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) []abci.ValidatorUpdate {
+// InitGenesis performs genesis initialization for the vesting module. It returns
+// no validator updates.
+func (am AppModule) InitGenesis(sdk sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+	var genesisState types.GenesisState
+	cdc.MustUnmarshalJSON(data, &genesisState)
+	InitGenesis(sdk, am.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
@@ -161,9 +170,10 @@ func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.Valid
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis is always empty, as InitGenesis does nothing either.
-func (am AppModule) ExportGenesis(_ sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	return am.DefaultGenesis(cdc)
+// ExportGenesis returns the exported genesis state as raw bytes for the vesting module.
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
+	gs := ExportGenesis(ctx, am.keeper)
+	return cdc.MustMarshalJSON(gs)
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.

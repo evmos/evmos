@@ -15,6 +15,7 @@ import (
 // AccountKeeper defines the expected interface contract the vesting module
 // requires for storing accounts.
 type AccountKeeper interface {
+	GetModuleAddress(name string) sdk.AccAddress
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	SetAccount(sdk.Context, authtypes.AccountI)
 	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
@@ -65,4 +66,10 @@ type StakingKeeper interface {
 	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
 	// Hooks
 	stakingtypes.StakingHooks
+}
+
+// DistributionKeeper defines the expected interface contract the vesting module
+// requires for clawing back unvested coins to the community pool.
+type DistributionKeeper interface {
+	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }

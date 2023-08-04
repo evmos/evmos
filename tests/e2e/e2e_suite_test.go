@@ -284,6 +284,7 @@ func (s *IntegrationTestSuite) executeQueries() {
 		{"incentives: params", "incentives", "params"},
 		{"incentives: allocation-meters", "incentives", "allocation-meters"},
 		{"incentives: incentives", "incentives", "incentives"},
+		{"vesting: params", "vesting", "params"},
 	}
 
 	for _, tc := range testCases {

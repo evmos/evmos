@@ -3,10 +3,12 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "cosmos/msg/v1/msg.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
+import "cosmos_proto/cosmos.proto";
+import "evmos/vesting/v2/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "cosmos/msg/v1/msg.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
@@ -35,6 +37,9 @@ service Msg {
   rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
     option (google.api.http).get = "/evmos/vesting/v2/tx/convert_vesting_account";
   }
+  // UpdateParams defined a governance operation for updating the x/vesting module parameters.
+  // The authority is hard-coded to the Cosmos SDK x/gov module account
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgCreateClawbackVestingAccount defines a message that enables creating a
@@ -46,6 +51,8 @@ message MsgCreateClawbackVestingAccount {
   string funder_address = 1;
   // vesting_address specifies the address that will receive the vesting tokens
   string vesting_address = 2;
+  // enable_gov_clawback specifies whether the governance module can clawback this account
+  bool enable_gov_clawback = 3;
 }
 
 // MsgCreateClawbackVestingAccountResponse defines the
@@ -120,3 +127,17 @@ message MsgConvertVestingAccount {
 
 // MsgConvertVestingAccountResponse defines the MsgConvertVestingAccount response type.
 message MsgConvertVestingAccountResponse {}
+
+// MsgUpdateParams defines a Msg for updating the x/vesting module parameters.
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+  // authority is the address of the governance account.
+  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // params defines the x/vesting parameters to update.
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgUpdateParamsResponse defines the response structure for executing a
+// MsgUpdateParams message.
+message MsgUpdateParamsResponse {}
