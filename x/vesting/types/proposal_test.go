@@ -60,10 +60,17 @@ func (suite *ProposalTestSuite) TestClawbackProposal() {
 			address:     "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6ggg",
 			expectPass:  false,
 		},
+		{
+			msg:                "Clawback proposal - invalid destination addr",
+			title:              "test",
+			description:        "test desc",
+			address:            "evmos19y7d5jz7q0v86zw5m0300mhprpvu0ccc4x6xgg",
+			destinationAddress: "125182ujaisch8hsgs",
+			expectPass:         false,
+		},
 	}
 
 	for i, tc := range testCases {
-		// TODO: add test case for destination address
 		tx := types.NewClawbackProposal(tc.title, tc.description, tc.address, tc.destinationAddress)
 		err := tx.ValidateBasic()
 
