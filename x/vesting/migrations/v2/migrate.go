@@ -47,7 +47,7 @@ func MigrateStore(
 				logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
 			}
 		}
-		
+
 		return false
 	})
 
