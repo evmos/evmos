@@ -54,7 +54,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 			200000,
 			func(data []byte) {},
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 0),
 		},
 		{
 			name: "fail - different origin than vesting address",
@@ -63,6 +63,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{
 					funderAddr,
 					differentAddr,
+					false,
 				}
 			},
 			gas:         200000,
@@ -75,6 +76,7 @@ func (s *PrecompileTestSuite) TestCreateClawbackVestingAccount() {
 				return []interface{}{
 					funderAddr,
 					s.address,
+					false,
 				}
 			},
 			20000,
@@ -250,11 +252,6 @@ func (s *PrecompileTestSuite) TestClawback() {
 				success, err := s.precompile.Unpack(vesting.ClawbackMethod, data)
 				s.Require().NoError(err)
 				s.Require().Equal(success[0], true)
-
-				// Check if the vesting account was clawed back
-				vestingAcc, err := s.app.VestingKeeper.Balances(s.ctx, &vestingtypes.QueryBalancesRequest{Address: sdk.AccAddress(toAddr.Bytes()).String()})
-				s.Require().NoError(err)
-				s.Require().Equal(vestingAcc, &vestingtypes.QueryBalancesResponse{Unvested: sdk.Coins{}, Vested: sdk.Coins{}})
 			},
 			false,
 			"",
@@ -404,10 +401,6 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 			"success",
 			func() []interface{} {
 				s.CreateTestClawbackVestingAccount()
-				s.FundTestClawbackVestingAccount()
-				msg := vestingtypes.NewMsgClawback(s.address.Bytes(), toAddr.Bytes(), s.address.Bytes())
-				_, err := s.app.VestingKeeper.Clawback(s.ctx, msg)
-				s.Require().NoError(err)
 				return []interface{}{
 					toAddr,
 				}

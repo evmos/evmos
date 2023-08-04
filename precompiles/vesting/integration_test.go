@@ -101,6 +101,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					WithArgs(
 						funderAddr,
 						s.address,
+						false,
 					)
 
 				createClawbackCheck := passCheck.WithExpEvents(vesting.EventTypeCreateClawbackVestingAccount)
@@ -165,6 +166,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					WithArgs(
 						s.address,
 						differentAddr,
+						false,
 					)
 
 				createClawbackCheck := failCheck.WithErrContains("origin is different than the vesting address")

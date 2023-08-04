@@ -35,3 +35,21 @@ message ClawbackVestingAccount {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
 }
+
+// ClawbackProposal is a gov Content type to clawback funds
+// from a vesting account that has opted in to this functionality
+message ClawbackProposal {
+  option (gogoproto.equal) = false;
+  // title of the proposal
+  string title = 1;
+  // description of the proposal
+  string description = 2;
+  // address is the vesting account address
+  // to clawback the funds from
+  string address = 3;
+  // destination_address is the address that will receive
+  // the clawbacked funds from the given vesting account. When
+  // empty, proposal will return the coins to the vesting
+  // account funder.
+  string destination_address = 4;
+}

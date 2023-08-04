@@ -160,6 +160,7 @@ import (
 	revenuekeeper "github.com/evmos/evmos/v13/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v13/x/revenue/v1/types"
 	"github.com/evmos/evmos/v13/x/vesting"
+	vestingclient "github.com/evmos/evmos/v13/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
 
@@ -213,6 +214,7 @@ var (
 				// Evmos proposal types
 				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 				incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
+				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -470,7 +472,8 @@ func NewEvmos(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
+		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper)).
+		AddRoute(vestingtypes.RouterKey, vesting.NewVestingProposalHandler(&app.VestingKeeper))
 
 	govConfig := govtypes.DefaultConfig()
 	/*
@@ -506,8 +509,8 @@ func NewEvmos(
 	)
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
-		keys[vestingtypes.StoreKey], appCodec,
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
+		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper,
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -1240,6 +1243,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.VestingKeeper,
 		),
 	)
 
