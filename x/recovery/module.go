@@ -22,9 +22,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v13/x/recovery/client/cli"
-	"github.com/evmos/evmos/v13/x/recovery/keeper"
-	"github.com/evmos/evmos/v13/x/recovery/types"
+	"github.com/evmos/evmos/v14/x/recovery/client/cli"
+	"github.com/evmos/evmos/v14/x/recovery/keeper"
+	"github.com/evmos/evmos/v14/x/recovery/types"
 )
 
 // type check to ensure the interface is properly implemented

@@ -6,8 +6,8 @@ package vesting
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v13/x/vesting/keeper"
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/x/vesting/keeper"
+	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 // InitGenesis initializes the vesting module's state from a given genesis state.

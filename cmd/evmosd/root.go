@@ -39,17 +39,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 
-	evmosclient "github.com/evmos/evmos/v13/client"
-	"github.com/evmos/evmos/v13/client/debug"
-	"github.com/evmos/evmos/v13/encoding"
-	"github.com/evmos/evmos/v13/ethereum/eip712"
-	evmosserver "github.com/evmos/evmos/v13/server"
-	servercfg "github.com/evmos/evmos/v13/server/config"
-	srvflags "github.com/evmos/evmos/v13/server/flags"
+	evmosclient "github.com/evmos/evmos/v14/client"
+	"github.com/evmos/evmos/v14/client/debug"
+	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v14/ethereum/eip712"
+	evmosserver "github.com/evmos/evmos/v14/server"
+	servercfg "github.com/evmos/evmos/v14/server/config"
+	srvflags "github.com/evmos/evmos/v14/server/flags"
 
-	"github.com/evmos/evmos/v13/app"
-	cmdcfg "github.com/evmos/evmos/v13/cmd/config"
-	evmoskr "github.com/evmos/evmos/v13/crypto/keyring"
+	"github.com/evmos/evmos/v14/app"
+	cmdcfg "github.com/evmos/evmos/v14/cmd/config"
+	evmoskr "github.com/evmos/evmos/v14/crypto/keyring"
 )
 
 const (

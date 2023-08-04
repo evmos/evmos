@@ -9,7 +9,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v13/x/erc20/types"
+	"github.com/evmos/evmos/v14/x/erc20/types"
 )
 
 // MintingEnabled checks that:

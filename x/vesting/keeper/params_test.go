@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/evmos/evmos/v13/x/vesting/types"
+import "github.com/evmos/evmos/v14/x/vesting/types"
 
 func (suite *KeeperTestSuite) TestParams() {
 	testCases := []struct {

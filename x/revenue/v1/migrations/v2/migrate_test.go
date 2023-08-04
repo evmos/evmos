@@ -6,14 +6,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/evmos/evmos/v13/encoding"
-	v2 "github.com/evmos/evmos/v13/x/revenue/v1/migrations/v2"
-	v2types "github.com/evmos/evmos/v13/x/revenue/v1/migrations/v2/types"
-	"github.com/evmos/evmos/v13/x/revenue/v1/types"
+	"github.com/evmos/evmos/v14/encoding"
+	v2 "github.com/evmos/evmos/v14/x/revenue/v1/migrations/v2"
+	v2types "github.com/evmos/evmos/v14/x/revenue/v1/migrations/v2/types"
+	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v13/app"
+	"github.com/evmos/evmos/v14/app"
 	"github.com/stretchr/testify/require"
 )
 

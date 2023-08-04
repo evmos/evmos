@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
+	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v14

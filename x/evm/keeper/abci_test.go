@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/tendermint/tendermint/abci/types"
 )
 

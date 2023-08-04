@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/ibc-go/v6/modules/core/exported"
 
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v13/ibc"
-	"github.com/evmos/evmos/v13/x/erc20/keeper"
+	"github.com/evmos/evmos/v14/ibc"
+	"github.com/evmos/evmos/v14/x/erc20/keeper"
 )
 
 var _ porttypes.IBCModule = &IBCMiddleware{}

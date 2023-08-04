@@ -5,9 +5,9 @@ package v2
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v13/utils"
-	v1vestingtypes "github.com/evmos/evmos/v13/x/vesting/migrations/types"
-	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/utils"
+	v1vestingtypes "github.com/evmos/evmos/v14/x/vesting/migrations/types"
+	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 

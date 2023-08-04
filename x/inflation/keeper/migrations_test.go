@@ -7,11 +7,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/encoding"
-	inflationkeeper "github.com/evmos/evmos/v13/x/inflation/keeper"
-	v2types "github.com/evmos/evmos/v13/x/inflation/migrations/v2/types"
-	"github.com/evmos/evmos/v13/x/inflation/types"
+	"github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/encoding"
+	inflationkeeper "github.com/evmos/evmos/v14/x/inflation/keeper"
+	v2types "github.com/evmos/evmos/v14/x/inflation/migrations/v2/types"
+	"github.com/evmos/evmos/v14/x/inflation/types"
 )
 
 type mockSubspace struct {

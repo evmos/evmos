@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
 - (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
 
 ### Bug Fixes
