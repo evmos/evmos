@@ -61,7 +61,7 @@ func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 		Short: "Create a new vesting account at the address of the sender with a designated funder.",
 		Long: `A new clawback vesting account is created for the sender account, if it is not already of such type.
 Only the designated funder will be able to define lockup and vesting schedules and has to do so
-using the fund-vesting-account subcommand.`,
+using the fund-vesting-account subcommand. Clawback via governance is enabled through the second argument.`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
