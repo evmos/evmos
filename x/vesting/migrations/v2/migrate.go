@@ -5,6 +5,7 @@ package v2
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	accounttypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/evmos/evmos/v13/utils"
 	v1vestingtypes "github.com/evmos/evmos/v13/x/vesting/migrations/types"
 	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -27,17 +28,24 @@ func MigrateStore(
 
 	ak.IterateAccounts(ctx, func(account accounttypes.AccountI) bool {
 		if oldAccount, ok := account.(*v1vestingtypes.ClawbackVestingAccount); ok {
-			newAccount := &vestingtypes.ClawbackVestingAccount{
-				BaseVestingAccount: oldAccount.BaseVestingAccount,
-				FunderAddress:      oldAccount.FunderAddress,
-				StartTime:          oldAccount.StartTime,
-				LockupPeriods:      oldAccount.LockupPeriods,
-				VestingPeriods:     oldAccount.VestingPeriods,
+			if utils.IsMainnet(ctx.ChainID()) {
+				newAccount := &vestingtypes.ClawbackVestingAccount{
+					BaseVestingAccount: oldAccount.BaseVestingAccount,
+					FunderAddress:      oldAccount.FunderAddress,
+					StartTime:          oldAccount.StartTime,
+					LockupPeriods:      oldAccount.LockupPeriods,
+					VestingPeriods:     oldAccount.VestingPeriods,
+				}
+				ak.RemoveAccount(ctx, oldAccount)
+				ak.SetAccount(ctx, newAccount)
+				k.SetGovClawbackEnabled(ctx, newAccount.GetAddress())
+				logger.Debug("enabled clawback via governance", "address", newAccount.Address)
+			} else {
+				k.SetGovClawbackEnabled(ctx, oldAccount.GetAddress())
+				logger.Debug("enabled clawback via governance", "address", oldAccount.Address)
+
 			}
-			ak.RemoveAccount(ctx, oldAccount)
-			ak.SetAccount(ctx, newAccount)
-			k.SetGovClawbackEnabled(ctx, newAccount.GetAddress())
-			logger.Debug("enabled clawback via governance", "address", newAccount.Address)
+
 		}
 
 		return false
