@@ -1253,6 +1253,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14rc2.UpgradeName,
 		v14rc2.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.StakingKeeper,
 			app.VestingKeeper,
 		),
 	)
