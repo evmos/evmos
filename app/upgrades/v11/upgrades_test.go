@@ -30,6 +30,8 @@ import (
 )
 
 type UpgradeTestSuite struct {
+	suite.Suite
+
 	ctx     sdk.Context
 	app     *app.Evmos
 	consKey cryptotypes.PubKey

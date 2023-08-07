@@ -23,8 +23,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctmmigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v13

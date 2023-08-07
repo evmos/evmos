@@ -5,7 +5,7 @@ import (
 	"time"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/utils"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 
