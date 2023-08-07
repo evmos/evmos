@@ -7,14 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 
-	"github.com/evmos/evmos/v13/precompiles/common"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
@@ -132,11 +130,13 @@ import (
 	v12 "github.com/evmos/evmos/v13/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v13/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v13/app/upgrades/v14"
+	v14rc2 "github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	v8 "github.com/evmos/evmos/v13/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v13/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v13/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v13/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v13/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v13/precompiles/common"
 	"github.com/evmos/evmos/v13/x/claims"
 	claimskeeper "github.com/evmos/evmos/v13/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v13/x/claims/types"
@@ -1253,6 +1253,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14rc2.UpgradeName,
 		v14rc2.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.BankKeeper,
 			app.StakingKeeper,
 			app.VestingKeeper,
 		),

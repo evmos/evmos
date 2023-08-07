@@ -5,9 +5,13 @@ package v14rc2
 
 import (
 	"fmt"
+
+	math "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v13/utils"
@@ -52,6 +56,7 @@ var (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
+	bk bankkeeper.Keeper,
 	sk stakingkeeper.Keeper,
 	vk vestingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -64,7 +69,7 @@ func CreateUpgradeHandler(
 				// log error instead of aborting the upgrade
 				logger.Error("error while updating vesting funders", "error", err)
 			}
-			if err := MigrateNativeMultisigs(ctx, sk, OldMultisigs); err != nil {
+			if err := MigrateNativeMultisigs(ctx, bk, sk, OldMultisigs); err != nil {
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
 		}
@@ -92,13 +97,46 @@ func UpdateVestingFunders(ctx sdk.Context, k vestingkeeper.Keeper) error {
 
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
-func MigrateNativeMultisigs(ctx sdk.Context, sk stakingkeeper.Keeper, oldMultisigs []string) error {
+func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, oldMultisigs []string) error {
+	// delegationsMap holds the validator addresses and the total amount to be delegated to
+	// each of them.
+	var delegationsMap = make(map[string]math.Int)
+
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
 		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
 
 		for _, delegation := range delegations {
-			fmt.Printf("delegator: %s, validator: %s, amount: %s\n", delegation.DelegatorAddress, delegation.ValidatorAddress, delegation.GetShares())
+			unbondAmount, err := sk.Unbond(ctx, delegation.GetDelegatorAddr(), delegation.GetValidatorAddr(), delegation.GetShares())
+			if err != nil {
+				return err
+			}
+			if _, ok := delegationsMap[delegation.ValidatorAddress]; !ok {
+				delegationsMap[delegation.ValidatorAddress] = math.ZeroInt()
+			}
+			delegationsMap[delegation.ValidatorAddress] = delegationsMap[delegation.ValidatorAddress].Add(unbondAmount)
+		}
+
+		// Send coins to new team multisig
+		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
+		err := bk.SendCoins(ctx, oldMultisigAcc, NewTeamMultisigAcc, balances)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Delegate from multisig to same validators
+	for validator, amount := range delegationsMap {
+		validatorAddr, err := sdk.ValAddressFromBech32(validator)
+		if err != nil {
+			return err
+		}
+		val, ok := sk.GetValidator(ctx, validatorAddr)
+		if !ok {
+			return fmt.Errorf("validator %s not found", validator)
+		}
+		if _, err := sk.Delegate(ctx, NewTeamMultisigAcc, amount, stakingtypes.Unbonded, val, true); err != nil {
+			return err
 		}
 	}
 

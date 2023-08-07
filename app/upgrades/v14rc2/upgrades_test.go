@@ -1,16 +1,12 @@
 package v14rc2_test
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v13/testutil"
 	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/x/vesting/types"
-	"log"
 )
 
 var (
@@ -61,59 +57,73 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	stakeAmount := int64(1e17)
 	stakeInt := sdk.NewInt(stakeAmount)
 	stakeCoin := sdk.NewCoin(stakeDenom, stakeInt)
+	doubleStakeCoin := sdk.NewCoin(stakeDenom, stakeInt.MulRaw(2))
+	nAccounts := 3
 
-	// Create staking helper
-	stakingHelper := teststaking.NewHelper(s.T(), s.ctx, s.app.StakingKeeper)
-	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-	stakingHelper.Denom = stakeDenom
-
-	// Create validator
-	valAccAddr, valPriv := testutiltx.NewAccAddressAndKey()
-	valAddr := sdk.ValAddress(valAccAddr)
-	err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, valAccAddr, stakeAmount)
-	s.Require().NoError(err, "failed to fund validator account")
-	stakingHelper.CreateValidator(valAddr, valPriv.PubKey(), stakeInt, true)
-
-	val := s.app.StakingKeeper.Validator(s.ctx, sdk.ValAddress(valPriv.PubKey().Address()))
-	s.Require().NotNil(val, "validator not found")
-	validator, ok := val.(stakingtypes.Validator)
-	s.Require().True(ok, "validator is not a staking validator")
-
-	var affectedAccounts = make(map[*ethsecp256k1.PrivKey]sdk.AccAddress, 3)
-	for idx := 0; idx < 3; idx++ {
+	affectedAccounts := make(map[*ethsecp256k1.PrivKey]sdk.AccAddress, nAccounts)
+	for idx := 0; idx < nAccounts; idx++ {
 		accAddr, priv := testutiltx.NewAccAddressAndKey()
 		affectedAccounts[priv] = accAddr
 	}
 
+	s.NextBlock()
+
+	var (
+		migratedBalances sdk.Coins
+		oldMultisigs     = make([]string, 0, len(affectedAccounts))
+	)
+
 	// Fund the affected accounts to initialize them and then create delegations
-	var oldMultisigs = make([]string, 0, len(affectedAccounts))
 	for priv, oldMultisig := range affectedAccounts {
 		oldMultisigs = append(oldMultisigs, oldMultisig.String())
-		log.Println("Current addr: ", oldMultisig.String())
-		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, 2*stakeAmount)
+		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, 10*stakeAmount)
 		s.Require().NoError(err, "failed to fund account %s", oldMultisig.String())
 
-		// send half of funds to validator
-		err = s.app.BankKeeper.SendCoins(s.ctx, oldMultisig, valAddr.Bytes(), sdk.NewCoins(stakeCoin))
-		s.Require().NoError(err, "failed to send coins to validator %s", val.GetOperator())
-		log.Println("Sent coins to validator: ", val.GetOperator().String())
+		_, err = testutil.Delegate(s.ctx, s.app, priv, stakeCoin, s.validators[0])
+		s.Require().NoError(err, "failed to delegate to validator %s", s.validators[0].GetOperator())
+		_, err = testutil.Delegate(s.ctx, s.app, priv, doubleStakeCoin, s.validators[1])
+		s.Require().NoError(err, "failed to delegate to validator %s", s.validators[1].GetOperator())
 
-		acc := s.app.AccountKeeper.GetAccount(s.ctx, oldMultisig)
-		s.Require().NotNil(acc, "account not found for %s", oldMultisig.String())
-		balancePre := s.app.BankKeeper.GetBalance(s.ctx, oldMultisig, stakeDenom)
-		s.Require().Equal(stakeAmount, balancePre.Amount.Int64(), "expected different balance for %s", oldMultisig.String())
-
-		// FIXME: this is failing saying that the account does not exist even though the other transactions and checks are passing
-		res, err := testutil.Delegate(s.ctx, s.app, priv, stakeCoin, validator)
-		s.Require().NoError(err, "failed to delegate to validator %s", val.GetOperator())
-		s.Require().True(res.IsOK(), "failed to delegate to validator %s", val.GetOperator())
+		balances := s.app.BankKeeper.SpendableCoins(s.ctx, oldMultisig)
+		migratedBalances = migratedBalances.Add(balances...)
 	}
 
-	err = v14rc2.MigrateNativeMultisigs(s.ctx, s.app.StakingKeeper, oldMultisigs)
+	// Check there are no prior delegations for new team multisig
+	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, v14rc2.NewTeamMultisigAcc)
+	s.Require().Len(delegations, 0, "expected no delegations for account %s", v14rc2.NewTeamMultisigAcc.String())
+
+	// Check validator shares before migration
+	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
+	expectedSharesMap := make(map[string]sdk.Dec, len(allValidators))
+	for _, validator := range allValidators {
+		expectedSharesMap[validator.OperatorAddress] = validator.DelegatorShares
+	}
+
+	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, oldMultisigs)
 	s.Require().NoError(err, "failed to migrate native multisigs")
 
 	// Check that the multisigs have been updated
-	for _, oldMultisig := range v14rc2.OldMultisigs {
-		fmt.Println("old multisig: ", oldMultisig)
+	for _, oldMultisig := range affectedAccounts {
+		delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, oldMultisig)
+		s.Require().Len(delegations, 0, "expected no delegations after migration for account %s", oldMultisig.String())
+		unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, oldMultisig)
+		s.Require().Len(unbondingDelegations, 0, "expected no unbonding delegations after migration for account %s", oldMultisig.String())
+		balances := s.app.BankKeeper.GetAllBalances(s.ctx, oldMultisig)
+		s.Require().Len(balances, 0, "expected no balance after migration for account %s", oldMultisig.String())
 	}
+
+	// Check that the new multisig has the corresponding delegations
+	delegations = s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, v14rc2.NewTeamMultisigAcc)
+	s.Require().True(len(delegations) > 0, "expected delegations after migration for account %s", v14rc2.NewTeamMultisigAcc.String())
+	// FIXME: check the total balance change of the new multisig
+	// totalBalances := s.app.BankKeeper.SpendableCoins(s.ctx, v14rc2.NewTeamMultisigAcc)
+	// s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", v14rc2.NewTeamMultisigAcc.String())
+
+	// Check validator shares after migration
+	allValidators = s.app.StakingKeeper.GetAllValidators(s.ctx)
+	sharesMap := make(map[string]sdk.Dec, len(allValidators))
+	for _, validator := range allValidators {
+		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
+	}
+	s.Require().Equal(expectedSharesMap, sharesMap, "expected different validator shares after migration")
 }
