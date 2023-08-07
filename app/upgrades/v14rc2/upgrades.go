@@ -16,25 +16,23 @@ import (
 const (
 	// oldFunder1 is one of the old vesting funders to be replaced
 	oldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
-	// oldFunder2 is the other old vesting funders to be replaced
+	// oldFunder2 is the other old vesting funder to be replaced
 	oldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
 	// newTeamMultisig is the new vesting team multisig
 	newTeamMultisig = "0x83ef4C096F9A9daC61081121CCE30578fe437182"
 )
 
 var (
-	oldFunderAcc1       = sdk.MustAccAddressFromBech32(oldFunder1)
-	oldFunderAcc2       = sdk.MustAccAddressFromBech32(oldFunder2)
-	newTeamMultisigAddr = common.HexToAddress(newTeamMultisig)
-	newTeamMultisigAcc  = sdk.AccAddress(newTeamMultisigAddr.Bytes())
-
-	// affectedAddresses is a map of vesting funders to be updated
+	// AffectedAddresses is a map of vesting accounts to be updated
 	// with their respective funder addresses
-	affectedAddresses = map[string]sdk.AccAddress{
-		"evmos12aqyq9d4k7a8hzh5av2xgxp0njan48498dvj2s": oldFunderAcc2,
-		"evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp": oldFunderAcc1,
-		"evmos1rtj2r4eaz0v68mxjt5jleynm85yjfu2uxm7pxx": oldFunderAcc2,
+	AffectedAddresses = map[string]string{
+		"evmos12aqyq9d4k7a8hzh5av2xgxp0njan48498dvj2s": oldFunder2,
+		"evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp": oldFunder1,
+		"evmos1rtj2r4eaz0v68mxjt5jleynm85yjfu2uxm7pxx": oldFunder2,
 	}
+
+	newTeamMultisigAddr = common.HexToAddress(newTeamMultisig)
+	NewTeamMultisigAcc  = sdk.AccAddress(newTeamMultisigAddr.Bytes())
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v14
@@ -64,9 +62,10 @@ func CreateUpgradeHandler(
 // UpdateVestingFunders updates the vesting funders for accounts managed by the team
 // to the new dedicated multisig address.
 func UpdateVestingFunders(ctx sdk.Context, k vestingkeeper.Keeper) error {
-	for address, oldFunder := range affectedAddresses {
+	for address, oldFunder := range AffectedAddresses {
 		vestingAcc := sdk.MustAccAddressFromBech32(address)
-		msgUpdate := vestingtypes.NewMsgUpdateVestingFunder(oldFunder, newTeamMultisigAcc, vestingAcc)
+		oldFunderAcc := sdk.MustAccAddressFromBech32(oldFunder)
+		msgUpdate := vestingtypes.NewMsgUpdateVestingFunder(oldFunderAcc, NewTeamMultisigAcc, vestingAcc)
 
 		if _, err := k.UpdateVestingFunder(ctx, msgUpdate); err != nil {
 			return err
