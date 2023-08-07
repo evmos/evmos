@@ -103,7 +103,7 @@ func (s *UpgradeTestSuite) TestUpdateVestingFunders() {
 }
 
 func (s *UpgradeTestSuite) TestUpdateMigrateNativeMultisigs() {
-	s.SetupTest(utils.TestnetChainID + "-2")
+	s.SetupTest(utils.MainnetChainID + "-1")
 
 	stakeDenom := s.app.StakingKeeper.BondDenom(s.ctx)
 	stakeAmount := int64(1e17)
