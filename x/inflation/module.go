@@ -26,6 +26,9 @@ import (
 	"github.com/evmos/evmos/v13/x/inflation/types"
 )
 
+// consensusVersion defines the current x/inflation module consensus version.
+const consensusVersion = 3
+
 // type check to ensure the interface is properly implemented
 var (
 	_ module.AppModule           = AppModule{}
@@ -48,7 +51,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 3
+	return consensusVersion
 }
 
 // RegisterInterfaces registers interfaces and implementations of the incentives
@@ -147,16 +150,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-// BeginBlock returns the begin blocker for the inflation module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
-}
-
-// EndBlock returns the end blocker for the inflation module. It returns no validator
-// updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
 }
 
 // InitGenesis performs genesis initialization for the inflation module. It returns

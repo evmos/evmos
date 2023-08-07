@@ -27,6 +27,9 @@ import (
 	"github.com/evmos/evmos/v13/x/revenue/v1/types"
 )
 
+// consensusVersion defines the current x/v1/revenue module consensus version.
+const consensusVersion = 2
+
 // type check to ensure the interface is properly implemented
 var (
 	_ module.AppModule           = AppModule{}
@@ -50,7 +53,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 2
+	return consensusVersion
 }
 
 // RegisterInterfaces registers interfaces and implementations of the fees
@@ -146,16 +149,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err != nil {
 		panic(errorsmod.Wrapf(err, "error running store migration"))
 	}
-}
-
-// BeginBlock executes all ABCI BeginBlock logic respective to the fees module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
-}
-
-// EndBlock executes all ABCI EndBlock logic respective to the fees module. It
-// returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
 }
 
 // InitGenesis performs the fees module's genesis initialization. It returns

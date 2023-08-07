@@ -130,10 +130,8 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 		app.DistrKeeper.SetFeePool(ctx, feePool)
 
 		err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
-		if err != nil { //nolint:gosimple // this lets us stop in case there's an error
-			return true
-		}
-		return false
+		// this lets us stop in case there's an error
+		return err != nil
 	})
 
 	// reinitialize all delegations

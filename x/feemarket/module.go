@@ -25,9 +25,14 @@ import (
 	"github.com/evmos/evmos/v13/x/feemarket/types"
 )
 
+// consensusVersion defines the current x/feemarket module consensus version.
+const consensusVersion = 4
+
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.EndBlockAppModule   = AppModule{}
+	_ module.BeginBlockAppModule = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the fee market module.
@@ -45,7 +50,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 4
+	return consensusVersion
 }
 
 // DefaultGenesis returns default genesis state as raw bytes for the fee market
