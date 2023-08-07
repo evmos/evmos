@@ -27,9 +27,9 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/x/evm/statedb"
-	"github.com/evmos/evmos/v13/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/x/evm/statedb"
+	"github.com/evmos/evmos/v14/x/evm/types"
 )
 
 var _ types.QueryServer = Keeper{}

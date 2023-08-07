@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
-	"github.com/evmos/evmos/v13/ethereum/eip712"
-	evmos "github.com/evmos/evmos/v13/types"
+	"github.com/evmos/evmos/v14/ethereum/eip712"
+	evmos "github.com/evmos/evmos/v14/types"
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
@@ -54,7 +54,7 @@ func PubkeyCmd() *cobra.Command {
 		Short: "Decode a pubkey from proto JSON",
 		Long:  "Decode a pubkey from proto JSON and display it's address",
 		Example: fmt.Sprintf(
-			`"$ %s debug pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AurroA7jvfPd1AadmmOvWM2rJSwipXfRf8yD6pLbA2DJ"}'`, //nolint:gitleaks
+			`"$ %s debug pubkey '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AurroA7jvfPd1AadmmOvWM2rJSwipXfRf8yD6pLbA2DJ"}'`, //gitleaks:allow
 			version.AppName,
 		),
 		Args: cobra.ExactArgs(1),

@@ -11,7 +11,7 @@ import (
 	ibctransfer "github.com/cosmos/ibc-go/v6/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	"github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v13/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 )
 
 var (

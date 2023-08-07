@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 
-	"github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/utils"
 )
 
 var (

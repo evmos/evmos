@@ -11,7 +11,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
