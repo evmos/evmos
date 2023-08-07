@@ -44,9 +44,6 @@ func (s *UpgradeTestSuite) SetupTest(chainID string) {
 			tmhash.Sum([]byte("validators")),
 		),
 	)
-
-	cp := s.app.BaseApp.GetConsensusParams(s.ctx)
-	s.ctx = s.ctx.WithConsensusParams(cp)
 }
 
 func TestUpgradeTestSuite(t *testing.T) {
