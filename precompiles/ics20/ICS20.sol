@@ -78,52 +78,53 @@ interface ICS20I {
     ) external view returns (string memory hash);
 
     /// @dev Approves IBC transfer with a specific amount of tokens.
-    /// @param spender spender The address which will spend the funds.
+    /// @param grantee The address for which the transfer authorization is granted.
     /// @param allocations the allocations for the authorization.
     function approve(
-        address spender,
+        address grantee,
         Allocation[] calldata allocations
     ) external returns (bool approved);
 
-    /// @dev Revokes IBC transfer authorization for a specific spender.
-    /// @param spender The address for which the transfer authorization will be revoked.
-    function revoke(address spender) external returns (bool revoked);
+    /// @dev Revokes IBC transfer authorization for a specific grantee.
+    /// @param grantee The address for which the transfer authorization will be revoked.
+    function revoke(address grantee) external returns (bool revoked);
 
-    /// @dev Returns the remaining number of tokens that spender will be allowed to spend on behalf of owner through
+    /// @dev Returns the remaining number of tokens that a grantee smart contract
+    /// will be allowed to spend on behalf of granter through
     /// IBC transfers. This is an empty by array.
-    /// @param owner The address of the account owning tokens.
-    /// @param spender The address of the account able to transfer the tokens.
+    /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
+    /// @param granter The address of the account able to transfer the tokens.
     /// @return allocations The remaining amounts allowed to spend for
     /// corresponding source port and channel.
     function allowance(
-        address owner,
-        address spender
+        address grantee,
+        address granter
     ) external view returns (Allocation[] memory allocations);
 
-    /// @dev Increase the allowance of a given spender by a specific amount of tokens for IBC transfer methods.
-    /// @param spender The address which will spend the funds.
+    /// @dev Increase the allowance of a given grantee by a specific amount of tokens for IBC transfer methods.
+    /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param sourcePort the port on which the packet will be sent
     /// @param sourceChannel the channel by which the packet will be sent
     /// @param denom the denomination of the Coin to be transferred to the receiver
     /// @param amount The amount of tokens to be spent.
     /// @return approved is true if the operation ran successfully
     function increaseAllowance(
-        address spender,
+        address grantee,
         string calldata sourcePort,
         string calldata sourceChannel,
         string calldata denom,
         uint256 amount
     ) external returns (bool approved);
 
-    /// @dev Decreases the allowance of a given spender by a specific amount of tokens for for IBC transfer methods.
-    /// @param spender The address which will spend the funds.
+    /// @dev Decreases the allowance of a given grantee by a specific amount of tokens for for IBC transfer methods.
+    /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param sourcePort the port on which the packet will be sent
     /// @param sourceChannel the channel by which the packet will be sent
     /// @param denom the denomination of the Coin to be transferred to the receiver
     /// @param amount The amount of tokens to be spent.
     /// @return approved is true if the operation ran successfully
     function decreaseAllowance(
-        address spender,
+        address grantee,
         string calldata sourcePort,
         string calldata sourceChannel,
         string calldata denom,
@@ -162,24 +163,24 @@ interface ICS20I {
         Coin[] spendLimit
     );
 
-    /// @dev This event is emitted when an owner revokes a spender's allowance.
-    /// @param owner The owner of the tokens.
-    /// @param spender The address which will spend the funds.
+    /// @dev This event is emitted when an granter revokes a grantee's allowance.
+    /// @param grantee The address of the grantee.
+    /// @param granter The address of the granter.
     event RevokeIBCTransferAuthorization(
-        address indexed owner,
-        address indexed spender
+        address indexed grantee,
+        address indexed granter
     );
 
-    /// @dev This event is emitted when the allowance of a spender is changed by a call to the decrease or increase
+    /// @dev This event is emitted when the allowance of a grantee is changed by a call to the decrease or increase
     /// allowance method. The values field specifies the new allowances and the methods field holds the
     /// information for which methods the approval was set.
-    /// @param owner The owner of the tokens.
-    /// @param spender The address which will spend the funds.
+    /// @param grantee The address of the grantee.
+    /// @param granter The address of the granter.
     /// @param methods The message type URLs of the methods for which the approval is set.
     /// @param values The amounts of tokens approved to be spent.
     event AllowanceChange(
-        address indexed owner,
-        address indexed spender,
+        address indexed grantee,
+        address indexed granter,
         string[] methods,
         uint256[] values
     );

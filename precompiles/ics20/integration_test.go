@@ -1012,7 +1012,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 				args := defaultCallArgs.
 					WithMethodName(method).
-					WithArgs(s.address, s.differentAddr)
+					WithArgs(s.differentAddr, s.address)
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1574,7 +1574,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			s.setTransferApprovalForContract(defaultApproveArgs)
 			defaultAllowanceArgs = defaultCallArgs.
 				WithMethodName("testAllowance").
-				WithArgs(s.address, contractAddr)
+				WithArgs(contractAddr, s.address)
 		})
 
 		It("should return allocations", func() {

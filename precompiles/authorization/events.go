@@ -37,6 +37,22 @@ type RevocationEvent struct {
 	TypeUrls []string
 }
 
+// EventApproval defines the event data for the authorization Approve transaction.
+type EventApproval struct {
+	Grantee common.Address
+	Granter common.Address
+	Methods []string
+	Value   *big.Int
+}
+
+// EventAllowanceChange defines the event data for the DecreaseAllowance and IncreaseAllowance transactions.
+type EventAllowanceChange struct {
+	Grantee common.Address
+	Granter common.Address
+	Methods []string
+	Values  []*big.Int
+}
+
 // EmitAllowanceChangeEvent creates a new allowance change event emitted on IncreaseAllowance
 // and DecreaseAllowance transactions.
 func EmitAllowanceChangeEvent(args cmn.EmitEventArgs) error {
