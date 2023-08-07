@@ -5,18 +5,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v13/app"
 	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v13/testutil"
 	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
-	"github.com/evmos/evmos/v13/utils"
-	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	"github.com/evmos/evmos/v13/x/vesting/types"
-	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"testing"
-	"time"
 )
 
 var (
@@ -24,50 +17,8 @@ var (
 	zeroDec = sdk.ZeroDec()
 )
 
-type UpgradeTestSuite struct {
-	suite.Suite
-
-	ctx         sdk.Context
-	app         *app.Evmos
-	consAddress sdk.ConsAddress
-}
-
-func (s *UpgradeTestSuite) SetupTest(chainID string) {
-	checkTx := false
-
-	// consensus key
-	priv, err := ethsecp256k1.GenerateKey()
-	s.Require().NoError(err)
-	s.consAddress = sdk.ConsAddress(priv.PubKey().Address())
-
-	// NOTE: this is the new binary, not the old one.
-	s.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
-	s.ctx = s.app.BaseApp.NewContext(
-		checkTx,
-		testutil.NewHeader(
-			1,
-			time.Now(),
-			chainID,
-			s.consAddress.Bytes(),
-			tmhash.Sum([]byte("block_id")),
-			tmhash.Sum([]byte("validators")),
-		),
-	)
-
-	// Set the staking params for testing with zero min commission
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
-	stakingParams.MinCommissionRate = zeroDec
-	s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
-}
-
-func TestUpgradeTestSuite(t *testing.T) {
-	s := new(UpgradeTestSuite)
-	suite.Run(t, s)
-}
-
-func (s *UpgradeTestSuite) TestUpdateVestingFunders() {
-	s.SetupTest(utils.TestnetChainID + "-2")
+func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
+	s.SetupTest()
 
 	// Fund the affected accounts to initialize them and then create vesting accounts
 	for address, oldFunder := range v14rc2.AffectedAddresses {
@@ -102,8 +53,8 @@ func (s *UpgradeTestSuite) TestUpdateVestingFunders() {
 	}
 }
 
-func (s *UpgradeTestSuite) TestUpdateMigrateNativeMultisigs() {
-	s.SetupTest(utils.MainnetChainID + "-1")
+func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
+	s.SetupTest()
 
 	stakeDenom := s.app.StakingKeeper.BondDenom(s.ctx)
 	stakeAmount := int64(1e17)
@@ -139,8 +90,12 @@ func (s *UpgradeTestSuite) TestUpdateMigrateNativeMultisigs() {
 	var oldMultisigs = make([]string, 0, len(affectedAccounts))
 	for priv, oldMultisig := range affectedAccounts {
 		oldMultisigs = append(oldMultisigs, oldMultisig.String())
+		fmt.Println("Current addr: ", oldMultisig.String())
 		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, stakeAmount)
 		s.Require().NoError(err, "failed to fund account %s", oldMultisig.String())
+
+		acc := s.app.AccountKeeper.GetAccount(s.ctx, oldMultisig)
+		s.Require().NotNil(acc, "account not found for %s", oldMultisig.String())
 
 		res, err := testutil.Delegate(s.ctx, s.app, priv, stakeCoin, validator)
 		s.Require().NoError(err, "failed to delegate to validator %s", val.GetOperator())
@@ -152,6 +107,6 @@ func (s *UpgradeTestSuite) TestUpdateMigrateNativeMultisigs() {
 
 	// Check that the multisigs have been updated
 	for _, oldMultisig := range v14rc2.OldMultisigs {
-		_ = oldMultisig
+		fmt.Println("old multisig: ", oldMultisig)
 	}
 }
