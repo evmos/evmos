@@ -96,7 +96,7 @@ if [ "$PRUNING" = "custom" ]; then
 fi
 
 # make sure the localhost IP is 0.0.0.0
-sed -i 's/pprof_laddr = "localhost:6060"/pprof_laddr = "0.0.0.0:6060"/g' "$CONFIG_TOML"
+sed -i 's/localhost/0.0.0.0/g' "$CONFIG_TOML"
 sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 
 # use timeout_commit 1s to make test faster
