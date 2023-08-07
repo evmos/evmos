@@ -7,9 +7,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/staking"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/staking"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {

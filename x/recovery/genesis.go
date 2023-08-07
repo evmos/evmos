@@ -7,8 +7,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v13/x/recovery/keeper"
-	"github.com/evmos/evmos/v13/x/recovery/types"
+	"github.com/evmos/evmos/v14/x/recovery/keeper"
+	"github.com/evmos/evmos/v14/x/recovery/types"
 )
 
 // InitGenesis import module genesis

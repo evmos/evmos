@@ -1,4 +1,4 @@
-module github.com/evmos/evmos/v13
+module github.com/evmos/evmos/v14
 
 go 1.20
 
