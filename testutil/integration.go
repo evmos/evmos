@@ -4,6 +4,7 @@
 package testutil
 
 import (
+	"log"
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
@@ -56,6 +57,11 @@ func Delegate(
 	validator stakingtypes.Validator,
 ) (abci.ResponseDeliverTx, error) {
 	accountAddress := sdk.AccAddress(priv.PubKey().Address().Bytes())
+	log.Println("accountAddress", accountAddress.String())
+	acc := appEvmos.AccountKeeper.GetAccount(ctx, accountAddress)
+	log.Println("acc", acc)
+	balance := appEvmos.BankKeeper.GetBalance(ctx, accountAddress, delegateAmount.Denom)
+	log.Println("balance", balance.String())
 
 	val, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 	if err != nil {

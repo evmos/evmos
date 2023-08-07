@@ -10,6 +10,7 @@ import (
 	"github.com/evmos/evmos/v13/testutil"
 	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/evmos/evmos/v13/x/vesting/types"
+	"log"
 )
 
 var (
@@ -84,19 +85,25 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 		affectedAccounts[priv] = accAddr
 	}
 
-	fmt.Println("chain ID: ", s.ctx.ChainID())
-
 	// Fund the affected accounts to initialize them and then create delegations
 	var oldMultisigs = make([]string, 0, len(affectedAccounts))
 	for priv, oldMultisig := range affectedAccounts {
 		oldMultisigs = append(oldMultisigs, oldMultisig.String())
-		fmt.Println("Current addr: ", oldMultisig.String())
-		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, stakeAmount)
+		log.Println("Current addr: ", oldMultisig.String())
+		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, 2*stakeAmount)
 		s.Require().NoError(err, "failed to fund account %s", oldMultisig.String())
+
+		// send half of funds to validator
+		err = s.app.BankKeeper.SendCoins(s.ctx, oldMultisig, valAddr.Bytes(), sdk.NewCoins(stakeCoin))
+		s.Require().NoError(err, "failed to send coins to validator %s", val.GetOperator())
+		log.Println("Sent coins to validator: ", val.GetOperator().String())
 
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, oldMultisig)
 		s.Require().NotNil(acc, "account not found for %s", oldMultisig.String())
+		balancePre := s.app.BankKeeper.GetBalance(s.ctx, oldMultisig, stakeDenom)
+		s.Require().Equal(stakeAmount, balancePre.Amount.Int64(), "expected different balance for %s", oldMultisig.String())
 
+		// FIXME: this is failing saying that the account does not exist even though the other transactions and checks are passing
 		res, err := testutil.Delegate(s.ctx, s.app, priv, stakeCoin, validator)
 		s.Require().NoError(err, "failed to delegate to validator %s", val.GetOperator())
 		s.Require().True(res.IsOK(), "failed to delegate to validator %s", val.GetOperator())
