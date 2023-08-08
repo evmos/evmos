@@ -109,7 +109,6 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
 		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
-		fmt.Printf("\ncurrent balance for %s: %v\n", oldMultisig, bk.GetAllBalances(ctx, oldMultisigAcc))
 
 		for _, delegation := range delegations {
 			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
@@ -125,14 +124,10 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 		// Send coins to new team multisig
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
-		fmt.Printf(" --> old balance: %v\n", bk.GetAllBalances(ctx, oldMultisigAcc))
 		err := bk.SendCoins(ctx, oldMultisigAcc, NewTeamMultisigAcc, balances)
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("Sent %s from %q to %q\n", balances, oldMultisigAcc, NewTeamMultisigAcc)
-		fmt.Printf(" --> new multisig balance: %v\n", bk.GetAllBalances(ctx, NewTeamMultisigAcc))
 	}
 
 	// Delegate from multisig to same validators
@@ -148,9 +143,6 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 		if _, err := sk.Delegate(ctx, NewTeamMultisigAcc, amount, stakingtypes.Unbonded, val, true); err != nil {
 			return err
 		}
-
-		fmt.Printf("Delegated %s from %q to %q\n", amount, NewTeamMultisigAcc, validatorAddr)
-		fmt.Printf(" --> new multisig balance: %v\n", bk.GetAllBalances(ctx, NewTeamMultisigAcc))
 	}
 
 	return nil
@@ -158,7 +150,8 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 // InstantUnbonding will execute an instant unbonding of the given delegation
 //
-// NOTE: this logic is copied from the staking keepers's undelegate implementation
+// NOTE: this logic contains code copied from different functions of the
+// staking keepers's undelegate implementation.
 func InstantUnbonding(
 	ctx sdk.Context,
 	bk bankkeeper.Keeper,
@@ -170,7 +163,6 @@ func InstantUnbonding(
 	valAddr := del.GetValidatorAddr()
 
 	unbondAmount, err = sk.Unbond(ctx, delAddr, valAddr, del.GetShares())
-	fmt.Printf("unbonded %s from %s\n", unbondAmount, delAddr)
 	if err != nil {
 		return unbondAmount, err
 	}
@@ -190,7 +182,6 @@ func InstantUnbonding(
 	); err != nil {
 		return unbondAmount, err
 	}
-	fmt.Printf("  --> updated balance for %s: %v\n", delAddr, bk.GetAllBalances(ctx, delAddr))
 
 	return unbondAmount, nil
 }
