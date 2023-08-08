@@ -98,19 +98,25 @@ func UpdateVestingFunders(ctx sdk.Context, k vestingkeeper.Keeper) error {
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
 func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, oldMultisigs []string) error {
-	// delegationsMap holds the validator addresses and the total amount to be delegated to
-	// each of them.
-	var delegationsMap = make(map[string]math.Int)
+	var (
+		// bondDenom is the staking bond denomination used
+		bondDenom = sk.BondDenom(ctx)
+		// delegationsMap holds the validator addresses and the total amount to be delegated to
+		// each of them.
+		delegationsMap = make(map[string]math.Int)
+	)
 
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
 		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
+		fmt.Printf("\ncurrent balance for %s: %v\n", oldMultisig, bk.GetAllBalances(ctx, oldMultisigAcc))
 
 		for _, delegation := range delegations {
-			unbondAmount, err := sk.Unbond(ctx, delegation.GetDelegatorAddr(), delegation.GetValidatorAddr(), delegation.GetShares())
+			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
 			if err != nil {
 				return err
 			}
+
 			if _, ok := delegationsMap[delegation.ValidatorAddress]; !ok {
 				delegationsMap[delegation.ValidatorAddress] = math.ZeroInt()
 			}
@@ -119,10 +125,14 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 		// Send coins to new team multisig
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
+		fmt.Printf(" --> old balance: %v\n", bk.GetAllBalances(ctx, oldMultisigAcc))
 		err := bk.SendCoins(ctx, oldMultisigAcc, NewTeamMultisigAcc, balances)
 		if err != nil {
 			return err
 		}
+
+		fmt.Printf("Sent %s from %q to %q\n", balances, oldMultisigAcc, NewTeamMultisigAcc)
+		fmt.Printf(" --> new multisig balance: %v\n", bk.GetAllBalances(ctx, NewTeamMultisigAcc))
 	}
 
 	// Delegate from multisig to same validators
@@ -138,7 +148,57 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 		if _, err := sk.Delegate(ctx, NewTeamMultisigAcc, amount, stakingtypes.Unbonded, val, true); err != nil {
 			return err
 		}
+
+		fmt.Printf("Delegated %s from %q to %q\n", amount, NewTeamMultisigAcc, validatorAddr)
+		fmt.Printf(" --> new multisig balance: %v\n", bk.GetAllBalances(ctx, NewTeamMultisigAcc))
 	}
 
 	return nil
+}
+
+// InstantUnbonding will execute an instant unbonding of the given delegation
+//
+// NOTE: this logic is copied from the staking keepers's undelegate implementation
+func InstantUnbonding(
+	ctx sdk.Context,
+	bk bankkeeper.Keeper,
+	sk stakingkeeper.Keeper,
+	del stakingtypes.Delegation,
+	bondDenom string,
+) (unbondAmount math.Int, err error) {
+	delAddr := del.GetDelegatorAddr()
+	valAddr := del.GetValidatorAddr()
+
+	unbondAmount, err = sk.Unbond(ctx, delAddr, valAddr, del.GetShares())
+	fmt.Printf("unbonded %s from %s\n", unbondAmount, delAddr)
+	if err != nil {
+		return unbondAmount, err
+	}
+
+	// transfer the validator tokens to the not bonded pool if necessary
+	validator, found := sk.GetValidator(ctx, valAddr)
+	if !found {
+		return unbondAmount, fmt.Errorf("validator %s not found", valAddr)
+	}
+	if validator.IsBonded() {
+		bondedTokensToNotBonded(ctx, bk, unbondAmount, bondDenom)
+	}
+
+	// Transfer the tokens from the not bonded pool to the delegator
+	if err := bk.UndelegateCoinsFromModuleToAccount(
+		ctx, stakingtypes.NotBondedPoolName, delAddr, sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: unbondAmount}},
+	); err != nil {
+		return unbondAmount, err
+	}
+	fmt.Printf("  --> updated balance for %s: %v\n", delAddr, bk.GetAllBalances(ctx, delAddr))
+
+	return unbondAmount, nil
+}
+
+// bondedTokensToNotBonded transfers coins from the bonded to the not bonded pool within staking
+func bondedTokensToNotBonded(ctx sdk.Context, bk bankkeeper.Keeper, amount math.Int, bondDenom string) {
+	coins := sdk.NewCoins(sdk.NewCoin(bondDenom, amount))
+	if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, coins); err != nil {
+		panic(err)
+	}
 }

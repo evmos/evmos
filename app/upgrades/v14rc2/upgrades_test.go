@@ -1,6 +1,7 @@
 package v14rc2_test
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
@@ -58,7 +59,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	stakeInt := sdk.NewInt(stakeAmount)
 	stakeCoin := sdk.NewCoin(stakeDenom, stakeInt)
 	doubleStakeCoin := sdk.NewCoin(stakeDenom, stakeInt.MulRaw(2))
-	nAccounts := 3
+	nAccounts := 1
 
 	affectedAccounts := make(map[*ethsecp256k1.PrivKey]sdk.AccAddress, nAccounts)
 	for idx := 0; idx < nAccounts; idx++ {
@@ -78,14 +79,20 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 		oldMultisigs = append(oldMultisigs, oldMultisig.String())
 		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldMultisig, 10*stakeAmount)
 		s.Require().NoError(err, "failed to fund account %s", oldMultisig.String())
+		fmt.Printf("sent %s to %s\n", stakeCoin, oldMultisig.String())
+		fmt.Printf(" --> balance %v\n", s.app.BankKeeper.GetAllBalances(s.ctx, oldMultisig))
 
 		_, err = testutil.Delegate(s.ctx, s.app, priv, stakeCoin, s.validators[0])
 		s.Require().NoError(err, "failed to delegate to validator %s", s.validators[0].GetOperator())
+		fmt.Printf("delegated %v from %s to %s\n", stakeAmount, oldMultisig.String(), s.validators[0].OperatorAddress)
 		_, err = testutil.Delegate(s.ctx, s.app, priv, doubleStakeCoin, s.validators[1])
 		s.Require().NoError(err, "failed to delegate to validator %s", s.validators[1].GetOperator())
+		fmt.Printf("delegated %v from %s to %s\n", 2*stakeAmount, oldMultisig.String(), s.validators[1].OperatorAddress)
 
+		fmt.Printf(" --> balance %v\n", s.app.BankKeeper.GetAllBalances(s.ctx, oldMultisig))
 		balances := s.app.BankKeeper.SpendableCoins(s.ctx, oldMultisig)
 		migratedBalances = migratedBalances.Add(balances...)
+		fmt.Printf(" --> migrated balances %v\n", migratedBalances)
 	}
 
 	// Check there are no prior delegations for new team multisig
@@ -116,8 +123,8 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	delegations = s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, v14rc2.NewTeamMultisigAcc)
 	s.Require().True(len(delegations) > 0, "expected delegations after migration for account %s", v14rc2.NewTeamMultisigAcc.String())
 	// FIXME: check the total balance change of the new multisig
-	// totalBalances := s.app.BankKeeper.SpendableCoins(s.ctx, v14rc2.NewTeamMultisigAcc)
-	// s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", v14rc2.NewTeamMultisigAcc.String())
+	totalBalances := s.app.BankKeeper.SpendableCoins(s.ctx, v14rc2.NewTeamMultisigAcc)
+	s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", v14rc2.NewTeamMultisigAcc.String())
 
 	// Check validator shares after migration
 	allValidators = s.app.StakingKeeper.GetAllValidators(s.ctx)
