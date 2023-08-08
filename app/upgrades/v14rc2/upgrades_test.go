@@ -1,6 +1,7 @@
 package v14rc2_test
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
@@ -93,11 +94,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.Require().Len(delegations, 0, "expected no delegations for account %s", v14rc2.NewTeamMultisigAcc.String())
 
 	// Check validator shares before migration
-	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
-	expectedSharesMap := make(map[string]sdk.Dec, len(allValidators))
-	for _, validator := range allValidators {
-		expectedSharesMap[validator.OperatorAddress] = validator.DelegatorShares
-	}
+	expectedSharesMap := s.getDelegationSharesMap()
 
 	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, oldMultisigs)
 	s.Require().NoError(err, "failed to migrate native multisigs")
@@ -118,11 +115,37 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	totalBalances := s.app.BankKeeper.GetAllBalances(s.ctx, v14rc2.NewTeamMultisigAcc)
 	s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", v14rc2.NewTeamMultisigAcc.String())
 
-	// Check validator shares after migration
-	allValidators = s.app.StakingKeeper.GetAllValidators(s.ctx)
+	// Check validator shares after migration.
+	// NOTE: They must be equal to guarantee that the voting power is unchanged before and after the migration.
+	sharesMap := s.getDelegationSharesMap()
+	s.Require().Equal(expectedSharesMap, sharesMap, "expected different validator shares after migration")
+}
+
+func (s *UpgradesTestSuite) TestInstantUnbonding() {
+	balancePre := s.app.BankKeeper.GetAllBalances(s.ctx, s.address.Bytes())
+	delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
+	s.Require().True(found, "delegation not found")
+
+	unbondAmount, err := v14rc2.InstantUnbonding(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, delegation, s.bondDenom)
+	s.Require().NoError(err, "failed to unbond")
+	s.Require().Equal(unbondAmount, math.NewInt(1e18), "expected different unbond amount")
+
+	expectedDiff := sdk.Coins{{Denom: s.bondDenom, Amount: unbondAmount}}
+	balancePost := s.app.BankKeeper.GetAllBalances(s.ctx, s.address.Bytes())
+	diff := balancePost.Sub(balancePre...)
+	s.Require().Equal(expectedDiff, diff, "expected different balance diff")
+
+	_, found = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
+	s.Require().False(found, "delegation should not be found")
+}
+
+// getDelegationSharesMap returns a map of validator operator addresses to the
+// total shares delegated to them.
+func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]sdk.Dec {
+	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
 	sharesMap := make(map[string]sdk.Dec, len(allValidators))
 	for _, validator := range allValidators {
 		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
 	}
-	s.Require().Equal(expectedSharesMap, sharesMap, "expected different validator shares after migration")
+	return sharesMap
 }
