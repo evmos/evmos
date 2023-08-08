@@ -3,6 +3,7 @@ package v14rc2_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
 	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v13/testutil"
@@ -59,7 +60,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	stakeInt := sdk.NewInt(stakeAmount)
 	stakeCoin := sdk.NewCoin(stakeDenom, stakeInt)
 	doubleStakeCoin := sdk.NewCoin(stakeDenom, stakeInt.MulRaw(2))
-	nAccounts := 1
+	nAccounts := 3
 
 	affectedAccounts := make(map[*ethsecp256k1.PrivKey]sdk.AccAddress, nAccounts)
 	for idx := 0; idx < nAccounts; idx++ {
@@ -123,6 +124,8 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 
 func (s *UpgradesTestSuite) TestInstantUnbonding() {
 	balancePre := s.app.BankKeeper.GetAllBalances(s.ctx, s.address.Bytes())
+	notBondedPool := s.app.AccountKeeper.GetModuleAccount(s.ctx, stakingtypes.NotBondedPoolName)
+	poolBalancePre := s.app.BankKeeper.GetAllBalances(s.ctx, notBondedPool.GetAddress())
 	delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
 	s.Require().True(found, "delegation not found")
 
@@ -137,6 +140,9 @@ func (s *UpgradesTestSuite) TestInstantUnbonding() {
 
 	_, found = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
 	s.Require().False(found, "delegation should not be found")
+
+	poolBalancePost := s.app.BankKeeper.GetAllBalances(s.ctx, notBondedPool.GetAddress())
+	s.Require().Equal(poolBalancePre, poolBalancePost, "expected no change in pool balance")
 }
 
 // getDelegationSharesMap returns a map of validator operator addresses to the
