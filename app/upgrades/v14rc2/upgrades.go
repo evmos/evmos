@@ -74,7 +74,7 @@ func CreateUpgradeHandler(
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
 
-			logger.Debug("migration team premint wallet")
+			logger.Debug("migrating team premint wallet")
 			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
 				logger.Error("error while migrating team premint wallet", "error", err)
 			}
