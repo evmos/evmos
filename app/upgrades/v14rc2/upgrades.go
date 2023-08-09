@@ -36,8 +36,8 @@ var (
 		"evmos1rtj2r4eaz0v68mxjt5jleynm85yjfu2uxm7pxx",
 	}
 
-	// OldMultisigs is a list of old vesting multisigs to be replaced
-	OldMultisigs = []string{
+	// OldStrategicReserves is a list of old multisigs to be replaced
+	OldStrategicReserves = []string{
 		"evmos1z8ynrnhdn4l69mu6v6ckjr4wukcacd0e7j0akn", // Strategic Reserve 1
 		"evmos1w2rl60wr9sxjv60qsh9v8aratk0x2r3v78utzt", // Strategic Reserve 2
 		"evmos1fgg4xaakwmrxdk9my6uc8nxeatf7u35uaal529", // Strategic Reserve 3
@@ -70,7 +70,7 @@ func CreateUpgradeHandler(
 			}
 
 			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldMultisigs...); err != nil {
+			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
 
