@@ -20,18 +20,9 @@ func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
 	s.SetupTest()
 
 	// Fund the affected accounts to initialize them and then create vesting accounts
-	for address, oldFunder := range v14rc2.AffectedAddresses {
-		accAddr := sdk.MustAccAddressFromBech32(address)
-		err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, accAddr, 1000)
-		s.Require().NoError(err, "failed to fund account %s", address)
-
-		// Create vesting account
-		createMsg := &types.MsgCreateClawbackVestingAccount{
-			FunderAddress:  oldFunder,
-			VestingAddress: address,
-		}
-		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.UnwrapSDKContext(s.ctx), createMsg)
-		s.Require().NoError(err, "failed to create vesting account for %s", address)
+	s.prepareVestingAccount(v14rc2.VestingAddrByFunder1, v14rc2.OldFunder1)
+	for _, address := range v14rc2.VestingAddrsByFunder2 {
+		s.prepareVestingAccount(address, v14rc2.OldFunder2)
 	}
 
 	// Run the upgrade function
@@ -39,7 +30,8 @@ func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
 	s.Require().NoError(err, "failed to update vesting funders")
 
 	// Check that the vesting accounts have been updated
-	for address := range v14rc2.AffectedAddresses {
+	affectedAddrs := append(v14rc2.VestingAddrsByFunder2, v14rc2.VestingAddrByFunder1)
+	for _, address := range affectedAddrs {
 		accAddr := sdk.MustAccAddressFromBech32(address)
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, accAddr)
 		s.Require().NotNil(acc, "account not found for %s", address)
@@ -48,8 +40,22 @@ func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
 		s.Require().Equal(address, vestingAcc.Address, "expected different address in vesting account for %s", address)
 
 		// Check that the funder has been updated
-		s.Require().Equal(v14rc2.NewTeamMultisigAcc.String(), vestingAcc.FunderAddress, "expected different funder address for %s", address)
+		s.Require().Equal(v14rc2.NewTeamPremintWalletAcc.String(), vestingAcc.FunderAddress, "expected different funder address for %s", address)
 	}
+}
+
+func (s *UpgradesTestSuite) prepareVestingAccount(address string, funder string) {
+	accAddr := sdk.MustAccAddressFromBech32(address)
+	err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, accAddr, 1000)
+	s.Require().NoError(err, "failed to fund account %s", address)
+
+	// Create vesting account
+	createMsg := &types.MsgCreateClawbackVestingAccount{
+		FunderAddress:  funder,
+		VestingAddress: address,
+	}
+	_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.UnwrapSDKContext(s.ctx), createMsg)
+	s.Require().NoError(err, "failed to create vesting account for %s", address)
 }
 
 func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
@@ -72,6 +78,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 
 	var (
 		migratedBalances sdk.Coins
+		migrationTarget  = v14rc2.NewTeamPremintWalletAcc
 		oldMultisigs     = make([]string, 0, len(affectedAccounts))
 	)
 
@@ -91,13 +98,13 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	}
 
 	// Check there are no prior delegations for new team multisig
-	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, v14rc2.NewTeamMultisigAcc)
-	s.Require().Len(delegations, 0, "expected no delegations for account %s", v14rc2.NewTeamMultisigAcc.String())
+	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, migrationTarget)
+	s.Require().Len(delegations, 0, "expected no delegations for account %s", migrationTarget.String())
 
 	// Check validator shares before migration
 	expectedSharesMap := s.getDelegationSharesMap()
 
-	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, oldMultisigs)
+	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, oldMultisigs, migrationTarget)
 	s.Require().NoError(err, "failed to migrate native multisigs")
 
 	// Check that the multisigs have been updated
@@ -111,10 +118,10 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	}
 
 	// Check that the new multisig has the corresponding delegations
-	delegations = s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, v14rc2.NewTeamMultisigAcc)
-	s.Require().True(len(delegations) > 0, "expected delegations after migration for account %s", v14rc2.NewTeamMultisigAcc.String())
-	totalBalances := s.app.BankKeeper.GetAllBalances(s.ctx, v14rc2.NewTeamMultisigAcc)
-	s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", v14rc2.NewTeamMultisigAcc.String())
+	delegations = s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, migrationTarget)
+	s.Require().Len(delegations, 2, "expected two delegations after migration for account %s", migrationTarget.String())
+	totalBalances := s.app.BankKeeper.GetAllBalances(s.ctx, migrationTarget)
+	s.Require().Equal(migratedBalances, totalBalances, "expected different balance for target account %s", migrationTarget.String())
 
 	// Check validator shares after migration.
 	// NOTE: They must be equal to guarantee that the voting power is unchanged before and after the migration.

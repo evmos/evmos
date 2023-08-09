@@ -20,21 +20,25 @@ import (
 )
 
 const (
-	// oldFunder1 is one of the old vesting funders to be replaced
-	oldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
-	// oldFunder2 is the other old vesting funder to be replaced
-	oldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
-	// newTeamMultisig is the new vesting team multisig
-	newTeamMultisig = "0x83ef4C096F9A9daC61081121CCE30578fe437182"
+	// newTeamPremintWallet is the new vesting team multisig
+	newTeamPremintWallet = "0x83ef4C096F9A9daC61081121CCE30578fe437182"
+	// newTeamStrategicReserve is the new strategic reserve multisig
+	newTeamStrategicReserve = "0x29fDcB7b64B84fD54D0fB0E04A8f6B062046fc6F"
+	// OldFunder1 is one of the old vesting funders to be replaced
+	OldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	// OldFunder2 is the other old vesting funder to be replaced
+	OldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
+	// oldTeamPremintWallet is the old team premint wallet
+	oldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	// VestingAddrByFunder1 is the vesting account funded by OldFunder1
+	VestingAddrByFunder1 = "evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp"
 )
 
 var (
-	// AffectedAddresses is a map of vesting accounts to be updated
-	// with their respective funder addresses
-	AffectedAddresses = map[string]string{
-		"evmos12aqyq9d4k7a8hzh5av2xgxp0njan48498dvj2s": oldFunder2,
-		"evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp": oldFunder1,
-		"evmos1rtj2r4eaz0v68mxjt5jleynm85yjfu2uxm7pxx": oldFunder2,
+	// VestingAddrsByFunder2 is a slice of vesting accounts funded by OldFunder1
+	VestingAddrsByFunder2 = []string{
+		"evmos12aqyq9d4k7a8hzh5av2xgxp0njan48498dvj2s",
+		"evmos1rtj2r4eaz0v68mxjt5jleynm85yjfu2uxm7pxx",
 	}
 
 	// OldMultisigs is a list of old vesting multisigs to be replaced
@@ -44,12 +48,12 @@ var (
 		"evmos1fgg4xaakwmrxdk9my6uc8nxeatf7u35uaal529", // Strategic Reserve 3
 		"evmos15xm3h3fgjrkqtkr79t7rj9spq3qlzuheae5vss", // Strategic Reserve 4
 		"evmos15l8jnxynhldtydknzla2xpv8uxg00xgmg2enst", // Strategic Reserve 5
-		"evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l", // Team Premint Wallet
-		"evmos1f7vxxvmd544dkkmyxan76t76d39k7j3gr8d45y", // Consolidation Wallet
 	}
 
-	newTeamMultisigAddr = common.HexToAddress(newTeamMultisig)
-	NewTeamMultisigAcc  = sdk.AccAddress(newTeamMultisigAddr.Bytes())
+	newTeamPremintWalletAddr    = common.HexToAddress(newTeamPremintWallet)
+	NewTeamPremintWalletAcc     = sdk.AccAddress(newTeamPremintWalletAddr.Bytes())
+	newTeamStrategicReserveAddr = common.HexToAddress(newTeamStrategicReserve)
+	NewTeamStrategicReserveAcc  = sdk.AccAddress(newTeamStrategicReserveAddr.Bytes())
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v14
@@ -69,8 +73,15 @@ func CreateUpgradeHandler(
 				// log error instead of aborting the upgrade
 				logger.Error("error while updating vesting funders", "error", err)
 			}
-			if err := MigrateNativeMultisigs(ctx, bk, sk, OldMultisigs); err != nil {
+
+			logger.Debug("migrating strategic reserves")
+			if err := MigrateNativeMultisigs(ctx, bk, sk, OldMultisigs, NewTeamStrategicReserveAcc); err != nil {
 				logger.Error("error while migrating native multisigs", "error", err)
+			}
+
+			logger.Debug("migration team premint wallet")
+			if err := MigrateNativeMultisigs(ctx, bk, sk, []string{oldTeamPremintWallet}, NewTeamPremintWalletAcc); err != nil {
+				logger.Error("error while migrating team premint wallet", "error", err)
 			}
 		}
 
@@ -81,34 +92,50 @@ func CreateUpgradeHandler(
 
 // UpdateVestingFunders updates the vesting funders for accounts managed by the team
 // to the new dedicated multisig address.
-func UpdateVestingFunders(ctx sdk.Context, k vestingkeeper.Keeper) error {
-	for address, oldFunder := range AffectedAddresses {
-		vestingAcc := sdk.MustAccAddressFromBech32(address)
-		oldFunderAcc := sdk.MustAccAddressFromBech32(oldFunder)
-		msgUpdate := vestingtypes.NewMsgUpdateVestingFunder(oldFunderAcc, NewTeamMultisigAcc, vestingAcc)
-
-		if _, err := k.UpdateVestingFunder(ctx, msgUpdate); err != nil {
+func UpdateVestingFunders(ctx sdk.Context, vk vestingkeeper.Keeper) error {
+	if _, err := UpdateVestingFunder(ctx, vk, VestingAddrByFunder1, OldFunder1); err != nil {
+		return err
+	}
+	for _, address := range VestingAddrsByFunder2 {
+		if _, err := UpdateVestingFunder(ctx, vk, address, OldFunder2); err != nil {
 			return err
 		}
 	}
-
 	return nil
+}
+
+// UpdateVestingFunder updates the vesting funder for a single vesting account when address and the previous funder
+// are given as strings.
+func UpdateVestingFunder(ctx sdk.Context, k vestingkeeper.Keeper, address, oldFunder string) (*vestingtypes.MsgUpdateVestingFunderResponse, error) {
+	vestingAcc := sdk.MustAccAddressFromBech32(address)
+	oldFunderAcc := sdk.MustAccAddressFromBech32(oldFunder)
+	msgUpdate := vestingtypes.NewMsgUpdateVestingFunder(oldFunderAcc, NewTeamPremintWalletAcc, vestingAcc)
+
+	return k.UpdateVestingFunder(ctx, msgUpdate)
+}
+
+// MigratedDelegation holds the relevant information about a delegation to be migrated
+type MigratedDelegation struct {
+	// validator is the validator address
+	validator sdk.ValAddress
+	// amount is the amount to be delegated
+	amount math.Int
 }
 
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
-func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, oldMultisigs []string) error {
+func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, oldMultisigs []string, targetAcc sdk.AccAddress) error {
 	var (
 		// bondDenom is the staking bond denomination used
 		bondDenom = sk.BondDenom(ctx)
-		// delegationsMap holds the validator addresses and the total amount to be delegated to
-		// each of them.
-		delegationsMap = make(map[string]math.Int)
+		// migratedDelegations stores all delegations that must be migrated
+		migratedDelegations []MigratedDelegation
 	)
 
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
 		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
+		fmt.Printf("Iterating over %d delegations for %s\n", len(delegations), oldMultisigAcc.String())
 
 		for _, delegation := range delegations {
 			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
@@ -116,31 +143,27 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 				return err
 			}
 
-			if _, ok := delegationsMap[delegation.ValidatorAddress]; !ok {
-				delegationsMap[delegation.ValidatorAddress] = math.ZeroInt()
-			}
-			delegationsMap[delegation.ValidatorAddress] = delegationsMap[delegation.ValidatorAddress].Add(unbondAmount)
+			migratedDelegations = append(migratedDelegations, MigratedDelegation{
+				validator: delegation.GetValidatorAddr(),
+				amount:    unbondAmount,
+			})
 		}
 
 		// Send coins to new team multisig
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
-		err := bk.SendCoins(ctx, oldMultisigAcc, NewTeamMultisigAcc, balances)
+		err := bk.SendCoins(ctx, oldMultisigAcc, targetAcc, balances)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Delegate from multisig to same validators
-	for validator, amount := range delegationsMap {
-		validatorAddr, err := sdk.ValAddressFromBech32(validator)
-		if err != nil {
-			return err
-		}
-		val, ok := sk.GetValidator(ctx, validatorAddr)
+	for _, migration := range migratedDelegations {
+		val, ok := sk.GetValidator(ctx, migration.validator)
 		if !ok {
-			return fmt.Errorf("validator %s not found", validator)
+			return fmt.Errorf("validator %s not found", migration.validator.String())
 		}
-		if _, err := sk.Delegate(ctx, NewTeamMultisigAcc, amount, stakingtypes.Unbonded, val, true); err != nil {
+		if _, err := sk.Delegate(ctx, targetAcc, migration.amount, stakingtypes.Unbonded, val, true); err != nil {
 			return err
 		}
 	}
@@ -162,10 +185,17 @@ func InstantUnbonding(
 	delAddr := del.GetDelegatorAddr()
 	valAddr := del.GetValidatorAddr()
 
+	// Check if there are any outstanding redelegations for delegator - validator pair
+	// - this would require additional handling
+	if sk.HasReceivingRedelegation(ctx, delAddr, valAddr) {
+		return unbondAmount, fmt.Errorf("redelegation(s) found for delegator %s and validator %s", delAddr, valAddr)
+	}
+
 	unbondAmount, err = sk.Unbond(ctx, delAddr, valAddr, del.GetShares())
 	if err != nil {
 		return unbondAmount, err
 	}
+	unbondCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmount))
 
 	// transfer the validator tokens to the not bonded pool if necessary
 	validator, found := sk.GetValidator(ctx, valAddr)
@@ -173,23 +203,17 @@ func InstantUnbonding(
 		return unbondAmount, fmt.Errorf("validator %s not found", valAddr)
 	}
 	if validator.IsBonded() {
-		bondedTokensToNotBonded(ctx, bk, unbondAmount, bondDenom)
+		if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins); err != nil {
+			panic(err)
+		}
 	}
 
 	// Transfer the tokens from the not bonded pool to the delegator
 	if err := bk.UndelegateCoinsFromModuleToAccount(
-		ctx, stakingtypes.NotBondedPoolName, delAddr, sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: unbondAmount}},
+		ctx, stakingtypes.NotBondedPoolName, delAddr, unbondCoins,
 	); err != nil {
 		return unbondAmount, err
 	}
 
 	return unbondAmount, nil
-}
-
-// bondedTokensToNotBonded transfers coins from the bonded to the not bonded pool within staking
-func bondedTokensToNotBonded(ctx sdk.Context, bk bankkeeper.Keeper, amount math.Int, bondDenom string) {
-	coins := sdk.NewCoins(sdk.NewCoin(bondDenom, amount))
-	if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, coins); err != nil {
-		panic(err)
-	}
 }
