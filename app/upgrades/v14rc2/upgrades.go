@@ -64,7 +64,7 @@ func CreateUpgradeHandler(
 
 		if utils.IsMainnet(ctx.ChainID()) {
 			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk); err != nil {
+			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
 				// log error instead of aborting the upgrade
 				logger.Error("error while updating vesting funders", "error", err)
 			}

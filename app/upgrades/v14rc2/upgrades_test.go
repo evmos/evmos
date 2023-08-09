@@ -26,7 +26,7 @@ func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
 	}
 
 	// Run the upgrade function
-	err := v14rc2.UpdateVestingFunders(s.ctx, s.app.VestingKeeper)
+	err := v14rc2.UpdateVestingFunders(s.ctx, s.app.VestingKeeper, v14rc2.NewTeamPremintWalletAcc)
 	s.Require().NoError(err, "failed to update vesting funders")
 
 	// Check that the vesting accounts have been updated
