@@ -104,7 +104,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	// Check validator shares before migration
 	expectedSharesMap := s.getDelegationSharesMap()
 
-	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, oldMultisigs, migrationTarget)
+	err := v14rc2.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, migrationTarget, oldMultisigs...)
 	s.Require().NoError(err, "failed to migrate native multisigs")
 
 	// Check that the multisigs have been updated

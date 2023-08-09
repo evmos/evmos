@@ -19,7 +19,7 @@ type MigratedDelegation struct {
 
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
-func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, oldMultisigs []string, targetAcc sdk.AccAddress) error {
+func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
 	var (
 		// bondDenom is the staking bond denomination used
 		bondDenom = sk.BondDenom(ctx)
@@ -30,7 +30,6 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
 		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
-		fmt.Printf("Iterating over %d delegations for %s\n", len(delegations), oldMultisigAcc.String())
 
 		for _, delegation := range delegations {
 			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
@@ -46,7 +45,7 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 		// Send coins to new team multisig
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
-		err := bk.SendCoins(ctx, oldMultisigAcc, targetAcc, balances)
+		err := bk.SendCoins(ctx, oldMultisigAcc, newMultisig, balances)
 		if err != nil {
 			return err
 		}
@@ -58,7 +57,7 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 		if !ok {
 			return fmt.Errorf("validator %s not found", migration.validator.String())
 		}
-		if _, err := sk.Delegate(ctx, targetAcc, migration.amount, stakingtypes.Unbonded, val, true); err != nil {
+		if _, err := sk.Delegate(ctx, newMultisig, migration.amount, stakingtypes.Unbonded, val, true); err != nil {
 			return err
 		}
 	}

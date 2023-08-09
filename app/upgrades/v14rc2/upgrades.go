@@ -70,12 +70,12 @@ func CreateUpgradeHandler(
 			}
 
 			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, OldMultisigs, NewTeamStrategicReserveAcc); err != nil {
+			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldMultisigs...); err != nil {
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
 
 			logger.Debug("migration team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, []string{oldTeamPremintWallet}, NewTeamPremintWalletAcc); err != nil {
+			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
 				logger.Error("error while migrating team premint wallet", "error", err)
 			}
 		}
