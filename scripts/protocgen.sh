@@ -22,3 +22,4 @@ done
 cp -r github.com/evmos/evmos/v*/* ./
 rm -rf github.com
 
+

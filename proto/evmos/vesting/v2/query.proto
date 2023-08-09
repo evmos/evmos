@@ -16,11 +16,6 @@ service Query {
   rpc Balances(QueryBalancesRequest) returns (QueryBalancesResponse) {
     option (google.api.http).get = "/evmos/vesting/v2/balances/{address}";
   }
-
-  // Params retrieves the vesting module params
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/evmos/vesting/v2/params";
-  }
 }
 
 // QueryBalancesRequest is the request type for the Query/Balances RPC method.
@@ -41,14 +36,4 @@ message QueryBalancesResponse {
   // vested defines the current amount of vested tokens
   repeated cosmos.base.v1beta1.Coin vested = 3
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-}
-
-// QueryParamsRequest is the request type for the Query/Params RPC method.
-message QueryParamsRequest {}
-
-// QueryParamsResponse is the response type for the Query/Params RPC
-// method.
-message QueryParamsResponse {
-  // params are the vesting module parameters
-  Params params = 1 [(gogoproto.nullable) = false];
 }

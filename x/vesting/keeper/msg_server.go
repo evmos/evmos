@@ -7,10 +7,8 @@ import (
 	"context"
 	"time"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
 	"github.com/cosmos/cosmos-sdk/telemetry"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -197,12 +195,6 @@ func (k Keeper) Clawback(
 	goCtx context.Context,
 	msg *types.MsgClawback,
 ) (*types.MsgClawbackResponse, error) {
-	// Check if governance clawback is enabled
-	params := k.GetParams(sdk.UnwrapSDKContext(goCtx))
-	if !params.EnableGovClawback && msg.FunderAddress == k.authority.String() {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "gov clawback is disabled")
-	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	ak := k.accountKeeper
 	bk := k.bankKeeper
@@ -384,20 +376,6 @@ func (k Keeper) ConvertVestingAccount(
 	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	return &types.MsgConvertVestingAccountResponse{}, nil
-}
-
-// UpdateParams defines a method for updating vesting params
-func (k Keeper) UpdateParams(goCtx context.Context, req *types.MsgUpdateParams) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority.String() != req.Authority {
-		return nil, errorsmod.Wrapf(govtypes.ErrInvalidSigner, "invalid authority; expected %s, got %s", k.authority.String(), req.Authority)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.SetParams(ctx, req.Params); err != nil {
-		return nil, errorsmod.Wrapf(err, "error setting params")
-	}
-
-	return &types.MsgUpdateParamsResponse{}, nil
 }
 
 // addGrant merges a new clawback vesting grant into an existing

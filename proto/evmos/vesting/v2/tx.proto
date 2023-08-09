@@ -37,9 +37,6 @@ service Msg {
   rpc ConvertVestingAccount(MsgConvertVestingAccount) returns (MsgConvertVestingAccountResponse) {
     option (google.api.http).get = "/evmos/vesting/v2/tx/convert_vesting_account";
   }
-  // UpdateParams defined a governance operation for updating the x/vesting module parameters.
-  // The authority is hard-coded to the Cosmos SDK x/gov module account
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgCreateClawbackVestingAccount defines a message that enables creating a
@@ -127,17 +124,3 @@ message MsgConvertVestingAccount {
 
 // MsgConvertVestingAccountResponse defines the MsgConvertVestingAccount response type.
 message MsgConvertVestingAccountResponse {}
-
-// MsgUpdateParams defines a Msg for updating the x/vesting module parameters.
-message MsgUpdateParams {
-  option (cosmos.msg.v1.signer) = "authority";
-  // authority is the address of the governance account.
-  string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // params defines the x/vesting parameters to update.
-  // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
-}
-
-// MsgUpdateParamsResponse defines the response structure for executing a
-// MsgUpdateParams message.
-message MsgUpdateParamsResponse {}
