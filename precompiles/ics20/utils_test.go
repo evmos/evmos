@@ -361,7 +361,7 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
 	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-	var approvalEvent authorization.AllowanceChangeEvent
+	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
 	s.Require().NoError(err)
 	s.Require().Equal(s.address, approvalEvent.Grantee)

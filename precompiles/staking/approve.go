@@ -103,7 +103,7 @@ func (p Precompile) Revoke(
 		StateDB:        stateDB,
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
-		EventData: authorization.RevocationEvent{
+		EventData: authorization.EventRevocation{
 			Granter:  origin,
 			Grantee:  spender,
 			TypeUrls: typeURLs,

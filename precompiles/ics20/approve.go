@@ -152,7 +152,7 @@ func (p Precompile) IncreaseAllowance(
 		StateDB:        stateDB,
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
-		EventData: authorization.AllowanceChangeEvent{
+		EventData: authorization.EventAllowanceChange{
 			Granter: origin,
 			Grantee: grantee,
 			Values:  []*big.Int{amount},
@@ -229,7 +229,7 @@ func (p Precompile) DecreaseAllowance(
 		StateDB:        stateDB,
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
-		EventData: authorization.AllowanceChangeEvent{
+		EventData: authorization.EventAllowanceChange{
 			Granter: origin,
 			Grantee: grantee,
 			Values:  []*big.Int{amount},
