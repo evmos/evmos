@@ -5,8 +5,6 @@ package evmos.vesting.v2;
 
 import "cosmos/msg/v1/msg.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
-import "cosmos_proto/cosmos.proto";
-import "evmos/vesting/v2/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
