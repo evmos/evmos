@@ -300,8 +300,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.address,
 					s.differentAddr,
+					s.address,
 				}
 			},
 			func(bz []byte) {
@@ -347,8 +347,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.address,
 					s.differentAddr,
+					s.address,
 				}
 			},
 			func(bz []byte) {

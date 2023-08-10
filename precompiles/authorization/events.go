@@ -14,24 +14,24 @@ import (
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
-// ApprovalEvent is the event emitted on a successful Approve transaction.
-type ApprovalEvent struct {
+// EventApproval is the event emitted on a successful Approve transaction.
+type EventApproval struct {
 	Grantee  common.Address
 	Granter  common.Address
 	Coin     *sdk.Coin
 	TypeUrls []string
 }
 
-// AllowanceChangeEvent is the event emitted on successful IncreaseAllowance or DecreaseAllowance transactions.
-type AllowanceChangeEvent struct {
-	Grantee  common.Address
-	Granter  common.Address
-	Values   []*big.Int
-	TypeUrls []string
+// EventAllowanceChange is the event emitted on successful IncreaseAllowance or DecreaseAllowance transactions.
+type EventAllowanceChange struct {
+	Grantee common.Address
+	Granter common.Address
+	Values  []*big.Int
+	Methods []string
 }
 
-// RevocationEvent is the event emitted on a successful Revoke transaction.
-type RevocationEvent struct {
+// EventRevocation is the event emitted on a successful Revoke transaction.
+type EventRevocation struct {
 	Grantee  common.Address
 	Granter  common.Address
 	TypeUrls []string
@@ -41,9 +41,9 @@ type RevocationEvent struct {
 // and DecreaseAllowance transactions.
 func EmitAllowanceChangeEvent(args cmn.EmitEventArgs) error {
 	// check if the provided Event is correct type
-	allowanceChangeEvent, ok := args.EventData.(AllowanceChangeEvent)
+	allowanceChangeEvent, ok := args.EventData.(EventAllowanceChange)
 	if !ok {
-		return fmt.Errorf("invalid Event type, expecting AllowanceChangeEvent but received %T", args.EventData)
+		return fmt.Errorf("invalid Event type, expecting EventAllowanceChange but received %T", args.EventData)
 	}
 
 	// Prepare the event topics
@@ -66,7 +66,7 @@ func EmitAllowanceChangeEvent(args cmn.EmitEventArgs) error {
 
 	// Pack the arguments to be used as the Data field
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
-	packed, err := arguments.Pack(allowanceChangeEvent.TypeUrls, allowanceChangeEvent.Values)
+	packed, err := arguments.Pack(allowanceChangeEvent.Methods, allowanceChangeEvent.Values)
 	if err != nil {
 		return err
 	}
@@ -84,9 +84,9 @@ func EmitAllowanceChangeEvent(args cmn.EmitEventArgs) error {
 // EmitRevocationEvent creates a new approval event emitted on a Revoke transaction.
 func EmitRevocationEvent(args cmn.EmitEventArgs) error {
 	// Prepare the event topics
-	revocationEvent, ok := args.EventData.(RevocationEvent)
+	revocationEvent, ok := args.EventData.(EventRevocation)
 	if !ok {
-		return fmt.Errorf("invalid Event type, expecting RevocationEvent but received %T", args.EventData)
+		return fmt.Errorf("invalid Event type, expecting EventRevocation but received %T", args.EventData)
 	}
 	// Prepare the event topics
 	event := args.ContractEvents[EventTypeRevocation]

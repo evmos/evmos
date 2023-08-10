@@ -32,7 +32,7 @@ func (p Precompile) Approve(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	spender, transferAuthz, err := NewTransferAuthorization(method, args)
+	grantee, transferAuthz, err := NewTransferAuthorization(method, args)
 	if err != nil {
 		return nil, err
 	}
@@ -45,9 +45,9 @@ func (p Precompile) Approve(
 		}
 	}
 
-	// Only the origin can approve a transfer to the spender address
+	// Only the origin can approve a transfer to the grantee address
 	expiration := ctx.BlockTime().Add(p.ApprovalExpiration).UTC()
-	if err = p.AuthzKeeper.SaveGrant(ctx, spender.Bytes(), origin.Bytes(), transferAuthz, &expiration); err != nil {
+	if err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, &expiration); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +56,7 @@ func (p Precompile) Approve(
 	if err = p.EmitIBCTransferAuthorizationEvent(
 		ctx,
 		stateDB,
-		spender,
+		grantee,
 		origin,
 		allocation.SourcePort,
 		allocation.SourceChannel,
@@ -76,15 +76,15 @@ func (p Precompile) Revoke(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	spender, err := checkRevokeArgs(args)
+	grantee, err := checkRevokeArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, spender, origin, TransferMsg)
+	msgAuthz, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, origin, TransferMsg)
 	if err != nil {
-		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, spender, origin)
+		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	// check that the stored authorization matches the transfer authorization
@@ -92,11 +92,11 @@ func (p Precompile) Revoke(
 		return nil, authz.ErrUnknownAuthorizationType
 	}
 
-	if err = p.AuthzKeeper.DeleteGrant(ctx, spender.Bytes(), origin.Bytes(), TransferMsg); err != nil {
+	if err = p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg); err != nil {
 		return nil, err
 	}
 
-	if err = p.EmitIBCRevokeAuthorizationEvent(ctx, stateDB, spender, origin); err != nil {
+	if err = p.EmitIBCRevokeAuthorizationEvent(ctx, stateDB, grantee, origin); err != nil {
 		return nil, err
 	}
 
@@ -111,15 +111,15 @@ func (p Precompile) IncreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	spender, sourcePort, sourceChannel, denom, amount, err := checkAllowanceArgs(args)
+	grantee, sourcePort, sourceChannel, denom, amount, err := checkAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, spender, origin, TransferMsg)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, origin, TransferMsg)
 	if err != nil {
-		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, spender, origin)
+		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
@@ -143,7 +143,7 @@ func (p Precompile) IncreaseAllowance(
 
 	transferAuthz.Allocations[allocationIdx].SpendLimit = transferAuthz.Allocations[allocationIdx].SpendLimit.Add(allowanceCoin)
 
-	if err = p.AuthzKeeper.SaveGrant(ctx, spender.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
+	if err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
 		return nil, err
 	}
 
@@ -152,11 +152,11 @@ func (p Precompile) IncreaseAllowance(
 		StateDB:        stateDB,
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
-		EventData: authorization.AllowanceChangeEvent{
-			Granter:  origin,
-			Grantee:  spender,
-			Values:   []*big.Int{amount},
-			TypeUrls: []string{TransferMsg},
+		EventData: authorization.EventAllowanceChange{
+			Granter: origin,
+			Grantee: grantee,
+			Values:  []*big.Int{amount},
+			Methods: []string{TransferMsg},
 		},
 	}); err != nil {
 		return nil, err
@@ -173,15 +173,15 @@ func (p Precompile) DecreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	spender, sourcePort, sourceChannel, denom, amount, err := checkAllowanceArgs(args)
+	grantee, sourcePort, sourceChannel, denom, amount, err := checkAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, spender, origin, TransferMsg)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, origin, TransferMsg)
 	if err != nil {
-		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, spender, origin)
+		return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	transferAuthz, ok := msgAuthz.(*transfertypes.TransferAuthorization)
@@ -219,7 +219,7 @@ func (p Precompile) DecreaseAllowance(
 		}
 	}
 	transferAuthz.Allocations[allocationIdx] = allocation
-	if err = p.AuthzKeeper.SaveGrant(ctx, spender.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
+	if err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
 		return nil, err
 	}
 
@@ -229,11 +229,11 @@ func (p Precompile) DecreaseAllowance(
 		StateDB:        stateDB,
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
-		EventData: authorization.AllowanceChangeEvent{
-			Granter:  origin,
-			Grantee:  spender,
-			Values:   []*big.Int{amount},
-			TypeUrls: []string{TransferMsg},
+		EventData: authorization.EventAllowanceChange{
+			Granter: origin,
+			Grantee: grantee,
+			Values:  []*big.Int{amount},
+			Methods: []string{TransferMsg},
 		},
 	}); err != nil {
 		return nil, err
@@ -269,14 +269,14 @@ func (p Precompile) AcceptGrant(
 // UpdateGrant implements the ICS20 authz update grant.
 func (p Precompile) UpdateGrant(
 	ctx sdk.Context,
-	caller, origin common.Address,
+	grantee, origin common.Address,
 	expiration *time.Time,
 	resp *authz.AcceptResponse,
 ) (err error) {
 	if resp.Delete {
-		err = p.AuthzKeeper.DeleteGrant(ctx, caller.Bytes(), origin.Bytes(), TransferMsg)
+		err = p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg)
 	} else if resp.Updated != nil {
-		err = p.AuthzKeeper.SaveGrant(ctx, caller.Bytes(), origin.Bytes(), resp.Updated, expiration)
+		err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), resp.Updated, expiration)
 	}
 
 	if err != nil {
