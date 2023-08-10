@@ -121,6 +121,17 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 		)
 	}
 
+	// Check if vesting account exists
+	acc := ak.GetAccount(ctx, vestingAddr)
+	if acc == nil {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s does not exist", msg.VestingAddress)
+	}
+
+	vestingAcc, isClawback := acc.(*types.ClawbackVestingAccount)
+	if !isClawback {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s must be a clawback vesting account", msg.VestingAddress)
+	}
+
 	vestingCoins := msg.VestingPeriods.TotalAmount()
 	lockupCoins := msg.LockupPeriods.TotalAmount()
 
@@ -138,17 +149,6 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 			{Length: 0, Amount: lockupCoins},
 		}
 		vestingCoins = lockupCoins
-	}
-
-	// Check if vesting account exists
-	acc := ak.GetAccount(ctx, vestingAddr)
-	if acc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s does not exist", msg.VestingAddress)
-	}
-
-	vestingAcc, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s must be a clawback vesting account", msg.VestingAddress)
 	}
 
 	// NOTE: Add grant only if vesting account is empty or "merge" is true and the funder is correct.
