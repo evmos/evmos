@@ -44,7 +44,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 		)
 	}
 
-	// Create clawback vesting account if the account is not already one
+	// Create clawback vesting account if the account exists
 	acc := ak.GetAccount(ctx, vestingAddress)
 	if acc == nil {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
