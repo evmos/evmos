@@ -153,10 +153,10 @@ func (p Precompile) IncreaseAllowance(
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
 		EventData: authorization.AllowanceChangeEvent{
-			Granter:  origin,
-			Grantee:  grantee,
-			Values:   []*big.Int{amount},
-			TypeUrls: []string{TransferMsg},
+			Granter: origin,
+			Grantee: grantee,
+			Values:  []*big.Int{amount},
+			Methods: []string{TransferMsg},
 		},
 	}); err != nil {
 		return nil, err
@@ -230,10 +230,10 @@ func (p Precompile) DecreaseAllowance(
 		ContractAddr:   p.Address(),
 		ContractEvents: p.ABI.Events,
 		EventData: authorization.AllowanceChangeEvent{
-			Granter:  origin,
-			Grantee:  grantee,
-			Values:   []*big.Int{amount},
-			TypeUrls: []string{TransferMsg},
+			Granter: origin,
+			Grantee: grantee,
+			Values:  []*big.Int{amount},
+			Methods: []string{TransferMsg},
 		},
 	}); err != nil {
 		return nil, err

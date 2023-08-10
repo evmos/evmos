@@ -24,10 +24,10 @@ type ApprovalEvent struct {
 
 // AllowanceChangeEvent is the event emitted on successful IncreaseAllowance or DecreaseAllowance transactions.
 type AllowanceChangeEvent struct {
-	Grantee  common.Address
-	Granter  common.Address
-	Values   []*big.Int
-	TypeUrls []string
+	Grantee common.Address
+	Granter common.Address
+	Values  []*big.Int
+	Methods []string
 }
 
 // RevocationEvent is the event emitted on a successful Revoke transaction.
@@ -35,22 +35,6 @@ type RevocationEvent struct {
 	Grantee  common.Address
 	Granter  common.Address
 	TypeUrls []string
-}
-
-// EventApproval defines the event data for the authorization Approve transaction.
-type EventApproval struct {
-	Grantee common.Address
-	Granter common.Address
-	Methods []string
-	Value   *big.Int
-}
-
-// EventAllowanceChange defines the event data for the DecreaseAllowance and IncreaseAllowance transactions.
-type EventAllowanceChange struct {
-	Grantee common.Address
-	Granter common.Address
-	Methods []string
-	Values  []*big.Int
 }
 
 // EmitAllowanceChangeEvent creates a new allowance change event emitted on IncreaseAllowance
@@ -82,7 +66,7 @@ func EmitAllowanceChangeEvent(args cmn.EmitEventArgs) error {
 
 	// Pack the arguments to be used as the Data field
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
-	packed, err := arguments.Pack(allowanceChangeEvent.TypeUrls, allowanceChangeEvent.Values)
+	packed, err := arguments.Pack(allowanceChangeEvent.Methods, allowanceChangeEvent.Values)
 	if err != nil {
 		return err
 	}
