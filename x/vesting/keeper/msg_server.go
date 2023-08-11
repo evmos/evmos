@@ -314,7 +314,7 @@ func (k Keeper) UpdateVestingFunder(
 
 	// Check if account current funder is same as in msg
 	if va.FunderAddress != msg.FunderAddress {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "clawback can only be requested by original funder %s", va.FunderAddress)
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "%s is not the funder and cannot update vesting funder", va.FunderAddress)
 	}
 
 	// Perform clawback account update
