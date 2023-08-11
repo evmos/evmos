@@ -10,8 +10,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v13/utils"
-	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
+	"github.com/evmos/evmos/v14/utils"
+	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 )
 
 const (

@@ -131,6 +131,7 @@ import (
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
+	v14rc2 "github.com/evmos/evmos/v14/app/upgrades/v14rc2"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"

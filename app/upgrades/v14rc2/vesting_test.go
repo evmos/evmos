@@ -2,9 +2,9 @@ package v14rc2_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v13/app/upgrades/v14rc2"
-	"github.com/evmos/evmos/v13/testutil"
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/app/upgrades/v14rc2"
+	"github.com/evmos/evmos/v14/testutil"
+	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
