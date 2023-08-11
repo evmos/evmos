@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity >=0.8.17 .0;
+pragma solidity >=0.8.17;
 
 import "../authorization/Authorization.sol" as authorization;
 import "../common/Types.sol";

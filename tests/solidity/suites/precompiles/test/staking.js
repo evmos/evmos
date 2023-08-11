@@ -1,18 +1,27 @@
-const StakingI = artifacts.require("StakingI");
+const { expect } = require("chai");
+const hre = require("hardhat");
 
-contract("StakingTest", (accounts) => {
-  it("should stake to a validator", async () => {
-    const valAddr = "evmosvaloper1y036du8szp07wqfep2mzyneygdrvykxv33yesl";
-    const stakeAmount = 1000000000000000;
+describe("Staking", function () {
+  it("should stake EVMOS to a validator", async function () {
+    const valAddr = "evmosvaloper10jmp6sgh4cc6zt3e8gw05wavvejgr5pwlawghe";
+    const stakeAmount = hre.ethers.parseEther("0.001");
 
-    const staking = await StakingI.at("0x0000000000000000000000000000000000000800");
+    const staking = await hre.ethers.getContractAt(
+      "StakingI",
+      "0x0000000000000000000000000000000000000800"
+    );
 
-    const accounts = await web3.eth.getAccounts();
-    const tx = await staking.delegate(accounts[0], valAddr, stakeAmount, { from: signer });
-    const receipt = await web3.eth.getTransactionReceipt(tx.tx);
+    const [signer] = await hre.ethers.getSigners();
+    const tx = await staking
+      .connect(signer)
+      .delegate(signer, valAddr, stakeAmount);
+    await tx.wait(1);
 
-    console.log(`Staked 1000000000000000 aevmos with ${valAddr}`);
-    console.log("The transaction details are");
-    console.log(receipt);
+    // Query delegation
+    const delegation = await staking.delegation(signer, valAddr);
+    expect(delegation.balance.amount).to.equal(
+      stakeAmount,
+      "Stake amount does not match"
+    );
   });
 });

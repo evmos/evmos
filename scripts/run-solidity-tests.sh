@@ -19,4 +19,4 @@ else
     yarn install
 fi
 
-yarn test --network evmos --allowTests=precompiles $@
+yarn test --network evmos $@
