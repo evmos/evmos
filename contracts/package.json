@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.2"
+    "@openzeppelin/contracts": "^4.9.3"
   },
   "devDependencies": {},
   "scripts": {
