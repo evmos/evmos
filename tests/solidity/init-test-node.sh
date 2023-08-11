@@ -32,7 +32,7 @@ USER4_MNEMONIC="doll midnight silk carpet brush boring pluck office gown inquiry
 rm -rf $CHAIN_DIR
 
 # Import keys from mnemonics
-echo $VAL_MNEMONIC   | evmosd keys add $VAL_KEY   --recover --keyring-backend test --algo "$KEYALGO" --home $CHAIN_DIR
+echo $VAL_MNEMONIC | evmosd keys add $VAL_KEY --recover --keyring-backend test --algo "$KEYALGO" --home $CHAIN_DIR
 echo $USER1_MNEMONIC | evmosd keys add $USER1_KEY --recover --keyring-backend test --algo "$KEYALGO" --home $CHAIN_DIR
 echo $USER2_MNEMONIC | evmosd keys add $USER2_KEY --recover --keyring-backend test --algo "$KEYALGO" --home $CHAIN_DIR
 echo $USER3_MNEMONIC | evmosd keys add $USER3_KEY --recover --keyring-backend test --algo "$KEYALGO" --home $CHAIN_DIR
@@ -41,7 +41,7 @@ echo $USER4_MNEMONIC | evmosd keys add $USER4_KEY --recover --keyring-backend te
 evmosd init $MONIKER --chain-id $CHAINID --home $CHAIN_DIR
 
 # Set gas limit in genesis
-cat "$GENESIS" | jq '.consensus_params["block"]["max_gas"]="10000000"' > "$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+cat "$GENESIS" | jq '.consensus_params["block"]["max_gas"]="10000000"' >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # Change parameter token denominations to aevmos
 jq '.app_state.staking.params.bond_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -66,7 +66,7 @@ else
 fi
 
 # Allocate genesis accounts (cosmos formatted addresses)
-evmosd add-genesis-account "$(evmosd keys show $VAL_KEY   -a --keyring-backend test --home $CHAIN_DIR)" 1000000000000000000000aevmos,1000000000000000000stake --keyring-backend test --home $CHAIN_DIR
+evmosd add-genesis-account "$(evmosd keys show $VAL_KEY -a --keyring-backend test --home $CHAIN_DIR)" 1000000000000000000000aevmos,1000000000000000000stake --keyring-backend test --home $CHAIN_DIR
 evmosd add-genesis-account "$(evmosd keys show $USER1_KEY -a --keyring-backend test --home $CHAIN_DIR)" 1000000000000000000000aevmos,1000000000000000000stake --keyring-backend test --home $CHAIN_DIR
 evmosd add-genesis-account "$(evmosd keys show $USER2_KEY -a --keyring-backend test --home $CHAIN_DIR)" 1000000000000000000000aevmos,1000000000000000000stake --keyring-backend test --home $CHAIN_DIR
 evmosd add-genesis-account "$(evmosd keys show $USER3_KEY -a --keyring-backend test --home $CHAIN_DIR)" 1000000000000000000000aevmos,1000000000000000000stake --keyring-backend test --home $CHAIN_DIR
