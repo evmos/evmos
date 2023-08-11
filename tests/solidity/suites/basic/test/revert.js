@@ -1,36 +1,36 @@
-const Storage = artifacts.require("Storage");
+const Storage = artifacts.require('Storage')
 
-async function expectRevert(promise) {
+async function expectRevert (promise) {
   try {
-    await promise;
+    await promise
   } catch (error) {
-    if (error.message.indexOf("revert") === -1) {
-      expect("revert").to.equal(
+    if (error.message.indexOf('revert') === -1) {
+      expect('revert').to.equal(
         error.message,
-        "Wrong kind of exception received"
-      );
+        'Wrong kind of exception received'
+      )
     }
-    return;
+    return
   }
-  expect.fail("Expected an exception but none was received");
+  expect.fail('Expected an exception but none was received')
 }
 
-contract("Test EVM Revert", async function (accounts) {
+contract('Test EVM Revert', async function (accounts) {
   before(function () {
     console.log(
-      `Using Accounts (${accounts.length}): \n${accounts.join("\n")}`
-    );
-    console.log("==========================\n");
-  });
+      `Using Accounts (${accounts.length}): \n${accounts.join('\n')}`
+    )
+    console.log('==========================\n')
+  })
 
-  let storageInstance;
-  it("should deploy Stroage contract", async function () {
-    storageInstance = await Storage.new();
-    console.log(`Deployed Storage at: ${storageInstance.address}`);
-    expect(storageInstance.address).not.to.be.undefined;
-  });
+  let storageInstance
+  it('should deploy Stroage contract', async function () {
+    storageInstance = await Storage.new()
+    console.log(`Deployed Storage at: ${storageInstance.address}`)
+    expect(storageInstance.address).not.to.be.undefined
+  })
 
-  it("should revert when call `shouldRevert()`", async function () {
-    await expectRevert(storageInstance.shouldRevert());
-  });
-});
+  it('should revert when call `shouldRevert()`', async function () {
+    await expectRevert(storageInstance.shouldRevert())
+  })
+})
