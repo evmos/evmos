@@ -2,9 +2,6 @@
 node_modules/
 cache/
 artifacts/
-# ignore the contracts stored in the evmos dir (precompiles suite)
-# these are copied from the precompiles pkg of the repo
-**/contracts/evmos/*
 
 # ignore package-lock files (only use yarn.lock)
 package-lock.json
