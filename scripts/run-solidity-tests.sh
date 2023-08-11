@@ -8,9 +8,9 @@ rm -rf ~/.ethermintd
 # build ethermint binary
 make install
 
-cd tests/solidity
+cd tests/solidity || exit
 
-if command -v yarn &> /dev/null; then
+if command -v yarn &>/dev/null; then
     yarn install
 else
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
@@ -19,4 +19,4 @@ else
     yarn install
 fi
 
-yarn test --network evmos $@
+yarn test --network evmos "$@"
