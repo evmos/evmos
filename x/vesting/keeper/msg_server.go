@@ -40,7 +40,7 @@ func (k Keeper) CreateClawbackVestingAccount(
 
 	if bk.BlockedAddr(vestingAddress) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"clawback vesting account %s is not allowed to receive tokens", msg.VestingAddress,
+			"%s is a blocked address and cannot be converted in a clawback vesting account", msg.VestingAddress,
 		)
 	}
 
