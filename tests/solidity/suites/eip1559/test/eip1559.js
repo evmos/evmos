@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 contract('Transaction', async function (accounts) {
   it('should send a transaction with EIP-1559 flag', async function () {
     console.log('Accounts: ', accounts)

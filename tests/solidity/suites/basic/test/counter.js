@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const Counter = artifacts.require('Counter')
 
 async function expectRevert (promise) {

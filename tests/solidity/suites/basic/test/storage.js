@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const Storage = artifacts.require('Storage')
 
 contract('Test Storage Contract', async function (accounts) {

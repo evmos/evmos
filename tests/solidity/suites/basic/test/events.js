@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const EventTest = artifacts.require('EventTest')
 const truffleAssert = require('truffle-assertions')
 

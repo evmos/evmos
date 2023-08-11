@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const TodoList = artifacts.require('./OpCodes.sol')
 let contractInstance
 

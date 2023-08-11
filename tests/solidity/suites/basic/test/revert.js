@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const Storage = artifacts.require('Storage')
 
 async function expectRevert (promise) {
