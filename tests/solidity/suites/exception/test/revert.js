@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 const TestRevert = artifacts.require('TestRevert')
 
 contract('TestRevert', (accounts) => {
