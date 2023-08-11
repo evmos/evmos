@@ -114,7 +114,7 @@ message MsgUpdateVestingFunder {
 // type.
 message MsgUpdateVestingFunderResponse {}
 
-// MsgConvertVestingAccount defines a message that enables converting a vesting account to a eth account
+// MsgConvertVestingAccount defines a message that enables converting a vesting account to an eth account
 message MsgConvertVestingAccount {
   // vesting_address is the address of the vesting account to convert
   string vesting_address = 1;
