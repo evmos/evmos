@@ -371,6 +371,10 @@ func (k Keeper) ConvertVestingAccount(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 
+	// if gov clawback is disabled, remove the entry from the store.
+	// if no entry is found for the address, this will no-op
+	k.DeleteGovClawbackDisabled(ctx, address)
+
 	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
 	ethAccount.BaseAccount = vestingAcc.BaseAccount
 	k.accountKeeper.SetAccount(ctx, ethAccount)
@@ -455,7 +459,7 @@ func (k Keeper) transferClawback(
 
 	// Disable governance clawback for vesting account. If the account has this
 	// functionality disabled, this will no-op
-	k.DeleteGovClawbackEnabled(ctx, address)
+	k.SetGovClawbackDisabled(ctx, address)
 
 	// In case destination is community pool (e.g. Gov Clawback)
 	// call the corresponding function

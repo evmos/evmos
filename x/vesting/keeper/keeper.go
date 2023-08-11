@@ -77,9 +77,9 @@ func (k Keeper) SetGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
 }
 
-// DeleteGovClawbackEnabled enables the given vesting account address to be clawed back
+// DeleteGovClawbackDisabled enables the given vesting account address to be clawed back
 // via governance by deleting the address from the disabled accounts list.
-func (k Keeper) DeleteGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
+func (k Keeper) DeleteGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) {
 	//nolint:gocritic
 	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
 	ctx.KVStore(k.storeKey).Delete(key)
