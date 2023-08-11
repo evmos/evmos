@@ -41,8 +41,8 @@ type EventTransferAuthorization struct {
 
 // EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
 type EventRevokeAuthorization struct {
-	Owner   common.Address
-	Spender common.Address
+	Grantee common.Address
+	Granter common.Address
 }
 
 // DenomTraceResponse defines the data for the denom trace response.
@@ -84,7 +84,7 @@ type allocs struct {
 
 // NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.
 func NewTransferAuthorization(method *abi.Method, args []interface{}) (common.Address, *transfertypes.TransferAuthorization, error) {
-	spender, allocations, err := checkTransferAuthzArgs(method, args)
+	grantee, allocations, err := checkTransferAuthzArgs(method, args)
 	if err != nil {
 		return common.Address{}, nil, err
 	}
@@ -94,7 +94,7 @@ func NewTransferAuthorization(method *abi.Method, args []interface{}) (common.Ad
 		return common.Address{}, nil, err
 	}
 
-	return spender, transferAuthz, nil
+	return grantee, transferAuthz, nil
 }
 
 // NewMsgTransfer returns a new transfer message from the given arguments.
@@ -233,12 +233,12 @@ func checkRevokeArgs(args []interface{}) (common.Address, error) {
 		return common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	spender, ok := args[0].(common.Address)
-	if !ok || spender == (common.Address{}) {
-		return common.Address{}, fmt.Errorf(authorization.ErrInvalidGranter, args[0])
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
+		return common.Address{}, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
 	}
 
-	return spender, nil
+	return grantee, nil
 }
 
 // checkAllowanceArgs checks if the given arguments are valid for the DecreaseAllowance and IncreaseAllowance txs.
@@ -247,9 +247,9 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 		return common.Address{}, "", "", "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
-	spender, ok := args[0].(common.Address)
-	if !ok || spender == (common.Address{}) {
-		return common.Address{}, "", "", "", nil, fmt.Errorf(authorization.ErrInvalidGranter, args[0])
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
+		return common.Address{}, "", "", "", nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
 	}
 
 	sourcePort, ok := args[1].(string)
@@ -272,7 +272,7 @@ func checkAllowanceArgs(args []interface{}) (common.Address, string, string, str
 		return common.Address{}, "", "", "", nil, errorsmod.Wrapf(transfertypes.ErrInvalidAmount, cmn.ErrInvalidAmount, args[3])
 	}
 
-	return spender, sourcePort, sourceChannel, denom, amount, nil
+	return grantee, sourcePort, sourceChannel, denom, amount, nil
 }
 
 // checkTransferArgs checks if the given arguments are valid for the Transfer Approve tx.
@@ -281,9 +281,9 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
-	spender, ok := args[0].(common.Address)
+	grantee, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf(authorization.ErrInvalidGranter, args[0])
+		return common.Address{}, nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
 	}
 
 	var input allocs
@@ -309,7 +309,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 		}
 	}
 
-	return spender, allocations, nil
+	return grantee, allocations, nil
 }
 
 // checkAllocationExists checks if the given authorization allocation matches the given arguments.

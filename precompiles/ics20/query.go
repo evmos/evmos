@@ -95,7 +95,8 @@ func (p Precompile) DenomHash(
 	return method.Outputs.Pack(res.Hash)
 }
 
-// Allowance returns the remaining allowance of a spender.
+// Allowance returns the remaining allowance of for a combination of grantee - granter.
+// The grantee is the smart contract that was authorized by the granter to spend.
 func (p Precompile) Allowance(
 	ctx sdk.Context,
 	method *abi.Method,
@@ -105,12 +106,12 @@ func (p Precompile) Allowance(
 	// for this precompile
 	args = append(args, TransferMsg)
 
-	owner, spender, msg, err := authorization.CheckAllowanceArgs(args)
+	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	msgAuthz, _ := p.AuthzKeeper.GetAuthorization(ctx, spender.Bytes(), owner.Bytes(), msg)
+	msgAuthz, _ := p.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), msg)
 
 	if msgAuthz == nil {
 		// return empty array

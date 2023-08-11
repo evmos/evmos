@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
-			"fail - not a correct spender address",
+			"fail - not a correct grantee address",
 			func() []interface{} {
 				return []interface{}{
 					"test string",
@@ -256,7 +256,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			func() {},
 			200000,
 			true,
-			fmt.Sprintf(authorization.ErrInvalidGranter, "test string"),
+			fmt.Sprintf(authorization.ErrInvalidGrantee, "test string"),
 		},
 		{
 			"fail - authorization does not exist",
