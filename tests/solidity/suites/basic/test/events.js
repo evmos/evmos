@@ -14,6 +14,7 @@ contract('Test EventTest Contract', async function (accounts) {
   it('should deploy EventTest contract', async function () {
     eventInstance = await EventTest.new()
     console.log(`Deployed EventTest at: ${eventInstance.address}`)
+    /* eslint-disable no-unused-expressions */
     expect(eventInstance.address).not.to.be.undefined
   })
 

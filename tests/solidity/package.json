@@ -20,5 +20,18 @@
   "scripts": {
     "test": "node test-helper.js",
     "postinstall": "patch-package"
+  },
+  "standard": {
+    "globals": [
+      "artifacts",
+      "expect",
+      "contract",
+      "beforeEach",
+      "before",
+      "web3",
+      "it",
+      "assert",
+      "describe"
+    ]
   }
 }

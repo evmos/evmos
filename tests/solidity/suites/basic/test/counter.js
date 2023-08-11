@@ -1,5 +1,4 @@
 const Counter = artifacts.require('Counter')
-const truffleAssert = require('truffle-assertions')
 
 async function expectRevert (promise) {
   try {

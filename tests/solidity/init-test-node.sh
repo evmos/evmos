@@ -5,8 +5,8 @@ MONIKER="localtestnet"
 CHAIN_DIR="$HOME/.test-evmosd"
 KEYALGO="eth_secp256k1" #gitleaks:allow
 
-GENESIS="$CHAIN_DIR"/config/genesis.json"
-TMP_GENESIS="$CHAIN_DIR"/config/tmp_genesis.json"
+GENESIS="$CHAIN_DIR/config/genesis.json"
+TMP_GENESIS="$CHAIN_DIR/config/tmp_genesis.json"
 
 # localKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="localkey"
