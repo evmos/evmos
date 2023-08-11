@@ -86,19 +86,19 @@ func InstantUnbonding(
 	// Check if there are any outstanding redelegations for delegator - validator pair
 	// - this would require additional handling
 	if sk.HasReceivingRedelegation(ctx, delAddr, valAddr) {
-		return unbondAmount, fmt.Errorf("redelegation(s) found for delegator %s and validator %s", delAddr, valAddr)
+		return math.Int{}, fmt.Errorf("redelegation(s) found for delegator %s and validator %s", delAddr, valAddr)
 	}
 
 	unbondAmount, err = sk.Unbond(ctx, delAddr, valAddr, del.GetShares())
 	if err != nil {
-		return unbondAmount, err
+		return math.Int{}, err
 	}
 	unbondCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmount))
 
 	// transfer the validator tokens to the not bonded pool if necessary
 	validator, found := sk.GetValidator(ctx, valAddr)
 	if !found {
-		return unbondAmount, fmt.Errorf("validator %s not found", valAddr)
+		return math.Int{}, fmt.Errorf("validator %s not found", valAddr)
 	}
 	if validator.IsBonded() {
 		if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins); err != nil {
@@ -110,7 +110,7 @@ func InstantUnbonding(
 	if err := bk.UndelegateCoinsFromModuleToAccount(
 		ctx, stakingtypes.NotBondedPoolName, delAddr, unbondCoins,
 	); err != nil {
-		return unbondAmount, err
+		return math.Int{}, err
 	}
 
 	return unbondAmount, nil
