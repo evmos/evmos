@@ -198,7 +198,7 @@ function setupNetwork ({ runConfig, timeout }) {
     const serverStartedLog = 'Starting JSON-RPC server'
     const serverStartedMsg = 'evmosd started'
 
-    const evmosdProc = spawn('./init-test-node.sh', {
+    const evmosdProc = spawn('../e2e/init-node.sh', {
       cwd: __dirname,
       stdio: ['ignore', 'pipe', 'pipe']
     })
