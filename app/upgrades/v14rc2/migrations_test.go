@@ -10,10 +10,8 @@ import (
 	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 )
 
-var (
-	// zeroDec is a zero decimal value
-	zeroDec = sdk.ZeroDec()
-)
+// zeroDec is a zero decimal value
+var zeroDec = sdk.ZeroDec()
 
 func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.SetupTest()

@@ -21,7 +21,8 @@ func (s *UpgradesTestSuite) TestUpdateVestingFunders() {
 	s.Require().NoError(err, "failed to update vesting funders")
 
 	// Check that the vesting accounts have been updated
-	affectedAddrs := append(v14rc2.VestingAddrsByFunder2, v14rc2.VestingAddrByFunder1)
+	affectedAddrs := v14rc2.VestingAddrsByFunder2
+	affectedAddrs = append(affectedAddrs, v14rc2.VestingAddrByFunder1)
 	for _, address := range affectedAddrs {
 		accAddr := sdk.MustAccAddressFromBech32(address)
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, accAddr)

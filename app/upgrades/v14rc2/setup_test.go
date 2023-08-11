@@ -3,6 +3,8 @@
 package v14rc2_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +16,6 @@ import (
 	"github.com/evmos/evmos/v14/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 var s *UpgradesTestSuite
