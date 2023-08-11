@@ -922,7 +922,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	Context("governance clawback to community pool", func() {
 		BeforeEach(func() {
 			// enable governance clawback
-			s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, vestingAddr)
+			s.app.VestingKeeper.SetGovClawbackDisabled(s.ctx, vestingAddr)
 		})
 
 		It("should claw back unvested amount before cliff", func() {

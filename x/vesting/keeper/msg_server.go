@@ -76,8 +76,8 @@ func (k Keeper) CreateClawbackVestingAccount(
 	}
 	ak.SetAccount(ctx, vestingAcc)
 
-	if msg.EnableGovClawback {
-		k.SetGovClawbackEnabled(ctx, vestingAcc.GetAddress())
+	if !msg.EnableGovClawback {
+		k.SetGovClawbackDisabled(ctx, vestingAcc.GetAddress())
 	}
 
 	telemetry.IncrCounter(
@@ -240,7 +240,7 @@ func (k Keeper) Clawback(
 
 	// Check to see if it's a governance proposal clawback
 	if k.authority.String() == msg.FunderAddress {
-		if !k.HasGovClawbackEnabled(ctx, addr) {
+		if k.HasGovClawbackDisabled(ctx, addr) {
 			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", addr)
 		}
 

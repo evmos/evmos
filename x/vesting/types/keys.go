@@ -4,12 +4,13 @@
 package types
 
 const (
-	// ClawbackKey to be used in the KVStore to track team accounts subject to clawback from governance.
-	prefixGovClawbackEnabledKey = iota + 1
+	// prefixGovClawbackDisabledKey to be used in the KVStore to track vesting accounts that are not subject
+	// to clawback from governance.
+	prefixGovClawbackDisabledKey = iota + 1
 )
 
-// KeyPrefixGovClawbackEnabledKey is the prefix bytes for the EVM persistent store.
-var KeyPrefixGovClawbackEnabledKey = []byte{prefixGovClawbackEnabledKey}
+// KeyPrefixGovClawbackDisabledKey is the prefix bytes for storing the governance clawback enabled/disabled flag.
+var KeyPrefixGovClawbackDisabledKey = []byte{prefixGovClawbackDisabledKey}
 
 const (
 	// ModuleName defines the module's name.
