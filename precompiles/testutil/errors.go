@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

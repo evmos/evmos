@@ -5,7 +5,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v13/x/feemarket/types"
+	"github.com/evmos/evmos/v14/x/feemarket/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdkmath "cosmossdk.io/math"

@@ -9,14 +9,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	"github.com/evmos/evmos/v13/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	evmosutiltx "github.com/evmos/evmos/v13/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/utils"
-	vestingtypes "github.com/evmos/evmos/v13/x/vesting/types"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	"github.com/evmos/evmos/v14/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	evmosutiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/utils"
+	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 var (

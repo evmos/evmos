@@ -7,8 +7,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/vesting"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/vesting"
 )
 
 func (s *PrecompileTestSuite) TestBalances() {

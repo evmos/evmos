@@ -15,8 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	vestingkeeper "github.com/evmos/evmos/v13/x/vesting/keeper"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
