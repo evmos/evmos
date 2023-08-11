@@ -12,5 +12,18 @@
   },
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.6.0"
+  },
+  "standard": {
+    "globals": [
+      "artifacts",
+      "expect",
+      "contract",
+      "beforeEach",
+      "before",
+      "web3",
+      "it",
+      "assert",
+      "describe"
+    ]
   }
 }
