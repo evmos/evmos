@@ -20,7 +20,6 @@ var (
 	_ sdk.Msg = &MsgClawback{}
 	_ sdk.Msg = &MsgConvertVestingAccount{}
 	_ sdk.Msg = &MsgUpdateVestingFunder{}
-	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 const (
@@ -309,29 +308,3 @@ func (msg MsgConvertVestingAccount) GetSigners() []sdk.AccAddress {
 	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 	return []sdk.AccAddress{vesting}
 }
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
-	return []sdk.AccAddress{addr}
-}
-
-// ValidateBasic does a sanity check of the provided data
-func (msg *MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errorsmod.Wrap(err, "invalid authority address")
-	}
-
-	return msg.Params.Validate()
-}
-
-// GetSignBytes implements the LegacyMsg interface.
-func (msg MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&msg))
-}
-
-// Route returns the name of the module
-func (msg MsgUpdateParams) Route() string { return RouterKey }
-
-// Type returns the message type for a MsgCreateClawbackVestingAccount
-func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }

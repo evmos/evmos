@@ -207,7 +207,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 			funder:      funderAddr,
 			vestingAddr: authtypes.NewModuleAddress("distribution"),
 			expPass:     false,
-			errContains: "is not allowed to be a clawback vesting account",
+			errContains: "is a blocked address and cannot be converted in a clawback vesting account",
 		},
 		{
 			name: "success",
@@ -459,7 +459,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    newFunder,
 			initClawback: true,
 			expPass:      false,
-			errContains:  "clawback can only be requested by original funder",
+			errContains:  "is not the funder and cannot update vesting funder",
 		},
 		{
 			name:         "fail - new funder is blocked",

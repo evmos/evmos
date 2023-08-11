@@ -31,7 +31,6 @@ const (
 	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
 	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
 	fundVestingAccount           = "evmos/MsgFundVestingAccount"
-	updateParams                 = "evmos/vesting/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -72,7 +71,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateVestingFunder{},
 		&MsgFundVestingAccount{},
 		&MsgConvertVestingAccount{},
-		&MsgUpdateParams{},
 	)
 
 	registry.RegisterImplementations(
@@ -92,5 +90,4 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
 	cdc.RegisterConcrete(&MsgConvertVestingAccount{}, convertVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgFundVestingAccount{}, fundVestingAccount, nil)
-	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
 }

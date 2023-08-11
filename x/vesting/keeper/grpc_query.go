@@ -60,14 +60,3 @@ func (k Keeper) Balances(
 		Vested:   vested,
 	}, nil
 }
-
-// Params returns the total set of vesting parameters
-func (k Keeper) Params(
-	goCtx context.Context,
-	_ *types.QueryParamsRequest,
-) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	params := k.GetParams(ctx)
-
-	return &types.QueryParamsResponse{Params: params}, nil
-}

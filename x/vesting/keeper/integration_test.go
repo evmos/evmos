@@ -665,7 +665,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		Expect(balanceGrantee.IsZero()).To(BeTrue(), "expected balance of vesting account to be zero")
 		Expect(balanceDest.IsZero()).To(BeTrue(), "expected destination balance to be zero")
 
-		msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
+		msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, true)
 
 		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(s.ctx), msg)
 		Expect(err).ToNot(HaveOccurred(), "expected creating clawback vesting account to succeed")
@@ -920,11 +920,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	Context("governance clawback to community pool", func() {
-		BeforeEach(func() {
-			// enable governance clawback
-			s.app.VestingKeeper.SetGovClawbackEnabled(s.ctx, vestingAddr)
-		})
-
 		It("should claw back unvested amount before cliff", func() {
 			ctx := sdk.WrapSDKContext(s.ctx)
 
@@ -1151,6 +1146,17 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.Require().Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount.Uint64(), bG.Amount.Uint64())
 			// vesting amount should go to community pool
 			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
+		})
+
+		It("should not claw back when governance clawback is disabled", func() {
+			// disable governance clawback
+			s.app.VestingKeeper.SetGovClawbackDisabled(s.ctx, vestingAddr)
+
+			// Perform clawback before cliff
+			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
+			_, err := s.app.VestingKeeper.Clawback(s.ctx, msg)
+			Expect(err).To(HaveOccurred(), "expected error")
+			Expect(err.Error()).To(ContainSubstring("doesn't have governance clawback enabled"))
 		})
 	})
 })

@@ -1244,7 +1244,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.VestingKeeper,
 		),
 	)
 

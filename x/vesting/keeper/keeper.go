@@ -59,25 +59,28 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// HasGovClawbackEnabled checks if the given account has governance clawback enabled.
-func (k Keeper) HasGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) bool {
+// HasGovClawbackDisabled checks if the given account has governance clawback disabled.
+//
+// If an entry exists in the KV store for the given account, the account is NOT subject
+// to governance clawback.
+func (k Keeper) HasGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) bool {
 	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
+	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
 	return ctx.KVStore(k.storeKey).Has(key)
 }
 
-// SetGovClawbackEnabled enables the given vesting account address to be clawed back
+// SetGovClawbackDisabled disables the given vesting account address to be clawed back
 // via governance.
-func (k Keeper) SetGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
+func (k Keeper) SetGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) {
 	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
+	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
 	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
 }
 
-// DeleteGovClawbackEnabled disables the given vesting account address to be clawed back
-// via governance.
-func (k Keeper) DeleteGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
+// DeleteGovClawbackDisabled enables the given vesting account address to be clawed back
+// via governance by deleting the address from the disabled accounts list.
+func (k Keeper) DeleteGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) {
 	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
+	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
 	ctx.KVStore(k.storeKey).Delete(key)
 }
