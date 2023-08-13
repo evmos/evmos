@@ -38,7 +38,6 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	evmKeeper     types.EVMKeeper
 	stakingKeeper types.StakingKeeper
-	claimsKeeper  types.ClaimsKeeper
 }
 
 // NewKeeper creates new instances of the erc20 Keeper
@@ -50,7 +49,6 @@ func NewKeeper(
 	bk types.BankKeeper,
 	evmKeeper types.EVMKeeper,
 	sk types.StakingKeeper,
-	ck types.ClaimsKeeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
@@ -65,7 +63,6 @@ func NewKeeper(
 		bankKeeper:    bk,
 		evmKeeper:     evmKeeper,
 		stakingKeeper: sk,
-		claimsKeeper:  ck,
 	}
 }
 

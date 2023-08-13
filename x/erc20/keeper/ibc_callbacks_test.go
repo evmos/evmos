@@ -350,7 +350,6 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.app.BankKeeper,
 				suite.app.EvmKeeper,
 				suite.app.StakingKeeper,
-				suite.app.ClaimsKeeper,
 			)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
