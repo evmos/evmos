@@ -25,9 +25,9 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/tendermint/tendermint/libs/log"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cometbft/cometbft/libs/log"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/evmos/evmos/v14/rpc/ethereum/pubsub"
 	rpcfilters "github.com/evmos/evmos/v14/rpc/namespaces/ethereum/eth/filters"

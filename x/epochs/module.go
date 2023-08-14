@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
@@ -15,7 +14,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -28,9 +27,13 @@ import (
 	"github.com/evmos/evmos/v14/x/epochs/types"
 )
 
+// consensusVersion defines the current x/epochs module consensus version.
+const consensusVersion = 1
+
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.BeginBlockAppModule = AppModule{}
 )
 
 // ----------------------------------------------------------------------------
@@ -122,19 +125,6 @@ func (am AppModule) NewHandler() sdk.Handler {
 	return nil
 }
 
-// Route returns the epochs module's message routing key.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, am.NewHandler())
-}
-
-// QuerierRoute returns the epochs module's query routing key.
-func (AppModule) QuerierRoute() string { return "" }
-
-// LegacyQuerierHandler returns the epochs module's Querier.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
-
 // RegisterServices registers a GRPC query service to respond to the
 // module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -166,28 +156,12 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	am.keeper.BeginBlocker(ctx)
 }
 
-// EndBlock executes all ABCI EndBlock logic respective to the epochs module. It
-// returns no validator updates.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
-}
-
 // ___________________________________________________________________________
 
 // AppModuleSimulation functions
 
 // GenerateGenesisState creates a randomized GenState of theepochs module.
 func (AppModule) GenerateGenesisState(_ *module.SimulationState) {}
-
-// ProposalContents doesn't return any content functions for governance proposals.
-func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
-	return []simtypes.WeightedProposalContent{}
-}
-
-// RandomizedParams creates randomizedepochs param changes for the simulator.
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{}
-}
 
 // RegisterStoreDecoder registers a decoder for supply module's types
 func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
@@ -199,4 +173,4 @@ func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.Weig
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return consensusVersion }

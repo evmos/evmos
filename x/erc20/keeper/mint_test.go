@@ -54,10 +54,11 @@ func (suite *KeeperTestSuite) TestMintingEnabled() {
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, expPair.GetERC20Contract(), id)
 
 				params := banktypes.DefaultParams()
-				params.SendEnabled = []*banktypes.SendEnabled{
+				params.SendEnabled = []*banktypes.SendEnabled{ //nolint:staticcheck
 					{Denom: expPair.Denom, Enabled: false},
 				}
-				suite.app.BankKeeper.SetParams(suite.ctx, params)
+				err := suite.app.BankKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
 			},
 			false,
 		},

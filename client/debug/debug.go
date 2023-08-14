@@ -14,8 +14,8 @@ import (
 	evmos "github.com/evmos/evmos/v14/types"
 	"github.com/pkg/errors"
 
+	"github.com/cometbft/cometbft/libs/bytes"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/bytes"
 
 	"github.com/ethereum/go-ethereum/common"
 

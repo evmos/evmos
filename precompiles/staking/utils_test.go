@@ -9,6 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -35,9 +38,6 @@ import (
 	"github.com/evmos/evmos/v14/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"golang.org/x/exp/slices"
 )
 
@@ -46,7 +46,7 @@ import (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp()
+	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
 
@@ -106,7 +106,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -186,7 +186,8 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
 	s.bondDenom = stakingParams.BondDenom
-	s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	s.Require().NoError(err)
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
@@ -488,7 +489,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 		Amount:              sdk.NewCoin(s.bondDenom, sdk.NewIntFromBigInt(redelAmt)),
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
 		if _, err := msgSrv.BeginRedelegate(s.ctx, &msg); err != nil {
