@@ -3,7 +3,6 @@
 package backend
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -20,13 +19,13 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
+	"github.com/cometbft/cometbft/proto/tendermint/crypto"
 	"github.com/evmos/evmos/v14/rpc/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/tendermint/tendermint/proto/tendermint/crypto"
 )
 
 type txGasAndReward struct {
@@ -247,12 +246,12 @@ func TxLogsFromEvents(events []abci.Event, msgIndex int) ([]*ethtypes.Log, error
 func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
 	logs := make([]*evmtypes.Log, 0, len(event.Attributes))
 	for _, attr := range event.Attributes {
-		if !bytes.Equal(attr.Key, []byte(evmtypes.AttributeKeyTxLog)) {
+		if attr.Key != evmtypes.AttributeKeyTxLog {
 			continue
 		}
 
 		var log evmtypes.Log
-		if err := json.Unmarshal(attr.Value, &log); err != nil {
+		if err := json.Unmarshal([]byte(attr.Value), &log); err != nil {
 			return nil, err
 		}
 

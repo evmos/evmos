@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"math"
 
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	rpctypes "github.com/evmos/evmos/v14/rpc/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/pkg/errors"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // TraceTransaction returns the structured logs created during the execution of EVM
@@ -85,7 +86,12 @@ func (b *Backend) TraceTransaction(hash common.Hash, config *evmtypes.TraceConfi
 		return nil, fmt.Errorf("invalid transaction type %T", tx)
 	}
 
-	cp, err := b.clientCtx.Client.ConsensusParams(b.ctx, &blk.Block.Height)
+	nc, ok := b.clientCtx.Client.(tmrpcclient.NetworkClient)
+	if !ok {
+		return nil, errors.New("invalid rpc client")
+	}
+
+	cp, err := nc.ConsensusParams(b.ctx, &blk.Block.Height)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +176,12 @@ func (b *Backend) TraceBlock(height rpctypes.BlockNumber,
 	}
 	ctxWithHeight := rpctypes.ContextWithHeight(int64(contextHeight))
 
-	cp, err := b.clientCtx.Client.ConsensusParams(b.ctx, &block.Block.Height)
+	nc, ok := b.clientCtx.Client.(tmrpcclient.NetworkClient)
+	if !ok {
+		return nil, errors.New("invalid rpc client")
+	}
+
+	cp, err := nc.ConsensusParams(b.ctx, &block.Block.Height)
 	if err != nil {
 		return nil, err
 	}

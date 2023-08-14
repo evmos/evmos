@@ -14,7 +14,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v6/modules/core/04-channel/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v14/precompiles/distribution"
 	ics20 "github.com/evmos/evmos/v14/precompiles/ics20"
 	stakingprecompile "github.com/evmos/evmos/v14/precompiles/staking"

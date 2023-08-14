@@ -7,10 +7,10 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
@@ -40,11 +40,11 @@ func SubmitProposal(
 	}
 
 	submitEvent := res.GetEvents()[eventNum]
-	if submitEvent.Type != "submit_proposal" || string(submitEvent.Attributes[0].Key) != "proposal_id" {
+	if submitEvent.Type != "submit_proposal" || submitEvent.Attributes[0].Key != "proposal_id" {
 		return id, errorsmod.Wrapf(errorsmod.Error{}, "eventNumber %d in SubmitProposal calls %s instead of submit_proposal", eventNum, submitEvent.Type)
 	}
 
-	return strconv.ParseUint(string(submitEvent.Attributes[0].Value), 10, 64)
+	return strconv.ParseUint(submitEvent.Attributes[0].Value, 10, 64)
 }
 
 // Delegate delivers a delegate tx
