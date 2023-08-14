@@ -7,13 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math/rand"
 
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,6 +25,9 @@ import (
 	"github.com/evmos/evmos/v14/x/recovery/keeper"
 	"github.com/evmos/evmos/v14/x/recovery/types"
 )
+
+// consensusVersion defines the current x/recovery module consensus version.
+const consensusVersion = 2
 
 // type check to ensure the interface is properly implemented
 var (
@@ -48,7 +50,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 // ConsensusVersion returns the consensus state-breaking version for the module.
 func (AppModuleBasic) ConsensusVersion() uint64 {
-	return 2
+	return consensusVersion
 }
 
 // RegisterInterfaces registers interfaces and implementations of the recovery
@@ -115,18 +117,6 @@ func (AppModule) Name() string {
 
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, NewHandler(&am.keeper))
-}
-
-func (AppModule) QuerierRoute() string {
-	return ""
-}
-
-func (AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
-
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 	types.RegisterMsgServer(cfg.MsgServer(), &am.keeper)
@@ -136,13 +126,6 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
-}
-
-func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
 }
 
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
@@ -159,14 +142,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 func (AppModule) GenerateGenesisState(_ *module.SimulationState) {
-}
-
-func (AppModule) ProposalContents(_ module.SimulationState) []simtypes.WeightedProposalContent {
-	return []simtypes.WeightedProposalContent{}
-}
-
-func (AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{}
 }
 
 func (AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {

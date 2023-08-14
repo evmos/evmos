@@ -8,10 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -26,6 +26,9 @@ import (
 	"github.com/evmos/evmos/v14/x/vesting/keeper"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
+
+// consensusVersion defines the current x/vesting module consensus version.
+const consensusVersion = 2
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -58,7 +61,7 @@ func (AppModuleBasic) DefaultGenesis(_ codec.JSONCodec) json.RawMessage {
 	return []byte("{}")
 }
 
-// ValidateGenesis performs genesis state validation of the vesting module.
+// ValidateGenesis performs genesis state validation. Currently, this is a no-op.
 func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, _ client.TxEncodingConfig, _ json.RawMessage) error {
 	return nil
 }
@@ -120,17 +123,6 @@ func (am AppModule) NewHandler() sdk.Handler {
 	return NewHandler(am.keeper)
 }
 
-// Route returns the module's message router and handler.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(types.RouterKey, am.NewHandler())
-}
-
-// QuerierRoute returns an empty string as the module contains no query
-// functionality.
-func (AppModule) QuerierRoute() string {
-	return types.RouterKey
-}
-
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
@@ -143,29 +135,15 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	}
 }
 
-// LegacyQuerierHandler performs a no-op.
-func (am AppModule) LegacyQuerierHandler(_ *codec.LegacyAmino) sdk.Querier {
-	return nil
-}
-
-// InitGenesis performs genesis initialization for the vesting module. It returns
-// no validator updates.
+// InitGenesis performs a no-op.
 func (am AppModule) InitGenesis(_ sdk.Context, _ codec.JSONCodec, _ json.RawMessage) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
 }
 
-// BeginBlock performs a no-op.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
-
-// EndBlock performs a no-op.
-func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return []abci.ValidatorUpdate{}
-}
-
-// ExportGenesis returns the exported genesis state as raw bytes for the vesting module.
+// ExportGenesis is always empty, as InitGenesis does nothing either.
 func (am AppModule) ExportGenesis(_ sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	return am.DefaultGenesis(cdc)
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 2 }
+func (AppModule) ConsensusVersion() uint64 { return 1 }

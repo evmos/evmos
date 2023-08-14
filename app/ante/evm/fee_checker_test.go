@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -14,8 +16,6 @@ import (
 	"github.com/evmos/evmos/v14/encoding"
 	"github.com/evmos/evmos/v14/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 var _ DynamicFeeEVMKeeper = MockEVMKeeper{}

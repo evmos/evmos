@@ -17,7 +17,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 
 	"github.com/evmos/evmos/v14/app"
 	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
@@ -43,9 +43,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
@@ -60,7 +61,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	suite.Require().NoError(err)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

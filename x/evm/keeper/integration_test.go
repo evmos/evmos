@@ -20,12 +20,12 @@ import (
 	"github.com/evmos/evmos/v14/utils"
 	"github.com/evmos/evmos/v14/x/feemarket/types"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 )
 
 var _ = Describe("Feemarket", func() {
@@ -174,6 +174,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
+	chainID := utils.TestnetChainID + "-1"
 	newapp := app.NewEvmos(
 		log.NewNopLogger(),
 		db,
@@ -183,7 +184,8 @@ func setupChain(localMinGasPricesStr string) {
 		app.DefaultNodeHome,
 		5,
 		encoding.MakeConfig(app.ModuleBasics),
-		simapp.EmptyAppOptions{},
+		simutils.NewAppOptionsWithFlagHome(app.DefaultNodeHome),
+		baseapp.SetChainID(chainID),
 		baseapp.SetMinGasPrices(localMinGasPricesStr),
 	)
 
@@ -196,7 +198,7 @@ func setupChain(localMinGasPricesStr string) {
 	// Initialize the chain
 	newapp.InitChain(
 		abci.RequestInitChain{
-			ChainId:         utils.TestnetChainID + "-1",
+			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
 			ConsensusParams: app.DefaultConsensusParams,
@@ -204,7 +206,7 @@ func setupChain(localMinGasPricesStr string) {
 	)
 
 	s.app = newapp
-	s.SetupApp(false)
+	s.SetupApp(false, chainID)
 }
 
 func getNonce(addressBytes []byte) uint64 {

@@ -24,6 +24,12 @@ import (
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
+// expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
+const expGasConsumed = 6788
+
+// expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
+const expGasConsumedWithFeeMkt = 6782
+
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
 		req        *types.QueryAccountRequest
@@ -764,13 +770,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		predecessors []*types.MsgEthereumTx
 		chainID      *sdkmath.Int
 	)
-
 	testCases := []struct {
 		msg             string
 		malleate        func()
 		expPass         bool
 		traceResponse   string
 		enableFeemarket bool
+		expFinalGas     uint64
 	}{
 		{
 			msg: "default trace",
@@ -780,6 +786,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "default trace with filtered response",
@@ -794,6 +801,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:         true,
 			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: false,
+			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "javascript tracer",
@@ -805,6 +813,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "[]",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "default trace with enableFeemarket",
@@ -819,6 +828,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:         true,
 			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: true,
+			expFinalGas:     expGasConsumedWithFeeMkt,
 		},
 		{
 			msg: "javascript tracer with enableFeemarket",
@@ -831,6 +841,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:         true,
 			traceResponse:   "[]",
 			enableFeemarket: true,
+			expFinalGas:     expGasConsumedWithFeeMkt,
 		},
 		{
 			msg: "default tracer with predecessors",
@@ -854,6 +865,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expPass:         true,
 			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: false,
+			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
@@ -865,7 +877,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 					Limit:          -1,
 				}
 			},
-			expPass: false,
+			expPass:     false,
+			expFinalGas: 0,
 		},
 		{
 			msg: "invalid trace config - Invalid Tracer",
@@ -877,7 +890,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 					Tracer:         "invalid_tracer",
 				}
 			},
-			expPass: false,
+			expPass:     false,
+			expFinalGas: expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Invalid Timeout",
@@ -889,7 +903,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 					Timeout:        "wrong_time",
 				}
 			},
-			expPass: false,
+			expPass:     false,
+			expFinalGas: expGasConsumed,
 		},
 		{
 			msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
@@ -922,6 +937,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			expFinalGas:   18764, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
@@ -931,7 +947,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				tmp := sdkmath.NewInt(1)
 				chainID = &tmp
 			},
-			expPass: false,
+			expPass:     false,
+			expFinalGas: expGasConsumed,
 		},
 	}
 
@@ -974,6 +991,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
+			suite.Require().Equal(tc.expFinalGas, suite.ctx.GasMeter().GasConsumed())
 			// Reset for next test case
 			chainID = nil
 		})
@@ -995,6 +1013,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 		expPass         bool
 		traceResponse   string
 		enableFeemarket bool
+		expFinalGas     uint64
 	}{
 		{
 			msg: "default trace",
@@ -1003,6 +1022,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			},
 			expPass:       true,
 			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "filtered trace",
@@ -1015,6 +1035,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			},
 			expPass:       true,
 			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "javascript tracer",
@@ -1025,6 +1046,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			},
 			expPass:       true,
 			traceResponse: "[{\"result\":[]}]",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "default trace with enableFeemarket and filtered return",
@@ -1038,6 +1060,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:         true,
 			traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
 			enableFeemarket: true,
+			expFinalGas:     expGasConsumedWithFeeMkt,
 		},
 		{
 			msg: "javascript tracer with enableFeemarket",
@@ -1049,6 +1072,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:         true,
 			traceResponse:   "[{\"result\":[]}]",
 			enableFeemarket: true,
+			expFinalGas:     expGasConsumedWithFeeMkt,
 		},
 		{
 			msg: "tracer with multiple transactions",
@@ -1072,6 +1096,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:         true,
 			traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
 			enableFeemarket: false,
+			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
@@ -1083,7 +1108,8 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 					Limit:          -1,
 				}
 			},
-			expPass: false,
+			expPass:     false,
+			expFinalGas: 0,
 		},
 		{
 			msg: "invalid trace config - Invalid Tracer",
@@ -1097,6 +1123,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			},
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
+			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "invalid chain id",
@@ -1107,6 +1134,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			},
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
+			expFinalGas:   expGasConsumed,
 		},
 	}
 
@@ -1147,6 +1175,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			} else {
 				suite.Require().Error(err)
 			}
+			suite.Require().Equal(tc.expFinalGas, suite.ctx.GasMeter().GasConsumed())
 			// Reset for next case
 			chainID = nil
 		})

@@ -184,8 +184,8 @@ func (s *PrecompileTestSuite) TestRevokeTransferAuthorizationEvent() {
 				var transferRevokeAuthorizationEvent ics20.EventRevokeAuthorization
 				err := cmn.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, ics20.EventTypeRevokeIBCTransferAuthorization, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Spender)
-				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Owner)
+				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Grantee)
+				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Granter)
 			},
 		},
 	}
@@ -260,7 +260,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 }
 
 func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
-	method := s.precompile.Methods[authorization.IncreaseAllowanceMethod]
+	method := s.precompile.Methods[authorization.DecreaseAllowanceMethod]
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}

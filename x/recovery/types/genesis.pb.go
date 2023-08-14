@@ -6,8 +6,8 @@ package types
 import (
 	fmt "fmt"
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
-	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	io "io"
 	math "math"
@@ -211,7 +211,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n2, err2 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.PacketTimeoutDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.PacketTimeoutDuration):])
+	n2, err2 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.PacketTimeoutDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.PacketTimeoutDuration):])
 	if err2 != nil {
 		return 0, err2
 	}
@@ -263,7 +263,7 @@ func (m *Params) Size() (n int) {
 	if m.EnableRecovery {
 		n += 2
 	}
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.PacketTimeoutDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.PacketTimeoutDuration)
 	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
@@ -435,7 +435,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.PacketTimeoutDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.PacketTimeoutDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

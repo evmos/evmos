@@ -8,33 +8,33 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	"github.com/cometbft/cometbft/version"
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/crypto/hd"
 	"github.com/evmos/evmos/v14/tests/integration/ledger/mocks"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
 	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/version"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
 	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clientkeys "github.com/evmos/evmos/v14/client/keys"
 	evmoskeyring "github.com/evmos/evmos/v14/crypto/keyring"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	rpcclientmock "github.com/tendermint/tendermint/rpc/client/mock"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -85,10 +85,11 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
+	chainID := utils.MainnetChainID + "-1"
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
-		ChainID:         "evmos_9001-1",
+		ChainID:         chainID,
 		Time:            time.Now().UTC(),
 		ProposerAddress: consAddress.Bytes(),
 
@@ -146,7 +147,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
 	cmd := keys.AddKeyCommand()
 
-	algoFlag := cmd.Flag(flags.FlagKeyAlgorithm)
+	algoFlag := cmd.Flag(flags.FlagKeyType)
 	algoFlag.DefValue = string(hd.EthSecp256k1Type)
 
 	err := algoFlag.Value.Set(string(hd.EthSecp256k1Type))
