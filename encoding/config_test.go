@@ -40,7 +40,7 @@ func TestTxEncoding(t *testing.T) {
 	require.Error(t, err, "encoding failed")
 
 	// FIXME: transaction hashing is hardcoded on Tendermint:
-	// See https://github.com/tendermint/tendermint/issues/6539 for reference
+	// See https://github.com/cometbft/cometbft/issues/6539 for reference
 	// txHash := msg.AsTransaction().Hash()
 	// tmTx := tmtypes.Tx(bz)
 

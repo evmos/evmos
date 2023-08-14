@@ -23,8 +23,6 @@ import (
 // NewRegisterIncentiveProposalCmd implements the command to submit a register
 //
 //	incentive proposal
-//
-//nolint:staticcheck // we use deprecated flags
 func NewRegisterIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-incentive CONTRACT_ADDRESS ALLOCATION EPOCHS",
@@ -43,7 +41,7 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck,nolintlint
 			if err != nil {
 				return err
 			}
@@ -91,12 +89,12 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck,nolintlint
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck,nolintlint
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
@@ -108,8 +106,6 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 // NewCancelIncentiveProposalCmd implements the command to submit a cancel
 //
 //	incentive proposal
-//
-//nolint:staticcheck
 func NewCancelIncentiveProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cancel-incentive CONTRACT_ADDRESS",
@@ -128,7 +124,7 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
 			if err != nil {
 				return err
 			}
@@ -166,12 +162,12 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
