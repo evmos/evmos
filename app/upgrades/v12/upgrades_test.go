@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -36,7 +36,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	// NOTE: this is the new binary, not the old one.
-	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
+	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(
 		checkTx,
 		testutil.NewHeader(

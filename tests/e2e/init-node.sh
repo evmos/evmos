@@ -75,6 +75,14 @@ jq '.app_state.inflation.params.mint_denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" 
 jq '.app_state.gov.deposit_params.max_deposit_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 jq '.app_state.gov.voting_params.voting_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
+# check if the 'params' field exists in the genesis file
+if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
+  jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+  jq '.app_state.gov.params.max_deposit_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+  jq '.app_state.gov.params.voting_period="30s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+fi
+
 # Set gas limit in genesis
 jq '.consensus_params.block.max_gas="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
@@ -118,8 +126,11 @@ if [ "$PRUNING" = "custom" ]; then
 fi
 
 # make sure the localhost IP is 0.0.0.0
-sed -i 's/pprof_laddr = "localhost:6060"/pprof_laddr = "0.0.0.0:6060"/g' "$CONFIG_TOML"
+sed -i 's/localhost/0.0.0.0/g' "$CONFIG_TOML"
 sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
+
+# use timeout_commit 1s to make test faster
+sed -i 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
 # Sign genesis transaction
 evmosd gentx $VAL_KEY 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
@@ -129,6 +140,9 @@ evmosd gentx $VAL_KEY 1000000000000000000000aevmos --keyring-backend "$KEYRING" 
 ## 3. Clone this ~/.evmosd home directory into some others, let's say `~/.clonedEvmosd`
 ## 4. Run `gentx` in each of those folders
 ## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
+
+# Enable the APIs for the tests to be successful
+sed -i 's/enable = false/enable = true/g' "$APP_TOML"
 
 # Collect genesis tx
 evmosd collect-gentxs

@@ -82,7 +82,7 @@ func (k Keeper) ClaimCoinsForAction(
 // MergeClaimsRecords merges two independent claims records (sender and
 // recipient) into a new instance by summing up the initial claimable amounts
 // from both records.
-
+//
 // This method additionally:
 //   - Always claims the IBC action, assuming both record haven't claimed it.
 //   - Marks an action as claimed for the new instance by performing an XOR operation between the 2 provided records: `merged completed action = sender completed action XOR recipient completed action`

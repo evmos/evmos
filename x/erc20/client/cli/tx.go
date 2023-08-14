@@ -139,8 +139,6 @@ func NewConvertERC20Cmd() *cobra.Command {
 }
 
 // NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
-//
-//nolint:staticcheck
 func NewRegisterCoinProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "register-coin METADATA_FILE",
@@ -185,7 +183,7 @@ Where metadata.json contains (example):
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck,nolintlint
 			if err != nil {
 				return err
 			}
@@ -223,12 +221,12 @@ Where metadata.json contains (example):
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck,nolintlint
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck,nolintlint
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
@@ -238,8 +236,6 @@ Where metadata.json contains (example):
 }
 
 // NewRegisterERC20ProposalCmd implements the command to submit a community-pool-spend proposal
-//
-//nolint:staticcheck
 func NewRegisterERC20ProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "register-erc20 ERC20_ADDRESS...",
@@ -258,7 +254,7 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
 			if err != nil {
 				return err
 			}
@@ -291,12 +287,12 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
@@ -306,8 +302,6 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 }
 
 // NewToggleTokenConversionProposalCmd implements the command to submit a community-pool-spend proposal
-//
-//nolint:staticcheck
 func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "toggle-token-conversion TOKEN",
@@ -326,7 +320,7 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 				return err
 			}
 
-			description, err := cmd.Flags().GetString(cli.FlagDescription)
+			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck
 			if err != nil {
 				return err
 			}
@@ -359,12 +353,12 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 	}
 
 	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal")
+	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck
 	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
 	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
 		panic(err)
 	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil {
+	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck
 		panic(err)
 	}
 	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
