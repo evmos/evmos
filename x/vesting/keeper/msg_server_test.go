@@ -2,10 +2,9 @@ package keeper_test
 
 import (
 	"fmt"
-	"time"
-
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	evmostypes "github.com/evmos/evmos/v14/types"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -647,29 +646,30 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 	}
 
 	for _, tc := range testCases {
-		suite.SetupTest() // reset
-		ctx := sdk.WrapSDKContext(suite.ctx)
+		tc := tc
+		suite.Run(tc.name, func() {
+			suite.SetupTest() // reset
+			acc := tc.malleate()
 
-		acc := tc.malleate()
+			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
+			res, err := suite.app.VestingKeeper.ConvertVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
 
-		msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
-		res, err := suite.app.VestingKeeper.ConvertVestingAccount(ctx, msg)
+			if tc.expPass {
+				suite.Require().NoError(err)
+				suite.Require().NotNil(res)
 
-		if tc.expPass {
-			suite.Require().NoError(err)
-			suite.Require().NotNil(res)
+				account := suite.app.AccountKeeper.GetAccount(suite.ctx, acc.GetAddress())
 
-			account := suite.app.AccountKeeper.GetAccount(suite.ctx, acc.GetAddress())
+				_, ok := account.(vestingexported.VestingAccount)
+				suite.Require().False(ok)
 
-			_, ok := account.(vestingexported.VestingAccount)
-			suite.Require().False(ok)
+				_, ok = account.(evmostypes.EthAccountI)
+				suite.Require().True(ok)
 
-			_, ok = account.(evmostypes.EthAccountI)
-			suite.Require().True(ok)
-
-		} else {
-			suite.Require().Error(err)
-			suite.Require().Nil(res)
-		}
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(res)
+			}
+		})
 	}
 }

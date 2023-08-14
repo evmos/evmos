@@ -177,7 +177,8 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	stakingParams.BondDenom = utils.BaseDenom
 	stakingParams.MinCommissionRate = zeroDec
 	s.bondDenom = stakingParams.BondDenom
-	s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	s.Require().NoError(err, "failed to set params")
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
