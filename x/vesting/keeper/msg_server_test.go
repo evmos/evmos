@@ -2,8 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
-	evmostypes "github.com/evmos/evmos/v14/types"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,8 +9,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
