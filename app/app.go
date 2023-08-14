@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/evmos/evmos/v14/precompiles/common"
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
@@ -117,18 +116,6 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	"github.com/evmos/evmos/v14/encoding"
-	"github.com/evmos/evmos/v14/ethereum/eip712"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/x/evm"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
@@ -136,16 +123,23 @@ import (
 	_ "github.com/evmos/evmos/v14/client/docs/statik"
 
 	"github.com/evmos/evmos/v14/app/ante"
+	ethante "github.com/evmos/evmos/v14/app/ante/evm"
 	v10 "github.com/evmos/evmos/v14/app/upgrades/v10"
 	v11 "github.com/evmos/evmos/v14/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
+	"github.com/evmos/evmos/v14/app/upgrades/v14rc2"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v14/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v14/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v14/ethereum/eip712"
+	"github.com/evmos/evmos/v14/precompiles/common"
+	srvflags "github.com/evmos/evmos/v14/server/flags"
+	evmostypes "github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/x/claims"
 	claimskeeper "github.com/evmos/evmos/v14/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
@@ -156,6 +150,12 @@ import (
 	erc20client "github.com/evmos/evmos/v14/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
+	"github.com/evmos/evmos/v14/x/evm"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v14/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	"github.com/evmos/evmos/v14/x/incentives"
 	incentivesclient "github.com/evmos/evmos/v14/x/incentives/client"
 	incentiveskeeper "github.com/evmos/evmos/v14/x/incentives/keeper"
@@ -170,6 +170,7 @@ import (
 	revenuekeeper "github.com/evmos/evmos/v14/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
 	"github.com/evmos/evmos/v14/x/vesting"
+	vestingclient "github.com/evmos/evmos/v14/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 
@@ -1303,31 +1304,18 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// !! ATTENTION !!
 	// v14 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v14.UpgradeName,
+		v14.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	// !! ATTENTION !!
+	// v14rc2 upgrade handler
 	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14.UpgradeName,
-		v14.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.ConsensusParamsKeeper,
-			app.IBCKeeper.ClientKeeper,
-			app.ParamsKeeper,
-			app.appCodec,
-		),
-	)
-	// !! ATTENTION !!
-
-	// v14 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14.UpgradeName,
-		v14.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v14rc2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v14rc2.UpgradeName,
 		v14rc2.CreateUpgradeHandler(
@@ -1335,10 +1323,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.BankKeeper,
 			app.StakingKeeper,
 			app.VestingKeeper,
+			app.ConsensusParamsKeeper,
+			app.IBCKeeper.ClientKeeper,
+			app.ParamsKeeper,
+			app.appCodec,
 		),
 	)
-
-
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
