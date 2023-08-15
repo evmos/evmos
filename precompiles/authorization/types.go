@@ -48,8 +48,8 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 	// TODO: (optional) new Go 1.20 functionality would allow to check all args and then return a joint list of errors.
 	// This would improve UX as everything wrong with the input would be returned at once.
 
-	spenderAddr, ok := args[0].(common.Address)
-	if !ok || spenderAddr == (common.Address{}) {
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
 		return common.Address{}, nil, nil, fmt.Errorf(ErrInvalidGranter, args[0])
 	}
 
@@ -80,7 +80,7 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 	}
 	// TODO: check if the typeURLs are valid? e.g. with a regex pattern?
 
-	return spenderAddr, coin, typeURLs, nil
+	return grantee, coin, typeURLs, nil
 }
 
 // CheckRevokeArgs checks the arguments passed to the revoke function.
@@ -171,13 +171,13 @@ func CheckAllowanceArgs(args []interface{}) (common.Address, common.Address, str
 		return common.Address{}, common.Address{}, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
-	ownerAddr, ok := args[0].(common.Address)
-	if !ok || ownerAddr == (common.Address{}) {
+	granteeAddr, ok := args[0].(common.Address)
+	if !ok || granteeAddr == (common.Address{}) {
 		return common.Address{}, common.Address{}, "", fmt.Errorf(ErrInvalidGranter, args[0])
 	}
 
-	spenderAddr, ok := args[1].(common.Address)
-	if !ok || spenderAddr == (common.Address{}) {
+	granterAddr, ok := args[1].(common.Address)
+	if !ok || granterAddr == (common.Address{}) {
 		return common.Address{}, common.Address{}, "", fmt.Errorf(ErrInvalidGrantee, args[1])
 	}
 
@@ -190,7 +190,7 @@ func CheckAllowanceArgs(args []interface{}) (common.Address, common.Address, str
 	}
 	// TODO: check if the typeURL is valid? e.g. with a regex pattern?
 
-	return ownerAddr, spenderAddr, typeURL, nil
+	return granteeAddr, granterAddr, typeURL, nil
 }
 
 // CheckAuthzExists checks if the authorization exists for the given granter and
