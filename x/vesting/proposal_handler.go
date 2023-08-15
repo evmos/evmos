@@ -29,7 +29,7 @@ func NewVestingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 }
 
 // handleClawbackProposal handles the proposal for clawback
-// of a vesting account that has opted in this functionality
+// of a vesting account that has this functionality enabled.
 func handleClawbackProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,
