@@ -631,6 +631,28 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			},
 			true,
 		},
+		{
+			"fix panic when minimumGasUsed is not uint64",
+			func() {
+				msg, err = newNativeMessage(
+					vmdb.GetNonce(suite.address),
+					suite.ctx.BlockHeight(),
+					suite.address,
+					chainCfg,
+					suite.signer,
+					signer,
+					ethtypes.AccessListTxType,
+					nil,
+					nil,
+				)
+				suite.Require().NoError(err)
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasMultiplier = sdk.NewDec(math.MaxInt64).MulInt64(100)
+				err = suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+			},
+			true,
+		},
 	}
 
 	for _, tc := range testCases {
