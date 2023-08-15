@@ -46,6 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 - (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
 - (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
+- (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 
 ### Bug Fixes
 
