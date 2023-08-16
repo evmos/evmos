@@ -286,8 +286,8 @@ func NewMsgConvertVestingAccountCmd() *cobra.Command {
 }
 
 // NewClawbackProposalCmd implements the command to submit
-// a proposal to clawback funds from a specified vesting account
-// that has opted in to this functionality
+// a proposal to clawback funds from a specified vesting account,
+// that has this functionality enabled.
 //
 //nolint:staticcheck
 func NewClawbackProposalCmd() *cobra.Command {

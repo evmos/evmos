@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 		// initClawback determines if the clawback vesting account should be initialized for the test case
 		initClawback bool
 		// preFundClawback determines if the clawback vesting account should be already be funded before the test case
-		// this is used to test the behavior of the merge flag, which needs existing lockup and vesting schedules
+		// this is used to test merging new vesting amounts to existing lockup and vesting schedules
 		preFundClawback bool
 		expPass         bool
 	}{
@@ -124,7 +124,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 				suite.Require().Equal(&types.MsgCreateClawbackVestingAccountResponse{}, resCreate)
 			}
 
-			// fund the vesting account prior to actual test if necessary (for testing the merge flag)
+			// fund the vesting account prior to actual test if desired
 			if tc.preFundClawback {
 				// in order to fund the vesting account additionally to the actual main test case, we need to
 				// send it some more funds

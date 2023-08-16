@@ -9,7 +9,7 @@ const (
 	prefixGovClawbackDisabledKey = iota + 1
 )
 
-// KeyPrefixGovClawbackDisabledKey is the prefix bytes for storing the governance clawback enabled/disabled flag.
+// KeyPrefixGovClawbackDisabledKey is the slice of prefix bytes for storing the governance clawback enabled/disabled flag.
 var KeyPrefixGovClawbackDisabledKey = []byte{prefixGovClawbackDisabledKey}
 
 const (
