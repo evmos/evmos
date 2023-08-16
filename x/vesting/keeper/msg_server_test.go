@@ -282,7 +282,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			vestingAddr: vestingAddr,
 			startTime:   suite.ctx.BlockTime(),
 			expPass:     false,
-			errContains: "account not subject to clawback",
+			errContains: types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name: "fail - wrong account type",
@@ -297,7 +297,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			clawbackDest: addr3,
 			startTime:    suite.ctx.BlockTime(),
 			expPass:      false,
-			errContains:  "account not subject to clawback",
+			errContains:  types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name:         "fail - clawback vesting account has no vesting or lockup periods (not funded yet)",
@@ -449,7 +449,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    newFunder,
 			initClawback: false,
 			expPass:      false,
-			errContains:  "account not subject to clawback",
+			errContains:  types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name:         "fail - wrong funder",
@@ -459,7 +459,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    newFunder,
 			initClawback: true,
 			expPass:      false,
-			errContains:  "is not the funder and cannot update vesting funder",
+			errContains:  "is not the current funder and cannot update the funder address",
 		},
 		{
 			name:         "fail - new funder is blocked",

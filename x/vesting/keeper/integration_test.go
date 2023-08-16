@@ -1156,7 +1156,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
 			_, err := s.app.VestingKeeper.Clawback(s.ctx, msg)
 			Expect(err).To(HaveOccurred(), "expected error")
-			Expect(err.Error()).To(ContainSubstring("doesn't have governance clawback enabled"))
+			Expect(err.Error()).To(ContainSubstring("doesn't have governance clawback enabled: %s", vestingAddr.String()))
 		})
 	})
 })

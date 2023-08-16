@@ -32,10 +32,12 @@ func (k Keeper) Balances(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Get vesting account
 	clawbackAccount, err := k.GetClawbackVestingAccount(ctx, addr)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"account at address '%s' either does not exist or is not a vesting account ", addr.String(),
+		)
 	}
 
 	locked := clawbackAccount.GetLockedOnly(ctx.BlockTime())

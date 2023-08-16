@@ -231,7 +231,7 @@ func (k Keeper) Clawback(
 	// Check to see if it's a governance proposal clawback
 	if k.authority.String() == msg.FunderAddress {
 		if k.HasGovClawbackDisabled(ctx, addr) {
-			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized, "account %s doesn't have governance clawback enabled", addr)
+			return nil, errorsmod.Wrap(types.ErrNotSubjectToGovClawback, addr.String())
 		}
 
 		dest = ak.GetModuleAddress(distributiontypes.ModuleName)

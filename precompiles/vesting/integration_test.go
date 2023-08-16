@@ -580,15 +580,16 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					)
 
 				clawbackCheck := execRevertedCheck
+				// FIXME: error messages in fail check now work differently!
 				if callType.directCall {
 					clawbackCheck = failCheck.
-						WithErrContains("account not subject to clawback")
+						WithErrContains(vestingtypes.ErrNotSubjectToClawback.Error())
 				}
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("account not subject to clawback"))
+					Expect(err.Error()).To(ContainSubstring("%s: %s", sdk.AccAddress(differentAddr.Bytes()), vestingtypes.ErrNotSubjectToClawback.Error()))
 				}
 			})
 
@@ -731,15 +732,21 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				if callType.directCall {
 					updateFunderCheck = failCheck.
 						WithErrContains(fmt.Sprintf(
-							"account not subject to clawback: %s",
-							sdk.AccAddress(nonVestingAddr.Bytes()).String(),
+							"%s: %s",
+							sdk.AccAddress(nonVestingAddr.Bytes()),
+							vestingtypes.ErrNotSubjectToClawback.Error(),
 						))
 				}
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, updateFunderArgs, updateFunderCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("account not subject to clawback"))
+					Expect(err.Error()).To(
+						ContainSubstring("%s: %s",
+							sdk.AccAddress(nonVestingAddr.Bytes()).String(),
+							vestingtypes.ErrNotSubjectToClawback.Error(),
+						),
+					)
 				}
 			})
 
