@@ -694,8 +694,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.address,
 					granteeAddr,
+					s.address,
 					staking.DelegateMsg,
 				}
 			},
@@ -713,8 +713,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			"success - return empty allowance if authorization is not found",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
 					granteeAddr,
+					s.address,
 					staking.UndelegateMsg,
 				}
 			},
