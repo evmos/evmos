@@ -13,7 +13,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evmostypes "github.com/evmos/evmos/v14/types"
@@ -213,7 +212,7 @@ func (k Keeper) Clawback(
 		)
 	}
 
-	// Check if account exists
+	// Get clawback vesting account
 	va, err := k.GetClawbackVestingAccount(ctx, addr)
 	if err != nil {
 		return nil, err
@@ -335,23 +334,12 @@ func (k Keeper) ConvertVestingAccount(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	address := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 
-	account := k.accountKeeper.GetAccount(ctx, address)
-	if account == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
+	vestingAcc, err := k.GetClawbackVestingAccount(ctx, address)
+	if err != nil {
+		return nil, err
 	}
 
-	// Check if account is of VestingAccount interface
-	if _, ok := account.(vestingexported.VestingAccount); !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to vesting: %s", msg.VestingAddress)
-	}
-
-	// check if account is of type ClawbackVestingAccount
-	vestingAcc, ok := account.(*types.ClawbackVestingAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
-	}
-
-	// check if account  has any vesting coins left
+	// check if account has any vesting coins left
 	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
@@ -420,7 +408,7 @@ func (k Keeper) addGrant(
 
 // transferClawback transfers unvested tokens in a ClawbackVestingAccount to
 // the destination address. Then, it updates the lockup schedule, removes future
-// vesting events and disables clawback vesting from governance.
+// vesting events and deletes the store entry for governance clawback if it exists.
 func (k Keeper) transferClawback(
 	ctx sdk.Context,
 	vestingAccount types.ClawbackVestingAccount,
