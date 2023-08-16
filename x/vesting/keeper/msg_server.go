@@ -124,14 +124,9 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 	}
 
 	// Check if vesting account exists
-	acc := ak.GetAccount(ctx, vestingAddr)
-	if acc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s does not exist", msg.VestingAddress)
-	}
-
-	vestingAcc, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s must be a clawback vesting account", msg.VestingAddress)
+	vestingAcc, err := k.GetClawbackVestingAccount(ctx, vestingAddr)
+	if err != nil {
+		return nil, err
 	}
 
 	vestingCoins := msg.VestingPeriods.TotalAmount()
@@ -158,7 +153,7 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.VestingAddress, vestingAcc.FunderAddress)
 	}
 
-	err := k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
+	err = k.addGrant(ctx, vestingAcc, msg.GetStartTime().Unix(), msg.GetLockupPeriods(), msg.GetVestingPeriods(), vestingCoins)
 	if err != nil {
 		return nil, err
 	}
@@ -220,15 +215,9 @@ func (k Keeper) Clawback(
 	}
 
 	// Check if account exists
-	acc := ak.GetAccount(ctx, addr)
-	if acc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account does not exist: %s", msg.AccountAddress)
-	}
-
-	// Check if account is a clawback vesting account
-	va, ok := acc.(*types.ClawbackVestingAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.AccountAddress)
+	va, err := k.GetClawbackVestingAccount(ctx, addr)
+	if err != nil {
+		return nil, err
 	}
 
 	// Check if account has any vesting or lockup periods
@@ -305,15 +294,9 @@ func (k Keeper) UpdateVestingFunder(
 	}
 
 	// Check if vesting account exists
-	vestingAcc := ak.GetAccount(ctx, vesting)
-	if vestingAcc == nil {
-		return nil, errorsmod.Wrapf(errortypes.ErrNotFound, "account %s does not exist", msg.VestingAddress)
-	}
-
-	// Check if account is a clawback vesting account
-	va, ok := vestingAcc.(*types.ClawbackVestingAccount)
-	if !ok {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account not subject to clawback: %s", msg.VestingAddress)
+	va, err := k.GetClawbackVestingAccount(ctx, vesting)
+	if err != nil {
+		return nil, err
 	}
 
 	// Check if current funder is same as in msg
