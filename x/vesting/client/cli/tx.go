@@ -31,7 +31,7 @@ const (
 	FlagFunder   = "funder"
 )
 
-// NewTxCmd returns a root CLI command handler for certain modules/vesting
+// NewTxCmd returns a root CLI command handler for vesting
 // transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
@@ -54,7 +54,7 @@ func NewTxCmd() *cobra.Command {
 }
 
 // NewMsgCreateClawbackVestingAccountCmd returns a CLI command handler for creating a
-// MsgCreateClawbackVestingAccount transaction.
+// clawback vesting account.
 func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-clawback-vesting-account FUNDER_ADDRESS ENABLE_GOV_CLAWBACK",
@@ -171,8 +171,7 @@ with a start time and an array of coins strings and durations relative to the st
 	return cmd
 }
 
-// NewMsgClawbackCmd returns a CLI command handler for creating a
-// MsgClawback transaction.
+// NewMsgClawbackCmd returns a CLI command handler for clawing back unvested funds.
 func NewMsgClawbackCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clawback ADDRESS",
@@ -253,8 +252,8 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	return cmd
 }
 
-// NewMsgConvertVestingAccountCmd returns a CLI command handler for creating a
-// MsgConvertVestingAccount transaction.
+// NewMsgConvertVestingAccountCmd returns a CLI command handler for converting
+// a clawback vesting account into a non-vesting account.
 func NewMsgConvertVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert VESTING_ACCOUNT_ADDRESS",

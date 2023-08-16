@@ -8,13 +8,13 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 )
 
+// ReadSchedule returns the value of a schedule at readTime.
+//
 // A "schedule" is an increasing step function of Coins over time. It's
 // specified as an absolute start time and a sequence of relative periods, with
 // each step at the end of a period. A schedule may also give the time and total
 // value at the last step, which can speed evaluation of the step function after
 // the last step.
-//
-// ReadSchedule returns the value of a schedule at readTime.
 func ReadSchedule(
 	startTime, endTime int64,
 	periods sdkvesting.Periods,

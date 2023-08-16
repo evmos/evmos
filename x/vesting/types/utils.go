@@ -11,7 +11,7 @@ func coinEq(a, b sdk.Coins) bool {
 	return a.IsAllLTE(b) && b.IsAllLTE(a)
 }
 
-// max64 returns the maximum of its inputs.
+// Max64 returns the maximum of its inputs.
 func Max64(i, j int64) int64 {
 	if i > j {
 		return i
