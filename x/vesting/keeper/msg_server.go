@@ -148,7 +148,6 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 		vestingCoins = lockupCoins
 	}
 
-	// NOTE: Add grant only if vesting account is empty or "merge" is true and the funder is correct.
 	if msg.FunderAddress != vestingAcc.FunderAddress {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s can only accept grants from account %s", msg.VestingAddress, vestingAcc.FunderAddress)
 	}
