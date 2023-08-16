@@ -328,7 +328,7 @@ func (k Keeper) UpdateVestingFunder(
 }
 
 // ConvertVestingAccount converts a ClawbackVestingAccount to the default chain account
-// after its lock and vesting periods have concluded.
+// after its lockup and vesting periods have concluded.
 func (k Keeper) ConvertVestingAccount(
 	goCtx context.Context,
 	msg *types.MsgConvertVestingAccount,
@@ -380,7 +380,7 @@ func (k Keeper) addGrant(
 	// check if the clawback vesting account has only been initialized and not yet funded --
 	// in that case it's necessary to update the vesting account with the given start time because this is set to zero in the initialization
 	if len(va.LockupPeriods) == 0 && len(va.VestingPeriods) == 0 {
-		va.StartTime = time.Unix(grantStartTime, 0)
+		va.StartTime = time.Unix(grantStartTime, 0).UTC()
 	}
 
 	// how much is really delegated?
@@ -406,7 +406,7 @@ func (k Keeper) addGrant(
 		)
 	}
 
-	va.StartTime = time.Unix(newLockupStart, 0)
+	va.StartTime = time.Unix(newLockupStart, 0).UTC()
 	va.EndTime = types.Max64(newLockupEnd, newVestingEnd)
 	va.LockupPeriods = newLockupPeriods
 	va.VestingPeriods = newVestingPeriods
@@ -429,17 +429,10 @@ func (k Keeper) transferClawback(
 ) error {
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := vestingAccount.ComputeClawback(ctx.BlockTime().Unix())
+	// Returns an error if there is nothing to clawback (e.g. all tokens are vested)
 	if toClawBack.IsZero() {
-		// no-op, nothing to transfer
-		return nil
+		return errorsmod.Wrapf(types.ErrNothingToClawback, "account %s", vestingAccount.GetAddress())
 	}
-
-	// convert the account back to a normal EthAccount
-	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
-	ethAccount.BaseAccount = updatedAcc.BaseAccount
-
-	// set the account with the updated values of the vesting schedule
-	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	address := updatedAcc.GetAddress()
 

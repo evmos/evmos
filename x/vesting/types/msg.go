@@ -126,8 +126,8 @@ func (msg MsgFundVestingAccount) ValidateBasic() error {
 		if period.Length < 1 {
 			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid period length of %d in period %d, length must be greater than 0", period.Length, i)
 		}
-		if !period.Amount.IsAllPositive() {
-			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in lockup periods, amounts must be positive")
+		if !period.Amount.IsValid() {
+			return errortypes.ErrInvalidCoins.Wrap(period.Amount.String())
 		}
 		lockupCoins = lockupCoins.Add(period.Amount...)
 	}
@@ -140,9 +140,6 @@ func (msg MsgFundVestingAccount) ValidateBasic() error {
 		if !period.Amount.IsValid() {
 			return errortypes.ErrInvalidCoins.Wrap(period.Amount.String())
 		}
-		if !period.Amount.IsAllPositive() {
-			return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid amount in vesting periods, amounts must be positive")
-		}
 
 		vestingCoins = vestingCoins.Add(period.Amount...)
 	}
@@ -154,8 +151,7 @@ func (msg MsgFundVestingAccount) ValidateBasic() error {
 
 	// If both schedules are present, they must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
-	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 &&
-		!(lockupCoins.IsAllLTE(vestingCoins) && vestingCoins.IsAllLTE(lockupCoins)) {
+	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 && !coinEq(lockupCoins, vestingCoins) && coinEq(lockupCoins, vestingCoins) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
 	}
 
