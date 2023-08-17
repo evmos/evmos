@@ -345,6 +345,11 @@ test-rpc-pending:
 
 .PHONY: run-tests test test-all test-import test-rpc $(TEST_TARGETS)
 
+run-integration-tests:
+	@nix-shell ./tests/integration_tests/shell.nix --run ./scripts/run-integration-tests.sh
+
+.PHONY: run-integration-tests
+
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 .PHONY: benchmark
