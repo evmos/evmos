@@ -223,11 +223,6 @@ func (k Keeper) Clawback(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s has no vesting or lockup periods", msg.AccountAddress)
 	}
 
-	// Return error if clawback is attempted before start time
-	if ctx.BlockTime().Before(va.StartTime) {
-		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "clawback can only be executed after vesting begins: %s", va.FunderAddress)
-	}
-
 	// Check to see if it's a governance proposal clawback
 	if k.authority.String() == msg.FunderAddress {
 		if k.HasGovClawbackDisabled(ctx, addr) {

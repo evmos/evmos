@@ -323,15 +323,14 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			errContains:  "clawback can only be requested by original funder",
 		},
 		{
-			name:         "fail - before start time",
+			name:         "pass - before start time",
 			malleate:     func() {},
 			funder:       funder,
 			vestingAddr:  vestingAddr,
 			startTime:    suite.ctx.BlockTime().Add(time.Hour),
 			initClawback: true,
 			initVesting:  true,
-			expPass:      false,
-			errContains:  "clawback can only be executed after vesting begins",
+			expPass:      true,
 		},
 		{
 			name:         "pass - with clawback destination",
