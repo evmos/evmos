@@ -126,10 +126,6 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	var err error
 	suite.ctx, err = testutil.CommitAndCreateNewCtx(suite.ctx, suite.app, t, nil)
 	suite.Require().NoError(err)
-
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
-	suite.queryClientEvm = evmtypes.NewQueryClient(queryHelper)
 }
 
 // MintFeeCollector mints coins with the bank modules and sends them to the fee
