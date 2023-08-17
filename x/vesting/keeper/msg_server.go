@@ -365,15 +365,17 @@ func (k Keeper) addGrant(
 	}
 
 	// how much is really delegated?
-	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, va.GetAddress())
-	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, va.GetAddress())
+	vestingAddr := va.GetAddress()
+	bondedAmt := k.stakingKeeper.GetDelegatorBonded(ctx, vestingAddr)
+	unbondingAmt := k.stakingKeeper.GetDelegatorUnbonding(ctx, vestingAddr)
 	delegatedAmt := bondedAmt.Add(unbondingAmt)
 	delegated := sdk.NewCoins(sdk.NewCoin(k.stakingKeeper.BondDenom(ctx), delegatedAmt))
 
 	// modify schedules for the new grant
-	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(va.GetStartTime(), grantStartTime, va.LockupPeriods, grantLockupPeriods)
+	accStartTime := va.GetStartTime()
+	newLockupStart, newLockupEnd, newLockupPeriods := types.DisjunctPeriods(accStartTime, grantStartTime, va.LockupPeriods, grantLockupPeriods)
 	newVestingStart, newVestingEnd, newVestingPeriods := types.DisjunctPeriods(
-		va.GetStartTime(),
+		accStartTime,
 		grantStartTime,
 		va.GetVestingPeriods(),
 		grantVestingPeriods,
