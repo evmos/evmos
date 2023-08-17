@@ -170,13 +170,6 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
-	// if the clawback time is before the vesting start time, perform a no-op
-	// as there is nothing to clawback
-	// NOTE: error must be checked during message execution
-	if clawbackTime < va.GetStartTime() {
-		return va, sdk.Coins{}
-	}
-
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
@@ -207,7 +200,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	return va, totalUnvested
 }
 
-// HasLockedCoins returns true if the blocktime has not passed all clawback
+// HasLockedCoins returns true if the block time has not passed all clawback
 // account's lockup periods
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
 	return !va.GetLockedOnly(blockTime).IsZero()
