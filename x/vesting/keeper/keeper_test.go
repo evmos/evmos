@@ -8,7 +8,7 @@ import (
 	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 )
 
-func (s *KeeperTestSuite) TestNewKeeper() {
+func (suite *KeeperTestSuite) TestNewKeeper() {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
@@ -21,7 +21,7 @@ func (s *KeeperTestSuite) TestNewKeeper() {
 	}{
 		{
 			name:      "valid authority format",
-			authority: sdk.AccAddress(s.address.Bytes()),
+			authority: sdk.AccAddress(suite.address.Bytes()),
 			expPass:   true,
 		},
 		{
@@ -32,28 +32,28 @@ func (s *KeeperTestSuite) TestNewKeeper() {
 	}
 
 	for _, tc := range testcases {
-		s.Run(tc.name, func() {
+		suite.Run(tc.name, func() {
 			if tc.expPass {
 				newKeeper := keeper.NewKeeper(
 					storeKey,
 					tc.authority,
 					cdc,
-					s.app.AccountKeeper,
-					s.app.BankKeeper,
-					s.app.DistrKeeper,
-					s.app.StakingKeeper,
+					suite.app.AccountKeeper,
+					suite.app.BankKeeper,
+					suite.app.DistrKeeper,
+					suite.app.StakingKeeper,
 				)
-				s.Require().NotNil(newKeeper)
+				suite.Require().NotNil(newKeeper)
 			} else {
-				s.Require().PanicsWithError("addresses cannot be empty: unknown address", func() {
+				suite.Require().PanicsWithError("addresses cannot be empty: unknown address", func() {
 					_ = keeper.NewKeeper(
 						storeKey,
 						tc.authority,
 						cdc,
-						s.app.AccountKeeper,
-						s.app.BankKeeper,
-						s.app.DistrKeeper,
-						s.app.StakingKeeper,
+						suite.app.AccountKeeper,
+						suite.app.BankKeeper,
+						suite.app.DistrKeeper,
+						suite.app.StakingKeeper,
 					)
 				})
 			}

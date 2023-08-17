@@ -531,8 +531,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				clawbackCheck := passCheck.
 					WithExpEvents(vesting.EventTypeClawback)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
+				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
 				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+
+				var co vesting.ClawbackOutput
+				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
+				Expect(co.Coins).To(Equal(balances), "expected different clawback amount")
 
 				balancePost := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePost.Amount.Int64()).To(Equal(int64(100)), "expected only initial balance after clawback")
@@ -603,7 +608,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 			})
 
-			It(fmt.Sprintf("should no-op when all tokens are vested (%s)", callType.name), func() {
+			It(fmt.Sprintf("should succeed and return empty Coins when all tokens are vested (%s)", callType.name), func() {
 				// commit block with time so that vesting has ended
 				ctx, err := evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Hour*24, nil)
 				Expect(err).ToNot(HaveOccurred(), "error while committing block: %v", err)
@@ -620,10 +625,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 						s.address,
 					)
 
-				clawbackCheck := failCheck.WithErrContains("has no vesting or lockup periods")
-
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
+				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, passCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+
+				var co vesting.ClawbackOutput
+				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
+				Expect(co.Coins).To(BeEmpty(), "expected empty clawback amount")
 
 				balancePost := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePost).To(Equal(balancePre), "expected balance not to have changed")

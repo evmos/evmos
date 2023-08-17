@@ -53,13 +53,13 @@ contract VestingCaller {
     /// @param funder The address of the account that funded the vesting account.
     /// @param account The address of the vesting account.
     /// @param dest The address of the account that will receive the clawed back coins.
+    /// @return coins The coins that were clawed back from the vesting account.
     function clawback(
         address funder,
         address account,
         address dest
-    ) public {
-        bool success = vesting.VESTING_CONTRACT.clawback(funder, account, dest);
-        require(success, "VestingCaller: clawback failed");
+    ) public returns (Coin[] memory coins) {
+        return vesting.VESTING_CONTRACT.clawback(funder, account, dest);
     }
 
     /// @dev Defines a method to test updating the funder of a vesting account.
