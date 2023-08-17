@@ -7,16 +7,18 @@ import (
 	"encoding/json"
 	"time"
 
+	"cosmossdk.io/simapp"
+	dbm "github.com/cometbft/cometbft-db"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
-	"github.com/cosmos/ibc-go/v6/testing/mock"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/cosmos/ibc-go/v7/testing/mock"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -38,12 +40,12 @@ func init() {
 }
 
 // DefaultTestingAppInit defines the IBC application used for testing
-var DefaultTestingAppInit func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
+var DefaultTestingAppInit func(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) = SetupTestingApp
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
 // Evmos testing.
-var DefaultConsensusParams = &abci.ConsensusParams{
-	Block: &abci.BlockParams{
+var DefaultConsensusParams = &tmproto.ConsensusParams{
+	Block: &tmproto.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   -1, // no limit
 	},
@@ -70,6 +72,7 @@ func init() {
 func Setup(
 	isCheckTx bool,
 	feemarketGenesis *feemarkettypes.GenesisState,
+	chainID string,
 ) *Evmos {
 	privVal := mock.NewPV()
 	pubKey, _ := privVal.GetPubKey()
@@ -87,8 +90,14 @@ func Setup(
 	}
 
 	db := dbm.NewMemDB()
-
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, encoding.MakeConfig(ModuleBasics), simapp.EmptyAppOptions{})
+	app := NewEvmos(
+		log.NewNopLogger(),
+		db, nil, true, map[int64]bool{},
+		DefaultNodeHome, 5,
+		encoding.MakeConfig(ModuleBasics),
+		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		baseapp.SetChainID(chainID),
+	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
@@ -111,7 +120,7 @@ func Setup(
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
-				ChainId:         utils.MainnetChainID + "-1",
+				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
@@ -179,16 +188,27 @@ func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	return genesisState
 }
 
 // SetupTestingApp initializes the IBC-go testing application
-func SetupTestingApp() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	db := dbm.NewMemDB()
-	cfg := encoding.MakeConfig(ModuleBasics)
-	app := NewEvmos(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, 5, cfg, simapp.EmptyAppOptions{})
-	return app, NewDefaultGenesisState()
+// need to keep this design to comply with the ibctesting SetupTestingApp func
+// and be able to set the chainID for the tests properly
+func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		db := dbm.NewMemDB()
+		cfg := encoding.MakeConfig(ModuleBasics)
+		app := NewEvmos(
+			log.NewNopLogger(),
+			db, nil, true,
+			map[int64]bool{},
+			DefaultNodeHome, 5, cfg,
+			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			baseapp.SetChainID(chainID),
+		)
+		return app, NewDefaultGenesisState()
+	}
 }

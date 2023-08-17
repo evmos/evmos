@@ -14,12 +14,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
-	"github.com/cosmos/ibc-go/v6/testing/mock"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/cosmos/ibc-go/v7/testing/mock"
 
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	evmostypes "github.com/evmos/evmos/v14/types"
@@ -28,10 +28,14 @@ import (
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
-var ChainIDPrefix = "evmos_9000-"
+var (
+	ChainIDPrefix = utils.MainnetChainID + "-"
+	ChainIDSuffix = ""
+)
 
 func init() {
 	ibcgotesting.ChainIDPrefix = ChainIDPrefix
+	ibcgotesting.ChainIDSuffix = ChainIDSuffix
 }
 
 // NewTestChain initializes a new TestChain instance with a single validator set using a

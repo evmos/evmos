@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	. "github.com/onsi/gomega"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -15,6 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/evmos/evmos/v14/app"
 	cosmosante "github.com/evmos/evmos/v14/app/ante/cosmos"
 	evmante "github.com/evmos/evmos/v14/app/ante/evm"
@@ -28,7 +31,7 @@ import (
 	epochstypes "github.com/evmos/evmos/v14/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/evmos/evmos/v14/x/vesting/types"
-	. "github.com/onsi/gomega"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -48,11 +51,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	// Init app
-	suite.app = app.Setup(checkTx, nil)
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(checkTx, nil, chainID)
 
 	// Set Context
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 
@@ -97,8 +101,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)

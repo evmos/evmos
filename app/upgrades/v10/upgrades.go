@@ -20,7 +20,9 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		setMinCommissionRate(ctx, stakingKeeper)
+		if err := setMinCommissionRate(ctx, stakingKeeper); err != nil {
+			return nil, err
+		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
@@ -30,7 +32,7 @@ func CreateUpgradeHandler(
 
 // setMinCommissionRate sets the minimum commission rate for validators
 // to 5%.
-func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) {
+func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) error {
 	stakingParams := stakingtypes.Params{
 		UnbondingTime:     sk.UnbondingTime(ctx),
 		MaxValidators:     sk.MaxValidators(ctx),
@@ -40,5 +42,5 @@ func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) {
 		MinCommissionRate: sdk.NewDecWithPrec(5, 2), // 5%
 	}
 
-	sk.SetParams(ctx, stakingParams)
+	return sk.SetParams(ctx, stakingParams)
 }

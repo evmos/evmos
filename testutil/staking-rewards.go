@@ -15,11 +15,12 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
+	teststaking "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v14/app"
 	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
+	"github.com/stretchr/testify/require"
 )
 
 // CreateValidator creates a validator with the provided public key and stake amount
@@ -28,9 +29,10 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 	stakingParams := sk.GetParams(ctx)
 	stakingParams.BondDenom = sk.BondDenom(ctx)
 	stakingParams.MinCommissionRate = zeroDec
-	sk.SetParams(ctx, stakingParams)
+	err := sk.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
 
-	stakingHelper := teststaking.NewHelper(t, ctx, sk)
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = sk.BondDenom(ctx)
 
@@ -105,9 +107,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		stakingParams := app.StakingKeeper.GetParams(ctx)
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
-		app.StakingKeeper.SetParams(ctx, stakingParams)
+		err = app.StakingKeeper.SetParams(ctx, stakingParams)
+		require.NoError(t, err)
 
-		stakingHelper := teststaking.NewHelper(t, ctx, app.StakingKeeper)
+		stakingHelper := teststaking.NewHelper(t, ctx, &app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 		stakingHelper.Denom = utils.BaseDenom
 
@@ -119,7 +122,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 		// end block to bond validator and increase block height
 		// Not using Commit() here because code panics due to invalid block height
-		staking.EndBlocker(ctx, app.StakingKeeper)
+		staking.EndBlocker(ctx, &app.StakingKeeper)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		validator := app.StakingKeeper.Validator(ctx, valAddr)

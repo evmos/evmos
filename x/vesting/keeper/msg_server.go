@@ -337,7 +337,7 @@ func (k Keeper) ConvertVestingAccount(
 	}
 
 	// check if account has any vesting coins left
-	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
+	if !vestingAcc.GetVestingCoins(ctx.BlockTime()).IsZero() {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 

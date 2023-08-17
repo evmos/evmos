@@ -3,12 +3,12 @@ package backend
 import (
 	"encoding/json"
 
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v14/rpc/backend/mocks"
 	ethrpc "github.com/evmos/evmos/v14/rpc/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 func (suite *BackendTestSuite) TestGetLogs() {
@@ -16,7 +16,7 @@ func (suite *BackendTestSuite) TestGetLogs() {
 	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
 	logs := make([]*evmtypes.Log, 0, 1)
 	var log evmtypes.Log
-	err := json.Unmarshal([]byte{0x7b, 0x22, 0x74, 0x65, 0x73, 0x74, 0x22, 0x3a, 0x20, 0x22, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x22, 0x7d}, &log)
+	err := json.Unmarshal([]byte("{\"test\": \"hello\"}"), &log) // TODO refactor this to unmarshall to a log struct successfully
 	suite.Require().NoError(err)
 
 	logs = append(logs, &log)
