@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -728,8 +727,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Perform clawback before cliff
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
-		_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
+		Expect(res.Coins).To(Equal(vestingAmtTotal), "expected different coins to be clawed back")
 
 		// All initial vesting amount goes to dest
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -753,6 +753,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
 		expVestedAmount := amt.Mul(sdk.NewInt(cliff))
 		expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
+		unvested := vestingAmtTotal.Sub(vested...)
 
 		s.Require().Equal(expVested, vested)
 		s.Require().True(expVestedAmount.GT(sdk.NewInt(0)))
@@ -766,8 +767,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
+		Expect(res.Coins).To(Equal(unvested), "expected unvested coins to be clawed back")
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -809,8 +811,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
+		Expect(res.Coins).To(Equal(unvested), "expected only coins to be clawed back")
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -850,8 +853,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
-		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-		Expect(err.Error()).To(Equal(fmt.Sprintf("account %s: nothing to clawback from the account", vestingAddr)))
+		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		Expect(err).To(BeNil(), "expected no error during clawback")
+		Expect(res).ToNot(BeNil(), "expected response not to be nil")
+		Expect(res.Coins).To(BeEmpty(), "expected nothing to be clawed back")
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -878,8 +883,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Perform clawback before cliff - funds should go to new funder (no dest address defined)
 		msg := types.NewMsgClawback(newFunder, vestingAddr, sdk.AccAddress([]byte{}))
-		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-		s.Require().NoError(err)
+		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
+		Expect(err).To(BeNil())
+		Expect(res.Coins).To(Equal(vestingAmtTotal), "expected different coins to be clawed back")
 
 		// All initial vesting amount goes to funder
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -934,8 +940,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform clawback before cliff
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
-			_, err := s.app.VestingKeeper.Clawback(ctx, msg)
+			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
+			Expect(res.Coins).To(Equal(vestingAmtTotal), "expected different coins to be clawed back")
 
 			// All initial vesting amount goes to community pool instead of dest
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -965,6 +972,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			vesting = clawbackAccount.GetVestingCoins(s.ctx.BlockTime())
 			expVestedAmount := amt.Mul(sdk.NewInt(cliff))
 			expVested := sdk.NewCoins(sdk.NewCoin(stakeDenom, expVestedAmount))
+			unvested := vestingAmtTotal.Sub(vested...)
 
 			s.Require().Equal(expVested, vested)
 			s.Require().True(expVestedAmount.GT(sdk.NewInt(0)))
@@ -989,8 +997,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// Perform clawback
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
 			ctx := sdk.WrapSDKContext(s.ctx)
-			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
+			Expect(res.Coins).To(Equal(unvested), "expected unvested coins to be clawed back")
 
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -1046,8 +1055,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// Perform clawback
 			msg := types.NewMsgClawback(funder, vestingAddr, dest)
 			ctx := sdk.WrapSDKContext(s.ctx)
-			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
+			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
+			Expect(res.Coins).To(Equal(unvested), "expected only coins to be clawed back")
 
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -1098,8 +1108,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// Perform clawback
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
 			ctx := sdk.WrapSDKContext(s.ctx)
-			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-			Expect(err.Error()).To(Equal(fmt.Sprintf("account %s: nothing to clawback from the account", vestingAddr)))
+			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil(), "expected no error during clawback")
+			Expect(res.Coins).To(BeEmpty(), "expected nothing to be clawed back after end of vesting schedules")
 
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -1131,8 +1142,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform clawback before cliff - funds should go to new funder (no dest address defined)
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, nil)
-			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-			s.Require().NoError(err)
+			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
+			Expect(err).To(BeNil())
+			Expect(res.Coins).To(Equal(vestingAmtTotal), "expected different coins to be clawed back")
 
 			// All initial vesting amount goes to funder
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)

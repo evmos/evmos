@@ -236,7 +236,8 @@ func (k Keeper) Clawback(
 	}
 
 	// Perform clawback transfer
-	if err = k.transferClawback(ctx, *va, dest); err != nil {
+	clawedBack, err := k.transferClawback(ctx, *va, dest)
+	if err != nil {
 		return nil, err
 	}
 
@@ -256,7 +257,9 @@ func (k Keeper) Clawback(
 		},
 	)
 
-	return &types.MsgClawbackResponse{}, nil
+	return &types.MsgClawbackResponse{
+		Coins: clawedBack,
+	}, nil
 }
 
 // UpdateVestingFunder updates the funder account of a ClawbackVestingAccount.
@@ -409,13 +412,9 @@ func (k Keeper) transferClawback(
 	ctx sdk.Context,
 	vestingAccount types.ClawbackVestingAccount,
 	destinationAddr sdk.AccAddress,
-) error {
+) (sdk.Coins, error) {
 	// Compute clawback amount, unlock unvested tokens and remove future vesting events
 	updatedAcc, toClawBack := vestingAccount.ComputeClawback(ctx.BlockTime().Unix())
-	// Returns an error if there is nothing to clawback (e.g. all tokens are vested)
-	if toClawBack.IsZero() {
-		return errorsmod.Wrapf(types.ErrNothingToClawback, "account %s", vestingAccount.GetAddress())
-	}
 
 	// convert the account back to a normal EthAccount
 	//
@@ -437,7 +436,7 @@ func (k Keeper) transferClawback(
 	// In case destination is community pool (e.g. Gov Clawback)
 	// call the corresponding function
 	if destinationAddr.String() == authtypes.NewModuleAddress(distributiontypes.ModuleName).String() {
-		return k.distributionKeeper.FundCommunityPool(ctx, toClawBack, address)
+		return toClawBack, k.distributionKeeper.FundCommunityPool(ctx, toClawBack, address)
 	}
 
 	// NOTE: don't use `SpendableCoins` to get the minimum value to clawback since
@@ -446,5 +445,5 @@ func (k Keeper) transferClawback(
 	// different denoms (because of store iteration).
 
 	// Transfer clawback to the destination (funder)
-	return k.bankKeeper.SendCoins(ctx, address, destinationAddr, toClawBack)
+	return toClawBack, k.bankKeeper.SendCoins(ctx, address, destinationAddr, toClawBack)
 }

@@ -252,9 +252,21 @@
     "name": "clawback",
     "outputs": [
       {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "denom",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Coin[]",
+        "name": "coins",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "nonpayable",

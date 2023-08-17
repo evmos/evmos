@@ -461,7 +461,6 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			msg := types.NewMsgClawback(tc.funder, tc.vestingAddr, tc.clawbackDest)
 			res, err := suite.app.VestingKeeper.Clawback(ctx, msg)
 
-			expRes := &types.MsgClawbackResponse{}
 			balanceVestingAcc := suite.app.BankKeeper.GetBalance(suite.ctx, vestingAddr, "test")
 			balanceClaw := suite.app.BankKeeper.GetBalance(suite.ctx, tc.clawbackDest, "test")
 			if len(tc.clawbackDest) == 0 {
@@ -470,7 +469,9 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+
+				expRes := &types.MsgClawbackResponse{Coins: balances}
+				suite.Require().Equal(expRes, res, "expected full balances to be clawed back")
 				suite.Require().Equal(sdk.NewInt64Coin("test", 0), balanceVestingAcc)
 				suite.Require().Equal(balances[0], balanceClaw)
 			} else {

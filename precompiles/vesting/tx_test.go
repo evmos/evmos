@@ -249,9 +249,10 @@ func (s *PrecompileTestSuite) TestClawback() {
 			},
 			20000,
 			func(data []byte) {
-				success, err := s.precompile.Unpack(vesting.ClawbackMethod, data)
-				s.Require().NoError(err)
-				s.Require().Equal(success[0], true)
+				var co vesting.ClawbackOutput
+				err := s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, data)
+				s.Require().NoError(err, "failed to unpack clawback output")
+				s.Require().Equal(co.Coins, balances, "expected different clawed back coins")
 			},
 			false,
 			"",
@@ -279,7 +280,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 }
 
 func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
-	method := s.precompile.Methods[vesting.ClawbackMethod]
+	method := s.precompile.Methods[vesting.UpdateVestingFunderMethod]
 
 	testCases := []struct {
 		name        string
