@@ -151,7 +151,7 @@ func (msg MsgFundVestingAccount) ValidateBasic() error {
 
 	// If both schedules are present, they must describe the same total amount.
 	// IsEqual can panic, so use (a == b) <=> (a <= b && b <= a).
-	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 && !coinEq(lockupCoins, vestingCoins) && coinEq(lockupCoins, vestingCoins) {
+	if len(msg.LockupPeriods) > 0 && len(msg.VestingPeriods) > 0 && !coinEq(lockupCoins, vestingCoins) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting and lockup schedules must have same total coins")
 	}
 

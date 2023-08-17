@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -130,6 +131,9 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 
 	vestingCoins := msg.VestingPeriods.TotalAmount()
 	lockupCoins := msg.LockupPeriods.TotalAmount()
+
+	fmt.Println("vestingCoins: ", vestingCoins)
+	fmt.Println("lockupCoins: ", lockupCoins)
 
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
