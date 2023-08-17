@@ -1,10 +1,12 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
 
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"cosmossdk.io/math"
@@ -849,7 +851,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
 		ctx := sdk.WrapSDKContext(s.ctx)
 		_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-		Expect(err).To(BeNil())
+		Expect(err.Error()).To(Equal(fmt.Sprintf("account %s: nothing to clawback from the account", vestingAddr)))
 
 		bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -1097,7 +1099,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
 			ctx := sdk.WrapSDKContext(s.ctx)
 			_, err = s.app.VestingKeeper.Clawback(ctx, msg)
-			Expect(err).To(BeNil())
+			Expect(err.Error()).To(Equal(fmt.Sprintf("account %s: nothing to clawback from the account", vestingAddr)))
 
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
@@ -1156,7 +1158,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
 			_, err := s.app.VestingKeeper.Clawback(s.ctx, msg)
 			Expect(err).To(HaveOccurred(), "expected error")
-			Expect(err.Error()).To(ContainSubstring("doesn't have governance clawback enabled: %s", vestingAddr.String()))
+			Expect(err.Error()).To(ContainSubstring("%s: account does not have governance clawback enabled", vestingAddr.String()))
 		})
 	})
 })
@@ -1232,7 +1234,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 		Expect(ok).To(BeTrue(), "account is not a clawback vesting account")
 	})
 
-	Context("when creating a clawback vesting account", func() {
+	Context("when funding a clawback vesting account", func() {
 		testcases := []struct {
 			name         string
 			lockupCoins  sdk.Coins
@@ -1260,7 +1262,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 				name:        "fail - negative amounts for the lockup period",
 				lockupCoins: coinsWithNegAmount,
 				expError:    true,
-				errContains: "invalid amount in lockup periods, amounts must be positive",
+				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithNegAmount.String()).Error(),
 			},
 			{
 				name:         "fail - negative amounts for the vesting period",
@@ -1272,7 +1274,7 @@ var _ = Describe("Clawback Vesting Account - Barberry bug", func() {
 				name:        "fail - zero amount for the lockup period",
 				lockupCoins: coinsWithZeroAmount,
 				expError:    true,
-				errContains: "invalid amount in lockup periods, amounts must be positive",
+				errContains: errortypes.ErrInvalidCoins.Wrap(coinsWithZeroAmount.String()).Error(),
 			},
 			{
 				name:         "fail - zero amount for the vesting period",
