@@ -420,8 +420,12 @@ func (k Keeper) transferClawback(
 	if toClawBack.IsZero() {
 		return errorsmod.Wrapf(types.ErrNothingToClawback, "account %s", vestingAccount.GetAddress())
 	}
-	
+
 	// convert the account back to a normal EthAccount
+	//
+	// NOTE: this is necessary to allow the bank keeper to send the locked coins away to the
+	// destination address. If the account is not converted, the coins will still be seen as locked,
+	// and can therefore not be transferred.
 	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
 	ethAccount.BaseAccount = updatedAcc.BaseAccount
 
