@@ -88,6 +88,7 @@ using the fund-vesting-account subcommand. Clawback via governance is enabled th
 		},
 	}
 
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
