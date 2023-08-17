@@ -241,7 +241,7 @@ func (k Keeper) Clawback(
 	}
 
 	// Perform clawback transfer
-	if err := k.transferClawback(ctx, *va, dest); err != nil {
+	if err = k.transferClawback(ctx, *va, dest); err != nil {
 		return nil, err
 	}
 
