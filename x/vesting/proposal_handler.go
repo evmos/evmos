@@ -20,7 +20,7 @@ func NewVestingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	return func(ctx sdk.Context, content govv1beta1.Content) error {
 		switch c := content.(type) {
 		case *types.ClawbackProposal:
-			return handleClawbackProposal(ctx, k, c)
+			return HandleClawbackProposal(ctx, k, c)
 
 		default:
 			return errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s proposal content type: %T", types.ModuleName, c)
@@ -28,9 +28,9 @@ func NewVestingProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 	}
 }
 
-// handleClawbackProposal handles the proposal for clawback
+// HandleClawbackProposal handles the proposal for clawback
 // of a vesting account that has this functionality enabled.
-func handleClawbackProposal(
+func HandleClawbackProposal(
 	ctx sdk.Context,
 	k *keeper.Keeper,
 	p *types.ClawbackProposal,
