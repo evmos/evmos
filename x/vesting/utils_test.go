@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
@@ -19,9 +22,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/utils"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -29,7 +29,7 @@ import (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp()
+	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
 
@@ -89,7 +89,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, 
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
