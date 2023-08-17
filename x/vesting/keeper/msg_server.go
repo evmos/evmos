@@ -420,6 +420,13 @@ func (k Keeper) transferClawback(
 	if toClawBack.IsZero() {
 		return errorsmod.Wrapf(types.ErrNothingToClawback, "account %s", vestingAccount.GetAddress())
 	}
+	
+	// convert the account back to a normal EthAccount
+	ethAccount := evmostypes.ProtoAccount().(*evmostypes.EthAccount)
+	ethAccount.BaseAccount = updatedAcc.BaseAccount
+
+	// set the account with the updated values of the vesting schedule
+	k.accountKeeper.SetAccount(ctx, ethAccount)
 
 	address := updatedAcc.GetAddress()
 
