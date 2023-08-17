@@ -292,11 +292,18 @@ func NewMsgConvertVestingAccountCmd() *cobra.Command {
 //nolint:staticcheck
 func NewClawbackProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "clawback ADDRESS [DEST_ADDRESS]",
-		Args:    cobra.RangeArgs(1, 2),
-		Short:   "Submit a proposal to clawback funds from a ClawbackVestingAccount",
-		Long:    "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has opted in to this functionality.",
-		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal clawback <address> --from=<key_or_address>", version.AppName),
+		Use:   "clawback ADDRESS [DEST_ADDRESS]",
+		Args:  cobra.RangeArgs(1, 2),
+		Short: "Submit a proposal to clawback funds from a ClawbackVestingAccount",
+		Long:  "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has this functionality enabled.",
+		Example: fmt.Sprintf(
+			`$ %s tx gov submit-legacy-proposal clawback <address> \
+--from=<key_or_address> \
+--title=<proposal_title> \
+--description=<proposal_description> \
+--deposit=<deposit>`,
+			version.AppName,
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
