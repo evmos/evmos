@@ -202,7 +202,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 		}
 		_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msg)
 		suite.Require().Error(err, "expected wrong funder error")
-		suite.Require().ErrorContains(err, fmt.Sprintf("%suite can only accept grants from account %suite", vestingAddr, funder))
+		suite.Require().ErrorContains(err, fmt.Sprintf("%s can only accept grants from account %s", vestingAddr, funder))
 	})
 }
 
