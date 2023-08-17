@@ -468,7 +468,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    authtypes.NewModuleAddress("transfer"),
 			initClawback: true,
 			expPass:      false,
-			errContains:  "is not allowed to receive funds",
+			errContains:  "is a blocked address and not allowed to fund vesting accounts",
 		},
 		{
 			name: "pass - update funder successfully",

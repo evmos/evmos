@@ -823,7 +823,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, updateFunderArgs, updateFunderCheck)
 				Expect(err).To(HaveOccurred(), "error while updating the funder to a module address: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("is not allowed to receive funds"))
+					Expect(err.Error()).To(ContainSubstring("is a blocked address and not allowed to fund vesting accounts"))
 				}
 			})
 		}

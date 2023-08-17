@@ -281,7 +281,7 @@ func (k Keeper) UpdateVestingFunder(
 	// Clawback function, destination defaults to funder address
 	if bk.BlockedAddr(newFunder) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"%s is not allowed to receive funds", msg.NewFunderAddress,
+			"%s is a blocked address and not allowed to fund vesting accounts", msg.NewFunderAddress,
 		)
 	}
 
