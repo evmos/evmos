@@ -111,8 +111,8 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("lockup schedule extends beyond account end time")
 	}
 
-	// use coinEq to prevent panic
-	if !coinEq(lockupCoins, va.OriginalVesting) {
+	// use CoinEq to prevent panic
+	if !CoinEq(lockupCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in lockup periods")
 	}
 
@@ -128,7 +128,7 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("vesting schedule exteds beyond account end time")
 	}
 
-	if !coinEq(vestingCoins, va.OriginalVesting) {
+	if !CoinEq(vestingCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in vesting periods")
 	}
 
