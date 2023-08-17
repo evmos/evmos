@@ -162,11 +162,11 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 
 // NOTE: This function tests cases which require a different setup than the standard
 // cases in TestMsgFundVestingAccount.
-func (s *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
+func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 	// ---------------------------
 	// Test blocked address
-	s.Run("fail - blocked address", func() {
-		s.SetupTest()
+	suite.Run("fail - blocked address", func() {
+		suite.SetupTest()
 		msg := &types.MsgFundVestingAccount{
 			FunderAddress:  funder.String(),
 			VestingAddress: authtypes.NewModuleAddress("transfer").String(),
@@ -175,23 +175,23 @@ func (s *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 			VestingPeriods: vestingPeriods,
 		}
 
-		_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msg)
-		s.Require().Error(err, "expected blocked address error")
-		s.Require().ErrorContains(err, "is not allowed to receive funds")
+		_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msg)
+		suite.Require().Error(err, "expected blocked address error")
+		suite.Require().ErrorContains(err, "is not allowed to receive funds")
 	})
 
 	// ---------------------------
 	// Test wrong funder by first creating a clawback vesting account
 	// and then trying to fund it with a different funder
-	s.Run("fail - wrong funder", func() {
-		s.SetupTest()
+	suite.Run("fail - wrong funder", func() {
+		suite.SetupTest()
 
 		// fund the recipient account to set the account
-		err = testutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr, balances)
-		s.Require().NoError(err, "failed to fund target account")
+		err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
+		suite.Require().NoError(err, "failed to fund target account")
 		msgCreate := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
-		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msgCreate)
-		s.Require().NoError(err, "failed to create clawback vesting account")
+		_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(suite.ctx, msgCreate)
+		suite.Require().NoError(err, "failed to create clawback vesting account")
 
 		msg := &types.MsgFundVestingAccount{
 			FunderAddress:  addr3.String(),
@@ -200,9 +200,9 @@ func (s *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
 			LockupPeriods:  lockupPeriods,
 			VestingPeriods: vestingPeriods,
 		}
-		_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msg)
-		s.Require().Error(err, "expected wrong funder error")
-		s.Require().ErrorContains(err, fmt.Sprintf("%s can only accept grants from account %s", vestingAddr, funder))
+		_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msg)
+		suite.Require().Error(err, "expected wrong funder error")
+		suite.Require().ErrorContains(err, fmt.Sprintf("%suite can only accept grants from account %suite", vestingAddr, funder))
 	})
 }
 

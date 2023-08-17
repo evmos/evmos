@@ -105,8 +105,6 @@ func (p Precompile) FundVestingAccount(
 }
 
 // Clawback clawbacks tokens from a clawback vesting account
-//
-//nolint:dupl
 func (p Precompile) Clawback(
 	ctx sdk.Context,
 	origin common.Address,
@@ -150,8 +148,6 @@ func (p Precompile) Clawback(
 }
 
 // UpdateVestingFunder updates the vesting funder of a clawback vesting account
-//
-//nolint:dupl
 func (p Precompile) UpdateVestingFunder(
 	ctx sdk.Context,
 	origin common.Address,
