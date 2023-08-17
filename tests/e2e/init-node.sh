@@ -120,5 +120,5 @@ evmosd collect-gentxs
 # Run this to ensure everything worked and that the genesis file is setup correctly
 evmosd validate-genesis
 
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
+# Start the node
 evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --chain-id "$CHAINID"
