@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -132,9 +131,6 @@ func (k Keeper) FundVestingAccount(goCtx context.Context, msg *types.MsgFundVest
 	vestingCoins := msg.VestingPeriods.TotalAmount()
 	lockupCoins := msg.LockupPeriods.TotalAmount()
 
-	fmt.Println("vestingCoins: ", vestingCoins)
-	fmt.Println("lockupCoins: ", lockupCoins)
-
 	// If lockup absent, default to an instant unlock schedule
 	if !vestingCoins.IsZero() && len(msg.LockupPeriods) == 0 {
 		msg.LockupPeriods = sdkvesting.Periods{
@@ -199,15 +195,14 @@ func (k Keeper) Clawback(
 	ak := k.accountKeeper
 	bk := k.bankKeeper
 
-	// NOTE: ignore error in case dest address is not defined
-	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
-
-	// NOTE: error checked during msg validation
+	// NOTE: errors checked during msg validation
 	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
+	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 
-	// Default destination to funder address
+	// NOTE: ignore error in case dest address is not defined and default to funder address
+	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
 	if msg.DestAddress == "" {
-		dest = sdk.MustAccAddressFromBech32(msg.FunderAddress)
+		dest = funder
 	}
 
 	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
