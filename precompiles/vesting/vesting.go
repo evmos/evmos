@@ -10,6 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -17,7 +18,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
-	"github.com/tendermint/tendermint/libs/log"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

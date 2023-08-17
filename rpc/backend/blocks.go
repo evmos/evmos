@@ -3,12 +3,13 @@
 package backend
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 	"math/big"
 	"strconv"
 
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
+	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,7 +19,6 @@ import (
 	rpctypes "github.com/evmos/evmos/v14/rpc/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/pkg/errors"
-	tmrpctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -112,7 +112,12 @@ func (b *Backend) GetBlockByHash(hash common.Hash, fullTx bool) (map[string]inte
 // GetBlockTransactionCountByHash returns the number of Ethereum transactions in
 // the block identified by hash.
 func (b *Backend) GetBlockTransactionCountByHash(hash common.Hash) *hexutil.Uint {
-	block, err := b.clientCtx.Client.BlockByHash(b.ctx, hash.Bytes())
+	sc, ok := b.clientCtx.Client.(tmrpcclient.SignClient)
+	if !ok {
+		b.logger.Error("invalid rpc client")
+	}
+
+	block, err := sc.BlockByHash(b.ctx, hash.Bytes())
 	if err != nil {
 		b.logger.Debug("block not found", "hash", hash.Hex(), "error", err.Error())
 		return nil
@@ -185,12 +190,20 @@ func (b *Backend) TendermintBlockByNumber(blockNum rpctypes.BlockNumber) (*tmrpc
 // TendermintBlockResultByNumber returns a Tendermint-formatted block result
 // by block number
 func (b *Backend) TendermintBlockResultByNumber(height *int64) (*tmrpctypes.ResultBlockResults, error) {
-	return b.clientCtx.Client.BlockResults(b.ctx, height)
+	sc, ok := b.clientCtx.Client.(tmrpcclient.SignClient)
+	if !ok {
+		return nil, errors.New("invalid rpc client")
+	}
+	return sc.BlockResults(b.ctx, height)
 }
 
 // TendermintBlockByHash returns a Tendermint-formatted block by block number
 func (b *Backend) TendermintBlockByHash(blockHash common.Hash) (*tmrpctypes.ResultBlock, error) {
-	resBlock, err := b.clientCtx.Client.BlockByHash(b.ctx, blockHash.Bytes())
+	sc, ok := b.clientCtx.Client.(tmrpcclient.SignClient)
+	if !ok {
+		return nil, errors.New("invalid rpc client")
+	}
+	resBlock, err := sc.BlockByHash(b.ctx, blockHash.Bytes())
 	if err != nil {
 		b.logger.Debug("tendermint client failed to get block", "blockHash", blockHash.Hex(), "error", err.Error())
 		return nil, err
@@ -344,8 +357,8 @@ func (b *Backend) BlockBloom(blockRes *tmrpctypes.ResultBlockResults) (ethtypes.
 		}
 
 		for _, attr := range event.Attributes {
-			if bytes.Equal(attr.Key, bAttributeKeyEthereumBloom) {
-				return ethtypes.BytesToBloom(attr.Value), nil
+			if attr.Key == evmtypes.AttributeKeyEthereumBloom {
+				return ethtypes.BytesToBloom([]byte(attr.Value)), nil
 			}
 		}
 	}

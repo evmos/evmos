@@ -9,9 +9,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	evmoscontracts "github.com/evmos/evmos/v14/contracts"
@@ -1023,7 +1023,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 				args := defaultCallArgs.
 					WithMethodName(method).
-					WithArgs(s.address, s.differentAddr)
+					WithArgs(s.differentAddr, s.address)
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1587,7 +1587,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			s.setTransferApprovalForContract(defaultApproveArgs)
 			defaultAllowanceArgs = defaultCallArgs.
 				WithMethodName("testAllowance").
-				WithArgs(s.address, contractAddr)
+				WithArgs(contractAddr, s.address)
 		})
 
 		It("should return allocations", func() {

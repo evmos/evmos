@@ -11,7 +11,7 @@ import (
 
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	"github.com/evmos/evmos/v14/x/erc20/types"
-	proto "github.com/gogo/protobuf/proto"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

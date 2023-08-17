@@ -246,7 +246,7 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			msg, err := delegate(testAccounts[0], twoThirdsOfVested)
 			Expect(err).To(BeNil())
 
-			msgServer := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
+			msgServer := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
 			_, err = msgServer.Delegate(s.ctx, msg)
 			Expect(err).ToNot(HaveOccurred(), "error while executing the delegate message")
 

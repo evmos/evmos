@@ -7,8 +7,8 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/ics20"
@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
-			"fail - not a correct spender address",
+			"fail - not a correct grantee address",
 			func() []interface{} {
 				return []interface{}{
 					"test string",
@@ -256,7 +256,7 @@ func (s *PrecompileTestSuite) TestRevoke() {
 			func() {},
 			200000,
 			true,
-			fmt.Sprintf(authorization.ErrInvalidGranter, "test string"),
+			fmt.Sprintf(authorization.ErrInvalidGrantee, "test string"),
 		},
 		{
 			"fail - authorization does not exist",

@@ -75,11 +75,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	// Init app
-	suite.app = app.Setup(checkTx, nil)
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(checkTx, nil, chainID)
 
 	// Set Context
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
 
@@ -123,8 +124,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)

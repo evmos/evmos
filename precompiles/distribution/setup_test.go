@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,6 @@ import (
 	evmosapp "github.com/evmos/evmos/v14/app"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/stretchr/testify/suite"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 var s *PrecompileTestSuite

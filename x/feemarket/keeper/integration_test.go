@@ -13,9 +13,12 @@ import (
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v14/utils"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
+
+const chainID = utils.TestnetChainID + "-1"
 
 var _ = Describe("Feemarket", func() {
 	var (
@@ -26,7 +29,7 @@ var _ = Describe("Feemarket", func() {
 	Describe("Performing Cosmos transactions", func() {
 		Context("with min-gas-prices (local) < MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext("1", sdk.NewDec(3), sdk.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "1", sdk.NewDec(3), sdk.ZeroInt())
 			})
 
 			Context("during CheckTx", func() {
@@ -70,7 +73,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with min-gas-prices (local) == MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext("3", sdk.NewDec(3), sdk.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "3", sdk.NewDec(3), sdk.ZeroInt())
 			})
 
 			Context("during CheckTx", func() {
@@ -114,7 +117,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with MinGasPrices (feemarket param) < min-gas-prices (local)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext("5", sdk.NewDec(3), sdk.NewInt(5))
+				privKey, msg = setupTestWithContext(chainID, "5", sdk.NewDec(3), sdk.NewInt(5))
 			})
 
 			//nolint
@@ -201,7 +204,7 @@ var _ = Describe("Feemarket", func() {
 				// 100000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 				// a `minGasPrices = 40_000_000_000` results in `minGlobalFee =
 				// 4000000000000000`
-				privKey, _ = setupTestWithContext("1", sdk.NewDec(minGasPrices), sdkmath.NewInt(baseFee))
+				privKey, _ = setupTestWithContext(chainID, "1", sdk.NewDec(minGasPrices), sdkmath.NewInt(baseFee))
 			})
 
 			Context("during CheckTx", func() {
@@ -311,7 +314,7 @@ var _ = Describe("Feemarket", func() {
 				// 100_000`. With the fee calculation `Fee = (baseFee + tip) * gasLimit`,
 				// a `minGasPrices = 5_000_000_000` results in `minGlobalFee =
 				// 500_000_000_000_000`
-				privKey, _ = setupTestWithContext("1", sdk.NewDec(minGasPrices), sdkmath.NewInt(baseFee))
+				privKey, _ = setupTestWithContext(chainID, "1", sdk.NewDec(minGasPrices), sdkmath.NewInt(baseFee))
 			})
 
 			Context("during CheckTx", func() {

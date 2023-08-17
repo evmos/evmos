@@ -5,9 +5,9 @@ package testutil
 import (
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 	"golang.org/x/exp/slices"
 )
 

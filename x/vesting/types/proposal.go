@@ -6,6 +6,7 @@ package types
 import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -18,7 +19,7 @@ var _ v1beta1.Content = &ClawbackProposal{}
 
 func init() {
 	v1beta1.RegisterProposalType(ProposalTypeClawback)
-	v1beta1.ModuleCdc.Amino.RegisterConcrete(&ClawbackProposal{}, "vesting/ClawbackProposal", nil)
+	govcdc.ModuleCdc.Amino.RegisterConcrete(&ClawbackProposal{}, "vesting/ClawbackProposal", nil)
 }
 
 // NewClawbackProposal returns new instance of RegisterCoinProposal
