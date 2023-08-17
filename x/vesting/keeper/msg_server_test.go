@@ -381,6 +381,18 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			errContains:  "clawback can only be requested by original funder",
 		},
 		{
+			name:         "fail - clawback destination is blocked",
+			malleate:     func() {},
+			funder:       funder,
+			vestingAddr:  vestingAddr,
+			clawbackDest: authtypes.NewModuleAddress("transfer"),
+			startTime:    suite.ctx.BlockTime(),
+			initClawback: true,
+			initVesting:  true,
+			expPass:      false,
+			errContains:  "is a blocked address and not allowed to receive funds",
+		},
+		{
 			name:         "pass - before start time",
 			malleate:     func() {},
 			funder:       funder,

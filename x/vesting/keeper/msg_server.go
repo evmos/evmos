@@ -207,7 +207,7 @@ func (k Keeper) Clawback(
 
 	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"account is not allowed to receive funds: %s", msg.DestAddress,
+			"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
 		)
 	}
 
