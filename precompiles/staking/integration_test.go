@@ -724,7 +724,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			// query allowance
 			allowanceArgs := defaultAllowanceArgs.WithArgs(
-				s.address, differentAddr, staking.CancelUnbondingDelegationMsg,
+				differentAddr, s.address, staking.CancelUnbondingDelegationMsg,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
@@ -1970,6 +1970,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			approvalArgs := defaultApproveArgs.WithArgs(
 				contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
 			)
+
 			s.SetupApprovalWithContractCalls(approvalArgs)
 
 			// query allowance

@@ -84,16 +84,16 @@ func TestCheckAllowanceArgs(t *testing.T) {
 			ErrContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 4),
 		},
 		{
-			name:        "invalid owner address",
+			name:        "invalid grantee address",
 			args:        []interface{}{common.Address{}, addr, validTypeURL},
 			expErr:      true,
-			ErrContains: fmt.Sprintf(authorization.ErrInvalidGranter, common.Address{}),
+			ErrContains: fmt.Sprintf(authorization.ErrInvalidGrantee, common.Address{}),
 		},
 		{
-			name:        "invalid spender address",
+			name:        "invalid granter address",
 			args:        []interface{}{addr, common.Address{}, validTypeURL},
 			expErr:      true,
-			ErrContains: fmt.Sprintf(authorization.ErrInvalidGrantee, common.Address{}),
+			ErrContains: fmt.Sprintf(authorization.ErrInvalidGranter, common.Address{}),
 		},
 		{
 			name:   "valid arguments",
