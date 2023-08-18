@@ -4,11 +4,10 @@
 package keeper
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
@@ -17,8 +16,7 @@ import (
 func (k Keeper) GetClawbackVestingAccount(ctx sdk.Context, addr sdk.AccAddress) (*types.ClawbackVestingAccount, error) {
 	acc := k.accountKeeper.GetAccount(ctx, addr)
 	if acc == nil {
-		// TODO: should we use errortypes.ErrInvalidRequest here?
-		return nil, fmt.Errorf("account at address '%s' does not exist", addr.String())
+		return nil, errorsmod.Wrapf(errortypes.ErrUnknownAddress, "account at address '%s' does not exist", addr.String())
 	}
 
 	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
