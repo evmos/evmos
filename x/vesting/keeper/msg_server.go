@@ -200,6 +200,7 @@ func (k Keeper) Clawback(
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 
 	// NOTE: ignore error in case dest address is not defined and default to funder address
+	//#nosec G703 -- error is checked during ValidateBasic already.
 	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
 	if msg.DestAddress == "" {
 		dest = funder
