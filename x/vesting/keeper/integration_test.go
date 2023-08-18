@@ -1057,7 +1057,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			ctx := sdk.WrapSDKContext(s.ctx)
 			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
-			Expect(res.Coins).To(Equal(unvested), "expected only coins to be clawed back")
+			Expect(res.Coins).To(Equal(unvested), "expected only unvested coins to be clawed back")
 
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
