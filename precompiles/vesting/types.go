@@ -255,11 +255,6 @@ func (bo *BalancesOutput) FromResponse(res *vestingtypes.QueryBalancesResponse) 
 	return bo
 }
 
-// Pack packs a given slice of abi arguments into a byte array.
-func (bo *BalancesOutput) Pack(args abi.Arguments) ([]byte, error) {
-	return args.Pack(bo.Locked, bo.Unvested, bo.Vested)
-}
-
 // ClawbackOutput represents the clawed back coins from a Clawback transaction.
 type ClawbackOutput struct {
 	Coins []cmn.Coin
@@ -269,9 +264,4 @@ type ClawbackOutput struct {
 func (co *ClawbackOutput) FromResponse(res *vestingtypes.MsgClawbackResponse) *ClawbackOutput {
 	co.Coins = cmn.NewCoinsResponse(res.Coins)
 	return co
-}
-
-// Pack packs a given slice of abi arguments into a byte array.
-func (co *ClawbackOutput) Pack(args abi.Arguments) ([]byte, error) {
-	return args.Pack(co.Coins)
 }
