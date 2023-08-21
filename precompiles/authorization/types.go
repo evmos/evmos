@@ -92,27 +92,6 @@ func CheckRevokeArgs(args []interface{}) (common.Address, []string, error) {
 	// TODO: (optional) new Go 1.20 functionality would allow to check all args and then return a joint list of errors.
 	// This would improve UX as everything wrong with the input would be returned at once.
 
-	granteeAddr, ok := args[0].(common.Address)
-	if !ok || granteeAddr == (common.Address{}) {
-		return common.Address{}, nil, fmt.Errorf(ErrInvalidGranter, args[0])
-	}
-
-	typeURLs, err := validateMsgTypes(args[1])
-	if err != nil {
-		return common.Address{}, nil, err
-	}
-	// TODO: check if the typeURLs are valid? e.g. with a regex pattern?
-	// Check - ENG-1632 on Linear
-
-	return granteeAddr, typeURLs, nil
-}
-
-// CheckRevocationArgs checks the arguments for the Revoke function.
-func CheckRevocationArgs(args []interface{}) (common.Address, []string, error) {
-	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
-	}
-
 	spenderAddr, ok := args[0].(common.Address)
 	if !ok || spenderAddr == (common.Address{}) {
 		return common.Address{}, nil, fmt.Errorf(ErrInvalidGranter, args[0])
@@ -122,6 +101,8 @@ func CheckRevocationArgs(args []interface{}) (common.Address, []string, error) {
 	if err != nil {
 		return common.Address{}, nil, err
 	}
+	// TODO: check if the typeURLs are valid? e.g. with a regex pattern?
+	// Check - ENG-1632 on Linear
 
 	return spenderAddr, typeURLs, nil
 }
