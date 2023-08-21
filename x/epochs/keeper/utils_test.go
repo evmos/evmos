@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/testutil"
-	"github.com/evmos/evmos/v13/x/epochs/types"
-	evm "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/testutil"
+	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v14/x/epochs/types"
+	evm "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 // Test helpers
@@ -15,11 +16,12 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 	checkTx := false
 
 	// init app
-	suite.app = app.Setup(checkTx, nil)
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(checkTx, nil, chainID)
 
 	// setup context
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, header)
 

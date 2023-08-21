@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"math/big"
 
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	tmrpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/evmos/evmos/v13/rpc/backend/mocks"
-	rpctypes "github.com/evmos/evmos/v13/rpc/types"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v14/rpc/backend/mocks"
+	rpctypes "github.com/evmos/evmos/v14/rpc/types"
+	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestGetCode() {

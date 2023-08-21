@@ -5,16 +5,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
-	"github.com/evmos/evmos/v13/app"
-	ibctesting "github.com/evmos/evmos/v13/ibc/testing"
-	"github.com/evmos/evmos/v13/utils"
-	claimstypes "github.com/evmos/evmos/v13/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
-	"github.com/evmos/evmos/v13/x/recovery/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/evmos/evmos/v14/app"
+	ibctesting "github.com/evmos/evmos/v14/ibc/testing"
+	"github.com/evmos/evmos/v14/utils"
+	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
+	"github.com/evmos/evmos/v14/x/recovery/types"
 )
 
 func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v13/x/claims/types"
+	"github.com/evmos/evmos/v14/x/claims/types"
 )
 
 // ClaimCoinsForAction removes the claimable amount entry from a claims record
@@ -82,7 +82,7 @@ func (k Keeper) ClaimCoinsForAction(
 // MergeClaimsRecords merges two independent claims records (sender and
 // recipient) into a new instance by summing up the initial claimable amounts
 // from both records.
-
+//
 // This method additionally:
 //   - Always claims the IBC action, assuming both record haven't claimed it.
 //   - Marks an action as claimed for the new instance by performing an XOR operation between the 2 provided records: `merged completed action = sender completed action XOR recipient completed action`

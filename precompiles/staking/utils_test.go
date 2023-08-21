@@ -9,6 +9,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -22,22 +25,19 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/staking"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	"github.com/evmos/evmos/v13/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/utils"
-	"github.com/evmos/evmos/v13/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
+	evmosapp "github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/staking"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v14/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
 	"golang.org/x/exp/slices"
 )
 
@@ -46,7 +46,7 @@ import (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp()
+	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
 
@@ -106,7 +106,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	})
 
 	// update total supply
-	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{})
+	bankGenesis := banktypes.NewGenesisState(banktypes.DefaultGenesisState().Params, balances, totalSupply, []banktypes.Metadata{}, []banktypes.SendEnabled{})
 	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(bankGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
@@ -186,7 +186,8 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
 	s.bondDenom = stakingParams.BondDenom
-	s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	s.Require().NoError(err)
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
@@ -375,11 +376,11 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
 	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-	var approvalEvent staking.EventAllowanceChange
+	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
 	s.Require().NoError(err)
-	s.Require().Equal(s.address, approvalEvent.Spender)
-	s.Require().Equal(s.address, approvalEvent.Owner)
+	s.Require().Equal(s.address, approvalEvent.Grantee)
+	s.Require().Equal(s.address, approvalEvent.Granter)
 	s.Require().Equal(len(methods), len(approvalEvent.Methods))
 
 	for i, method := range methods {
@@ -488,7 +489,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 		Amount:              sdk.NewCoin(s.bondDenom, sdk.NewIntFromBigInt(redelAmt)),
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
 		if _, err := msgSrv.BeginRedelegate(s.ctx, &msg); err != nil {

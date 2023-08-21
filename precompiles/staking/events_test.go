@@ -7,9 +7,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/staking"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/staking"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {
@@ -45,11 +45,11 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-				var approvalEvent staking.EventApproval
+				var approvalEvent authorization.EventApproval
 				err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(s.address, approvalEvent.Spender)
-				s.Require().Equal(s.address, approvalEvent.Owner)
+				s.Require().Equal(s.address, approvalEvent.Grantee)
+				s.Require().Equal(s.address, approvalEvent.Granter)
 				s.Require().Equal(abi.MaxUint256, approvalEvent.Value)
 				s.Require().Equal(4, len(approvalEvent.Methods))
 				s.Require().Equal(staking.DelegateMsg, approvalEvent.Methods[0])

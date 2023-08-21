@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
 
 	"github.com/armon/go-metrics"
 
@@ -20,7 +20,7 @@ import (
 	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 var _ types.MsgServer = &Keeper{}
@@ -300,8 +300,9 @@ func (k Keeper) ConvertVestingAccount(
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "account %s is not a ClawbackVestingAccount", msg.VestingAddress)
 	}
 
-	// check if account  has any vesting coins left
-	if vestingAcc.GetVestingCoins(ctx.BlockTime()) != nil {
+	// check if account has any vesting coins left
+	vetingCoinsLeft := vestingAcc.GetVestingCoins(ctx.BlockTime())
+	if vetingCoinsLeft.Len() > 0 {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "vesting coins still left in account: %s", msg.VestingAddress)
 	}
 

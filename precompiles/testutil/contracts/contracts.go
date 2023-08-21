@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"math/big"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
-	abci "github.com/tendermint/tendermint/abci/types"
+	evmosapp "github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 // Call is a helper function to call any arbitrary smart contract.
@@ -81,7 +81,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 	})
 	msg.From = addr.Hex()
 
-	res, err = evmosutil.DeliverEthTx(app, args.PrivKey, msg)
+	res, err = evmosutil.DeliverEthTxWithoutCheck(app, args.PrivKey, msg)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error during deliver tx: %s", err)
 	}

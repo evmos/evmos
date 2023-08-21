@@ -6,10 +6,10 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	cosmosante "github.com/evmos/evmos/v13/app/ante/cosmos"
-	"github.com/evmos/evmos/v13/testutil"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
-	"github.com/evmos/evmos/v13/utils"
+	cosmosante "github.com/evmos/evmos/v14/app/ante/cosmos"
+	"github.com/evmos/evmos/v14/testutil"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v14/utils"
 )
 
 type deductFeeDecoratorTestCase struct {

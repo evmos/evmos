@@ -3,8 +3,15 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/evmos/v13/x/feemarket/types"
+	"github.com/evmos/evmos/v14/x/feemarket/types"
 )
+
+func (suite *KeeperTestSuite) TestGetParams() {
+	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+	suite.Require().NotNil(params.BaseFee)
+	suite.Require().NotNil(params.MinGasPrice)
+	suite.Require().NotNil(params.MinGasMultiplier)
+}
 
 func (suite *KeeperTestSuite) TestSetGetParams() {
 	params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)

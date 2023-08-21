@@ -11,15 +11,30 @@ import (
 // and finally upgrades the chain.
 // If the chain can be restarted after the upgrade(s), the test passes.
 func (s *IntegrationTestSuite) TestUpgrade() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+  
 	for idx, version := range s.upgradeParams.Versions {
 		if idx == 0 {
 			// start initial node
 			s.runInitialNode(version)
 			continue
 		}
+		currentHeight, err := s.upgradeManager.GetNodeHeight(ctx)
+		s.Require().NoError(err)
+
+		// wait one block to execute the txs
+		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+1)
+		s.Require().NoError(err)
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
 		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
+
+		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+2)
+		s.Require().NoError(err)
 		s.voteForProposal(idx)
+
+		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+3)
+		s.Require().NoError(err)
 		s.upgrade(version.ImageName, version.ImageTag)
 	}
 	s.T().Logf("SUCCESS")
@@ -125,19 +140,6 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			expPass: true,
 		},
 		{
-			name: "fail - vote upgrade proposal, insufficient fees",
-			cmd: func() (string, error) {
-				return s.upgradeManager.CreateVoteProposalExec(
-					s.upgradeParams.ChainID,
-					1,
-					"--fees=10aevmos",
-					"--gas=500000",
-				)
-			},
-			expPass:   false,
-			expErrMsg: "insufficient fee",
-		},
-		{
 			name: "success - vote upgrade proposal (using gas 'auto' and specific fees)",
 			cmd: func() (string, error) {
 				return s.upgradeManager.CreateVoteProposalExec(
@@ -150,6 +152,19 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			},
 			expPass: true,
 		},
+		{
+			name: "fail - vote upgrade proposal, insufficient fees",
+			cmd: func() (string, error) {
+				return s.upgradeManager.CreateVoteProposalExec(
+					s.upgradeParams.ChainID,
+					1,
+					"--fees=10aevmos",
+					"--gas=500000",
+				)
+			},
+			expPass:   false,
+			expErrMsg: "insufficient fee",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -160,6 +175,14 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			exec, err := tc.cmd()
 			s.Require().NoError(err)
 
+			// wait one block to execute the tx
+			currentHeight, err := s.upgradeManager.GetNodeHeight(ctx)
+			s.Require().NoError(err)
+
+			_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+1)
+			s.Require().NoError(err)
+
+			// execute the tx
 			outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 			s.Require().NoError(err)
 

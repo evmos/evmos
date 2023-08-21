@@ -15,15 +15,15 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/distribution"
-	"github.com/evmos/evmos/v13/precompiles/staking"
-	"github.com/evmos/evmos/v13/precompiles/staking/testdata"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	"github.com/evmos/evmos/v13/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/distribution"
+	"github.com/evmos/evmos/v14/precompiles/staking"
+	"github.com/evmos/evmos/v14/precompiles/staking/testdata"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 )
 
 // General variables used for integration tests
@@ -724,7 +724,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			// query allowance
 			allowanceArgs := defaultAllowanceArgs.WithArgs(
-				s.address, differentAddr, staking.CancelUnbondingDelegationMsg,
+				differentAddr, s.address, staking.CancelUnbondingDelegationMsg,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, allowanceArgs, passCheck)
@@ -1970,6 +1970,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			approvalArgs := defaultApproveArgs.WithArgs(
 				contractAddr, []string{staking.CancelUnbondingDelegationMsg}, big.NewInt(1e18),
 			)
+
 			s.SetupApprovalWithContractCalls(approvalArgs)
 
 			// query allowance

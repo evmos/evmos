@@ -10,7 +10,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/tendermint/tendermint/libs/strings"
+	"github.com/cometbft/cometbft/libs/strings"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -18,6 +18,24 @@ import (
 )
 
 const (
+	// DefaultAPIEnable is the default value for the parameter that defines if the cosmos REST API server is enabled
+	DefaultAPIEnable = false
+
+	// DefaultGRPCEnable is the default value for the parameter that defines if the gRPC server is enabled
+	DefaultGRPCEnable = false
+
+	// DefaultGRPCWebEnable is the default value for the parameter that defines if the gRPC web server is enabled
+	DefaultGRPCWebEnable = false
+
+	// DefaultJSONRPCEnable is the default value for the parameter that defines if the JSON-RPC server is enabled
+	DefaultJSONRPCEnable = false
+
+	// DefaultRosettaEnable is the default value for the parameter that defines if the Rosetta API server is enabled
+	DefaultRosettaEnable = false
+
+	// DefaultTelemetryEnable is the default value for the parameter that defines if the telemetry is enabled
+	DefaultTelemetryEnable = false
+
 	// DefaultGRPCAddress is the default address the gRPC server binds to.
 	DefaultGRPCAddress = "0.0.0.0:9900"
 
@@ -71,6 +89,9 @@ const (
 
 	// DefaultMaxOpenConnections represents the amount of open connections (unlimited = 0)
 	DefaultMaxOpenConnections = 0
+
+	// DefaultGasAdjustment value to use as default in gas-adjustment flag
+	DefaultGasAdjustment = 1.2
 )
 
 var evmTracers = []string{"json", "markdown", "struct", "access_list"}
@@ -175,11 +196,11 @@ func AppConfig(denom string) (string, interface{}) {
 // DefaultConfig returns server's default configuration.
 func DefaultConfig() *Config {
 	defaultSDKConfig := config.DefaultConfig()
-	defaultSDKConfig.API.Enable = false
-	defaultSDKConfig.GRPC.Enable = false
-	defaultSDKConfig.GRPCWeb.Enable = false
-	defaultSDKConfig.Rosetta.Enable = false
-	defaultSDKConfig.Telemetry.Enabled = false
+	defaultSDKConfig.API.Enable = DefaultAPIEnable
+	defaultSDKConfig.GRPC.Enable = DefaultGRPCEnable
+	defaultSDKConfig.GRPCWeb.Enable = DefaultGRPCWebEnable
+	defaultSDKConfig.Rosetta.Enable = DefaultRosettaEnable
+	defaultSDKConfig.Telemetry.Enabled = DefaultTelemetryEnable
 
 	return &Config{
 		Config:  *defaultSDKConfig,

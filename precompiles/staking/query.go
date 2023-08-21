@@ -13,8 +13,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 const (
@@ -50,7 +50,7 @@ func (p Precompile) Delegation(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
 
 	res, err := queryServer.Delegation(sdk.WrapSDKContext(ctx), req)
 	if err != nil {
@@ -80,7 +80,7 @@ func (p Precompile) UnbondingDelegation(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
 
 	res, err := queryServer.UnbondingDelegation(sdk.WrapSDKContext(ctx), req)
 	if err != nil {
@@ -109,7 +109,7 @@ func (p Precompile) Validator(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
 
 	res, err := queryServer.Validator(sdk.WrapSDKContext(ctx), req)
 	if err != nil {
@@ -138,7 +138,7 @@ func (p Precompile) Validators(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
 
 	res, err := queryServer.Validators(sdk.WrapSDKContext(ctx), req)
 	if err != nil {
@@ -183,7 +183,7 @@ func (p Precompile) Redelegations(
 		return nil, err
 	}
 
-	queryServer := stakingkeeper.Querier{Keeper: p.stakingKeeper}
+	queryServer := stakingkeeper.Querier{Keeper: &p.stakingKeeper}
 
 	res, err := queryServer.Redelegations(ctx, req)
 	if err != nil {
@@ -195,14 +195,14 @@ func (p Precompile) Redelegations(
 	return out.Pack(method.Outputs)
 }
 
-// Allowance returns the remaining allowance of a spender to the contract.
+// Allowance returns the remaining allowance of a grantee to the contract.
 func (p Precompile) Allowance(
 	ctx sdk.Context,
 	method *abi.Method,
 	_ *vm.Contract,
 	args []interface{},
 ) ([]byte, error) {
-	granter, grantee, msg, err := authorization.CheckAllowanceArgs(args)
+	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}

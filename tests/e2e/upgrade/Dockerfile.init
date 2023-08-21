@@ -2,19 +2,17 @@
 ARG INITIAL_VERSION
 FROM tharsishq/evmos:$INITIAL_VERSION
 
-# jq needs to perform changes of node parameters
-RUN apt-get update \ 
-&& apt-get install ca-certificates=20210119 jq=1.6-2.1 -y \ 
---no-install-recommends \ 
-&& apt-get clean \
-&& rm -rf /var/lib/apt/lists/*
+# No need to install this after v13 because it is already included
+# in the image of the docker registry
+# # jq needs to perform changes of node parameters
+# RUN apk add jq=1.6-r3 -y \ 
+# --no-install-recommends \ 
+# && apk clean \
+# && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /go/src/github.com/evmos/evmos
 
 COPY ./init-node.sh .
-
-# perms to make init-node.sh executable
-RUN chmod +x init-node.sh
 
 # JSON-RPC server
 EXPOSE 8545

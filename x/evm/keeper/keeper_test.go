@@ -6,14 +6,14 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	evmostypes "github.com/evmos/evmos/v13/types"
-	"github.com/evmos/evmos/v13/x/evm/keeper"
-	"github.com/evmos/evmos/v13/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/x/evm/keeper"
+	"github.com/evmos/evmos/v14/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 )
 
 func (suite *KeeperTestSuite) TestWithChainID() {

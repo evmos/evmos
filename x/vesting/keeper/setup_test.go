@@ -15,10 +15,10 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evm "github.com/evmos/evmos/v13/x/evm/types"
+	evm "github.com/evmos/evmos/v14/x/evm/types"
 
-	"github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/x/vesting/types"
+	"github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
 var (

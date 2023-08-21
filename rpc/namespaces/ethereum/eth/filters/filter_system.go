@@ -10,12 +10,12 @@ import (
 
 	"github.com/pkg/errors"
 
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/libs/log"
-	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
-	coretypes "github.com/tendermint/tendermint/rpc/core/types"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	tmtypes "github.com/tendermint/tendermint/types"
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	"github.com/cometbft/cometbft/libs/log"
+	tmquery "github.com/cometbft/cometbft/libs/pubsub/query"
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -24,8 +24,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v13/rpc/ethereum/pubsub"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v14/rpc/ethereum/pubsub"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 var (
@@ -231,9 +231,10 @@ func (es *EventSystem) eventLoop() {
 			es.indexMux.Lock()
 			es.index[f.typ][f.id] = f
 			ch := make(chan coretypes.ResultEvent)
-			es.topicChans[f.event] = ch
 			if err := es.eventBus.AddTopic(f.event, ch); err != nil {
 				es.logger.Error("failed to add event topic to event bus", "topic", f.event, "error", err.Error())
+			} else {
+				es.topicChans[f.event] = ch
 			}
 			es.indexMux.Unlock()
 			close(f.installed)

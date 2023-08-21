@@ -10,9 +10,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"golang.org/x/exp/slices"
 
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 
-	"github.com/evmos/evmos/v13/x/revenue/v1/types"
+	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}
@@ -47,9 +47,10 @@ func (k Keeper) PostTxProcessing(
 		return nil
 	}
 
-	// check if the fees are globally enabled
+	// check if the fees are globally enabled or if the
+	// developer shares are set to zero
 	params := k.GetParams(ctx)
-	if !params.EnableRevenue {
+	if !params.EnableRevenue || params.DeveloperShares.IsZero() {
 		return nil
 	}
 

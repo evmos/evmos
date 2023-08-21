@@ -8,17 +8,17 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 
-	"github.com/evmos/evmos/v13/app"
-	ibctesting "github.com/evmos/evmos/v13/ibc/testing"
-	"github.com/evmos/evmos/v13/testutil"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
-	"github.com/evmos/evmos/v13/utils"
-	"github.com/evmos/evmos/v13/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
+	"github.com/evmos/evmos/v14/app"
+	ibctesting "github.com/evmos/evmos/v14/ibc/testing"
+	"github.com/evmos/evmos/v14/testutil"
+	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v14/x/claims/types"
+	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
 )
 
 type IBCTestingSuite struct {

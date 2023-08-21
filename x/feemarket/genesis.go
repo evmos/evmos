@@ -4,11 +4,11 @@ package feemarket
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/evmos/v13/x/feemarket/keeper"
-	"github.com/evmos/evmos/v13/x/feemarket/types"
+	"github.com/evmos/evmos/v14/x/feemarket/keeper"
+	"github.com/evmos/evmos/v14/x/feemarket/types"
 )
 
 // InitGenesis initializes genesis state based on exported genesis

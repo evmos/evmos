@@ -8,7 +8,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/evmos/evmos/v13/x/vesting/types";
+option go_package = "github.com/evmos/evmos/v14/x/vesting/types";
 
 // Msg defines the vesting Msg service.
 service Msg {
