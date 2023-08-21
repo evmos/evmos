@@ -13,7 +13,7 @@ import (
 func (s *IntegrationTestSuite) TestUpgrade() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-  
+
 	for idx, version := range s.upgradeParams.Versions {
 		if idx == 0 {
 			// start initial node
