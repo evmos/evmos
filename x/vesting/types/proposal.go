@@ -22,7 +22,7 @@ func init() {
 	govcdc.ModuleCdc.Amino.RegisterConcrete(&ClawbackProposal{}, "vesting/ClawbackProposal", nil)
 }
 
-// NewClawbackProposal returns new instance of RegisterCoinProposal
+// NewClawbackProposal returns new instance of RegisterClawbackProposal
 func NewClawbackProposal(title, description, address, destinationAddress string) v1beta1.Content {
 	return &ClawbackProposal{
 		Title:              title,
