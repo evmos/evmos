@@ -45,11 +45,11 @@ func (s *PrecompileTestSuite) TestApprovalEvent() {
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-				var approvalEvent staking.EventApproval
+				var approvalEvent authorization.EventApproval
 				err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeApproval, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(s.address, approvalEvent.Spender)
-				s.Require().Equal(s.address, approvalEvent.Owner)
+				s.Require().Equal(s.address, approvalEvent.Grantee)
+				s.Require().Equal(s.address, approvalEvent.Granter)
 				s.Require().Equal(abi.MaxUint256, approvalEvent.Value)
 				s.Require().Equal(4, len(approvalEvent.Methods))
 				s.Require().Equal(staking.DelegateMsg, approvalEvent.Methods[0])

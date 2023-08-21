@@ -43,16 +43,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
+- (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
 - (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
 - (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
 - (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
 - (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate [evmos-ledger-go](https://github.com/evmos/evmos-ledger-go) logic to this repository
 - (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
 - (vesting) [#1709](https://github.com/evmos/evmos/pull/1709) Add clawed back coins to `MsgClawbackResponse`
+- (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 
 ### Bug Fixes
 
 - (e2e) [1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
+- (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
 
 ## [v14.0.0-rc1] - 2023-08-01
 

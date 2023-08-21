@@ -5,13 +5,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -36,13 +36,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -166,13 +166,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -220,12 +220,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -249,7 +249,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -312,7 +312,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -411,7 +411,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -693,7 +693,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
