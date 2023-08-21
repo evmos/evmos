@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	"github.com/evmos/evmos/v13/x/evm/statedb"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/x/evm/statedb"
 )
 
 const (
@@ -101,7 +101,7 @@ func (p Precompile) Delegate(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
 	if _, err = msgSrv.Delegate(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (p Precompile) Undelegate(
 	}
 
 	// Execute the transaction using the message server
-	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
 	res, err := msgSrv.Undelegate(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
@@ -267,7 +267,7 @@ func (p Precompile) Redelegate(
 		}
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
 	res, err := msgSrv.BeginRedelegate(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
@@ -347,7 +347,7 @@ func (p Precompile) CancelUnbondingDelegation(
 		}
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(p.stakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
 	if _, err = msgSrv.CancelUnbondingDelegation(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err
 	}

@@ -13,7 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 // EventDelegate defines the event data for the staking Delegate transaction.
@@ -47,22 +47,6 @@ type EventCancelUnbonding struct {
 	ValidatorAddress common.Hash
 	Amount           *big.Int
 	CreationHeight   *big.Int
-}
-
-// EventApproval defines the event data for the authorization Approve transaction.
-type EventApproval struct {
-	Owner   common.Address
-	Spender common.Address
-	Methods []string
-	Value   *big.Int
-}
-
-// EventAllowanceChange defines the event data for the DecreaseAllowance and IncreaseAllowance transactions.
-type EventAllowanceChange struct {
-	Owner   common.Address
-	Spender common.Address
-	Methods []string
-	Values  []*big.Int
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks

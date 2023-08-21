@@ -10,8 +10,9 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
+	teststaking "github.com/cosmos/cosmos-sdk/x/staking/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/stretchr/testify/require"
 )
 
 // CreateValidator creates a validator with the given amount of staked tokens in the bond denomination set
@@ -21,9 +22,10 @@ func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, s
 	stakingParams := sk.GetParams(ctx)
 	stakingParams.BondDenom = sk.BondDenom(ctx)
 	stakingParams.MinCommissionRate = zeroDec
-	sk.SetParams(ctx, stakingParams)
+	err := sk.SetParams(ctx, stakingParams)
+	require.NoError(t, err)
 
-	stakingHelper := teststaking.NewHelper(t, ctx, sk)
+	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
 	stakingHelper.Denom = sk.BondDenom(ctx)
 

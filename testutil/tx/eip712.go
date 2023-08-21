@@ -16,10 +16,10 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/evmos/evmos/v13/app"
-	cryptocodec "github.com/evmos/evmos/v13/crypto/codec"
-	"github.com/evmos/evmos/v13/ethereum/eip712"
-	"github.com/evmos/evmos/v13/types"
+	"github.com/evmos/evmos/v14/app"
+	cryptocodec "github.com/evmos/evmos/v14/crypto/codec"
+	"github.com/evmos/evmos/v14/ethereum/eip712"
+	"github.com/evmos/evmos/v14/types"
 )
 
 type EIP712TxArgs struct {
@@ -87,7 +87,7 @@ func PrepareEIP712CosmosTx(
 		return nil, err
 	}
 
-	fee := legacytx.NewStdFee(txArgs.Gas, txArgs.Fees) //nolint: staticcheck
+	fee := legacytx.NewStdFee(txArgs.Gas, txArgs.Fees) //nolint:staticcheck
 
 	msgs := txArgs.Msgs
 	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, msgs, "", nil)

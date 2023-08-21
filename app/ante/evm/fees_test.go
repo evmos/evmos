@@ -1,16 +1,17 @@
 package evm_test
 
 import (
+	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmante "github.com/evmos/evmos/v13/app/ante/evm"
-	"github.com/evmos/evmos/v13/testutil"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmante "github.com/evmos/evmos/v14/app/ante/evm"
+	"github.com/evmos/evmos/v14/testutil"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 var execTypes = []struct {
@@ -226,6 +227,20 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 			},
 			true,
 			"",
+		},
+		{
+			"panic bug, requiredFee > math.MaxInt64",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(math.MaxInt64)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(math.MaxInt64), big.NewInt(100), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
+			},
+			false,
+			"provided fee < minimum global fee",
 		},
 	}
 

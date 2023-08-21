@@ -10,16 +10,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v13/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v14/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 
-	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v14/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 
@@ -84,16 +84,16 @@ func TestCheckAllowanceArgs(t *testing.T) {
 			ErrContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 4),
 		},
 		{
-			name:        "invalid owner address",
+			name:        "invalid grantee address",
 			args:        []interface{}{common.Address{}, addr, validTypeURL},
 			expErr:      true,
-			ErrContains: fmt.Sprintf(authorization.ErrInvalidGranter, common.Address{}),
+			ErrContains: fmt.Sprintf(authorization.ErrInvalidGrantee, common.Address{}),
 		},
 		{
-			name:        "invalid spender address",
+			name:        "invalid granter address",
 			args:        []interface{}{addr, common.Address{}, validTypeURL},
 			expErr:      true,
-			ErrContains: fmt.Sprintf(authorization.ErrInvalidGrantee, common.Address{}),
+			ErrContains: fmt.Sprintf(authorization.ErrInvalidGranter, common.Address{}),
 		},
 		{
 			name:   "valid arguments",

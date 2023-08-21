@@ -8,20 +8,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/version"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
-	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 
-	"github.com/evmos/evmos/v13/app"
-	v9 "github.com/evmos/evmos/v13/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v13/utils"
-	"github.com/evmos/evmos/v13/x/erc20/types"
+	"github.com/evmos/evmos/v14/app"
+	v9 "github.com/evmos/evmos/v14/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v14/x/erc20/types"
 )
 
 type UpgradeTestSuite struct {
@@ -41,7 +41,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
 	// NOTE: this is the new binary, not the old one.
-	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
+	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

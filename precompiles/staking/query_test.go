@@ -9,10 +9,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/staking"
-	testutiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/staking"
+	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestDelegation() {
@@ -694,8 +694,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				s.Require().NoError(err)
 
 				return []interface{}{
-					s.address,
 					granteeAddr,
+					s.address,
 					staking.DelegateMsg,
 				}
 			},
@@ -713,8 +713,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			"success - return empty allowance if authorization is not found",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
 					granteeAddr,
+					s.address,
 					staking.UndelegateMsg,
 				}
 			},

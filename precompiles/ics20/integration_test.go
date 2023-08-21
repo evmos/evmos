@@ -7,23 +7,23 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	ibctesting "github.com/cosmos/ibc-go/v6/testing"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	evmoscontracts "github.com/evmos/evmos/v13/contracts"
-	evmostesting "github.com/evmos/evmos/v13/ibc/testing"
-	"github.com/evmos/evmos/v13/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-	"github.com/evmos/evmos/v13/precompiles/ics20"
-	"github.com/evmos/evmos/v13/precompiles/testutil"
-	"github.com/evmos/evmos/v13/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v13/testutil"
-	teststypes "github.com/evmos/evmos/v13/types/tests"
-	"github.com/evmos/evmos/v13/utils"
-	erc20types "github.com/evmos/evmos/v13/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
+	evmoscontracts "github.com/evmos/evmos/v14/contracts"
+	evmostesting "github.com/evmos/evmos/v14/ibc/testing"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
+	"github.com/evmos/evmos/v14/precompiles/testutil"
+	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v14/testutil"
+	teststypes "github.com/evmos/evmos/v14/types/tests"
+	"github.com/evmos/evmos/v14/utils"
+	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -1012,7 +1012,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 				args := defaultCallArgs.
 					WithMethodName(method).
-					WithArgs(s.address, s.differentAddr)
+					WithArgs(s.differentAddr, s.address)
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1574,7 +1574,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			s.setTransferApprovalForContract(defaultApproveArgs)
 			defaultAllowanceArgs = defaultCallArgs.
 				WithMethodName("testAllowance").
-				WithArgs(s.address, contractAddr)
+				WithArgs(contractAddr, s.address)
 		})
 
 		It("should return allocations", func() {

@@ -4,17 +4,17 @@ import (
 	"bytes"
 	"context"
 
+	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 
-	"github.com/evmos/evmos/v13/app"
-	"github.com/evmos/evmos/v13/crypto/hd"
-	"github.com/evmos/evmos/v13/encoding"
-	"github.com/evmos/evmos/v13/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v13/testutil"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
+	"github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/crypto/hd"
+	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v14/tests/integration/ledger/mocks"
+	"github.com/evmos/evmos/v14/testutil"
+	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 
 	"github.com/spf13/cobra"
 
@@ -87,7 +87,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 				out, err := sdktestutilcli.ExecTestCLICmd(clientCtx, cmd, []string{
 					ledgerKey,
 					s.FormatFlag(flags.FlagUseLedger),
-					s.FormatFlag(flags.FlagKeyAlgorithm),
+					s.FormatFlag(flags.FlagKeyType),
 					string(hd.EthSecp256k1Type),
 				})
 
@@ -120,7 +120,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 			cmd.SetArgs([]string{
 				ledgerKey,
 				s.FormatFlag(flags.FlagUseLedger),
-				s.FormatFlag(flags.FlagKeyAlgorithm),
+				s.FormatFlag(flags.FlagKeyType),
 				"eth_secp256k1",
 			})
 			// add ledger key for following tests
