@@ -14,6 +14,7 @@ import (
 
 	"github.com/evmos/evmos/v14/app"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v14/utils"
 	evm "github.com/evmos/evmos/v14/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	"github.com/evmos/evmos/v14/x/revenue/v1/types"
@@ -55,6 +56,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState())
-	suite.SetupApp()
+	chainID := utils.TestnetChainID + "-1"
+	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
+	suite.SetupApp(chainID)
 }

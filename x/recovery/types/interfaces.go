@@ -6,14 +6,14 @@ package types
 import (
 	context "context"
 
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	transfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
 )

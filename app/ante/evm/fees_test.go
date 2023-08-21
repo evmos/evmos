@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -226,6 +227,20 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 			},
 			true,
 			"",
+		},
+		{
+			"panic bug, requiredFee > math.MaxInt64",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(math.MaxInt64)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(math.MaxInt64), big.NewInt(100), &emptyAccessList)
+				return suite.CreateTestTx(msg, privKey, 1, false)
+			},
+			false,
+			"provided fee < minimum global fee",
 		},
 	}
 

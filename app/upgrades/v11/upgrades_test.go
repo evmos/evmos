@@ -11,7 +11,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ibctypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v14/app"
 	v11 "github.com/evmos/evmos/v14/app/upgrades/v11"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
@@ -20,13 +20,13 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/version"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v14/utils"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmversion "github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/version"
 )
 
 type UpgradeTestSuite struct {
@@ -47,7 +47,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 	consAddress := sdk.ConsAddress(priv.PubKey().Address())
 
 	// NOTE: this is the new binary, not the old one.
-	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState())
+	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
@@ -91,7 +91,7 @@ func (suite *UpgradeTestSuite) setupEscrowAccounts(accCount int) {
 
 		// set accounts as BaseAccounts
 		baseAcc := authtypes.NewBaseAccountWithAddress(addr)
-		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.GetNextAccountNumber(suite.ctx))
+		err := baseAcc.SetAccountNumber(suite.app.AccountKeeper.NextAccountNumber(suite.ctx))
 		suite.Require().NoError(err)
 		expAccNum[i] = baseAcc.AccountNumber
 		suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
@@ -107,9 +107,9 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 		validator, err := stakingtypes.NewValidator(valAddr, suite.consKey, stakingtypes.Description{})
 		suite.Require().NoError(err)
 
-		validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
+		validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
 
-		err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+		err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 		suite.Require().NoError(err)
 		err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 		suite.Require().NoError(err)
@@ -120,7 +120,7 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 }
 
 func (suite *UpgradeTestSuite) TestMigrateEscrowAcc() {
-	suite.SetupTest(utils.MainnetChainID)
+	suite.SetupTest(utils.MainnetChainID + "-1")
 
 	// fund some escrow accounts
 	existingAccounts := 30

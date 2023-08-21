@@ -6,6 +6,7 @@ import (
 
 	. "github.com/onsi/gomega"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -19,10 +20,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/evmos/evmos/v14/x/revenue/v1/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func (suite *KeeperTestSuite) SetupApp() {
+func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	t := suite.T()
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()
@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) SetupApp() {
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(privCons.PubKey().Address())
 	header := testutil.NewHeader(
-		1, time.Now().UTC(), "evmos_9001-1", suite.consAddress, nil, nil,
+		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
 	suite.ctx = suite.app.BaseApp.NewContext(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
@@ -55,7 +55,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
 	stakingParams.BondDenom = suite.denom
-	suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
+	require.NoError(t, err)
 
 	evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
 	evmParams.EvmDenom = suite.denom
@@ -71,8 +72,8 @@ func (suite *KeeperTestSuite) SetupApp() {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
@@ -140,9 +141,9 @@ func registerFee(
 	if res.IsOK() {
 		registerEvent := res.GetEvents()[8]
 		Expect(registerEvent.Type).To(Equal(types.EventTypeRegisterRevenue))
-		Expect(string(registerEvent.Attributes[0].Key)).To(Equal(sdk.AttributeKeySender))
-		Expect(string(registerEvent.Attributes[1].Key)).To(Equal(types.AttributeKeyContract))
-		Expect(string(registerEvent.Attributes[2].Key)).To(Equal(types.AttributeKeyWithdrawerAddress))
+		Expect(registerEvent.Attributes[0].Key).To(Equal(sdk.AttributeKeySender))
+		Expect(registerEvent.Attributes[1].Key).To(Equal(types.AttributeKeyContract))
+		Expect(registerEvent.Attributes[2].Key).To(Equal(types.AttributeKeyWithdrawerAddress))
 	}
 	return res
 }

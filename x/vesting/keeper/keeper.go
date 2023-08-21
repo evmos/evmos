@@ -6,10 +6,10 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
@@ -57,27 +57,4 @@ func NewKeeper(
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-// HasGovClawbackEnabled checks if the given account has governance clawback enabled.
-func (k Keeper) HasGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) bool {
-	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
-	return ctx.KVStore(k.storeKey).Has(key)
-}
-
-// SetGovClawbackEnabled enables the given vesting account address to be clawed back
-// via governance.
-func (k Keeper) SetGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
-	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
-	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
-}
-
-// DeleteGovClawbackEnabled disables the given vesting account address to be clawed back
-// via governance.
-func (k Keeper) DeleteGovClawbackEnabled(ctx sdk.Context, addr sdk.AccAddress) {
-	//nolint:gocritic
-	key := append(types.KeyPrefixGovClawbackEnabledKey, addr.Bytes()...)
-	ctx.KVStore(k.storeKey).Delete(key)
 }

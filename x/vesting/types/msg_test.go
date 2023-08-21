@@ -450,6 +450,17 @@ func (suite *MsgsTestSuite) TestMsgUpdateVestingFunder() {
 	}
 }
 
+func (suite *MsgsTestSuite) TestMsgConvertVestingAccountGetters() {
+	msgInvalid := types.MsgConvertVestingAccount{}
+	msg := types.NewMsgConvertVestingAccount(
+		sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
+	)
+	suite.Require().Equal(types.RouterKey, msg.Route())
+	suite.Require().Equal(types.TypeMsgConvertVestingAccount, msg.Type())
+	suite.Require().NotNil(msgInvalid.GetSignBytes())
+	suite.Require().NotNil(msg.GetSigners())
+}
+
 func (suite *MsgsTestSuite) TestMsgConvertVestingAccount() {
 	testCases := []struct {
 		name    string

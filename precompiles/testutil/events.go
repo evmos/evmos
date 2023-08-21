@@ -11,10 +11,10 @@ import (
 	//nolint:stylecheck,revive // it's common practice to use the global imports for Ginkgo and Gomega
 	. "github.com/onsi/gomega"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // CheckAuthorizationEvents is a helper function used in the integration tests and checks if the approval event is emitted.
@@ -26,11 +26,11 @@ func CheckAuthorizationEvents(event abi.Event, precompileAddr, granter, grantee 
 	txLogAttributes := res.Events[len(res.Events)-2].Attributes
 	attr := txLogAttributes[0]
 
-	err := json.Unmarshal(attr.Value, &log)
+	err := json.Unmarshal([]byte(attr.Value), &log)
 	Expect(err).To(BeNil(), "failed to unmarshal log")
 
 	// Check the key of the log is the expected one
-	Expect(attr.Key).To(Equal([]byte(evmtypes.AttributeKeyTxLog)), "expected different key for log")
+	Expect(attr.Key).To(Equal(evmtypes.AttributeKeyTxLog), "expected different key for log")
 
 	// Check if the log has the expected indexed fields and data
 	Expect(log.Address).To(Equal(precompileAddr.String()), "expected different address in event")

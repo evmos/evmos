@@ -32,21 +32,11 @@ func (k Keeper) Balances(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Get vesting account
-	acc := k.accountKeeper.GetAccount(ctx, addr)
-	if acc == nil {
-		return nil, status.Errorf(
-			codes.NotFound,
-			"account for address '%s'", req.Address,
-		)
-	}
-
-	// Check if clawback vesting account
-	clawbackAccount, isClawback := acc.(*types.ClawbackVestingAccount)
-	if !isClawback {
+	clawbackAccount, err := k.GetClawbackVestingAccount(ctx, addr)
+	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"account at address '%s' is not a vesting account ", req.Address,
+			"account at address '%s' either does not exist or is not a vesting account ", addr.String(),
 		)
 	}
 
@@ -59,15 +49,4 @@ func (k Keeper) Balances(
 		Unvested: unvested,
 		Vested:   vested,
 	}, nil
-}
-
-// Params returns the total set of vesting parameters
-func (k Keeper) Params(
-	goCtx context.Context,
-	_ *types.QueryParamsRequest,
-) (*types.QueryParamsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	params := k.GetParams(ctx)
-
-	return &types.QueryParamsResponse{Params: params}, nil
 }

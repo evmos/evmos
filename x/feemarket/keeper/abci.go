@@ -5,8 +5,8 @@ package keeper
 import (
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/evmos/evmos/v14/x/feemarket/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
