@@ -490,26 +490,26 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 		expVestingPeriods  sdkvesting.Periods
 	}{
 		{
-			"should no-op if clawed back before start time",
+			"should claw back everything if clawed back before start time",
 			now.Add(-time.Hour).Unix(),
-			sdk.Coins{},
 			origCoins,
-			lockupPeriods,
-			vestingPeriods,
+			sdk.Coins{},
+			sdkvesting.Periods{},
+			sdkvesting.Periods{},
 		},
 		{
 			"should clawback everything before any vesting or lockup period passes",
 			now.Unix(),
 			sdk.NewCoins(fee(1000), stake(100)),
-			sdk.NewCoins(),
+			sdk.Coins{},
 			sdkvesting.Periods{},
 			sdkvesting.Periods{},
 		},
 		{
 			"it should clawback after two vesting periods and before the first lock period",
 			now.Add(11 * time.Hour).Unix(),
-			sdk.NewCoins(fee(600), stake(50)), // last 3 periods are still vesting
-			sdk.NewCoins(fee(400), stake(50)), // first 2 periods
+			sdk.Coins{fee(600), stake(50)}, // last 3 periods are still vesting
+			sdk.Coins{fee(400), stake(50)}, // first 2 periods
 			sdkvesting.Periods{{Length: int64(12 * 3600), Amount: sdk.NewCoins(fee(400), stake(50))}},
 			vestingPeriods[:2],
 		},
@@ -517,7 +517,7 @@ func (suite *VestingAccountTestSuite) TestComputeClawback() {
 			"should clawback zero coins after all vesting and locked periods",
 			now.Add(23 * time.Hour).Unix(),
 			sdk.Coins{},
-			sdk.NewCoins(fee(1000), stake(100)),
+			sdk.Coins{fee(1000), stake(100)},
 			lockupPeriods,
 			vestingPeriods,
 		},

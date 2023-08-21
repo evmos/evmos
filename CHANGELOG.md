@@ -46,7 +46,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
 - (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
 - (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
-- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
+- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate [evmos-ledger-go](https://github.com/evmos/evmos-ledger-go) logic to this repository
+- (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
+- (vesting) [#1709](https://github.com/evmos/evmos/pull/1709) Add clawed back coins to `MsgClawbackResponse`
 
 ### Bug Fixes
 

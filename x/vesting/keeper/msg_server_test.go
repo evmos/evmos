@@ -44,9 +44,10 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 		// initClawback determines if the clawback vesting account should be initialized for the test case
 		initClawback bool
 		// preFundClawback determines if the clawback vesting account should be already be funded before the test case
-		// this is used to test the behavior of the merge flag, which needs existing lockup and vesting schedules
+		// this is used to test merging new vesting amounts to existing lockup and vesting schedules
 		preFundClawback bool
 		expPass         bool
+		errContains     string
 	}{
 		{
 			name:         "pass - lockup and vesting defined",
@@ -83,15 +84,6 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 			expPass:      false,
 		},
 		{
-			name:         "fail - wrong funder",
-			funder:       vestingAddr,
-			vestingAddr:  vestingAddr,
-			lockup:       lockupPeriods,
-			vesting:      vestingPeriods,
-			initClawback: true,
-			expPass:      false,
-		},
-		{
 			name:               "true - fund existing vesting account",
 			funder:             funder,
 			vestingAddr:        vestingAddr,
@@ -123,7 +115,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 				suite.Require().Equal(&types.MsgCreateClawbackVestingAccountResponse{}, resCreate)
 			}
 
-			// fund the vesting account prior to actual test if necessary (for testing the merge flag)
+			// fund the vesting account prior to actual test if desired
 			if tc.preFundClawback {
 				// in order to fund the vesting account additionally to the actual main test case, we need to
 				// send it some more funds
@@ -161,9 +153,56 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 				suite.Require().Equal(sdk.NewInt64Coin("test", vestAmount+tc.expectExtraBalance), balanceVestingAddr)
 			} else {
 				suite.Require().Error(err, tc.name)
+				suite.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}
+}
+
+// NOTE: This function tests cases which require a different setup than the standard
+// cases in TestMsgFundVestingAccount.
+func (suite *KeeperTestSuite) TestMsgFundVestingAccountSpecialCases() {
+	// ---------------------------
+	// Test blocked address
+	suite.Run("fail - blocked address", func() {
+		suite.SetupTest()
+		msg := &types.MsgFundVestingAccount{
+			FunderAddress:  funder.String(),
+			VestingAddress: authtypes.NewModuleAddress("transfer").String(),
+			StartTime:      time.Now(),
+			LockupPeriods:  lockupPeriods,
+			VestingPeriods: vestingPeriods,
+		}
+
+		_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msg)
+		suite.Require().Error(err, "expected blocked address error")
+		suite.Require().ErrorContains(err, "is not allowed to receive funds")
+	})
+
+	// ---------------------------
+	// Test wrong funder by first creating a clawback vesting account
+	// and then trying to fund it with a different funder
+	suite.Run("fail - wrong funder", func() {
+		suite.SetupTest()
+
+		// fund the recipient account to set the account
+		err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
+		suite.Require().NoError(err, "failed to fund target account")
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, false)
+		_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(suite.ctx, msgCreate)
+		suite.Require().NoError(err, "failed to create clawback vesting account")
+
+		msg := &types.MsgFundVestingAccount{
+			FunderAddress:  addr3.String(),
+			VestingAddress: vestingAddr.String(),
+			StartTime:      time.Now(),
+			LockupPeriods:  lockupPeriods,
+			VestingPeriods: vestingPeriods,
+		}
+		_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msg)
+		suite.Require().Error(err, "expected wrong funder error")
+		suite.Require().ErrorContains(err, fmt.Sprintf("%s can only accept grants from account %s", vestingAddr, funder))
+	})
 }
 
 func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
@@ -178,6 +217,25 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		expPass     bool
 		errContains string
 	}{
+		{
+			name:        "fail - account does not exist",
+			malleate:    func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {},
+			funder:      funderAddr,
+			vestingAddr: vestingAddr,
+			expPass:     false,
+			errContains: fmt.Sprintf("account %s does not exist", vestingAddr),
+		},
+		{
+			name: "fail - account is not an eth account",
+			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
+				acc := authtypes.NewBaseAccountWithAddress(vestingAddr)
+				s.app.AccountKeeper.SetAccount(s.ctx, acc)
+			},
+			funder:      funderAddr,
+			vestingAddr: vestingAddr,
+			expPass:     false,
+			errContains: fmt.Sprintf("account %s is not an Ethereum account", vestingAddr),
+		},
 		{
 			name: "fail - vesting account already exists",
 			malleate: func(funder sdk.AccAddress, vestingAddr sdk.AccAddress) {
@@ -281,7 +339,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			vestingAddr: vestingAddr,
 			startTime:   suite.ctx.BlockTime(),
 			expPass:     false,
-			errContains: "account not subject to clawback",
+			errContains: types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name: "fail - wrong account type",
@@ -296,7 +354,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			clawbackDest: addr3,
 			startTime:    suite.ctx.BlockTime(),
 			expPass:      false,
-			errContains:  "account not subject to clawback",
+			errContains:  types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name:         "fail - clawback vesting account has no vesting or lockup periods (not funded yet)",
@@ -322,15 +380,26 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			errContains:  "clawback can only be requested by original funder",
 		},
 		{
-			name:         "fail - before start time",
+			name:         "fail - clawback destination is blocked",
+			malleate:     func() {},
+			funder:       funder,
+			vestingAddr:  vestingAddr,
+			clawbackDest: authtypes.NewModuleAddress("transfer"),
+			startTime:    suite.ctx.BlockTime(),
+			initClawback: true,
+			initVesting:  true,
+			expPass:      false,
+			errContains:  "is a blocked address and not allowed to receive funds",
+		},
+		{
+			name:         "pass - before start time",
 			malleate:     func() {},
 			funder:       funder,
 			vestingAddr:  vestingAddr,
 			startTime:    suite.ctx.BlockTime().Add(time.Hour),
 			initClawback: true,
 			initVesting:  true,
-			expPass:      false,
-			errContains:  "clawback can only be executed after vesting begins",
+			expPass:      true,
 		},
 		{
 			name:         "pass - with clawback destination",
@@ -391,7 +460,6 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			msg := types.NewMsgClawback(tc.funder, tc.vestingAddr, tc.clawbackDest)
 			res, err := suite.app.VestingKeeper.Clawback(ctx, msg)
 
-			expRes := &types.MsgClawbackResponse{}
 			balanceVestingAcc := suite.app.BankKeeper.GetBalance(suite.ctx, vestingAddr, "test")
 			balanceClaw := suite.app.BankKeeper.GetBalance(suite.ctx, tc.clawbackDest, "test")
 			if len(tc.clawbackDest) == 0 {
@@ -400,7 +468,9 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes, res)
+
+				expRes := &types.MsgClawbackResponse{Coins: balances}
+				suite.Require().Equal(expRes, res, "expected full balances to be clawed back")
 				suite.Require().Equal(sdk.NewInt64Coin("test", 0), balanceVestingAcc)
 				suite.Require().Equal(balances[0], balanceClaw)
 			} else {
@@ -448,7 +518,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    newFunder,
 			initClawback: false,
 			expPass:      false,
-			errContains:  "account not subject to clawback",
+			errContains:  types.ErrNotSubjectToClawback.Error(),
 		},
 		{
 			name:         "fail - wrong funder",
@@ -458,7 +528,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    newFunder,
 			initClawback: true,
 			expPass:      false,
-			errContains:  "is not the funder and cannot update vesting funder",
+			errContains:  "is not the current funder and cannot update the funder address",
 		},
 		{
 			name:         "fail - new funder is blocked",
@@ -468,7 +538,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			newFunder:    authtypes.NewModuleAddress("transfer"),
 			initClawback: true,
 			expPass:      false,
-			errContains:  "is not allowed to receive funds",
+			errContains:  "is a blocked address and not allowed to fund vesting accounts",
 		},
 		{
 			name: "pass - update funder successfully",

@@ -62,7 +62,7 @@ interface VestingI {
         address funderAddress,
         address accountAddress,
         address destAddress
-    ) external returns (bool success);
+    ) external returns (Coin[]);
 
     /// @dev Defines a method for updating the funder of a vesting account.
     /// @param funderAddress The address of the account that funded the vesting account.

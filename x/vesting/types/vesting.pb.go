@@ -80,7 +80,7 @@ func (m *ClawbackVestingAccount) XXX_DiscardUnknown() {
 var xxx_messageInfo_ClawbackVestingAccount proto.InternalMessageInfo
 
 // ClawbackProposal is a gov Content type to clawback funds
-// from a vesting account that has opted in to this functionality
+// from a vesting account that has this functionality enabled.
 type ClawbackProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`

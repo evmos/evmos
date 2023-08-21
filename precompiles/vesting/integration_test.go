@@ -273,11 +273,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when defining different total coins for lockup and vesting (%s)", callType.name), func() {
+				s.CreateTestClawbackVestingAccount()
+
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
 					WithArgs(
 						s.address,
-						vestingAddr,
+						toAddr,
 						uint64(time.Now().Unix()),
 						defaultPeriods,
 						doublePeriods,
@@ -299,6 +301,8 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when defining neither lockup nor vesting (%s)", callType.name), func() {
+				s.CreateTestClawbackVestingAccount()
+
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
 					WithArgs(
@@ -327,6 +331,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			It(fmt.Sprintf("should not fund the vesting when exceeding the funder balance (%s)", callType.name), func() {
 				s.CreateTestClawbackVestingAccount()
+
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 				exceededBalance := new(big.Int).Add(big.NewInt(1), balance.Amount.BigInt())
 
@@ -364,6 +369,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when not sending as the funder (%s)", callType.name), func() {
+				s.CreateTestClawbackVestingAccount()
 				differentFunder := testutiltx.GenerateAddress()
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -399,6 +405,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when the address is blocked (%s)", callType.name), func() {
+				s.CreateTestClawbackVestingAccount()
 				moduleAddr := common.BytesToAddress(authtypes.NewModuleAddress("distribution").Bytes())
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -465,7 +472,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				fundClawbackVestingCheck := execRevertedCheck
 				if callType.directCall {
-					fundClawbackVestingCheck = failCheck.WithErrContains("is not allowed to receive funds")
+					fundClawbackVestingCheck = failCheck.WithErrContains("does not exist")
 				}
 
 				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, fundClawbackVestingCheck)
@@ -492,7 +499,10 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, fundClawbackVestingCheck)
-				Expect(err).To(HaveOccurred(), "error while creating a clawback vesting account for a module address", err)
+				Expect(err).To(HaveOccurred(), "error while creating a clawback vesting account for the zero address", err)
+				if callType.directCall {
+					Expect(err.Error()).To(ContainSubstring("vesting address cannot be the zero address"))
+				}
 			})
 		}
 	})
@@ -521,8 +531,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				clawbackCheck := passCheck.
 					WithExpEvents(vesting.EventTypeClawback)
 
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
+				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
 				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+
+				var co vesting.ClawbackOutput
+				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
+				Expect(co.Coins).To(Equal(balances), "expected different clawback amount")
 
 				balancePost := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePost.Amount.Int64()).To(Equal(int64(100)), "expected only initial balance after clawback")
@@ -580,19 +595,20 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					)
 
 				clawbackCheck := execRevertedCheck
+				// FIXME: error messages in fail check now work differently!
 				if callType.directCall {
 					clawbackCheck = failCheck.
-						WithErrContains("account not subject to clawback")
+						WithErrContains(vestingtypes.ErrNotSubjectToClawback.Error())
 				}
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("account not subject to clawback"))
+					Expect(err.Error()).To(ContainSubstring("%s: %s", sdk.AccAddress(differentAddr.Bytes()), vestingtypes.ErrNotSubjectToClawback.Error()))
 				}
 			})
 
-			It(fmt.Sprintf("should no-op when all tokens are vested (%s)", callType.name), func() {
+			It(fmt.Sprintf("should succeed and return empty Coins when all tokens are vested (%s)", callType.name), func() {
 				// commit block with time so that vesting has ended
 				ctx, err := evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Hour*24, nil)
 				Expect(err).ToNot(HaveOccurred(), "error while committing block: %v", err)
@@ -609,10 +625,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 						s.address,
 					)
 
-				clawbackCheck := failCheck.WithErrContains("has no vesting or lockup periods")
-
-				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, clawbackCheck)
+				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, clawbackArgs, passCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+
+				var co vesting.ClawbackOutput
+				err = s.precompile.UnpackIntoInterface(&co, vesting.ClawbackMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "error while unpacking the clawback output: %v", err)
+				Expect(co.Coins).To(BeEmpty(), "expected empty clawback amount")
 
 				balancePost := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePost).To(Equal(balancePre), "expected balance not to have changed")
@@ -731,15 +750,21 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				if callType.directCall {
 					updateFunderCheck = failCheck.
 						WithErrContains(fmt.Sprintf(
-							"account not subject to clawback: %s",
-							sdk.AccAddress(nonVestingAddr.Bytes()).String(),
+							"%s: %s",
+							sdk.AccAddress(nonVestingAddr.Bytes()),
+							vestingtypes.ErrNotSubjectToClawback.Error(),
 						))
 				}
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, updateFunderArgs, updateFunderCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("account not subject to clawback"))
+					Expect(err.Error()).To(
+						ContainSubstring("%s: %s",
+							sdk.AccAddress(nonVestingAddr.Bytes()).String(),
+							vestingtypes.ErrNotSubjectToClawback.Error(),
+						),
+					)
 				}
 			})
 
@@ -806,7 +831,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, updateFunderArgs, updateFunderCheck)
 				Expect(err).To(HaveOccurred(), "error while updating the funder to a module address: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("is not allowed to receive funds"))
+					Expect(err.Error()).To(ContainSubstring("is a blocked address and not allowed to fund vesting accounts"))
 				}
 			})
 		}
@@ -992,7 +1017,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, balancesArgs, balancesCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
 				if callType.directCall {
-					Expect(err.Error()).To(ContainSubstring("NotFound desc = account for address"))
+					Expect(err.Error()).To(ContainSubstring("account at address '%s' either does not exist or is not a vesting account", sdk.AccAddress(toAddr.Bytes())))
 				}
 			})
 

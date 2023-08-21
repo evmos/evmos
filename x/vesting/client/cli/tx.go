@@ -31,7 +31,7 @@ const (
 	FlagFunder   = "funder"
 )
 
-// NewTxCmd returns a root CLI command handler for certain modules/vesting
+// NewTxCmd returns a root CLI command handler for vesting
 // transaction commands.
 func NewTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
@@ -54,7 +54,7 @@ func NewTxCmd() *cobra.Command {
 }
 
 // NewMsgCreateClawbackVestingAccountCmd returns a CLI command handler for creating a
-// MsgCreateClawbackVestingAccount transaction.
+// clawback vesting account.
 func NewMsgCreateClawbackVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-clawback-vesting-account FUNDER_ADDRESS ENABLE_GOV_CLAWBACK",
@@ -172,8 +172,7 @@ with a start time and an array of coins strings and durations relative to the st
 	return cmd
 }
 
-// NewMsgClawbackCmd returns a CLI command handler for creating a
-// MsgClawback transaction.
+// NewMsgClawbackCmd returns a CLI command handler for clawing back unvested funds.
 func NewMsgClawbackCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clawback ADDRESS",
@@ -254,8 +253,8 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 	return cmd
 }
 
-// NewMsgConvertVestingAccountCmd returns a CLI command handler for creating a
-// MsgConvertVestingAccount transaction.
+// NewMsgConvertVestingAccountCmd returns a CLI command handler for converting
+// a clawback vesting account into a non-vesting account.
 func NewMsgConvertVestingAccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "convert VESTING_ACCOUNT_ADDRESS",
@@ -288,17 +287,24 @@ func NewMsgConvertVestingAccountCmd() *cobra.Command {
 }
 
 // NewClawbackProposalCmd implements the command to submit
-// a proposal to clawback funds from a specified vesting account
-// that has opted in to this functionality
+// a proposal to clawback funds from a specified vesting account,
+// that has this functionality enabled.
 //
 //nolint:staticcheck
 func NewClawbackProposalCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "clawback ADDRESS [DEST_ADDRESS]",
-		Args:    cobra.RangeArgs(1, 2),
-		Short:   "Submit a proposal to clawback funds from a ClawbackVestingAccount",
-		Long:    "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has opted in to this functionality.",
-		Example: fmt.Sprintf("$ %s tx gov submit-legacy-proposal clawback <address> --from=<key_or_address>", version.AppName),
+		Use:   "clawback ADDRESS [DEST_ADDRESS]",
+		Args:  cobra.RangeArgs(1, 2),
+		Short: "Submit a proposal to clawback funds from a ClawbackVestingAccount",
+		Long:  "Submit a proposal to clawback the tokens from a ClawbackVestingAccount that has this functionality enabled.",
+		Example: fmt.Sprintf(
+			`$ %s tx gov submit-legacy-proposal clawback <address> \
+--from=<key_or_address> \
+--title=<proposal_title> \
+--description=<proposal_description> \
+--deposit=<deposit>`,
+			version.AppName,
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

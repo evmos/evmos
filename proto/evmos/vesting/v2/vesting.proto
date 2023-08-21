@@ -37,7 +37,7 @@ message ClawbackVestingAccount {
 }
 
 // ClawbackProposal is a gov Content type to clawback funds
-// from a vesting account that has opted in to this functionality
+// from a vesting account that has this functionality enabled.
 message ClawbackProposal {
   option (gogoproto.equal) = false;
   // title of the proposal

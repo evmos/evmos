@@ -3,6 +3,7 @@
 syntax = "proto3";
 package evmos.vesting.v2;
 
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
@@ -96,7 +97,11 @@ message MsgClawback {
 }
 
 // MsgClawbackResponse defines the MsgClawback response type.
-message MsgClawbackResponse {}
+message MsgClawbackResponse {
+  // coins is the slice of clawed back coins
+  repeated cosmos.base.v1beta1.Coin coins = 1
+      [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+}
 
 // MsgUpdateVestingFunder defines a message that updates the funder account of a
 // ClawbackVestingAccount.

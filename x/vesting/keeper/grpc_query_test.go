@@ -17,38 +17,50 @@ func (suite *KeeperTestSuite) TestBalances() {
 	)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name        string
+		malleate    func()
+		expPass     bool
+		errContains string
 	}{
 		{
-			"empty req",
-			func() {
-				req = &types.QueryBalancesRequest{}
+			name: "nil req",
+			malleate: func() {
+				req = nil
 			},
-			false,
+			expPass:     false,
+			errContains: "empty address string is not allowed",
 		},
 		{
-			"invalid address",
-			func() {
+			name: "empty req",
+			malleate: func() {
+				req = &types.QueryBalancesRequest{}
+			},
+			expPass:     false,
+			errContains: "empty address string is not allowed",
+		},
+		{
+			name: "invalid address",
+			malleate: func() {
 				req = &types.QueryBalancesRequest{
 					Address: "evmos1",
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "decoding bech32 failed: invalid bech32 string length 6",
 		},
 		{
-			"invalid account - not found",
-			func() {
+			name: "invalid account - not found",
+			malleate: func() {
 				req = &types.QueryBalancesRequest{
 					Address: vestingAddr.String(),
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "either does not exist or is not a vesting account",
 		},
 		{
-			"invalid account - not clawback vesting account",
-			func() {
+			name: "invalid account - not clawback vesting account",
+			malleate: func() {
 				baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
 				acc := suite.app.AccountKeeper.NewAccount(suite.ctx, baseAccount)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
@@ -57,11 +69,12 @@ func (suite *KeeperTestSuite) TestBalances() {
 					Address: vestingAddr.String(),
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "either does not exist or is not a vesting account",
 		},
 		{
-			"valid",
-			func() {
+			name: "valid",
+			malleate: func() {
 				vestingStart := s.ctx.BlockTime()
 
 				// fund the vesting account with coins to initialize it and
@@ -98,7 +111,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 					Vested:   nil,
 				}
 			},
-			true,
+			expPass: true,
 		},
 	}
 
@@ -115,6 +128,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 				suite.Require().Equal(expRes, res)
 			} else {
 				suite.Require().Error(err)
+				suite.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}

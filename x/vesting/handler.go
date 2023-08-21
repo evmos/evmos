@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
-// NewHandler defines the vesting module handler instance
+// NewHandler returns a handler for vesting module message types.
 func NewHandler(server types.MsgServer) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())

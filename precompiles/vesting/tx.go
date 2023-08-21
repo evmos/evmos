@@ -105,8 +105,6 @@ func (p Precompile) FundVestingAccount(
 }
 
 // Clawback clawbacks tokens from a clawback vesting account
-//
-//nolint:dupl
 func (p Precompile) Clawback(
 	ctx sdk.Context,
 	origin common.Address,
@@ -135,7 +133,7 @@ func (p Precompile) Clawback(
 		),
 	)
 
-	_, err = p.vestingKeeper.Clawback(sdk.WrapSDKContext(ctx), msg)
+	response, err := p.vestingKeeper.Clawback(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +142,12 @@ func (p Precompile) Clawback(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(true)
+	out := new(ClawbackOutput).FromResponse(response)
+
+	return method.Outputs.Pack(out.Coins)
 }
 
 // UpdateVestingFunder updates the vesting funder of a clawback vesting account
-//
-//nolint:dupl
 func (p Precompile) UpdateVestingFunder(
 	ctx sdk.Context,
 	origin common.Address,
