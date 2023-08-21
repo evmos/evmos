@@ -83,6 +83,8 @@ func (suite *BackendTestSuite) SetupTest() {
 	idxer := indexer.NewKVIndexer(dbm.NewMemDB(), ctx.Logger, clientCtx)
 
 	suite.backend = NewBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, idxer)
+	suite.backend.cfg.JSONRPC.GasCap = 0
+	suite.backend.cfg.JSONRPC.EVMTimeout = 0
 	suite.backend.queryClient.QueryClient = mocks.NewEVMQueryClient(suite.T())
 	suite.backend.clientCtx.Client = mocks.NewClient(suite.T())
 	suite.backend.queryClient.FeeMarket = mocks.NewFeeMarketQueryClient(suite.T())
