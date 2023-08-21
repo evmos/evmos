@@ -43,6 +43,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
+- (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
 - (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
 - (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
 - (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
