@@ -13,14 +13,8 @@ import (
 func (s *IntegrationTestSuite) TestUpgrade() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	versionMap := map[string]string{
-		"v12.1.0": "v12.1.5",
-	}
+
 	for idx, version := range s.upgradeParams.Versions {
-		if overwriteTag, ok := versionMap[version.UpgradeName]; ok {
-			version.ImageTag = overwriteTag
-			version.UpgradeName = overwriteTag
-		}
 		if idx == 0 {
 			// start initial node
 			s.runInitialNode(version)
