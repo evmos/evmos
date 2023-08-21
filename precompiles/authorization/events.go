@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math/big"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -16,10 +15,10 @@ import (
 
 // EventApproval is the event emitted on a successful Approve transaction.
 type EventApproval struct {
-	Grantee  common.Address
-	Granter  common.Address
-	Coin     *sdk.Coin
-	TypeUrls []string
+	Grantee common.Address
+	Granter common.Address
+	Value   *big.Int
+	Methods []string
 }
 
 // EventAllowanceChange is the event emitted on successful IncreaseAllowance or DecreaseAllowance transactions.

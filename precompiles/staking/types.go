@@ -49,22 +49,6 @@ type EventCancelUnbonding struct {
 	CreationHeight   *big.Int
 }
 
-// EventApproval defines the event data for the authorization Approve transaction.
-type EventApproval struct {
-	Owner   common.Address
-	Spender common.Address
-	Methods []string
-	Value   *big.Int
-}
-
-// EventAllowanceChange defines the event data for the DecreaseAllowance and IncreaseAllowance transactions.
-type EventAllowanceChange struct {
-	Owner   common.Address
-	Spender common.Address
-	Methods []string
-	Values  []*big.Int
-}
-
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate, common.Address, error) {

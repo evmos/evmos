@@ -5,21 +5,21 @@ import (
 	"strings"
 	"time"
 
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
 	"github.com/evmos/evmos/v14/x/vesting/types"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 // TestClawbackAccount is a struct to store all relevant information that is corresponding
