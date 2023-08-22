@@ -92,8 +92,8 @@ func CheckRevokeArgs(args []interface{}) (common.Address, []string, error) {
 	// TODO: (optional) new Go 1.20 functionality would allow to check all args and then return a joint list of errors.
 	// This would improve UX as everything wrong with the input would be returned at once.
 
-	spenderAddr, ok := args[0].(common.Address)
-	if !ok || spenderAddr == (common.Address{}) {
+	granteeAddr, ok := args[0].(common.Address)
+	if !ok || granteeAddr == (common.Address{}) {
 		return common.Address{}, nil, fmt.Errorf(ErrInvalidGranter, args[0])
 	}
 
@@ -104,7 +104,7 @@ func CheckRevokeArgs(args []interface{}) (common.Address, []string, error) {
 	// TODO: check if the typeURLs are valid? e.g. with a regex pattern?
 	// Check - ENG-1632 on Linear
 
-	return spenderAddr, typeURLs, nil
+	return granteeAddr, typeURLs, nil
 }
 
 // CheckDistributionApprovalArgs checks the arguments passed to the distribution Approve function.

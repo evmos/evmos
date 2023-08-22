@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
+- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
 
 ## [v14.0.0-rc2] - 2023-08-21
 
