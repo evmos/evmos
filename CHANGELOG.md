@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#1681](https://github.com/evmos/evmos/pull/1681) Add `bootstrap-state` command.
 - (ante) [#1693](https://github.com/evmos/evmos/pull/1693) Prevent panic on int64 conversion in EVM fees antehandler.
 - (evm) [#1693](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
+- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
 
 ## [v13.0.2] - 2023-07-05
 
