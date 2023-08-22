@@ -37,7 +37,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### Improvement
+### Improvements
 
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
 
