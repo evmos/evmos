@@ -121,4 +121,8 @@ evmosd collect-gentxs
 evmosd validate-genesis
 
 # Start the node
-evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --chain-id "$CHAINID"
+evmosd start "$TRACE" \
+  --log_level $LOGLEVEL \
+  --minimum-gas-prices=0.0001aevmos \
+  --json-rpc.api eth,txpool,personal,net,debug,web3 \
+  --chain-id "$CHAINID"
