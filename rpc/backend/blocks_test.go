@@ -673,7 +673,7 @@ func (suite *BackendTestSuite) TestTendermintBlockResultByNumber() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock(tc.blockNumber)
 
-			blockRes, err := suite.backend.TendermintBlockResultByNumber(&tc.blockNumber)
+			blockRes, err := suite.backend.TendermintBlockResultByNumber(&tc.blockNumber) //#nosec G601 -- fine for tests
 
 			if tc.expPass {
 				suite.Require().NoError(err)
