@@ -169,7 +169,7 @@ func TestParseTxResult(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			parsed, err := ParseTxResult(&tc.response, nil) //nolint:gosec
+			parsed, err := ParseTxResult(&tc.response, nil) //#nosec G601 -- fine for tests
 			if tc.expTxs == nil {
 				require.Error(t, err)
 			} else {
