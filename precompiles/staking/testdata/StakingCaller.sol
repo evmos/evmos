@@ -111,7 +111,7 @@ contract StakingCaller {
         address _grantee,
         string memory method
     ) public view returns (uint256 allowance) {
-        return staking.STAKING_CONTRACT.allowance(tx.origin, _grantee, method);
+        return staking.STAKING_CONTRACT.allowance(_grantee, msg.sender, method);
     }
 
     /// @dev This function calls the staking precompile's validator query method.

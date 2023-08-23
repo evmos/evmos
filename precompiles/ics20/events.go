@@ -16,7 +16,7 @@ const (
 	// EventTypeIBCTransfer defines the event type for the ICS20 Transfer transaction.
 	EventTypeIBCTransfer = "IBCTransfer"
 	// EventTypeIBCTransferAuthorization defines the event type for the ICS20 TransferAuthorization transaction.
-	EventTypeIBCTransferAuthorization = "IBCTransferAuthorization"
+	EventTypeIBCTransferAuthorization = "IBCTransferAuthorization" //#nosec G101 -- no hardcoded credentials here
 	// EventTypeRevokeIBCTransferAuthorization defines the event type for the ICS20 Authorization Revocation transaction.
 	EventTypeRevokeIBCTransferAuthorization = "RevokeIBCTransferAuthorization"
 )
