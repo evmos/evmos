@@ -2,8 +2,15 @@
 
 import sources.nixpkgs {
   overlays = [
-    (_: pkgs: {
-      go = pkgs.go_1_18;
+    (final: pkgs: rec {
+      go_1_20 = pkgs.go_1_20.overrideAttrs (_: rec {
+        version = "1.20.2";
+        src = final.fetchurl {
+          url = "https://go.dev/dl/go${version}.src.tar.gz";
+          hash = "sha256-TQ4oUNGXtN2tO9sBljABedCVuzrv1N+8OzZwLDco+Ks=";
+        };
+      });
+      go = go_1_20;
       go-ethereum = pkgs.callPackage ./go-ethereum.nix {
         inherit (pkgs.darwin) libobjc;
         inherit (pkgs.darwin.apple_sdk.frameworks) IOKit;
@@ -11,7 +18,6 @@ import sources.nixpkgs {
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
-    (import ./go_1_18_overlay.nix)
     (final: prev:
       (import "${sources.gomod2nix}/overlay.nix")
         (final // {

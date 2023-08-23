@@ -5,10 +5,10 @@ let
     name = "evmosd";
     src = fetchEvmos "92827302f11a33d01fb630d0d302075ddab361ae";
     subPackages = [ "cmd/evmosd" ];
-    vendorSha256 = "sha256-cQAol54b6hNzsA4Q3MP9mTqFWM1MvR5uMPrYpaoj3SY=";
+    vendorSha256 = "sha256-wk/GU2ksBFS6lZHJb00jBtiPPIzmgrwTpIlYynqtbQk=";
     doCheck = false;
   };
-  current = pkgs.callPackage ../../../. { };
+  current = pkgs.mkGoEnv { pwd = ../../../.; };
 in
 pkgs.linkFarm "upgrade-test-package" [
   { name = "genesis"; path = released; }
