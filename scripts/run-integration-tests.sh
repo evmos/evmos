@@ -10,4 +10,4 @@ cd ../tests/integration_tests/hardhat
 HUSKY_SKIP_INSTALL=1 npm install
 npm run typechain
 cd ..
-pytest test_grpc_only.py -vv -s
+pytest -vv -s

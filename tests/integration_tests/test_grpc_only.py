@@ -42,9 +42,7 @@ def grpc_eth_call(port: int, args: dict, chain_id=None, proposer_address=None):
         params["chain_id"] = str(chain_id)
     if proposer_address is not None:
         params["proposer_address"] = str(proposer_address)
-    return requests.get(
-        f"http://localhost:{port}/evmos/evm/v1/eth_call", params
-    ).json()
+    return requests.get(f"http://localhost:{port}/evmos/evm/v1/eth_call", params).json()
 
 
 def test_grpc_mode(custom_evmos):
@@ -77,9 +75,7 @@ def test_grpc_mode(custom_evmos):
     # wait 1 more block for both nodes to avoid node stopped before tnx get included
     for i in range(2):
         wait_for_block(custom_evmos.cosmos_cli(i), 1)
-    supervisorctl(
-        custom_evmos.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1"
-    )
+    supervisorctl(custom_evmos.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
 
     # run grpc-only mode directly with existing chain state
     with (custom_evmos.base_dir / "node1.log").open("a") as logfile:
@@ -101,25 +97,40 @@ def test_grpc_mode(custom_evmos):
             wait_for_port(api_port)
 
             # in grpc-only mode, grpc query don't work if we don't pass chain_id
-            rsp = grpc_eth_call(api_port, msg)
-            assert rsp["code"] != 0, str(rsp)
-            assert "invalid chain ID" in rsp["message"]
-
-            # it don't works without proposer address neither
             rsp = grpc_eth_call(api_port, msg, chain_id=9000)
+
+            # Even after waiting for the grpc port to be ready,
+            # the call gives error that the grpc server is still down
+            # for this case, we'll retry the call
+            while f"{grpc_port}: connect: connection refused" in rsp["message"]:
+                time.sleep(sleep + 1)
+                rsp = grpc_eth_call(api_port, msg, chain_id=9000)
+
+            # it doesn't work without proposer address
             assert rsp["code"] != 0, str(rsp)
             assert "validator does not exist" in rsp["message"]
 
             # pass the first validator's consensus address to grpc query
             addr = custom_evmos.cosmos_cli(0).consensus_address()
             cons_addr = decode_bech32(addr)
+            proposer_addr = base64.b64encode(cons_addr).decode()
+
+            # invalid chain id - it should be an int
+            rsp = grpc_eth_call(
+                api_port,
+                msg,
+                chain_id="evmos_9000",
+                proposer_address=proposer_addr,
+            )
+            assert rsp["code"] != 0, str(rsp)
+            assert "invalid syntax" in rsp["message"]
 
             # should work with both chain_id and proposer_address set
             rsp = grpc_eth_call(
                 api_port,
                 msg,
                 chain_id=100,
-                proposer_address=base64.b64encode(cons_addr).decode(),
+                proposer_address=proposer_addr,
             )
             assert "code" not in rsp, str(rsp)
             assert 100 == int.from_bytes(base64.b64decode(rsp["ret"].encode()), "big")
