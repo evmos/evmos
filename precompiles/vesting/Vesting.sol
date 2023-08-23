@@ -74,7 +74,7 @@ interface VestingI {
         address vestingAddress
     ) external returns (bool success);
 
-    /// @dev Defines a method for converting a clawback vesting account to a eth account
+    /// @dev Defines a method for converting a clawback vesting account to an eth account
     /// @param vestingAddress The address of the vesting account.
     function convertVestingAccount(
         address vestingAddress
