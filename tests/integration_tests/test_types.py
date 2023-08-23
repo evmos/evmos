@@ -202,7 +202,7 @@ def test_get_proof(evmos_rpc_ws, geth):
     validator = ADDRS["validator"]
     method = "eth_getProof"
     for quantity in ["latest", "0x1024"]:
-        res = make_same_rpc_calls(
+        make_same_rpc_calls(
             eth_rpc,
             geth_rpc,
             method,
@@ -210,17 +210,15 @@ def test_get_proof(evmos_rpc_ws, geth):
         )
     res = send_tnx(w3)
 
-    proof = (eth_rpc.make_request(
-        method, [validator, ["0x0"], hex(res["blockNumber"])]
-    ))["result"]
+    proof = (
+        eth_rpc.make_request(method, [validator, ["0x0"], hex(res["blockNumber"])])
+    )["result"]
     compare_types(proof, EXPECTED_GET_PROOF["result"])
     assert proof["accountProof"], EXPECTED_ACCOUNT_PROOF
     assert proof["storageProof"][0]["proof"], EXPECTED_STORAGE_PROOF
 
     _ = send_and_get_hash(w3)
-    proof = eth_rpc.make_request(
-        method, [validator, ["0x0"], "latest"]
-    )
+    proof = eth_rpc.make_request(method, [validator, ["0x0"], "latest"])
     compare_types(proof, EXPECTED_GET_PROOF)
 
 

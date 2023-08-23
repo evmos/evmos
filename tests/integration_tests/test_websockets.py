@@ -7,6 +7,7 @@ def test_single_request_netversion(evmos):
     # net_version should be 9000
     assert response["result"] == "9000", "got " + response["result"] + ", expected 9000"
 
+
 # note:
 # batch requests still not implemented in web3.py
 # todo: follow https://github.com/ethereum/web3.py/issues/832, add tests when complete

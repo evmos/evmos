@@ -1,4 +1,3 @@
-
 from web3 import Web3
 
 from .expected_constants import (

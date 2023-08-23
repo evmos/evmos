@@ -15,9 +15,7 @@ def geth(tmp_path_factory):
     yield from setup_geth(path, 8545)
 
 
-@pytest.fixture(
-    scope="session", params=["evmos", "evmos-ws"]
-)
+@pytest.fixture(scope="session", params=["evmos", "evmos-ws"])
 def evmos_rpc_ws(request, evmos):
     """
     run on both evmos and evmos websocket

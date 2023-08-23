@@ -54,9 +54,7 @@ def post_init(path, base_port, config):
             ini[section].update(
                 {
                     "command": f"cosmovisor start --home %(here)s/node{i}",
-                    "environment": (
-                        f"DAEMON_NAME=evmosd,DAEMON_HOME=%(here)s/node{i}"
-                    ),
+                    "environment": (f"DAEMON_NAME=evmosd,DAEMON_HOME=%(here)s/node{i}"),
                 }
             )
     with ini_path.open("w") as fp:
@@ -134,8 +132,7 @@ def test_cosmovisor_upgrade(custom_evmos: Evmos):
 
     # update cli chain binary
     custom_evmos.chain_binary = (
-        Path(custom_evmos.chain_binary).parent.parent.parent
-        / f"{plan_name}/bin/evmosd"
+        Path(custom_evmos.chain_binary).parent.parent.parent / f"{plan_name}/bin/evmosd"
     )
     cli = custom_evmos.cosmos_cli()
 

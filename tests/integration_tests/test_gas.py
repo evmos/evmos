@@ -31,9 +31,7 @@ def test_gas_deployment(geth, evmos):
     # deploy an identical contract on geth and evmos
     # ensure that the gasUsed is equivalent
     _, geth_contract_receipt = deploy_contract(geth.w3, CONTRACTS["TestERC20A"])
-    _, evmos_contract_receipt = deploy_contract(
-        evmos.w3, CONTRACTS["TestERC20A"]
-    )
+    _, evmos_contract_receipt = deploy_contract(evmos.w3, CONTRACTS["TestERC20A"])
     assert geth_contract_receipt.gasUsed == evmos_contract_receipt.gasUsed
 
 
@@ -57,9 +55,7 @@ def test_gas_call(geth, evmos):
     evmos_txhash = evmos_contract.functions.burnGas(function_input).transact(
         {"from": ADDRS["validator"], "gasPrice": evmos_gas_price}
     )
-    evmos_call_receipt = evmos.w3.eth.wait_for_transaction_receipt(
-        evmos_txhash
-    )
+    evmos_call_receipt = evmos.w3.eth.wait_for_transaction_receipt(evmos_txhash)
 
     # ensure that the gasUsed is equivalent
     assert geth_call_receipt.gasUsed == evmos_call_receipt.gasUsed
@@ -91,9 +87,7 @@ def test_block_gas_limit(evmos):
 
     # expect an error on contract call due to block gas limit
     with pytest.raises(Exception):
-        evmos_txhash = evmos_contract.functions.burnGas(
-            exceeded_gas_limit
-        ).transact(
+        evmos_txhash = evmos_contract.functions.burnGas(exceeded_gas_limit).transact(
             {
                 "from": ADDRS["validator"],
                 "gas": exceeded_gas_limit,
