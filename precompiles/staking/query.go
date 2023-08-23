@@ -195,14 +195,14 @@ func (p Precompile) Redelegations(
 	return out.Pack(method.Outputs)
 }
 
-// Allowance returns the remaining allowance of a spender to the contract.
+// Allowance returns the remaining allowance of a grantee to the contract.
 func (p Precompile) Allowance(
 	ctx sdk.Context,
 	method *abi.Method,
 	_ *vm.Contract,
 	args []interface{},
 ) ([]byte, error) {
-	granter, grantee, msg, err := authorization.CheckAllowanceArgs(args)
+	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}

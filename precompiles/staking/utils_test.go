@@ -376,11 +376,11 @@ func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, metho
 	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
 	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-	var approvalEvent staking.EventAllowanceChange
+	var approvalEvent authorization.EventAllowanceChange
 	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
 	s.Require().NoError(err)
-	s.Require().Equal(s.address, approvalEvent.Spender)
-	s.Require().Equal(s.address, approvalEvent.Owner)
+	s.Require().Equal(s.address, approvalEvent.Grantee)
+	s.Require().Equal(s.address, approvalEvent.Granter)
 	s.Require().Equal(len(methods), len(approvalEvent.Methods))
 
 	for i, method := range methods {
