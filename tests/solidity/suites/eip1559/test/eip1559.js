@@ -2,8 +2,6 @@
 
 contract('Transaction', async function (accounts) {
   it('should send a transaction with EIP-1559 flag', async function () {
-    console.log('Accounts: ', accounts)
-    console.log(web3.version)
     const tx = await web3.eth.sendTransaction({
       from: accounts[0],
       to: accounts[1]
@@ -16,7 +14,6 @@ contract('Transaction', async function (accounts) {
         hardfork: 'london'
       }
     })
-    console.log(tx)
     assert.equal(tx.type, '0x2', 'Tx type should be 0x2')
   })
 })

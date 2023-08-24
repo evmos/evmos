@@ -6,16 +6,8 @@ const truffleAssert = require('truffle-assertions')
 contract('Test EventTest Contract', async function (accounts) {
   let eventInstance
 
-  before(function () {
-    console.log(
-      `Using Accounts (${accounts.length}): \n${accounts.join('\n')}`
-    )
-    console.log('==========================\n')
-  })
-
   it('should deploy EventTest contract', async function () {
     eventInstance = await EventTest.new()
-    console.log(`Deployed EventTest at: ${eventInstance.address}`)
     /* eslint-disable no-unused-expressions */
     expect(eventInstance.address).not.to.be.undefined
   })

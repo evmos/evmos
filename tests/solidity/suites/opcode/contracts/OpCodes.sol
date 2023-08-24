@@ -22,18 +22,8 @@ contract OpCodes {
    // Add a todo to the list
    function test() public {
 
-     //simple_instructions
-     /*assembly { pop(sub(dup1, mul(dup1, dup1))) }*/
-
      //keywords
      assembly { pop(address) return(2, byte(2,1)) }
-
-     //label_complex
-     /*assembly { 7 abc: 8 eq jump(abc) jumpi(eq(7, 8), abc) pop }
-     assembly { pop(jumpi(eq(7, 8), abc)) jump(abc) }*/
-
-     //functional
-     /*assembly { let x := 2 add(7, mul(6, x)) mul(7, 8) add =: x }*/
 
      //for_statement
      assembly { for { let i := 1 } lt(i, 5) { i := add(i, 1) } {} }
@@ -43,9 +33,6 @@ contract OpCodes {
 
      //no_opcodes_in_strict
      assembly { pop(callvalue()) }
-
-     //no_dup_swap_in_strict
-     /*assembly { swap1() }*/
 
      //print_functional
      assembly { let x := mul(sload(0x12), 7) }
@@ -67,8 +54,6 @@ contract OpCodes {
        let a := mload(0x40)
        let b := add(a, 32)
        calldatacopy(a, 4, 32)
-       /*calldatacopy(b, add(4, 32), 32)*/
-       /*result := add(mload(a), mload(b))*/
      }
 
      //codecopy
@@ -100,17 +85,8 @@ contract OpCodes {
      //staticcall
      assembly { pop(staticcall(10000, 0x123, 64, 0x10, 128, 0x10)) }
 
-     /*//create2 Constantinople
-     assembly { pop(create2(10, 0x123, 32, 64)) }*/
-
      //create Constantinople
      assembly { pop(create(10, 0x123, 32)) }
-
-     //shift Constantinople
-     /*assembly { pop(shl(10, 32)) }
-     assembly { pop(shr(10, 32)) }
-     assembly { pop(sar(10, 32)) }*/
-
 
      //not
      assembly { pop( not(0x1f)) }

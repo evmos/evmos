@@ -18,17 +18,9 @@ async function expectRevert (promise) {
 }
 
 contract('Test EVM Revert', async function (accounts) {
-  before(function () {
-    console.log(
-      `Using Accounts (${accounts.length}): \n${accounts.join('\n')}`
-    )
-    console.log('==========================\n')
-  })
-
   let storageInstance
   it('should deploy Stroage contract', async function () {
     storageInstance = await Storage.new()
-    console.log(`Deployed Storage at: ${storageInstance.address}`)
     /* eslint-disable no-unused-expressions */
     expect(storageInstance.address).not.to.be.undefined
   })

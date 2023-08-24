@@ -103,7 +103,7 @@ jq '.app_state.claims.params.duration_until_decay="100000s"' "$GENESIS" >"$TMP_G
 jq -r --arg amount_to_claim "$amount_to_claim" '.app_state.bank.balances += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 # disable produce empty block
-sed -i 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
+sed -i.bak 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
 
 # Allocate genesis accounts (cosmos formatted addresses)
 evmosd add-genesis-account "$(evmosd keys show "$VAL_KEY" -a --keyring-backend "$KEYRING")" 100000000000000000000000000aevmos --keyring-backend "$KEYRING"
@@ -120,17 +120,17 @@ jq -r --arg total_supply "$total_supply" '.app_state.bank.supply[0].amount=$tota
 
 # set custom pruning settings
 if [ "$PRUNING" = "custom" ]; then
-  sed -i 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
-  sed -i 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
-  sed -i 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+  sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+  sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+  sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 fi
 
 # make sure the localhost IP is 0.0.0.0
-sed -i 's/localhost/0.0.0.0/g' "$CONFIG_TOML"
-sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
+sed -i.bak 's/localhost/0.0.0.0/g' "$CONFIG_TOML"
+sed -i.bak 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 
 # use timeout_commit 1s to make test faster
-sed -i 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
+sed -i.bak 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
 # Sign genesis transaction
 evmosd gentx $VAL_KEY 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
@@ -142,7 +142,7 @@ evmosd gentx $VAL_KEY 1000000000000000000000aevmos --keyring-backend "$KEYRING" 
 ## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
 # Enable the APIs for the tests to be successful
-sed -i 's/enable = false/enable = true/g' "$APP_TOML"
+sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
 
 # Collect genesis tx
 evmosd collect-gentxs
@@ -151,4 +151,4 @@ evmosd collect-gentxs
 evmosd validate-genesis
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.enable true --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --chain-id "$CHAINID"
+evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --chain-id "$CHAINID"

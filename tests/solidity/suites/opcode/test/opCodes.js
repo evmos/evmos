@@ -1,31 +1,41 @@
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-expressions */
 
 const TodoList = artifacts.require('./OpCodes.sol')
 let contractInstance
 
-contract('OpCodes', (accounts) => {
+contract('OpCodes', () => {
   beforeEach(async () => {
     contractInstance = await TodoList.deployed()
   })
-  //  it('Should run without errors the majorit of opcodes', async () => {
-  //    await contractInstance.test()
-  //    await contractInstance.test_stop()
-
-  //  })
+  it('Should run the majority of opcodes without errors', async () => {
+    let error
+    try {
+      await contractInstance.test()
+      await contractInstance.test_stop()
+    } catch (err) {
+      error = err
+    }
+    expect(error).to.be.undefined
+  })
 
   it('Should throw invalid op code', async () => {
+    let error
     try {
       await contractInstance.test_invalid()
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      error = err
     }
+    expect(error).not.to.be.undefined
   })
 
   it('Should revert', async () => {
+    let error
     try {
       await contractInstance.test_revert()
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      error = err
     }
+    expect(error).not.to.be.undefined
   })
 })
