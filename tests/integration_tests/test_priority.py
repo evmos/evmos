@@ -41,6 +41,9 @@ def test_priority(evmos):
 
     use a relatively large priority number to counter
     the effect of base fee change during the testing.
+
+    UPDATE: in cometbft v0.37.2, the v1 (priority mempool)
+    was deprecated. So txs should be FIFO
     """
     w3 = evmos.w3
     amount = 10000
@@ -109,48 +112,49 @@ def test_priority(evmos):
     txhashes = [w3.eth.send_raw_transaction(tx.rawTransaction) for tx in signed]
 
     receipts = [w3.eth.wait_for_transaction_receipt(txhash) for txhash in txhashes]
-    print(receipts)
     assert all(receipt.status == 1 for receipt in receipts), "expect all txs success"
 
     # the later txs should be included earlier because of higher priority
-    # FIXME there's some non-deterministics due to mempool logic
     tx_indexes = [(r.blockNumber, r.transactionIndex) for r in receipts]
-    print(tx_indexes)
+
     # the first sent tx are included later, because of lower priority
-    assert all(i1 > i2 for i1, i2 in zip(tx_indexes, tx_indexes[1:]))
+    # assert all(i1 > i2 for i1, i2 in zip(tx_indexes, tx_indexes[1:]))
+    # UPDATE: prioritized mempool (v1) was deprecated
+    # txs should be FIFO
+    assert all(i1 < i2 for i1, i2 in zip(tx_indexes, tx_indexes[1:]))
 
 
 def test_native_tx_priority(evmos):
     cli = evmos.cosmos_cli()
     base_fee = cli.query_base_fee()
-    print("base_fee", base_fee)
+
     test_cases = [
         {
             "from": eth_to_bech32(ADDRS["community"]),
             "to": eth_to_bech32(ADDRS["validator"]),
-            "amount": "1000aphoton",
-            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aphoton",
+            "amount": "1000aevmos",
+            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aevmos",
             "max_priority_price": 0,
         },
         {
             "from": eth_to_bech32(ADDRS["signer1"]),
             "to": eth_to_bech32(ADDRS["signer2"]),
-            "amount": "1000aphoton",
-            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aphoton",
+            "amount": "1000aevmos",
+            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aevmos",
             "max_priority_price": PRIORITY_REDUCTION * 200000,
         },
         {
             "from": eth_to_bech32(ADDRS["signer2"]),
             "to": eth_to_bech32(ADDRS["signer1"]),
-            "amount": "1000aphoton",
-            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 400000}aphoton",
+            "amount": "1000aevmos",
+            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 400000}aevmos",
             "max_priority_price": PRIORITY_REDUCTION * 400000,
         },
         {
             "from": eth_to_bech32(ADDRS["validator"]),
             "to": eth_to_bech32(ADDRS["community"]),
-            "amount": "1000aphoton",
-            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aphoton",
+            "amount": "1000aevmos",
+            "gas_prices": f"{base_fee + PRIORITY_REDUCTION * 600000}aevmos",
             "max_priority_price": None,  # no extension, maximum tipFeeCap
         },
     ]
@@ -169,7 +173,7 @@ def test_native_tx_priority(evmos):
                 tx, tc["from"], max_priority_price=tc.get("max_priority_price")
             )
         )
-        gas_price = int(tc["gas_prices"].removesuffix("aphoton"))
+        gas_price = int(tc["gas_prices"].removesuffix("aevmos"))
         expect_priorities.append(
             min(
                 get_max_priority_price(tc.get("max_priority_price")),
@@ -190,11 +194,18 @@ def test_native_tx_priority(evmos):
 
     tx_results = [cli.tx_search_rpc(f"tx.hash='{txhash}'")[0] for txhash in txhashes]
     tx_indexes = [(int(r["height"]), r["index"]) for r in tx_results]
-    print(tx_indexes)
+
     # the first sent tx are included later, because of lower priority
     # ensure desc within continuous block
+    # assert all(
+    #     (b1 < b2 or (b1 == b2 and i1 > i2))
+    #     for (b1, i1), (b2, i2) in zip(tx_indexes, tx_indexes[1:])
+    # )
+
+    # UPDATE: prioritized mempool (v1) was deprecated
+    # txs should be FIFO
     assert all(
-        (b1 < b2 or (b1 == b2 and i1 > i2))
+        (b1 > b2 or (b1 == b2 and i1 < i2))
         for (b1, i1), (b2, i2) in zip(tx_indexes, tx_indexes[1:])
     )
 

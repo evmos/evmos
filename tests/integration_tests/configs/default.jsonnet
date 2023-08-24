@@ -3,12 +3,6 @@
   'evmos_9000-1': {
     cmd: 'evmosd',
     'start-flags': '--trace',
-    config: {
-      mempool: {
-        // use v1 mempool to enable tx prioritization
-        version: 'v1',
-      },
-    },
     'app-config': {
       'minimum-gas-prices': '0aevmos',
       'index-events': ['ethereum_tx.ethereumTxHash'],
