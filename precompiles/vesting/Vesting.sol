@@ -62,7 +62,7 @@ interface VestingI {
         address funderAddress,
         address accountAddress,
         address destAddress
-    ) external returns (Coin[]);
+    ) external returns (Coin[] memory);
 
     /// @dev Defines a method for updating the funder of a vesting account.
     /// @param funderAddress The address of the account that funded the vesting account.
@@ -74,7 +74,7 @@ interface VestingI {
         address vestingAddress
     ) external returns (bool success);
 
-    /// @dev Defines a method for converting a vesting account to a clawback vesting account.
+    /// @dev Defines a method for converting a clawback vesting account to an eth account
     /// @param vestingAddress The address of the vesting account.
     function convertVestingAccount(
         address vestingAddress

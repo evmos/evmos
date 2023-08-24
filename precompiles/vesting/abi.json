@@ -265,7 +265,7 @@
           }
         ],
         "internalType": "struct Coin[]",
-        "name": "coins",
+        "name": "",
         "type": "tuple[]"
       }
     ],
