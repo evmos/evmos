@@ -26,7 +26,7 @@ contract('Test EVM Revert', async function (accounts) {
   })
 
   let storageInstance
-  it('should deploy Stroage contract', async function () {
+  it('should deploy Storage contract', async function () {
     storageInstance = await Storage.new()
     console.log(`Deployed Storage at: ${storageInstance.address}`)
     /* eslint-disable no-unused-expressions */

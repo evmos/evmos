@@ -12,16 +12,16 @@ contract('Test Storage Contract', async function (accounts) {
     console.log('==========================\n')
   })
 
-  it('should deploy Stroage contract', async function () {
+  it('should deploy Storage contract', async function () {
     storageInstance = await Storage.new()
     console.log(`Deployed Storage at: ${storageInstance.address}`)
     /* eslint-disable no-unused-expressions */
     expect(storageInstance.address).not.to.be.undefined
   })
 
-  it('should succesfully stored a value', async function () {
+  it('should succesfully store a value', async function () {
     const tx = await storageInstance.store(888)
-    console.log(`Stored value 888 by tx: ${tx.tx}`)
+    console.log(`Stored value 888 in tx: ${tx.tx}`)
     /* eslint-disable no-unused-expressions */
     expect(tx.tx).not.to.be.undefined
   })

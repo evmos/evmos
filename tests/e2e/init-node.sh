@@ -17,7 +17,7 @@ TMP_GENESIS="$CHAINDIR/config/tmp_genesis.json"
 APP_TOML="$CHAINDIR/config/app.toml"
 CONFIG_TOML="$CHAINDIR/config/config.toml"
 
-# localKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
+# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="mykey"
 VAL_MNEMONIC="gesture inject test cycle original hollow east ridge hen combine junk child bacon zero hope comfort vacuum milk pitch cage oppose unhappy lunar seat"
 
@@ -54,7 +54,7 @@ evmosd config chain-id "$CHAINID"
 echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 
 # Store the validator address in a variable to use it later
-node_address=$(evmosd keys list | grep "address: " | cut -c12-)
+node_address=$(evmosd keys show -a "$VAL_KEY")
 
 echo "$USER1_MNEMONIC" | evmosd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
 echo "$USER2_MNEMONIC" | evmosd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"
@@ -133,7 +133,7 @@ sed -i 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 sed -i 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
 # Sign genesis transaction
-evmosd gentx $VAL_KEY 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `evmosd keys add` step, init more keys
 ## 2. Back to `evmosd add-genesis-account` step, add balance for those
