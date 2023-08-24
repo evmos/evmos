@@ -19,7 +19,7 @@ from .utils import (
 
 @pytest.fixture(scope="module")
 def pruned(request, tmp_path_factory):
-    """start-cronos
+    """start-evmos
     params: enable_auto_deployment
     """
     yield from setup_custom_evmos(
@@ -78,7 +78,7 @@ def test_pruned_node(pruned):
     )
     assert "error" in pruned_res
     assert (
-        pruned_res["error"]["message"] == "couldn't fetch balance. Node state is pruned"
+        "Version has either been pruned, or is for a future block height" in pruned_res["error"]["message"]
     )
 
     with pytest.raises(Exception):
