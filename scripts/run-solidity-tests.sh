@@ -1,11 +1,11 @@
 #!/bin/bash
-export GOPATH=~/go
-export PATH=$PATH:$GOPATH/bin
+export GOPATH="$HOME"/go
+export PATH="$PATH":"$GOPATH"/bin
 
 # remove existing daemon
-rm -rf ~/.ethermintd
+rm -rf "$HOME"/.evmosd
 
-# build ethermint binary
+# build evmos binary
 make install
 
 cd tests/solidity || exit
