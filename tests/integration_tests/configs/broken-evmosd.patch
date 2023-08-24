@@ -1,8 +1,8 @@
 diff --git a/app/app.go b/app/app.go
-index 158bf7a3..a3b5718c 100644
+index 53ce4f1a..aaeb8e76 100644
 --- a/app/app.go
 +++ b/app/app.go
-@@ -964,6 +964,10 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBloc
+@@ -969,6 +969,10 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
  
  // EndBlocker updates every end block
  func (app *Evmos) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {

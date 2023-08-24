@@ -1,5 +1,6 @@
 { lib
 , buildGoApplication
+, buildPackages
 , rev ? "dirty"
 }:
 let
@@ -17,10 +18,7 @@ in
 buildGoApplication rec {
   inherit pname version tags ldflags;
   go = buildPackages.go_1_20;
-  src = lib.sourceByRegex ./. [
-    "^(x|app|cmd|client|server|crypto|rpc|types|encoding|ethereum|indexer|testutil|version|go.mod|go.sum|gomod2nix.toml)($|/.*)"
-    "^tests(/.*[.]go)?$"
-  ];
+  src = ./.;
   modules = ./gomod2nix.toml;
   doCheck = false;
   pwd = src; # needed to support replace

@@ -1,5 +1,5 @@
 { pkgs ? import ../../../nix { } }:
-let evmosd = pkgs.mkGoEnv { pwd = ../../../.; };
+let evmosd = (pkgs.callPackage ../../../. { });
 in
 evmosd.overrideAttrs (oldAttrs: {
   patches = oldAttrs.patches or [ ] ++ [
