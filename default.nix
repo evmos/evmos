@@ -4,7 +4,7 @@
 , rev ? "dirty"
 }:
 let
-  version = "v13.0.2";
+  version = "v14.0.0";
   pname = "evmosd";
   tags = [ "netgo" ];
   ldflags = lib.concatStringsSep "\n" ([
@@ -26,7 +26,7 @@ buildGoApplication rec {
   CGO_ENABLED = "1";
 
   meta = with lib; {
-    description = "evmos is a scalable and interoperable Ethereum library, built on Proof-of-Stake with fast-finality using the Cosmos SDK which runs on top of Tendermint Core consensus engine.";
+    description = "Evmos is a scalable and interoperable blockchain, built on Proof-of-Stake with fast-finality using the Cosmos SDK which runs on top of Tendermint Core consensus engine.";
     homepage = "https://github.com/evmos/evmos";
     license = licenses.asl20;
     mainProgram = "evmosd";

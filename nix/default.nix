@@ -34,15 +34,6 @@ import sources.nixpkgs {
         };
       })
     (_: pkgs: { test-env = pkgs.callPackage ./testenv.nix { }; })
-    (_: pkgs: {
-      cosmovisor = pkgs.buildGo118Module rec {
-        name = "cosmovisor";
-        src = sources.cosmos-sdk + "/cosmovisor";
-        subPackages = [ "./cmd/cosmovisor" ];
-        vendorSha256 = "sha256-OAXWrwpartjgSP7oeNvDJ7cTR9lyYVNhEM8HUnv3acE=";
-        doCheck = false;
-      };
-    })
   ];
   config = { };
   inherit system;

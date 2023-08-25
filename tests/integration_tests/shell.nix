@@ -10,7 +10,6 @@ pkgs.mkShell {
     goEnv
     pkgs.start-scripts
     pkgs.go-ethereum
-    pkgs.cosmovisor
     pkgs.nodejs
     pkgs.test-env
     pkgs.gomod2nix

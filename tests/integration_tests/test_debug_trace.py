@@ -48,4 +48,4 @@ def test_trace_blk(evmos):
     }
     rsp = requests.post(url, json=params)
     assert rsp.status_code == 200
-    assert len(rsp.json()["result"]) == 2
+    assert len(rsp.json()["result"]) == total
