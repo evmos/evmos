@@ -1,22 +1,21 @@
-require("@nomicfoundation/hardhat-toolbox");
+require('@nomicfoundation/hardhat-toolbox')
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.8.18",
+        version: '0.8.18',
         settings: {
           optimizer: {
-            enabled: true,
-          },
-        },
-      },
-    ],
+            enabled: true
+          }
+        }
+      }
+    ]
   },
   typechain: {
-    outDir: "typechain",
-    target: "ethers-v6",
-  },
-};
-
+    outDir: 'typechain',
+    target: 'ethers-v6'
+  }
+}
