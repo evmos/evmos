@@ -124,7 +124,7 @@ contract InterchainSender {
 
     function testDenomTrace(
         string memory hash
-    ) public returns (DenomTrace[] memory denomTrace) {
+    ) public returns (DenomTrace memory denomTrace) {
         return ICS20_CONTRACT.denomTrace(hash);
     }
 
