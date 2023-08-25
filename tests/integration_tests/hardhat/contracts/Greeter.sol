@@ -1,11 +1,12 @@
-pragma solidity >0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >0.8.0;
 
 contract Greeter {
     string public greeting;
 
     event ChangeGreeting(address from, string value);
 
-    constructor() public {
+    constructor() {
         greeting = "Hello";
     }
 

@@ -7,7 +7,7 @@ export TMPDIR=/tmp
 
 echo "build test contracts"
 cd ../tests/integration_tests/hardhat
-HUSKY_SKIP_INSTALL=1 npm install
+npm install
 npm run typechain
 cd ..
 pytest -vv -s
