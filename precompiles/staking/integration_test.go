@@ -74,6 +74,29 @@ var _ = Describe("Calling staking precompile directly", func() {
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
 
+	Describe("when the precompile is not enabled in the EVM params", func() {
+		It("should return an error", func() {
+			// disable the precompile
+			params := s.app.EvmKeeper.GetParams(s.ctx)
+			params.ActivePrecompiles = append(params.ActivePrecompiles, s.precompile.Address().String())
+			s.app.EvmKeeper.SetParams(s.ctx, params)
+
+			// try to call the precompile
+			delegateArgs := defaultCallArgs.
+				WithMethodName(staking.DelegateMethod).
+				WithArgs(
+					s.address, valAddr.String(), big.NewInt(2e18),
+				)
+
+			failCheck := defaultLogCheck.
+				WithErrContains("precompile not enabled")
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+		})
+	})
+
 	Describe("Revert transaction", func() {
 		It("should run out of gas if the gas limit is too low", func() {
 			outOfGasArgs := defaultApproveArgs.
