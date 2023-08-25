@@ -177,6 +177,31 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					Expect(err.Error()).To(ContainSubstring("does not match the from address"))
 				}
 			})
+
+			It(fmt.Sprintf("should not create a clawback vesting account if the account already is subject to vesting (%s)", callType.name), func() {
+				addr, priv := testutiltx.NewAddrKey()
+				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr.Bytes(), 1e18)
+				Expect(err).ToNot(HaveOccurred(), "error while funding the account: %v", err)
+
+				s.CreateTestClawbackVestingAccount(s.address, addr)
+
+				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
+					WithMethodName(vesting.CreateClawbackVestingAccountMethod).
+					WithPrivKey(priv). // send from the vesting account
+					WithArgs(
+						s.address,
+						addr,
+						false,
+					)
+
+				createClawbackCheck := failCheck.WithErrContains("account is already subject to vesting")
+
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, createClawbackCheck)
+				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				if callType.directCall {
+					Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("%s is already a clawback vesting account", sdk.AccAddress(addr.Bytes()))))
+				}
+			})
 		}
 	})
 
