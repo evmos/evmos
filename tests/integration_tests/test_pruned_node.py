@@ -78,7 +78,8 @@ def test_pruned_node(pruned):
     )
     assert "error" in pruned_res
     assert (
-        "Version has either been pruned, or is for a future block height" in pruned_res["error"]["message"]
+        "Version has either been pruned, or is for a future block height"
+        in pruned_res["error"]["message"]
     )
 
     with pytest.raises(Exception):
