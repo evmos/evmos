@@ -154,7 +154,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100))))
 				return []interface{}{
 					s.address,
@@ -239,7 +239,7 @@ func (s *PrecompileTestSuite) TestClawback() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				s.FundTestClawbackVestingAccount()
 				return []interface{}{
 					s.address,
@@ -317,7 +317,7 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				vestingAcc := s.app.AccountKeeper.GetAccount(s.ctx, toAddr.Bytes())
 				va, ok := vestingAcc.(*vestingtypes.ClawbackVestingAccount)
 				s.Require().True(ok)
@@ -401,7 +401,7 @@ func (s *PrecompileTestSuite) TestConvertVestingAccount() {
 		{
 			"success",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				return []interface{}{
 					toAddr,
 				}

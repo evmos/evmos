@@ -201,7 +201,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			callType := callType
 
 			It(fmt.Sprintf("should fund the vesting when defining only lockup (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
 					WithArgs(
@@ -226,7 +226,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should fund the vesting when defining only vesting (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
 					WithArgs(
@@ -251,7 +251,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should fund the vesting when defining both lockup and vesting (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
 					WithArgs(
@@ -273,7 +273,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when defining different total coins for lockup and vesting (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
@@ -301,7 +301,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when defining neither lockup nor vesting (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.FundVestingAccountMethod).
@@ -330,7 +330,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when exceeding the funder balance (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 				exceededBalance := new(big.Int).Add(big.NewInt(1), balance.Amount.BigInt())
@@ -369,7 +369,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when not sending as the funder (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				differentFunder := testutiltx.GenerateAddress()
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -405,7 +405,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			})
 
 			It(fmt.Sprintf("should not fund the vesting when the address is blocked (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				moduleAddr := common.BytesToAddress(authtypes.NewModuleAddress("distribution").Bytes())
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -509,7 +509,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 	Context("to claw back from a vesting account", func() {
 		BeforeEach(func() {
-			s.CreateTestClawbackVestingAccount()
+			s.CreateTestClawbackVestingAccount(s.address, toAddr)
 			s.FundTestClawbackVestingAccount()
 		})
 
@@ -641,7 +641,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 	Context("to update the vesting funder", func() {
 		BeforeEach(func() {
-			s.CreateTestClawbackVestingAccount()
+			s.CreateTestClawbackVestingAccount(s.address, toAddr)
 		})
 
 		for _, callType := range callTypes {
@@ -840,7 +840,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	Context("to convert a vesting account", func() {
 		BeforeEach(func() {
 			// Create a vesting account
-			s.CreateTestClawbackVestingAccount()
+			s.CreateTestClawbackVestingAccount(s.address, toAddr)
 		})
 
 		for _, callType := range callTypes {
@@ -946,7 +946,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 			callType := callType
 
 			It(fmt.Sprintf("should return the vesting when it exists (%s)", callType.name), func() {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				s.FundTestClawbackVestingAccount()
 
 				balancesArgs := s.BuildCallArgs(callType, contractAddr).
