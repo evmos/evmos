@@ -29,7 +29,7 @@ EXPECTED_GET_PROOF = {
         "storageHash": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",  # noqa: E501
         "storageProof": [
             {
-                "key": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",  # gitleaks:allow,noqa: E501
+                "key": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",  # gitleaks:allow # noqa: E501
                 "proof": [],
                 "value": "0x0",
             }
