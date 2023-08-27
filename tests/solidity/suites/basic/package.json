@@ -1,0 +1,26 @@
+{
+  "name": "basic",
+  "version": "1.0.0",
+  "author": "Aragon Association <contact@aragon.org>",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "test-ganache": "yarn truffle test",
+    "test-evmos": "yarn truffle test --network evmos"
+  },
+  "devDependencies": {
+    "truffle-assertions": "^0.9.2"
+  },
+  "standard": {
+    "globals": [
+      "artifacts",
+      "expect",
+      "contract",
+      "beforeEach",
+      "before",
+      "web3",
+      "it",
+      "assert",
+      "describe"
+    ]
+  }
+}

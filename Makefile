@@ -343,6 +343,10 @@ test-rpc:
 test-rpc-pending:
 	./scripts/integration-test-all.sh -t "pending" -q 1 -z 1 -s 2 -m "pending" -r "true"
 
+test-solidity:
+	@echo "Beginning solidity tests..."
+	./scripts/run-solidity-tests.sh
+
 .PHONY: run-tests test test-all test-import test-rpc $(TEST_TARGETS)
 
 benchmark:
