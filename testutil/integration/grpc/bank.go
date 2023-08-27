@@ -8,8 +8,8 @@ import (
 
 // GetBalance returns the balance for the given address.
 // It uses the network's config's denom.
-func (gqh *GrpcQueryHelper) GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error) {
-	bankClient := gqh.getBankClient()
+func (gqh *IntegrationGrpcHandler) GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error) {
+	bankClient := gqh.network.GetBankClient()
 	return bankClient.Balance(context.Background(), &banktypes.QueryBalanceRequest{
 		Address: address.String(),
 		Denom:   denom,

@@ -17,8 +17,6 @@ type NetworkConfig struct {
 	denom              string
 }
 
-// TODO: Create a function that creates an account an keeps a counter of the sequences
-
 // DefaultChainConfig returns the default configuration for a chain.
 func DefaultChainConfig() NetworkConfig {
 	account, _ := testtx.NewAccAddressAndKey()
@@ -31,44 +29,35 @@ func DefaultChainConfig() NetworkConfig {
 	}
 }
 
-// ConfigModifier defines a function that can modify the NetworkConfig.
+// ConfigOption defines a function that can modify the NetworkConfig.
 // The purpose of this is to force to be declarative when the default configuration
 // requires to be changed.
-//type ConfigModifier func(*NetworkConfig)
+type ConfigOption func(*NetworkConfig)
 
-func (cfg *NetworkConfig) WithChainID(chainID string) {
-	cfg.chainID = chainID
+// WithChainID sets a custom chainID for the network.
+func WithChainID(chainID string) ConfigOption {
+	return func(cfg *NetworkConfig) {
+		cfg.chainID = chainID
+	}
 }
 
-func (cfg *NetworkConfig) WithDenom(denom string) {
-	cfg.denom = denom
+// WithAmountOfValidators sets the amount of validators for the network.
+func WithAmountOfValidators(amount int) ConfigOption {
+	return func(cfg *NetworkConfig) {
+		cfg.amountOfValidators = amount
+	}
 }
 
-func (cfg *NetworkConfig) WithAmountOfValidators(amount int) {
-	cfg.amountOfValidators = amount
+// WithPreFundedAccounts sets the pre-funded accounts for the network.
+func WithPreFundedAccounts(accounts ...sdktypes.AccAddress) ConfigOption {
+	return func(cfg *NetworkConfig) {
+		cfg.preFundedAccounts = accounts
+	}
 }
 
-func (cfg *NetworkConfig) WithPreFundedAccounts(accounts []sdktypes.AccAddress) {
-	cfg.preFundedAccounts = accounts
+// WithDenom sets the denom for the network.
+func WithDenom(denom string) ConfigOption {
+	return func(cfg *NetworkConfig) {
+		cfg.denom = denom
+	}
 }
-
-//// Option functions to set specific options
-//func WithChainID(chainID string) ConfigModifier {
-//	return func(cfg *NetworkConfig) {
-//		cfg.chainID = chainID
-//	}
-//}
-
-//// Option functions to set specific options
-//func WithAmountOfValidators(amount int) ConfigModifier {
-//	return func(cfg *NetworkConfig) {
-//		cfg.AmountOfValidators = amount
-//	}
-//}
-//
-//// Option functions to set specific options
-//func WithPreFundedAccounts(accounts ...sdktypes.AccAddress) ConfigModifier {
-//	return func(cfg *NetworkConfig) {
-//		cfg.PreFundedAccounts = accounts
-//	}
-//}

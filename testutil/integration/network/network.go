@@ -4,73 +4,80 @@ import (
 	"encoding/json"
 	"math"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/types"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v14/x/inflation/types"
 	revtypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 )
 
-// --------------------------------------
-
-// NetworkManager is the interface that wraps the basic methods of the network.
-// TODO: Add a more detailed description of the purpose of the manager interface
-type NetworkManager interface {
-	// GetContext returns the context
+// Network is the interface that wraps the methods to interact with integration test network.
+//
+// It was designed to avoid users to access module's keepers directly and force integration tests
+// to be closer to the real user's behavior.
+type Network interface {
 	GetContext() sdktypes.Context
-	// GetChainID returns the chain id
 	GetChainID() string
-	// GetDenom returns the denom
 	GetDenom() string
+	GetValidators() []stakingtypes.Validator
 
-	// CommitBlock commits a block
 	CommitBlock() error
 
-    // GRPC Clients
-    GetEvmClient() evmtypes.QueryClient
-    GetRevenueClient() revtypes.QueryClient
-    GetInflationClient() infltypes.QueryClient
-    GetBankClient() banktypes.QueryClient
-    GetFeeMarketClient() feemarkettypes.QueryClient
+	GetEvmClient() evmtypes.QueryClient
+	GetRevenueClient() revtypes.QueryClient
+	GetInflationClient() infltypes.QueryClient
+	GetBankClient() banktypes.QueryClient
+	GetFeeMarketClient() feemarkettypes.QueryClient
+	GetAuthClient() authtypes.QueryClient
 
-
-	// Because to update the params on a conventional manner governance
+	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params
 	UpdateRevenueParams(params revtypes.Params) error
 	UpdateInflationParams(params infltypes.Params) error
 	UpdateEvmParams(params evmtypes.Params) error
+
+	BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error)
+	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
 }
 
 var (
-	_ NetworkManager = (*Network)(nil)
+	_ Network = (*IntegrationNetwork)(nil)
 )
 
-type Network struct {
-	cfg NetworkConfig
-	ctx sdktypes.Context
-
-	App        *app.Evmos
-	Validators []stakingtypes.Validator
+type IntegrationNetwork struct {
+	cfg        NetworkConfig
+	ctx        sdktypes.Context
+	app        *app.Evmos
+	validators []stakingtypes.Validator
 }
 
-// New creates a new Network instance with the given options.
+// New configures and initializes a new integration Network instance with
+// the given configuration options. If no configuration options are provided
+// it uses the default configuration.
+//
 // It panics if an error occurs.
-func New(config NetworkConfig) *Network {
+func New(opts ...ConfigOption) *IntegrationNetwork {
+	cfg := DefaultChainConfig()
+	// Modify the default config with the given options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	ctx := sdktypes.Context{}
-	network := &Network{
-		cfg:        config,
+	network := &IntegrationNetwork{
+		cfg:        cfg,
 		ctx:        ctx,
-		Validators: []stakingtypes.Validator{},
+		validators: []stakingtypes.Validator{},
 	}
 
 	err := network.configureAndInitChain()
@@ -80,18 +87,16 @@ func New(config NetworkConfig) *Network {
 	return network
 }
 
-// ------ Initial Setup ------
-
 var (
 	// bondedAmt is the amount of tokens that each validator will have initially bonded
 	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account have at genesis
+	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
 	PrefundedAccountInitialBalance = sdktypes.NewInt(int64(math.Pow10(18) * 4))
 )
 
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
-func (n *Network) configureAndInitChain() error {
+func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
 	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
@@ -144,9 +149,9 @@ func (n *Network) configureAndInitChain() error {
 	}
 
 	evmosApp.InitChain(
-		abci.RequestInitChain{
+		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
-			Validators:      []abci.ValidatorUpdate{},
+			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: app.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
@@ -162,61 +167,52 @@ func (n *Network) configureAndInitChain() error {
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
-	evmosApp.BeginBlock(abci.RequestBeginBlock{Header: header})
+	evmosApp.BeginBlock(abcitypes.RequestBeginBlock{Header: header})
 
 	// Set networks global parameters
-	n.App = evmosApp
+	n.app = evmosApp
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
-	n.Validators = validators
+	n.validators = validators
 	return nil
 }
 
-// ------------------------------------------
-
-func (n *Network) GetContext() sdktypes.Context {
+// GetContext returns the network's context
+func (n *IntegrationNetwork) GetContext() sdktypes.Context {
 	return n.ctx
 }
 
-func (n *Network) GetChainID() string {
+// GetChainID returns the network's chainID
+func (n *IntegrationNetwork) GetChainID() string {
 	return n.cfg.chainID
 }
 
-func (n *Network) GetDenom() string {
+// GetDenom returns the network's denom
+func (n *IntegrationNetwork) GetDenom() string {
 	return n.cfg.denom
 }
 
-// Module functions
-
-// ----- EVM -----
-
-func (n *Network) UpdateEvmParams(params evmtypes.Params) error {
-	return n.App.EvmKeeper.SetParams(n.ctx, params)
+// GetValidators returns the network's validators
+func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
+	return n.validators
 }
 
-func (n *Network) GetEvmPrecompiles(precompiles ...common.Address) map[common.Address]vm.PrecompiledContract {
-	return n.App.EvmKeeper.Precompiles(
-		precompiles...,
-	)
+// BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
+// TODO - this should be change to gRPC
+func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error) {
+	req := abcitypes.RequestDeliverTx{Tx: txBytes}
+	return n.app.BaseApp.DeliverTx(req), nil
 }
 
-// ----- Bank -----
-func (n *Network) FundAccount(addr sdktypes.AccAddress, coins sdktypes.Coins) error {
-	if err := n.App.BankKeeper.MintCoins(n.ctx, infltypes.ModuleName, coins); err != nil {
-		return err
+// BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
+// TODO - this should be change to gRPC
+func (n *IntegrationNetwork) Simulate(txBytes []byte) (*txtypes.SimulateResponse, error) {
+	gas, result, err := n.app.BaseApp.Simulate(txBytes)
+	if err != nil {
+		return nil, err
 	}
-
-	return n.App.BankKeeper.SendCoinsFromModuleToAccount(n.ctx, infltypes.ModuleName, addr, coins)
-}
-
-// ----- Revenue -----
-
-func (n *Network) UpdateRevenueParams(params revtypes.Params) error {
-	return n.App.RevenueKeeper.SetParams(n.ctx, params)
-}
-
-// ----- Inflation -----
-
-func (n *Network) UpdateInflationParams(params infltypes.Params) error {
-	return n.App.InflationKeeper.SetParams(n.ctx, params)
+	return &txtypes.SimulateResponse{
+		GasInfo: &gas,
+		Result:  result,
+	}, nil
 }

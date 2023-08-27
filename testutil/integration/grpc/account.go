@@ -9,8 +9,8 @@ import (
 )
 
 // GetAccount returns the account for the given address.
-func (gqh *GrpcQueryHelper) GetAccount(address string) (authtypes.AccountI, error) {
-	authClient := gqh.GetAuthClient()
+func (gqh *IntegrationGrpcHandler) GetAccount(address string) (authtypes.AccountI, error) {
+	authClient := gqh.network.GetAuthClient()
 	res, err := authClient.Account(context.Background(), &authtypes.QueryAccountRequest{
 		Address: address,
 	})

@@ -22,6 +22,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v14/testutil/integration/grpc"
+	"github.com/evmos/evmos/v14/testutil/integration/network"
 	"github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
@@ -31,6 +32,21 @@ import (
 	"github.com/evmos/evmos/v14/server/config"
 	evm "github.com/evmos/evmos/v14/x/evm/types"
 )
+
+type TxFactory interface {
+	// DeployContract deploys a contract with the provided private key,
+	// compiled contract data and constructor arguments
+	DeployContract(privKey cryptotypes.PrivKey, contract evm.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
+	//DoEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
+	DoEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
+	// DoCosmosTx builds, signs and broadcast a Cosmos tx with the provided private key and txArgs
+	DoCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
+}
+
+type IntegrationTxFactory struct {
+	queryClientHelper *grpc.GrpcQueryHelper
+	network           network.Network
+}
 
 // DeployContract deploys a contract with the provided private key,
 // compiled contract data and constructor arguments
@@ -277,7 +293,7 @@ var (
 	gasAdjustment = float64(1.7)
 )
 
-func BuildAndBroadcastMsg(queryClient *grpc.GrpcQueryHelper, privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+func DoCosmosTx(queryClient *grpc.GrpcQueryHelper, privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 	txBuilder := txConfig.NewTxBuilder()
 
