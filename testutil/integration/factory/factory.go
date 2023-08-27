@@ -2,7 +2,6 @@ package factory
 
 import (
 	"encoding/json"
-	"math"
 	"math/big"
 
 	cosmostx "github.com/cosmos/cosmos-sdk/client/tx"
@@ -27,14 +26,13 @@ import (
 	"github.com/evmos/evmos/v14/app"
 	"github.com/evmos/evmos/v14/encoding"
 	"github.com/evmos/evmos/v14/server/config"
-	evm "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
-	DeployContract(privKey cryptotypes.PrivKey, contract evm.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
-	//DoEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
+	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
+	// DoEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
 	DoEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// DoCosmosTx builds, signs and broadcast a Cosmos tx with the provided private key and txArgs
 	DoCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -47,7 +45,7 @@ var _ TxFactory = (*IntegrationTxFactory)(nil)
 // IntegrationTxFactory is a helper struct to build and broadcast transactions
 // to the network on integration tests. This is to simulate the behavior of a real user.
 type IntegrationTxFactory struct {
-	grpcHandler grpc.GrpcHandler
+	grpcHandler grpc.Handler
 	network     network.Network
 }
 
@@ -55,7 +53,7 @@ type IntegrationTxFactory struct {
 // compiled contract data and constructor arguments
 func (tf *IntegrationTxFactory) DeployContract(
 	priv cryptotypes.PrivKey,
-	contract evm.CompiledContract,
+	contract evmtypes.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
 	// Get account's nonce to create contract hash
@@ -70,9 +68,10 @@ func (tf *IntegrationTxFactory) DeployContract(
 	if err != nil {
 		return common.Address{}, err
 	}
-	data := append(contract.Bin, ctorArgs...)
+	data := contract.Bin
+	data = append(data, ctorArgs...)
 
-	args := evm.EvmTxArgs{
+	args := evmtypes.EvmTxArgs{
 		Input: data,
 		Nonce: nonce,
 	}
@@ -124,8 +123,7 @@ func (tf *IntegrationTxFactory) DoEthTx(
 	return res, nil
 }
 
-var (
-	defaultPrice  = sdkmath.NewIntFromUint64(uint64(math.Pow10(7)))
+const (
 	gasAdjustment = float64(1.7)
 )
 
@@ -230,7 +228,10 @@ func (tf *IntegrationTxFactory) DoCosmosTx(privKey cryptotypes.PrivKey, txArgs C
 		return abcitypes.ResponseDeliverTx{}, err
 	}
 
-	txBuilder.SetSignatures(signature)
+	err = txBuilder.SetSignatures(signature)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, err
+	}
 
 	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {

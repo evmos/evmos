@@ -63,7 +63,7 @@ func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) (evm
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
 
-	// Validate the transaction to avoid unrealistic behaviour
+	// Validate the transaction to avoid unrealistic behavior
 	err := msgEthereumTx.ValidateBasic()
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, err

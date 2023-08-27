@@ -8,14 +8,14 @@ import (
 )
 
 // GetRevenue returns the revenue for the given address.
-func (gqh *IntegrationGrpcHandler) GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error) {
+func (gqh *IntegrationHandler) GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error) {
 	revenueClient := gqh.network.GetRevenueClient()
 	return revenueClient.Revenue(context.Background(), &revtypes.QueryRevenueRequest{
 		ContractAddress: address.String(),
 	})
 }
 
-func (gqh *IntegrationGrpcHandler) GetRevenueParams() (*revtypes.QueryParamsResponse, error) {
+func (gqh *IntegrationHandler) GetRevenueParams() (*revtypes.QueryParamsResponse, error) {
 	revenueClient := gqh.network.GetRevenueClient()
 	return revenueClient.Params(context.Background(), &revtypes.QueryParamsRequest{})
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 
+	sdkmath "cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -41,7 +42,7 @@ func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
 
 // fundAndCreateGenesisAccounts funds accounts
 // create genesis accounts
-func createGenesisAccounts(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []authtypes.GenesisAccount {
+func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, numberOfAccounts)
 	for i, acc := range accounts {
@@ -91,7 +92,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 	)
 }
 
-func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdktypes.Int) (stakingtypes.Validator, error) {
+func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdkmath.Int) (stakingtypes.Validator, error) {
 	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 	if err != nil {
 		return stakingtypes.Validator{}, err
@@ -119,7 +120,7 @@ func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdktypes.I
 	return validator, nil
 }
 
-func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdktypes.Int) ([]stakingtypes.Validator, error) {
+func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
 	for _, val := range tmValidators {
@@ -185,7 +186,7 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, 
 		overwriteParams.balances,
 		overwriteParams.totalSupply,
 		[]banktypes.Metadata{},
-[]banktypes.SendEnabled{}
+		[]banktypes.SendEnabled{},
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
@@ -201,10 +202,8 @@ func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.C
 
 func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.Balance, totalBonded sdktypes.Coin) []banktypes.Balance {
 	// add bonded amount to bonded pool module account and include it on funded accounts
-	balances := append(fundedAccountsBalances, banktypes.Balance{
+	return append(fundedAccountsBalances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
 		Coins:   sdktypes.Coins{totalBonded},
 	})
-
-	return balances
 }

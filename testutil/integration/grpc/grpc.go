@@ -11,9 +11,9 @@ import (
 	revtypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
 )
 
-// GrpcHandler is an interface that defines the methods that are used to query
+// Handler is an interface that defines the methods that are used to query
 // the network's modules via gRPC.
-type GrpcHandler interface {
+type Handler interface {
 	// EVM methods
 	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)
 	EstimateGas(args []byte, GasCap uint64) (*evmtypes.EstimateGasResponse, error)
@@ -33,18 +33,18 @@ type GrpcHandler interface {
 	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
 }
 
-var _ GrpcHandler = (*IntegrationGrpcHandler)(nil)
+var _ Handler = (*IntegrationHandler)(nil)
 
-// IntegrationGrpcHandler is a helper struct to query the network's modules
+// IntegrationHandler is a helper struct to query the network's modules
 // via gRPC. This is to simulate the behavior of a real user and avoid querying
 // the modules directly.
-type IntegrationGrpcHandler struct {
+type IntegrationHandler struct {
 	network network.Network
 }
 
 // NewGrpcHandler creates a new IntegrationGrpcHandler instance.
-func NewGrpcHandler(network network.Network) GrpcHandler {
-	return &IntegrationGrpcHandler{
+func NewGrpcHandler(network network.Network) Handler {
+	return &IntegrationHandler{
 		network: network,
 	}
 }
