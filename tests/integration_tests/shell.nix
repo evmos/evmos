@@ -1,13 +1,10 @@
 { system ? builtins.currentSystem, pkgs ? import ../../nix { inherit system; } }:
-let
-  goEnv = pkgs.mkGoEnv { pwd = ../../.; };
-in
 pkgs.mkShell {
   buildInputs = [
     pkgs.jq
     pkgs.go
     pkgs.gomod2nix
-    goEnv
+    (pkgs.callPackage ../../. { })
     pkgs.start-scripts
     pkgs.go-ethereum
     pkgs.nodejs
