@@ -231,14 +231,6 @@ func (s *PrecompileTestSuite) BuildCallArgs(
 	return callArgs
 }
 
-// FundTestVestingAccountArgs is a struct to hold the arguments for the
-// FundTestVestingAccount function.
-type FundTestVestingAccountArgs struct {
-	funder, vestingAddr           common.Address
-	lockupPeriods, vestingPeriods []vesting.Period
-	startTime                     *time.Time
-}
-
 // FundTestClawbackVestingAccount funds the clawback vesting account with some tokens
 func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 	method := s.precompile.Methods[vesting.FundVestingAccountMethod]
