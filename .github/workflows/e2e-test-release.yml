@@ -23,11 +23,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v20
-      - uses: cachix/cachix-action@v12
+      - uses: cachix/install-nix-action@v19
         with:
-          name: evmos
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+          # pin to nix-2.13 to workaround compability issue of 2.14,
+          # see: https://github.com/cachix/install-nix-action/issues/161
+          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          nix_path: nixpkgs=channel:nixos-22.11
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}          
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
@@ -39,13 +42,3 @@ jobs:
       - name: Run integration tests
         run: make run-integration-tests
         if: env.GIT_DIFF
-      - name: 'Tar debug files'
-        if: failure()
-        run: tar cfz debug_files.tar.gz -C /tmp/pytest-of-runner .
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: debug-files
-          path: debug_files.tar.gz
-          if-no-files-found: ignore
-
