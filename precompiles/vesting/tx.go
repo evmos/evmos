@@ -29,7 +29,6 @@ const (
 func (p Precompile) CreateClawbackVestingAccount(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
