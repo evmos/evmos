@@ -333,7 +333,8 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		// because evm.WithPrecompiles only populates the EVM with the active precompiles,
 		// so there's no telling if the To address is an inactive precompile further down the call stack.
 		toAddr := msg.To()
-		if slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
+		if toAddr != nil &&
+			slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
 			!slices.Contains(activePrecompiles, *toAddr) {
 			return nil, errorsmod.Wrap(types.ErrInactivePrecompile, "failed to call precompile")
 		}
