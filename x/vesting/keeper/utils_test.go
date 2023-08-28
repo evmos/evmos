@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"math"
 	"strings"
 	"time"
@@ -224,4 +225,28 @@ func validateEthVestingTransactionDecorator(msgs ...sdk.Msg) error {
 	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
 	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msgs...)
 	return err
+}
+
+// ExpectClawbackAccount is a helper function to check if the given account is a clawback account
+// and has the expected funder and periods.
+func (suite *KeeperTestSuite) ExpectClawbackAccount(address, funder sdk.AccAddress, enableGovClawback bool, lockupPeriods, vestingPeriods []sdkvesting.Period) {
+	acc := suite.app.AccountKeeper.GetAccount(suite.ctx, address)
+	Expect(acc).ToNot(BeNil(), "account not found: %s", address.String())
+	clawbackAccount, ok := acc.(*types.ClawbackVestingAccount)
+	Expect(ok).To(BeTrue())
+	Expect(clawbackAccount.FunderAddress).To(Equal(funder.String()), "expected different funder")
+	govClawbackEnabled := !suite.app.VestingKeeper.HasGovClawbackDisabled(suite.ctx, address)
+	Expect(govClawbackEnabled).To(Equal(enableGovClawback), "expected different setting for governance clawback")
+
+	if lockupPeriods != nil {
+		Expect(clawbackAccount.LockupPeriods).To(Equal(lockupPeriods), "expected different lockup periods")
+	} else {
+		Expect(clawbackAccount.LockupPeriods).To(BeEmpty(), "expected lockup periods to be empty")
+	}
+
+	if vestingPeriods != nil {
+		Expect(clawbackAccount.VestingPeriods).To(Equal(vestingPeriods), "expected different vesting periods")
+	} else {
+		Expect(clawbackAccount.VestingPeriods).To(BeEmpty(), "expected vesting periods to be empty")
+	}
 }

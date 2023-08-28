@@ -15,10 +15,15 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v14/contracts"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	precompilesutil "github.com/evmos/evmos/v14/precompiles/testutil"
+	contractsutil "github.com/evmos/evmos/v14/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
@@ -596,6 +601,88 @@ var _ = Describe("Clawback Vesting Accounts", Ordered, func() {
 			Expect(err).ToNot(BeNil())
 			Expect(strings.Contains(err.Error(), "no balance")).To(BeTrue())
 		})
+	})
+})
+
+// Test if a smart contract can be converted to a clawback vesting account
+// and all package functionality is working as expected.
+//
+// It has to be specifically tested if EVM transactions to the smart contract
+// still work, as this is a known problem that noticed in v14.0.0-rc3.
+var _ = Describe("Clawback Vesting Accounts - convert smart contract", func() {
+	var (
+		contractAddr   common.Address
+		contract       evmtypes.CompiledContract
+		defaultPeriods sdkvesting.Periods
+		err            error
+		vestingAmount  sdk.Coins
+	)
+
+	BeforeEach(func() {
+		contract = contracts.ERC20MinterBurnerDecimalsContract
+		contractAddr, err = testutil.DeployContract(
+			s.ctx,
+			s.app,
+			s.priv,
+			s.queryClientEvm,
+			contract,
+			"Test", "TTT", uint8(18),
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+		vestingAmount := sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(100)}}
+		defaultPeriods = sdkvesting.Periods{{
+			Length: 60 * 60 * 24 * 30, // 30 days
+			Amount: vestingAmount,
+		}}
+	})
+
+	It("should convert a smart contract to a clawback vesting account", func() {
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(s.address.Bytes(), contractAddr.Bytes(), true)
+		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msgCreate)
+		Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
+
+		s.ExpectClawbackAccount(contractAddr.Bytes(), s.address.Bytes(), true, nil, nil)
+
+		// Execute a smart contract method to check if the contract is still working
+		callArgs := contractsutil.CallArgs{
+			ContractAddr: contractAddr,
+			ContractABI:  contract.ABI,
+			MethodName:   "mint",
+			GasLimit:     0,
+			PrivKey:      s.priv,
+			Args:         []interface{}{s.address, big.NewInt(100)},
+		}
+
+		logCheckArgs := precompilesutil.LogCheckArgs{
+			ABIEvents: contract.ABI.Events,
+			ExpEvents: []string{"Transfer"}, // check that there is a log, the erroneous behaviour showed no logs
+			ExpPass:   true,
+		}
+
+		_, _, err = contractsutil.CallContractAndCheckLogs(s.ctx, s.app, callArgs, logCheckArgs)
+		Expect(err).ToNot(HaveOccurred(), "unexpected result while calling contract")
+	})
+
+	It("should fund the smart contract", func() {
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(s.address.Bytes(), contractAddr.Bytes(), true)
+		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msgCreate)
+		Expect(err).ToNot(HaveOccurred(), "failed to create clawback vesting account")
+		s.ExpectClawbackAccount(contractAddr.Bytes(), s.address.Bytes(), true, nil, nil)
+
+		// Fund the clawback account
+		msgFund := types.NewMsgFundVestingAccount(s.address.Bytes(), contractAddr.Bytes(), s.ctx.BlockTime(), defaultPeriods, nil)
+		_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msgFund)
+		Expect(err).ToNot(HaveOccurred(), "failed to fund clawback vesting account")
+		s.ExpectClawbackAccount(contractAddr.Bytes(), s.address.Bytes(), true, defaultPeriods, nil)
+
+		// Check vesting balances
+		balancesReq := types.QueryBalancesRequest{
+			Address: sdk.AccAddress(contractAddr.Bytes()).String(),
+		}
+		amount, err := s.app.VestingKeeper.Balances(s.ctx, &balancesReq)
+		Expect(err).ToNot(HaveOccurred(), "failed to query vesting balances")
+		Expect(amount).To(Equal(vestingAmount), "expected different vesting balances")
 	})
 })
 
