@@ -98,7 +98,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	switch method.Name {
 	// Vesting transactions
 	case CreateClawbackVestingAccountMethod:
-		bz, err = p.CreateClawbackVestingAccount(ctx, evm.Origin, contract, stateDB, method, args)
+		bz, err = p.CreateClawbackVestingAccount(ctx, evm.Origin, stateDB, method, args)
 	case FundVestingAccountMethod:
 		bz, err = p.FundVestingAccount(ctx, evm.Origin, stateDB, method, args)
 	case ClawbackMethod:
