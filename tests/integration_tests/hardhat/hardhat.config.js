@@ -5,6 +5,8 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        // NOTE: changing compiler version may break tests,
+        // as the expected gas and bytecodes may be different
         version: '0.8.18',
         settings: {
           optimizer: {

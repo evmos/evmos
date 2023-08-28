@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >0.8.10;
+// NOTE: don't change the compiler version because
+// test may fail due to changes in deploy contract transaction data (gas, input & output fields)
+pragma solidity 0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
