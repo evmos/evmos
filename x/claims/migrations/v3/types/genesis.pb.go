@@ -11,9 +11,9 @@ import (
 	time "time"
 
 	_ "github.com/cosmos/gogoproto/gogoproto"
-	"github.com/evmos/evmos/v14/x/claims/types"
 	proto "github.com/cosmos/gogoproto/proto"
 	github_com_gogo_protobuf_types "github.com/cosmos/gogoproto/types"
+	"github.com/evmos/evmos/v14/x/claims/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
