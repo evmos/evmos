@@ -78,7 +78,13 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return an error", func() {
 			// disable the precompile
 			params := s.app.EvmKeeper.GetParams(s.ctx)
-			params.ActivePrecompiles = append(params.ActivePrecompiles, s.precompile.Address().String())
+			var activePrecompiles []string
+			for _, precompile := range params.ActivePrecompiles {
+				if precompile != s.precompile.Address().String() {
+					activePrecompiles = append(activePrecompiles, precompile)
+				}
+			}
+			params.ActivePrecompiles = activePrecompiles
 			s.app.EvmKeeper.SetParams(s.ctx, params)
 
 			// try to call the precompile
