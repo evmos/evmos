@@ -252,7 +252,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 				// Check the vesting account
 				s.ExpectVestingAccount(contractAddr, defaultPeriods, defaultPeriods)
-
 			})
 		}
 	})

@@ -656,7 +656,7 @@ var _ = Describe("Clawback Vesting Accounts - convert smart contract", func() {
 
 		logCheckArgs := precompilesutil.LogCheckArgs{
 			ABIEvents: contract.ABI.Events,
-			ExpEvents: []string{"Transfer"}, // check that there is a log, the erroneous behaviour showed no logs
+			ExpEvents: []string{"Transfer"}, // check that there is a log, the erroneous behavior showed no logs
 			ExpPass:   true,
 		}
 

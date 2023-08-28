@@ -1,10 +1,11 @@
 package keeper_test
 
 import (
-	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"math"
 	"strings"
 	"time"
+
+	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	. "github.com/onsi/gomega"
 
