@@ -206,19 +206,55 @@ var _ = Describe("Interacting with the vesting extension", func() {
 	})
 
 	Context("to create a vesting account for a smart contract address", func() {
-		It("should create a clawback vesting account for an initialized smart contract", func() {
-			createClawbackArgs := s.BuildCallArgs(CallType{name: "", directCall: false}, contractAddr).
-				WithMethodName("createClawbackVestingAccountForContract").
-				WithArgs()
+		for _, callType := range callTypes {
+			callType := callType
 
-			createClawbackCheck := passCheck.WithExpEvents(vesting.EventTypeCreateClawbackVestingAccount)
+			It(fmt.Sprintf("should create a clawback vesting account for an existing smart contract (%s)", callType.name), func() {
+				if callType.directCall {
+					// NOTE: this can only be tested through a smart contract,
+					// because the signer has to be the contract itself
+					return
+				}
+				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
+					WithMethodName("createClawbackVestingAccountForContract").
+					WithArgs()
 
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, createClawbackCheck)
-			Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+				createClawbackCheck := passCheck.WithExpEvents(vesting.EventTypeCreateClawbackVestingAccount)
 
-			// Check the vesting account
-			s.ExpectSimpleVestingAccount(contractAddr, s.address)
-		})
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, createClawbackCheck)
+				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+
+				// Check the vesting account
+				s.ExpectSimpleVestingAccount(contractAddr, s.address)
+			})
+
+			It(fmt.Sprintf("should fund a clawback vesting account for an initialized smart contract (%s)", callType.name), func() {
+				// setup the vesting account
+				s.CreateTestClawbackVestingAccount(s.address, contractAddr)
+
+				fundArgs := s.BuildCallArgs(CallType{}, contractAddr).
+					WithMethodName("fundVestingAccount").
+					WithArgs(
+						s.address,
+						contractAddr,
+						uint64(time.Now().Unix()),
+						defaultPeriods,
+						defaultPeriods,
+					)
+
+				fundCheck := passCheck.WithExpEvents(vesting.EventTypeFundVestingAccount)
+
+				// FIXME: this is currently not passing - after converting the smart contract into
+				// a clawback vesting account any further transactions seem to not be working anymore
+				// but also don't return any errors
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, fundArgs, fundCheck)
+				Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
+
+				// Check the vesting account
+				s.ExpectVestingAccount(contractAddr, defaultPeriods, defaultPeriods)
+
+			})
+		}
 	})
 
 	Context("to fund a clawback vesting account", func() {
