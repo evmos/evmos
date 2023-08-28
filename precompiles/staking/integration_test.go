@@ -85,7 +85,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 			}
 			params.ActivePrecompiles = activePrecompiles
-			s.app.EvmKeeper.SetParams(s.ctx, params)
+			err := s.app.EvmKeeper.SetParams(s.ctx, params)
+			Expect(err).To(BeNil(), "error while setting params")
 
 			// try to call the precompile
 			delegateArgs := defaultCallArgs.
@@ -97,7 +98,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			failCheck := defaultLogCheck.
 				WithErrContains("precompile not enabled")
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
 			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
 			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
 		})
