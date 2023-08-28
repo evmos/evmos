@@ -29,6 +29,7 @@ const (
 	codeErrGasOverflow
 	codeErrInvalidAccount
 	codeErrInvalidGasLimit
+	codeErrInactivePrecompile
 )
 
 var ErrPostTxProcessing = errors.New("failed to execute post processing")
@@ -78,6 +79,9 @@ var (
 
 	// ErrInvalidGasLimit returns an error if gas limit value is invalid
 	ErrInvalidGasLimit = errorsmod.Register(ModuleName, codeErrInvalidGasLimit, "invalid gas limit")
+
+	// ErrInactivePrecompile returns an error if a call is made to an inactive precompile
+	ErrInactivePrecompile = errorsmod.Register(ModuleName, codeErrInactivePrecompile, "precompile not enabled")
 )
 
 // NewExecErrorWithReason unpacks the revert return bytes and returns a wrapped error
