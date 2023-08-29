@@ -4,9 +4,7 @@ package vesting_test
 
 import (
 	"fmt"
-	"math/big"
 
-	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/vesting"
 )
@@ -81,9 +79,8 @@ func (s *PrecompileTestSuite) TestBalances() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.Balances(s.ctx, contract, &method, tc.malleate())
+			bz, err := s.precompile.Balances(s.ctx, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().Error(err)

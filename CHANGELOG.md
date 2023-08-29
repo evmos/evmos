@@ -43,6 +43,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
 - (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
 

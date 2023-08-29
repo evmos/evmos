@@ -29,7 +29,6 @@ const (
 func (p Precompile) CreateClawbackVestingAccount(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -39,9 +38,8 @@ func (p Precompile) CreateClawbackVestingAccount(
 		return nil, err
 	}
 
-	// Check if the contract is the funder address and check the origin only if it's not
-	isContractVestingAddr := contract.CallerAddress == vestingAddr
-	if !isContractVestingAddr && origin != vestingAddr {
+	// Check if the origin matches the vesting address
+	if origin != vestingAddr {
 		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, vestingAddr)
 	}
 
@@ -67,7 +65,6 @@ func (p Precompile) CreateClawbackVestingAccount(
 func (p Precompile) FundVestingAccount(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -77,9 +74,8 @@ func (p Precompile) FundVestingAccount(
 		return nil, err
 	}
 
-	// Check if the contract is the funder address and check the origin only if it's not
-	isContractFunder := contract.CallerAddress == funderAddr
-	if !isContractFunder && origin != funderAddr {
+	// Check if the origin matches the funders address
+	if origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, funderAddr)
 	}
 
@@ -108,7 +104,6 @@ func (p Precompile) FundVestingAccount(
 func (p Precompile) Clawback(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -118,9 +113,8 @@ func (p Precompile) Clawback(
 		return nil, err
 	}
 
-	// Check if the contract is the funder address and check the origin only if it's not
-	isContractFunder := contract.CallerAddress == funderAddr
-	if !isContractFunder && origin != funderAddr {
+	// Check if the funder matches the origin
+	if origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
 
@@ -151,7 +145,6 @@ func (p Precompile) Clawback(
 func (p Precompile) UpdateVestingFunder(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -161,9 +154,8 @@ func (p Precompile) UpdateVestingFunder(
 		return nil, err
 	}
 
-	// Check if the contract is the funder address and check the origin only if it's not
-	isContractFunder := contract.CallerAddress == funderAddr
-	if !isContractFunder && origin != funderAddr {
+	// Check if the origin matches the funder address
+	if origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
 

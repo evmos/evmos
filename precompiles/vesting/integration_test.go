@@ -180,22 +180,6 @@ var _ = Describe("Interacting with the vesting extension", func() {
 		}
 	})
 
-	Context("to create a vesting account for a smart contract address", func() {
-		It("should create a clawback vesting account for an initialized smart contract", func() {
-			createClawbackArgs := s.BuildCallArgs(CallType{name: "", directCall: false}, contractAddr).
-				WithMethodName("createClawbackVestingAccountForContract").
-				WithArgs()
-
-			createClawbackCheck := passCheck.WithExpEvents(vesting.EventTypeCreateClawbackVestingAccount)
-
-			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, createClawbackCheck)
-			Expect(err).ToNot(HaveOccurred(), "error while calling the contract: %v", err)
-
-			// Check the vesting account
-			s.ExpectSimpleVestingAccount(contractAddr, s.address)
-		})
-	})
-
 	Context("to fund a clawback vesting account", func() {
 		for _, callType := range callTypes {
 			callType := callType
