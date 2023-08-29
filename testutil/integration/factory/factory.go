@@ -28,6 +28,10 @@ import (
 	"github.com/evmos/evmos/v14/server/config"
 )
 
+const (
+	gasAdjustment = float64(1.7)
+)
+
 type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
@@ -122,10 +126,6 @@ func (tf *IntegrationTxFactory) DoEthTx(
 	}
 	return res, nil
 }
-
-const (
-	gasAdjustment = float64(1.7)
-)
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
@@ -223,7 +223,6 @@ func (tf *IntegrationTxFactory) DoCosmosTx(privKey cryptotypes.PrivKey, txArgs C
 	}
 	txBuilder.SetFeeAmount(fees)
 
-	// txBuilder.SetFeeAmount(fees)
 	signature, err := cosmostx.SignWithPrivKey(signMode, signerData, txBuilder, privKey, txConfig, sequence)
 	if err != nil {
 		return abcitypes.ResponseDeliverTx{}, err
