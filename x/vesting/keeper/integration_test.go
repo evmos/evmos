@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -15,10 +16,13 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v14/contracts"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
@@ -1172,6 +1176,62 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).To(HaveOccurred(), "expected error")
 			Expect(err.Error()).To(ContainSubstring("%s: account does not have governance clawback enabled", vestingAddr.String()))
 		})
+	})
+})
+
+// Testing that smart contracts cannot be converted to clawback vesting accounts
+//
+// NOTE: For smart contracts, it is not possible to directly call keeper methods
+// or send SDK transactions. They go exclusively through the EVM, which is tested
+// in the precompiles package.
+// The test here is just confirming the expected behavior on the module level.
+var _ = Describe("Clawback Vesting Account - Smart contract", func() {
+	var (
+		contractAddr common.Address
+		contract     evmtypes.CompiledContract
+		err          error
+	)
+
+	BeforeEach(func() {
+		contract = contracts.ERC20MinterBurnerDecimalsContract
+		contractAddr, err = testutil.DeployContract(
+			s.ctx,
+			s.app,
+			s.priv,
+			s.queryClientEvm,
+			contract,
+			"Test", "TTT", uint8(18),
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+	})
+
+	It("should not convert a smart contract to a clawback vesting account", func() {
+		msgCreate := types.NewMsgCreateClawbackVestingAccount(
+			s.address.Bytes(),
+			contractAddr.Bytes(),
+			false,
+		)
+		_, err := s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msgCreate)
+		Expect(err).To(HaveOccurred(), "expected error")
+		Expect(err.Error()).To(ContainSubstring(
+			fmt.Sprintf(
+				"account %s is a contract account and cannot be converted in a clawback vesting account",
+				sdk.AccAddress(contractAddr.Bytes()).String()),
+		))
+
+		// Check that the account was not converted
+		acc := s.app.AccountKeeper.GetAccount(s.ctx, contractAddr.Bytes())
+		Expect(acc).ToNot(BeNil(), "smart contract should be found")
+		_, ok := acc.(*types.ClawbackVestingAccount)
+		Expect(ok).To(BeFalse(), "account should not be a clawback vesting account")
+
+		// Check that the contract code was not deleted
+		//
+		// NOTE: When it was possible to create clawback vesting accounts for smart contracts,
+		// the contract code was deleted from the EVM state. This checks that this is not the case.
+		res, err := s.app.EvmKeeper.Code(s.ctx, &evmtypes.QueryCodeRequest{Address: contractAddr.String()})
+		Expect(err).ToNot(HaveOccurred(), "failed to query contract code")
+		Expect(res.Code).ToNot(BeEmpty(), "contract code should not be empty")
 	})
 })
 
