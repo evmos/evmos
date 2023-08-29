@@ -1184,6 +1184,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 // NOTE: For smart contracts, it is not possible to directly call keeper methods
 // or send SDK transactions. They go exclusively through the EVM, which is tested
 // in the precompiles package.
+// The test here is just confirming the expected behavior on the module level.
 var _ = Describe("Clawback Vesting Account - Smart contract", func() {
 	var (
 		contractAddr common.Address
