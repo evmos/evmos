@@ -86,7 +86,7 @@ func (tf *IntegrationTxFactory) DeployContract(
 	return crypto.CreateAddress(from, nonce), nil
 }
 
-// DoContractCall executes a contract call with the provided private key and txArgs
+// DoEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
 // It first builds a MsgEthereumTx and then broadcast it to the network.
 func (tf *IntegrationTxFactory) DoEthTx(
 	priv cryptotypes.PrivKey,
