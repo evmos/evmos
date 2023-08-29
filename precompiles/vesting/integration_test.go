@@ -184,12 +184,8 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				}
 
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
-					WithMethodName(vesting.CreateClawbackVestingAccountMethod).
-					WithArgs(
-						s.address,
-						contractAddr,
-						false,
-					)
+					WithMethodName("createClawbackVestingAccountForContract").
+					WithArgs()
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, failCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
