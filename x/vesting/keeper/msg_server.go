@@ -7,6 +7,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -65,6 +67,13 @@ func (k Keeper) CreateClawbackVestingAccount(
 	if !ok {
 		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
 			"account %s is not an Ethereum account", msg.VestingAddress,
+		)
+	}
+
+	// Check for contract account (code hash is not empty)
+	if ethAcc.CodeHash != crypto.Keccak256Hash([]byte{}).String() {
+		return nil, errorsmod.Wrapf(errortypes.ErrInvalidRequest,
+			"account %s is a contract account and cannot be converted in a clawback vesting account", msg.VestingAddress,
 		)
 	}
 

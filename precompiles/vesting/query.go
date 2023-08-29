@@ -5,7 +5,6 @@ package vesting
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/core/vm"
 )
 
 const (
@@ -16,7 +15,6 @@ const (
 // Balances queries the balances of a clawback vesting account.
 func (p Precompile) Balances(
 	ctx sdk.Context,
-	_ *vm.Contract,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
