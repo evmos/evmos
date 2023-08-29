@@ -74,6 +74,36 @@ var _ = Describe("Calling staking precompile directly", func() {
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
 
+	Describe("when the precompile is not enabled in the EVM params", func() {
+		It("should return an error", func() {
+			// disable the precompile
+			params := s.app.EvmKeeper.GetParams(s.ctx)
+			var activePrecompiles []string
+			for _, precompile := range params.ActivePrecompiles {
+				if precompile != s.precompile.Address().String() {
+					activePrecompiles = append(activePrecompiles, precompile)
+				}
+			}
+			params.ActivePrecompiles = activePrecompiles
+			err := s.app.EvmKeeper.SetParams(s.ctx, params)
+			Expect(err).To(BeNil(), "error while setting params")
+
+			// try to call the precompile
+			delegateArgs := defaultCallArgs.
+				WithMethodName(staking.DelegateMethod).
+				WithArgs(
+					s.address, valAddr.String(), big.NewInt(2e18),
+				)
+
+			failCheck := defaultLogCheck.
+				WithErrContains("precompile not enabled")
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, failCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+		})
+	})
+
 	Describe("Revert transaction", func() {
 		It("should run out of gas if the gas limit is too low", func() {
 			outOfGasArgs := defaultApproveArgs.
@@ -1259,9 +1289,36 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.Events,
 		}
-		execRevertedCheck = defaultLogCheck.WithErrContains("execution reverted")
+		execRevertedCheck = defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
 		passCheck = defaultLogCheck.WithExpPass(true)
 		approvalCheck = passCheck.WithExpEvents(authorization.EventTypeApproval)
+	})
+
+	Describe("when the precompile is not enabled in the EVM params", func() {
+		It("should return an error", func() {
+			// disable the precompile
+			params := s.app.EvmKeeper.GetParams(s.ctx)
+			var activePrecompiles []string
+			for _, precompile := range params.ActivePrecompiles {
+				if precompile != s.precompile.Address().String() {
+					activePrecompiles = append(activePrecompiles, precompile)
+				}
+			}
+			params.ActivePrecompiles = activePrecompiles
+			err := s.app.EvmKeeper.SetParams(s.ctx, params)
+			Expect(err).To(BeNil(), "error while setting params")
+
+			// try to call the precompile
+			delegateArgs := defaultCallArgs.
+				WithMethodName("testDelegate").
+				WithArgs(
+					s.address, valAddr.String(), big.NewInt(2e18),
+				)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()))
+		})
 	})
 
 	Context("approving methods", func() {
@@ -2583,7 +2640,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				WithArgs(valAddr.String()).
 				WithAmount(big.NewInt(2e18))
 
-			approvalAndDelegationCheck := defaultLogCheck.WithErrContains("execution reverted")
+			approvalAndDelegationCheck := defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
 			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
@@ -2603,7 +2660,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				WithArgs(valAddr.String()).
 				WithAmount(big.NewInt(2e18))
 
-			approvalAndDelegationCheck := defaultLogCheck.WithErrContains("execution reverted")
+			approvalAndDelegationCheck := defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
 			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, approvalAndDelegationCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
