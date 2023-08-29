@@ -202,7 +202,7 @@ func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.Response
 	return n.app.BaseApp.DeliverTx(req), nil
 }
 
-// BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
+// Simulate simulates the given txBytes to the network and returns the simulated response.
 // TODO - this should be change to gRPC
 func (n *IntegrationNetwork) Simulate(txBytes []byte) (*txtypes.SimulateResponse, error) {
 	gas, result, err := n.app.BaseApp.Simulate(txBytes)
