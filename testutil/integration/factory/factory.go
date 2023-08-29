@@ -2,11 +2,14 @@ package factory
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	cosmostx "github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/gogoproto/proto"
 
 	sdkmath "cosmossdk.io/math"
+	simappparams "cosmossdk.io/simapp/params"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -36,10 +39,10 @@ type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
-	// DoEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
-	DoEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
+	// ExecuteEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
+	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// DoCosmosTx builds, signs and broadcast a Cosmos tx with the provided private key and txArgs
-	DoCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided private key and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 }
@@ -51,6 +54,20 @@ var _ TxFactory = (*IntegrationTxFactory)(nil)
 type IntegrationTxFactory struct {
 	grpcHandler grpc.Handler
 	network     network.Network
+	ec          *simappparams.EncodingConfig
+}
+
+// New creates a new IntegrationTxFactory instance
+func New(
+	grpcHandler grpc.Handler,
+	network network.Network,
+) *IntegrationTxFactory {
+	ec := encoding.MakeConfig(app.ModuleBasics)
+	return &IntegrationTxFactory{
+		grpcHandler: grpcHandler,
+		network:     network,
+		ec:          &ec,
+	}
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -79,20 +96,17 @@ func (tf *IntegrationTxFactory) DeployContract(
 		Input: data,
 		Nonce: nonce,
 	}
-	res, err := tf.DoEthTx(priv, args)
+	_, err = tf.ExecuteEthTx(priv, args)
 	if err != nil {
 		return common.Address{}, err
 	}
 
-	if err := checkEthTxResponse(&res); err != nil {
-		return common.Address{}, err
-	}
 	return crypto.CreateAddress(from, nonce), nil
 }
 
-// DoEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
+// ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
 // It first builds a MsgEthereumTx and then broadcast it to the network.
-func (tf *IntegrationTxFactory) DoEthTx(
+func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
 ) (abcitypes.ResponseDeliverTx, error) {
@@ -106,12 +120,7 @@ func (tf *IntegrationTxFactory) DoEthTx(
 		return abcitypes.ResponseDeliverTx{}, err
 	}
 
-	txBytes, err := buildAndEncodeEthTx(signedMsg, tf.network.GetDenom())
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
-	}
-
-	_, err = tf.network.Simulate(txBytes)
+	txBytes, err := tf.buildAndEncodeEthTx(signedMsg)
 	if err != nil {
 		return abcitypes.ResponseDeliverTx{}, err
 	}
@@ -121,7 +130,7 @@ func (tf *IntegrationTxFactory) DoEthTx(
 		return abcitypes.ResponseDeliverTx{}, err
 	}
 
-	if err := checkEthTxResponse(&res); err != nil {
+	if err := tf.checkEthTxResponse(&res); err != nil {
 		return abcitypes.ResponseDeliverTx{}, err
 	}
 	return res, nil
@@ -143,9 +152,9 @@ type CosmosTxArgs struct {
 	Msgs []sdktypes.Msg
 }
 
-// DoCosmosTx creates, signs and broadcasts a Cosmos transaction 
-func (tf *IntegrationTxFactory) DoCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+// ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
+func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
 
 	if err := txBuilder.SetMsgs(txArgs.Msgs...); err != nil {
@@ -162,11 +171,10 @@ func (tf *IntegrationTxFactory) DoCosmosTx(privKey cryptotypes.PrivKey, txArgs C
 		return abcitypes.ResponseDeliverTx{}, err
 	}
 
-	chainID := tf.network.GetChainID()
 	sequence := account.GetSequence()
 	signMode := txConfig.SignModeHandler().DefaultMode()
 	signerData := xauthsigning.SignerData{
-		ChainID:       chainID,
+		ChainID:       tf.network.GetChainID(),
 		AccountNumber: account.GetAccountNumber(),
 		Sequence:      sequence,
 		Address:       senderAddress.String(),
@@ -280,8 +288,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
 	if txArgs.ChainID == nil {
-		chainID := tf.network.GetChainID()
-		ethChainID, err := types.ParseChainID(chainID)
+		ethChainID, err := types.ParseChainID(tf.network.GetChainID())
 		if err != nil {
 			return evmtypes.EvmTxArgs{}, err
 		}
@@ -323,4 +330,46 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.Accesses = &ethtypes.AccessList{}
 	}
 	return txArgs, nil
+}
+
+func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
+	txConfig := tf.ec.TxConfig
+	txBuilder := txConfig.NewTxBuilder()
+	signingTx, err := msg.BuildTx(txBuilder, tf.network.GetDenom())
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes, err := txConfig.TxEncoder()(signingTx)
+	if err != nil {
+		return nil, err
+	}
+	return txBytes, nil
+}
+
+// checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse
+func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDeliverTx) error {
+	var txData sdktypes.TxMsgData
+	if !res.IsOK() {
+		return fmt.Errorf("tx failed. Code: %d, Logs: %s", res.Code, res.Log)
+	}
+
+	cdc := tf.ec.Codec
+	if err := cdc.Unmarshal(res.Data, &txData); err != nil {
+		return err
+	}
+
+	if len(txData.MsgResponses) != 1 {
+		return fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return err
+	}
+
+	if evmRes.Failed() {
+		return fmt.Errorf("tx failed. VmError: %v, Logs: %s", evmRes.VmError, res.GetLog())
+	}
+	return nil
 }
