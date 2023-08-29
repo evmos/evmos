@@ -143,6 +143,7 @@ type CosmosTxArgs struct {
 	Msgs []sdktypes.Msg
 }
 
+// DoCosmosTx creates, signs and broadcasts a Cosmos transaction 
 func (tf *IntegrationTxFactory) DoCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 	txBuilder := txConfig.NewTxBuilder()
