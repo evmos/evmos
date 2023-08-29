@@ -177,6 +177,30 @@ var _ = Describe("Interacting with the vesting extension", func() {
 					Expect(err.Error()).To(ContainSubstring("does not match the from address"))
 				}
 			})
+
+			It(fmt.Sprintf("should not create a clawback vesting account for a smart contract (%s)", callType.name), func() {
+				if callType.directCall {
+					Skip("this should only be run for smart contract calls")
+				}
+
+				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
+					WithMethodName(vesting.CreateClawbackVestingAccountMethod).
+					WithArgs(
+						s.address,
+						contractAddr,
+						false,
+					)
+
+				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, createClawbackArgs, failCheck)
+				Expect(err).To(HaveOccurred(), "error while calling the contract: %v", err)
+				Expect(err.Error()).To(ContainSubstring("execution reverted"))
+
+				// Check that the smart contract was not converted
+				acc := s.app.AccountKeeper.GetAccount(s.ctx, contractAddr.Bytes())
+				Expect(acc).ToNot(BeNil(), "smart contract should be found")
+				_, ok := acc.(*vestingtypes.ClawbackVestingAccount)
+				Expect(ok).To(BeFalse(), "smart contract should not be converted to a vesting account")
+			})
 		}
 	})
 
