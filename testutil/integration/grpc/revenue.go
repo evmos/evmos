@@ -14,6 +14,7 @@ func (gqh *IntegrationHandler) GetRevenue(address common.Address) (*revtypes.Que
 		ContractAddress: address.String(),
 	})
 }
+
 // GetRevenueParams gets the revenue module params.
 func (gqh *IntegrationHandler) GetRevenueParams() (*revtypes.QueryParamsResponse, error) {
 	revenueClient := gqh.network.GetRevenueClient()
