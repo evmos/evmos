@@ -248,7 +248,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	return tf.network.BroadcastTxSync(txBytes)
 }
 
-// EstimateGasLimit estimates the gas limit for a tx with the provided private key and txArgs
+// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
 	args, err := json.Marshal(evmtypes.TransactionArgs{
 		Data: (*hexutil.Bytes)(&txArgs.Input),
