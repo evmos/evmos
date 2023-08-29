@@ -24,7 +24,7 @@ func (gqh *IntegrationHandler) EstimateGas(args []byte, gasCap uint64) (*evmtype
 	})
 }
 
-// GetEvmBalance returns the EVM balance for the given address.
+// GetEvmParams returns the EVM module params.
 func (gqh *IntegrationHandler) GetEvmParams() (*evmtypes.QueryParamsResponse, error) {
 	evmClient := gqh.network.GetEvmClient()
 	return evmClient.Params(context.Background(), &evmtypes.QueryParamsRequest{})
