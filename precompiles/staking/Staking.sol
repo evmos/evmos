@@ -160,7 +160,7 @@ interface StakingI is authorization.AuthorizationI {
     function unbondingDelegation(
         address delegatorAddress,
         string memory validatorAddress
-    ) external view returns (UnbondingDelegationEntry[] calldata entries);
+    ) external view returns (UnbondingDelegationEntry calldata entry);
 
     /// @dev Queries validator info for a given validator address.
     /// @param validatorAddress The address of the validator.
@@ -192,7 +192,7 @@ interface StakingI is authorization.AuthorizationI {
         address delegatorAddress,
         string memory srcValidatorAddress,
         string memory dstValidatorAddress
-    ) external view returns (RedelegationEntry[] calldata entries);
+    ) external view returns (RedelegationEntry calldata entry);
 
     /// @dev Queries all redelegations based on the specified criteria:
     /// for a given delegator and/or origin validator address

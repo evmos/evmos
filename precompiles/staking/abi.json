@@ -513,9 +513,9 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct RedelegationEntry[]",
-        "name": "entries",
-        "type": "tuple[]"
+        "internalType": "struct RedelegationEntry",
+        "name": "entry",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -751,9 +751,9 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct UnbondingDelegationEntry[]",
-        "name": "entries",
-        "type": "tuple[]"
+        "internalType": "struct UnbondingDelegationEntry",
+        "name": "entry",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
