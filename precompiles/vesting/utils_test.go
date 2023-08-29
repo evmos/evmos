@@ -246,11 +246,11 @@ func (s *PrecompileTestSuite) FundTestClawbackVestingAccount() {
 }
 
 // CreateTestClawbackVestingAccount creates a vesting account that can clawback
-func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount() {
-	createArgs := []interface{}{s.address, toAddr, false}
+func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(funder, vestingAddr common.Address) {
+	msgArgs := []interface{}{funder, vestingAddr, false}
 	//nolint
-	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(createArgs)
-	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100))))
+	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
+	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100))))
 	s.Require().NoError(err)
 	_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 	s.Require().NoError(err)

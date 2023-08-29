@@ -57,7 +57,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		{
 			"success - should return vesting account balances",
 			func() []interface{} {
-				s.CreateTestClawbackVestingAccount()
+				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				s.FundTestClawbackVestingAccount()
 				return []interface{}{
 					toAddr,
