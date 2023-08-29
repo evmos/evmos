@@ -34,7 +34,7 @@ jobs:
       - uses: cachix/cachix-action@v12
         with:
           name: evmos
-          signingKey: "${{ secrets.CACHIX_AUTH_TOKEN }}"                        
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"                        
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
