@@ -335,27 +335,40 @@ type RedelegationsRequest struct {
 
 // UnbondingDelegationEntry is a struct that contains the information about an unbonding delegation entry.
 type UnbondingDelegationEntry struct {
-	CreationHeight int64
-	CompletionTime int64
-	InitialBalance *big.Int
-	Balance        *big.Int
+	CreationHeight          int64
+	CompletionTime          int64
+	InitialBalance          *big.Int
+	Balance                 *big.Int
+	UnbondingId             uint64
+	UnbondingOnHoldRefCount int64
 }
 
-// UnbondingDelegationOutput is a struct to represent the key information from
-// an unbonding delegation response.
+// UnbondingDelegationResponse is a struct that contains the information about an unbonding delegation.
+type UnbondingDelegationResponse struct {
+	DelegatorAddress string
+	ValidatorAddress string
+	Entries          []UnbondingDelegationEntry
+}
+
+// UnbondingDelegationOutput is the output response returned by the query method.
 type UnbondingDelegationOutput struct {
-	Entries []UnbondingDelegationEntry
+	UnbondingDelegation UnbondingDelegationResponse
 }
 
 // FromResponse populates the DelegationOutput from a QueryDelegationResponse.
 func (do *UnbondingDelegationOutput) FromResponse(res *stakingtypes.QueryUnbondingDelegationResponse) *UnbondingDelegationOutput {
-	do.Entries = make([]UnbondingDelegationEntry, len(res.Unbond.Entries))
+	do.UnbondingDelegation.Entries = make([]UnbondingDelegationEntry, len(res.Unbond.Entries))
+	do.UnbondingDelegation.ValidatorAddress = res.Unbond.ValidatorAddress
+	do.UnbondingDelegation.DelegatorAddress = res.Unbond.DelegatorAddress
+	fmt.Println("the response", res.Unbond)
 	for i, entry := range res.Unbond.Entries {
-		do.Entries[i] = UnbondingDelegationEntry{
-			CreationHeight: entry.CreationHeight,
-			CompletionTime: entry.CompletionTime.UTC().Unix(),
-			InitialBalance: entry.InitialBalance.BigInt(),
-			Balance:        entry.Balance.BigInt(),
+		do.UnbondingDelegation.Entries[i] = UnbondingDelegationEntry{
+			UnbondingId:             entry.UnbondingId,
+			UnbondingOnHoldRefCount: entry.UnbondingOnHoldRefCount,
+			CreationHeight:          entry.CreationHeight,
+			CompletionTime:          entry.CompletionTime.UTC().Unix(),
+			InitialBalance:          entry.InitialBalance.BigInt(),
+			Balance:                 entry.Balance.BigInt(),
 		}
 	}
 	return do

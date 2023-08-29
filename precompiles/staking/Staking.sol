@@ -75,6 +75,14 @@ struct UnbondingDelegationEntry {
     int64 completionTime;
     uint256 initialBalance;
     uint256 balance;
+    uint64 unbondingId;
+    int64 unbondingOnHoldRefCount;
+}
+
+struct UnbondingDelegationOutput {
+    string delegatorAddress;
+    string validatorAddress;
+    UnbondingDelegationEntry[] entries;
 }
 
 /// @dev The status of the validator.
@@ -160,7 +168,7 @@ interface StakingI is authorization.AuthorizationI {
     function unbondingDelegation(
         address delegatorAddress,
         string memory validatorAddress
-    ) external view returns (UnbondingDelegationEntry calldata entry);
+    ) external view returns (UnbondingDelegationOutput calldata unbondingDelegation);
 
     /// @dev Queries validator info for a given validator address.
     /// @param validatorAddress The address of the validator.
