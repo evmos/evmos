@@ -72,7 +72,7 @@ jobs:
           install_url: https://releases.nixos.org/nix/nix-2.13.3/install
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - uses: cachix/cachix-action@v12
         with:
           name: evmos
