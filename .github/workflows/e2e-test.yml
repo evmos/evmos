@@ -51,4 +51,3 @@ jobs:
       - name: Run integration tests
         run: make run-integration-tests
         if: env.GIT_DIFF
-  
