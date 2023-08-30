@@ -1005,9 +1005,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var redelegationOutput staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redelegationOutput, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redelegationOutput.Entries).To(HaveLen(1), "expected one redelegation entry")
-			Expect(redelegationOutput.Entries[0].InitialBalance).To(Equal(big.NewInt(1e17)), "expected different initial balance")
-			Expect(redelegationOutput.Entries[0].SharesDst).To(Equal(big.NewInt(1e17)), "expected different balance")
+			Expect(redelegationOutput.Redelegation.Entries).To(HaveLen(1), "expected one redelegation entry")
+			Expect(redelegationOutput.Redelegation.Entries[0].InitialBalance).To(Equal(big.NewInt(1e17)), "expected different initial balance")
+			Expect(redelegationOutput.Redelegation.Entries[0].SharesDst).To(Equal(big.NewInt(1e17)), "expected different balance")
 		})
 
 		It("should return an empty output if the redelegation is not found", func() {
@@ -1023,7 +1023,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var redelegationOutput staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redelegationOutput, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redelegationOutput.Entries).To(HaveLen(0), "expected no redelegation entries")
+			Expect(redelegationOutput.Redelegation.Entries).To(HaveLen(0), "expected no redelegation entries")
 		})
 	})
 
@@ -2202,7 +2202,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var redOut staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redOut.Entries).To(HaveLen(0), "expected no redelegation entries")
+			Expect(redOut.Redelegation.Entries).To(HaveLen(0), "expected no redelegation entries")
 		})
 
 		It("which exists should return the redelegation", func() {
@@ -2244,7 +2244,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var redOut staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redOut.Entries).To(HaveLen(1), "expected one redelegation entry to be returned")
+			Expect(redOut.Redelegation.Entries).To(HaveLen(1), "expected one redelegation entry to be returned")
 		})
 	})
 

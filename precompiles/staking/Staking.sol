@@ -46,11 +46,13 @@ struct Validator {
     uint256 minSelfDelegation;
 }
 
+/// @dev Represents the output of a Redelegations query.
 struct RedelegationResponse {
     Redelegation redelegation;
     RedelegationEntryResponse[] entries;
 }
 
+/// @dev Represents a redelegation between a delegator and a validator.
 struct Redelegation {
     string delegatorAddress;
     string validatorSrcAddress;
@@ -58,11 +60,13 @@ struct Redelegation {
     RedelegationEntry[] entries;
 }
 
+/// @dev Represents a RedelegationEntryResponse for the Redelegations query.
 struct RedelegationEntryResponse {
     RedelegationEntry redelegationEntry;
     uint256 balance;
 }
 
+/// @dev Represents a single Redelegation entry.
 struct RedelegationEntry {
     int64 creationHeight;
     int64 completionTime;
@@ -70,6 +74,15 @@ struct RedelegationEntry {
     uint256 sharesDst; // TODO: decimal
 }
 
+/// @dev Represents the output of the Redelegation query.
+struct RedelegationOutput {
+    string delegatorAddress;
+    string validatorSrcAddress;
+    string validatorDstAddress;
+    RedelegationEntry[] entries;
+}
+
+/// @dev Represents a single entry of an unbonding delegation.
 struct UnbondingDelegationEntry {
     int64 creationHeight;
     int64 completionTime;
@@ -79,6 +92,7 @@ struct UnbondingDelegationEntry {
     int64 unbondingOnHoldRefCount;
 }
 
+/// @dev Represents the output of the UnbondingDelegation query.
 struct UnbondingDelegationOutput {
     string delegatorAddress;
     string validatorAddress;
@@ -164,7 +178,7 @@ interface StakingI is authorization.AuthorizationI {
     /// unbonding for a given delegator and validator pair.
     /// @param delegatorAddress The address of the delegator.
     /// @param validatorAddress The address of the validator.
-    /// @return entries The delegations that are currently unbonding.
+    /// @return unbondingDelegation The delegations that are currently unbonding.
     function unbondingDelegation(
         address delegatorAddress,
         string memory validatorAddress
@@ -195,12 +209,12 @@ interface StakingI is authorization.AuthorizationI {
     /// @param delegatorAddress The address of the delegator.
     /// @param srcValidatorAddress Defines the validator address to redelegate from.
     /// @param dstValidatorAddress Defines the validator address to redelegate to.
-    /// @return entries The active redelegations for the given delegator, source and destination validator combination.
+    /// @return redelegation The active redelegations for the given delegator, source and destination validator combination.
     function redelegation(
         address delegatorAddress,
         string memory srcValidatorAddress,
         string memory dstValidatorAddress
-    ) external view returns (RedelegationEntry calldata entry);
+    ) external view returns (RedelegationOutput calldata redelegation);
 
     /// @dev Queries all redelegations based on the specified criteria:
     /// for a given delegator and/or origin validator address

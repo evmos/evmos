@@ -452,9 +452,9 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				var redOut staking.RedelegationOutput
 				err := s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(redOut.Entries, 1)
-				s.Require().Equal(redOut.Entries[0].CreationHeight, s.ctx.BlockHeight())
-				s.Require().Equal(redOut.Entries[0].SharesDst, big.NewInt(1e18))
+				s.Require().Len(redOut.Redelegation.Entries, 1)
+				s.Require().Equal(redOut.Redelegation.Entries[0].CreationHeight, s.ctx.BlockHeight())
+				s.Require().Equal(redOut.Redelegation.Entries[0].SharesDst, big.NewInt(1e18))
 			},
 			100000,
 			false,
@@ -474,7 +474,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				var redOut staking.RedelegationOutput
 				err := s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(redOut.Entries, 0)
+				s.Require().Len(redOut.Redelegation.Entries, 0)
 			},
 			gas: 100000,
 		},

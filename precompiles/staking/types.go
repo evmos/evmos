@@ -339,7 +339,7 @@ type UnbondingDelegationEntry struct {
 	CompletionTime          int64
 	InitialBalance          *big.Int
 	Balance                 *big.Int
-	UnbondingId             uint64
+	UnbondingId             uint64 //nolint
 	UnbondingOnHoldRefCount int64
 }
 
@@ -360,7 +360,6 @@ func (do *UnbondingDelegationOutput) FromResponse(res *stakingtypes.QueryUnbondi
 	do.UnbondingDelegation.Entries = make([]UnbondingDelegationEntry, len(res.Unbond.Entries))
 	do.UnbondingDelegation.ValidatorAddress = res.Unbond.ValidatorAddress
 	do.UnbondingDelegation.DelegatorAddress = res.Unbond.DelegatorAddress
-	fmt.Println("the response", res.Unbond)
 	for i, entry := range res.Unbond.Entries {
 		do.UnbondingDelegation.Entries[i] = UnbondingDelegationEntry{
 			UnbondingId:             entry.UnbondingId,
@@ -510,17 +509,28 @@ type RedelegationEntry struct {
 	SharesDst      *big.Int
 }
 
-// RedelegationOutput is a struct to represent the key information from
+// RedelegationValues is a struct to represent the key information from
 // a redelegation response.
-type RedelegationOutput struct {
-	Entries []RedelegationEntry
+type RedelegationValues struct {
+	DelegatorAddress    string
+	ValidatorSrcAddress string
+	ValidatorDstAddress string
+	Entries             []RedelegationEntry
 }
 
-// FromResponse populates the RedelgationsOutput from a QueryRedelegationsResponse.
+// RedelegationOutput returns the output for a redelegation query.
+type RedelegationOutput struct {
+	Redelegation RedelegationValues
+}
+
+// FromResponse populates the RedelegationOutput from a QueryRedelegationsResponse.
 func (ro *RedelegationOutput) FromResponse(res stakingtypes.Redelegation) *RedelegationOutput {
-	ro.Entries = make([]RedelegationEntry, len(res.Entries))
+	ro.Redelegation.Entries = make([]RedelegationEntry, len(res.Entries))
+	ro.Redelegation.DelegatorAddress = res.DelegatorAddress
+	ro.Redelegation.ValidatorSrcAddress = res.ValidatorSrcAddress
+	ro.Redelegation.ValidatorDstAddress = res.ValidatorDstAddress
 	for i, entry := range res.Entries {
-		ro.Entries[i] = RedelegationEntry{
+		ro.Redelegation.Entries[i] = RedelegationEntry{
 			CreationHeight: entry.CreationHeight,
 			CompletionTime: entry.CompletionTime.UTC().Unix(),
 			InitialBalance: entry.InitialBalance.BigInt(),
