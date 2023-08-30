@@ -41,6 +41,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
+- (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
 
 ## [v14.0.0-rc3] - 2023-08-22
 
@@ -50,7 +51,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
 - (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
 
