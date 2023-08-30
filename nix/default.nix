@@ -16,6 +16,7 @@ import sources.nixpkgs {
         inherit (pkgs.darwin.apple_sdk.frameworks) IOKit;
         buildGoModule = pkgs.buildGo118Module;
       };
+      chain-maind = pkgs.callPackage sources.chain-main { rocksdb = null; };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
     (final: prev:
@@ -33,6 +34,9 @@ import sources.nixpkgs {
           dotenv = builtins.path { name = "dotenv"; path = ../scripts/.env; };
         };
       })
+    (_: pkgs: {
+      hermes = pkgs.callPackage ./hermes.nix { src = sources.ibc-rs; };
+    })
     (_: pkgs: { test-env = pkgs.callPackage ./testenv.nix { }; })
   ];
   config = { };

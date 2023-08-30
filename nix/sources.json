@@ -1,4 +1,16 @@
 {
+    "chain-main": {
+        "branch": "master",
+        "description": "Crypto.org Chain⛓: Croeseid Testnet and beyond development",
+        "homepage": "https://crypto.org",
+        "owner": "crypto-org-chain",
+        "repo": "chain-main",
+        "rev": "7e7d49839283f6d77516f614c2e2ff7441771e5a",
+        "sha256": "1gm70jfd9rvi8shf6n7fjfvs4krdv3vjz50f44id3dv8fgg5zni1",
+        "type": "tarball",
+        "url": "https://github.com/crypto-org-chain/chain-main/archive/7e7d49839283f6d77516f614c2e2ff7441771e5a.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "cosmos-sdk": {
         "branch": "main",
         "description": ":chains: A Framework for Building High Value Public Blockchains :sparkles:",
@@ -23,6 +35,18 @@
         "url": "https://github.com/tweag/gomod2nix/archive/40d32f82fc60d66402eb0972e6e368aeab3faf58.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "ibc-rs": {
+        "branch": "v1.1.0",
+        "description": "IBC modules and relayer - Formal specifications and Rust implementation",
+        "homepage": "",
+        "owner": "informalsystems",
+        "repo": "ibc-rs",
+        "rev": "0daa3e16431e748c96a3fa4ad5e9698074e09060",
+        "sha256": "1fp4hz390fd4nlkrkzdmypy9i83i57l21hg7l0d9xi8h1hjginam",
+        "type": "tarball",
+        "url": "https://github.com/informalsystems/ibc-rs/archive/0daa3e16431e748c96a3fa4ad5e9698074e09060.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },    
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",

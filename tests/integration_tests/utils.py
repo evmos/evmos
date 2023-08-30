@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import socket
@@ -5,6 +6,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from collections import defaultdict
 
 import bech32
 from dateutil.parser import isoparse
@@ -123,6 +125,15 @@ def wait_for_block_time(cli, t):
             break
         time.sleep(0.5)
 
+def wait_for_fn(name, fn, *, timeout=240, interval=1):
+    for i in range(int(timeout / interval)):
+        result = fn()
+        print("check", name, result)
+        if result:
+            break
+        time.sleep(interval)
+    else:
+        raise TimeoutError(f"wait for {name} timeout")
 
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     """
@@ -198,6 +209,19 @@ def parse_events(logs):
         for ev in logs[0]["events"]
     }
 
+def parse_events_rpc(events):
+    result = defaultdict(dict)
+    for ev in events:
+        for attr in ev["attributes"]:
+            if attr["key"] is None:
+                continue
+            key = base64.b64decode(attr["key"].encode()).decode()
+            if attr["value"] is not None:
+                value = base64.b64decode(attr["value"].encode()).decode()
+            else:
+                value = None
+            result[ev["type"]][key] = value
+    return result
 
 def derive_new_account(n=1):
     # derive a new address

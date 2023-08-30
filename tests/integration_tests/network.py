@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 
 import web3
+import tomlkit
 from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
@@ -62,6 +63,26 @@ class Evmos:
             self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
         )
 
+# another Cosmos chain to be used on IBC transactions
+class Chainmain:
+    def __init__(self, base_dir):
+        self.base_dir = base_dir
+        self.config = json.loads((base_dir / "config.json").read_text())
+
+    def base_port(self, i):
+        return self.config["validators"][i]["base_port"]
+
+    def node_rpc(self, i):
+        return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
+
+    def cosmos_cli(self, i=0):
+        return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), "chain-maind")
+    
+class Hermes:
+    def __init__(self, config: Path):
+        self.configpath = config
+        self.config = tomlkit.loads(config.read_text())
+        self.port = 3000
 
 class Geth:
     def __init__(self, w3):
