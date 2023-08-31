@@ -10,4 +10,4 @@ cd ../tests/integration_tests/hardhat
 npm install
 npm run typechain
 cd ..
-pytest test_solidity.py -vv -s
+pytest -vv -s

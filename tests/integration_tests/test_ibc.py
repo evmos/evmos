@@ -1,7 +1,7 @@
 import pytest
 
-from .ibc_utils import assert_ready, get_balance, hermes_transfer, prepare_network
-from .utils import ADDRS, eth_to_bech32, parse_events_rpc, wait_for_fn
+from .ibc_utils import assert_ready, get_balance, hermes_transfer, prepare_network, EVMOS_IBC_DENOM
+from .utils import parse_events_rpc, wait_for_fn
 
 
 @pytest.fixture(scope="module", params=[False])
@@ -25,7 +25,7 @@ def test_ibc_transfer_with_hermes(ibc):
     amt = hermes_transfer(ibc)
 
     dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86" # ibc denom of the basecro sent
-    dst_addr = eth_to_bech32(ADDRS["signer2"])
+    dst_addr = ibc.evmos.cosmos_cli().address("signer2")
     old_dst_balance = get_balance(ibc.evmos, dst_addr, dst_denom)
 
     new_dst_balance = 0
@@ -58,7 +58,6 @@ def test_evmos_ibc_transfer(ibc):
     assert_ready(ibc)
     dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
     amt = 1000000
-    dst_denom = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E" # IBC denom of aevmos in crypto-org-chain
 
     cli = ibc.evmos.cosmos_cli()
     src_addr = cli.address("signer2")
@@ -66,7 +65,7 @@ def test_evmos_ibc_transfer(ibc):
 
     # case 1: use evmos cli
     old_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
-    old_dst_balance = get_balance(ibc.chainmain, dst_addr, dst_denom)
+    old_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
 
     rsp = cli.ibc_transfer(
         src_addr,
@@ -81,7 +80,7 @@ def test_evmos_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.chainmain, dst_addr, dst_denom)
+        new_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)

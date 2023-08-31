@@ -34,6 +34,7 @@ TEST_CONTRACTS = {
     "TestChainID": "ChainID.sol",
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
+    "ICS20I": "evmos/ics20/ICS20.sol",
 }
 
 
@@ -135,6 +136,14 @@ def wait_for_fn(name, fn, *, timeout=240, interval=1):
         time.sleep(interval)
     else:
         raise TimeoutError(f"wait for {name} timeout")
+
+
+def get_precompile_contract(w3, name):
+    jsonfile = CONTRACTS[name]
+    info = json.loads(jsonfile.read_text())
+    if name == "ICS20I":
+        addr = "0x0000000000000000000000000000000000000802"
+    return w3.eth.contract(addr, abi=info["abi"])
 
 
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
