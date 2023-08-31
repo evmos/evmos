@@ -158,12 +158,12 @@ contract StakingCaller {
     /// @param _addr The address to approve.
     /// @param _validatorSrcAddr The validator address to delegate from.
     /// @param _validatorDstAddr The validator address to delegate to.
-    /// @return entries The redelegation entries.
+    /// @return redelegation The redelegation output.
     function getRedelegation(
         address _addr,
         string memory _validatorSrcAddr,
         string memory _validatorDstAddr
-    ) public view returns (staking.RedelegationEntry[] memory entries) {
+    ) public view returns (staking.RedelegationOutput memory redelegation) {
         return
             staking.STAKING_CONTRACT.redelegation(
                 _addr,
@@ -203,11 +203,11 @@ contract StakingCaller {
     /// @dev This function calls the staking precompile's unbonding delegation query method.
     /// @param _addr The address to approve.
     /// @param _validatorAddr The validator address to delegate from.
-    /// @return entries The unbonding delegation entries.
+    /// @return unbondingDelegation The unbonding delegation output.
     function getUnbondingDelegation(
         address _addr,
         string memory _validatorAddr
-    ) public view returns (staking.UnbondingDelegationEntry[] memory entries) {
+    ) public view returns (staking.UnbondingDelegationOutput memory unbondingDelegation) {
         return
             staking.STAKING_CONTRACT.unbondingDelegation(_addr, _validatorAddr);
     }
