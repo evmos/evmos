@@ -87,14 +87,14 @@ func (p Precompile) UnbondingDelegation(
 		// return empty unbonding delegation output if the unbonding delegation is not found
 		expError := fmt.Sprintf("unbonding delegation with delegator %s not found for validator %s", req.DelegatorAddr, req.ValidatorAddr)
 		if strings.Contains(err.Error(), expError) {
-			return method.Outputs.Pack([]UnbondingDelegationEntry{})
+			return method.Outputs.Pack(UnbondingDelegationResponse{})
 		}
 		return nil, err
 	}
 
 	out := new(UnbondingDelegationOutput).FromResponse(res)
 
-	return method.Outputs.Pack(out.Entries)
+	return method.Outputs.Pack(out.UnbondingDelegation)
 }
 
 // Validator returns the validator information for a given validator address.
@@ -163,9 +163,10 @@ func (p Precompile) Redelegation(
 	}
 
 	res, _ := p.stakingKeeper.GetRedelegation(ctx, req.DelegatorAddress, req.ValidatorSrcAddress, req.ValidatorDstAddress)
+
 	out := new(RedelegationOutput).FromResponse(res)
 
-	return method.Outputs.Pack(out.Entries)
+	return method.Outputs.Pack(out.Redelegation)
 }
 
 // Redelegations returns the redelegations according to

@@ -493,29 +493,51 @@
       {
         "components": [
           {
-            "internalType": "int64",
-            "name": "creationHeight",
-            "type": "int64"
+            "internalType": "string",
+            "name": "delegatorAddress",
+            "type": "string"
           },
           {
-            "internalType": "int64",
-            "name": "completionTime",
-            "type": "int64"
+            "internalType": "string",
+            "name": "validatorSrcAddress",
+            "type": "string"
           },
           {
-            "internalType": "uint256",
-            "name": "initialBalance",
-            "type": "uint256"
+            "internalType": "string",
+            "name": "validatorDstAddress",
+            "type": "string"
           },
           {
-            "internalType": "uint256",
-            "name": "sharesDst",
-            "type": "uint256"
+            "components": [
+              {
+                "internalType": "int64",
+                "name": "creationHeight",
+                "type": "int64"
+              },
+              {
+                "internalType": "int64",
+                "name": "completionTime",
+                "type": "int64"
+              },
+              {
+                "internalType": "uint256",
+                "name": "initialBalance",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "sharesDst",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct RedelegationEntry[]",
+            "name": "entries",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct RedelegationEntry[]",
-        "name": "entries",
-        "type": "tuple[]"
+        "internalType": "struct RedelegationOutput",
+        "name": "redelegation",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -731,29 +753,56 @@
       {
         "components": [
           {
-            "internalType": "int64",
-            "name": "creationHeight",
-            "type": "int64"
+            "internalType": "string",
+            "name": "delegatorAddress",
+            "type": "string"
           },
           {
-            "internalType": "int64",
-            "name": "completionTime",
-            "type": "int64"
+            "internalType": "string",
+            "name": "validatorAddress",
+            "type": "string"
           },
           {
-            "internalType": "uint256",
-            "name": "initialBalance",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "balance",
-            "type": "uint256"
+            "components": [
+              {
+                "internalType": "int64",
+                "name": "creationHeight",
+                "type": "int64"
+              },
+              {
+                "internalType": "int64",
+                "name": "completionTime",
+                "type": "int64"
+              },
+              {
+                "internalType": "uint256",
+                "name": "initialBalance",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "balance",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint64",
+                "name": "unbondingId",
+                "type": "uint64"
+              },
+              {
+                "internalType": "int64",
+                "name": "unbondingOnHoldRefCount",
+                "type": "int64"
+              }
+            ],
+            "internalType": "struct UnbondingDelegationEntry[]",
+            "name": "entries",
+            "type": "tuple[]"
           }
         ],
-        "internalType": "struct UnbondingDelegationEntry[]",
-        "name": "entries",
-        "type": "tuple[]"
+        "internalType": "struct UnbondingDelegationOutput",
+        "name": "unbondingDelegation",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
