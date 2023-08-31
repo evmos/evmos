@@ -4,6 +4,7 @@
     cmd: 'evmosd',
     'start-flags': '--trace',
     'app-config': {
+      'app-db-backend': 'goleveldb',      
       'minimum-gas-prices': '0aevmos',
       'index-events': ['ethereum_tx.ethereumTxHash'],
       'json-rpc': {

@@ -35,16 +35,16 @@
         "url": "https://github.com/tweag/gomod2nix/archive/40d32f82fc60d66402eb0972e6e368aeab3faf58.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "ibc-rs": {
-        "branch": "v1.1.0",
-        "description": "IBC modules and relayer - Formal specifications and Rust implementation",
+    "hermes": {
+        "branch": "v1.6.0",
+        "description": "Hermes IBC relayer - Formal specifications and Rust implementation",
         "homepage": "",
         "owner": "informalsystems",
-        "repo": "ibc-rs",
-        "rev": "0daa3e16431e748c96a3fa4ad5e9698074e09060",
-        "sha256": "1fp4hz390fd4nlkrkzdmypy9i83i57l21hg7l0d9xi8h1hjginam",
+        "repo": "hermes",
+        "rev": "1c1cf02988db67507de7d484e1a7f317fe494d6c",
+        "sha256": "08a92qw7mbag51lphxj3515i17qwsqhlam2q0g6fhldhfisa7bya",
         "type": "tarball",
-        "url": "https://github.com/informalsystems/ibc-rs/archive/0daa3e16431e748c96a3fa4ad5e9698074e09060.tar.gz",
+        "url": "https://github.com/informalsystems/hermes/archive/v1.6.0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },    
     "niv": {

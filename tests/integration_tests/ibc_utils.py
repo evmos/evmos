@@ -18,7 +18,7 @@ class IBCNetwork(NamedTuple):
     incentivized: bool
 
 
-def prepare_network(tmp_path, file, incentivized=True):
+def prepare_network(tmp_path, file, incentivized=False):
     file = f"configs/{file}.jsonnet"
     gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
     evmos = next(gen)

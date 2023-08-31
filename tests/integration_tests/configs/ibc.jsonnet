@@ -10,6 +10,9 @@ config {
     }],
     'app-config'+: {
       'index-events': super['index-events'] + ['message.action'],
+     grpc: {
+        'enable': true,
+      },
     },
     genesis+: {
       app_state+: {
@@ -114,6 +117,8 @@ config {
       },
       packets: {
         enabled: true,
+        clear_interval: 100,
+        clear_on_start: true,
         tx_confirmation: true,
       },
     },
@@ -125,8 +130,9 @@ config {
     chains: [
       {
         id: 'evmos_9000-1',
-        max_gas: 500000,
-        gas_multiplier: 2,
+        max_gas: 3000000,
+        default_gas: 100000,
+        gas_multiplier: 1.2,
         address_type: {
           derivation: 'ethermint',
           proto_type: {
@@ -134,7 +140,7 @@ config {
           },
         },
         gas_price: {
-          price: 10000000000000000,
+          price: 800000000,
           denom: 'aevmos',
         },
         extension_options: [{
@@ -144,7 +150,8 @@ config {
       },
       {
         id: 'chainmain-1',
-        max_gas: 500000,
+        max_gas: 3000000,
+        default_gas: 100000,
         gas_price: {
           price: 1000000,
           denom: 'basecro',

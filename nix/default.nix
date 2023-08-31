@@ -34,8 +34,9 @@ import sources.nixpkgs {
           dotenv = builtins.path { name = "dotenv"; path = ../scripts/.env; };
         };
       })
+    (import (fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
     (_: pkgs: {
-      hermes = pkgs.callPackage ./hermes.nix { src = sources.ibc-rs; };
+      hermes = pkgs.callPackage ./hermes.nix { src = sources.hermes; };
     })
     (_: pkgs: { test-env = pkgs.callPackage ./testenv.nix { }; })
   ];
