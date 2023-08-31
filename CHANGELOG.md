@@ -41,9 +41,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
+<<<<<<< HEAD
 - (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
 
 ## [v14.0.0-rc3] - 2023-08-22
+=======
+- (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
+- (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
+>>>>>>> e47d2307 (fix(staking): return single struct responses for queries (#1734))
 
 ### Improvements
 
