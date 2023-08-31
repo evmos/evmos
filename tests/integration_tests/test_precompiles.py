@@ -123,7 +123,7 @@ def test_ibc_transfer_timeout(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = r'rpc error: code = Unknown desc = receiving chain block timestamp >= packet timeout timestamp \((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{9} \+\d{4} UTC) >= (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{9} \+\d{4} UTC)\): packet timeout'
+    exp_err = r'rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC\)\: packet timeout'
     w3 = ibc.evmos.w3
 
     dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
@@ -153,7 +153,7 @@ def test_ibc_transfer_timeout(ibc):
             {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
         )
     except Exception as error:
-        assert re.search(exp_err, error.args[0]['message']) == True
+        assert re.search(exp_err, error.args[0]['message']) is not None
 
         new_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
         assert old_src_balance == new_src_balance

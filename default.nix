@@ -4,7 +4,7 @@
 , rev ? "dirty"
 }:
 let
-  version = "v14.0.0";
+  version = "latest";
   pname = "evmosd";
   tags = [ "netgo" ];
   ldflags = lib.concatStringsSep "\n" ([

@@ -46,7 +46,7 @@
         "type": "tarball",
         "url": "https://github.com/informalsystems/hermes/archive/v1.6.0.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },    
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",

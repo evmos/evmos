@@ -35,6 +35,8 @@ TEST_CONTRACTS = {
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
     "ICS20I": "evmos/ics20/ICS20.sol",
+    "DistributionI": "evmos/distribution/Distribution.sol",
+    "StakingI": "evmos/staking/Staking.sol",
 }
 
 
@@ -141,8 +143,14 @@ def wait_for_fn(name, fn, *, timeout=240, interval=1):
 def get_precompile_contract(w3, name):
     jsonfile = CONTRACTS[name]
     info = json.loads(jsonfile.read_text())
+    if name == "StakingI":
+        addr = "0x0000000000000000000000000000000000000800"
+    if name == "DistributionI":
+        addr = "0x0000000000000000000000000000000000000801"        
     if name == "ICS20I":
         addr = "0x0000000000000000000000000000000000000802"
+    else:
+        raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
 
 

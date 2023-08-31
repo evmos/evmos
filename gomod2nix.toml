@@ -110,9 +110,9 @@ schema = 3
   [mod."github.com/cockroachdb/apd/v2"]
     version = "v2.0.2"
     hash = "sha256-UrPHkvqVF8V78+kXKmjTHl79XsgDBnqFsje5BMYh0E4="
-  [mod."github.com/coinbase/rosetta-sdk-go"]
-    version = "v0.7.9"
-    hash = "sha256-ZWIXIXcHGjeCNgMrpXymry8/8esDDauGFfF/+gEoO1Y="
+  [mod."github.com/coinbase/rosetta-sdk-go/types"]
+    version = "v1.0.0"
+    hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
     version = "v0.37.2"
     hash = "sha256-lldrYWvcwV6x9uSJWwycf5OCaNkLU6K5g25IbNnMyVE="
@@ -148,8 +148,8 @@ schema = 3
     version = "v0.20.0"
     hash = "sha256-0399jJnl7pV5etL8aEZAhBeOrL1/rjc1ugV1Rj3qwXQ="
   [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.2.0"
-    hash = "sha256-fg+0AykvEMzqRGI5CmqwjQtSIwTyT6RuSDpp12wzReM="
+    version = "v7.2.1-0.20230829085526-4d114bd09096"
+    hash = "sha256-ga0ahB8yFHDI69DYy13a6RQnkY4NyjKtPERV1O37Q9Q="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
