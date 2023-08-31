@@ -1,11 +1,11 @@
 import pytest
 
 from .ibc_utils import (
+    EVMOS_IBC_DENOM,
     assert_ready,
     get_balance,
     hermes_transfer,
     prepare_network,
-    EVMOS_IBC_DENOM,
 )
 from .utils import parse_events_rpc, wait_for_fn
 
