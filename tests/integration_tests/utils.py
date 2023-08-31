@@ -5,8 +5,8 @@ import socket
 import subprocess
 import sys
 import time
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 import bech32
 from dateutil.parser import isoparse
@@ -125,6 +125,7 @@ def wait_for_block_time(cli, t):
             break
         time.sleep(0.5)
 
+
 def wait_for_fn(name, fn, *, timeout=240, interval=1):
     for i in range(int(timeout / interval)):
         result = fn()
@@ -134,6 +135,7 @@ def wait_for_fn(name, fn, *, timeout=240, interval=1):
         time.sleep(interval)
     else:
         raise TimeoutError(f"wait for {name} timeout")
+
 
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     """
@@ -209,6 +211,7 @@ def parse_events(logs):
         for ev in logs[0]["events"]
     }
 
+
 def parse_events_rpc(events):
     result = defaultdict(dict)
     for ev in events:
@@ -226,6 +229,7 @@ def parse_events_rpc(events):
                     value = None
                 result[ev["type"]][key] = value
     return result
+
 
 def derive_new_account(n=1):
     # derive a new address

@@ -4,8 +4,8 @@ import signal
 import subprocess
 from pathlib import Path
 
-import web3
 import tomlkit
+import web3
 from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
@@ -62,13 +62,9 @@ class Evmos:
         return CosmosCLI(
             self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
         )
-    
+
     def node_home(self, i=0):
         return self.base_dir / f"node{i}"
-
-    def use_websocket(self, use=True):
-        self._w3 = None
-        self._use_websockets = use
 
     def supervisorctl(self, *args):
         return supervisorctl(self.base_dir / "../tasks.ini", *args)    
@@ -79,6 +75,7 @@ class Chainmain:
         self.base_dir = base_dir
         self.config = json.loads((base_dir / "config.json").read_text())
 
+
     def base_port(self, i):
         return self.config["validators"][i]["base_port"]
 
@@ -87,7 +84,7 @@ class Chainmain:
 
     def cosmos_cli(self, i=0):
         return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), "chain-maind")
-    
+
 class Hermes:
     def __init__(self, config: Path):
         self.configpath = config

@@ -4,7 +4,8 @@
   "author": "Evmos team",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "typechain": "npx hardhat typechain"
+    "typechain": "npx hardhat typechain",
+    "test-evmos": "npx hardhat test --network evmos"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",

@@ -1,17 +1,7 @@
 import pytest
 
-from .ibc_utils import (
-    assert_ready,
-    get_balance,
-    hermes_transfer,
-    prepare_network,
-)
-from .utils import (
-    ADDRS,
-    eth_to_bech32,
-    parse_events_rpc,
-    wait_for_fn,
-)
+from .ibc_utils import assert_ready, get_balance, hermes_transfer, prepare_network
+from .utils import ADDRS, eth_to_bech32, parse_events_rpc, wait_for_fn
 
 
 @pytest.fixture(scope="module", params=[False])
@@ -45,6 +35,7 @@ def test_ibc_transfer_with_hermes(ibc):
         new_dst_balance = get_balance(ibc.evmos, dst_addr, dst_denom)
         return new_dst_balance != old_dst_balance
 
+
     wait_for_fn("balance change", check_balance_change)
     assert old_dst_balance + amt == new_dst_balance
 
@@ -60,7 +51,7 @@ def test_ibc_transfer_with_hermes(ibc):
     assert fee == gas * 1000000
 
 
-def test_evmos_transfer_tokens(ibc):
+def test_evmos_ibc_transfer(ibc):
     """
     test sending aevmos from evmos to crypto-org-chain using cli.
     """
@@ -99,7 +90,7 @@ def test_evmos_transfer_tokens(ibc):
     assert old_src_balance - amt == new_src_balance
 
 
-def test_evmos_transfer_tokens_acknowledgement_error(ibc):
+def test_evmos_ibc_transfer_acknowledgement_error(ibc):
     """
     test sending aevmos from evmos to crypto-org-chain using cli transfer_tokens
     with invalid receiver for acknowledgement error.

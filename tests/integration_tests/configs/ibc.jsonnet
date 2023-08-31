@@ -140,7 +140,7 @@ config {
           },
         },
         gas_price: {
-          price: 800000000,
+          price: 30000000000,
           denom: 'aevmos',
         },
         extension_options: [{
