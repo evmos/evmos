@@ -1,7 +1,8 @@
 import re
+
 import pytest
 
-from .ibc_utils import assert_ready, prepare_network, get_balance, EVMOS_IBC_DENOM
+from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, prepare_network, get_balance
 from .utils import get_precompile_contract, ADDRS, wait_for_fn
 
 
