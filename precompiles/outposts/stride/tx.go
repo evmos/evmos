@@ -3,6 +3,7 @@ package stride
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	tendermint "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -32,11 +33,15 @@ func (p Precompile) LiquidStakeEvmos(
 	channels := p.channelKeeper.GetAllChannels(ctx)
 	for _, channel := range channels {
 		if channel.State == 3 && channel.PortId == "transfer" {
-			id, _, err := p.channelKeeper.GetChannelClientState(ctx, channel.PortId, channel.ChannelId)
+			_, clientState, err := p.channelKeeper.GetChannelClientState(ctx, channel.PortId, channel.ChannelId)
 			if err != nil {
 				return nil, err
 			}
-			clientState, _ := p.clientKeeper.GetClientState(ctx, id)
+			tendermintClientState := clientState.(*tendermint.ClientState)
+			// TODO: Add the chain-id for stride here
+			if tendermintClientState.ChainId == "" {
+
+			}
 		}
 	}
 
