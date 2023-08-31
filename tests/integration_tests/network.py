@@ -10,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import wait_for_port
+from .utils import supervisorctl, wait_for_port
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -62,6 +62,16 @@ class Evmos:
         return CosmosCLI(
             self.base_dir / f"node{i}", self.node_rpc(i), self.chain_binary
         )
+    
+    def node_home(self, i=0):
+        return self.base_dir / f"node{i}"
+
+    def use_websocket(self, use=True):
+        self._w3 = None
+        self._use_websockets = use
+
+    def supervisorctl(self, *args):
+        return supervisorctl(self.base_dir / "../tasks.ini", *args)    
 
 # another Cosmos chain to be used on IBC transactions
 class Chainmain:

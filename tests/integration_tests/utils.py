@@ -215,12 +215,16 @@ def parse_events_rpc(events):
         for attr in ev["attributes"]:
             if attr["key"] is None:
                 continue
-            key = base64.b64decode(attr["key"].encode()).decode()
-            if attr["value"] is not None:
-                value = base64.b64decode(attr["value"].encode()).decode()
+            # after sdk v0.47, key and value are strings instead of byte arrays
+            if type(attr["key"]) is str:
+                result[ev["type"]][attr["key"]] = attr["value"]
             else:
-                value = None
-            result[ev["type"]][key] = value
+                key = base64.b64decode(attr["key"].encode()).decode()
+                if attr["value"] is not None:
+                    value = base64.b64decode(attr["value"].encode()).decode()
+                else:
+                    value = None
+                result[ev["type"]][key] = value
     return result
 
 def derive_new_account(n=1):
