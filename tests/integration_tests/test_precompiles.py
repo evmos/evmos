@@ -14,6 +14,7 @@ def ibc(request, tmp_path_factory):
     network = prepare_network(path, name, incentivized)
     yield from network
 
+
 def test_ibc_transfer(ibc):
     """
     test transfer IBC precompile.
@@ -40,12 +41,10 @@ def test_ibc_transfer(ibc):
         amt,
         ADDRS["signer2"],
         dst_addr,
-        [1,10000000000],
+        [1, 10000000000],
         0,
         "",
-    ).transact(
-        {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
-    )
+    ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
 
     receipt = ibc.evmos.w3.eth.wait_for_transaction_receipt(tx_hash)
 
@@ -66,6 +65,7 @@ def test_ibc_transfer(ibc):
     assert old_dst_balance + amt == new_dst_balance
     new_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
     assert old_src_balance - amt - fee == new_src_balance
+
 
 def test_ibc_transfer_invalid_packet(ibc):
     """
@@ -100,14 +100,12 @@ def test_ibc_transfer_invalid_packet(ibc):
             amt,
             ADDRS["signer2"],
             dst_addr,
-            [0,0],
+            [0, 0],
             0,
             "",
-        ).transact(
-            {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
-        )
+        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
     except Exception as error:
-        assert error.args[0]['message'] == f"rpc error: code = Unknown desc = {exp_err}"
+        assert error.args[0]["message"] == f"rpc error: code = Unknown desc = {exp_err}"
 
         new_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
         assert old_src_balance == new_src_balance
@@ -123,7 +121,7 @@ def test_ibc_transfer_timeout(ibc):
     assert_ready(ibc)
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
-    exp_err = r'rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC\)\: packet timeout'
+    exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC\)\: packet timeout"
     w3 = ibc.evmos.w3
 
     dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
@@ -146,14 +144,12 @@ def test_ibc_transfer_timeout(ibc):
             amt,
             ADDRS["signer2"],
             dst_addr,
-            [0,0],
+            [0, 0],
             1000,
             "",
-        ).transact(
-            {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
-        )
+        ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
     except Exception as error:
-        assert re.search(exp_err, error.args[0]['message']) is not None
+        assert re.search(exp_err, error.args[0]["message"]) is not None
 
         new_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
         assert old_src_balance == new_src_balance

@@ -839,3 +839,72 @@ class CosmosCLI:
 
     def migrate_keystore(self):
         return self.raw("keys", "migrate", home=self.data_dir)
+
+    def register_counterparty_payee(
+        self, port_id, channel_id, relayer, counterparty_payee, **kwargs
+    ):
+        default_kwargs = {
+            "home": self.data_dir,
+        }
+        return json.loads(
+            self.raw(
+                "tx",
+                "ibc-fee",
+                "register-counterparty-payee",
+                port_id,
+                channel_id,
+                relayer,
+                counterparty_payee,
+                "-y",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def register_payee(self, port_id, channel_id, relayer, payee, **kwargs):
+        default_kwargs = {
+            "home": self.data_dir,
+        }
+        return json.loads(
+            self.raw(
+                "tx",
+                "ibc-fee",
+                "register-payee",
+                port_id,
+                channel_id,
+                relayer,
+                payee,
+                "-y",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def pay_packet_fee(self, port_id, channel_id, packet_seq, **kwargs):
+        default_kwargs = {
+            "home": self.data_dir,
+        }
+        return json.loads(
+            self.raw(
+                "tx",
+                "ibc-fee",
+                "pay-packet-fee",
+                port_id,
+                channel_id,
+                str(packet_seq),
+                "-y",
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def evm_params(self, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "evm",
+                "params",
+                **(default_kwargs | kwargs),
+            )
+        )

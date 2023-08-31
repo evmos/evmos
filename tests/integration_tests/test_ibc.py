@@ -1,6 +1,12 @@
 import pytest
 
-from .ibc_utils import assert_ready, get_balance, hermes_transfer, prepare_network, EVMOS_IBC_DENOM
+from .ibc_utils import (
+    assert_ready,
+    get_balance,
+    hermes_transfer,
+    prepare_network,
+    EVMOS_IBC_DENOM,
+)
 from .utils import parse_events_rpc, wait_for_fn
 
 
@@ -23,18 +29,15 @@ def test_ibc_transfer_with_hermes(ibc):
     test ibc transfer tokens with hermes cli
     """
     amt = hermes_transfer(ibc)
-
-    dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86" # ibc denom of the basecro sent
+    dst_denom = "ibc/6411AE2ADA1E73DB59DB151A8988F9B7D5E7E233D8414DB6817F8F1A01611F86"  # ibc denom of the basecro sent
     dst_addr = ibc.evmos.cosmos_cli().address("signer2")
     old_dst_balance = get_balance(ibc.evmos, dst_addr, dst_denom)
-
     new_dst_balance = 0
 
     def check_balance_change():
         nonlocal new_dst_balance
         new_dst_balance = get_balance(ibc.evmos, dst_addr, dst_denom)
         return new_dst_balance != old_dst_balance
-
 
     wait_for_fn("balance change", check_balance_change)
     assert old_dst_balance + amt == new_dst_balance

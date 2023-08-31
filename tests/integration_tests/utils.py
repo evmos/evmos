@@ -146,7 +146,7 @@ def get_precompile_contract(w3, name):
     if name == "StakingI":
         addr = "0x0000000000000000000000000000000000000800"
     if name == "DistributionI":
-        addr = "0x0000000000000000000000000000000000000801"        
+        addr = "0x0000000000000000000000000000000000000801"
     if name == "ICS20I":
         addr = "0x0000000000000000000000000000000000000802"
     else:
