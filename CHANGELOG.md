@@ -50,7 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
-- (test) [#1728](https://github.com/evmos/evmos/pull/1728) Integration tests network suite
+- (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 
 ### Bug Fixes
 
