@@ -34,9 +34,9 @@ TEST_CONTRACTS = {
     "TestChainID": "ChainID.sol",
     "Mars": "Mars.sol",
     "StateContract": "StateContract.sol",
-    "ICS20I": "evmos/ics20/ICS20.sol",
-    "DistributionI": "evmos/distribution/Distribution.sol",
-    "StakingI": "evmos/staking/Staking.sol",
+    "ICS20I": "evmos/ics20/ICS20I.sol",
+    "DistributionI": "evmos/distribution/DistributionI.sol",
+    "StakingI": "evmos/staking/StakingI.sol",
 }
 
 
