@@ -1,4 +1,15 @@
 #!/bin/sh
+echo "check if gomod2nix.toml is updated with latest changes in go.mod"
+gomod2nix generate
+
+# Check if there is a git diff for gomod2nix.toml
+if git diff --quiet gomod2nix.toml; then
+  echo "All good! gomod2nix.toml file is updated."
+else
+  echo "Error: There are changes in the go.mod file. You need to regenerate the gomod2nix.toml file with the command 'gomod2nix generate'"
+  exit 1  # Exit with an error code
+fi
+
 set -e
 cd "$(dirname "$0")"
 
