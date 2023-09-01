@@ -2865,11 +2865,12 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, transferredAmount)
 
 			// Build combined map of ABI events to check for both ERC20 events as well as precompile events
+			//
+			// NOTE: only add the transfer event - when adding all contract events to the combined map,
+			// the ERC20 Approval event will overwrite the precompile Approval event, which will cause
+			// the check to fail because of unexpected events in the logs.
 			combinedABIEvents := s.precompile.Events
-			for eventName, event := range erc20Contract.ABI.Events {
-				s.T().Log("adding event", eventName, "to combined ABI events")
-				combinedABIEvents[eventName] = event
-			}
+			combinedABIEvents["Transfer"] = erc20Contract.ABI.Events["Transfer"]
 
 			successCheck := passCheck.
 				WithABIEvents(combinedABIEvents).
@@ -2878,7 +2879,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 				)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, successArgs, successCheck)
-			Expect(err).ToNot(HaveOccurred(), "expected error while calling the smart contract")
+			Expect(err).ToNot(HaveOccurred(), "error while calling the smart contract")
 
 			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
 			Expect(found).To(BeTrue(),
@@ -2891,10 +2892,10 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			sharesPost := delegationPost.GetShares()
 			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
 
-			Expect(auths).To(HaveLen(1), "expected an authorization to be found")
-			Expect(auths[0].MsgTypeURL()).To(Equal(staking.DelegateMsg), "expected different message type in authorization")
 			Expect(sharesPost.GT(sharesPre)).To(BeTrue(), "expected shares to be more than before")
 			Expect(erc20BalancePost).To(Equal(transferredAmount), "expected different erc20 balance of target address")
+			// NOTE: there should be no authorizations because the full approved amount is delegated
+			Expect(auths).To(HaveLen(0), "expected no authorization to be found")
 		})
 	})
 })
