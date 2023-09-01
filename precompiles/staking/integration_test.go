@@ -17,6 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	compiledcontracts "github.com/evmos/evmos/v14/contracts"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/distribution"
@@ -2670,6 +2671,230 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(auth).To(BeNil(), "expected no authorization")
 			delegation := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, contractAddr.Bytes())
 			Expect(delegation).To(HaveLen(0), "expected no delegations")
+		})
+	})
+})
+
+// These tests are used to check that when batching multiple state changing transactions
+// in one block, both states (Cosmos and EVM) are updated or reverted correctly.
+//
+// For this purpose, we are deploying an ERC20 contract and update StakingCaller.sol
+// to include a method where an ERC20 balance is sent between accounts as well as
+// an interaction with the staking precompile is made.
+//
+// There are ERC20 tokens minted to the address of the deployed StakingCaller contract,
+// which will transfer these to the message sender when successfully executed.
+// Using the staking EVM extension, there is an approval made before the ERC20 transfer
+// as well as a delegation after the ERC20 transfer.
+var _ = Describe("Batching cosmos and eth interactions", func() {
+	const (
+		erc20Name     = "Test"
+		erc20Token    = "TTT"
+		erc20Decimals = uint8(18)
+	)
+
+	var (
+		// contractAddr is the address of the deployed StakingCaller contract
+		contractAddr common.Address
+		// erc20ContractAddr is the address of the deployed ERC20 contract
+		erc20ContractAddr common.Address
+		// erc20Contract is the compiled ERC20 contract
+		erc20Contract = compiledcontracts.ERC20MinterBurnerDecimalsContract
+
+		// err is a standard error
+		err error
+		// execRevertedCheck is a standard log check for a reverted transaction
+		execRevertedCheck = defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
+
+		// mintAmount is the amount of ERC20 tokens minted to the StakingCaller contract
+		mintAmount = big.NewInt(1e18)
+		// transferredAmount is the amount of ERC20 tokens to transfer during the tests
+		transferredAmount = big.NewInt(1234e9)
+	)
+
+	BeforeEach(func() {
+		s.SetupTest()
+		s.NextBlock()
+
+		// Deploy StakingCaller contract
+		contractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, testdata.StakingCallerContract)
+		Expect(err).To(BeNil(), "error while deploying the StakingCaller contract")
+
+		// Deploy ERC20 contract
+		erc20ContractAddr, err = evmosutil.DeployContract(s.ctx, s.app, s.privKey, s.queryClientEVM, erc20Contract,
+			erc20Name, erc20Token, erc20Decimals,
+		)
+		Expect(err).To(BeNil(), "error while deploying the ERC20 contract")
+
+		// Mint tokens to the StakingCaller contract
+		mintArgs := contracts.CallArgs{
+			ContractAddr: erc20ContractAddr,
+			ContractABI:  erc20Contract.ABI,
+			MethodName:   "mint",
+			PrivKey:      s.privKey,
+			Args:         []interface{}{contractAddr, mintAmount},
+		}
+
+		mintCheck := testutil.LogCheckArgs{
+			ABIEvents: erc20Contract.ABI.Events,
+			ExpEvents: []string{"Transfer"}, // minting produces a Transfer event
+			ExpPass:   true,
+		}
+
+		_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, mintArgs, mintCheck)
+		Expect(err).To(BeNil(), "error while minting tokens to the StakingCaller contract")
+
+		// Check that the StakingCaller contract has the correct balance
+		erc20Balance := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, contractAddr)
+		Expect(erc20Balance).To(Equal(mintAmount), "expected different ERC20 balance for the StakingCaller contract")
+
+		// populate default call args
+		defaultCallArgs = contracts.CallArgs{
+			ContractABI:  testdata.StakingCallerContract.ABI,
+			ContractAddr: contractAddr,
+			MethodName:   "callERC20AndDelegate",
+			PrivKey:      s.privKey,
+		}
+
+		// populate default log check args
+		defaultLogCheck = testutil.LogCheckArgs{
+			ABIEvents: s.precompile.Events,
+		}
+		execRevertedCheck = defaultLogCheck.WithErrContains(vm.ErrExecutionReverted.Error())
+		passCheck = defaultLogCheck.WithExpPass(true)
+	})
+
+	Describe("when batching multiple transactions", func() {
+		var (
+			// validator is the validator address used for testing
+			validator sdk.ValAddress
+		)
+
+		BeforeEach(func() {
+			delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, s.address.Bytes())
+			Expect(delegations).ToNot(HaveLen(0), "expected address to have delegations")
+
+			validator = delegations[0].GetValidatorAddr()
+
+			_ = erc20ContractAddr
+		})
+
+		It("should revert both states if a staking transaction fails", func() {
+			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			sharesPre := delegationPre.GetShares()
+
+			// NOTE: passing an invalid validator address here should fail AFTER the erc20 transfer was made in the smart contract.
+			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
+			failArgs := defaultCallArgs.
+				WithArgs(erc20ContractAddr, "invalid validator", transferredAmount)
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
+			Expect(err.Error()).To(ContainSubstring("execution reverted"), "expected different error message")
+
+			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found after calling the smart contract",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
+			sharesPost := delegationPost.GetShares()
+			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+
+			Expect(auths).To(BeEmpty(), "expected no authorizations when reverting state")
+			Expect(sharesPost).To(Equal(sharesPre), "expected shares to be equal when reverting state")
+			Expect(erc20BalancePost.Int64()).To(BeZero(), "expected erc20 balance of target address to be zero when reverting state")
+		})
+
+		It("should revert both states if an ERC20 transaction fails", func() {
+			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			sharesPre := delegationPre.GetShares()
+
+			// NOTE: trying to transfer more than the balance of the contract should fail AFTER the approval
+			// for delegating was made in the smart contract.
+			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
+			moreThanMintedAmount := new(big.Int).Add(mintAmount, big.NewInt(1))
+			failArgs := defaultCallArgs.
+				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, moreThanMintedAmount)
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
+			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
+			Expect(err.Error()).To(ContainSubstring("execution reverted"), "expected different error message")
+
+			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found after calling the smart contract",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
+			sharesPost := delegationPost.GetShares()
+			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+
+			Expect(auths).To(BeEmpty(), "expected no authorizations when reverting state")
+			Expect(sharesPost).To(Equal(sharesPre), "expected shares to be equal when reverting state")
+			Expect(erc20BalancePost.Int64()).To(BeZero(), "expected erc20 balance of target address to be zero when reverting state")
+		})
+
+		It("should persist changes in both the cosmos and eth states", func() {
+			delegationPre, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			sharesPre := delegationPre.GetShares()
+
+			// NOTE: trying to transfer more than the balance of the contract should fail AFTER the approval
+			// for delegating was made in the smart contract.
+			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
+			successArgs := defaultCallArgs.
+				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, transferredAmount)
+
+			// Build combined map of ABI events to check for both ERC20 events as well as precompile events
+			combinedABIEvents := s.precompile.Events
+			for eventName, event := range erc20Contract.ABI.Events {
+				s.T().Log("adding event", eventName, "to combined ABI events")
+				combinedABIEvents[eventName] = event
+			}
+
+			successCheck := passCheck.
+				WithABIEvents(combinedABIEvents).
+				WithExpEvents(
+					authorization.EventTypeApproval, "Transfer", staking.EventTypeDelegate,
+				)
+
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, successArgs, successCheck)
+			Expect(err).ToNot(HaveOccurred(), "expected error while calling the smart contract")
+
+			delegationPost, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), validator)
+			Expect(found).To(BeTrue(),
+				"expected delegation from %s to validator %s to be found after calling the smart contract",
+				sdk.AccAddress(s.address.Bytes()).String(), validator.String(),
+			)
+
+			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			Expect(err).To(BeNil(), "error while getting authorizations: %v", err)
+			sharesPost := delegationPost.GetShares()
+			erc20BalancePost := s.app.Erc20Keeper.BalanceOf(s.ctx, erc20Contract.ABI, erc20ContractAddr, s.address)
+
+			Expect(auths).To(HaveLen(1), "expected an authorization to be found")
+			Expect(auths[0].MsgTypeURL()).To(Equal(staking.DelegateMsg), "expected different message type in authorization")
+			Expect(sharesPost.GT(sharesPre)).To(BeTrue(), "expected shares to be more than before")
+			Expect(erc20BalancePost).To(Equal(transferredAmount), "expected different erc20 balance of target address")
 		})
 	})
 })
