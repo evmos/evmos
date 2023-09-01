@@ -41,7 +41,7 @@ type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
-	// ExecuteEthTx builds, signs and broadcast an Ethereum tx with the provided private key and txArgs
+	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// DoCosmosTx builds, signs and broadcast a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
