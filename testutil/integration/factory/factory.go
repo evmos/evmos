@@ -107,7 +107,7 @@ func (tf *IntegrationTxFactory) DeployContract(
 }
 
 // ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
-// It first builds a MsgEthereumTx and then broadcast it to the network.
+// It first builds a MsgEthereumTx and then broadcasts it to the network.
 func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
