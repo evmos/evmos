@@ -67,6 +67,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (docker) [#1743](https://github.com/evmos/evmos/pull/1743) Add rclone binary to Docker image.
 - (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
+- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
 
 ### Bug Fixes
 
