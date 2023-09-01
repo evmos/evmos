@@ -111,7 +111,9 @@ def test_tracers(cluster):
     assert (
         tx_res["result"]["from"] == EXPECTED_CONTRACT_CREATE_TRACER["from"]
     ), "From field mismatch"
-    assert tx_res["result"]["gas"] == EXPECTED_CONTRACT_CREATE_TRACER["gas"], "Gas field mismatch"
+    assert (
+        tx_res["result"]["gas"] == EXPECTED_CONTRACT_CREATE_TRACER["gas"]
+    ), "Gas field mismatch"
     assert (
         tx_res["result"]["gasUsed"] == EXPECTED_CONTRACT_CREATE_TRACER["gasUsed"]
     ), "GasUsed field mismatch"
