@@ -12,6 +12,7 @@ import (
 	evmostypes "github.com/evmos/evmos/v14/types"
 )
 
+// buildMsgEthereumTx builds an Ethereum transaction from the given arguments and populates the From field.
 func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) (evmtypes.MsgEthereumTx, error) {
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
