@@ -29,3 +29,21 @@ def evmos_rpc_ws(request, evmos):
         yield evmos_ws
     else:
         raise NotImplementedError
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-ws", "geth"])
+def cluster(request, evmos, geth):
+    """
+    run on evmos, evmos websocket and geth
+    """
+    provider = request.param
+    if provider == "evmos":
+        yield evmos
+    elif provider == "evmos-ws":
+        evmos_ws = evmos.copy()
+        evmos_ws.use_websocket()
+        yield evmos_ws
+    elif provider == "geth":
+        yield geth
+    else:
+        raise NotImplementedError
