@@ -132,12 +132,12 @@ contract StakingCaller {
         string memory _status,
         staking.PageRequest calldata _pageRequest
     )
-        public
-        view
-        returns (
-            staking.Validator[] memory validators,
-            staking.PageResponse memory pageResponse
-        )
+    public
+    view
+    returns (
+        staking.Validator[] memory validators,
+        staking.PageResponse memory pageResponse
+    )
     {
         return staking.STAKING_CONTRACT.validators(_status, _pageRequest);
     }
@@ -166,10 +166,10 @@ contract StakingCaller {
     ) public view returns (staking.RedelegationEntry[] memory entries) {
         return
             staking.STAKING_CONTRACT.redelegation(
-                _addr,
-                _validatorSrcAddr,
-                _validatorDstAddr
-            );
+            _addr,
+            _validatorSrcAddr,
+            _validatorDstAddr
+        );
     }
 
     /// @dev This function calls the staking precompile's redelegations query method.
@@ -184,20 +184,20 @@ contract StakingCaller {
         string memory _validatorDstAddr,
         staking.PageRequest memory _pageRequest
     )
-        public
-        view
-        returns (
-            staking.RedelegationResponse[] memory response,
-            staking.PageResponse memory pageResponse
-        )
+    public
+    view
+    returns (
+        staking.RedelegationResponse[] memory response,
+        staking.PageResponse memory pageResponse
+    )
     {
         return
             staking.STAKING_CONTRACT.redelegations(
-                _delegatorAddr,
-                _validatorSrcAddr,
-                _validatorDstAddr,
-                _pageRequest
-            );
+            _delegatorAddr,
+            _validatorSrcAddr,
+            _validatorDstAddr,
+            _pageRequest
+        );
     }
 
     /// @dev This function calls the staking precompile's unbonding delegation query method.
@@ -272,12 +272,12 @@ contract StakingCaller {
         } else if (calltypeHash == keccak256(abi.encodePacked("callcode"))) {
             // NOTE: callcode is deprecated and now only available via inline assembly
             assembly {
-                // Load the function signature and argument data onto the stack
+            // Load the function signature and argument data onto the stack
                 let ptr := add(payload, 0x20)
                 let len := mload(payload)
 
-                // Invoke the contract at calledContractAddress in the context of the current contract
-                // using CALLCODE opcode and the loaded function signature and argument data
+            // Invoke the contract at calledContractAddress in the context of the current contract
+            // using CALLCODE opcode and the loaded function signature and argument data
                 let success := callcode(
                     gas(),
                     calledContractAddress,
@@ -288,7 +288,7 @@ contract StakingCaller {
                     0
                 )
 
-                // Check if the call was successful and revert the transaction if it failed
+            // Check if the call was successful and revert the transaction if it failed
                 if iszero(success) {
                     revert(0, 0)
                 }
@@ -354,7 +354,7 @@ contract StakingCaller {
                 let chunk1 := mload(add(_validatorAddr, 32)) // first 32 bytes of validator address string
                 let chunk2 := mload(add(add(_validatorAddr, 32), 32)) // remaining 19 bytes of val address string
 
-                // Load the function signature and argument data onto the stack
+            // Load the function signature and argument data onto the stack
                 let x := mload(0x40) // Find empty storage location using "free memory pointer"
                 mstore(x, sig) // Place function signature at begining of empty storage
                 mstore(add(x, 0x04), _addr) // Place the address (input param) after the function sig
@@ -363,8 +363,8 @@ contract StakingCaller {
                 mstore(add(x, 0x64), chunk1) // Place the validator address in 2 chunks (input param)
                 mstore(add(x, 0x84), chunk2) // because mstore stores 32bytes
 
-                // Invoke the contract at calledContractAddress in the context of the current contract
-                // using CALLCODE opcode and the loaded function signature and argument data
+            // Invoke the contract at calledContractAddress in the context of the current contract
+            // using CALLCODE opcode and the loaded function signature and argument data
                 let success := callcode(
                     gas(),
                     calledContractAddress, // to addr
@@ -375,19 +375,19 @@ contract StakingCaller {
                     0xC0 // output length for this call
                 )
 
-                // output length for this call is 192 bytes splitted on these 32 bytes chunks:
-                // 1 - 0x00..amt   -> @ 0x40
-                // 2 - 0x000..00   -> @ 0x60
-                // 3 - 0x40..000   -> @ 0x80
-                // 4 - 0x00..amt    -> @ 0xC0
-                // 5 - 0x00..denom  -> @ 0xE0   TODO: cannot get the return value
+            // output length for this call is 192 bytes splitted on these 32 bytes chunks:
+            // 1 - 0x00..amt   -> @ 0x40
+            // 2 - 0x000..00   -> @ 0x60
+            // 3 - 0x40..000   -> @ 0x80
+            // 4 - 0x00..amt    -> @ 0xC0
+            // 5 - 0x00..denom  -> @ 0xE0   TODO: cannot get the return value
 
                 shares := mload(x) // Assign shares output value - 32 bytes long
                 amt := mload(add(x, 0x60)) // Assign output value to c - 64 bytes long (string & uint256)
 
                 mstore(0x40, add(x, 0x100)) // Set storage pointer to empty space
 
-                // Check if the call was successful and revert the transaction if it failed
+            // Check if the call was successful and revert the transaction if it failed
                 if iszero(success) {
                     revert(0, 0)
                 }
@@ -471,5 +471,37 @@ contract StakingCaller {
         );
         // This should fail since the balance is already spent in the previous call
         payable(msg.sender).transfer(msg.value);
+    }
+
+    /// @dev This function is used to check that both the cosmos and evm state are correctly
+    /// updated for a successful transaction or reverted for a failed transaction.
+    /// To test this, deploy an ERC20 token contract to chain and mint some tokens to this
+    /// contract's address.
+    /// This contract will then transfer some tokens to the msg.sender address as well as
+    /// set up a delegation approval and stake funds using the staking EVM extension.
+    /// @param _contract Address of the ERC20 to call
+    /// @param _validatorAddr Address of the validator to delegate to
+    function callERC20AndDelegate(
+        address _contract,
+        string memory _validatorAddr,
+        uint256 _amount
+    ) public {
+        bool successApprove = staking.STAKING_CONTRACT.approve(
+            address(this),
+            _amount,
+            delegateMethod
+        );
+        require(successApprove, "delegation approval failed");
+
+        (bool success, ) = _contract.call(
+            abi.encodeWithSignature("transfer(address,uint256)", msg.sender, _amount)
+        );
+        require(success, "transfer failed");
+
+        staking.STAKING_CONTRACT.delegate(
+            msg.sender,
+            _validatorAddr,
+            _amount
+        );
     }
 }
