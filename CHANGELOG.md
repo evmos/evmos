@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
+- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
 
 ### Bug Fixes
 
