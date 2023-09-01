@@ -45,7 +45,7 @@ type TxFactory interface {
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// DoCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
-	// EstimateGasLimit estimates the gas limit for a tx with the provided private key and txArgs
+	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 }
 
