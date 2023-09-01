@@ -117,7 +117,7 @@ def setup_geth(path, base_port):
             str(base_port),
             "--port",
             str(base_port + 1),
-            "--http.api", 
+            "--http.api",
             "eth,net,web3,debug",
         ]
         print(*cmd)
