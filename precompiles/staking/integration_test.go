@@ -2765,10 +2765,8 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 	})
 
 	Describe("when batching multiple transactions", func() {
-		var (
-			// validator is the validator address used for testing
-			validator sdk.ValAddress
-		)
+		// validator is the validator address used for testing
+		var validator sdk.ValAddress
 
 		BeforeEach(func() {
 			delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, s.address.Bytes())
