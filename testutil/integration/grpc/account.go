@@ -22,7 +22,7 @@ func (gqh *IntegrationHandler) GetAccount(address string) (authtypes.AccountI, e
 
 	encodingCgf := encoding.MakeConfig(app.ModuleBasics)
 	var acc authtypes.AccountI
-	if err := encodingCgf.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
+	if err = encodingCgf.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return nil, err
 	}
 	return acc, nil

@@ -44,9 +44,8 @@ type IntegrationHandler struct {
 	network network.Network
 }
 
-// NewGrpcHandler creates a new IntegrationHandler instance.
-
-func NewGrpcHandler(network network.Network) Handler {
+// NewIntegrationHandler creates a new IntegrationHandler instance.
+func NewIntegrationHandler(network network.Network) Handler {
 	return &IntegrationHandler{
 		network: network,
 	}
