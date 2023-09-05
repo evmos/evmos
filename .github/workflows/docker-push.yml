@@ -62,7 +62,7 @@ jobs:
       -
         name: Get list of tags
         id: get_tags
-        run: echo "tags=$(git tag -l 'v12.0.0' | xargs)" >> "$GITHUB_OUTPUT"
+        run: set -x; echo "tags=$(git tag -l 'v12.0.0' | xargs)" >> "$GITHUB_OUTPUT"
       -
         name: Build and push all v12 tags
         run: |
