@@ -6,6 +6,11 @@ name: Push to Docker Hub
 #       - "v*.*.*"
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   docker:
@@ -57,18 +62,25 @@ jobs:
       -
         name: Get list of tags
         id: get_tags
-        run: echo "::set-output name=tags::$(git tag -l 'v12*' | xargs)"
+        run: echo "tags=$(git tag -l 'v12*' | xargs)" >> "$GITHUB_OUTPUT"
       -
         name: Build and push all v12 tags
         run: |
           IFS=' ' read -ra TAGS <<< "${{ steps.get_tags.outputs.tags }}"
           for tag in "${TAGS[@]}"; do
+            echo "Checking out tag $tag"
+            git checkout "$tag"
+            
+            echo "Removing extra files and resetting any changes"
+            git clean -fd
+            git reset --hard
+            
             echo "Building and pushing Docker image for tag $tag"
             docker buildx create --use
             docker buildx build \
               --push \
               --platform linux/amd64,linux/arm64 \
-              --tag ghcr.io/${{ github.repository }}/evmos:"$tag" \
+              --tag "ghcr.io/${{ github.repository }}/evmos:$tag" \
               .
           done
 
