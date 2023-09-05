@@ -275,15 +275,15 @@ vulncheck: $(BUILDDIR)/
 ###                              Documentation                              ###
 ###############################################################################
 
-update-swagger-docs: statik
+swagger-update-docs: statik
 	$(BINDIR)/statik -src=client/docs/swagger-ui -dest=client/docs -f -m
 	@if [ -n "$(git status --porcelain)" ]; then \
+        echo "\033[92mSwagger docs are in sync\033[0m";\
+    else \
         echo "\033[91mSwagger docs are out of sync!!!\033[0m";\
         exit 1;\
-    else \
-        echo "\033[92mSwagger docs are in sync\033[0m";\
     fi
-.PHONY: update-swagger-docs
+.PHONY: swagger-update-docs
 
 godocs:
 	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/evmos/evmos"
@@ -343,7 +343,16 @@ test-rpc:
 test-rpc-pending:
 	./scripts/integration-test-all.sh -t "pending" -q 1 -z 1 -s 2 -m "pending" -r "true"
 
+test-solidity:
+	@echo "Beginning solidity tests..."
+	./scripts/run-solidity-tests.sh
+
 .PHONY: run-tests test test-all test-import test-rpc $(TEST_TARGETS)
+
+run-integration-tests:
+	@nix-shell ./tests/integration_tests/shell.nix --run ./scripts/run-integration-tests.sh
+
+.PHONY: run-integration-tests
 
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)

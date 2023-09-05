@@ -35,6 +35,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## Unreleased
+
+### State Machine Breaking
+
+- (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
+
+### Improvements
+
+- (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
+- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
+
 ## [v14.0.0-rc4] - 2023-08-30
 
 ### State Machine Breaking
