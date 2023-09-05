@@ -13,6 +13,22 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  prepare_tags:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Git fetch everything
+        run: git fetch --prune --tags
+      - name: Get list of v12 tags
+        id: get_tags
+        run: echo "tags=$(git tag -l 'v12*' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+      - name: Set matrix for next job
+        id: set-matrix
+        run: echo "::set-output name=matrix::${{ steps.get_tags.outputs.tags }}"
+
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -59,27 +75,15 @@ jobs:
       #       tharsishq/evmos:${{ steps.meta.outputs.tag }}
       #       ghcr.io/${{ github.repository }}/evmos:latest
       #       ghcr.io/${{ github.repository }}/evmos:${{ steps.meta.outputs.tag }}
-      -
-        name: Get list of tags
-        id: get_tags
-        run: set -x; echo "tags=$(git tag -l 'v12.0.0' | xargs)" >> "$GITHUB_OUTPUT"
-      -
-        name: Build and push all v12 tags
+      - name: Checkout tag
         run: |
-          set -x
-          IFS=' ' read -ra TAGS <<< "${{ steps.get_tags.outputs.tags }}"
-          for tag in "${TAGS[@]}"; do
-            echo "Checking out tag $tag"
-            git checkout "$tag"
-            echo "Removing extra files and resetting any changes"
-            git clean -fd
-            git reset --hard
-            echo "Building and pushing Docker image for tag $tag"
-            docker buildx create --use --platform linux/amd64,linux/arm64
-            docker buildx build \
-              --push \
-              --platform linux/amd64,linux/arm64 \
-              --tag "ghcr.io/evmos/evmos:$tag" \
-              .
-          done
-
+          git checkout "${{ matrix.tag }}"
+          git clean -fd
+          git reset --hard
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${{ github.repository }}:${{ matrix.tag }}
