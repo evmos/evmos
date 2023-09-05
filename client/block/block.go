@@ -10,7 +10,7 @@ import (
 
 func LastBlockCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "last_block [path_to_db]",
+		Use:   "last-block [path_to_db]",
 		Short: "Get the base and highest height of the db",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
