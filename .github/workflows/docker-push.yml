@@ -21,7 +21,7 @@ jobs:
         name: Get Github tag
         id: meta
         run: |
-          echo "tag=$(git describe --always --tags --match='v*')" >> $GITHUB_OUTPUT
+          echo "tag"="$(git describe --always --tags --match='v*')" >> $GITHUB_OUTPUT
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -57,7 +57,7 @@ jobs:
       -
         name: Get list of tags
         id: get_tags
-        run: echo "::set-output name=tags::$(git tag -l 'v12*' | xargs)"
+        run: echo "::set-output name"="tags::$(git tag -l 'v12*' | xargs)"
       -
         name: Build and push all v12 tags
         run: |
