@@ -3,6 +3,8 @@
 package types
 
 import (
+	math "math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,6 +26,13 @@ func BlockGasLimit(ctx sdk.Context) uint64 {
 	}
 
 	maxGas := cp.Block.MaxGas
+
+	// Setting max_gas to -1 in Tendermint means there is no limit on the maximum gas consumption for transactions
+	// https://github.com/cometbft/cometbft/blob/v0.37.2/proto/tendermint/types/params.proto#L25-L27
+	if maxGas == -1 {
+		return math.MaxUint64
+	}
+
 	if maxGas > 0 {
 		return uint64(maxGas) // #nosec G701 -- maxGas is int64 type. It can never be greater than math.MaxUint64
 	}
