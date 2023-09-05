@@ -2678,7 +2678,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 // These tests are used to check that when batching multiple state changing transactions
 // in one block, both states (Cosmos and EVM) are updated or reverted correctly.
 //
-// For this purpose, we are deploying an ERC20 contract and update StakingCaller.sol
+// For this purpose, we are deploying an ERC20 contract and updating StakingCaller.sol
 // to include a method where an ERC20 balance is sent between accounts as well as
 // an interaction with the staking precompile is made.
 //
