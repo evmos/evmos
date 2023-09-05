@@ -132,12 +132,12 @@ contract StakingCaller {
         string memory _status,
         staking.PageRequest calldata _pageRequest
     )
-    public
-    view
-    returns (
-        staking.Validator[] memory validators,
-        staking.PageResponse memory pageResponse
-    )
+        public
+        view
+        returns (
+            staking.Validator[] memory validators,
+            staking.PageResponse memory pageResponse
+        )
     {
         return staking.STAKING_CONTRACT.validators(_status, _pageRequest);
     }
@@ -387,7 +387,7 @@ contract StakingCaller {
 
                 mstore(0x40, add(x, 0x100)) // Set storage pointer to empty space
 
-            // Check if the call was successful and revert the transaction if it failed
+                // Check if the call was successful and revert the transaction if it failed
                 if iszero(success) {
                     revert(0, 0)
                 }
