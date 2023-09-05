@@ -13,7 +13,7 @@ jobs:
         with:
           go-version: '1.20'
           check-latest: true
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
