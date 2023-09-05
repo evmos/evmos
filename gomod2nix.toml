@@ -148,8 +148,8 @@ schema = 3
     version = "v0.20.0"
     hash = "sha256-0399jJnl7pV5etL8aEZAhBeOrL1/rjc1ugV1Rj3qwXQ="
   [mod."github.com/cosmos/ibc-go/v7"]
-    version = "v7.2.1"
-    hash = "sha256-+y0dbKzsx1s1a37jlqvbF/CknUYDM2wab94B0r43KbQ="
+    version = "v7.2.1-0.20230829085526-4d114bd09096"
+    hash = "sha256-ga0ahB8yFHDI69DYy13a6RQnkY4NyjKtPERV1O37Q9Q="
   [mod."github.com/cosmos/ics23/go"]
     version = "v0.10.0"
     hash = "sha256-KYEv727BO/ht63JO02xiKFGFAddg41Ve9l2vSSZZBq0="
@@ -438,11 +438,11 @@ schema = 3
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
   [mod."github.com/onsi/ginkgo/v2"]
-    version = "v2.10.0"
-    hash = "sha256-ZxWrZln8/6U7O+uoQCqKyJ7ajUJ17f3Gkkx6rwbJvy4="
+    version = "v2.11.0"
+    hash = "sha256-WpG834pL9N89s/yh6ngRzHUcwmInZsYTUY56JjdxV4U="
   [mod."github.com/onsi/gomega"]
-    version = "v1.27.8"
-    hash = "sha256-8dqtjg4MsO6MPLgshmBWwDFBFNL/WR0OU2FkQBOz5L0="
+    version = "v1.27.10"
+    hash = "sha256-sBWpNFXShK1qsJjsHIHkZLQRjWG6k9QLATooSamZxPQ="
   [mod."github.com/opencontainers/go-digest"]
     version = "v1.0.0"
     hash = "sha256-cfVDjHyWItmUGZ2dzQhCHgmOmou8v7N+itDkLZVkqkQ="
