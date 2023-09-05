@@ -70,17 +70,15 @@ jobs:
           for tag in "${TAGS[@]}"; do
             echo "Checking out tag $tag"
             git checkout "$tag"
-            
             echo "Removing extra files and resetting any changes"
             git clean -fd
             git reset --hard
-            
             echo "Building and pushing Docker image for tag $tag"
-            docker buildx create --use
+            docker buildx create --use --platform linux/amd64,linux/arm64
             docker buildx build \
               --push \
               --platform linux/amd64,linux/arm64 \
-              --tag "ghcr.io/${{ github.repository }}/evmos:$tag" \
+              --tag "ghcr.io/evmos/evmos:$tag" \
               .
           done
 
