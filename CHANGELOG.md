@@ -105,6 +105,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
+<<<<<<< HEAD
 - (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
 - (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
 - (ante) [#1693](https://github.com/evmos/evmos/pull/1693) Prevent panic on int64 conversion in EVM fees antehandler.
@@ -123,6 +124,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (upgrade) [#1644](https://github.com/evmos/evmos/pull/1644) Adjust upgrade constants
 - (ci) [#1642](https://github.com/evmos/evmos/pull/1642) Fix target folder in GH action to push to the [Buf Schema Registry](https://buf.build/evmos/evmos) upon release
+=======
+- (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
+>>>>>>> 24256533 (fix(consensus): fix the problem when setting the genesis.json file consensus_params.block.max_gas=-1 (#1740))
 
 ## [v13.0.2] - 2023-07-05
 
