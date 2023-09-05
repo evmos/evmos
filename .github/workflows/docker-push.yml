@@ -1,9 +1,11 @@
 name: Push to Docker Hub
 
+# on:
+#   push:
+#     tags:
+#       - "v*.*.*"
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -34,10 +36,43 @@ jobs:
           username: tharsishq
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # -
+      #   name: Build and push
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     push: true
+      #     platforms: linux/amd64, linux/arm64
+      #     tags: |
+      #       tharsishq/evmos:latest
+      #       tharsishq/evmos:${{ steps.meta.outputs.tag }}
+      #       ghcr.io/${{ github.repository }}/evmos:latest
+      #       ghcr.io/${{ github.repository }}/evmos:${{ steps.meta.outputs.tag }}
+      -
+        name: Get list of tags
+        id: get_tags
+        run: echo "::set-output name=tags::$(git tag -l 'v12*' | xargs)"
+      -
+        name: Build and push v12 tags
+        run: |
+          IFS=' ' read -ra TAGS <<< "${{ steps.get_tags.outputs.tags }}"
+          for tag in "${TAGS[@]}"; do
+            echo "Building and pushing Docker image for tag $tag"
+            echo "tag=$tag" >> $GITHUB_ENV
+            docker buildx create --use
+            echo "Using docker/build-push-action@v4 for tag $tag"
+            echo "tharsishq/evmos:$tag,ghcr.io/${{ github.repository }}/evmos:$tag"
+          done
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          platforms: linux/amd64, linux/arm64
-          tags: tharsishq/evmos:latest, tharsishq/evmos:${{ steps.meta.outputs.tag }}
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/${{ github.repository }}/evmos:${{ env.tag }}
