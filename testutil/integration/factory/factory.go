@@ -11,10 +11,10 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 
 	sdkmath "cosmossdk.io/math"
-	simappparams "cosmossdk.io/simapp/params"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
@@ -28,8 +28,8 @@ import (
 	"github.com/evmos/evmos/v14/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 
+	errorsmod "cosmossdk.io/errors"
 	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
 	"github.com/evmos/evmos/v14/server/config"
 )
 
@@ -56,7 +56,7 @@ var _ TxFactory = (*IntegrationTxFactory)(nil)
 type IntegrationTxFactory struct {
 	grpcHandler grpc.Handler
 	network     network.Network
-	ec          *simappparams.EncodingConfig
+	ec          *testutiltypes.TestEncodingConfig
 }
 
 // New creates a new IntegrationTxFactory instance
@@ -64,7 +64,7 @@ func New(
 	grpcHandler grpc.Handler,
 	network network.Network,
 ) *IntegrationTxFactory {
-	ec := encoding.MakeConfig(app.ModuleBasics)
+	ec := makeConfig(app.ModuleBasics)
 	return &IntegrationTxFactory{
 		grpcHandler: grpcHandler,
 		network:     network,
@@ -83,13 +83,13 @@ func (tf *IntegrationTxFactory) DeployContract(
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	account, err := tf.grpcHandler.GetEvmAccount(from)
 	if err != nil {
-		return common.Address{}, err
+		return common.Address{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
 	}
 	nonce := account.GetNonce()
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {
-		return common.Address{}, err
+		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
 	}
 	data := contract.Bin
 	data = append(data, ctorArgs...)
@@ -100,7 +100,7 @@ func (tf *IntegrationTxFactory) DeployContract(
 	}
 	_, err = tf.ExecuteEthTx(priv, args)
 	if err != nil {
-		return common.Address{}, err
+		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
 
 	return crypto.CreateAddress(from, nonce), nil
@@ -114,26 +114,26 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 ) (abcitypes.ResponseDeliverTx, error) {
 	msgEthereumTx, err := tf.createMsgEthereumTx(priv, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
 
 	signedMsg, err := signMsgEthereumTx(msgEthereumTx, priv, tf.network.GetChainID())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign ethereum tx")
 	}
 
 	txBytes, err := tf.buildAndEncodeEthTx(signedMsg)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build and encode ethereum tx")
 	}
 
 	res, err := tf.network.BroadcastTxSync(txBytes)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
 	}
 
 	if err := tf.checkEthTxResponse(&res); err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed ETH tx")
 	}
 	return res, nil
 }
@@ -160,7 +160,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	txBuilder := txConfig.NewTxBuilder()
 
 	if err := txBuilder.SetMsgs(txArgs.Msgs...); err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx msgs")
 	}
 
 	if txArgs.FeeGranter != nil {
@@ -170,7 +170,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	senderAddress := sdktypes.AccAddress(privKey.PubKey().Address().Bytes())
 	account, err := tf.grpcHandler.GetAccount(senderAddress.String())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrapf(err, "failed to get account: %s", senderAddress.String())
 	}
 
 	sequence := account.GetSequence()
@@ -194,7 +194,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 
 	err = txBuilder.SetSignatures(sigsV2)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx signatures")
 	}
 
 	if txArgs.FeeGranter != nil {
@@ -204,14 +204,14 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	txBuilder.SetFeePayer(senderAddress)
 	simulateBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
 
 	var gasLimit uint64
 	if txArgs.Gas == 0 {
 		simulateRes, err := tf.network.Simulate(simulateBytes)
 		if err != nil {
-			return abcitypes.ResponseDeliverTx{}, err
+			return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to simulate tx")
 		}
 		gasLimit = uint64(gasAdjustment * float64(simulateRes.GasInfo.GasUsed))
 	} else {
@@ -226,7 +226,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	} else {
 		baseFee, err := tf.grpcHandler.GetBaseFee()
 		if err != nil {
-			return abcitypes.ResponseDeliverTx{}, err
+			return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to get base fee")
 		}
 		price := baseFee.BaseFee
 		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}}
@@ -235,17 +235,17 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 
 	signature, err := cosmostx.SignWithPrivKey(signMode, signerData, txBuilder, privKey, txConfig, sequence)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign tx")
 	}
 
 	err = txBuilder.SetSignatures(signature)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx signatures")
 	}
 
 	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, err
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
 	return tf.network.BroadcastTxSync(txBytes)
 }
@@ -257,12 +257,12 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 		From: from,
 	})
 	if err != nil {
-		return 0, err
+		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
 	}
 
 	res, err := tf.grpcHandler.EstimateGas(args, config.DefaultGasCap)
 	if err != nil {
-		return 0, err
+		return 0, errorsmod.Wrap(err, "failed to estimate gas")
 	}
 	gas := res.Gas
 	return gas, nil
@@ -278,7 +278,7 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	// Fill TxArgs with default values
 	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
 	if err != nil {
-		return evmtypes.MsgEthereumTx{}, err
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
 	return buildMsgEthereumTx(txArgs, fromAddr)
 }
@@ -292,7 +292,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	if txArgs.ChainID == nil {
 		ethChainID, err := types.ParseChainID(tf.network.GetChainID())
 		if err != nil {
-			return evmtypes.EvmTxArgs{}, err
+			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to parse chain id: %v", tf.network.GetChainID())
 		}
 		txArgs.ChainID = ethChainID
 	}
@@ -300,7 +300,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	if txArgs.Nonce == 0 {
 		accountResp, err := tf.grpcHandler.GetEvmAccount(fromAddr)
 		if err != nil {
-			return evmtypes.EvmTxArgs{}, err
+			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to get evm account: %s", fromAddr.String())
 		}
 		txArgs.Nonce = accountResp.GetNonce()
 	}
@@ -312,7 +312,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		if txArgs.GasFeeCap == nil {
 			baseFeeResp, err := tf.grpcHandler.GetBaseFee()
 			if err != nil {
-				return evmtypes.EvmTxArgs{}, err
+				return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to get base fee")
 			}
 			txArgs.GasFeeCap = baseFeeResp.BaseFee.BigInt()
 		}
@@ -323,7 +323,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	if txArgs.GasLimit == 0 {
 		gasLimit, err := tf.EstimateGasLimit(&fromAddr, &txArgs)
 		if err != nil {
-			return evmtypes.EvmTxArgs{}, err
+			return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to estimate gas limit")
 		}
 		txArgs.GasLimit = gasLimit
 	}
@@ -339,12 +339,12 @@ func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) 
 	txBuilder := txConfig.NewTxBuilder()
 	signingTx, err := msg.BuildTx(txBuilder, tf.network.GetDenom())
 	if err != nil {
-		return nil, err
+		return nil, errorsmod.Wrap(err, "failed to build tx")
 	}
 
 	txBytes, err := txConfig.TxEncoder()(signingTx)
 	if err != nil {
-		return nil, err
+		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}
 	return txBytes, nil
 }
@@ -358,7 +358,7 @@ func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDelive
 
 	cdc := tf.ec.Codec
 	if err := cdc.Unmarshal(res.Data, &txData); err != nil {
-		return err
+		return errorsmod.Wrap(err, "failed to unmarshal tx data")
 	}
 
 	if len(txData.MsgResponses) != 1 {
@@ -367,7 +367,7 @@ func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDelive
 
 	var evmRes evmtypes.MsgEthereumTxResponse
 	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
-		return err
+		return errorsmod.Wrap(err, "failed to unmarshal evm tx response")
 	}
 
 	if evmRes.Failed() {
