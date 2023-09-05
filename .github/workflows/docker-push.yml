@@ -59,20 +59,16 @@ jobs:
         id: get_tags
         run: echo "::set-output name=tags::$(git tag -l 'v12*' | xargs)"
       -
-        name: Build and push v12 tags
+        name: Build and push all v12 tags
         run: |
           IFS=' ' read -ra TAGS <<< "${{ steps.get_tags.outputs.tags }}"
           for tag in "${TAGS[@]}"; do
             echo "Building and pushing Docker image for tag $tag"
-            echo "tag=$tag" >> $GITHUB_ENV
             docker buildx create --use
-            echo "Using docker/build-push-action@v4 for tag $tag"
-            echo "tharsishq/evmos:$tag,ghcr.io/${{ github.repository }}/evmos:$tag"
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              --tag ghcr.io/${{ github.repository }}/evmos:$tag \
+              .
           done
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/${{ github.repository }}/evmos:${{ env.tag }}
+
