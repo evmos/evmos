@@ -22,12 +22,14 @@ jobs:
         uses: actions/checkout@v3
       - name: Git fetch everything
         run: git fetch --prune --tags
+      - run: echo '["v12.0.0", "v12.0.1"]' >> $GITHUB_ENV
+        id: set-matrix
       - name: Get list of v12 tags
         id: get_tags
         run: echo "tags=$(git tag -l 'v12*' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
-      - name: Set matrix for next job
-        id: set-matrix
-        run: echo "::set-output name=matrix::${{ steps.get_tags.outputs.tags }}"
+      # - name: Set matrix for next job
+      #   id: set-matrix
+      #   run: echo "::set-output name=matrix::${{ steps.get_tags.outputs.tags }}"
 
   docker:
     runs-on: ubuntu-latest
