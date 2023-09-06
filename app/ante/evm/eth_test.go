@@ -434,10 +434,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			zeroFeeTx,
 			zeroFeeTx.GetGas(),
 			func(ctx sdk.Context) sdk.Context {
-				params := suite.app.FeeMarketKeeper.GetParams(ctx)
-				params.NoBaseFee = true
-				params.MinGasPrice = sdk.ZeroDec()
-				suite.app.FeeMarketKeeper.SetParams(ctx, params)
+				suite.disableBaseFee(ctx)
 				return ctx
 			},
 			true, false,
@@ -452,10 +449,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			makeZeroFeeTx(addr, *eth2TxContractParams),
 			tx2GasLimit,
 			func(ctx sdk.Context) sdk.Context {
-				params := suite.app.FeeMarketKeeper.GetParams(ctx)
-				params.NoBaseFee = true
-				params.MinGasPrice = sdk.ZeroDec()
-				suite.app.FeeMarketKeeper.SetParams(ctx, params)
+				suite.disableBaseFee(ctx)
 				return ctx
 			},
 			true, false,
