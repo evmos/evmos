@@ -117,7 +117,9 @@ def test_priority(evmos):
     # the later txs should be included earlier because of higher priority
     tx_indexes = [(r.blockNumber, r.transactionIndex) for r in receipts]
 
-    # the first sent tx are included later, because of lower priority
+    # with mempool v1 (deprecated)
+    # the first sent tx were included later, because of lower priority
+    # leaving this code in case a prioritized mempool is supported again
     # assert all(i1 > i2 for i1, i2 in zip(tx_indexes, tx_indexes[1:]))
     # UPDATE: prioritized mempool (v1) was deprecated
     # txs should be FIFO
@@ -195,8 +197,10 @@ def test_native_tx_priority(evmos):
     tx_results = [cli.tx_search_rpc(f"tx.hash='{txhash}'")[0] for txhash in txhashes]
     tx_indexes = [(int(r["height"]), r["index"]) for r in tx_results]
 
-    # the first sent tx are included later, because of lower priority
+    # with mempool v1 (deprecated)
+    # the first sent tx were included later, because of lower priority
     # ensure desc within continuous block
+    # leaving this code in case a prioritized mempool is supported again
     # assert all(
     #     (b1 < b2 or (b1 == b2 and i1 > i2))
     #     for (b1, i1), (b2, i2) in zip(tx_indexes, tx_indexes[1:])

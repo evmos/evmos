@@ -100,11 +100,10 @@ class Geth:
 
 
 def setup_evmos(path, base_port, long_timeout_commit=False):
-    cfg = Path(__file__).parent / (
-        "configs/default.jsonnet"
-        if long_timeout_commit
-        else "configs/long_timeout_commit.jsonnet"
-    )
+    config = "configs/long_timeout_commit.jsonnet"
+    if long_timeout_commit:
+        config = "configs/long_timeout_commit.jsonnet"
+    cfg = Path(__file__).parent / config
     yield from setup_custom_evmos(path, base_port, cfg)
 
 
