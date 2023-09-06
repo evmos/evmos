@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -74,4 +75,10 @@ type StakingKeeper interface {
 // requires for clawing back unvested coins to the community pool.
 type DistributionKeeper interface {
 	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
+
+// GovKeeper defines the expected interface contract the vesting module requires
+// for accessing governance related information.
+type GovKeeper interface {
+	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
 }
