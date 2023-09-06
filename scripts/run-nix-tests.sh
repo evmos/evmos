@@ -17,7 +17,7 @@ cd "$(dirname "$0")"
 export TMPDIR=/tmp
 
 echo "build test contracts"
-cd ../tests/integration_tests/hardhat
+cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..

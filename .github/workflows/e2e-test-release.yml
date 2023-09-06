@@ -42,9 +42,9 @@ jobs:
             **/**.go
             go.mod
             go.sum
-            tests/integration_tests/**
-      - name: Run integration tests
-        run: make run-integration-tests
+            tests/nix_tests/**
+      - name: Run nix tests
+        run: make run-nix-tests
         if: env.GIT_DIFF
 
   upload-cache:
@@ -69,4 +69,4 @@ jobs:
           name: evmosd
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: 'instantiate nix test env'
-        run: nix-store -r "$(nix-instantiate tests/integration_tests/shell.nix)"   
+        run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"   

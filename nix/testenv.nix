@@ -1,6 +1,6 @@
 { poetry2nix, lib, python310 }:
 poetry2nix.mkPoetryEnv {
-  projectDir = ../tests/integration_tests;
+  projectDir = ../tests/nix_tests;
   python = python310;
   overrides = poetry2nix.overrides.withDefaults (lib.composeManyExtensions [
     (self: super:

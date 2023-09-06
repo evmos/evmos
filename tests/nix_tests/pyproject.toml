@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "integration_tests"
+name = "nix_tests"
 version = "0.1.0"
 description = ""
 authors = ["chain-dev <chain@crypto.com>"]

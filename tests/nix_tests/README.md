@@ -31,14 +31,14 @@ sh <(curl -L https://nixos.org/nix/install) --no-daemon
 First time run (can take a while):
 
 ```
-make run-integration-tests
+make run-nix-tests
 ```
 
 Once you've run them once and, you can run:
 
 ```
-nix-shell tests/integration_tests/shell.nix
-cd tests/integration_tests
+nix-shell tests/nix_tests/shell.nix
+cd tests/nix_tests
 pytest -s -vv
 ```
 
