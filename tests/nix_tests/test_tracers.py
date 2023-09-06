@@ -21,8 +21,7 @@ def test_tracers(cluster):
     eth_rpc = w3.provider
     gas_price = w3.eth.gas_price
     tx = {"to": ADDRS["community"], "value": 100, "gasPrice": gas_price}
-    tx_hash = send_transaction(w3, tx, KEYS["validator"])[
-        "transactionHash"].hex()
+    tx_hash = send_transaction(w3, tx, KEYS["validator"])["transactionHash"].hex()
 
     tx_res = eth_rpc.make_request("debug_traceTransaction", [tx_hash])
 
@@ -37,22 +36,19 @@ def test_tracers(cluster):
         "debug_traceTransaction", [tx_hash, {"tracer": "callTracer"}]
     )
 
-    fields = ["to", "from", "gas", "gasUsed",
-              "input", "output", "type", "value"]
+    fields = ["to", "from", "gas", "gasUsed", "input", "output", "type", "value"]
     compare_fields(tx_res["result"], EXPECTED_CALLTRACERS, fields)
 
     # geth works with this format, while evmos throws a parsing error
     tx_res = eth_rpc.make_request(
         "debug_traceTransaction",
-        [tx_hash, {"tracer": "callTracer",
-                   "tracerConfig": {"onlyTopCall": True}}],
+        [tx_hash, {"tracer": "callTracer", "tracerConfig": {"onlyTopCall": True}}],
     )
 
     if "error" in tx_res and "cannot unmarshal object" in tx_res["error"]["message"]:
         tx_res = eth_rpc.make_request(
             "debug_traceTransaction",
-            [tx_hash, {"tracer": "callTracer",
-                       "tracerConfig": "{'onlyTopCall':True}"}],
+            [tx_hash, {"tracer": "callTracer", "tracerConfig": "{'onlyTopCall':True}"}],
         )
 
     compare_fields(tx_res["result"], EXPECTED_CALLTRACERS, fields)

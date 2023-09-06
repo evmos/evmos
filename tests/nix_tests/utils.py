@@ -81,8 +81,7 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int(
-        (cli.status())["SyncInfo"]["latest_block_height"])
+    cur_height = begin_height = int((cli.status())["SyncInfo"]["latest_block_height"])
     while cur_height - begin_height < n:
         time.sleep(sleep)
         cur_height = int((cli.status())["SyncInfo"]["latest_block_height"])
