@@ -11,6 +11,8 @@ PRIORITY_REDUCTION = 1000000
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("priority")
+    # run with long timeout commit to ensure all
+    # txs are included in the same block
     yield from setup_evmos(path, 26800, long_timeout_commit=True)
 
 
@@ -35,7 +37,7 @@ def tx_priority(tx, base_fee):
         return (tx["gasPrice"] - base_fee) // PRIORITY_REDUCTION
 
 
-def test_priority(evmos):
+def test_priority(custom_evmos):
     """
     test priorities of different tx types
 
@@ -45,7 +47,7 @@ def test_priority(evmos):
     UPDATE: in cometbft v0.37.2, the v1 (priority mempool)
     was deprecated. So txs should be FIFO
     """
-    w3 = evmos.w3
+    w3 = custom_evmos.w3
     amount = 10000
     base_fee = w3.eth.get_block("latest").baseFeePerGas
 
@@ -126,8 +128,8 @@ def test_priority(evmos):
     assert all(i1 < i2 for i1, i2 in zip(tx_indexes, tx_indexes[1:]))
 
 
-def test_native_tx_priority(evmos):
-    cli = evmos.cosmos_cli()
+def test_native_tx_priority(custom_evmos):
+    cli = custom_evmos.cosmos_cli()
     base_fee = cli.query_base_fee()
 
     test_cases = [
