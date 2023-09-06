@@ -665,3 +665,10 @@ func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress,
 		WithBlockGasMeter(sdk.NewGasMeter(1e19)).
 		WithBlockHeight(ctx.BlockHeight() + 1)
 }
+
+func makeZeroFeeTx(from common.Address, args evmtypes.EvmTxArgs) *evmtypes.MsgEthereumTx {
+	args.GasPrice = sdk.ZeroInt().BigInt()
+	tx := evmtypes.NewTx(&args)
+	tx.From = from.Hex()
+	return tx
+}
