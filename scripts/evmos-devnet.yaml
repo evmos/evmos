@@ -55,11 +55,11 @@ evmos_9000-1:
         deposit_params:
           max_deposit_period: "10s"
           min_deposit:
-            - denom: "aevmos"
+            - denom: aevmos
               amount: "1"
         params:
           min_deposit:
-            - denom: "aevmos"
+            - denom: aevmos
               amount: "1"        
       transfer:
         params:
