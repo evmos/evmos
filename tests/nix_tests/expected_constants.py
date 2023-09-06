@@ -118,7 +118,6 @@ EXPECTED_GET_TRANSACTION_RECEIPT = {
         "blockNumber": "0xa50131",
         "contractAddress": None,
         "cumulativeGasUsed": "0xb72e24",
-        # "effectiveGasPrice": "0x147d357000",
         "from": "0x56ac35db407fe1fb4977edd41f712aa5d8e7eb08",
         "gasUsed": "0x5208",
         "logs": [],

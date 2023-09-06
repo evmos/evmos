@@ -21,7 +21,11 @@ from .utils import (
 
 
 def test_block(evmos, geth):
+    # Perform block queries (eth_getBlockByNumber & eth_getBlockByHash)
+    # on evmos and geth nodes, and compare the responses
+    # Case 1: block without transactions
     get_blocks(evmos, geth, False)
+    # Case 2: block with transactions
     get_blocks(evmos, geth, True)
 
 

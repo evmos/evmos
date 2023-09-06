@@ -81,7 +81,8 @@ def w3_wait_for_new_blocks(w3, n, sleep=0.5):
 
 
 def wait_for_new_blocks(cli, n, sleep=0.5):
-    cur_height = begin_height = int((cli.status())["SyncInfo"]["latest_block_height"])
+    cur_height = begin_height = int(
+        (cli.status())["SyncInfo"]["latest_block_height"])
     while cur_height - begin_height < n:
         time.sleep(sleep)
         cur_height = int((cli.status())["SyncInfo"]["latest_block_height"])
@@ -253,3 +254,8 @@ def derive_new_account(n=1):
     account_path = f"m/44'/60'/0'/0/{n}"
     mnemonic = os.getenv("COMMUNITY_MNEMONIC")
     return Account.from_mnemonic(mnemonic, account_path=account_path)
+
+
+def compare_fields(a, b, fields):
+    for field in fields:
+        assert a[field] == b[field], f"{field} field mismatch"
