@@ -7,10 +7,18 @@ const (
 	// prefixGovClawbackDisabledKey to be used in the KVStore to track vesting accounts that are not subject
 	// to clawback from governance.
 	prefixGovClawbackDisabledKey = iota + 1
+	// prefixGovClawbackProposalKey to be used in the KVStore to track vesting accounts that are subject
+	// to active governance clawback proposals.
+	prefixGovClawbackProposalKey
 )
 
-// KeyPrefixGovClawbackDisabledKey is the slice of prefix bytes for storing the governance clawback enabled/disabled flag.
-var KeyPrefixGovClawbackDisabledKey = []byte{prefixGovClawbackDisabledKey}
+var (
+	// KeyPrefixGovClawbackDisabledKey is the slice of prefix bytes for storing the governance clawback enabled/disabled flag.
+	KeyPrefixGovClawbackDisabledKey = []byte{prefixGovClawbackDisabledKey}
+	// KeyPrefixGovClawbackProposalKey is the slice of prefix bytes for storing the vesting account and funder combination
+	// of governance clawback proposals.
+	KeyPrefixGovClawbackProposalKey = []byte{prefixGovClawbackProposalKey}
+)
 
 const (
 	// ModuleName defines the module's name.

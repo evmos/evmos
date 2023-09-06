@@ -33,3 +33,36 @@ func (k Keeper) DeleteGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) 
 	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
 	ctx.KVStore(k.storeKey).Delete(key)
 }
+
+// HasActiveClawbackProposal checks if there is an active clawback proposal for the given
+// combination of account address and vesting funder.
+func (k Keeper) HasActiveClawbackProposal(ctx sdk.Context, addr, funder sdk.AccAddress) bool {
+	key := buildActiveAccountClawbackProposalKey(addr, funder)
+
+	return ctx.KVStore(k.storeKey).Has(key)
+}
+
+// SetActiveClawbackProposal sets the given combination of account address and vesting funder
+// as subject to an active governance clawback proposal by storing it in the store.
+func (k Keeper) SetActiveClawbackProposal(ctx sdk.Context, addr, funder sdk.AccAddress) {
+	key := buildActiveAccountClawbackProposalKey(addr, funder)
+	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
+}
+
+// DeleteActiveClawbackProposal deletes the given combination of account address and vesting funder
+// from the store, indicating that there is no active governance clawback proposal for it.
+func (k Keeper) DeleteActiveClawbackProposal(ctx sdk.Context, addr, funder sdk.AccAddress) {
+	key := buildActiveAccountClawbackProposalKey(addr, funder)
+	ctx.KVStore(k.storeKey).Delete(key)
+}
+
+// buildActiveAccountClawbackProposalKey builds the key for the given combination of account address
+// and vesting funder.
+func buildActiveAccountClawbackProposalKey(addr, funder sdk.AccAddress) []byte {
+	key := make([]byte, 0, len(types.KeyPrefixGovClawbackProposalKey)+len(addr.Bytes())+len(funder.Bytes()))
+	key = append(key, types.KeyPrefixGovClawbackProposalKey...)
+	key = append(key, addr.Bytes()...)
+	key = append(key, funder.Bytes()...)
+
+	return key
+}
