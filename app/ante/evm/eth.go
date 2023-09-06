@@ -191,15 +191,18 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
 		}
 
-		// If the account balance is not sufficient, try to withdraw enough staking rewards
-		err = anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
-		if err != nil {
-			return ctx, err
-		}
+		// If the user sends a evm transaction with a gas price of 0, skip the staking rewards and tx cost deduct.
+		if !fees.IsZero() {
+			//If the account balance is not sufficient, try to withdraw enough staking rewards
+			err = anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
+			if err != nil {
+				return ctx, err
+			}
 
-		err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.HexToAddress(msgEthTx.From))
-		if err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
+			err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.HexToAddress(msgEthTx.From))
+			if err != nil {
+				return ctx, errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
+			}
 		}
 
 		events = append(events,
