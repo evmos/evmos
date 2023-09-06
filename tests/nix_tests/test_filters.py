@@ -19,7 +19,7 @@ from .utils import (
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("filters")
-    yield from setup_evmos(path, 26200, long_timeout_commit=True)
+    yield from setup_evmos(path, 26200)
 
 
 @pytest.fixture(scope="module")
@@ -713,7 +713,7 @@ def assert_change_greet_log_data(log, new_greeting):
     # check event log data ('from' and 'value' fields)
     types = ["address", "string"]
     names = ["from", "value"]
-    values = abi.decode_abi(types, log["data"])
+    values = abi.decode(types, log["data"])
     log_data = dict(zip(names, values))
 
     # the address stored in the data field may defer on lower/upper case characters

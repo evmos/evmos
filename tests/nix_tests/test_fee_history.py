@@ -10,7 +10,7 @@ from .utils import ADDRS, send_transaction
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("fee-history")
-    yield from setup_evmos(path, 26500, long_timeout_commit=True)
+    yield from setup_evmos(path, 26500)
 
 
 @pytest.fixture(scope="module", params=["evmos", "geth"])
