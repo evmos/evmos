@@ -249,13 +249,11 @@ func (egcd EthGasConsumeDecorator) deductFee(ctx sdk.Context, fees sdk.Coins, fe
 	}
 
 	// If the account balance is not sufficient, try to withdraw enough staking rewards
-	err := anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, feePayer, fees)
-	if err != nil {
+	if err := anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, feePayer, fees); err != nil {
 		return err
 	}
 
-	err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.BytesToAddress(feePayer))
-	if err != nil {
+	if err := egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.BytesToAddress(feePayer)); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
 	return nil
