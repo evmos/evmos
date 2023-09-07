@@ -239,14 +239,13 @@ func validateEthVestingTransactionDecorator(msgs ...sdk.Msg) error {
 }
 
 // voteForProposal is a helper function to vote for a proposal in integration tests.
-func voteForProposal(
-	app *app.Evmos,
-	ctx sdk.Context,
+func (s *KeeperTestSuite) voteForProposal(
 	proposalID uint64,
 	address common.Address,
 	priv cryptotypes.PrivKey,
 ) (abci.ResponseDeliverTx, error) {
-	msg := govtypes.NewMsgVote(address.Bytes(), proposalID, govtypes.VoteOption(govtypes.OptionYes))
-	res, err := testutil.DeliverTx(ctx, app, priv, nil, msg)
+	msg := govtypes.NewMsgVote(address.Bytes(), proposalID, govtypes.OptionYes)
+	res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
+	s.Commit()
 	return res, err
 }
