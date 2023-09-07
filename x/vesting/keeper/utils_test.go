@@ -7,6 +7,10 @@ import (
 
 	. "github.com/onsi/gomega"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -122,6 +126,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// Set correct denom in govKeeper
 	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
 	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e6)))
+	votingPeriod := time.Second
+	govParams.VotingPeriod = &votingPeriod
 	err = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
 	suite.Require().NoError(err, "failed to set gov params")
 }
@@ -230,4 +236,17 @@ func validateEthVestingTransactionDecorator(msgs ...sdk.Msg) error {
 	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
 	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msgs...)
 	return err
+}
+
+// voteForProposal is a helper function to vote for a proposal in integration tests.
+func voteForProposal(
+	app *app.Evmos,
+	ctx sdk.Context,
+	proposalID uint64,
+	address common.Address,
+	priv cryptotypes.PrivKey,
+) (abci.ResponseDeliverTx, error) {
+	msg := govtypes.NewMsgVote(address.Bytes(), proposalID, govtypes.VoteOption(govtypes.OptionYes))
+	res, err := testutil.DeliverTx(ctx, app, priv, nil, msg)
+	return res, err
 }
