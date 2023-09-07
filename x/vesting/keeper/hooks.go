@@ -53,7 +53,7 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 		return
 	}
 
-	clawbackProposal, isClawbackProposal, err := getClawbackProposal(proposal)
+	clawbackProposals, err := getClawbackProposals(proposal)
 	if err != nil {
 		k.Logger(ctx).Error("failed to get clawback proposal",
 			"proposalID", proposalID,
@@ -62,22 +62,22 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 		)
 		return
 	}
-	if !isClawbackProposal {
-		// no-op when proposal is not a clawback proposal
+	if len(clawbackProposals) == 0 {
+		// no-op when proposal does not contain a clawback proposal
 		return
 	}
 
-	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
 	govParams := k.govKeeper.GetParams(ctx)
 	minDeposit := sdk.NewCoins(govParams.MinDeposit...)
+	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
 	if totalDeposit.IsAllLT(minDeposit) {
 		return
 	}
 
-	// TODO: do we need check here if there is already an active proposal?
-	// or should we check that in the proposal handler? Probably better there
-	vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
-	k.SetActiveClawbackProposal(ctx, vesting)
+	for _, clawbackProposal := range clawbackProposals {
+		vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+		k.SetActiveClawbackProposal(ctx, vesting)
+	}
 }
 
 // AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on
@@ -117,7 +117,7 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 		return
 	}
 
-	clawbackProposal, isClawbackProposal, err := getClawbackProposal(proposal)
+	clawbackProposals, err := getClawbackProposals(proposal)
 	if err != nil {
 		k.Logger(ctx).Error("failed to get clawback proposal",
 			"proposalID", proposalID,
@@ -126,37 +126,43 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 		)
 		return
 	}
-	if !isClawbackProposal {
-		// no-op when proposal is not a clawback proposal
+	if len(clawbackProposals) == 0 {
+		// no-op when proposal content does not contain a clawback proposal
 		return
 	}
 
-	vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
-	k.DeleteActiveClawbackProposal(ctx, vesting)
+	for _, clawbackProposal := range clawbackProposals {
+		vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+		k.DeleteActiveClawbackProposal(ctx, vesting)
+	}
 }
 
-// getClawbackProposal checks if the proposal with the given ID is a governance
+// getClawbackProposals checks if the proposal with the given ID is a governance
 // clawback proposal.
-func getClawbackProposal(proposal govv1.Proposal) (vestingtypes.ClawbackProposal, bool, error) {
-	// TODO: do we have to check here or is this hook only called for clawback governance proposals?
+func getClawbackProposals(proposal govv1.Proposal) ([]vestingtypes.ClawbackProposal, error) {
 	msgs, err := proposal.GetMsgs()
 	if err != nil {
-		return vestingtypes.ClawbackProposal{}, false, err
+		return []vestingtypes.ClawbackProposal{}, err
 	}
 	if len(msgs) == 0 {
-		return vestingtypes.ClawbackProposal{}, false, errors.New("proposal has no messages")
+		return []vestingtypes.ClawbackProposal{}, errors.New("proposal has no messages")
 	}
 
-	msgContent, ok := msgs[0].(*govv1.MsgExecLegacyContent)
-	if !ok {
-		return vestingtypes.ClawbackProposal{}, false, errors.New("failed to cast msg to MsgExecLegacyContent")
+	clawbackProposals := make([]vestingtypes.ClawbackProposal, 0, len(msgs))
+	for _, msg := range msgs {
+		msgContent, ok := msg.(*govv1.MsgExecLegacyContent)
+		if !ok {
+			continue
+		}
+
+		clawbackProposal, ok := msgContent.Content.GetCachedValue().(*vestingtypes.ClawbackProposal)
+		if !ok {
+			continue
+		}
+
+		clawbackProposals = append(clawbackProposals, *clawbackProposal)
 	}
 
-	clawbackProposal, ok := msgContent.Content.GetCachedValue().(*vestingtypes.ClawbackProposal)
-	if !ok {
-		// NOTE: no need to return an error here, it's expected that proposals are not a clawback proposal
-		return vestingtypes.ClawbackProposal{}, false, nil
-	}
-
-	return *clawbackProposal, true, nil
+	// NOTE: no need to return an error here, it's expected that most proposals do not contain a clawback proposal
+	return clawbackProposals, nil
 }
