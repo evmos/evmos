@@ -9,7 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -80,5 +80,5 @@ type DistributionKeeper interface {
 // GovKeeper defines the expected interface contract the vesting module requires
 // for accessing governance related information.
 type GovKeeper interface {
-	GetProposal(ctx sdk.Context, proposalID uint64) (govtypes.Proposal, bool)
+	GetProposal(ctx sdk.Context, proposalID uint64) (v1.Proposal, bool)
 }

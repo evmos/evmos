@@ -605,6 +605,7 @@ func NewEvmos(
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.ClaimsKeeper.Hooks(),
+			app.VestingKeeper.Hooks(),
 		),
 	)
 
