@@ -873,61 +873,89 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		s.Require().Equal(balanceDest, bD)
 	})
 
-	It("should not allow clawback while there is an active governance proposal for the vesting account and funder combination", func() {
-		govClawbackProposal := &types.ClawbackProposal{
-			Title:              "test gov clawback",
-			Description:        "this is an example of a governance proposal to clawback vesting coins",
-			Address:            vestingAddr.String(),
-			DestinationAddress: funder.String(),
-		}
+	Context("while there is an active governance proposal for the vesting account", func() {
+		// timeUntilProposalEnds is the duration between the submission and end of the voting period
+		var timeUntilProposalEnds time.Duration
 
-		deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: sdk.NewInt(1e9)}}
+		BeforeEach(func() {
+			govClawbackProposal := &types.ClawbackProposal{
+				Title:              "test gov clawback",
+				Description:        "this is an example of a governance proposal to clawback vesting coins",
+				Address:            vestingAddr.String(),
+				DestinationAddress: funder.String(),
+			}
 
-		// Create the message to submit the proposal
-		msgSubmit, err := v1beta1.NewMsgSubmitProposal(
-			govClawbackProposal, deposit, s.address.Bytes(),
-		)
-		Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
+			deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: sdk.NewInt(1e9)}}
 
-		// deliver the proposal
-		_, err = testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgSubmit)
-		Expect(err).ToNot(HaveOccurred(), "expected no error during proposal submission")
+			// Create the message to submit the proposal
+			msgSubmit, err := v1beta1.NewMsgSubmitProposal(
+				govClawbackProposal, deposit, s.address.Bytes(),
+			)
+			Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
 
-		s.Commit()
+			// deliver the proposal
+			_, err = testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgSubmit)
+			Expect(err).ToNot(HaveOccurred(), "expected no error during proposal submission")
 
-		// Check if the proposal was submitted
-		proposals := s.app.GovKeeper.GetProposals(s.ctx)
-		Expect(len(proposals)).To(Equal(1), "expected one proposal to be submitted")
-		Expect(proposals[0].GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
+			s.Commit()
 
-		// Try to clawback tokens
-		msgClawback := types.NewMsgClawback(funder, vestingAddr, dest)
-		_, err = s.app.VestingKeeper.Clawback(sdk.WrapSDKContext(s.ctx), msgClawback)
-		Expect(err).To(HaveOccurred(), "expected error during clawback while there is an active governance proposal")
+			// Check if the proposal was submitted
+			proposals := s.app.GovKeeper.GetProposals(s.ctx)
+			Expect(len(proposals)).To(Equal(1), "expected one proposal to be submitted")
+			Expect(proposals[0].GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
 
-		// Check that the clawback was not performed
-		acc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
-		Expect(acc).ToNot(BeNil(), "expected account to exist")
-		_, isClawback := acc.(*types.ClawbackVestingAccount)
-		Expect(isClawback).To(BeTrue(), "expected account to be clawback vesting account")
+			timeUntilProposalEnds = proposals[0].VotingEndTime.Sub(*proposals[0].SubmitTime)
 
-		balances, err := s.app.VestingKeeper.Balances(s.ctx, &types.QueryBalancesRequest{
-			Address: vestingAddr.String(),
+			// Check the store entry was set correctly
+			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
+			Expect(hasActivePropposal).To(BeTrue(), "expected an active clawback proposal for the vesting account and funder combination")
 		})
-		Expect(err).ToNot(HaveOccurred(), "expected no error during balances query")
-		Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
 
-		// Check that the funds are clawed back after the proposal ends
-		timeToCommitAfter := proposals[0].VotingEndTime.Sub(*proposals[0].SubmitTime)
-		s.CommitAfter(timeToCommitAfter)
+		It("should not allow clawback", func() {
+			// Try to clawback tokens
+			msgClawback := types.NewMsgClawback(funder, vestingAddr, dest)
+			_, err = s.app.VestingKeeper.Clawback(sdk.WrapSDKContext(s.ctx), msgClawback)
+			Expect(err).To(HaveOccurred(), "expected error during clawback while there is an active governance proposal")
+			Expect(err.Error()).To(ContainSubstring("clawback is disabled while there is an active clawback proposal"))
 
-		// Check that the funds were clawed back and the account was converted to a normal account
-		acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
-		Expect(acc).ToNot(BeNil(), "expected account to exist")
-		_, isClawback = acc.(*types.ClawbackVestingAccount)
-		Expect(isClawback).To(BeFalse(), "expected account to be a normal account")
+			// Check that the clawback was not performed
+			acc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
+			Expect(acc).ToNot(BeNil(), "expected account to exist")
+			_, isClawback := acc.(*types.ClawbackVestingAccount)
+			Expect(isClawback).To(BeTrue(), "expected account to be clawback vesting account")
 
-		// TODO: check balances
+			balances, err := s.app.VestingKeeper.Balances(s.ctx, &types.QueryBalancesRequest{
+				Address: vestingAddr.String(),
+			})
+			Expect(err).ToNot(HaveOccurred(), "expected no error during balances query")
+			Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
+
+			// Check that the funds are clawed back after the proposal ends
+			s.CommitAfter(timeUntilProposalEnds)
+
+			// Check that the funds were clawed back and the account was converted to a normal account
+			acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
+			Expect(acc).ToNot(BeNil(), "expected account to exist")
+			_, isClawback = acc.(*types.ClawbackVestingAccount)
+			Expect(isClawback).To(BeFalse(), "expected account to be a normal account")
+
+			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
+			Expect(hasActivePropposal).To(BeFalse(), "expected no active clawback proposal")
+		})
+
+		It("should not allow changing the vesting funder", func() {
+			msgUpdateFunder := types.NewMsgUpdateVestingFunder(funder, dest, vestingAddr)
+			_, err = s.app.VestingKeeper.UpdateVestingFunder(sdk.WrapSDKContext(s.ctx), msgUpdateFunder)
+			Expect(err).To(HaveOccurred(), "expected error during update funder while there is an active governance proposal")
+			Expect(err.Error()).To(ContainSubstring("cannot update funder while there is an active clawback proposal"))
+
+			// Check that the funder was not updated
+			acc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
+			Expect(acc).ToNot(BeNil(), "expected account to exist")
+			clawbackAcc, isClawback := acc.(*types.ClawbackVestingAccount)
+			Expect(isClawback).To(BeTrue(), "expected account to be clawback vesting account")
+			Expect(clawbackAcc.FunderAddress).To(Equal(funder.String()), "expected funder to be unchanged")
+		})
 	})
 
 	It("should update vesting funder and claw back unvested amount before cliff", func() {
