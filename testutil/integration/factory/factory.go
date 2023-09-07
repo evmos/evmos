@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	cosmostx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/gogoproto/proto"
 
@@ -156,11 +157,25 @@ type CosmosTxArgs struct {
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
 func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+	txBuilder, err := tf.buildTx(privKey, txArgs)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build tx")
+	}
+
+	txBytes, err := tf.encodeTx(txBuilder)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
+	}
+
+	return tf.network.BroadcastTxSync(txBytes)
+}
+
+func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (client.TxBuilder, error) {
 	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
 
 	if err := txBuilder.SetMsgs(txArgs.Msgs...); err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx msgs")
+		return nil, errorsmod.Wrap(err, "failed to set tx msgs")
 	}
 
 	if txArgs.FeeGranter != nil {
@@ -170,7 +185,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	senderAddress := sdktypes.AccAddress(privKey.PubKey().Address().Bytes())
 	account, err := tf.grpcHandler.GetAccount(senderAddress.String())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrapf(err, "failed to get account: %s", senderAddress.String())
+		return nil, errorsmod.Wrapf(err, "failed to get account: %s", senderAddress.String())
 	}
 
 	sequence := account.GetSequence()
@@ -194,7 +209,7 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 
 	err = txBuilder.SetSignatures(sigsV2)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx signatures")
+		return nil, errorsmod.Wrap(err, "failed to set tx signatures")
 	}
 
 	if txArgs.FeeGranter != nil {
@@ -202,52 +217,75 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	}
 
 	txBuilder.SetFeePayer(senderAddress)
+
+	gasLimit, err := tf.estimateGas(txArgs, txBuilder)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to estimate gas")
+	}
+	txBuilder.SetGasLimit(gasLimit)
+
+	fees, err := tf.calculateFees(txArgs.GasPrice, gasLimit)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to calculate fees")
+	}
+	txBuilder.SetFeeAmount(fees)
+
+	signature, err := cosmostx.SignWithPrivKey(signMode, signerData, txBuilder, privKey, txConfig, sequence)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to sign tx")
+	}
+
+	err = txBuilder.SetSignatures(signature)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to set tx signatures")
+	}
+
+	return txBuilder, nil
+}
+
+func (tf *IntegrationTxFactory) encodeTx(txBuilder client.TxBuilder) ([]byte, error) {
+	txConfig := tf.ec.TxConfig
+	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to encode tx")
+	}
+	return txBytes, nil
+}
+
+func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (sdktypes.Coins, error) {
+	denom := tf.network.GetDenom()
+	var fees sdktypes.Coins
+	if gasPrice != nil {
+		fees = sdktypes.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(gasLimit))}}
+	} else {
+		baseFee, err := tf.grpcHandler.GetBaseFee()
+		if err != nil {
+			return sdktypes.Coins{}, errorsmod.Wrap(err, "failed to get base fee")
+		}
+		price := baseFee.BaseFee
+		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}}
+	}
+	return fees, nil
+}
+
+func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder client.TxBuilder) (uint64, error) {
+	txConfig := tf.ec.TxConfig
 	simulateBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
+		return 0, errorsmod.Wrap(err, "failed to encode tx")
 	}
 
 	var gasLimit uint64
 	if txArgs.Gas == 0 {
 		simulateRes, err := tf.network.Simulate(simulateBytes)
 		if err != nil {
-			return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to simulate tx")
+			return 0, errorsmod.Wrap(err, "failed to simulate tx")
 		}
 		gasLimit = uint64(gasAdjustment * float64(simulateRes.GasInfo.GasUsed))
 	} else {
 		gasLimit = txArgs.Gas
 	}
-	txBuilder.SetGasLimit(gasLimit)
-
-	denom := tf.network.GetDenom()
-	var fees sdktypes.Coins
-	if txArgs.GasPrice != nil {
-		fees = sdktypes.Coins{{Denom: denom, Amount: txArgs.GasPrice.MulRaw(int64(gasLimit))}}
-	} else {
-		baseFee, err := tf.grpcHandler.GetBaseFee()
-		if err != nil {
-			return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to get base fee")
-		}
-		price := baseFee.BaseFee
-		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}}
-	}
-	txBuilder.SetFeeAmount(fees)
-
-	signature, err := cosmostx.SignWithPrivKey(signMode, signerData, txBuilder, privKey, txConfig, sequence)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign tx")
-	}
-
-	err = txBuilder.SetSignatures(signature)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to set tx signatures")
-	}
-
-	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
-	}
-	return tf.network.BroadcastTxSync(txBytes)
+	return gasLimit, nil
 }
 
 // EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
