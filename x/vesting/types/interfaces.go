@@ -80,5 +80,6 @@ type DistributionKeeper interface {
 // GovKeeper defines the expected interface contract the vesting module requires
 // for accessing governance related information.
 type GovKeeper interface {
+	GetParams(ctx sdk.Context) v1.Params
 	GetProposal(ctx sdk.Context, proposalID uint64) (v1.Proposal, bool)
 }

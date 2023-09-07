@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"errors"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -33,10 +34,29 @@ func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 // It adds a store entry for the combination of vesting account and funder address for the time
 // the proposal is active in order to prevent manual clawback from the funder, which could overrule
 // the community vote.
-func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
-	proposal, isClawbackProposal, err := k.getClawbackProposal(ctx, proposalID)
+func (k Keeper) AfterProposalSubmission(_ sdk.Context, _ uint64) {}
+
+// AfterProposalDeposit is a wrapper for calling the Gov AfterProposalDeposit hook on
+// the module keeper
+func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, depositorAddr sdk.AccAddress) {
+	h.k.AfterProposalDeposit(ctx, proposalID, depositorAddr)
+}
+
+// AfterProposalDeposit is called after a deposit is made on a governance clawback proposal.
+func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
+	fmt.Println("Running AfterProposalDeposit")
+	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
+	if !found {
+		k.Logger(ctx).Error("proposal not found",
+			"proposalID", proposalID,
+			"hook", "AfterProposalSubmission",
+		)
+		return
+	}
+
+	clawbackProposal, isClawbackProposal, err := getClawbackProposal(proposal)
 	if err != nil {
-		k.Logger(ctx).Error("failed to check proposal",
+		k.Logger(ctx).Error("failed to get clawback proposal",
 			"proposalID", proposalID,
 			"hook", "AfterProposalSubmission",
 			"error", err,
@@ -48,21 +68,21 @@ func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 		return
 	}
 
-	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
+	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
+	fmt.Println("Total deposit: ", totalDeposit)
+	govParams := k.govKeeper.GetParams(ctx)
+	minDeposit := sdk.NewCoins(govParams.MinDeposit...)
+	fmt.Println("Min deposit: ", minDeposit)
+	if totalDeposit.IsAllLT(minDeposit) {
+		fmt.Println("Proposal deposit is less than min deposit")
+		return
+	}
 
 	// TODO: do we need check here if there is already an active proposal?
 	// or should we check that in the proposal handler? Probably better there
+	vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
 	k.SetActiveClawbackProposal(ctx, vesting)
 }
-
-// AfterProposalDeposit is a wrapper for calling the Gov AfterProposalDeposit hook on
-// the module keeper
-func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, depositorAddr sdk.AccAddress) {
-	h.k.AfterProposalDeposit(ctx, proposalID, depositorAddr)
-}
-
-// AfterProposalDeposit is called after a deposit is made on a governance clawback proposal.
-func (k Keeper) AfterProposalDeposit(_ sdk.Context, _ uint64, _ sdk.AccAddress) {}
 
 // AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on
 // the module keeper
@@ -81,25 +101,7 @@ func (h Hooks) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64)
 
 // AfterProposalFailedMinDeposit is called after a governance clawback proposal fails due to
 // not meeting the minimum deposit.
-func (k Keeper) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64) {
-	proposal, isClawbackProposal, err := k.getClawbackProposal(ctx, proposalID)
-	if err != nil {
-		k.Logger(ctx).Error("failed to check proposal",
-			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
-			"error", err,
-		)
-		return
-	}
-	if !isClawbackProposal {
-		// no-op when proposal is not a clawback proposal
-		return
-	}
-
-	// NOTE: this was checked before submitting the proposal
-	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
-	k.DeleteActiveClawbackProposal(ctx, vesting)
-}
+func (k Keeper) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {}
 
 // AfterProposalVotingPeriodEnded is a wrapper for calling the Gov AfterProposalVotingPeriodEnded hook on
 // the module keeper
@@ -110,9 +112,18 @@ func (h Hooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64
 // AfterProposalVotingPeriodEnded is called after the voting period of a governance clawback proposal
 // has ended.
 func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {
-	proposal, isClawbackProposal, err := k.getClawbackProposal(ctx, proposalID)
+	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
+	if !found {
+		k.Logger(ctx).Error("proposal not found",
+			"proposalID", proposalID,
+			"hook", "AfterProposalVotingPeriodEnded",
+		)
+		return
+	}
+
+	clawbackProposal, isClawbackProposal, err := getClawbackProposal(proposal)
 	if err != nil {
-		k.Logger(ctx).Error("failed to check proposal",
+		k.Logger(ctx).Error("failed to get clawback proposal",
 			"proposalID", proposalID,
 			"hook", "AfterProposalVotingPeriodEnded",
 			"error", err,
@@ -124,18 +135,13 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 		return
 	}
 
-	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
+	vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
 	k.DeleteActiveClawbackProposal(ctx, vesting)
 }
 
 // getClawbackProposal checks if the proposal with the given ID is a governance
 // clawback proposal.
-func (k Keeper) getClawbackProposal(ctx sdk.Context, proposalID uint64) (vestingtypes.ClawbackProposal, bool, error) {
-	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
-	if !found {
-		return vestingtypes.ClawbackProposal{}, false, errors.New("proposal not found")
-	}
-
+func getClawbackProposal(proposal govv1.Proposal) (vestingtypes.ClawbackProposal, bool, error) {
 	// TODO: do we have to check here or is this hook only called for clawback governance proposals?
 	msgs, err := proposal.GetMsgs()
 	if err != nil {
