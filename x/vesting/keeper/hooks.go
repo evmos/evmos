@@ -5,7 +5,6 @@ package keeper
 
 import (
 	"errors"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -45,7 +44,6 @@ func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, deposito
 
 // AfterProposalDeposit is called after a deposit is made on a governance clawback proposal.
 func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
-	fmt.Println("Running AfterProposalDeposit")
 	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
 	if !found {
 		k.Logger(ctx).Error("proposal not found",
@@ -70,12 +68,9 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	}
 
 	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
-	fmt.Println("Total deposit: ", totalDeposit)
 	govParams := k.govKeeper.GetParams(ctx)
 	minDeposit := sdk.NewCoins(govParams.MinDeposit...)
-	fmt.Println("Min deposit: ", minDeposit)
 	if totalDeposit.IsAllLT(minDeposit) {
-		fmt.Println("Proposal deposit is less than min deposit")
 		return
 	}
 
