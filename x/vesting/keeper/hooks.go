@@ -31,9 +31,8 @@ func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 }
 
 // AfterProposalSubmission is called after a governance clawback proposal is submitted on chain.
-// It adds a store entry for the combination of vesting account and funder address for the time
-// the proposal is active in order to prevent manual clawback from the funder, which could overrule
-// the community vote.
+// It adds a store entry for the vesting account for the time the proposal is active
+// in order to prevent manual clawback from the funder, which could overrule the community vote.
 func (k Keeper) AfterProposalSubmission(_ sdk.Context, _ uint64) {}
 
 // AfterProposalDeposit is a wrapper for calling the Gov AfterProposalDeposit hook on
