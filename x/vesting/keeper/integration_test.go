@@ -926,6 +926,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
 
 			// Check that the funds are clawed back after the proposal has ended
+			// FIXME: this is not running the AfterProposalVotingPeriodEnded hook..
 			s.CommitAfter(time.Hour * 24 * 365) // one year
 
 			// Check that the funds were clawed back and the account was converted to a normal account
