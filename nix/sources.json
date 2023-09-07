@@ -1,0 +1,68 @@
+{
+    "chain-main": {
+        "branch": "master",
+        "description": "Crypto.org Chain⛓: Croeseid Testnet and beyond development",
+        "homepage": "https://crypto.org",
+        "owner": "crypto-org-chain",
+        "repo": "chain-main",
+        "rev": "7e7d49839283f6d77516f614c2e2ff7441771e5a",
+        "sha256": "1gm70jfd9rvi8shf6n7fjfvs4krdv3vjz50f44id3dv8fgg5zni1",
+        "type": "tarball",
+        "url": "https://github.com/crypto-org-chain/chain-main/archive/7e7d49839283f6d77516f614c2e2ff7441771e5a.tar.gz"
+    },
+    "cosmos-sdk": {
+        "branch": "main",
+        "description": ":chains: A Framework for Building High Value Public Blockchains :sparkles:",
+        "homepage": "https://cosmos.network/",
+        "owner": "cosmos",
+        "repo": "cosmos-sdk",
+        "rev": "b6c77e6c819f8a51166649eaef125d1bfb276f04",
+        "sha256": "09ns4yfxyfi7c7n5g69zv32m1rdssdl48c1akmv1y2vz6ayz4v02",
+        "type": "tarball",
+        "url": "https://github.com/cosmos/cosmos-sdk/archive/b6c77e6c819f8a51166649eaef125d1bfb276f04.tar.gz"
+    },
+    "gomod2nix": {
+        "branch": "master",
+        "description": "Convert applications using Go modules to Nix expressions",
+        "homepage": null,
+        "owner": "tweag",
+        "repo": "gomod2nix",
+        "rev": "40d32f82fc60d66402eb0972e6e368aeab3faf58",
+        "sha256": "0li17ynbg2wg0xqy655m5rmcw905sbv7d4ir35z7s5pg1yhhzxkp",
+        "type": "tarball",
+        "url": "https://github.com/tweag/gomod2nix/archive/40d32f82fc60d66402eb0972e6e368aeab3faf58.tar.gz"
+    },
+    "hermes": {
+        "branch": "v1.6.0",
+        "description": "Hermes IBC relayer - Formal specifications and Rust implementation",
+        "homepage": "",
+        "owner": "informalsystems",
+        "repo": "hermes",
+        "rev": "1c1cf02988db67507de7d484e1a7f317fe494d6c",
+        "sha256": "08a92qw7mbag51lphxj3515i17qwsqhlam2q0g6fhldhfisa7bya",
+        "type": "tarball",
+        "url": "https://github.com/informalsystems/hermes/archive/v1.6.0.tar.gz"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "e0ca65c81a2d7a4d82a189f1e23a48d59ad42070",
+        "sha256": "1pq9nh1d8nn3xvbdny8fafzw87mj7gsmp6pxkdl65w2g18rmcmzx",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/e0ca65c81a2d7a4d82a189f1e23a48d59ad42070.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "release-22.11",
+        "description": "Nix Packages collection",
+        "homepage": "",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "adec507378397099733e23c7496793e8d01ecb79",
+        "sha256": "131cgm8llqdq5plbzydrgzhc6lf6bz191hfjzrblxiy6wfsmxzn7",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/adec507378397099733e23c7496793e8d01ecb79.tar.gz"
+    }
+}
