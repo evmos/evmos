@@ -300,7 +300,7 @@ func (k Keeper) UpdateVestingFunder(
 
 	if k.HasActiveClawbackProposal(ctx, vesting, funder) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"clawback is disabled while there is an active clawback proposal for account %s and funder %s",
+			"cannot update funder while there is an active clawback proposal for account %s and funder %s",
 			vesting.String(), funder.String(),
 		)
 	}

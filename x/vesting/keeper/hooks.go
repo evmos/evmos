@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"errors"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -32,17 +31,12 @@ func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 // the proposal is active in order to prevent manual clawback from the funder, which could overrule
 // the community vote.
 func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
-	// TODO: remove logging
-	fmt.Printf("AfterProposalSubmission: %d\n", proposalID)
-	k.Logger(ctx).Info(
-		"Running AfterProposalSubmission hook",
-		"proposalID", proposalID,
-	)
 	proposal, isClawbackProposal, err := k.getClawbackProposal(ctx, proposalID)
 	if err != nil {
 		k.Logger(ctx).Error("failed to check proposal",
 			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
+			"hook", "AfterProposalSubmission",
+			"error", err,
 		)
 		return
 	}
@@ -56,7 +50,7 @@ func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 		k.Logger(ctx).Error(
 			"failed to get clawback vesting account",
 			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
+			"hook", "AfterProposalSubmission",
 		)
 		return
 	}
@@ -98,6 +92,7 @@ func (k Keeper) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64
 		k.Logger(ctx).Error("failed to check proposal",
 			"proposalID", proposalID,
 			"hook", "AfterProposalFailedMinDeposit",
+			"error", err,
 		)
 		return
 	}
@@ -133,7 +128,7 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 	if err != nil {
 		k.Logger(ctx).Error("failed to check proposal",
 			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
+			"hook", "AfterProposalVotingPeriodEnded",
 			"error", err,
 		)
 		return
@@ -148,7 +143,7 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 		k.Logger(ctx).Error(
 			"failed to get clawback vesting account",
 			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
+			"hook", "AfterProposalVotingPeriodEnded",
 			"error", err,
 		)
 		return
@@ -159,37 +154,40 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 
 // getClawbackProposal checks if the proposal with the given ID is a governance
 // clawback proposal.
-func (k Keeper) getClawbackProposal(ctx sdk.Context, proposalID uint64) (govv1.Proposal, bool, error) {
+func (k Keeper) getClawbackProposal(ctx sdk.Context, proposalID uint64) (vestingtypes.ClawbackProposal, bool, error) {
 	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
 	if !found {
-		return govv1.Proposal{}, false, errors.New("proposal not found")
+		return vestingtypes.ClawbackProposal{}, false, errors.New("proposal not found")
 	}
 
 	// TODO: do we have to check here or is this hook only called for clawback governance proposals?
-	// FIXME: check proposal type
-	return proposal, false, nil
+	msgs, err := proposal.GetMsgs()
+	if err != nil {
+		return vestingtypes.ClawbackProposal{}, false, err
+	}
+	if len(msgs) == 0 {
+		return vestingtypes.ClawbackProposal{}, false, errors.New("proposal has no messages")
+	}
+
+	msgContent, ok := msgs[0].(*govv1.MsgExecLegacyContent)
+	if !ok {
+		return vestingtypes.ClawbackProposal{}, false, errors.New("failed to cast msg to MsgExecLegacyContent")
+	}
+
+	clawbackProposal, ok := msgContent.Content.GetCachedValue().(*vestingtypes.ClawbackProposal)
+	if !ok {
+		// NOTE: no need to return an error here, it's expected that proposals are not a clawback proposal
+		return vestingtypes.ClawbackProposal{}, false, nil
+	}
+
+	return *clawbackProposal, true, nil
 }
 
 // getAddressAndFunder returns the vesting account address and funder address for the given
 // governance clawback proposal.
-func (k Keeper) getAddressAndFunder(ctx sdk.Context, proposal govv1.Proposal) (sdk.AccAddress, sdk.AccAddress, error) {
-	msgs, err := proposal.GetMsgs()
-	if err != nil {
-		return sdk.AccAddress{}, sdk.AccAddress{}, err
-	}
-	if len(msgs) == 0 {
-		return sdk.AccAddress{}, sdk.AccAddress{}, errors.New("proposal has no messages")
-	}
-
-	fmt.Printf("messages: %v\n", msgs)
-	msgContent := msgs[0].(*govv1.MsgExecLegacyContent)
-	clawbackProposal, ok := msgContent.Content.GetCachedValue().(*vestingtypes.ClawbackProposal)
-	if !ok {
-		return sdk.AccAddress{}, sdk.AccAddress{}, errors.New("proposal content is not a clawback proposal")
-	}
-
+func (k Keeper) getAddressAndFunder(ctx sdk.Context, proposal vestingtypes.ClawbackProposal) (sdk.AccAddress, sdk.AccAddress, error) {
 	// TODO: do we need to check error here? Should only be possible to store a valid address right?
-	vestingAccAddr, err := sdk.AccAddressFromBech32(clawbackProposal.Address)
+	vestingAccAddr, err := sdk.AccAddressFromBech32(proposal.Address)
 	if err != nil {
 		return sdk.AccAddress{}, sdk.AccAddress{}, err
 	}

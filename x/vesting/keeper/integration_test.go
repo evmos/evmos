@@ -874,9 +874,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	Context("while there is an active governance proposal for the vesting account", func() {
-		// timeUntilProposalEnds is the duration between the submission and end of the voting period
-		var timeUntilProposalEnds time.Duration
-
 		BeforeEach(func() {
 			govClawbackProposal := &types.ClawbackProposal{
 				Title:              "test gov clawback",
@@ -904,8 +901,6 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(len(proposals)).To(Equal(1), "expected one proposal to be submitted")
 			Expect(proposals[0].GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
 
-			timeUntilProposalEnds = proposals[0].VotingEndTime.Sub(*proposals[0].SubmitTime)
-
 			// Check the store entry was set correctly
 			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
 			Expect(hasActivePropposal).To(BeTrue(), "expected an active clawback proposal for the vesting account and funder combination")
@@ -930,8 +925,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).ToNot(HaveOccurred(), "expected no error during balances query")
 			Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
 
-			// Check that the funds are clawed back after the proposal ends
-			s.CommitAfter(timeUntilProposalEnds)
+			// Check that the funds are clawed back after the proposal has ended
+			s.CommitAfter(time.Hour * 24 * 365) // one year
 
 			// Check that the funds were clawed back and the account was converted to a normal account
 			acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
