@@ -221,6 +221,13 @@ func (k Keeper) Clawback(
 		)
 	}
 
+	if k.HasActiveClawbackProposal(ctx, addr, funder) {
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+			"clawback is disabled while there is an active clawback proposal for account %s and funder %s",
+			msg.AccountAddress, msg.FunderAddress,
+		)
+	}
+
 	// Get clawback vesting account
 	va, err := k.GetClawbackVestingAccount(ctx, addr)
 	if err != nil {
