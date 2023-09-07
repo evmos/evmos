@@ -32,6 +32,7 @@ func (h Hooks) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 // the proposal is active in order to prevent manual clawback from the funder, which could overrule
 // the community vote.
 func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
+	// TODO: remove logging
 	fmt.Printf("AfterProposalSubmission: %d\n", proposalID)
 	k.Logger(ctx).Info(
 		"Running AfterProposalSubmission hook",
