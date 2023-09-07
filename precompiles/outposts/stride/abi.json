@@ -52,21 +52,9 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "denom",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct Coin",
-        "name": "coin",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "internalType": "string",

@@ -15,20 +15,24 @@ StrideOutpostI constant STRIDE_OUTPOST_CONTRACT = StrideOutpostI(STRIDE_OUTPOST_
 /// @custom:address 0x0000000000000000000000000000000000000900
 interface StrideOutpostI {
 
+    /// TODO
     function claimAirdrop(string calldata receiver) external returns (bool);
 
     function unstakeLiquidEvmos(uint256 amount, string calldata receiver) external returns (bool);
 
     /// @dev Liquid stake evmos on the Stride chain and return to the Evmos chain
-    /// @param coin the coin that will be liquid staked (only supports Evmos)
+    /// @param amount the coin that will be liquid staked (only supports Evmos)
     /// @param receiver the bech32 address of the receiver
-    /// @return true if the liquid stake was successful
+    /// @return true if the ICS20 transfer was successfull
     function liquidStakeEvmos(
-        Coin calldata coin,
+        uint256 amount,
         string calldata receiver
     ) external returns (bool);
 
 
+    /// @dev Emitted when a user calls Autopilot to liquid stake Evmos
+    /// @param sender the hex address of the sender
+    /// @param coin the coin that will be liquid staked (only supports Evmos)
     event LiquidStakeEvmos(
         address indexed sender,
         Coin coin
