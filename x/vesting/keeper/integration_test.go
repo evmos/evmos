@@ -15,6 +15,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/common"
@@ -925,9 +926,19 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).ToNot(HaveOccurred(), "expected no error during balances query")
 			Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
 
+			res, err := voteForProposal(s.app, s.ctx, 1, s.address, s.priv)
+			Expect(err).ToNot(HaveOccurred(), "expected no error during proposal voting")
+			Expect(res.Code).To(BeZero(), "expected proposal voting to succeed")
+
 			// Check that the funds are clawed back after the proposal has ended
 			// FIXME: this is not running the AfterProposalVotingPeriodEnded hook..
 			s.CommitAfter(time.Hour * 24 * 365) // one year
+
+			// Check that proposal has passed
+			proposal, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
+			Expect(found).To(BeTrue(), "expected proposal to exist")
+			Expect(proposal.Status).ToNot(Equal(govv1.StatusVotingPeriod), "expected proposal to not be in voting period anymore")
+			Expect(proposal.Status).To(Equal(govv1.StatusPassed), "expected proposal to have passed")
 
 			// Check that the funds were clawed back and the account was converted to a normal account
 			acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
