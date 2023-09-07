@@ -24,6 +24,7 @@ import (
 	"github.com/evmos/evmos/v14/testutil"
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
+	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
@@ -875,7 +876,26 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	Context("while there is an active governance proposal for the vesting account", func() {
+		var clawbackProposalID uint64
+
 		BeforeEach(func() {
+			// submit update params proposal to simulate having multiple proposals of different types
+			// on chain.
+			msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
+				&erc20types.RegisterERC20Proposal{
+					Title:          "test gov upgrade",
+					Description:    "this is an example of a governance proposal to upgrade the evmos app",
+					Erc20Addresses: []string{},
+				},
+				sdk.NewCoins(sdk.NewCoin(stakeDenom, sdk.NewInt(1e9))),
+				s.address.Bytes(),
+			)
+			Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
+
+			_, err = testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgSubmitProposal)
+			Expect(err).ToNot(HaveOccurred(), "expected no error during proposal submission")
+
+			// submit clawback proposal
 			govClawbackProposal := &types.ClawbackProposal{
 				Title:              "test gov clawback",
 				Description:        "this is an example of a governance proposal to clawback vesting coins",
@@ -897,8 +917,10 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.Commit()
 
 			// Check if the proposal was submitted
-			proposal, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
-			Expect(found).To(BeTrue(), "expected proposal to be found")
+			proposals := s.app.GovKeeper.GetProposals(s.ctx)
+			Expect(len(proposals)).To(Equal(2), "expected two proposals to be found")
+			proposal := proposals[len(proposals)-1]
+			clawbackProposalID = proposal.Id
 			Expect(proposal.GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
 			Expect(proposal.Status).To(Equal(govv1.StatusDepositPeriod), "expected proposal to be in deposit period")
 		})
@@ -910,14 +932,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				deposit := sdk.Coins{sdk.Coin{Denom: params.MinDeposit[0].Denom, Amount: depositAmount}}
 
 				// Deliver the deposit
-				msgDeposit := govv1beta1.NewMsgDeposit(s.address.Bytes(), 1, deposit)
+				msgDeposit := govv1beta1.NewMsgDeposit(s.address.Bytes(), clawbackProposalID, deposit)
 				_, err := testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgDeposit)
 				Expect(err).ToNot(HaveOccurred(), "expected no error during proposal deposit")
 
 				s.Commit()
 
 				// Check the proposal is in voting period
-				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
+				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
 				Expect(found).To(BeTrue(), "expected proposal to be found")
 				Expect(proposal.Status).To(Equal(govv1.StatusVotingPeriod), "expected proposal to be in voting period")
 
@@ -959,9 +981,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				}
 
 				// Vote on proposal
-				propID := uint64(1)
-				res, err := testutil.Vote(s.ctx, s.app, priv, propID, govv1beta1.OptionYes)
-				Expect(err).ToNot(HaveOccurred(), "failed to vote on proposal %d", propID)
+				res, err := testutil.Vote(s.ctx, s.app, priv, clawbackProposalID, govv1beta1.OptionYes)
+				Expect(err).ToNot(HaveOccurred(), "failed to vote on proposal %d", clawbackProposalID)
 				Expect(res.Code).To(BeZero(), "expected proposal voting to succeed")
 
 				// Check that the funds are clawed back after the proposal has ended
@@ -970,7 +991,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				s.Commit()
 
 				// Check that proposal has passed
-				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
+				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
 				Expect(found).To(BeTrue(), "expected proposal to exist")
 				Expect(proposal.Status).ToNot(Equal(govv1.StatusVotingPeriod), "expected proposal to not be in voting period anymore")
 				Expect(proposal.Status).To(Equal(govv1.StatusPassed), "expected proposal to have passed")
@@ -1038,7 +1059,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				s.Commit()
 
 				// Check that the proposal has ended -- since deposit failed it's removed from the store
-				_, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
+				_, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
 				Expect(found).To(BeFalse(), "expected proposal not to be found")
 
 				// Check that the store entry was removed
