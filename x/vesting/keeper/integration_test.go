@@ -16,7 +16,7 @@ import (
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v14/contracts"
@@ -886,7 +886,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			deposit := sdk.Coins{sdk.Coin{Denom: stakeDenom, Amount: sdk.NewInt(1e9)}}
 
 			// Create the message to submit the proposal
-			msgSubmit, err := v1beta1.NewMsgSubmitProposal(
+			msgSubmit, err := govv1beta1.NewMsgSubmitProposal(
 				govClawbackProposal, deposit, s.address.Bytes(),
 			)
 			Expect(err).ToNot(HaveOccurred(), "expected no error creating the proposal submission message")
@@ -926,17 +926,32 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(err).ToNot(HaveOccurred(), "expected no error during balances query")
 			Expect(balances.Unvested).To(Equal(vestingAmtTotal), "expected no tokens to be clawed back")
 
-			res, err := s.voteForProposal(1, s.address, s.priv)
-			Expect(err).ToNot(HaveOccurred(), "expected no error during proposal voting")
+			// Delegate some funds to the suite validators in order to vote on proposal with enough voting power
+			// using only the suite private key
+			priv, ok := s.priv.(*ethsecp256k1.PrivKey)
+			Expect(ok).To(BeTrue(), "expected private key to be of type ethsecp256k1.PrivKey")
+			validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+			err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, s.address.Bytes(), 5e18)
+			Expect(err).ToNot(HaveOccurred(), "expected no error during funding of account")
+			for _, val := range validators {
+				res, err := testutil.Delegate(s.ctx, s.app, priv, sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)), val)
+				Expect(err).ToNot(HaveOccurred(), "expected no error during delegation")
+				Expect(res.Code).To(BeZero(), "expected delegation to succeed")
+			}
+
+			// Vote on proposal
+			propID := uint64(1)
+			res, err := testutil.Vote(s.ctx, s.app, priv, propID, govv1beta1.OptionYes)
+			Expect(err).ToNot(HaveOccurred(), "failed to vote on proposal %d", propID)
 			Expect(res.Code).To(BeZero(), "expected proposal voting to succeed")
 
 			// Check that the funds are clawed back after the proposal has ended
 			s.CommitAfter(time.Hour * 24 * 365) // one year
-			s.Commit()                          // commit again because EndBlocker is run with time of the previous block
+			// Commit again because EndBlocker is run with time of the previous block and gov proposals are ended in EndBlocker
+			s.Commit()
 
 			// Check that proposal has passed
 			proposal, found := s.app.GovKeeper.GetProposal(s.ctx, 1)
-			fmt.Println("Final tally:", proposal.FinalTallyResult)
 			Expect(found).To(BeTrue(), "expected proposal to exist")
 			Expect(proposal.Status).ToNot(Equal(govv1.StatusVotingPeriod), "expected proposal to not be in voting period anymore")
 			Expect(proposal.Status).To(Equal(govv1.StatusPassed), "expected proposal to have passed")
@@ -947,8 +962,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			_, isClawback = acc.(*types.ClawbackVestingAccount)
 			Expect(isClawback).To(BeFalse(), "expected account to be a normal account")
 
-			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
-			Expect(hasActivePropposal).To(BeFalse(), "expected no active clawback proposal")
+			hasActiveProposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
+			Expect(hasActiveProposal).To(BeFalse(), "expected no active clawback proposal")
 		})
 
 		It("should not allow changing the vesting funder", func() {
