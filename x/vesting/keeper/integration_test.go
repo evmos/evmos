@@ -651,7 +651,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	)
 
 	vestingAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
+	funder, funderPriv := utiltx.NewAccAddressAndKey()
 	dest := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	BeforeEach(func() {
@@ -1004,20 +1004,32 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			It("allows clawback and changing the funder before the deposit period ends", func() {
 				newFunder, newPriv := utiltx.NewAccAddressAndKey()
 
-				msgUpdateFunder := types.NewMsgUpdateVestingFunder(funder, dest, vestingAddr)
-				_, err := testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgUpdateFunder)
+				// fund accounts
+				err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, newFunder, 5e18)
+				Expect(err).ToNot(HaveOccurred(), "failed to fund target account")
+				err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, funder, 5e18)
+				Expect(err).ToNot(HaveOccurred(), "failed to fund target account")
+
+				msgUpdateFunder := types.NewMsgUpdateVestingFunder(funder, newFunder, vestingAddr)
+				_, err = testutil.DeliverTx(s.ctx, s.app, funderPriv, nil, msgUpdateFunder)
 				Expect(err).ToNot(HaveOccurred(), "expected no error during update funder while there is an active governance proposal")
 
 				// Check that the funder was updated
 				acc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
 				Expect(acc).ToNot(BeNil(), "expected account to exist")
-				clawbackAcc, isClawback := acc.(*types.ClawbackVestingAccount)
+				_, isClawback := acc.(*types.ClawbackVestingAccount)
 				Expect(isClawback).To(BeTrue(), "expected account to be clawback vesting account")
 
 				// Claw back tokens
-				msgClawback := types.NewMsgClawback(newFunder, vestingAddr, dest)
+				msgClawback := types.NewMsgClawback(newFunder, vestingAddr, funder)
 				_, err = testutil.DeliverTx(s.ctx, s.app, newPriv, nil, msgClawback)
 				Expect(err).ToNot(HaveOccurred(), "expected no error during clawback while there is no deposit made")
+
+				// Check account is converted to a normal account
+				acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
+				Expect(acc).ToNot(BeNil(), "expected account to exist")
+				_, isClawback = acc.(*types.ClawbackVestingAccount)
+				Expect(isClawback).To(BeFalse(), "expected account to be a normal account")
 			})
 
 			It("should remove the store entry after the deposit period ends", func() {
