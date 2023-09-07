@@ -35,8 +35,8 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
 
-	// Short-circuit if min gas price is 0 or if simulating
-	if minGasPrice.IsZero() || simulate {
+	// Short-circuit if min gas price is 0 or if simulating or genesis tx
+	if minGasPrice.IsZero() || simulate || ctx.BlockHeight() == 0 {
 		return next(ctx, tx, simulate)
 	}
 	evmParams := mpd.evmKeeper.GetParams(ctx)

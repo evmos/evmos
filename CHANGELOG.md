@@ -65,6 +65,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1693](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
+- (gasprice) [#1760](https://github.com/evmos/evmos/pull/1760) Ignore the check for mini gas price in the genutil module genesis block transaction
 
 ## [v13.0.2] - 2023-07-05
 

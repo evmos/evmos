@@ -52,8 +52,8 @@ func NewEthMempoolFeeDecorator(ek EVMKeeper) EthMempoolFeeDecorator {
 func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
 
-	// short-circuit if min gas price is 0
-	if minGasPrice.IsZero() {
+	// short-circuit if min gas price is 0 or genesis tx
+	if minGasPrice.IsZero() || ctx.BlockHeight() == 0 {
 		return next(ctx, tx, simulate)
 	}
 
