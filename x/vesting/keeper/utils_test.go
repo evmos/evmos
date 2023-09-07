@@ -118,6 +118,12 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	require.NoError(t, err)
 	contract2, err = suite.DeployContract(erc20Name2, erc20Symbol2, erc20Decimals)
 	require.NoError(t, err)
+
+	// Set correct denom in govKeeper
+	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
+	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e6)))
+	err = suite.app.GovKeeper.SetParams(suite.ctx, govParams)
+	suite.Require().NoError(err, "failed to set gov params")
 }
 
 // Commit commits and starts a new block with an updated context.
