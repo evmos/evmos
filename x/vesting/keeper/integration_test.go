@@ -903,7 +903,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(proposals[0].GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
 
 			// Check the store entry was set correctly
-			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
+			hasActivePropposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr)
 			Expect(hasActivePropposal).To(BeTrue(), "expected an active clawback proposal for the vesting account and funder combination")
 		})
 
@@ -956,13 +956,13 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			Expect(proposal.Status).ToNot(Equal(govv1.StatusVotingPeriod), "expected proposal to not be in voting period anymore")
 			Expect(proposal.Status).To(Equal(govv1.StatusPassed), "expected proposal to have passed")
 
-			// Check that the funds were clawed back and the account was converted to a normal account
+			// Check that the account was converted to a normal account
 			acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
 			Expect(acc).ToNot(BeNil(), "expected account to exist")
 			_, isClawback = acc.(*types.ClawbackVestingAccount)
 			Expect(isClawback).To(BeFalse(), "expected account to be a normal account")
 
-			hasActiveProposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr, funder)
+			hasActiveProposal := s.app.VestingKeeper.HasActiveClawbackProposal(s.ctx, vestingAddr)
 			Expect(hasActiveProposal).To(BeFalse(), "expected no active clawback proposal")
 		})
 

@@ -208,13 +208,6 @@ func (k Keeper) Clawback(
 	addr := sdk.MustAccAddressFromBech32(msg.AccountAddress)
 	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 
-	if k.HasActiveClawbackProposal(ctx, addr, funder) {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"clawback is disabled while there is an active clawback proposal for account %s and funder %s",
-			msg.AccountAddress, msg.FunderAddress,
-		)
-	}
-
 	// NOTE: ignore error in case dest address is not defined and default to funder address
 	//#nosec G703 -- error is checked during ValidateBasic already.
 	dest, _ := sdk.AccAddressFromBech32(msg.DestAddress)
@@ -222,10 +215,19 @@ func (k Keeper) Clawback(
 		dest = funder
 	}
 
-	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
-		)
+	if msg.FunderAddress != k.authority.String() {
+		if k.HasActiveClawbackProposal(ctx, addr) {
+			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+				"clawback is disabled while there is an active clawback proposal for account %s and funder %s",
+				msg.AccountAddress, msg.FunderAddress,
+			)
+		}
+
+		if bk.BlockedAddr(dest) {
+			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+				"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
+			)
+		}
 	}
 
 	// Get clawback vesting account
@@ -298,7 +300,8 @@ func (k Keeper) UpdateVestingFunder(
 	newFunder := sdk.MustAccAddressFromBech32(msg.NewFunderAddress)
 	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 
-	if k.HasActiveClawbackProposal(ctx, vesting, funder) {
+	// Check if there is an active clawback proposal for the given account
+	if k.HasActiveClawbackProposal(ctx, vesting) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
 			"cannot update funder while there is an active clawback proposal for account %s and funder %s",
 			vesting.String(), funder.String(),

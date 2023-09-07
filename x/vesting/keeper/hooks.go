@@ -1,3 +1,6 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
@@ -45,19 +48,11 @@ func (k Keeper) AfterProposalSubmission(ctx sdk.Context, proposalID uint64) {
 		return
 	}
 
-	vesting, funder, err := k.getAddressAndFunder(ctx, proposal)
-	if err != nil {
-		k.Logger(ctx).Error(
-			"failed to get clawback vesting account",
-			"proposalID", proposalID,
-			"hook", "AfterProposalSubmission",
-		)
-		return
-	}
+	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
 
 	// TODO: do we need check here if there is already an active proposal?
 	// or should we check that in the proposal handler? Probably better there
-	k.SetActiveClawbackProposal(ctx, vesting, funder)
+	k.SetActiveClawbackProposal(ctx, vesting)
 }
 
 // AfterProposalDeposit is a wrapper for calling the Gov AfterProposalDeposit hook on
@@ -101,18 +96,9 @@ func (k Keeper) AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64
 		return
 	}
 
-	vesting, funder, err := k.getAddressAndFunder(ctx, proposal)
-	if err != nil {
-		k.Logger(ctx).Error(
-			"failed to get clawback vesting account",
-			"proposalID", proposalID,
-			"hook", "AfterProposalFailedMinDeposit",
-			"error", err,
-		)
-		return
-	}
-
-	k.DeleteActiveClawbackProposal(ctx, vesting, funder)
+	// NOTE: this was checked before submitting the proposal
+	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
+	k.DeleteActiveClawbackProposal(ctx, vesting)
 }
 
 // AfterProposalVotingPeriodEnded is a wrapper for calling the Gov AfterProposalVotingPeriodEnded hook on
@@ -138,18 +124,8 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 		return
 	}
 
-	vesting, funder, err := k.getAddressAndFunder(ctx, proposal)
-	if err != nil {
-		k.Logger(ctx).Error(
-			"failed to get clawback vesting account",
-			"proposalID", proposalID,
-			"hook", "AfterProposalVotingPeriodEnded",
-			"error", err,
-		)
-		return
-	}
-
-	k.DeleteActiveClawbackProposal(ctx, vesting, funder)
+	vesting := sdk.MustAccAddressFromBech32(proposal.Address)
+	k.DeleteActiveClawbackProposal(ctx, vesting)
 }
 
 // getClawbackProposal checks if the proposal with the given ID is a governance
@@ -181,27 +157,4 @@ func (k Keeper) getClawbackProposal(ctx sdk.Context, proposalID uint64) (vesting
 	}
 
 	return *clawbackProposal, true, nil
-}
-
-// getAddressAndFunder returns the vesting account address and funder address for the given
-// governance clawback proposal.
-func (k Keeper) getAddressAndFunder(ctx sdk.Context, proposal vestingtypes.ClawbackProposal) (sdk.AccAddress, sdk.AccAddress, error) {
-	// TODO: do we need to check error here? Should only be possible to store a valid address right?
-	vestingAccAddr, err := sdk.AccAddressFromBech32(proposal.Address)
-	if err != nil {
-		return sdk.AccAddress{}, sdk.AccAddress{}, err
-	}
-
-	vesting, err := k.GetClawbackVestingAccount(ctx, vestingAccAddr)
-	if err != nil {
-		return sdk.AccAddress{}, sdk.AccAddress{}, err
-	}
-
-	// TODO: do we need to check error here? Should only be possible to store a valid address right?
-	funder, err := sdk.AccAddressFromBech32(vesting.FunderAddress)
-	if err != nil {
-		return sdk.AccAddress{}, sdk.AccAddress{}, err
-	}
-
-	return vestingAccAddr, funder, nil
 }
