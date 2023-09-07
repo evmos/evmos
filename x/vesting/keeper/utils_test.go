@@ -7,10 +7,6 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -236,16 +232,4 @@ func validateEthVestingTransactionDecorator(msgs ...sdk.Msg) error {
 	dec := evmante.NewEthVestingTransactionDecorator(s.app.AccountKeeper, s.app.BankKeeper, s.app.EvmKeeper)
 	err = testutil.ValidateAnteForMsgs(s.ctx, dec, msgs...)
 	return err
-}
-
-// voteForProposal is a helper function to vote for a proposal in integration tests.
-func (s *KeeperTestSuite) voteForProposal(
-	proposalID uint64,
-	address common.Address,
-	priv cryptotypes.PrivKey,
-) (abci.ResponseDeliverTx, error) {
-	msg := govtypes.NewMsgVote(address.Bytes(), proposalID, govtypes.OptionYes)
-	res, err := testutil.DeliverTx(s.ctx, s.app, priv, nil, msg)
-	s.Commit()
-	return res, err
 }
