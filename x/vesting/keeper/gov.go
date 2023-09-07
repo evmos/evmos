@@ -56,8 +56,7 @@ func (k Keeper) DeleteActiveClawbackProposal(ctx sdk.Context, addr sdk.AccAddres
 	ctx.KVStore(k.storeKey).Delete(key)
 }
 
-// buildActiveAccountClawbackProposalKey builds the key for the given combination of account address
-// and vesting funder.
+// buildActiveAccountClawbackProposalKey builds the key for the given account address prefixed with the governance clawback proposal key
 func buildActiveAccountClawbackProposalKey(addr sdk.AccAddress) []byte {
 	key := make([]byte, 0, len(types.KeyPrefixGovClawbackProposalKey)+len(addr.Bytes()))
 	key = append(key, types.KeyPrefixGovClawbackProposalKey...)
