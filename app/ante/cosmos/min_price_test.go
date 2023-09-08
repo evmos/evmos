@@ -30,6 +30,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	testCases := []struct {
 		name                string
 		malleate            func() sdk.Tx
+		blockHeight         int64 // -1 means that the block height of ctx does not need to be modified
 		expPass             bool
 		errMsg              string
 		allowPassOnSimulate bool
@@ -39,6 +40,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			func() sdk.Tx {
 				return &testutiltx.InvalidTx{}
 			},
+			-1,
 			false,
 			"invalid transaction type",
 			false,
@@ -54,6 +56,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			true,
 			"",
 			false,
@@ -69,6 +72,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			true,
 			"",
 			false,
@@ -84,6 +88,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			true,
 			"",
 			false,
@@ -99,6 +104,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 			true,
@@ -114,9 +120,26 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 			true,
+		},
+		{
+			"ignore the check for mini gas price in block height 0 transaction",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(10)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), "stake", &testMsg)
+				return txBuilder.GetTx()
+			},
+			0,
+			true,
+			"",
+			false,
 		},
 	}
 
@@ -125,6 +148,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			suite.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
 				ctx := suite.ctx.WithIsReCheckTx(et.isCheckTx)
+				if tc.blockHeight >= 0 {
+					ctx = ctx.WithBlockHeight(tc.blockHeight)
+				}
 				dec := cosmosante.NewMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
 				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NextFn)
 

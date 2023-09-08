@@ -30,11 +30,27 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 	emptyAccessList := ethtypes.AccessList{}
 
 	testCases := []struct {
-		name     string
-		malleate func() sdk.Tx
-		expPass  bool
-		errMsg   string
+		name        string
+		malleate    func() sdk.Tx
+		blockHeight int64 // -1 means that the block height of ctx does not need to be modified
+		expPass     bool
+		errMsg      string
 	}{
+		{
+			"ignore the check for mini gas price in block height 0 transaction",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(10)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
+				return suite.CreateTestTx(msg, privKey, 1, false)
+			},
+			0,
+			true,
+			"",
+		},
 		{
 			"invalid tx type",
 			func() sdk.Tx {
@@ -45,6 +61,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 
 				return &testutiltx.InvalidTx{}
 			},
+			-1,
 			false,
 			"invalid message type",
 		},
@@ -63,6 +80,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
+			-1,
 			false,
 			"invalid message type",
 		},
@@ -75,6 +93,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				suite.Require().NoError(err)
 				return &testutiltx.InvalidTx{}
 			},
+			-1,
 			true,
 			"",
 		},
@@ -89,6 +108,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -103,6 +123,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -117,6 +138,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(10), nil, nil, nil)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -131,6 +153,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), big.NewInt(0), nil, nil, nil)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 		},
@@ -145,6 +168,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -159,6 +183,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(50), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -173,6 +198,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(100), big.NewInt(100), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -187,6 +213,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(0), big.NewInt(0), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 		},
@@ -206,6 +233,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(0), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 		},
@@ -225,6 +253,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(1000), big.NewInt(101), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			true,
 			"",
 		},
@@ -239,6 +268,7 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 				msg := suite.BuildTestEthTx(from, to, nil, make([]byte, 0), nil, big.NewInt(math.MaxInt64), big.NewInt(100), &emptyAccessList)
 				return suite.CreateTestTx(msg, privKey, 1, false)
 			},
+			-1,
 			false,
 			"provided fee < minimum global fee",
 		},
@@ -249,6 +279,9 @@ func (suite *AnteTestSuite) TestEthMinGasPriceDecorator() {
 			suite.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
 				suite.SetupTest()
+				if tc.blockHeight >= 0 {
+					suite.ctx = suite.ctx.WithBlockHeight(tc.blockHeight)
+				}
 				dec := evmante.NewEthMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
 				_, err := dec.AnteHandle(suite.ctx, tc.malleate(), et.simulate, testutil.NextFn)
 
