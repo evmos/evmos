@@ -300,13 +300,13 @@ func (k Keeper) UpdateVestingFunder(
 
 	// NOTE: errors checked during msg validation
 	newFunder := sdk.MustAccAddressFromBech32(msg.NewFunderAddress)
-	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+	vestingAccAddr := sdk.MustAccAddressFromBech32(msg.VestingAddress)
 
 	// Check if there is an active clawback proposal for the given account
-	if k.HasActiveClawbackProposal(ctx, vesting) {
+	if k.HasActiveClawbackProposal(ctx, vestingAccAddr) {
 		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
 			"cannot update funder while there is an active clawback proposal for account %s",
-			vesting.String(),
+			vestingAccAddr.String(),
 		)
 	}
 
@@ -319,7 +319,7 @@ func (k Keeper) UpdateVestingFunder(
 	}
 
 	// Check if vesting account exists
-	va, err := k.GetClawbackVestingAccount(ctx, vesting)
+	va, err := k.GetClawbackVestingAccount(ctx, vestingAccAddr)
 	if err != nil {
 		return nil, err
 	}
