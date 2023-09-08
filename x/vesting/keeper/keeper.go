@@ -23,6 +23,7 @@ type Keeper struct {
 	bankKeeper         types.BankKeeper
 	stakingKeeper      types.StakingKeeper
 	distributionKeeper types.DistributionKeeper
+	govKeeper          types.GovKeeper
 
 	// The x/gov module account used for executing transaction by governance.
 	authority sdk.AccAddress
@@ -37,6 +38,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	dk types.DistributionKeeper,
 	sk types.StakingKeeper,
+	gk types.GovKeeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
@@ -51,6 +53,7 @@ func NewKeeper(
 		accountKeeper:      ak,
 		bankKeeper:         bk,
 		stakingKeeper:      sk,
+		govKeeper:          gk,
 	}
 }
 

@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
+- (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
 
 ## [v14.0.0-rc4] - 2023-08-30
 
