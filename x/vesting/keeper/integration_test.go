@@ -879,7 +879,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		var clawbackProposalID uint64
 
 		BeforeEach(func() {
-			// submit update params proposal to simulate having multiple proposals of different types
+			// submit a different proposal to simulate having multiple proposals of different types
 			// on chain.
 			msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
 				&erc20types.RegisterERC20Proposal{
