@@ -33,7 +33,7 @@ type Network interface {
 	GetDenom() string
 	GetValidators() []stakingtypes.Validator
 
-	CommitBlock() error
+	NextBlock() error
 
 	GetEvmClient() evmtypes.QueryClient
 	GetRevenueClient() revtypes.QueryClient

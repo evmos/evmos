@@ -8,7 +8,7 @@ import (
 
 // CommitBlock is a private helper function that runs the EndBlocker logic, commits the changes,
 // updates the header and runs the BeginBlocker
-func (n *IntegrationNetwork) CommitBlock() error {
+func (n *IntegrationNetwork) NextBlock() error {
 	// End block and commit
 	header := n.ctx.BlockHeader()
 	n.app.EndBlocker(n.ctx, abci.RequestEndBlock{Height: header.Height})
