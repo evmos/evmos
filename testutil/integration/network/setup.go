@@ -54,6 +54,7 @@ func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAc
 	return genAccounts
 }
 
+// createBalances creates balances for the given accounts and coin
 func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
@@ -68,6 +69,7 @@ func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []bankty
 	return fundedAccountBalances
 }
 
+// createEvmosApp creates an evmos app
 func createEvmosApp(chainID string) *app.Evmos {
 	// Create evmos app
 	db := dbm.NewMemDB()
@@ -94,6 +96,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 	)
 }
 
+// createStakingValidator creates a staking validator from the given tm validator and bonded
 func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdkmath.Int) (stakingtypes.Validator, error) {
 	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 	if err != nil {
@@ -122,6 +125,8 @@ func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdkmath.In
 	return validator, nil
 }
 
+// createStakingValidators creates staking validators from the given tm validators and bonded
+// amounts
 func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
@@ -135,6 +140,7 @@ func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmat
 	return stakingValidators, nil
 }
 
+// createDelegations creates delegations for the given validators and account
 func createDelegations(tmValidators []*tmtypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
 	amountOfValidators := len(tmValidators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
@@ -145,6 +151,7 @@ func createDelegations(tmValidators []*tmtypes.Validator, fromAccount sdktypes.A
 	return delegations
 }
 
+// StakingCustomGenesisState defines the staking genesis state
 type StakingCustomGenesisState struct {
 	denom string
 
@@ -152,6 +159,7 @@ type StakingCustomGenesisState struct {
 	delegations []stakingtypes.Delegation
 }
 
+// setStakingGenesisState sets the staking genesis state
 func setStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
@@ -162,12 +170,14 @@ func setStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisStat
 	return genesisState
 }
 
+// setAuthGenesisState sets the auth genesis state
 func setAuthGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, genAccounts []authtypes.GenesisAccount) simapp.GenesisState {
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccounts)
 	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGenesis)
 	return genesisState
 }
 
+// setInflationGenesisState sets the inflation genesis state
 func setInflationGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
 	inflationParams := infltypes.DefaultParams()
 	inflationParams.EnableInflation = false
@@ -182,6 +192,7 @@ type BankCustomGenesisState struct {
 	balances    []banktypes.Balance
 }
 
+// setBankGenesisState sets the bank genesis state
 func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams BankCustomGenesisState) simapp.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
@@ -194,6 +205,7 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, 
 	return genesisState
 }
 
+// calculateTotalSupply calculates the total supply from the given balances
 func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.Coins {
 	totalSupply := sdktypes.NewCoins()
 	for _, balance := range fundedAccountsBalances {
@@ -202,8 +214,8 @@ func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.C
 	return totalSupply
 }
 
+// addBondedModuleAccountToFundedBalances adds bonded amount to bonded pool module account and include it on funded accounts
 func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.Balance, totalBonded sdktypes.Coin) []banktypes.Balance {
-	// add bonded amount to bonded pool module account and include it on funded accounts
 	return append(fundedAccountsBalances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
 		Coins:   sdktypes.Coins{totalBonded},
