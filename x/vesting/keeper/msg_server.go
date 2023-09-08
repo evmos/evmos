@@ -223,6 +223,9 @@ func (k Keeper) Clawback(
 			)
 		}
 
+		// NOTE: we check the destination address only for the case where it's not sent from the
+		// authority account, because in that case the destination address is hardcored to the
+		// community pool address anyway (see further below).
 		if bk.BlockedAddr(dest) {
 			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
 				"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
