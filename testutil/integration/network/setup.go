@@ -44,6 +44,7 @@ func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
 
 // createGenesisAccounts returns a slice of genesis accounts from the given
 // account addresses.
+func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, numberOfAccounts)
 	for i, acc := range accounts {
@@ -71,7 +72,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
-	loadLastest := true
+	loadLatest := true
 	skipUpgradeHeights := map[int64]bool{}
 	homePath := app.DefaultNodeHome
 	invCheckPeriod := uint(5)
@@ -83,7 +84,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 		logger,
 		db,
 		nil,
-		loadLastest,
+		loadLatest,
 		skipUpgradeHeights,
 		homePath,
 		invCheckPeriod,

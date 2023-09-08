@@ -54,6 +54,7 @@ type Network interface {
 
 var _ Network = (*IntegrationNetwork)(nil)
 
+// IntegrationNetwork is the implementation of the Network interface for integration tests.
 type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
