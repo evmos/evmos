@@ -215,10 +215,22 @@ func (k Keeper) Clawback(
 		dest = funder
 	}
 
-	if k.authority.String() != msg.FunderAddress && bk.BlockedAddr(dest) {
-		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
-			"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
-		)
+	if msg.FunderAddress != k.authority.String() {
+		if k.HasActiveClawbackProposal(ctx, addr) {
+			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+				"clawback is disabled while there is an active clawback proposal for account %s and funder %s",
+				msg.AccountAddress, msg.FunderAddress,
+			)
+		}
+
+		// NOTE: we check the destination address only for the case where it's not sent from the
+		// authority account, because in that case the destination address is hardcored to the
+		// community pool address anyway (see further below).
+		if bk.BlockedAddr(dest) {
+			return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+				"%s is a blocked address and not allowed to receive funds", msg.DestAddress,
+			)
+		}
 	}
 
 	// Get clawback vesting account
@@ -287,8 +299,17 @@ func (k Keeper) UpdateVestingFunder(
 	bk := k.bankKeeper
 
 	// NOTE: errors checked during msg validation
+	funder := sdk.MustAccAddressFromBech32(msg.FunderAddress)
 	newFunder := sdk.MustAccAddressFromBech32(msg.NewFunderAddress)
 	vesting := sdk.MustAccAddressFromBech32(msg.VestingAddress)
+
+	// Check if there is an active clawback proposal for the given account
+	if k.HasActiveClawbackProposal(ctx, vesting) {
+		return nil, errorsmod.Wrapf(errortypes.ErrUnauthorized,
+			"cannot update funder while there is an active clawback proposal for account %s and funder %s",
+			vesting.String(), funder.String(),
+		)
+	}
 
 	// Need to check if new funder can receive funds because in
 	// Clawback function, destination defaults to funder address

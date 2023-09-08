@@ -42,6 +42,7 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 					suite.app.BankKeeper,
 					suite.app.DistrKeeper,
 					suite.app.StakingKeeper,
+					suite.app.GovKeeper,
 				)
 				suite.Require().NotNil(newKeeper)
 			} else {
@@ -54,6 +55,7 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 						suite.app.BankKeeper,
 						suite.app.DistrKeeper,
 						suite.app.StakingKeeper,
+						suite.app.GovKeeper,
 					)
 				})
 			}
