@@ -42,9 +42,8 @@ func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
 	return tmtypes.NewValidatorSet(tmValidators)
 }
 
-// fundAndCreateGenesisAccounts funds accounts
-// create genesis accounts
-func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
+// createGenesisAccounts returns a slice of genesis accounts from the given
+// account addresses.
 	numberOfAccounts := len(accounts)
 	genAccounts := make([]authtypes.GenesisAccount, numberOfAccounts)
 	for i, acc := range accounts {
