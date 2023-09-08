@@ -7,6 +7,7 @@ import (
 	"github.com/evmos/evmos/v14/utils"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
 )
 
 // Config defines the configuration for a chain.
@@ -36,8 +37,12 @@ func DefaultConfig() Config {
 // requires to be changed.
 type ConfigOption func(*Config)
 
-// WithChainID sets a custom chainID for the network.
+// WithChainID sets a custom chainID for the network. It panics if the chainID is invalid.
 func WithChainID(chainID string) ConfigOption {
+	_, err := evmostypes.ParseChainID(chainID)
+	if err != nil {
+		panic(err)
+	}
 	return func(cfg *Config) {
 		cfg.chainID = chainID
 	}
