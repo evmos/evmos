@@ -10,15 +10,15 @@ import (
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 )
 
-type Account struct {
+type Key struct {
 	Addr    common.Address
 	AccAddr sdktypes.AccAddress
 	Priv    cryptotypes.PrivKey
 }
 
-func NewAccount() Account {
+func NewKey() Key {
 	addr, privKey := utiltx.NewAddrKey()
-	return Account{
+	return Key{
 		Addr:    addr,
 		AccAddr: sdktypes.AccAddress(addr.Bytes()),
 		Priv:    privKey,
@@ -33,45 +33,63 @@ type Keyring interface {
 	// GetAccAddr returns the sdk address of the specified account.
 	GetAccAddr(index int) sdktypes.AccAddress
 	// GetAccount returns the account of the specified address.
-	GetAccount(index int) Account
+	GetKey(index int) Key
+
+	// AddKey adds a new account to the keyring
+	AddKey() int
 
 	// Sign signs message with the specified account.
 	Sign(index int, msg []byte) ([]byte, error)
 }
 
+// IntegrationKeyring is a keyring designed for integration tests.
 type IntegrationKeyring struct {
-	accounts []Account
+	keys []Key
 }
 
 var _ Keyring = (*IntegrationKeyring)(nil)
 
+// NewKeyring returns a new keyring with nAccs accounts.
 func NewKeyring(nAccs int) IntegrationKeyring {
-	accs := make([]Account, 0, nAccs)
+	accs := make([]Key, 0, nAccs)
 	for i := 0; i < nAccs; i++ {
-		acc := NewAccount()
+		acc := NewKey()
 		accs = append(accs, acc)
 	}
 	return IntegrationKeyring{
-		accounts: accs,
+		keys: accs,
 	}
 }
 
+// GetPrivKey returns the private key of the specified account.
 func (kr *IntegrationKeyring) GetPrivKey(index int) cryptotypes.PrivKey {
-	return kr.accounts[index].Priv
+	return kr.keys[index].Priv
 }
 
+// GetAddr returns the address of the specified account.
 func (kr *IntegrationKeyring) GetAddr(index int) common.Address {
-	return kr.accounts[index].Addr
+	return kr.keys[index].Addr
 }
 
+// GetAccAddr returns the sdk address of the specified account.
 func (kr *IntegrationKeyring) GetAccAddr(index int) sdktypes.AccAddress {
-	return kr.accounts[index].AccAddr
+	return kr.keys[index].AccAddr
 }
 
-func (kr *IntegrationKeyring) GetAccount(index int) Account {
-	return kr.accounts[index]
+// GetKey returns the key specified by index
+func (kr *IntegrationKeyring) GetKey(index int) Key {
+	return kr.keys[index]
 }
 
+// AddKey adds a new account to the keyring. It returns the index for the key
+func (kr *IntegrationKeyring) AddKey() int {
+	acc := NewKey()
+	index := len(kr.keys)
+	kr.keys = append(kr.keys, acc)
+	return index
+}
+
+// Sign signs message with the specified key.
 func (kr *IntegrationKeyring) Sign(index int, msg []byte) ([]byte, error) {
 	privKey := kr.GetPrivKey(index)
 	if privKey == nil {

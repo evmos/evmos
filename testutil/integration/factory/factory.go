@@ -170,6 +170,25 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 	return tf.network.BroadcastTxSync(txBytes)
 }
 
+// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
+func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
+	args, err := json.Marshal(evmtypes.TransactionArgs{
+		Data: (*hexutil.Bytes)(&txArgs.Input),
+		From: from,
+	})
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
+	}
+
+	res, err := tf.grpcHandler.EstimateGas(args, config.DefaultGasCap)
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to estimate gas")
+	}
+	gas := res.Gas
+	return gas, nil
+}
+
+// buildTx builds a tx with the provided private key and txArgs
 func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (client.TxBuilder, error) {
 	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
@@ -243,6 +262,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	return txBuilder, nil
 }
 
+// encodeTx encodes the tx using the txConfig's encoder.
 func (tf *IntegrationTxFactory) encodeTx(txBuilder client.TxBuilder) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
 	txBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
@@ -252,6 +272,7 @@ func (tf *IntegrationTxFactory) encodeTx(txBuilder client.TxBuilder) ([]byte, er
 	return txBytes, nil
 }
 
+// calculateFees calculates the fees for the transaction.
 func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit uint64) (sdktypes.Coins, error) {
 	denom := tf.network.GetDenom()
 	var fees sdktypes.Coins
@@ -268,6 +289,7 @@ func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit ui
 	return fees, nil
 }
 
+// estimateGas estimates the gas needed for the transaction.
 func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder client.TxBuilder) (uint64, error) {
 	txConfig := tf.ec.TxConfig
 	simulateBytes, err := txConfig.TxEncoder()(txBuilder.GetTx())
@@ -286,24 +308,6 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 		gasLimit = txArgs.Gas
 	}
 	return gasLimit, nil
-}
-
-// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
-func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
-	args, err := json.Marshal(evmtypes.TransactionArgs{
-		Data: (*hexutil.Bytes)(&txArgs.Input),
-		From: from,
-	})
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
-	}
-
-	res, err := tf.grpcHandler.EstimateGas(args, config.DefaultGasCap)
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to estimate gas")
-	}
-	gas := res.Gas
-	return gas, nil
 }
 
 // createMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
