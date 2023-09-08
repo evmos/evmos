@@ -15,7 +15,7 @@ const (
 var (
 	// KeyPrefixGovClawbackDisabledKey is the slice of prefix bytes for storing the governance clawback enabled/disabled flag.
 	KeyPrefixGovClawbackDisabledKey = []byte{prefixGovClawbackDisabledKey}
-	// KeyPrefixGovClawbackProposalKey is the slice of prefix bytes for storing the vesting account and funder combination
+	// KeyPrefixGovClawbackProposalKey is the slice of prefix bytes for storing the vesting account
 	// of governance clawback proposals.
 	KeyPrefixGovClawbackProposalKey = []byte{prefixGovClawbackProposalKey}
 )

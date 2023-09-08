@@ -74,8 +74,8 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 	}
 
 	for _, clawbackProposal := range clawbackProposals {
-		vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
-		k.SetActiveClawbackProposal(ctx, vesting)
+		vestingAccAddr := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+		k.SetActiveClawbackProposal(ctx, vestingAccAddr)
 	}
 }
 
@@ -131,8 +131,8 @@ func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint6
 	}
 
 	for _, clawbackProposal := range clawbackProposals {
-		vesting := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
-		k.DeleteActiveClawbackProposal(ctx, vesting)
+		vestingAccAddr := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
+		k.DeleteActiveClawbackProposal(ctx, vestingAccAddr)
 	}
 }
 
