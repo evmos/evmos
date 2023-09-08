@@ -31,12 +31,12 @@ import (
 // with the default power of 1.
 func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
 	// Create validator set
-	tmValidators := make([]*tmtypes.Validator, numberOfValidators)
+	tmValidators := make([]*tmtypes.Validator, 0, numberOfValidators)
 	for i := 0; i < numberOfValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, _ := privVal.GetPubKey()
 		validator := tmtypes.NewValidator(pubKey, 1)
-		tmValidators[i] = validator
+		tmValidators = append(tmValidators, validator)
 	}
 
 	return tmtypes.NewValidatorSet(tmValidators)
@@ -46,24 +46,24 @@ func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
 // account addresses.
 func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAccount {
 	numberOfAccounts := len(accounts)
-	genAccounts := make([]authtypes.GenesisAccount, numberOfAccounts)
-	for i, acc := range accounts {
+	genAccounts := make([]authtypes.GenesisAccount, 0, numberOfAccounts)
+	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
-		genAccounts[i] = baseAcc
+		genAccounts = append(genAccounts, baseAcc)
 	}
 	return genAccounts
 }
 
 func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
-	fundedAccountBalances := make([]banktypes.Balance, numberOfAccounts)
-	for i, acc := range accounts {
+	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
+	for _, acc := range accounts {
 		balance := banktypes.Balance{
 			Address: acc.String(),
 			Coins:   sdktypes.NewCoins(coin),
 		}
 
-		fundedAccountBalances[i] = balance
+		fundedAccountBalances = append(fundedAccountBalances, balance)
 	}
 	return fundedAccountBalances
 }
