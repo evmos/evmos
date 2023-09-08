@@ -19,3 +19,54 @@ jobs:
       - name: Test E2E
         run: |
           make test-e2e
+  test-nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v19
+        with:
+          # pin to nix-2.13 to workaround compability issue of 2.14,
+          # see: https://github.com/cachix/install-nix-action/issues/161
+          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          nix_path: nixpkgs=channel:nixos-22.11
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}   
+      - uses: cachix/cachix-action@v12
+        with:
+          name: evmosd
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"                        
+      - uses: technote-space/get-diff-action@v6.1.2
+        with:
+          PATTERNS: |
+            **/**.sol
+            **/**.go
+            go.mod
+            go.sum
+            tests/nix_tests/**
+      - name: Run nix tests
+        run: make run-nix-tests
+        if: env.GIT_DIFF
+
+  upload-cache:
+    if: github.event_name == 'push'
+    needs: ["test-nix"]
+    strategy:
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v19
+        with:
+          # pin to nix-2.13 to workaround compability issue of 2.14,
+          # see: https://github.com/cachix/install-nix-action/issues/161
+          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          nix_path: nixpkgs=channel:nixos-22.11
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - uses: cachix/cachix-action@v12
+        with:
+          name: evmosd
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: 'instantiate nix test env'
+        run: nix-store -r "$(nix-instantiate tests/nix_tests/shell.nix)"   
