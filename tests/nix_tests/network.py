@@ -70,11 +70,13 @@ class Evmos:
         return supervisorctl(self.base_dir / "../tasks.ini", *args)
 
 
-# another Cosmos chain to be used on IBC transactions
-class Chainmain:
-    def __init__(self, base_dir):
+# another Cosmos chain to be used on IBC transactions,
+# e.g. Crypto.org, Stride, etc.
+class CosmosChain:
+    def __init__(self, base_dir, daemon_name):
         self.base_dir = base_dir
         self.config = json.loads((base_dir / "config.json").read_text())
+        self.daemon_name = daemon_name
 
     def base_port(self, i):
         return self.config["validators"][i]["base_port"]
@@ -83,7 +85,7 @@ class Chainmain:
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
 
     def cosmos_cli(self, i=0):
-        return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), "chain-maind")
+        return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), self.daemon_name)
 
 
 #  Hermes IBC relayer
