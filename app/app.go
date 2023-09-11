@@ -130,7 +130,7 @@ import (
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
 	"github.com/evmos/evmos/v14/app/upgrades/v14rc2"
-	"github.com/evmos/evmos/v14/app/upgrades/v14rc4"
+	"github.com/evmos/evmos/v14/app/upgrades/v14rc5"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
@@ -1334,8 +1334,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	// v14rc4 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v14rc4.UpgradeName,
-		v14rc4.CreateUpgradeHandler(
+		v14rc5.UpgradeName,
+		v14rc5.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.EvmKeeper,
 		),
@@ -1398,7 +1398,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			},
 		}
 		// !! ATTENTION !!
-	case v14rc4.UpgradeName:
+	case v14rc5.UpgradeName:
 		// no store upgrades
 	}
 
