@@ -489,8 +489,8 @@ schema = 3
     version = "v0.0.0-20201227073835-cf1acfcdf475"
     hash = "sha256-10ytHQ1SpMKYTiKuOPdEMuOVa8HVvv9ryYSIF9BHEBI="
   [mod."github.com/rjeczalik/notify"]
-    version = "v0.9.2"
-    hash = "sha256-PD9TDC1Hc3RJk0+pRqsltZ9d3B2hgKcJuiyStm9IAV8="
+    version = "v0.9.3"
+    hash = "sha256-ufbH98YvIVkx/JafIbKeCmZm+p/kXWhoUyJ2PDr2hPo="
   [mod."github.com/rs/cors"]
     version = "v1.9.0"
     hash = "sha256-CNBCGXOydU6MIEZ0B5eXBjBm3smH2ryYHvgRJA2udBM="
