@@ -30,6 +30,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
       - name: Test and Create Coverage Report
         run: |
           make test-unit-cover
