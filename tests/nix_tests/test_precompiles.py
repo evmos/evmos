@@ -12,7 +12,7 @@ def ibc(request, tmp_path_factory):
     incentivized = request.param
     name = "ibc-precompile"
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, incentivized)
+    network = prepare_network(path, name, "chainmain", incentivized)
     yield from network
 
 
@@ -22,7 +22,7 @@ def test_ibc_transfer(ibc):
     """
     assert_ready(ibc)
 
-    dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
+    dst_addr = ibc.other_chain.cosmos_cli().address("signer2")
     amt = 1000000
 
     cli = ibc.evmos.cosmos_cli()
@@ -30,7 +30,7 @@ def test_ibc_transfer(ibc):
     src_denom = "aevmos"
 
     old_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
-    old_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
+    old_dst_balance = get_balance(ibc.other_chain, dst_addr, EVMOS_IBC_DENOM)
 
     pc = get_precompile_contract(ibc.evmos.w3, "ICS20I")
     evmos_gas_price = ibc.evmos.w3.eth.gas_price
@@ -59,7 +59,7 @@ def test_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
+        new_dst_balance = get_balance(ibc.other_chain, dst_addr, EVMOS_IBC_DENOM)
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
@@ -81,7 +81,7 @@ def test_ibc_transfer_invalid_packet(ibc):
     exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501
     w3 = ibc.evmos.w3
 
-    dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
+    dst_addr = ibc.other_chain.cosmos_cli().address("signer2")
     amt = 1000000
 
     cli = ibc.evmos.cosmos_cli()
@@ -125,7 +125,7 @@ def test_ibc_transfer_timeout(ibc):
     exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{6,9} \+0000 UTC\)\: packet timeout"  # noqa: E501
     w3 = ibc.evmos.w3
 
-    dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
+    dst_addr = ibc.other_chain.cosmos_cli().address("signer2")
     amt = 1000000
 
     cli = ibc.evmos.cosmos_cli()
