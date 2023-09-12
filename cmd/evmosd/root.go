@@ -128,7 +128,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		config.Cmd(),
 		pruning.PruningCmd(a.newApp),
 		snapshot.Cmd(a.newApp),
-		block.BlockCmd(),
+		block.Cmd(),
 	)
 
 	evmosserver.AddCommands(

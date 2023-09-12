@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func BlockCmd() *cobra.Command {
+func Cmd() *cobra.Command {
 	var height string
 	cmd := &cobra.Command{
 		Use:   "block",

@@ -104,9 +104,7 @@ func (bs *stateStore) loadBlock(height int64) *types.Block {
 // loadBlockMeta returns the BlockMeta for the given height.
 // If no block is found for the given height, it returns nil.
 func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
-	var pbbm = new(tmproto.BlockMeta)
 	bz, err := bs.block.Get(blockMetaKey(height))
-
 	if err != nil {
 		panic(err)
 	}
@@ -115,6 +113,7 @@ func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
 		return nil, nil
 	}
 
+	pbbm := new(tmproto.BlockMeta)
 	err = proto.Unmarshal(bz, pbbm)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal to tmproto.BlockMeta: %w", err)
@@ -131,8 +130,6 @@ func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
 // loadBlockPart returns the part of the block for the given height and part index.
 // If no block part is found for the given height and index, it returns nil.
 func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
-	var pbpart = new(tmproto.Part)
-
 	bz, err := bs.block.Get(blockPartKey(height, index))
 	if err != nil {
 		panic(err)
@@ -141,6 +138,7 @@ func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
 		return nil
 	}
 
+	pbpart := new(tmproto.Part)
 	if err := proto.Unmarshal(bz, pbpart); err != nil {
 		panic(fmt.Errorf("unmarshal to tmproto.Part failed: %w", err))
 	}
