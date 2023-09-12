@@ -23,6 +23,7 @@ jobs:
             **/*.go
             go.mod
             go.sum
+            *.toml
       - name: Run Gosec Security Scanner
         uses: cosmos/gosec@master
         with:
