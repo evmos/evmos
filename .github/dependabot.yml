@@ -6,10 +6,6 @@ updates:
     interval: daily
     time: "10:00"
   open-pull-requests-limit: 10
-  reviewers:
-  - fedekunze
-  - khoslaventures
-  - danburck
   labels:
   - dependencies
 - package-ecosystem: docker
@@ -18,10 +14,6 @@ updates:
     interval: daily
     time: "10:00"
   open-pull-requests-limit: 10
-  reviewers:
-  - fedekunze
-  - khoslaventures
-  - danburck
 - package-ecosystem: gomod
   directory: "/"
   schedule:
