@@ -6,7 +6,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 )
 
-// CommitBlock is a private helper function that runs the EndBlocker logic, commits the changes,
+// NextBlock is a private helper function that runs the EndBlocker logic, commits the changes,
 // updates the header and runs the BeginBlocker
 func (n *IntegrationNetwork) NextBlock() error {
 	// End block and commit
