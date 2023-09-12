@@ -5,7 +5,7 @@ from typing import NamedTuple
 
 from pystarport import ports
 
-from .network import Chainmain, Evmos, Hermes, setup_custom_evmos
+from .network import CosmosChain, Evmos, Hermes, setup_custom_evmos
 from .utils import ADDRS, eth_to_bech32, wait_for_port
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
@@ -15,19 +15,31 @@ RATIO = 10**10
 
 class IBCNetwork(NamedTuple):
     evmos: Evmos
-    chainmain: Chainmain
+    other_chain: CosmosChain
     hermes: Hermes
     incentivized: bool
 
 
-def prepare_network(tmp_path, file, incentivized=False):
+def prepare_network(tmp_path, file, other_chain_name, incentivized=False):
     file = f"configs/{file}.jsonnet"
     gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
     evmos = next(gen)
-    chainmain = Chainmain(evmos.base_dir.parent / "chainmain-1")
+
+    # set up another chain to connect to evmos
+    if "chainmain" in other_chain_name:
+        other_chain_name = "chainmain-1"
+        other_chain = CosmosChain(
+            evmos.base_dir.parent / other_chain_name, "chain-maind"
+        )
+        other_chain_denom = "basecro"
+    if "stride" in other_chain_name:
+        other_chain_name = "stride-1"
+        other_chain = CosmosChain(evmos.base_dir.parent / other_chain_name, "strided")
+        other_chain_denom = "ustrd"
+
     hermes = Hermes(evmos.base_dir.parent / "relayer.toml")
     # wait for grpc ready
-    wait_for_port(ports.grpc_port(chainmain.base_port(0)))  # chainmain grpc
+    wait_for_port(ports.grpc_port(other_chain.base_port(0)))  # other_chain grpc
     wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
 
     version = {"fee_version": "ics29-1", "app_version": "ics20-1"}
@@ -39,6 +51,27 @@ def prepare_network(tmp_path, file, incentivized=False):
         if incentivized
         else []
     )
+
+    # pystarport (used to start the setup), by default uses ethereum
+    # hd-path to create the relayers keys on hermes.
+    # If this is not needed (e.g. in Cosmos chains like Stride, Osmosis, etc.)
+    # then overwrite the relayer key
+    if "chainmain" not in other_chain_name:
+        subprocess.run(
+            [
+                "hermes",
+                "--config",
+                hermes.configpath,
+                "keys",
+                "add",
+                "--chain",
+                other_chain_name,
+                "--mnemonic-file",
+                evmos.base_dir.parent / "relayer.env",
+                "--overwrite",
+            ],
+            check=True,
+        )
 
     subprocess.check_call(
         [
@@ -54,7 +87,7 @@ def prepare_network(tmp_path, file, incentivized=False):
             "--a-chain",
             "evmos_9000-1",
             "--b-chain",
-            "chainmain-1",
+            other_chain_name,
             "--new-client-connection",
             "--yes",
         ]
@@ -64,20 +97,20 @@ def prepare_network(tmp_path, file, incentivized=False):
     if incentivized:
         # register fee payee
         src_chain = evmos.cosmos_cli()
-        dst_chain = chainmain.cosmos_cli()
+        dst_chain = other_chain.cosmos_cli()
         rsp = dst_chain.register_counterparty_payee(
             "transfer",
             "channel-0",
             dst_chain.address("relayer"),
             src_chain.address("signer1"),
             from_="relayer",
-            fees="100000000basecro",
+            fees=f"100000000{other_chain_denom}",
         )
         assert rsp["code"] == 0, rsp["raw_log"]
 
     evmos.supervisorctl("start", "relayer-demo")
     wait_for_port(hermes.port)
-    yield IBCNetwork(evmos, chainmain, hermes, incentivized)
+    yield IBCNetwork(evmos, other_chain, hermes, incentivized)
 
 
 def assert_ready(ibc):
@@ -88,15 +121,15 @@ def assert_ready(ibc):
     assert json.loads(output)["status"] == "success"
 
 
-def hermes_transfer(ibc):
+def hermes_transfer(ibc, other_chain_name="chainmain-1", other_chain_denom="basecro"):
     assert_ready(ibc)
     # chainmain-1 -> evmos_9000-1
-    my_ibc0 = "chainmain-1"
+    my_ibc0 = other_chain_name
     my_ibc1 = "evmos_9000-1"
     my_channel = "channel-0"
     dst_addr = eth_to_bech32(ADDRS["signer2"])
     src_amount = 10
-    src_denom = "basecro"
+    src_denom = other_chain_denom
     # dstchainid srcchainid srcportid srchannelid
     cmd = (
         f"hermes --config {ibc.hermes.configpath} tx ft-transfer "
