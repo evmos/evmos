@@ -2,10 +2,10 @@ package block
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/types"
 )
 
 func LastBlockCmd() *cobra.Command {
@@ -14,32 +14,27 @@ func LastBlockCmd() *cobra.Command {
 		Short: "Get the last block of the db",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// TODO add flag to specify different dbs
+			statedb, err := newStateStore(args[0])
+			if err != nil {
+				return fmt.Errorf("error while openning db: %w", err)
+			}
 
-			block, err := getLatestBlock(args[0])
+			blockStore := statedb.loadBlockStoreState()
+			if blockStore == nil {
+				return errors.New("couldn't find a BlockStoreState persisted in db")
+			}
+			block := statedb.loadBlock(blockStore.Height)
+
+			bz, err := json.Marshal(block)
 			if err != nil {
 				return err
 			}
 
-			blockStr, err := json.Marshal(block)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(string(blockStr))
+			fmt.Println(string(bz))
 
 			return nil
 		},
 	}
 	return cmd
-}
-
-func getLatestBlock(path string) (*types.Block, error) {
-	statedb, err := newStateStore(path)
-	if err != nil {
-		return nil,fmt.Errorf("new stateStore: %w", err)
-	}
-	_, height := statedb.loadBlockStoreState()
-	block := statedb.loadBlock(height)
-
-	return block, nil
 }

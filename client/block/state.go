@@ -3,12 +3,14 @@ package block
 import (
 	"fmt"
 
-	"github.com/syndtr/goleveldb/leveldb/opt"
-	tmstore "github.com/tendermint/tendermint/proto/tendermint/store"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cometbft/cometbft-db"
+	tmstore "github.com/cometbft/cometbft/proto/tendermint/store"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/cometbft/cometbft/types"
+	"github.com/cosmos/gogoproto/proto"
 )
+
+var blockStoreKey = []byte("blockStore")
 
 type stateStore struct {
 	state dbm.DB
@@ -16,12 +18,13 @@ type stateStore struct {
 }
 
 func newStateStore(path string) (*stateStore, error) {
-	state, err := dbm.NewGoLevelDBWithOpts("state", path, &opt.Options{ReadOnly: true})
+	// TODO support other DBs
+	state, err := dbm.NewDB("state", dbm.GoLevelDBBackend, path)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := dbm.NewGoLevelDBWithOpts("blockstore", path, &opt.Options{ReadOnly: true})
+	block, err := dbm.NewDB("blockstore", dbm.GoLevelDBBackend, path)
 	if err != nil {
 		return nil, err
 	}
@@ -32,37 +35,33 @@ func newStateStore(path string) (*stateStore, error) {
 	}, nil
 }
 
-// LoadBlockMeta returns the BlockMeta for the given height.
-// If no block is found for the given height, it returns nil.
-func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
-	var pbbm = new(tmproto.BlockMeta)
-	bz, err := bs.block.Get(calcBlockMetaKey(height))
-
+// loadBlockStoreState returns the BlockStoreState as loaded from disk.
+// If no BlockStoreState was previously persisted, it returns nil.
+func (bs *stateStore) loadBlockStoreState() *tmstore.BlockStoreState {
+	bytes, err := bs.block.Get(blockStoreKey)
 	if err != nil {
 		panic(err)
 	}
 
-	if len(bz) == 0 {
-		return nil, nil
+	if len(bytes) == 0 {
+		return nil
 	}
 
-	err = pbbm.Unmarshal(bz)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal to tmproto.BlockMeta: %w", err)
+	var bsj tmstore.BlockStoreState
+	if err := proto.Unmarshal(bytes, &bsj); err != nil {
+		panic(fmt.Sprintf("Could not unmarshal bytes: %X", bytes))
 	}
 
-	blockMeta, err := types.BlockMetaFromProto(pbbm)
-	if err != nil {
-		return nil, fmt.Errorf("error from proto blockMeta: %w", err)
+	// Backwards compatibility with persisted data from before Base existed.
+	if bsj.Height > 0 && bsj.Base == 0 {
+		bsj.Base = 1
 	}
 
-	return blockMeta, nil
+	return &bsj
 }
 
-func calcBlockMetaKey(height int64) []byte {
-	return []byte(fmt.Sprintf("H:%v", height))
-}
-
+// loadBlock returns the Block for the given height.
+// If no block is found for the given height, it returns nil.
 func (bs *stateStore) loadBlock(height int64) *types.Block {
 	blockMeta, err := bs.loadBlockMeta(height)
 	if err != nil {
@@ -83,8 +82,7 @@ func (bs *stateStore) loadBlock(height int64) *types.Block {
 		}
 		buf = append(buf, part.Bytes...)
 	}
-	err = pbb.Unmarshal(buf)
-	if err != nil {
+	if err := proto.Unmarshal(buf, pbb); err != nil {
 		// NOTE: The existence of meta should imply the existence of the
 		// block. So, make sure meta is only saved after blocks are saved.
 		panic(fmt.Sprintf("Error reading block: %v", err))
@@ -98,10 +96,39 @@ func (bs *stateStore) loadBlock(height int64) *types.Block {
 	return block
 }
 
+// loadBlockMeta returns the BlockMeta for the given height.
+// If no block is found for the given height, it returns nil.
+func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
+	var pbbm = new(tmproto.BlockMeta)
+	bz, err := bs.block.Get(blockMetaKey(height))
+
+	if err != nil {
+		panic(err)
+	}
+
+	if len(bz) == 0 {
+		return nil, nil
+	}
+
+	err = proto.Unmarshal(bz, pbbm)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal to tmproto.BlockMeta: %w", err)
+	}
+
+	blockMeta, err := types.BlockMetaFromProto(pbbm)
+	if err != nil {
+		return nil, fmt.Errorf("error from proto blockMeta: %w", err)
+	}
+
+	return blockMeta, nil
+}
+
+// loadBlockPart returns the part of the block for the given height and part index.
+// If no block part is found for the given height and index, it returns nil.
 func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
 	var pbpart = new(tmproto.Part)
 
-	bz, err := bs.block.Get(calcBlockPartKey(height, index))
+	bz, err := bs.block.Get(blockPartKey(height, index))
 	if err != nil {
 		panic(err)
 	}
@@ -109,8 +136,7 @@ func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
 		return nil
 	}
 
-	err = pbpart.Unmarshal(bz)
-	if err != nil {
+	if err := proto.Unmarshal(bz, pbpart); err != nil {
 		panic(fmt.Errorf("unmarshal to tmproto.Part failed: %w", err))
 	}
 	part, err := types.PartFromProto(pbpart)
@@ -121,33 +147,14 @@ func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
 	return part
 }
 
-func calcBlockPartKey(height int64, partIndex int) []byte {
-	return []byte(fmt.Sprintf("P:%v:%v", height, partIndex))
+// blockMetaKey is a helper function that takes the block height
+// as input parameter and returns the corresponding block metadata store key
+func blockMetaKey(height int64) []byte {
+	return []byte(fmt.Sprintf("H:%v", height))
 }
 
-// LoadBlockStoreState returns the BlockStoreState as loaded from disk.
-// If no BlockStoreState was previously persisted, it returns the zero value.
-var blockStoreKey = []byte("blockStore")
-
-func (bs *stateStore) loadBlockStoreState() (base int64, height int64) {
-	bytes, err := bs.block.Get(blockStoreKey)
-	if err != nil {
-		panic(err)
-	}
-
-	if len(bytes) == 0 {
-		return 0, 0
-	}
-
-	var bsj tmstore.BlockStoreState
-	if err := bsj.Unmarshal(bytes); err != nil {
-		panic(fmt.Sprintf("Could not unmarshal bytes: %X", bytes))
-	}
-
-	// Backwards compatibility with persisted data from before Base existed.
-	if bsj.Height > 0 && bsj.Base == 0 {
-		bsj.Base = 1
-	}
-
-	return bsj.Base, bsj.Height
+// blockPartKey is a helper function that takes the block height
+// and the part index as input parameters and returns the corresponding block part store key
+func blockPartKey(height int64, partIndex int) []byte {
+	return []byte(fmt.Sprintf("P:%v:%v", height, partIndex))
 }
