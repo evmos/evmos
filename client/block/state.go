@@ -2,6 +2,7 @@ package block
 
 import (
 	"fmt"
+	"path/filepath"
 
 	dbm "github.com/cometbft/cometbft-db"
 	tmstore "github.com/cometbft/cometbft/proto/tendermint/store"
@@ -17,14 +18,14 @@ type stateStore struct {
 	block dbm.DB
 }
 
-func newStateStore(path string) (*stateStore, error) {
-	// TODO support other DBs
-	state, err := dbm.NewDB("state", dbm.GoLevelDBBackend, path)
+func newStateStore(rootDir string, backendType dbm.BackendType) (*stateStore, error) {
+	dataDir := filepath.Join(rootDir, "data")
+	state, err := dbm.NewDB("state", backendType, dataDir)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := dbm.NewDB("blockstore", dbm.GoLevelDBBackend, path)
+	block, err := dbm.NewDB("blockstore", backendType, dataDir)
 	if err != nil {
 		return nil, err
 	}
