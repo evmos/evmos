@@ -16,7 +16,7 @@ def ibc(request, tmp_path_factory):
     incentivized = request.param
     name = "ibc"
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, incentivized)
+    network = prepare_network(path, name, "chainmain", incentivized)
     yield from network
 
 
@@ -59,7 +59,7 @@ def test_evmos_ibc_transfer(ibc):
     test sending aevmos from evmos to crypto-org-chain using cli.
     """
     assert_ready(ibc)
-    dst_addr = ibc.chainmain.cosmos_cli().address("signer2")
+    dst_addr = ibc.other_chain.cosmos_cli().address("signer2")
     amt = 1000000
 
     cli = ibc.evmos.cosmos_cli()
@@ -68,7 +68,7 @@ def test_evmos_ibc_transfer(ibc):
 
     # case 1: use evmos cli
     old_src_balance = get_balance(ibc.evmos, src_addr, src_denom)
-    old_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
+    old_dst_balance = get_balance(ibc.other_chain, dst_addr, EVMOS_IBC_DENOM)
 
     rsp = cli.ibc_transfer(
         src_addr,
@@ -83,7 +83,7 @@ def test_evmos_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.chainmain, dst_addr, EVMOS_IBC_DENOM)
+        new_dst_balance = get_balance(ibc.other_chain, dst_addr, EVMOS_IBC_DENOM)
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)

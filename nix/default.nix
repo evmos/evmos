@@ -16,7 +16,15 @@ import sources.nixpkgs {
         inherit (pkgs.darwin.apple_sdk.frameworks) IOKit;
         buildGoModule = pkgs.buildGo118Module;
       };
+      # other chains to use in IBC tests
       chain-maind = pkgs.callPackage sources.chain-main { rocksdb = null; };
+      strided = pkgs.callPackage ./cosmos-chain.nix { 
+        src = sources.stride; 
+        pname = "strided";
+        version = "v11.0.0";
+        rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
+        vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
+      };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
     (final: prev:
