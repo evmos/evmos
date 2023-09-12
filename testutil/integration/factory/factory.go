@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	gasAdjustment = float64(1.7)
+	GasAdjustment = float64(1.7)
 )
 
 type TxFactory interface {
@@ -303,7 +303,10 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 		if err != nil {
 			return 0, errorsmod.Wrap(err, "failed to simulate tx")
 		}
-		gasLimit = uint64(gasAdjustment * float64(simulateRes.GasInfo.GasUsed))
+
+		gasAdj := new(big.Float).SetFloat64(GasAdjustment)
+		gasUsed := new(big.Float).SetUint64(simulateRes.GasInfo.GasUsed)
+		gasLimit, _ = gasAdj.Mul(gasAdj, gasUsed).Uint64()
 	} else {
 		gasLimit = txArgs.Gas
 	}
