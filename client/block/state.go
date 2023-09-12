@@ -1,3 +1,5 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package block
 
 import (
@@ -18,6 +20,8 @@ type stateStore struct {
 	block dbm.DB
 }
 
+// newStateStore opens the 'state' and 'blockstore' dbs
+// and returns them in the stateStore struct
 func newStateStore(rootDir string, backendType dbm.BackendType) (*stateStore, error) {
 	dataDir := filepath.Join(rootDir, "data")
 	state, err := dbm.NewDB("state", backendType, dataDir)
