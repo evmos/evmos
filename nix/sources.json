@@ -1,4 +1,15 @@
 {
+    "stride": {
+        "branch": "v11.0.0",
+        "description": "Stride Chain⛓: Multichain Liquid Staking",
+        "homepage": "https://www.stride.zone/",
+        "owner": "Stride-Labs",
+        "repo": "stride",
+        "rev": "v11.0.0",
+        "sha256": "116bs26zy7cxb5w0c4fd7wpgm5ir74ghfpynma93sj82xbynsssb",
+        "type": "tarball",
+        "url": "https://github.com/Stride-Labs/stride/archive/v11.0.0.tar.gz"
+    },
     "chain-main": {
         "branch": "master",
         "description": "Crypto.org Chain⛓: Croeseid Testnet and beyond development",
