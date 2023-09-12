@@ -23,6 +23,7 @@ jobs:
             app/upgrades/*
             go.mod
             go.sum
+            *.toml
             tests/e2e/*
             Dockerfile
       - name: Test E2E
@@ -56,6 +57,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
             tests/nix_tests/**
       - name: Run nix tests
         run: make run-nix-tests
