@@ -24,6 +24,7 @@ jobs:
             go.mod
             go.sum
             tests/e2e/*
+            Dockerfile
       - name: Test E2E
         run: |
           make test-e2e
