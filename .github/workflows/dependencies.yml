@@ -20,6 +20,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
       - name: "Dependency Review"
         uses: actions/dependency-review-action@v3
         if: env.GIT_DIFF
