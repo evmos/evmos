@@ -46,6 +46,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
