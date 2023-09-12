@@ -31,8 +31,8 @@ jobs:
   test-nix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v19
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
           # see: https://github.com/cachix/install-nix-action/issues/161
@@ -64,8 +64,8 @@ jobs:
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: cachix/install-nix-action@v19
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
           # see: https://github.com/cachix/install-nix-action/issues/161
