@@ -7,7 +7,7 @@ if git diff --quiet gomod2nix.toml; then
   echo "All good! gomod2nix.toml file is updated."
 else
   echo "Error: There are changes in the go.mod file. You need to regenerate the gomod2nix.toml file with the command 'gomod2nix generate'"
-  exit 1  # Exit with an error code
+  exit 0  # Exit and don't run the tests. Exit with code 0 so the GH actions CI updates the gomod2nix file programmatically
 fi
 
 set -e
