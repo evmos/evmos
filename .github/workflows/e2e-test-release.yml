@@ -42,6 +42,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
             tests/nix_tests/**
       - name: Run nix tests
         run: make run-nix-tests
