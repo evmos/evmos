@@ -62,7 +62,7 @@ func Cmd() *cobra.Command {
 				return fmt.Errorf("error while parsing block to JSON: %w", err)
 			}
 
-			fmt.Print(string(bz))
+			cmd.Println(string(bz))
 
 			return nil
 		},
