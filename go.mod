@@ -17,7 +17,11 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
+<<<<<<< HEAD
 	github.com/cosmos/ibc-go/v7 v7.2.1-0.20230829085526-4d114bd09096
+=======
+	github.com/cosmos/ibc-go/v7 v7.3.0
+>>>>>>> 20ab37b2 (build(deps): bump github.com/cosmos/ibc-go/v7 from 7.2.1 to 7.3.0 (#1780))
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.3
