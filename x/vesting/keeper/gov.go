@@ -23,7 +23,7 @@ func (k Keeper) HasGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) boo
 func (k Keeper) SetGovClawbackDisabled(ctx sdk.Context, addr sdk.AccAddress) {
 	//nolint:gocritic
 	key := append(types.KeyPrefixGovClawbackDisabledKey, addr.Bytes()...)
-	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
+	ctx.KVStore(k.storeKey).Set(key, []byte{})
 }
 
 // DeleteGovClawbackDisabled enables the given vesting account address to be clawed back
@@ -46,7 +46,7 @@ func (k Keeper) HasActiveClawbackProposal(ctx sdk.Context, addr sdk.AccAddress) 
 // proposal by writing it to store under the corresponding key.
 func (k Keeper) SetActiveClawbackProposal(ctx sdk.Context, addr sdk.AccAddress) {
 	key := buildActiveAccountClawbackProposalKey(addr)
-	ctx.KVStore(k.storeKey).Set(key, []byte{0x01})
+	ctx.KVStore(k.storeKey).Set(key, []byte{})
 }
 
 // DeleteActiveClawbackProposal deletes the entry for the given vesting account address
