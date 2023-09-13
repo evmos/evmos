@@ -50,6 +50,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
+- (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
+- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
 
 ### Bug Fixes
 
@@ -62,6 +64,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#1693](https://github.com/evmos/evmos/pull/1693) Prevent panic on int64 conversion in EVM fees antehandler.
 - (evm) [#1693](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
+- (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 
 ## [v13.0.2] - 2023-07-05
 

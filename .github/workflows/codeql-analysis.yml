@@ -39,13 +39,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: technote-space/get-diff-action@v6.1.2
         with:
           PATTERNS: |
             **/**.go
             go.mod
             go.sum
+            *.toml
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
@@ -72,7 +73,7 @@ jobs:
       #    and modify them (or add more) to build your code if your project
       #    uses a compiled language
 
-      #- run: |
+      # - run: |
       #   make bootstrap
       #   make release
 
