@@ -32,7 +32,7 @@ type Keyring interface {
 	GetPrivKey(index int) cryptotypes.PrivKey
 	// GetAddr returns the address of the account at the given keyring index.
 	GetAddr(index int) common.Address
-	// GetAccAddr returns the sdk address of the specified account.
+	// GetAccAddr returns the SDK address of the account at the given keyring index.
 	GetAccAddr(index int) sdktypes.AccAddress
 	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
