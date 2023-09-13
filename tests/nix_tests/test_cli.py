@@ -1,7 +1,4 @@
-from .utils import (
-    supervisorctl,
-    wait_for_block,
-)
+from .utils import supervisorctl, wait_for_block
 
 
 def test_block_cmd(evmos):
