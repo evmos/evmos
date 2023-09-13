@@ -53,9 +53,6 @@ schema = 3
   [mod."github.com/Azure/go-ansiterm"]
     version = "v0.0.0-20230124172434-306776ec8161"
     hash = "sha256-17hCoOE3HBv6cjpcukfBS6/ULgTuoUZ7RNbi5korH2M="
-  [mod."github.com/ChainSafe/go-schnorrkel"]
-    version = "v0.0.0-20200405005733-88cbf1b4c40d"
-    hash = "sha256-i8RXZemJGlSjBT35oPm0SawFiBoIU5Pkq5xp4n/rzCY="
   [mod."github.com/Microsoft/go-winio"]
     version = "v0.6.0"
     hash = "sha256-TQ0AvXZfuT3PDnb4p/h5zmyT8m9VPcwxlXMJuVD6ltE="
@@ -114,8 +111,8 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.37.2"
-    hash = "sha256-lldrYWvcwV6x9uSJWwycf5OCaNkLU6K5g25IbNnMyVE="
+    version = "v0.38.0"
+    hash = "sha256-suFF8ShqNfPErdtferLKwnY/VQ18h0vpoXh7bDXEM4U="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.8.0"
     hash = "sha256-Tlm2V9zDs/wVoFvMmJSdCzCdZKiFRC7Qk8FS3FaqQyk="
@@ -159,9 +156,6 @@ schema = 3
   [mod."github.com/cosmos/rosetta-sdk-go"]
     version = "v0.10.0"
     hash = "sha256-WmLq9E9mYV+ms6Tdb43lCoAy6cowkDnK4bvX/ApDzLY="
-  [mod."github.com/creachadair/taskgroup"]
-    version = "v0.4.2"
-    hash = "sha256-AjtQRoLKLSAbyKd8YlaXcYn0pek6oo5U3R28dvtKv14="
   [mod."github.com/danieljoos/wincred"]
     version = "v1.1.2"
     hash = "sha256-Nnklfg12vmWCOhELGyoRqEF4w4srp0WbPwreaChYLKs="
@@ -190,11 +184,11 @@ schema = 3
     version = "v1.4.1-0.20201116162257-a2a8dda75c91"
     hash = "sha256-VNNMZIc7NkDg3DVLnqeJNM/KZqkkaZu2/HTLBL8X2xE="
   [mod."github.com/docker/cli"]
-    version = "v20.10.24+incompatible"
-    hash = "sha256-5bvtx8SXoCnSN/M/Eb8TE0ctW8o0jH7mB2zF1JRx3Eg="
+    version = "v23.0.1+incompatible"
+    hash = "sha256-ckbEh+7rLRonJly6uP/iokLdvxhaSs/wrq2vB7CFOHU="
   [mod."github.com/docker/docker"]
-    version = "v20.10.24+incompatible"
-    hash = "sha256-jYtP4+fnWPPjC+3vQd+v9B41GkT63+W5C5CAA9uPfa0="
+    version = "v23.0.1+incompatible"
+    hash = "sha256-ocpz9cwzB61uheXEYS9J0oCYnwXBTEt+Z9YrkcgMF9U="
   [mod."github.com/docker/go-connections"]
     version = "v0.4.0"
     hash = "sha256-GHNIjOuuNp5lFQ308+nDNwQPGESCVV7bCUxSW5ZxZlc="
@@ -323,12 +317,6 @@ schema = 3
   [mod."github.com/gsterjov/go-libsecret"]
     version = "v0.0.0-20161001094733-a6f4afe4910c"
     hash = "sha256-Z5upjItPU9onq5t7VzhdQFp13lMJrSiE3gNRapuK6ic="
-  [mod."github.com/gtank/merlin"]
-    version = "v0.1.1"
-    hash = "sha256-tfP9DFdPIfAt29pCta6dObAABCbZt4y3ZActH6ERkr0="
-  [mod."github.com/gtank/ristretto255"]
-    version = "v0.1.2"
-    hash = "sha256-fAoVTP1s5+f7/YtnzI+gaEz1MS+FuCgy3sT19ZHIxE4="
   [mod."github.com/hashicorp/go-cleanhttp"]
     version = "v0.5.2"
     hash = "sha256-N9GOKYo7tK6XQUFhvhImtL7PZW/mr4C4Manx/yPVvcQ="
@@ -413,9 +401,6 @@ schema = 3
   [mod."github.com/matttproud/golang_protobuf_extensions"]
     version = "v1.0.4"
     hash = "sha256-uovu7OycdeZ2oYQ7FhVxLey5ZX3T0FzShaRldndyGvc="
-  [mod."github.com/mimoo/StrobeGo"]
-    version = "v0.0.0-20210601165009-122bf33a46e0"
-    hash = "sha256-rmw70RHsbeOnema++aFCPdswADMVKtb7KGF3msOI7ak="
   [mod."github.com/minio/highwayhash"]
     version = "v1.0.2"
     hash = "sha256-UeHeepKtToyA5e/w3KdmpbCn+4medesZG0cAcU6P2cY="
@@ -434,6 +419,9 @@ schema = 3
   [mod."github.com/mtibben/percent"]
     version = "v0.2.1"
     hash = "sha256-Zj1lpCP6mKQ0UUTMs2By4LC414ou+iJzKkK+eBHfEcc="
+  [mod."github.com/oasisprotocol/curve25519-voi"]
+    version = "v0.0.0-20220708102147-0a8a51822cae"
+    hash = "sha256-XHZK3rVJiA2weQgc+WC9ZvwDf/yaC0GVFqQUC2TDm30="
   [mod."github.com/olekukonko/tablewriter"]
     version = "v0.0.5"
     hash = "sha256-/5i70IkH/qSW5KjGzv8aQNKh9tHoz98tqtL0K2DMFn4="
