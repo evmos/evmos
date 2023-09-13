@@ -15,35 +15,26 @@ import (
 
 var blockStoreKey = []byte("blockStore")
 
-type stateStore struct {
-	state dbm.DB
-	block dbm.DB
+type blockStore struct {
+	dbm.DB
 }
 
-// newStateStore opens the 'state' and 'blockstore' dbs
-// and returns them in the stateStore struct
-func newStateStore(rootDir string, backendType dbm.BackendType) (*stateStore, error) {
+// newBlockStore opens the 'blockstore' db
+// and returns it.
+func newBlockStore(rootDir string, backendType dbm.BackendType) (*blockStore, error) {
 	dataDir := filepath.Join(rootDir, "data")
-	state, err := dbm.NewDB("state", backendType, dataDir)
+	store, err := dbm.NewDB("blockstore", backendType, dataDir)
 	if err != nil {
 		return nil, err
 	}
 
-	block, err := dbm.NewDB("blockstore", backendType, dataDir)
-	if err != nil {
-		return nil, err
-	}
-
-	return &stateStore{
-		state: state,
-		block: block,
-	}, nil
+	return &blockStore{store}, nil
 }
 
-// loadBlockStoreState returns the BlockStoreState as loaded from disk.
+// state returns the BlockStoreState as loaded from disk.
 // If no BlockStoreState was previously persisted, it returns nil.
-func (bs *stateStore) loadBlockStoreState() *tmstore.BlockStoreState {
-	bytes, err := bs.block.Get(blockStoreKey)
+func (bs *blockStore) state() *tmstore.BlockStoreState {
+	bytes, err := bs.Get(blockStoreKey)
 	if err != nil {
 		panic(err)
 	}
@@ -65,10 +56,10 @@ func (bs *stateStore) loadBlockStoreState() *tmstore.BlockStoreState {
 	return &bsj
 }
 
-// loadBlock returns the Block for the given height.
+// block returns the Block for the given height.
 // If no block is found for the given height, it returns nil.
-func (bs *stateStore) loadBlock(height int64) *types.Block {
-	blockMeta, err := bs.loadBlockMeta(height)
+func (bs *blockStore) block(height int64) *types.Block {
+	blockMeta, err := bs.blockMeta(height)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +70,7 @@ func (bs *stateStore) loadBlock(height int64) *types.Block {
 	pbb := new(tmproto.Block)
 	buf := []byte{}
 	for i := 0; i < int(blockMeta.BlockID.PartSetHeader.Total); i++ {
-		part := bs.loadBlockPart(height, i)
+		part := bs.blockPart(height, i)
 		// If the part is missing (e.g. since it has been deleted after we
 		// loaded the block meta) we consider the whole block to be missing.
 		if part == nil {
@@ -101,10 +92,10 @@ func (bs *stateStore) loadBlock(height int64) *types.Block {
 	return block
 }
 
-// loadBlockMeta returns the BlockMeta for the given height.
+// blockMeta returns the BlockMeta for the given height.
 // If no block is found for the given height, it returns nil.
-func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
-	bz, err := bs.block.Get(blockMetaKey(height))
+func (bs *blockStore) blockMeta(height int64) (*types.BlockMeta, error) {
+	bz, err := bs.Get(blockMetaKey(height))
 	if err != nil {
 		panic(err)
 	}
@@ -127,10 +118,10 @@ func (bs *stateStore) loadBlockMeta(height int64) (*types.BlockMeta, error) {
 	return blockMeta, nil
 }
 
-// loadBlockPart returns the part of the block for the given height and part index.
+// blockPart returns the part of the block for the given height and part index.
 // If no block part is found for the given height and index, it returns nil.
-func (bs *stateStore) loadBlockPart(height int64, index int) *types.Part {
-	bz, err := bs.block.Get(blockPartKey(height, index))
+func (bs *blockStore) blockPart(height int64, index int) *types.Part {
+	bz, err := bs.Get(blockPartKey(height, index))
 	if err != nil {
 		panic(err)
 	}

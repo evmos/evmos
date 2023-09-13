@@ -35,13 +35,13 @@ func Cmd() *cobra.Command {
 			cfg := serverCtx.Config
 			home := cfg.RootDir
 
-			statedb, err := newStateStore(home, server.GetAppDBBackend(serverCtx.Viper))
+			store, err := newBlockStore(home, server.GetAppDBBackend(serverCtx.Viper))
 			if err != nil {
 				return fmt.Errorf("error while openning db: %w", err)
 			}
 
-			blockStore := statedb.loadBlockStoreState()
-			if blockStore == nil {
+			state := store.state()
+			if state == nil {
 				return errors.New("couldn't find a BlockStoreState persisted in db")
 			}
 
@@ -51,14 +51,14 @@ func Cmd() *cobra.Command {
 				if err != nil {
 					return errors.New("invalid height, please provide an integer")
 				}
-				if reqHeight > blockStore.Height {
-					return fmt.Errorf("invalid height, the latest height found in the db is %d, and you asked for %d", blockStore.Height, reqHeight)
+				if reqHeight > state.Height {
+					return fmt.Errorf("invalid height, the latest height found in the db is %d, and you asked for %d", state.Height, reqHeight)
 				}
 			} else {
-				reqHeight = blockStore.Height
+				reqHeight = state.Height
 			}
 
-			block := statedb.loadBlock(reqHeight)
+			block := store.block(reqHeight)
 
 			bz, err := json.Marshal(block)
 			if err != nil {
