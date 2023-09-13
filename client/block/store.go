@@ -45,7 +45,7 @@ func (bs *blockStore) state() *tmstore.BlockStoreState {
 
 	var bsj tmstore.BlockStoreState
 	if err := proto.Unmarshal(bytes, &bsj); err != nil {
-		panic(fmt.Sprintf("Could not unmarshal bytes: %X", bytes))
+		panic(fmt.Sprintf("could not unmarshal bytes: %X", bytes))
 	}
 
 	// Backwards compatibility with persisted data from before Base existed.
@@ -81,7 +81,7 @@ func (bs *blockStore) block(height int64) *types.Block {
 	if err := proto.Unmarshal(buf, pbb); err != nil {
 		// NOTE: The existence of meta should imply the existence of the
 		// block. So, make sure meta is only saved after blocks are saved.
-		panic(fmt.Sprintf("Error reading block: %v", err))
+		panic(fmt.Sprintf("error reading block: %v", err))
 	}
 
 	block, err := types.BlockFromProto(pbb)
@@ -135,7 +135,7 @@ func (bs *blockStore) blockPart(height int64, index int) *types.Part {
 	}
 	part, err := types.PartFromProto(pbpart)
 	if err != nil {
-		panic(fmt.Sprintf("Error reading block part: %v", err))
+		panic(fmt.Sprintf("error reading block part: %v", err))
 	}
 
 	return part
