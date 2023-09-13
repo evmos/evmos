@@ -21,7 +21,7 @@ def test_block_cmd(evmos):
     test_cases = [
         {
             "name": "success - get latest block",
-            "flags": "",
+            "flags": [],
             "exp_out": '"last_commit":{"height":9',
             "exp_err": False,
             "err_msg": None,
