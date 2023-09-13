@@ -111,7 +111,7 @@ schema = 3
     version = "v1.0.0"
     hash = "sha256-z/0E0NiEGo7zxM7d94ImgUf8P0/KG6hbP9T4Vuym4p0="
   [mod."github.com/cometbft/cometbft"]
-    version = "v0.38.0"
+    version = "v0.37.0"
     hash = "sha256-suFF8ShqNfPErdtferLKwnY/VQ18h0vpoXh7bDXEM4U="
   [mod."github.com/cometbft/cometbft-db"]
     version = "v0.8.0"
