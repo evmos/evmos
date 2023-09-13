@@ -13,28 +13,29 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 )
 
-var blockStoreKey = []byte("blockStore")
+var storeKey = []byte("blockStore")
 
-type blockStore struct {
+// store is the block store struct
+type store struct {
 	dbm.DB
 }
 
-// newBlockStore opens the 'blockstore' db
+// newStore opens the 'blockstore' db
 // and returns it.
-func newBlockStore(rootDir string, backendType dbm.BackendType) (*blockStore, error) {
+func newStore(rootDir string, backendType dbm.BackendType) (*store, error) {
 	dataDir := filepath.Join(rootDir, "data")
-	store, err := dbm.NewDB("blockstore", backendType, dataDir)
+	db, err := dbm.NewDB("blockstore", backendType, dataDir)
 	if err != nil {
 		return nil, err
 	}
 
-	return &blockStore{store}, nil
+	return &store{db}, nil
 }
 
 // state returns the BlockStoreState as loaded from disk.
 // If no BlockStoreState was previously persisted, it returns nil.
-func (bs *blockStore) state() *tmstore.BlockStoreState {
-	bytes, err := bs.Get(blockStoreKey)
+func (s *store) state() *tmstore.BlockStoreState {
+	bytes, err := s.Get(storeKey)
 	if err != nil {
 		panic(err)
 	}
@@ -43,34 +44,34 @@ func (bs *blockStore) state() *tmstore.BlockStoreState {
 		return nil
 	}
 
-	var bsj tmstore.BlockStoreState
-	if err := proto.Unmarshal(bytes, &bsj); err != nil {
+	var bss tmstore.BlockStoreState
+	if err := proto.Unmarshal(bytes, &bss); err != nil {
 		panic(fmt.Sprintf("could not unmarshal bytes: %X", bytes))
 	}
 
 	// Backwards compatibility with persisted data from before Base existed.
-	if bsj.Height > 0 && bsj.Base == 0 {
-		bsj.Base = 1
+	if bss.Height > 0 && bss.Base == 0 {
+		bss.Base = 1
 	}
 
-	return &bsj
+	return &bss
 }
 
 // block returns the Block for the given height.
 // If no block is found for the given height, it returns nil.
-func (bs *blockStore) block(height int64) *types.Block {
-	blockMeta, err := bs.blockMeta(height)
+func (s *store) block(height int64) *types.Block {
+	bm, err := s.meta(height)
 	if err != nil {
 		panic(err)
 	}
-	if blockMeta == nil {
+	if bm == nil {
 		return nil
 	}
 
 	pbb := new(tmproto.Block)
 	buf := []byte{}
-	for i := 0; i < int(blockMeta.BlockID.PartSetHeader.Total); i++ {
-		part := bs.blockPart(height, i)
+	for i := 0; i < int(bm.BlockID.PartSetHeader.Total); i++ {
+		part := s.part(height, i)
 		// If the part is missing (e.g. since it has been deleted after we
 		// loaded the block meta) we consider the whole block to be missing.
 		if part == nil {
@@ -84,18 +85,18 @@ func (bs *blockStore) block(height int64) *types.Block {
 		panic(fmt.Sprintf("error reading block: %v", err))
 	}
 
-	block, err := types.BlockFromProto(pbb)
+	b, err := types.BlockFromProto(pbb)
 	if err != nil {
 		panic(fmt.Errorf("error from proto block: %w", err))
 	}
 
-	return block
+	return b
 }
 
-// blockMeta returns the BlockMeta for the given height.
+// meta returns the BlockMeta for the given height.
 // If no block is found for the given height, it returns nil.
-func (bs *blockStore) blockMeta(height int64) (*types.BlockMeta, error) {
-	bz, err := bs.Get(blockMetaKey(height))
+func (s *store) meta(height int64) (*types.BlockMeta, error) {
+	bz, err := s.Get(metaKey(height))
 	if err != nil {
 		panic(err)
 	}
@@ -110,18 +111,18 @@ func (bs *blockStore) blockMeta(height int64) (*types.BlockMeta, error) {
 		return nil, fmt.Errorf("unmarshal to tmproto.BlockMeta: %w", err)
 	}
 
-	blockMeta, err := types.BlockMetaFromProto(pbbm)
+	bm, err := types.BlockMetaFromProto(pbbm)
 	if err != nil {
 		return nil, fmt.Errorf("error from proto blockMeta: %w", err)
 	}
 
-	return blockMeta, nil
+	return bm, nil
 }
 
-// blockPart returns the part of the block for the given height and part index.
+// part returns the part of the block for the given height and part index.
 // If no block part is found for the given height and index, it returns nil.
-func (bs *blockStore) blockPart(height int64, index int) *types.Part {
-	bz, err := bs.Get(blockPartKey(height, index))
+func (s *store) part(height int64, index int) *types.Part {
+	bz, err := s.Get(partKey(height, index))
 	if err != nil {
 		panic(err)
 	}
@@ -141,14 +142,14 @@ func (bs *blockStore) blockPart(height int64, index int) *types.Part {
 	return part
 }
 
-// blockMetaKey is a helper function that takes the block height
+// metaKey is a helper function that takes the block height
 // as input parameter and returns the corresponding block metadata store key
-func blockMetaKey(height int64) []byte {
+func metaKey(height int64) []byte {
 	return []byte(fmt.Sprintf("H:%v", height))
 }
 
-// blockPartKey is a helper function that takes the block height
+// partKey is a helper function that takes the block height
 // and the part index as input parameters and returns the corresponding block part store key
-func blockPartKey(height int64, partIndex int) []byte {
+func partKey(height int64, partIndex int) []byte {
 	return []byte(fmt.Sprintf("P:%v:%v", height, partIndex))
 }

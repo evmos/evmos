@@ -35,7 +35,7 @@ func Cmd() *cobra.Command {
 			cfg := serverCtx.Config
 			home := cfg.RootDir
 
-			store, err := newBlockStore(home, server.GetAppDBBackend(serverCtx.Viper))
+			store, err := newStore(home, server.GetAppDBBackend(serverCtx.Viper))
 			if err != nil {
 				return fmt.Errorf("error while openning db: %w", err)
 			}
