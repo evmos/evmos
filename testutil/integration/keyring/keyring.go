@@ -30,7 +30,7 @@ func NewKey() Key {
 type Keyring interface {
 	// GetPrivKey returns the private key of the specified account.
 	GetPrivKey(index int) cryptotypes.PrivKey
-	// GetAddr returns the address of the specified account.
+	// GetAddr returns the address of the account at the given keyring index.
 	GetAddr(index int) common.Address
 	// GetAccAddr returns the sdk address of the specified account.
 	GetAccAddr(index int) sdktypes.AccAddress
