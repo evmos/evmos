@@ -34,7 +34,7 @@ type Keyring interface {
 	GetAddr(index int) common.Address
 	// GetAccAddr returns the sdk address of the specified account.
 	GetAccAddr(index int) sdktypes.AccAddress
-	// GetAccount returns the account of the specified address.
+	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
 
 	// AddKey adds a new account to the keyring
