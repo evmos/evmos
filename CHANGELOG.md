@@ -35,9 +35,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v14.0.0-rc5] - 2023-09-11
+## [v14.0.0-rc5] - 2023-09-14
 
-### Improvements
+### State Machine Breaking
 
 - (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
 
