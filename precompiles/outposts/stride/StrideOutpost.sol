@@ -23,9 +23,9 @@ interface StrideOutpostI {
     /// @dev Liquid stake evmos on the Stride chain and return to the Evmos chain
     /// @param amount the coin that will be liquid staked (only supports Evmos)
     /// @param receiver the bech32 address of the receiver
-    /// @return true if the ICS20 transfer was successfull
+    /// @return true if the ICS20 transfer was successful
     function liquidStakeEvmos(
-        uint256 amount,
+        Coin memory amount,
         string calldata receiver
     ) external returns (bool);
 

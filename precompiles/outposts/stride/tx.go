@@ -44,7 +44,9 @@ func (p Precompile) LiquidStakeEvmos(
 		return nil, channeltypes.ErrChannelNotFound
 	}
 
+	// Create the memo for the ICS20 transfer
 	memo := p.createLiquidStakeMemo(receiverAddress)
+	fmt.Println(memo)
 
 	// Build the MsgTransfer with the memo and coin
 	msg, err := NewMsgTransfer(StrideChannelID, sdk.AccAddress(origin.Bytes()).String(), receiverAddress, memo, coin)

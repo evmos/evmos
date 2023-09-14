@@ -8,7 +8,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	"github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -27,7 +26,6 @@ type Precompile struct {
 	cmn.Precompile
 	transferKeeper transferkeeper.Keeper
 	channelKeeper  channelkeeper.Keeper
-	clientKeeper   types.ClientKeeper
 	stakingKeeper  stakingkeeper.Keeper
 }
 
@@ -38,8 +36,6 @@ func NewPrecompile(
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
-	clientKeeper types.ClientKeeper,
-
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -62,7 +58,6 @@ func NewPrecompile(
 		transferKeeper: transferKeeper,
 		channelKeeper:  channelKeeper,
 		stakingKeeper:  stakingKeeper,
-		clientKeeper:   clientKeeper,
 	}, nil
 }
 
