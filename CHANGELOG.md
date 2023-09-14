@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
+- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
 
 ## [v14.0.0-rc4] - 2023-08-30
 
@@ -54,12 +55,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
-<<<<<<< HEAD
-=======
-- (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
-- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
-- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
->>>>>>> c472de5f (chore(cli): add cmd to query latest block in db (#1786))
 
 ### Bug Fixes
 
