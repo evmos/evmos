@@ -22,7 +22,7 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		// Disable distribution precompile in the EVM module
+		// Disable distribution precompile in the EVM module params
 		//
 		// NOTE: This only serves testing purposes and should NOT be used in the mainnet handler.
 		// In order to test the changed behavior of calling non-active EVM extensions, it is necessary
