@@ -23,16 +23,22 @@ jobs:
             app/upgrades/*
             go.mod
             go.sum
+            *.toml
             tests/e2e/*
+            Dockerfile
       - name: Test E2E
         run: |
           make test-e2e
         if: env.GIT_DIFF
   test-nix:
     runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # changes in gomod2nix file to the repository if corresponds.
+      contents: write    
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v19
+      - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
           # see: https://github.com/cachix/install-nix-action/issues/161
@@ -51,10 +57,16 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
             tests/nix_tests/**
       - name: Run nix tests
         run: make run-nix-tests
         if: env.GIT_DIFF
+      # Commit gomod2nix changes files back to the repository if necessary
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: update gomod2nix.toml file
+          file_pattern: '*.toml'
 
   upload-cache:
     if: github.event_name == 'push'
@@ -65,7 +77,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v19
+        with:
+          ref: ${{ github.head_ref }}      
+      - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
           # see: https://github.com/cachix/install-nix-action/issues/161

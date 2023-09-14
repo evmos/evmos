@@ -10,7 +10,8 @@ pkgs.mkShell {
     pkgs.nodejs
     pkgs.test-env
     pkgs.gomod2nix
-    pkgs.chain-maind   
+    pkgs.chain-maind
+    pkgs.strided
     pkgs.hermes    
   ];
   shellHook = ''
