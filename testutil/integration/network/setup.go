@@ -97,7 +97,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 }
 
 // createStakingValidator creates a staking validator from the given tm validator and bonded
-func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdkmath.Int) (stakingtypes.Validator, error) {
+func createStakingValidator(val *tmtypes.Validator, bondedAmt sdkmath.Int) (stakingtypes.Validator, error) {
 	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 	if err != nil {
 		return stakingtypes.Validator{}, err
@@ -114,7 +114,7 @@ func createStakingValidator(val *tmtypes.Validator, amtOfBondedTokens sdkmath.In
 		ConsensusPubkey:   pkAny,
 		Jailed:            false,
 		Status:            stakingtypes.Bonded,
-		Tokens:            amtOfBondedTokens,
+		Tokens:            bondedAmt,
 		DelegatorShares:   sdktypes.OneDec(),
 		Description:       stakingtypes.Description{},
 		UnbondingHeight:   int64(0),
