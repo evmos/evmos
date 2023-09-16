@@ -35,43 +35,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## [v14.0.0-rc5] - 2023-09-14
+## [v14.0.0] - 2023-09-16
 
 ### State Machine Breaking
 
 - (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
-
-### Improvements
-
-- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
-
-## [v14.0.0-rc4] - 2023-08-30
-
-### State Machine Breaking
-
 - (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
 - (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
-
-## [v14.0.0-rc3] - 2023-08-22
-
-### Improvements
-
-- (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
-
-### Bug Fixes
-
-- (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
-- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
-
-## [v14.0.0-rc2] - 2023-08-21
-
-### State Machine Breaking
-
 - (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
 
 ### Improvements
 
+- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
+- (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
 - (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
 - (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
 - (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
@@ -81,16 +58,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
 - (vesting) [#1709](https://github.com/evmos/evmos/pull/1709) Add clawed back coins to `MsgClawbackResponse`
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
-
-### Bug Fixes
-
-- (e2e) [#1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
-- (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
-
-## [v14.0.0-rc1] - 2023-08-01
-
-### Improvements
-
 - (vesting)[#1672](https://github.com/evmos/evmos/pull/1672) Port `vesting` precompile code and refactor integration tests
 - (vesting)[#1667](https://github.com/evmos/evmos/pull/1667) Add support for vesting precompile in the `evm` module
 - (vesting) Refactor vesting flow
@@ -100,6 +67,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+- (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
+- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
+- (e2e) [#1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
+- (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
 - (vesting) Fix vesting bug.
 - (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
 - (rpc) [#1655](https://github.com/evmos/evmos/pull/1655) Avoid channel get changed when concurrent subscribe happens.
