@@ -129,8 +129,6 @@ import (
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-	"github.com/evmos/evmos/v14/app/upgrades/v14rc2"
-	"github.com/evmos/evmos/v14/app/upgrades/v14rc5"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
@@ -1306,21 +1304,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v14 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14.UpgradeName,
-		v14.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
 	// !! ATTENTION !!
-	// v14rc2 upgrade handler
+	// v14 upgrade handler
 	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v14rc2.UpgradeName,
-		v14rc2.CreateUpgradeHandler(
+		v14.UpgradeName,
+		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.BankKeeper,
 			app.StakingKeeper,
@@ -1329,15 +1319,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,
 			app.appCodec,
-		),
-	)
-
-	// v14rc4 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14rc5.UpgradeName,
-		v14rc5.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.EvmKeeper,
 		),
 	)
 
@@ -1386,8 +1367,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v13.UpgradeName:
 		// no store upgrades
 	case v14.UpgradeName:
-		// no store upgrades
-	case v14rc2.UpgradeName:
 		// !! ATTENTION !!
 		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
@@ -1398,8 +1377,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 			},
 		}
 		// !! ATTENTION !!
-	case v14rc5.UpgradeName:
-		// no store upgrades
 	}
 
 	if storeUpgrades != nil {
