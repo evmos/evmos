@@ -19,6 +19,9 @@ func (s *UpgradesTestSuite) TestEnableVestingExtension() {
 		}
 		newPrecompiles = append(newPrecompiles, precompile)
 	}
+	s.Require().NotContains(newPrecompiles, vestingPrecompile.Address().String(),
+		"expected vesting extension to be removed from active precompiles",
+	)
 
 	evmParams.ActivePrecompiles = newPrecompiles
 	err := s.app.EvmKeeper.SetParams(s.ctx, evmParams)
