@@ -26,7 +26,9 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctmmigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
 	"github.com/ethereum/go-ethereum/common"
+	vestingprecompile "github.com/evmos/evmos/v14/precompiles/vesting"
 	"github.com/evmos/evmos/v14/utils"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
@@ -74,6 +76,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
+	ek *evmkeeper.Keeper,
 	sk stakingkeeper.Keeper,
 	vk vestingkeeper.Keeper,
 	ck consensuskeeper.Keeper,
@@ -140,9 +143,14 @@ func CreateUpgradeHandler(
 		// !! ATTENTION !!
 
 		if utils.IsMainnet(ctx.ChainID()) {
+			logger.Debug("adding vesting EVM extension to active precompiles")
+			if err := EnableVestingExtension(ctx, ek); err != nil {
+				// log error instead of aborting the upgrade
+				logger.Error("error while enabling vesting extension", "error", err)
+			}
+
 			logger.Debug("updating vesting funders to new team multisig")
 			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				// log error instead of aborting the upgrade
 				logger.Error("error while updating vesting funders", "error", err)
 			}
 
@@ -161,4 +169,16 @@ func CreateUpgradeHandler(
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
+}
+
+// EnableVestingExtension appends the address of the vesting EVM extension
+// to the list of active precompiles.
+func EnableVestingExtension(ctx sdk.Context, evmKeeper *evmkeeper.Keeper) error {
+	// Get the list of active precompiles from the genesis state
+	params := evmKeeper.GetParams(ctx)
+	activePrecompiles := params.ActivePrecompiles
+	activePrecompiles = append(activePrecompiles, vestingprecompile.Precompile{}.Address().String())
+	params.ActivePrecompiles = activePrecompiles
+
+	return evmKeeper.SetParams(ctx, params)
 }
