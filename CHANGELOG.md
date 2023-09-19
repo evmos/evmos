@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
 - (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
 - (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
