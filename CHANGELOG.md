@@ -44,6 +44,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
+- (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
 
 ## [v14.0.0-rc4] - 2023-08-30
 
