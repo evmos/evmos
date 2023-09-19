@@ -28,6 +28,7 @@ jobs:
             **/**.go
             go.mod
             go.sum
+            *.toml
       - run: |
           make build
         if: env.GIT_DIFF
