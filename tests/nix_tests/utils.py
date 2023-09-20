@@ -258,3 +258,13 @@ def derive_new_account(n=1):
 def compare_fields(a, b, fields):
     for field in fields:
         assert a[field] == b[field], f"{field} field mismatch"
+
+
+# get_fees_from_tx_result returns the fees from the tx_result
+# of a cosmos transaction. It gets them from the tx events
+def get_fees_from_tx_result(tx_result, denom="aevmos"):
+    for event in tx_result["events"]:
+        if event["type"] == "tx":
+            for attr in event["attributes"]:
+                if attr["key"] == "fee":
+                    return int(attr["value"].split(denom)[0])

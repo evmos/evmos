@@ -822,6 +822,20 @@ class CosmosCLI:
             )
         )
 
+    def authz_exec(self, tx_json_file: str, grantee: str, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "authz",
+                "exec",
+                tx_json_file,
+                "-y",
+                "--generate-only",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
     def query_base_fee(self, **kwargs):
         default_kwargs = {"home": self.data_dir}
         return int(
@@ -834,6 +848,17 @@ class CosmosCLI:
                 )
             )["base_fee"]
         )
+
+    def query_module_accounts(self, **kwargs):
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        return json.loads(
+            self.raw(
+                "q",
+                "auth",
+                "module-accounts",
+                **(default_kwargs | kwargs),
+            )
+        )["accounts"]
 
     def rollback(self):
         self.raw("rollback", home=self.data_dir)
