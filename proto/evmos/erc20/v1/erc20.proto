@@ -19,7 +19,7 @@ enum Owner {
 }
 
 // TokenPair defines an instance that records a pairing consisting of a native
-//  Cosmos Coin and an ERC20 token address.
+// Cosmos Coin and an ERC20 token address.
 message TokenPair {
   option (gogoproto.equal) = true;
   // erc20_address is the hex address of ERC20 contract token

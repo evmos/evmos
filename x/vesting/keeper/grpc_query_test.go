@@ -7,7 +7,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/evmos/v14/testutil"
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/x/vesting/types"
 )
 
@@ -16,73 +15,95 @@ func (suite *KeeperTestSuite) TestBalances() {
 		req    *types.QueryBalancesRequest
 		expRes *types.QueryBalancesResponse
 	)
-	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name        string
+		malleate    func()
+		expPass     bool
+		errContains string
 	}{
 		{
-			"empty req",
-			func() {
-				req = &types.QueryBalancesRequest{}
+			name: "nil req",
+			malleate: func() {
+				req = nil
 			},
-			false,
+			expPass:     false,
+			errContains: "empty address string is not allowed",
 		},
 		{
-			"invalid address",
-			func() {
+			name: "empty req",
+			malleate: func() {
+				req = &types.QueryBalancesRequest{}
+			},
+			expPass:     false,
+			errContains: "empty address string is not allowed",
+		},
+		{
+			name: "invalid address",
+			malleate: func() {
 				req = &types.QueryBalancesRequest{
 					Address: "evmos1",
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "decoding bech32 failed: invalid bech32 string length 6",
 		},
 		{
-			"invalid account - not found",
-			func() {
+			name: "invalid account - not found",
+			malleate: func() {
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "either does not exist or is not a vesting account",
 		},
 		{
-			"invalid account - not clawback vesting account",
-			func() {
-				baseAccount := authtypes.NewBaseAccountWithAddress(addr)
+			name: "invalid account - not clawback vesting account",
+			malleate: func() {
+				baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
 				acc := suite.app.AccountKeeper.NewAccount(suite.ctx, baseAccount)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 			},
-			false,
+			expPass:     false,
+			errContains: "either does not exist or is not a vesting account",
 		},
 		{
-			"valid",
-			func() {
+			name: "valid",
+			malleate: func() {
 				vestingStart := s.ctx.BlockTime()
-				funder := sdk.AccAddress(types.ModuleName)
-				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, funder, balances)
-				suite.Require().NoError(err)
+
+				// fund the vesting account with coins to initialize it and
+				// then send all balances to the funding account
+				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
+				suite.Require().NoError(err, "error while funding the target account")
+				err = s.app.BankKeeper.SendCoins(suite.ctx, vestingAddr, funder, balances)
+				suite.Require().NoError(err, "error while sending coins to the funder account")
 
 				msg := types.NewMsgCreateClawbackVestingAccount(
 					funder,
-					addr,
+					vestingAddr,
+					false,
+				)
+				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
+				suite.Require().NoError(err, "error while creating the vesting account")
+
+				msgFund := types.NewMsgFundVestingAccount(
+					funder,
+					vestingAddr,
 					vestingStart,
 					lockupPeriods,
 					vestingPeriods,
-					false,
 				)
-				ctx := sdk.WrapSDKContext(suite.ctx)
-				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(ctx, msg)
-				suite.Require().NoError(err)
+				_, err = suite.app.VestingKeeper.FundVestingAccount(sdk.WrapSDKContext(suite.ctx), msgFund)
+				suite.Require().NoError(err, "error while funding the vesting account")
 
 				req = &types.QueryBalancesRequest{
-					Address: addr.String(),
+					Address: vestingAddr.String(),
 				}
 				expRes = &types.QueryBalancesResponse{
 					Locked:   balances,
@@ -90,7 +111,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 					Vested:   nil,
 				}
 			},
-			true,
+			expPass: true,
 		},
 	}
 
@@ -107,6 +128,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 				suite.Require().Equal(expRes, res)
 			} else {
 				suite.Require().Error(err)
+				suite.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}

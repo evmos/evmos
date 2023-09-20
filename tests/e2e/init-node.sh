@@ -132,6 +132,9 @@ sed -i.bak 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 # use timeout_commit 1s to make test faster
 sed -i.bak 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
+# use timeout_commit 1s to make test faster
+sed -i 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
+
 # Sign genesis transaction
 evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis
@@ -142,6 +145,9 @@ evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING
 ## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
 # Enable the APIs for the tests to be successful
+sed -i 's/enable = false/enable = true/g' "$APP_TOML"
+
+# Enable the APIs for the tests to be successful
 sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
 
 # Collect genesis tx
@@ -150,5 +156,9 @@ evmosd collect-gentxs
 # Run this to ensure everything worked and that the genesis file is setup correctly
 evmosd validate-genesis
 
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --chain-id "$CHAINID"
+# Start the node
+evmosd start "$TRACE" \
+  --log_level $LOGLEVEL \
+  --minimum-gas-prices=0.0001aevmos \
+  --json-rpc.api eth,txpool,personal,net,debug,web3 \
+  --chain-id "$CHAINID"

@@ -116,18 +116,6 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	"github.com/evmos/evmos/v14/encoding"
-	"github.com/evmos/evmos/v14/ethereum/eip712"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/x/evm"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
@@ -135,6 +123,7 @@ import (
 	_ "github.com/evmos/evmos/v14/client/docs/statik"
 
 	"github.com/evmos/evmos/v14/app/ante"
+	ethante "github.com/evmos/evmos/v14/app/ante/evm"
 	v10 "github.com/evmos/evmos/v14/app/upgrades/v10"
 	v11 "github.com/evmos/evmos/v14/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
@@ -145,6 +134,11 @@ import (
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v14/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v14/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v14/encoding"
+	"github.com/evmos/evmos/v14/ethereum/eip712"
+	"github.com/evmos/evmos/v14/precompiles/common"
+	srvflags "github.com/evmos/evmos/v14/server/flags"
+	evmostypes "github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/x/claims"
 	claimskeeper "github.com/evmos/evmos/v14/x/claims/keeper"
 	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
@@ -155,6 +149,12 @@ import (
 	erc20client "github.com/evmos/evmos/v14/x/erc20/client"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
+	"github.com/evmos/evmos/v14/x/evm"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v14/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	"github.com/evmos/evmos/v14/x/incentives"
 	incentivesclient "github.com/evmos/evmos/v14/x/incentives/client"
 	incentiveskeeper "github.com/evmos/evmos/v14/x/incentives/keeper"
@@ -169,6 +169,7 @@ import (
 	revenuekeeper "github.com/evmos/evmos/v14/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
 	"github.com/evmos/evmos/v14/x/vesting"
+	vestingclient "github.com/evmos/evmos/v14/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 
@@ -222,6 +223,7 @@ var (
 				// Evmos proposal types
 				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 				incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
+				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -507,7 +509,8 @@ func NewEvmos(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper))
+		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper)).
+		AddRoute(vestingtypes.RouterKey, vesting.NewVestingProposalHandler(&app.VestingKeeper))
 
 	govConfig := govtypes.Config{
 		MaxMetadataLen: 5000,
@@ -546,8 +549,8 @@ func NewEvmos(
 	app.StakingKeeper = *stakingKeeper
 
 	app.VestingKeeper = vestingkeeper.NewKeeper(
-		keys[vestingtypes.StoreKey], appCodec,
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper,
+		keys[vestingtypes.StoreKey], authtypes.NewModuleAddress(govtypes.ModuleName), appCodec,
+		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, govKeeper, // NOTE: app.govKeeper not defined yet, use govKeeper
 	)
 
 	app.Erc20Keeper = erc20keeper.NewKeeper(
@@ -579,6 +582,7 @@ func NewEvmos(
 		evmkeeper.AvailablePrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
+			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
@@ -597,6 +601,7 @@ func NewEvmos(
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
 			app.ClaimsKeeper.Hooks(),
+			app.VestingKeeper.Hooks(),
 		),
 	)
 
@@ -1033,6 +1038,10 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
 	}
 
+	for _, precompile := range common.DefaultPrecompilesBech32 {
+		blockedAddrs[precompile] = true
+	}
+
 	return blockedAddrs
 }
 
@@ -1301,13 +1310,16 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.BankKeeper,
+			app.EvmKeeper,
+			app.StakingKeeper,
+			app.VestingKeeper,
 			app.ConsensusParamsKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,
 			app.appCodec,
 		),
 	)
-	// !! ATTENTION !!
 
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
@@ -1352,10 +1364,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v12.UpgradeName:
 		// no store upgrades
 	case v13.UpgradeName:
-	// no store upgrades
-
-	// !! ATTENTION !!
+		// no store upgrades
 	case v14.UpgradeName:
+		// !! ATTENTION !!
 		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
 		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
 		storeUpgrades = &storetypes.StoreUpgrades{

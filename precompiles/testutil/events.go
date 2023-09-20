@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
 
 	//nolint:stylecheck,revive // it's common practice to use the global imports for Ginkgo and Gomega
 	. "github.com/onsi/gomega"
@@ -58,7 +59,12 @@ func validateEvents(contractEvents map[string]abi.Event, events []string) ([]abi
 	for _, eventStr := range events {
 		event, found := contractEvents[eventStr]
 		if !found {
-			return nil, fmt.Errorf("unknown event for precompile: %s", eventStr)
+			availableABIEvents := make([]string, 0, len(contractEvents))
+			for event := range contractEvents {
+				availableABIEvents = append(availableABIEvents, event)
+			}
+			availableABIEventsStr := strings.Join(availableABIEvents, ", ")
+			return nil, fmt.Errorf("unknown event %q is not contained in given ABI events:\n%s", eventStr, availableABIEventsStr)
 		}
 		expEvents = append(expEvents, event)
 	}

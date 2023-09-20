@@ -1,0 +1,55 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.vesting.v2;
+
+import "cosmos/vesting/v1beta1/vesting.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/evmos/evmos/v14/x/vesting/types";
+
+// ClawbackVestingAccount implements the VestingAccount interface. It provides
+// an account that can hold contributions subject to "lockup" (like a
+// PeriodicVestingAccount), or vesting which is subject to clawback
+// of unvested tokens, or a combination (tokens vest, but are still locked).
+message ClawbackVestingAccount {
+  option (gogoproto.goproto_getters) = false;
+  option (gogoproto.goproto_stringer) = false;
+
+  // base_vesting_account implements the VestingAccount interface. It contains
+  // all the necessary fields needed for any vesting account implementation
+  cosmos.vesting.v1beta1.BaseVestingAccount base_vesting_account = 1 [(gogoproto.embed) = true];
+  // funder_address specifies the account which can perform clawback
+  string funder_address = 2;
+  // start_time defines the time at which the vesting period begins
+  google.protobuf.Timestamp start_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // lockup_periods defines the unlocking schedule relative to the start_time
+  repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+  ];
+  // vesting_periods defines the vesting schedule relative to the start_time
+  repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
+  ];
+}
+
+// ClawbackProposal is a gov Content type to clawback funds
+// from a vesting account that has this functionality enabled.
+message ClawbackProposal {
+  option (gogoproto.equal) = false;
+  // title of the proposal
+  string title = 1;
+  // description of the proposal
+  string description = 2;
+  // address is the vesting account address
+  // to clawback the funds from
+  string address = 3;
+  // destination_address is the address that will receive
+  // the clawbacked funds from the given vesting account. When
+  // empty, proposal will return the coins to the vesting
+  // account funder.
+  string destination_address = 4;
+}
