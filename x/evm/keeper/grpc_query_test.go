@@ -25,10 +25,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 6788
+const expGasConsumed = 6920
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 6782
+const expGasConsumedWithFeeMkt = 6914
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -937,7 +937,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   18764, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   20348, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
@@ -991,7 +991,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(tc.expFinalGas, suite.ctx.GasMeter().GasConsumed())
+			suite.Require().Equal(int(tc.expFinalGas), int(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption")
 			// Reset for next test case
 			chainID = nil
 		})
@@ -1175,7 +1175,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(tc.expFinalGas, suite.ctx.GasMeter().GasConsumed())
+			suite.Require().Equal(int64(tc.expFinalGas), int64(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption")
 			// Reset for next case
 			chainID = nil
 		})

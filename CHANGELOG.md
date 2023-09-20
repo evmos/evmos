@@ -39,26 +39,57 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
 - (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
-- (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 
 ### Improvements
 
-- (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
-- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
-- (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
-- (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
-- (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
-- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
-- (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
 
 ### Bug Fixes
 
+- (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
+- (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
+
+## [v14.0.0] - 2023-09-19
+
+### State Machine Breaking
+
+- (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
+- (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
+- (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
+- (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
+- (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
+
+### Improvements
+
+- (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
+- (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
+- (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
+- (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
+- (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
+- (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
+- (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
+- (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
+- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate [evmos-ledger-go](https://github.com/evmos/evmos-ledger-go) logic to this repository
+- (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
+- (vesting) [#1709](https://github.com/evmos/evmos/pull/1709) Add clawed back coins to `MsgClawbackResponse`
+- (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
+- (vesting)[#1672](https://github.com/evmos/evmos/pull/1672) Port `vesting` precompile code and refactor integration tests
+- (vesting)[#1667](https://github.com/evmos/evmos/pull/1667) Add support for vesting precompile in the `evm` module
+- (vesting) Refactor vesting flow
+- (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
+- (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
+
+### Bug Fixes
+
+- (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
+- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
+- (e2e) [#1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
+- (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
+- (vesting) Fix vesting bug.
 - (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
 - (rpc) [#1655](https://github.com/evmos/evmos/pull/1655) Avoid channel get changed when concurrent subscribe happens.
 - (revenue) [#1659](https://github.com/evmos/evmos/pull/1659) Check if DevelopersShares are set to 0
@@ -66,10 +97,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#1676](https://github.com/evmos/evmos/pull/1676) Fix gas meter stacking gas from predecessors in `TraceTx` & `TraceBlock` functions.
 - (cli) [#1681](https://github.com/evmos/evmos/pull/1681) Add `bootstrap-state` command.
 - (ante) [#1693](https://github.com/evmos/evmos/pull/1693) Prevent panic on int64 conversion in EVM fees antehandler.
-- (evm) [#1693](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
-- (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
-- (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
-- (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 
 ## [v13.0.2] - 2023-07-05
 

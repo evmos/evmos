@@ -113,20 +113,22 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		fi
 	fi
 
-	# enable prometheus metrics
+	# enable prometheus metrics and all APIs for dev node
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		sed -i '' 's/prometheus = false/prometheus = true/' "$CONFIG"
 		sed -i '' 's/prometheus-retention-time = 0/prometheus-retention-time  = 1000000000000/g' "$APP_TOML"
 		sed -i '' 's/enabled = false/enabled = true/g' "$APP_TOML"
+		sed -i '' 's/enable = false/enable = true/g' "$APP_TOML"
 	else
 		sed -i 's/prometheus = false/prometheus = true/' "$CONFIG"
 		sed -i 's/prometheus-retention-time  = "0"/prometheus-retention-time  = "1000000000000"/g' "$APP_TOML"
 		sed -i 's/enabled = false/enabled = true/g' "$APP_TOML"
+		sed -i 's/enable = false/enable = true/g' "$APP_TOML"
 	fi
 
 	# Change proposal periods to pass within a reasonable time for local testing
-	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$HOMEDIR"/config/genesis.json
-	sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$HOMEDIR"/config/genesis.json
+	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
+	sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
 
 	# set custom pruning settings
 	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
@@ -162,5 +164,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	fi
 fi
 
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-evmosd start --metrics "$TRACE" --log_level $LOGLEVEL --minimum-gas-prices=0.0001aevmos --json-rpc.api eth,txpool,personal,net,debug,web3 --api.enable --json-rpc.enable true --home "$HOMEDIR"
+# Start the node
+evmosd start \
+  --metrics "$TRACE" \
+  --log_level $LOGLEVEL \
+  --minimum-gas-prices=0.0001aevmos \
+  --json-rpc.api eth,txpool,personal,net,debug,web3 \
+  --home "$HOMEDIR" \
+  --chain-id "$CHAINID"

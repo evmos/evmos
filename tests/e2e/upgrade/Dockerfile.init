@@ -2,14 +2,6 @@
 ARG INITIAL_VERSION
 FROM tharsishq/evmos:$INITIAL_VERSION
 
-# No need to install this after v13 because it is already included
-# in the image of the docker registry
-# # jq needs to perform changes of node parameters
-# RUN apk add jq=1.6-r3 -y \ 
-# --no-install-recommends \ 
-# && apk clean \
-# && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /go/src/github.com/evmos/evmos
 
 COPY ./init-node.sh .

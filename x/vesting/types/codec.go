@@ -11,6 +11,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	migrationtypes "github.com/evmos/evmos/v14/x/vesting/migrations/types"
 )
 
 var (
@@ -28,6 +30,7 @@ const (
 	createClawbackVestingAccount = "evmos/MsgCreateClawbackVestingAccount"
 	updateVestingFunder          = "evmos/MsgUpdateVestingFunder"
 	convertVestingAccount        = "evmos/MsgConvertVestingAccount"
+	fundVestingAccount           = "evmos/MsgFundVestingAccount"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -51,12 +54,14 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*authtypes.AccountI)(nil),
 		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
+		&migrationtypes.ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
 		(*authtypes.GenesisAccount)(nil),
 		&sdkvesting.BaseVestingAccount{},
 		&ClawbackVestingAccount{},
+		&migrationtypes.ClawbackVestingAccount{},
 	)
 
 	registry.RegisterImplementations(
@@ -64,7 +69,13 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgClawback{},
 		&MsgCreateClawbackVestingAccount{},
 		&MsgUpdateVestingFunder{},
+		&MsgFundVestingAccount{},
 		&MsgConvertVestingAccount{},
+	)
+
+	registry.RegisterImplementations(
+		(*govv1beta1.Content)(nil),
+		&ClawbackProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -78,4 +89,5 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateClawbackVestingAccount{}, createClawbackVestingAccount, nil)
 	cdc.RegisterConcrete(&MsgUpdateVestingFunder{}, updateVestingFunder, nil)
 	cdc.RegisterConcrete(&MsgConvertVestingAccount{}, convertVestingAccount, nil)
+	cdc.RegisterConcrete(&MsgFundVestingAccount{}, fundVestingAccount, nil)
 }
