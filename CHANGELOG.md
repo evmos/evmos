@@ -52,7 +52,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
-- (evm) [#1799](https://github.com/evmos/evmos/pull/1799) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account
+- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account
 
 ## [v14.0.0] - 2023-09-19
 
