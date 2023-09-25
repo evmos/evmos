@@ -100,7 +100,7 @@ func CreateUpgradeHandler(
 			}
 
 			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
+			if err := MigrateNativeMultisigs(ctx, bk, ek, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
 
