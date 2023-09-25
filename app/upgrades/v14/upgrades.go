@@ -87,6 +87,29 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		if utils.IsMainnet(ctx.ChainID()) {
+			logger.Debug("adding vesting EVM extension to active precompiles")
+			if err := EnableVestingExtension(ctx, ek); err != nil {
+				// log error instead of aborting the upgrade
+				logger.Error("error while enabling vesting extension", "error", err)
+			}
+
+			logger.Debug("updating vesting funders to new team multisig")
+			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
+				logger.Error("error while updating vesting funders", "error", err)
+			}
+
+			logger.Debug("migrating strategic reserves")
+			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
+				logger.Error("error while migrating native multisigs", "error", err)
+			}
+
+			logger.Debug("migrating team premint wallet")
+			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
+				logger.Error("error while migrating team premint wallet", "error", err)
+			}
+		}
+
 		// !! ATTENTION !!
 		// v14 upgrade handler
 		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
@@ -141,29 +164,6 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 		// !! ATTENTION !!
-
-		if utils.IsMainnet(ctx.ChainID()) {
-			logger.Debug("adding vesting EVM extension to active precompiles")
-			if err := EnableVestingExtension(ctx, ek); err != nil {
-				// log error instead of aborting the upgrade
-				logger.Error("error while enabling vesting extension", "error", err)
-			}
-
-			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				logger.Error("error while updating vesting funders", "error", err)
-			}
-
-			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
-				logger.Error("error while migrating native multisigs", "error", err)
-			}
-
-			logger.Debug("migrating team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
-				logger.Error("error while migrating team premint wallet", "error", err)
-			}
-		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
