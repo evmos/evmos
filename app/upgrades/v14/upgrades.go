@@ -93,21 +93,6 @@ func CreateUpgradeHandler(
 				// log error instead of aborting the upgrade
 				logger.Error("error while enabling vesting extension", "error", err)
 			}
-
-			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				logger.Error("error while updating vesting funders", "error", err)
-			}
-
-			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
-				logger.Error("error while migrating native multisigs", "error", err)
-			}
-
-			logger.Debug("migrating team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
-				logger.Error("error while migrating team premint wallet", "error", err)
-			}
 		}
 
 		// !! ATTENTION !!
