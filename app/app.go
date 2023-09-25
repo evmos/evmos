@@ -1330,10 +1330,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.BankKeeper,
 			app.EvmKeeper,
-			app.StakingKeeper,
-			app.VestingKeeper,
 			app.ConsensusParamsKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,

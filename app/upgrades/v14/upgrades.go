@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
@@ -20,7 +19,6 @@ import (
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -31,7 +29,6 @@ import (
 	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 )
 
 const (
@@ -75,10 +72,7 @@ var (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	bk bankkeeper.Keeper,
 	ek *evmkeeper.Keeper,
-	sk stakingkeeper.Keeper,
-	vk vestingkeeper.Keeper,
 	ck consensuskeeper.Keeper,
 	clientKeeper ibctmmigrations.ClientKeeper,
 	pk paramskeeper.Keeper,
