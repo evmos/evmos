@@ -43,8 +43,8 @@ const (
 	OldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
 	// OldFunder2 is the other old vesting funder to be replaced
 	OldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
-	// oldTeamPremintWallet is the old team premint wallet
-	oldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	// OldTeamPremintWallet is the old team premint wallet
+	OldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
 	// VestingAddrByFunder1 is the vesting account funded by OldFunder1
 	VestingAddrByFunder1 = "evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp"
 )
@@ -92,21 +92,6 @@ func CreateUpgradeHandler(
 			if err := EnableVestingExtension(ctx, ek); err != nil {
 				// log error instead of aborting the upgrade
 				logger.Error("error while enabling vesting extension", "error", err)
-			}
-
-			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				logger.Error("error while updating vesting funders", "error", err)
-			}
-
-			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, ek, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
-				logger.Error("error while migrating native multisigs", "error", err)
-			}
-
-			logger.Debug("migrating team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, ek, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
-				logger.Error("error while migrating team premint wallet", "error", err)
 			}
 		}
 
