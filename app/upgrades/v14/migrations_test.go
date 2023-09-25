@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v14/app/upgrades/v14"
+	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/testutil"
 	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
@@ -59,7 +59,7 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	// Check validator shares before migration
 	expectedSharesMap := s.getDelegationSharesMap()
 
-	err := v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, migrationTarget, oldMultisigs...)
+	err := v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, migrationTarget, oldMultisigs...)
 	s.Require().NoError(err, "failed to migrate native multisigs")
 
 	// Check that the multisigs have been updated
