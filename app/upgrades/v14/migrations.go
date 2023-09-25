@@ -93,7 +93,12 @@ func InstantUnbonding(
 	if err != nil {
 		return math.Int{}, err
 	}
-	unbondCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmount))
+	// NOTE: Avoid using sdk.NewCoins here because it panics on an invalid denom,
+	// which was the problem in the v14.0.0 release.
+	unbondCoins := sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: unbondAmount}}
+	if err := unbondCoins.Validate(); err != nil {
+		return math.Int{}, fmt.Errorf("invalid unbonding coins: %v", err)
+	}
 
 	// transfer the validator tokens to the not bonded pool if necessary
 	validator, found := sk.GetValidator(ctx, valAddr)
