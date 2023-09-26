@@ -11,6 +11,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 )
 
 // MigratedDelegation holds the relevant information about a delegation to be migrated
@@ -23,10 +24,12 @@ type MigratedDelegation struct {
 
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
-func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
+func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, ek *evmkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
 	var (
+		// evmParams are the params of the EVM module
+		evmParams = ek.GetParams(ctx)
 		// bondDenom is the staking bond denomination used
-		bondDenom = sk.BondDenom(ctx)
+		bondDenom = evmParams.EvmDenom
 		// migratedDelegations stores all delegations that must be migrated
 		migratedDelegations []MigratedDelegation
 	)
@@ -93,7 +96,12 @@ func InstantUnbonding(
 	if err != nil {
 		return math.Int{}, err
 	}
-	unbondCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmount))
+	// NOTE: Avoid using sdk.NewCoins here because it panics on an invalid denom,
+	// which was the problem in the v14.0.0 release.
+	unbondCoins := sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: unbondAmount}}
+	if err := unbondCoins.Validate(); err != nil {
+		return math.Int{}, fmt.Errorf("invalid unbonding coins: %v", err)
+	}
 
 	// transfer the validator tokens to the not bonded pool if necessary
 	validator, found := sk.GetValidator(ctx, valAddr)

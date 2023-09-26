@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v14.1.0] - 2023-09-25
+
+- (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0
+
 ## [v14.0.0] - 2023-09-19
 
 ### State Machine Breaking
