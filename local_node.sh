@@ -29,16 +29,50 @@ command -v jq >/dev/null 2>&1 || {
 # used to exit on first error (any non-zero exit code)
 set -e
 
-# Reinstall daemon
-make install
+# Parse input flags
+install=true
+overwrite=""
 
-# User prompt if an existing local node configuration is found.
-if [ -d "$HOMEDIR" ]; then
-	printf "\nAn existing folder at '%s' was found. You can choose to delete this folder and start a new local node with new keys from genesis. When declined, the existing local node is started. \n" "$HOMEDIR"
-	echo "Overwrite the existing configuration and start a new local node? [y/n]"
-	read -r overwrite
-else
-	overwrite="Y"
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    -y)
+      echo "Flag -y passed -> Overwriting the previous chain data."
+	  overwrite="y"
+      shift # Move past the flag
+      ;;
+    -n)
+      echo "Flag -n passed -> Not overwriting the previous chain data."
+	  overwrite="n"
+      shift # Move past the argument
+      ;;
+    --no-install)
+      echo "Flag --no-install passed -> Skipping installation of the evmosd binary."
+      install=false
+      shift # Move past the flag
+      ;;
+    *)
+      echo "Unknown flag passed: $key -> Exiting script!"
+	  exit 1
+      ;;
+  esac
+done
+
+if [[ $install == true ]]; then
+	# (Re-)install daemon
+	make install
+fi
+
+# User prompt if neither -y nor -n was passed as a flag
+# and an existing local node configuration is found.
+if [[ $overwrite = "" ]]; then
+	if [ -d "$HOMEDIR" ]; then
+		printf "\nAn existing folder at '%s' was found. You can choose to delete this folder and start a new local node with new keys from genesis. When declined, the existing local node is started. \n" "$HOMEDIR"
+		echo "Overwrite the existing configuration and start a new local node? [y/n]"
+		read -r overwrite
+	else
+		overwrite="y"
+	fi
 fi
 
 # Setup local node if overwrite is set to Yes, otherwise skip setup
