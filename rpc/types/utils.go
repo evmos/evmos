@@ -31,7 +31,7 @@ import (
 const ExceedBlockGasLimitError = "out of gas in location: block gas meter; gasWanted:"
 
 // CommitError defines the error message when commit after executing EVM transaction, for example
-// transfer native token to a distrubition module account 0x93354845030274cD4bf1686Abd60AB28EC52e1a7 using an evm type transaction
+// transfer native token to a distribution module account 0x93354845030274cD4bf1686Abd60AB28EC52e1a7 using an evm type transaction
 // note: the transfer amount cannot be set to 0, otherwise this problem will not be triggered
 const CommitError = "failed to commit stateDB"
 
