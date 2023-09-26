@@ -81,8 +81,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# Set client config
-	evmosd config keyring-backend $KEYRING --home "$HOMEDIR"
-	evmosd config chain-id $CHAINID --home "$HOMEDIR"
+	evmosd config keyring-backend "$KEYRING" --home "$HOMEDIR"
+	evmosd config chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
 	VAL_KEY="mykey"
@@ -116,7 +116,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	echo "$USER4_MNEMONIC" | evmosd keys add "$USER4_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
 
 	# Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
-	evmosd init $MONIKER -o --chain-id $CHAINID --home "$HOMEDIR"
+	evmosd init $MONIKER -o --chain-id "$CHAINID" --home "$HOMEDIR"
 
 	# Change parameter token denominations to aevmos
 	jq '.app_state["staking"]["params"]["bond_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -204,7 +204,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Sign genesis transaction
-	evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend $KEYRING --chain-id $CHAINID --home "$HOMEDIR"
+	evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID" --home "$HOMEDIR"
 	## In case you want to create multiple validators at genesis
 	## 1. Back to `evmosd keys add` step, init more keys
 	## 2. Back to `evmosd add-genesis-account` step, add balance for those
