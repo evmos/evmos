@@ -8,9 +8,13 @@ import (
 func (k Keeper) AutoRegisterCoin(ctx sdk.Context, traceDenom, baseDenom string) error {
 	metadata := banktypes.Metadata{
 		Description: "auto registered ERC20 for IBC token " + traceDenom,
-		DenomUnits:  []*banktypes.DenomUnit{},
-		Base:        traceDenom,
-		//FIXME: need a define a better way to get the display name and the decimals
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    traceDenom,
+				Exponent: 0,
+			},
+		},
+		Base:    traceDenom,
 		Display: baseDenom,
 		Name:    "ERC20 of " + baseDenom,
 		Symbol:  baseDenom,
