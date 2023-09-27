@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
@@ -177,6 +178,20 @@ import (
 	"github.com/evmos/evmos/v14/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 
+	// Block-SDK imports
+	evmosblocksdk "github.com/evmos/evmos/v14/app/block-sdk"
+	blocksdkabci "github.com/skip-mev/block-sdk/abci"
+	blocksdk "github.com/skip-mev/block-sdk/block"
+	blocksdkbase "github.com/skip-mev/block-sdk/block/base"
+	blocksdkanteignore "github.com/skip-mev/block-sdk/block/utils"
+	base_lane "github.com/skip-mev/block-sdk/lanes/base"
+	free_lane "github.com/skip-mev/block-sdk/lanes/free"
+	mev_lane "github.com/skip-mev/block-sdk/lanes/mev"
+	"github.com/skip-mev/block-sdk/x/auction"
+	auctionante "github.com/skip-mev/block-sdk/x/auction/ante"
+	auctionkeeper "github.com/skip-mev/block-sdk/x/auction/keeper"
+	auctiontypes "github.com/skip-mev/block-sdk/x/auction/types"
+
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
@@ -248,6 +263,8 @@ var (
 		recovery.AppModuleBasic{},
 		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		// auction AppModuleBasic
+		auction.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -264,6 +281,8 @@ var (
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
 		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+		// x/auction doesn't need any permissions, but it does require an initialized module account
+		auctiontypes.ModuleName: nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -333,6 +352,13 @@ type Evmos struct {
 	RecoveryKeeper   *recoverykeeper.Keeper
 	RevenueKeeper    revenuekeeper.Keeper
 
+	// Block-SDK keepers
+	AuctionKeeper auctionkeeper.Keeper
+
+	// checkTxHandler is a handler that implements CheckTx for Evmos. We need to over-ride the base implementation
+	// so that we have more granular access to state when we simulate bundled transactions in MsgAuctionBids
+	checkTxHandler mev_lane.CheckTx
+
 	// the module manager
 	mm *module.Manager
 
@@ -343,6 +369,11 @@ type Evmos struct {
 	sm *module.SimulationManager
 
 	tpsCounter *tpsCounter
+
+	// auction ante-handler dependencies
+	Mempool   auctionante.Mempool
+	MEVLane   auctionante.MEVLane
+	FreeLanes []blocksdkanteignore.Lane
 }
 
 // SimulationManager implements runtime.AppI
@@ -407,6 +438,8 @@ func NewEvmos(
 		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 		revenuetypes.StoreKey, recoverytypes.StoreKey,
+		// block-sdk keys
+		auctiontypes.StoreKey,
 	)
 
 	// Add the EVM transient store key
@@ -500,6 +533,10 @@ func NewEvmos(
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
+	)
+
+	app.AuctionKeeper = auctionkeeper.NewKeeper(
+		appCodec, keys[auctiontypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.StakingKeeper, authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	// register the proposal types
@@ -739,6 +776,10 @@ func NewEvmos(
 			app.GetSubspace(recoverytypes.ModuleName)),
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
 			app.GetSubspace(revenuetypes.ModuleName)),
+		auction.NewAppModule(
+			appCodec,
+			app.AuctionKeeper,
+		),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -778,6 +819,8 @@ func NewEvmos(
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// block-sdk
+		auctiontypes.ModuleName,
 	)
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
@@ -813,6 +856,8 @@ func NewEvmos(
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// block-sdk
+		auctiontypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -857,6 +902,8 @@ func NewEvmos(
 		// NOTE: crisis module must go at the end to check for invariants on each module
 		crisistypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		// block-sdk
+		auctiontypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -885,6 +932,45 @@ func NewEvmos(
 
 	app.sm.RegisterStoreDecoders()
 
+	cfg := blocksdkbase.LaneConfig{
+		Logger:          app.Logger(),
+		TxDecoder:       app.GetTxConfig().TxDecoder(),
+		TxEncoder:       app.GetTxConfig().TxEncoder(),
+		SignerExtractor: evmosblocksdk.NewSignerExtractorAdapter(),
+		MaxBlockSpace:   sdk.ZeroDec(),
+		MaxTxs:          0,
+	}
+
+	baseLane := base_lane.NewDefaultLane(cfg)
+
+	freeLane := free_lane.NewFreeLane(
+		cfg,
+		blocksdkbase.DefaultTxPriority(),
+		free_lane.DefaultMatchHandler(), // modify this match-handler to determine any other transactions that the chain would like to be free
+	)
+	app.FreeLanes = []blocksdkanteignore.Lane{freeLane}
+
+	mevLane := mev_lane.NewMEVLane(
+		cfg,
+		mev_lane.NewDefaultAuctionFactory(app.GetTxConfig().TxDecoder(), evmosblocksdk.NewSignerExtractorAdapter()),
+	)
+	app.MEVLane = mevLane
+
+	// initialize mempool
+	mempool := blocksdk.NewLanedMempool(
+		app.Logger(),
+		true,
+		[]blocksdk.Lane{
+			mevLane,  // mev-lane is first to prioritize bids being placed at the TOB
+			freeLane, // free-lane is second to prioritize free txs
+			baseLane, // finally, all the rest of txs...
+		}...,
+	)
+
+	// set the mempool first
+	app.SetMempool(mempool)
+	app.Mempool = mempool
+
 	// initialize stores
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
@@ -895,11 +981,31 @@ func NewEvmos(
 	app.SetBeginBlocker(app.BeginBlocker)
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
-
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	ah := app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 	app.setupUpgradeHandlers()
+
+	// initialize proposal handlers
+	proposalHandler := blocksdkabci.NewProposalHandler(
+		app.Logger(),
+		app.GetTxConfig().TxDecoder(),
+		mempool,
+	)
+	// proposal-handler
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
+
+	// custom check-tx
+	checkTxHandler := mev_lane.NewCheckTxHandler(
+		app.BaseApp, // want access to the base-application's non-overridden check-tx
+		app.GetTxConfig().TxDecoder(),
+		mevLane,
+		ah,
+		app.ChainID(),
+	)
+
+	app.SetCheckTx(checkTxHandler.CheckTx())
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -922,10 +1028,30 @@ func NewEvmos(
 	return app
 }
 
+// CheckTx will check the transaction with the provided checkTxHandler. We override the default
+// handler so that we can verify bid transactions before they are inserted into the mempool.
+// With the POB CheckTx, we can verify the bid transaction and all of the bundled transactions
+// before inserting the bid transaction into the mempool.
+func (app *Evmos) CheckTx(req abci.RequestCheckTx) abci.ResponseCheckTx {
+	return app.checkTxHandler(req)
+}
+
+// SetCheckTx sets the checkTxHandler for the app.
+func (app *Evmos) SetCheckTx(handler mev_lane.CheckTx) {
+	app.checkTxHandler = handler
+}
+
+// ChainID gets chainID from private fields of BaseApp
+// Should be removed once SDK 0.50.x will be adopted
+func (app *Evmos) ChainID() string {
+	field := reflect.ValueOf(app.BaseApp).Elem().FieldByName("chainID")
+	return field.String()
+}
+
 // Name returns the name of the App
 func (app *Evmos) Name() string { return app.BaseApp.Name() }
 
-func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) sdk.AnteHandler {
 	options := ante.HandlerOptions{
 		Cdc:                    app.appCodec,
 		AccountKeeper:          app.AccountKeeper,
@@ -941,13 +1067,21 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
 		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+		MEVLane:                app.MEVLane,
+		Mempool:                app.Mempool,
+		AuctionKeeper:          app.AuctionKeeper,
+		FreeLanes:              app.FreeLanes,
+		TxEncoder:              txConfig.TxEncoder(),
 	}
 
 	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
-	app.SetAnteHandler(ante.NewAnteHandler(options))
+	ah := ante.NewAnteHandler(options)
+
+	app.SetAnteHandler(ah)
+	return ah
 }
 
 func (app *Evmos) setPostHandler() {
@@ -1217,6 +1351,8 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	paramsKeeper.Subspace(revenuetypes.ModuleName)
+	// block-sdk subspaces
+	paramsKeeper.Subspace(auctiontypes.ModuleName)
 	return paramsKeeper
 }
 

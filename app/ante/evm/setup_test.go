@@ -108,6 +108,11 @@ func (suite *AnteTestSuite) SetupTest() {
 		FeeMarketKeeper:    suite.app.FeeMarketKeeper,
 		SignModeHandler:    encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:     ante.SigVerificationGasConsumer,
+		Mempool:            suite.app.Mempool,
+		TxEncoder:          suite.app.GetTxConfig().TxEncoder(),
+		MEVLane:            suite.app.MEVLane,
+		AuctionKeeper:      suite.app.AuctionKeeper,
+		FreeLanes:          suite.app.FreeLanes,
 	})
 
 	suite.anteHandler = anteHandler

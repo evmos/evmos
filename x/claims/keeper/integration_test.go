@@ -131,9 +131,10 @@ var _ = Describe("Claiming", Ordered, func() {
 			_, err := testutil.Delegate(s.ctx, s.app, privs[0], delegateAmount, s.validator)
 			s.Require().NoError(err)
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultFee)))
-			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount).Sub(tx.DefaultFee.Amount)))
-			fees[0] = tx.DefaultFee
+			// don't have to deduct the tx-fee from a delegation transaction as these are free!!
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
+			Expect(balance.Amount).To(Equal(initClaimsAmount.Add(initBalanceAmount).Add(actionV.Amount).Sub(delegateAmount.Amount)))
+			fees[0] = sdk.NewCoin(utils.BaseDenom, sdk.ZeroInt())
 		})
 
 		It("can claim ActionEVM", func() {
@@ -202,8 +203,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount).Sub(tx.DefaultFee)))
-			fees[1] = fees[1].Add(tx.DefaultFee)
+			Expect(balance).To(Equal(prebalance.Add(actionV).Sub(delegateAmount)))
 		})
 
 		It("can claim ActionEVM", func() {
@@ -237,8 +237,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultFee)))
-			fees[1] = fees[1].Add(tx.DefaultFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount)))
 		})
 
 		It("cannot claim ActionEVM a second time", func() {
@@ -295,8 +294,7 @@ var _ = Describe("Claiming", Ordered, func() {
 			s.Require().NoError(err)
 
 			balance := s.app.BankKeeper.GetBalance(s.ctx, addr, utils.BaseDenom)
-			Expect(balance).To(Equal(prebalance.Sub(delegateAmount).Sub(tx.DefaultFee)))
-			fees[2] = fees[2].Add(tx.DefaultFee)
+			Expect(balance).To(Equal(prebalance.Sub(delegateAmount)))
 		})
 
 		It("cannot clawback already claimed actions", func() {
