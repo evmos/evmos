@@ -40,7 +40,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// TODO: Include case where there is a SC calling into the precompile
+	// TODO: Include case where there is a SC calling into the Precompile
 
 	// Create the memo field for the Swap from the JSON file
 	memo, err := createSwapMemo(outputDenom, receiverAddress)
@@ -49,21 +49,32 @@ func (p Precompile) Swap(
 	}
 
 	// Create the IBC Transfer message
-	msgTransfer, err := NewMsgTransfer(inputDenom, memo, amount, origin)
+	msg, err := NewMsgTransfer(inputDenom, memo, amount, origin)
 	if err != nil {
 		return nil, err
 	}
 
 	// Send the IBC Transfer message
-	_, err = p.transferKeeper.Transfer(ctx, msgTransfer)
+	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
 
 	// Emit the ICS20 Transfer Event
-	//if err := p.EmitIBCTransferEvent(); err != nil {
-	//	return nil, err
-	//}
+	if err := p.EmitIBCTransferEvent(ctx, stateDB, origin, amount, inputDenom, memo); err != nil {
+		return nil, err
+	}
+
+	receiverAccAddr, err := sdk.AccAddressFromBech32(receiverAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit the Osmosis Swap Event
+	// TODO: Check if the chainPrefix extraction works
+	if err := p.EmitSwapEvent(ctx, stateDB, origin, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, ""); err != nil {
+		return nil, err
+	}
 
 	return method.Outputs.Pack(true)
 }

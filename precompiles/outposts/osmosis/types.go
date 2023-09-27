@@ -30,14 +30,19 @@ func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20t
 		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[1])
 	}
 
-	metadata, found := bankKeeper.GetDenomMetaData(ctx, inputContract.String())
+	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputContract.String())
 	if !found {
 		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
 	}
 
-	outputDenom, ok := args[2].(string)
+	outputContract, ok := args[2].(common.Address)
 	if !ok {
 		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[2])
+	}
+
+	outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
+	if !found {
+		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
 	}
 
 	receiverAddress, ok := args[3].(string)
@@ -45,6 +50,7 @@ func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20t
 		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[3])
 	}
 
+	// TODO: is this the right way to extract the prefix
 	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
 	if err != nil {
 		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", err)
@@ -52,7 +58,7 @@ func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20t
 
 	fmt.Println(prefix)
 
-	return amount, metadata.Base, outputDenom, receiverAddress, nil
+	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
 }
 
 // NewMsgTransfer returns a new transfer message from the given arguments.
