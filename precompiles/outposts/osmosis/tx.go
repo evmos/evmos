@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -35,7 +36,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args, ctx, p.bankKeeper, p.erc20Keeper)
+	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +71,14 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
+	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
+	if err != nil {
+		return nil, fmt.Errorf("invalid receiver address: %v", err)
+	}
+
 	// Emit the Osmosis Swap Event
 	// TODO: Check if the chainPrefix extraction works
-	if err := p.EmitSwapEvent(ctx, stateDB, origin, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, ""); err != nil {
+	if err := p.EmitSwapEvent(ctx, stateDB, origin, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, prefix); err != nil {
 		return nil, err
 	}
 

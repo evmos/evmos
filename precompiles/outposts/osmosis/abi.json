@@ -104,14 +104,14 @@
         "type": "string"
       },
       {
-        "internalType": "address",
+        "internalType": "string",
         "name": "baseDenom",
-        "type": "address"
+        "type": "string"
       },
       {
-        "internalType": "address",
+        "internalType": "string",
         "name": "outputDenom",
-        "type": "address"
+        "type": "string"
       }
     ],
     "name": "swap",

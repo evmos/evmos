@@ -4,20 +4,72 @@ import (
 	"cosmossdk.io/math"
 	"fmt"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	erckeeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	"math/big"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 )
 
+// TODO: This is the function we will use for V1 of the Osmosis swap function.
+// CreateSwapPacketDataV1 creates the packet data for the Osmosis swap function.
+//func CreateSwapPacketDataV1(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
+//	if len(args) != 4 {
+//		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+//	}
+//
+//	amount, ok := args[0].(*big.Int)
+//	if !ok {
+//		return nil, "", "", "", fmt.Errorf("invalid amount: %v", args[0])
+//	}
+//
+//	receiverAddress, ok := args[1].(string)
+//	if !ok {
+//		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[1])
+//	}
+//
+//	inputContract, ok := args[2].(common.Address)
+//	if !ok {
+//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[2])
+//	}
+//
+//	inputVoucher, found := erc20Keeper.GetTokenPair(ctx, erc20Keeper.GetERC20Map(ctx, inputContract))
+//	if !found {
+//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//	}
+//
+//	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputVoucher.Denom)
+//	if !found {
+//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//	}
+//
+//	fmt.Println(inputDenomMetadata)
+//
+//	outputContract, ok := args[3].(common.Address)
+//	if !ok {
+//		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[3])
+//	}
+//
+//	outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
+//	if !found {
+//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//	}
+//
+//	// TODO: is this the right way to extract the prefix
+//	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
+//	if err != nil {
+//		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", err)
+//	}
+//
+//	fmt.Println(prefix)
+//
+//	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
+//}
+
 // CreateSwapPacketData creates the packet data for the Osmosis swap function.
-func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
+func CreateSwapPacketData(args []interface{}, ctx sdk.Context) (*big.Int, string, string, string, error) {
 	if len(args) != 4 {
 		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
@@ -32,42 +84,17 @@ func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20t
 		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[1])
 	}
 
-	inputContract, ok := args[2].(common.Address)
+	inputDenom, ok := args[2].(string)
 	if !ok {
 		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[2])
 	}
 
-	inputVoucher, found := erc20Keeper.GetTokenPair(ctx, erc20Keeper.GetERC20Map(ctx, inputContract))
-	if !found {
-		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-	}
-
-	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputVoucher.Denom)
-	if !found {
-		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-	}
-
-	fmt.Println(inputDenomMetadata)
-
-	outputContract, ok := args[3].(common.Address)
+	outputDenom, ok := args[3].(string)
 	if !ok {
 		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[3])
 	}
 
-	outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
-	if !found {
-		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-	}
-
-	// TODO: is this the right way to extract the prefix
-	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
-	if err != nil {
-		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", err)
-	}
-
-	fmt.Println(prefix)
-
-	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
+	return amount, inputDenom, outputDenom, receiverAddress, nil
 }
 
 // NewMsgTransfer returns a new transfer message from the given arguments.

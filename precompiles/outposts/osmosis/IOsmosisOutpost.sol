@@ -51,7 +51,7 @@ interface IOsmosisOutpost {
     function swap(
         uint256 amount,
         string calldata receiver,
-        address baseDenom,
-        address outputDenom
+        string calldata baseDenom,
+        string calldata outputDenom
     ) external returns (bool success);
 }
