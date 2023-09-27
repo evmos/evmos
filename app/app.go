@@ -776,6 +776,7 @@ func NewEvmos(
 			app.GetSubspace(recoverytypes.ModuleName)),
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
 			app.GetSubspace(revenuetypes.ModuleName)),
+		// block-sdk
 		auction.NewAppModule(
 			appCodec,
 			app.AuctionKeeper,
