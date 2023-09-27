@@ -1,1 +1,0 @@
-package osmosis_test
