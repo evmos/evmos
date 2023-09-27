@@ -42,6 +42,8 @@ type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
+	// ExecuteContractCall executes a contract call with the provided private key
+	ExecuteContractCall(privKey cryptotypes.PrivKey, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
@@ -107,6 +109,18 @@ func (tf *IntegrationTxFactory) DeployContract(
 	return crypto.CreateAddress(from, nonce), nil
 }
 
+// ExecuteContractCall executes a contract call with the provided private key
+func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
+	// Create MsgEthereumTx that calls the contract
+	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+	}
+	txArgs.Input = input
+
+	return tf.ExecuteEthTx(privKey, txArgs)
+}
+
 // ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
 // It first builds a MsgEthereumTx and then broadcasts it to the network.
 func (tf *IntegrationTxFactory) ExecuteEthTx(
@@ -137,22 +151,6 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed ETH tx")
 	}
 	return res, nil
-}
-
-// CosmosTxArgs contains the params to create a cosmos tx
-type CosmosTxArgs struct {
-	// ChainID is the chain's id in cosmos format, e.g. 'evmos_9000-1'
-	ChainID string
-	// Gas to be used on the tx
-	Gas uint64
-	// GasPrice to use on tx
-	GasPrice *sdkmath.Int
-	// Fees is the fee to be used on the tx (amount and denom)
-	Fees sdktypes.Coins
-	// FeeGranter is the account address of the fee granter
-	FeeGranter sdktypes.AccAddress
-	// Msgs slice of messages to include on the tx
-	Msgs []sdktypes.Msg
 }
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
