@@ -1,0 +1,12 @@
+{"wasm": {
+  "contract": "%s",
+  "msg": {
+    "osmosis_swap": {
+      "output_denom":"%s",
+      "slippage":{"twap": {"slippage_percentage":"20", "window_seconds": 10}},
+      "receiver":"%s",
+      "on_failed_delivery": "do_nothing",
+      "next_memo":null
+    }
+  }
+}}
