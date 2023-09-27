@@ -3,6 +3,8 @@ package osmosis
 import (
 	"cosmossdk.io/math"
 	"fmt"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	erckeeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	"math/big"
 	"strings"
 
@@ -15,9 +17,9 @@ import (
 )
 
 // CreateSwapPacketData creates the packet data for the Osmosis swap function.
-func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper) (*big.Int, string, string, string, error) {
+func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
 	if len(args) != 4 {
-		return nil, "", "", "", fmt.Errorf("invalid number of arguments: %d", len(args))
+		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
 
 	amount, ok := args[0].(*big.Int)
@@ -25,29 +27,36 @@ func CreateSwapPacketData(args []interface{}, ctx sdk.Context, bankKeeper erc20t
 		return nil, "", "", "", fmt.Errorf("invalid amount: %v", args[0])
 	}
 
-	inputContract, ok := args[1].(common.Address)
+	receiverAddress, ok := args[1].(string)
 	if !ok {
-		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[1])
+		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[1])
 	}
 
-	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputContract.String())
+	inputContract, ok := args[2].(common.Address)
+	if !ok {
+		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[2])
+	}
+
+	inputVoucher, found := erc20Keeper.GetTokenPair(ctx, erc20Keeper.GetERC20Map(ctx, inputContract))
 	if !found {
 		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
 	}
 
-	outputContract, ok := args[2].(common.Address)
+	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputVoucher.Denom)
+	if !found {
+		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+	}
+
+	fmt.Println(inputDenomMetadata)
+
+	outputContract, ok := args[3].(common.Address)
 	if !ok {
-		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[2])
+		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[3])
 	}
 
 	outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
 	if !found {
 		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-	}
-
-	receiverAddress, ok := args[3].(string)
-	if !ok {
-		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[3])
 	}
 
 	// TODO: is this the right way to extract the prefix

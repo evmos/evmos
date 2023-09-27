@@ -35,7 +35,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args, ctx, p.bankKeeper)
+	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args, ctx, p.bankKeeper, p.erc20Keeper)
 	if err != nil {
 		return nil, err
 	}

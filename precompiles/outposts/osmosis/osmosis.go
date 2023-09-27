@@ -37,6 +37,7 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper erc20types.BankKeeper,
+	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -58,6 +59,7 @@ func NewPrecompile(
 		},
 		transferKeeper: transferKeeper,
 		bankKeeper:     bankKeeper,
+		erc20Keeper:    erc20Keeper,
 	}, nil
 }
 
