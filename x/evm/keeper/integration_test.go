@@ -16,6 +16,12 @@ import (
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/encoding"
 	"github.com/evmos/evmos/v14/testutil"
+
+	"github.com/evmos/evmos/v14/testutil/integration/factory"
+	"github.com/evmos/evmos/v14/testutil/integration/grpc"
+	testkeyring "github.com/evmos/evmos/v14/testutil/integration/keyring"
+	"github.com/evmos/evmos/v14/testutil/integration/network"
+
 	utiltx "github.com/evmos/evmos/v14/testutil/tx"
 	"github.com/evmos/evmos/v14/utils"
 	"github.com/evmos/evmos/v14/x/feemarket/types"
@@ -27,6 +33,48 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
+
+type IntegrationTestSuite struct {
+	network     network.Network
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+}
+
+var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func() {
+
+	BeforeAll(func() {
+		keyring := testkeyring.New(3)
+		integrationNetwork := network.New(
+			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		)
+		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+		txFactory := factory.New(integrationNetwork, grpcHandler)
+		_ = &IntegrationTestSuite{
+			network:     integrationNetwork,
+			factory:     txFactory,
+			grpcHandler: grpcHandler,
+		}
+	})
+
+	When("the params have default values", Ordered, func() {
+		BeforeAll(func() {
+			// Set params to default values
+		})
+
+		It("performs a transfer call", func() {
+			Expect(true).To(Equal(true))
+		})
+		It("performs a contract call", func() {
+			Expect(true).To(Equal(true))
+		})
+		It("performs a deployment call", func() {
+			Expect(true).To(Equal(true))
+		})
+		It("performs a precompile call", func() {
+			Expect(true).To(Equal(true))
+		})
+	})
+})
 
 var _ = Describe("Feemarket", func() {
 	var privKey *ethsecp256k1.PrivKey

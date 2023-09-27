@@ -43,7 +43,7 @@ type TxFactory interface {
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
-	ExecuteContractCall(privKey cryptotypes.PrivKey, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
@@ -64,8 +64,8 @@ type IntegrationTxFactory struct {
 
 // New creates a new IntegrationTxFactory instance
 func New(
-	grpcHandler grpc.Handler,
 	network network.Network,
+	grpcHandler grpc.Handler,
 ) *IntegrationTxFactory {
 	ec := makeConfig(app.ModuleBasics)
 	return &IntegrationTxFactory{
