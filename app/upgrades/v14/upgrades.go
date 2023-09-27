@@ -27,7 +27,6 @@ import (
 	ibctmmigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
 	"github.com/ethereum/go-ethereum/common"
 	vestingprecompile "github.com/evmos/evmos/v14/precompiles/vesting"
-	"github.com/evmos/evmos/v14/utils"
 	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
@@ -40,11 +39,11 @@ const (
 	// newTeamStrategicReserve is the new strategic reserve multisig
 	newTeamStrategicReserve = "0x29fDcB7b64B84fD54D0fB0E04A8f6B062046fc6F"
 	// OldFunder1 is one of the old vesting funders to be replaced
-	OldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	OldFunder1 = "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"
 	// OldFunder2 is the other old vesting funder to be replaced
-	OldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
+	OldFunder2 = "evmos1cml96vmptgw99syqrrz8az79xer2pcgp84pdun"
 	// oldTeamPremintWallet is the old team premint wallet
-	oldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	oldTeamPremintWallet = "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"
 	// VestingAddrByFunder1 is the vesting account funded by OldFunder1
 	VestingAddrByFunder1 = "evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp"
 )
@@ -58,11 +57,8 @@ var (
 
 	// OldStrategicReserves is a list of old multisigs to be replaced
 	OldStrategicReserves = []string{
-		"evmos1z8ynrnhdn4l69mu6v6ckjr4wukcacd0e7j0akn", // Strategic Reserve 1
-		"evmos1w2rl60wr9sxjv60qsh9v8aratk0x2r3v78utzt", // Strategic Reserve 2
-		"evmos1fgg4xaakwmrxdk9my6uc8nxeatf7u35uaal529", // Strategic Reserve 3
-		"evmos15xm3h3fgjrkqtkr79t7rj9spq3qlzuheae5vss", // Strategic Reserve 4
-		"evmos15l8jnxynhldtydknzla2xpv8uxg00xgmg2enst", // Strategic Reserve 5
+		"evmos1gzsvk8rruqn2sx64acfsskrwy8hvrmafqkaze8", // Strategic Reserve 1
+		"evmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l", // Strategic Reserve 2
 	}
 
 	newTeamPremintWalletAddr    = common.HexToAddress(newTeamPremintWallet)
@@ -142,32 +138,37 @@ func CreateUpgradeHandler(
 		}
 		// !! ATTENTION !!
 
-		if utils.IsMainnet(ctx.ChainID()) {
-			logger.Debug("adding vesting EVM extension to active precompiles")
-			if err := EnableVestingExtension(ctx, ek); err != nil {
-				// log error instead of aborting the upgrade
-				logger.Error("error while enabling vesting extension", "error", err)
-			}
-
-			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				logger.Error("error while updating vesting funders", "error", err)
-			}
-
-			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
-				logger.Error("error while migrating native multisigs", "error", err)
-			}
-
-			logger.Debug("migrating team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
-				logger.Error("error while migrating team premint wallet", "error", err)
-			}
+		// Leave modules are as-is to avoid running InitGenesis.
+		// NOTE: we are running the module migrations BEFORE the migration of mainnet data, to ensure
+		// that params are correctly found when e.g. delegating!
+		logger.Info("running module migrations ...")
+		vm, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return nil, err
 		}
 
-		// Leave modules are as-is to avoid running InitGenesis.
-		logger.Debug("running module migrations ...")
-		return mm.RunMigrations(ctx, configurator, vm)
+		logger.Info("adding vesting EVM extension to active precompiles")
+		if err := EnableVestingExtension(ctx, ek); err != nil {
+			// log error instead of aborting the upgrade
+			logger.Error("error while enabling vesting extension", "error", err)
+		}
+
+		logger.Info("updating vesting funders to new team multisig")
+		if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
+			logger.Error("error while updating vesting funders", "error", err)
+		}
+
+		logger.Info("migrating strategic reserves")
+		if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
+			logger.Error("error while migrating native multisigs", "error", err)
+		}
+
+		logger.Info("migrating team premint wallet")
+		if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
+			logger.Error("error while migrating team premint wallet", "error", err)
+		}
+
+		return vm, nil
 	}
 }
 
