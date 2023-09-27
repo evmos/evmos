@@ -197,6 +197,9 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	tx := evmtypes.NewTx(ethContractCreationTxParams)
 	tx.From = addr.Hex()
 
+	ethContractCreationTxParams.GasLimit = 55000
+	zeroFeeTx := makeZeroFeeTx(addr, *ethContractCreationTxParams)
+
 	ethCfg := suite.app.EvmKeeper.GetParams(suite.ctx).
 		ChainConfig.EthereumConfig(chainID)
 	baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
@@ -242,6 +245,8 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 	dynamicFeeTxPriority := int64(1)
 
 	var vmdb *statedb.StateDB
+
+	initialBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr.Bytes(), utils.BaseDenom)
 
 	testCases := []struct {
 		name        string
@@ -422,6 +427,36 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 					rewards,
 					"the total rewards should be the same as after the setup, since the fees are paid using the account balance",
 				)
+			},
+		},
+		{
+			"success - zero fees (no base fee)",
+			zeroFeeTx,
+			zeroFeeTx.GetGas(),
+			func(ctx sdk.Context) sdk.Context {
+				suite.disableBaseFee(ctx)
+				return ctx
+			},
+			true, false,
+			0,
+			func(ctx sdk.Context) {
+				finalBalance := suite.app.BankKeeper.GetBalance(ctx, addr.Bytes(), utils.BaseDenom)
+				suite.Require().Equal(initialBalance, finalBalance)
+			},
+		},
+		{
+			"success - zero fees (no base fee) - legacy tx",
+			makeZeroFeeTx(addr, *eth2TxContractParams),
+			tx2GasLimit,
+			func(ctx sdk.Context) sdk.Context {
+				suite.disableBaseFee(ctx)
+				return ctx
+			},
+			true, false,
+			0,
+			func(ctx sdk.Context) {
+				finalBalance := suite.app.BankKeeper.GetBalance(ctx, addr.Bytes(), utils.BaseDenom)
+				suite.Require().Equal(initialBalance, finalBalance)
 			},
 		},
 	}
