@@ -8,6 +8,8 @@ import (
 	"math/big"
 	"time"
 
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -221,6 +223,30 @@ func CheckAuthzAndAllowanceForGranter(
 	return stakeAuthz, expiration, nil
 }
 
+// ConvertToAllocation converts the transfer types Allocation to the ICS20 Allocation.
+func ConvertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
+	// Convert to Allocations to emit the IBC transfer authorization event
+	allocations := make([]cmn.Allocation, len(allocs))
+	for i, a := range allocs {
+		spendLimit := make([]cmn.Coin, len(a.SpendLimit))
+		for j, c := range a.SpendLimit {
+			spendLimit[j] = cmn.Coin{
+				Denom:  c.Denom,
+				Amount: c.Amount.BigInt(),
+			}
+		}
+
+		allocations[i] = cmn.Allocation{
+			SourcePort:    a.SourcePort,
+			SourceChannel: a.SourceChannel,
+			SpendLimit:    spendLimit,
+			AllowList:     a.AllowList,
+		}
+	}
+
+	return allocations
+}
+
 // validateMsgTypes checks if the typeURLs are of the correct type,
 // performs basic validation on the length and checks for any empty strings
 func validateMsgTypes(arg interface{}) ([]string, error) {
@@ -237,4 +263,25 @@ func validateMsgTypes(arg interface{}) ([]string, error) {
 	}
 
 	return typeURLs, nil
+}
+
+// checkAllocationExists checks if the given authorization allocation matches the given arguments.
+func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
+	var found bool
+	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
+
+	for i, allocation := range allocations {
+		if allocation.SourcePort != sourcePort || allocation.SourceChannel != sourceChannel {
+			continue
+		}
+
+		found, spendLimit = allocation.SpendLimit.Find(denom)
+		if !found {
+			return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+		}
+
+		return spendLimit, i, nil
+	}
+
+	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
 }

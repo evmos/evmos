@@ -32,11 +32,9 @@ type EventIBCTransfer struct {
 
 // EventTransferAuthorization is the event type emitted when a transfer authorization is created.
 type EventTransferAuthorization struct {
-	Grantee       common.Address
-	Granter       common.Address
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
+	Grantee     common.Address
+	Granter     common.Address
+	Allocations []Allocation
 }
 
 // EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
@@ -310,25 +308,4 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 	}
 
 	return grantee, allocations, nil
-}
-
-// checkAllocationExists checks if the given authorization allocation matches the given arguments.
-func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
-	var found bool
-	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
-
-	for i, allocation := range allocations {
-		if allocation.SourcePort != sourcePort || allocation.SourceChannel != sourceChannel {
-			continue
-		}
-
-		found, spendLimit = allocation.SpendLimit.Find(denom)
-		if !found {
-			return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
-		}
-
-		return spendLimit, i, nil
-	}
-
-	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
 }

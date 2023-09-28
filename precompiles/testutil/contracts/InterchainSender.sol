@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-v3
 pragma solidity >=0.8.17;
 
-import "./../../ics20/ICS20I.sol";
+import "./../../ics20/IICS20.sol";
 import "./../../common/Types.sol";
 
 contract InterchainSender {

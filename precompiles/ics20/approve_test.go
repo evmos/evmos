@@ -35,22 +35,6 @@ var defaultAllowanceCases = []allowanceTestCase{
 		true,
 		fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 5, 0),
 	},
-	// {	// TODO uncomment when corresponding logic included
-	// 	"fail - origin same as spender",
-	// 	func() []interface{} {
-	// 		return []interface{}{
-	// 			common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes()),
-	// 			"port-1",
-	// 			"channel-1",
-	// 			utils.BaseDenom,
-	// 			big.NewInt(1e18),
-	// 		}
-	// 	},
-	// 	func(data []byte, inputArgs []interface{}) {},
-	// 	200000,
-	// 	true,
-	// 	"origin is the same as spender",
-	// },
 	{
 		"fail - authorization does not exist",
 		func() []interface{} {
@@ -170,7 +154,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				}
 			},
 			func(_ []byte, _ []interface{}) {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), authorization.TransferMsg)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 			},
@@ -196,7 +180,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				}
 			},
 			func(_ []byte, _ []interface{}) {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), authorization.TransferMsg)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
 			},
@@ -277,14 +261,14 @@ func (s *PrecompileTestSuite) TestRevoke() {
 				s.coordinator.Setup(path)
 				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
 				s.Require().NoError(err)
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), authorization.TransferMsg)
 				s.Require().NotNil(authz)
 				return []interface{}{
 					differentAddress,
 				}
 			},
 			func() {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), authorization.TransferMsg)
 				s.Require().Nil(authz)
 			},
 			200000,
