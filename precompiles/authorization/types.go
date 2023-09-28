@@ -223,8 +223,26 @@ func CheckAuthzAndAllowanceForGranter(
 	return stakeAuthz, expiration, nil
 }
 
+// validateMsgTypes checks if the typeURLs are of the correct type,
+// performs basic validation on the length and checks for any empty strings
+func validateMsgTypes(arg interface{}) ([]string, error) {
+	typeURLs, ok := arg.([]string)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidMethods, arg)
+	}
+	if len(typeURLs) == 0 {
+		return nil, fmt.Errorf(ErrEmptyMethods)
+	}
+
+	if slices.Contains(typeURLs, "") {
+		return nil, fmt.Errorf(ErrEmptyStringInMethods, typeURLs)
+	}
+
+	return typeURLs, nil
+}
+
 // ConvertToAllocation converts the transfer types Allocation to the ICS20 Allocation.
-func ConvertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
 	// Convert to Allocations to emit the IBC transfer authorization event
 	allocations := make([]cmn.Allocation, len(allocs))
 	for i, a := range allocs {
@@ -245,24 +263,6 @@ func ConvertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
 	}
 
 	return allocations
-}
-
-// validateMsgTypes checks if the typeURLs are of the correct type,
-// performs basic validation on the length and checks for any empty strings
-func validateMsgTypes(arg interface{}) ([]string, error) {
-	typeURLs, ok := arg.([]string)
-	if !ok {
-		return nil, fmt.Errorf(ErrInvalidMethods, arg)
-	}
-	if len(typeURLs) == 0 {
-		return nil, fmt.Errorf(ErrEmptyMethods)
-	}
-
-	if slices.Contains(typeURLs, "") {
-		return nil, fmt.Errorf(ErrEmptyStringInMethods, typeURLs)
-	}
-
-	return typeURLs, nil
 }
 
 // checkAllocationExists checks if the given authorization allocation matches the given arguments.

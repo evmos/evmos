@@ -1,3 +1,6 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package authorization
 
 import (
@@ -48,7 +51,7 @@ func Approve(
 		return err
 	}
 
-	allocations := ConvertToAllocation(transferAuthz.Allocations)
+	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
 	return EmitIBCTransferAuthorizationEvent(
 		event,
@@ -135,7 +138,7 @@ func IncreaseAllowance(
 		return err
 	}
 
-	allocations := ConvertToAllocation(transferAuthz.Allocations)
+	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
 	return EmitIBCTransferAuthorizationEvent(
 		event,
@@ -202,7 +205,7 @@ func DecreaseAllowance(
 		return err
 	}
 
-	allocations := ConvertToAllocation(transferAuthz.Allocations)
+	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
 	return EmitIBCTransferAuthorizationEvent(
 		event,
