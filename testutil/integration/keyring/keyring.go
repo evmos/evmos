@@ -54,13 +54,13 @@ type IntegrationKeyring struct {
 var _ Keyring = (*IntegrationKeyring)(nil)
 
 // New returns a new keyring with nAccs accounts.
-func New(nAccs int) IntegrationKeyring {
+func New(nAccs int) Keyring {
 	accs := make([]Key, 0, nAccs)
 	for i := 0; i < nAccs; i++ {
 		acc := NewKey()
 		accs = append(accs, acc)
 	}
-	return IntegrationKeyring{
+	return &IntegrationKeyring{
 		keys: accs,
 	}
 }

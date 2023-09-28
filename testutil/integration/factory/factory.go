@@ -44,7 +44,8 @@ type TxFactory interface {
 	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
-	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs
+	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
+	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -66,7 +67,7 @@ type IntegrationTxFactory struct {
 func New(
 	network network.Network,
 	grpcHandler grpc.Handler,
-) *IntegrationTxFactory {
+) TxFactory {
 	ec := makeConfig(app.ModuleBasics)
 	return &IntegrationTxFactory{
 		grpcHandler: grpcHandler,
@@ -101,8 +102,9 @@ func (tf *IntegrationTxFactory) DeployContract(
 		Input: data,
 		Nonce: nonce,
 	}
-	_, err = tf.ExecuteEthTx(priv, args)
-	if err != nil {
+
+	res, err := tf.ExecuteEthTx(priv, args)
+	if err != nil || !res.IsOK() {
 		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
 
@@ -173,6 +175,7 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 	args, err := json.Marshal(evmtypes.TransactionArgs{
 		Data: (*hexutil.Bytes)(&txArgs.Input),
 		From: from,
+		To:   txArgs.To,
 	})
 	if err != nil {
 		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
