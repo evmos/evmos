@@ -54,6 +54,55 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "grantee",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "granter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sourcePort",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sourceChannel",
+        "type": "string"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "denom",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Coin[]",
+        "name": "spendLimit",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "IBCTransferAuthorization",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "sender",
         "type": "address"
       },
@@ -94,6 +143,69 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "grantee",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "sourcePort",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "sourceChannel",
+            "type": "string"
+          },
+          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "denom",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Coin[]",
+            "name": "spendLimit",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "string[]",
+            "name": "allowList",
+            "type": "string[]"
+          }
+        ],
+        "internalType": "struct Allocation[]",
+        "name": "allocations",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -105,7 +217,7 @@
       },
       {
         "internalType": "string",
-        "name": "baseDenom",
+        "name": "inputDenom",
         "type": "string"
       },
       {

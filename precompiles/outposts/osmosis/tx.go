@@ -3,9 +3,13 @@ package osmosis
 import (
 	"embed"
 	"fmt"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -33,19 +37,29 @@ const (
 func (p Precompile) Swap(
 	ctx sdk.Context,
 	origin common.Address,
+	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args)
+	amount, sender, inputDenom, outputDenom, prefix, receiverAccAddr, err := CreateSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: Include case where there is a SC calling into the Precompile
+	// The provided sender address should always be equal to the origin address.
+	// In case the contract caller address is the same as the sender address provided,
+	// update the sender address to be equal to the origin address.
+	// Otherwise, if the provided sender address is different from the origin address,
+	// return an error because is a forbidden operation
+	if contract.CallerAddress == sender {
+		sender = origin
+	} else if origin != sender {
+		return nil, fmt.Errorf(ics20.ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
 
 	// Create the memo field for the Swap from the JSON file
-	memo, err := createSwapMemo(outputDenom, receiverAddress)
+	memo, err := createSwapMemo(outputDenom, receiverAccAddr.String())
 	if err != nil {
 		return nil, err
 	}
@@ -56,30 +70,49 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
+	// no need to have authorization when the contract caller is the same as origin (owner of funds)
+	// and the sender is the origin
+	var (
+		expiration *time.Time
+		auth       authz.Authorization
+		resp       *authz.AcceptResponse
+	)
+
+	if contract.CallerAddress != origin {
+		// check if authorization exists
+		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsg)
+		if err != nil {
+			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+		}
+
+		// Accept the grant and return an error if the grant is not accepted
+		resp, err = p.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Send the IBC Transfer message
 	_, err = p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
 
+	// Update grant only if is needed
+	if contract.CallerAddress != origin {
+		// accepts and updates the grant adjusting the spending limit
+		if err = p.UpdateGrant(ctx, contract.CallerAddress, origin, expiration, resp); err != nil {
+			return nil, err
+		}
+	}
+
 	// Emit the ICS20 Transfer Event
-	if err := p.EmitIBCTransferEvent(ctx, stateDB, origin, amount, inputDenom, memo); err != nil {
+	if err := p.EmitIBCTransferEvent(ctx, stateDB, sender, amount, inputDenom, memo); err != nil {
 		return nil, err
-	}
-
-	receiverAccAddr, err := sdk.AccAddressFromBech32(receiverAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
-	if err != nil {
-		return nil, fmt.Errorf("invalid receiver address: %v", err)
 	}
 
 	// Emit the Osmosis Swap Event
-	// TODO: Check if the chainPrefix extraction works
-	if err := p.EmitSwapEvent(ctx, stateDB, origin, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, prefix); err != nil {
+	if err := p.EmitSwapEvent(ctx, stateDB, sender, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, prefix); err != nil {
 		return nil, err
 	}
 

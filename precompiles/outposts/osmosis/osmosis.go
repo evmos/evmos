@@ -5,6 +5,9 @@ import (
 	"embed"
 	"fmt"
 
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,6 +31,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	transferKeeper transferkeeper.Keeper
+	channelKeeper  channelkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     erc20types.BankKeeper
 }
@@ -39,6 +43,7 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper erc20types.BankKeeper,
 	erc20Keeper erc20keeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -61,6 +66,7 @@ func NewPrecompile(
 		transferKeeper: transferKeeper,
 		bankKeeper:     bankKeeper,
 		erc20Keeper:    erc20Keeper,
+		channelKeeper:  channelKeeper,
 	}, nil
 }
 
@@ -101,9 +107,12 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
+	// ICS20 Approval Methods
+	case authorization.ApproveMethod:
+		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
 	// Osmosis Outpost Methods:
 	case SwapMethod:
-		bz, err = p.Swap(ctx, evm.Origin, stateDB, method, args)
+		bz, err = p.Swap(ctx, evm.Origin, contract, stateDB, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -124,7 +133,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case SwapMethod:
+	case SwapMethod,
+		authorization.ApproveMethod:
 		return true
 	default:
 		return false

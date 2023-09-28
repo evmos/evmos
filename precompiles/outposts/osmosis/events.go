@@ -15,6 +15,8 @@ import (
 const (
 	// EventTypeIBCTransfer defines the event type for the ICS20 Transfer transaction.
 	EventTypeIBCTransfer = "IBCTransfer"
+	// EventTypeIBCTransferAuthorization defines the event type for the ICS20 TransferAuthorization transaction.
+	EventTypeIBCTransferAuthorization = "IBCTransferAuthorization" //#nosec G101 -- no hardcoded credentials here
 	// EventTypeSwap defines the event type for the Osmosis Swap transaction.
 	EventTypeSwap = "Swap"
 )
@@ -91,6 +93,50 @@ func (p Precompile) EmitIBCTransferEvent(
 	// Prepare the event data: denom, amount, memo
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4], event.Inputs[5], event.Inputs[6]}
 	packed, err := arguments.Pack(transfertypes.PortID, OsmosisChannelID, denom, amount, memo)
+	if err != nil {
+		return err
+	}
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
+
+// EmitIBCTransferAuthorizationEvent creates a new IBC transfer authorization event emitted on a TransferAuthorization transaction.
+func (p Precompile) EmitIBCTransferAuthorizationEvent(
+	ctx sdk.Context,
+	stateDB vm.StateDB,
+	granteeAddr, granterAddr common.Address,
+	sourcePort, sourceChannel string,
+	spendLimit sdk.Coins,
+) error {
+	event := p.ABI.Events[EventTypeIBCTransferAuthorization]
+	topics := make([]common.Hash, 3)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(granteeAddr)
+	if err != nil {
+		return err
+	}
+
+	topics[2], err = cmn.MakeTopic(granterAddr)
+	if err != nil {
+		return err
+	}
+
+	// Convert the sdk.Coins to cmn.Coins to be ABI compatible
+	abiCoins := cmn.NewCoinsResponse(spendLimit)
+	// Prepare the event data: sourcePort, sourceChannel, denom, amount
+	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4]}
+	packed, err := arguments.Pack(sourcePort, sourceChannel, abiCoins)
 	if err != nil {
 		return err
 	}
