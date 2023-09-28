@@ -1,26 +1,25 @@
 package osmosis
 
 import (
-	"cosmossdk.io/math"
 	"fmt"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"math/big"
-	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 // TODO: This is the function we will use for V1 of the Osmosis swap function.
 // CreateSwapPacketDataV1 creates the packet data for the Osmosis swap function.
-//func CreateSwapPacketDataV1(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
+// func CreateSwapPacketDataV1(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
 //	if len(args) != 4 {
 //		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 //	}
 //
-//	amount, ok := args[0].(*big.Int)
+//	amount, ok := args[0].(*big.Int)Yeah
 //	if !ok {
 //		return nil, "", "", "", fmt.Errorf("invalid amount: %v", args[0])
 //	}
@@ -69,7 +68,7 @@ import (
 //}
 
 // CreateSwapPacketData creates the packet data for the Osmosis swap function.
-func CreateSwapPacketData(args []interface{}, ctx sdk.Context) (*big.Int, string, string, string, error) {
+func CreateSwapPacketData(args []interface{}) (*big.Int, string, string, string, error) {
 	if len(args) != 4 {
 		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
@@ -115,7 +114,7 @@ func NewMsgTransfer(denom, memo string, amount *big.Int, sender common.Address) 
 
 	msg := &transfertypes.MsgTransfer{
 		SourcePort:       transfertypes.PortID,
-		SourceChannel:    OsmosisChannelId,
+		SourceChannel:    OsmosisChannelID,
 		Token:            token,
 		Sender:           sdk.AccAddress(sender.Bytes()).String(), // convert to bech32 format
 		Receiver:         OsmosisXCSContract,                      // The XCS contract address on Osmosis
@@ -132,21 +131,22 @@ func NewMsgTransfer(denom, memo string, amount *big.Int, sender common.Address) 
 	return msg, nil
 }
 
+// TODO: This check function will go in v1
 // AccAddressFromBech32 creates an AccAddress from a Bech32 string.
-func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return sdk.AccAddress{}, fmt.Errorf("empty address string is not allowed")
-	}
-
-	bz, err := sdk.GetFromBech32(address, bech32prefix)
-	if err != nil {
-		return nil, err
-	}
-
-	err = sdk.VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return sdk.AccAddress(bz), nil
-}
+// func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddress, err error) {
+//	if len(strings.TrimSpace(address)) == 0 {
+//		return sdk.AccAddress{}, fmt.Errorf("empty address string is not allowed")
+//	}
+//
+//	bz, err := sdk.GetFromBech32(address, bech32prefix)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	err = sdk.VerifyAddressFormat(bz)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return sdk.AccAddress(bz), nil
+//}

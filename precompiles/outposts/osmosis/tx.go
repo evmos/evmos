@@ -3,6 +3,7 @@ package osmosis
 import (
 	"embed"
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -16,8 +17,8 @@ import (
 var memoF embed.FS
 
 const (
-	// OsmosisChannelId defines the channel id for the Osmosis IBC channel
-	OsmosisChannelId = "channel-0"
+	// OsmosisChannelID defines the channel id for the Osmosis IBC channel
+	OsmosisChannelID = "channel-0"
 	// OsmosisXCSContract defines the contract address for the Osmosis XCS contract
 	OsmosisXCSContract = "osmo1xcsjj7g9qf6qy8w4xg2j3q4q3k6x5q2x9k5x2e"
 )
@@ -36,7 +37,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args, ctx)
+	amount, inputDenom, outputDenom, receiverAddress, err := CreateSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}

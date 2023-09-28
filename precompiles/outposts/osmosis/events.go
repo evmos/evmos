@@ -1,6 +1,8 @@
 package osmosis
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -8,7 +10,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"math/big"
 )
 
 const (
@@ -89,7 +90,7 @@ func (p Precompile) EmitIBCTransferEvent(
 
 	// Prepare the event data: denom, amount, memo
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4], event.Inputs[5], event.Inputs[6]}
-	packed, err := arguments.Pack(transfertypes.PortID, OsmosisChannelId, denom, amount, memo)
+	packed, err := arguments.Pack(transfertypes.PortID, OsmosisChannelID, denom, amount, memo)
 	if err != nil {
 		return err
 	}
