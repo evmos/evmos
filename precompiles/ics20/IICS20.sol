@@ -20,14 +20,6 @@ struct DenomTrace {
     string baseDenom;
 }
 
-/// @dev Allocation represents a single allocation for an IBC fungible token transfer.
-struct Allocation {
-    string sourcePort;
-    string sourceChannel;
-    Coin[] spendLimit;
-    string[] allowList;
-}
-
 /// @author Evmos Team
 /// @title ICS20 Transfer Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with IBC Transfer (ICS20)
