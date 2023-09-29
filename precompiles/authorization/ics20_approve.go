@@ -217,3 +217,48 @@ func DecreaseAllowance(
 		allocations,
 	)
 }
+
+// AcceptGrant implements the ICS20 accept grant.
+func AcceptGrant(
+	ctx sdk.Context,
+	caller, origin common.Address,
+	msg *transfertypes.MsgTransfer,
+	authzAuthorization authz.Authorization,
+) (*authz.AcceptResponse, error) {
+	transferAuthz, ok := authzAuthorization.(*transfertypes.TransferAuthorization)
+	if !ok {
+		return nil, authz.ErrUnknownAuthorizationType
+	}
+
+	resp, err := transferAuthz.Accept(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if !resp.Accept {
+		return nil, fmt.Errorf(ErrAuthzNotAccepted, caller, origin)
+	}
+
+	return &resp, nil
+}
+
+// UpdateGrant implements the ICS20 authz update grant.
+func UpdateGrant(
+	ctx sdk.Context,
+	authzKeeper authzkeeper.Keeper,
+	grantee, origin common.Address,
+	expiration *time.Time,
+	resp *authz.AcceptResponse,
+) (err error) {
+	if resp.Delete {
+		err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg)
+	} else if resp.Updated != nil {
+		err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), resp.Updated, expiration)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
