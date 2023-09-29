@@ -112,7 +112,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Amount: big.NewInt(1000),
 				// Hard coded gas limit to avoid failure on gas estimation because
 				// of the param
-				GasLimit: 100000}
+				GasLimit: 100000,
+			}
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).To(BeNil())
