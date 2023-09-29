@@ -2,6 +2,7 @@ package osmosis
 
 import (
 	"fmt"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"math/big"
 	"strings"
 
@@ -148,6 +149,52 @@ func NewMsgTransfer(denom, memo string, amount *big.Int, sender common.Address) 
 	}
 
 	return msg, nil
+}
+
+// NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.
+// Pre-populates the channel and port id to only work with Osmosis.
+func NewTransferAuthorization(args []interface{}) (common.Address, *transfertypes.TransferAuthorization, error) {
+	if len(args) != 3 {
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	}
+
+	grantee, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
+	}
+
+	spendLimit, ok := args[1].([]cmn.Coin)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidType, "spendLimit", cmn.Coin{}, args[1])
+	}
+
+	allowList, ok := args[2].([]string)
+	if !ok {
+		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidType, "allowList", []string{}, args[2])
+	}
+
+	spendLimitCoins := make(sdk.Coins, len(spendLimit))
+	for is, sl := range spendLimit {
+		spendLimitCoins[is] = sdk.Coin{
+			Amount: math.NewIntFromBigInt(sl.Amount),
+			Denom:  sl.Denom,
+		}
+	}
+
+	allocations := make([]transfertypes.Allocation, 1)
+	allocations[0] = transfertypes.Allocation{
+		SourcePort:    transfertypes.PortID,
+		SourceChannel: OsmosisChannelID,
+		SpendLimit:    spendLimitCoins,
+		AllowList:     allowList,
+	}
+
+	transferAuthz := &transfertypes.TransferAuthorization{Allocations: allocations}
+	if err := transferAuthz.ValidateBasic(); err != nil {
+		return common.Address{}, nil, err
+	}
+
+	return grantee, transferAuthz, nil
 }
 
 // AccAddressFromBech32 creates an AccAddress from a Bech32 string.

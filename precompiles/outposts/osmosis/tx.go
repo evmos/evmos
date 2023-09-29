@@ -80,7 +80,7 @@ func (p Precompile) Swap(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsg)
+		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, authorization.TransferMsg)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
