@@ -150,7 +150,7 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	}
 
 	if err := tf.checkEthTxResponse(&res); err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed ETH tx")
+		return res, errorsmod.Wrap(err, "failed ETH tx")
 	}
 	return res, nil
 }

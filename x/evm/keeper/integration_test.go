@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -49,11 +48,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			defaultParams := evmtypes.DefaultParams()
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
+
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
-		It("performs a transfer call", func() {
+		It("performs a transfer transaction", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
@@ -90,18 +90,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})
-
-		It("performs a precompile call", func() {
-		})
-
-		It("performs a legacyTx", func() {
-		})
-
-		It("performs an AccessListTx", func() {
-		})
-
-		It("performs an DynamicFeeTx", func() {
-		})
 	})
 
 	When("EnableCreate param is set to false", Ordered, func() {
@@ -111,17 +99,20 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			defaultParams.EnableCreate = false
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
+
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
-		It("performs a transfer call", func() {
+		It("performs a transfer transaction", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
 				To:     &receiver.Addr,
 				Amount: big.NewInt(1000),
-			}
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000}
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).To(BeNil())
@@ -149,22 +140,25 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			defaultParams.EnableCall = false
 			err := s.network.UpdateEvmParams(defaultParams)
 			Expect(err).To(BeNil())
+
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
-		It("fails when performing a transfer call", func() {
+		It("fails when performing a transfer transaction", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			receiver := s.keyring.GetKey(1)
 			txArgs := evmtypes.EvmTxArgs{
 				To:     &receiver.Addr,
 				Amount: big.NewInt(1000),
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
 			}
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
-			// Note that response deliver shows this as a succesful transaction
-			Expect(res.IsOK()).To(Equal(true))
+			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 
 		It("performs a contract deployment and fails to perform a contract call", func() {
@@ -181,6 +175,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			txArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
+				// Hard coded gas limit to avoid failure on gas estimation because
+				// of the param
+				GasLimit: 100000,
 			}
 			callArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
@@ -189,8 +186,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
 			Expect(err).NotTo(BeNil())
-			// Note that response deliver shows this as a succesful transaction
-			Expect(res.IsOK()).To(Equal(true))
+			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 	})
 })
