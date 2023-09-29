@@ -119,7 +119,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
-		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
+		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.BankKeeper, options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -146,7 +146,7 @@ func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
-		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.Cdc),
+		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.BankKeeper, options.Cdc),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

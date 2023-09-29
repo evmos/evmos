@@ -3,15 +3,6 @@
 
 package v14
 
-// !! ATTENTION !!
-// created this upgrade folder to include the upgrade handler needed
-// when upgrading to cosmos-sdk v0.47
-// If v14 is not including this upgrade,
-// make sure to move the store upgrades needed (in app.go) and
-// the upgrade handler (in upgrades.go) to the corresponding upgrade
-// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-// !! ATTENTION !!
-
 const (
 	// UpgradeName is the shared upgrade plan name for mainnet
 	UpgradeName = "v14.0.0"
