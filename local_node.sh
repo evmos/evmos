@@ -108,7 +108,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
 
 	# Store the validator address in a variable to use it later
-	node_address=$(evmosd keys show -a "$VAL_KEY")
+	node_address=$(evmosd keys show -a "$VAL_KEY" --keyring-backend "$KEYRING" --home "$HOMEDIR")
 
 	echo "$USER1_MNEMONIC" | evmosd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
 	echo "$USER2_MNEMONIC" | evmosd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$HOMEDIR"
