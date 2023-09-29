@@ -245,20 +245,20 @@ func validateMsgTypes(arg interface{}) ([]string, error) {
 func convertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
 	// Convert to Allocations to emit the IBC transfer authorization event
 	allocations := make([]cmn.Allocation, len(allocs))
-	for i, a := range allocs {
+	for i, allocation := range allocs {
 		spendLimit := make([]cmn.Coin, len(a.SpendLimit))
-		for j, c := range a.SpendLimit {
+		for j, coin := range a.SpendLimit {
 			spendLimit[j] = cmn.Coin{
-				Denom:  c.Denom,
-				Amount: c.Amount.BigInt(),
+				Denom:  coin.Denom,
+				Amount: coin.Amount.BigInt(),
 			}
 		}
 
 		allocations[i] = cmn.Allocation{
-			SourcePort:    a.SourcePort,
-			SourceChannel: a.SourceChannel,
+			SourcePort:    allocation.SourcePort,
+			SourceChannel: allocation.SourceChannel,
 			SpendLimit:    spendLimit,
-			AllowList:     a.AllowList,
+			AllowList:     allocation.AllowList,
 		}
 	}
 

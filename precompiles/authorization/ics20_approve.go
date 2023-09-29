@@ -26,7 +26,7 @@ import (
 // TransferMsg is the ICS20 transfer message type.
 var TransferMsg = sdk.MsgTypeURL(&transfertypes.MsgTransfer{})
 
-// Approve implements the ICS20 approve transactions.
+// Approve implements the ICS20 Authorization approve transactions.
 func Approve(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
@@ -64,7 +64,7 @@ func Approve(
 	)
 }
 
-// Revoke implements the ICS20 revoke transactions.
+// Revoke implements the ICS20 Authorization revoke transactions.
 func Revoke(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
@@ -97,7 +97,7 @@ func Revoke(
 	)
 }
 
-// IncreaseAllowance implements the ICS20 increase allowance transactions.
+// IncreaseAllowance implements the ICS20 Authorization increase allowance transactions.
 func IncreaseAllowance(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
@@ -151,7 +151,7 @@ func IncreaseAllowance(
 	)
 }
 
-// DecreaseAllowance implements the ICS20 decrease allowance transactions.
+// DecreaseAllowance implements the ICS20 Authorization decrease allowance transactions.
 func DecreaseAllowance(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
