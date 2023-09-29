@@ -21,4 +21,6 @@ const (
 	ErrInvalidMethod = "invalid method defined; expected a string; got: %v"
 	// ErrAuthzNotAccepted is raised when the authorization is not accepted.
 	ErrAuthzNotAccepted = "authorization to %s for address %s is not accepted"
+	// ErrNoMatchingAllocation is raised when no matching allocation is found.
+	ErrNoMatchingAllocation = "no matching allocation found for source port: %s, source channel: %s, and denom: %s"
 )
