@@ -54,6 +54,30 @@ interface IOsmosisOutpost is IICS20AuthorizationStd {
         string[] calldata allowList
     ) external returns (bool approved);
 
+
+    /// @dev Increase the allowance of a given grantee by a specific amount of tokens for IBC transfer methods.
+    /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
+    /// @param denom the denomination of the Coin to be transferred to the receiver
+    /// @param amount The amount of tokens to be spent.
+    /// @return approved is true if the operation ran successfully
+    function increaseAllowance(
+        address grantee,
+        string calldata denom,
+        uint256 amount
+    ) external returns (bool approved);
+
+
+    /// @dev Decreases the allowance of a given grantee by a specific amount of tokens for for IBC transfer methods.
+    /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
+     /// @param denom the denomination of the Coin to be transferred to the receiver
+    /// @param amount The amount of tokens to be spent.
+    /// @return approved is true if the operation ran successfully
+    function decreaseAllowance(
+        address grantee,
+        string calldata denom,
+        uint256 amount
+    ) external returns (bool approved);
+
     // @dev This function is used to swap tokens on Osmosis
     /// @param sender The address of the sender
     /// @param amount The amount of tokens to be swapped

@@ -1,6 +1,7 @@
 package osmosis
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"fmt"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"math/big"
@@ -214,4 +215,28 @@ func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddr
 	}
 
 	return sdk.AccAddress(bz), nil
+}
+
+// checkAllowanceArgs checks the arguments for the Increase / Decrease Allowance function.
+func checkAllowanceArgs(args []interface{}) (common.Address, string, *big.Int, error) {
+	if len(args) != 3 {
+		return common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	}
+
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
+		return common.Address{}, "", nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
+	}
+
+	denom, ok := args[1].(string)
+	if !ok {
+		return common.Address{}, "", nil, errorsmod.Wrapf(transfertypes.ErrInvalidDenomForTransfer, cmn.ErrInvalidDenom, args[1])
+	}
+
+	amount, ok := args[4].(*big.Int)
+	if !ok || amount == nil {
+		return common.Address{}, "", nil, errorsmod.Wrapf(transfertypes.ErrInvalidAmount, cmn.ErrInvalidAmount, args[2])
+	}
+
+	return grantee, denom, amount, nil
 }

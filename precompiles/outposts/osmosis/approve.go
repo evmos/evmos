@@ -5,19 +5,13 @@ package osmosis
 
 import (
 	"fmt"
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 )
-
-// TransferMsg is the ICS20 transfer message type.
-var TransferMsg = sdk.MsgTypeURL(&transfertypes.MsgTransfer{})
 
 // Approve implements the ICS20 approve transactions.
 func (p Precompile) Approve(
@@ -50,46 +44,96 @@ func (p Precompile) Approve(
 	return method.Outputs.Pack(true)
 }
 
-// AcceptGrant implements the ICS20 accept grant.
-func (p Precompile) AcceptGrant(
+// IncreaseAllowance implements the ICS20 increase allowance transactions specifically for
+// the Osmosis channel.
+func (p Precompile) IncreaseAllowance(
 	ctx sdk.Context,
-	caller, origin common.Address,
-	msg *transfertypes.MsgTransfer,
-	authzAuthorization authz.Authorization,
-) (*authz.AcceptResponse, error) {
-	transferAuthz, ok := authzAuthorization.(*transfertypes.TransferAuthorization)
-	if !ok {
-		return nil, authz.ErrUnknownAuthorizationType
-	}
-
-	resp, err := transferAuthz.Accept(ctx, msg)
+	origin common.Address,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	grantee, denom, amount, err := checkAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	if !resp.Accept {
-		return nil, fmt.Errorf(authorization.ErrAuthzNotAccepted, caller, origin)
+	if err := authorization.IncreaseAllowance(
+		ctx,
+		p.AuthzKeeper,
+		p.Address(),
+		grantee,
+		origin,
+		transfertypes.PortID,
+		OsmosisChannelID,
+		denom,
+		amount,
+		p.ABI.Events[authorization.EventTypeIBCTransferAuthorization],
+		stateDB,
+	); err != nil {
+		return nil, err
 	}
 
-	return &resp, nil
+	return method.Outputs.Pack(true)
 }
 
-// UpdateGrant implements the ICS20 authz update grant.
-func (p Precompile) UpdateGrant(
+// DecreaseAllowance implements the ICS20 decrease allowance transactions specifically for
+// the Osmosis channel.
+func (p Precompile) DecreaseAllowance(
 	ctx sdk.Context,
-	grantee, origin common.Address,
-	expiration *time.Time,
-	resp *authz.AcceptResponse,
-) (err error) {
-	if resp.Delete {
-		err = p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg)
-	} else if resp.Updated != nil {
-		err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), resp.Updated, expiration)
-	}
-
+	origin common.Address,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	grantee, denom, amount, err := checkAllowanceArgs(args)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	if err := authorization.DecreaseAllowance(
+		ctx,
+		p.AuthzKeeper,
+		p.Address(),
+		grantee,
+		origin,
+		transfertypes.PortID,
+		OsmosisChannelID,
+		denom,
+		amount,
+		p.ABI.Events[authorization.EventTypeIBCTransferAuthorization],
+		stateDB,
+	); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+// Revoke implements the ICS20 revoke transactions.
+func (p Precompile) Revoke(
+	ctx sdk.Context,
+	origin common.Address,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
+		return nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
+	}
+
+	if err := authorization.Revoke(
+		ctx,
+		p.AuthzKeeper,
+		p.Address(),
+		grantee,
+		origin,
+		p.ABI.Events[authorization.EventTypeRevokeIBCTransferAuthorization],
+		stateDB,
+	); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
 }

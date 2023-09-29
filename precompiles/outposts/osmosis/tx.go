@@ -86,7 +86,7 @@ func (p Precompile) Swap(
 		}
 
 		// Accept the grant and return an error if the grant is not accepted
-		resp, err = p.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+		resp, err = authorization.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +101,7 @@ func (p Precompile) Swap(
 	// Update grant only if is needed
 	if contract.CallerAddress != origin {
 		// accepts and updates the grant adjusting the spending limit
-		if err = p.UpdateGrant(ctx, contract.CallerAddress, origin, expiration, resp); err != nil {
+		if err = authorization.UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
 			return nil, err
 		}
 	}

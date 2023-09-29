@@ -110,6 +110,12 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// ICS20 Approval Methods
 	case authorization.ApproveMethod:
 		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
+	case authorization.IncreaseAllowanceMethod:
+		bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
+	case authorization.DecreaseAllowanceMethod:
+		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
+	case authorization.RevokeMethod:
+		bz, err = p.Revoke(ctx, evm.Origin, stateDB, method, args)
 	// Osmosis Outpost Methods:
 	case SwapMethod:
 		bz, err = p.Swap(ctx, evm.Origin, contract, stateDB, method, args)
