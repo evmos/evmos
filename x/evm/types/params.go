@@ -24,11 +24,12 @@ var (
 	DefaultEnableCreate = true
 	// DefaultEnableCall enables contract calls (i.e true)
 	DefaultEnableCall = true
-	// DefaultActivePrecompiles defines the default active precompiles
-	DefaultActivePrecompiles = []string{
+	// AvailableEVMExtensions defines the default active precompiles
+	AvailableEVMExtensions = []string{
 		"0x0000000000000000000000000000000000000800", // Staking precompile
 		"0x0000000000000000000000000000000000000801", // Distribution precompile
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
+		"0x0000000000000000000000000000000000000803", // Vesting precompile
 	}
 )
 
@@ -72,7 +73,7 @@ func DefaultParams() Params {
 		ChainConfig:         DefaultChainConfig(),
 		ExtraEIPs:           nil,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
-		ActivePrecompiles:   DefaultActivePrecompiles,
+		ActivePrecompiles:   AvailableEVMExtensions,
 	}
 }
 

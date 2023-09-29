@@ -6,6 +6,7 @@ package vesting
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/gorilla/mux"
@@ -27,7 +28,7 @@ import (
 )
 
 // consensusVersion defines the current x/vesting module consensus version.
-const consensusVersion = 1
+const consensusVersion = 2
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -75,7 +76,7 @@ func (a AppModuleBasic) RegisterGRPCGatewayRoutes(c client.Context, serveMux *ru
 	}
 }
 
-// GetTxCmd returns the root tx command for the auth module.
+// GetTxCmd returns the root tx command for the vesting module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
@@ -126,6 +127,12 @@ func (am AppModule) NewHandler() sdk.Handler {
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), am.keeper)
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
+
+	migrator := keeper.NewMigrator(am.keeper)
+
+	if err := cfg.RegisterMigration(types.ModuleName, 1, migrator.Migrate1to2); err != nil {
+		panic(fmt.Errorf("failed to migrate %s to v2: %w", types.ModuleName, err))
+	}
 }
 
 // InitGenesis performs a no-op.
