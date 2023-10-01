@@ -16,6 +16,8 @@ import (
 	testkeyring "github.com/evmos/evmos/v14/testutil/integration/keyring"
 	"github.com/evmos/evmos/v14/testutil/integration/network"
 
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
@@ -89,6 +91,52 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
 			}
 			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("should fail when ChainID is wrong", func() {
+			senderPriv := s.keyring.GetPrivKey(0)
+			receiver := s.keyring.GetKey(1)
+			txArgs := evmtypes.EvmTxArgs{
+				To:      &receiver.Addr,
+				Amount:  big.NewInt(1000),
+				ChainID: big.NewInt(1),
+			}
+
+			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+			Expect(err).NotTo(BeNil())
+            // Transaction fails before being broadcasted
+			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
+		})
+
+		It("performs an AccessListTx", func() {
+			senderPriv := s.keyring.GetPrivKey(0)
+			receiver := s.keyring.GetKey(1)
+			accessList := &ethtypes.AccessList{{Address: receiver.Addr, StorageKeys: []common.Hash{{0}}}}
+			// GasFeeCap and GasTipCap are populated by default by the factory
+			txArgs := evmtypes.EvmTxArgs{
+				To:       &receiver.Addr,
+				Amount:   big.NewInt(1000),
+				Accesses: accessList,
+			}
+
+			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		})
+
+		It("performs a LegacyTx", func() {
+			senderPriv := s.keyring.GetPrivKey(0)
+			receiver := s.keyring.GetKey(1)
+			// GasFeeCap and GasTipCap are populated by default by the factory
+			txArgs := evmtypes.EvmTxArgs{
+				To:       &receiver.Addr,
+				Amount:   big.NewInt(1000),
+				GasPrice: big.NewInt(1e9),
+			}
+
+			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})

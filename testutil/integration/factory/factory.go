@@ -22,7 +22,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v14/testutil/integration/grpc"
 	"github.com/evmos/evmos/v14/testutil/integration/network"
@@ -173,9 +172,10 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 // EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
 	args, err := json.Marshal(evmtypes.TransactionArgs{
-		Data: (*hexutil.Bytes)(&txArgs.Input),
-		From: from,
-		To:   txArgs.To,
+		Data:       (*hexutil.Bytes)(&txArgs.Input),
+		From:       from,
+		To:         txArgs.To,
+		AccessList: txArgs.Accesses,
 	})
 	if err != nil {
 		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
@@ -351,6 +351,8 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.Nonce = accountResp.GetNonce()
 	}
 
+	// If there is no GasPrice it is assume this is a DynamicFeeTx.
+	// If fields are empty they are populated with current dynamic values.
 	if txArgs.GasPrice == nil {
 		if txArgs.GasTipCap == nil {
 			txArgs.GasTipCap = big.NewInt(1)
@@ -374,9 +376,6 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.GasLimit = gasLimit
 	}
 
-	if txArgs.Accesses == nil {
-		txArgs.Accesses = &ethtypes.AccessList{}
-	}
 	return txArgs, nil
 }
 
