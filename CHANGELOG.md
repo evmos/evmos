@@ -47,7 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
-- (evm) [#1815](https://github.com/evmos/evmos/pull/1815) Remove unnecessary repeated checks of EnableCreate and EnableCall when executing evm transaction.
+- (evm) [#1816](https://github.com/evmos/evmos/pull/1816) Remove unnecessary repeated checks of EnableCreate and EnableCall when executing evm transaction.
 
 ### Bug Fixes
 
