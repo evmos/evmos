@@ -27,6 +27,7 @@ ACCOUNTS = {
 KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
+DEFAULT_DENOM = "aevmos"
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -262,7 +263,7 @@ def compare_fields(a, b, fields):
 
 # get_fees_from_tx_result returns the fees from the tx_result
 # of a cosmos transaction. It gets them from the tx events
-def get_fees_from_tx_result(tx_result, denom="aevmos"):
+def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
     for event in tx_result["events"]:
         if event["type"] == "tx":
             for attr in event["attributes"]:

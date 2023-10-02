@@ -1,11 +1,24 @@
-from .utils import ADDRS, eth_to_bech32, get_fees_from_tx_result, wait_for_new_blocks
+import json
+import tempfile
+
+from web3 import Web3
+
+from .utils import (
+    ACCOUNTS,
+    ADDRS,
+    CONTRACTS,
+    DEFAULT_DENOM,
+    deploy_contract,
+    eth_to_bech32,
+    get_fees_from_tx_result,
+    wait_for_new_blocks,
+)
 
 
 def test_send_funds_to_distr_mod(evmos):
     """
     test transfer funds to distribution module account should be forbidden
     """
-    denom = "aevmos"
     cli = evmos.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
     amt = 1000
@@ -19,13 +32,13 @@ def test_send_funds_to_distr_mod(evmos):
 
     assert receiver is not None
 
-    old_src_balance = cli.balance(sender, denom)
+    old_src_balance = cli.balance(sender, DEFAULT_DENOM)
 
     tx = cli.transfer(
         sender,
         receiver,
-        f"{amt}{denom}",
-        gas_prices=f"{cli.query_base_fee() + 100000}{denom}",
+        f"{amt}{DEFAULT_DENOM}",
+        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
         generate_only=True,
     )
 
@@ -46,7 +59,7 @@ def test_send_funds_to_distr_mod(evmos):
     fees = get_fees_from_tx_result(receipt["tx_result"])
 
     # only fees should be deducted from sender balance
-    new_src_balance = cli.balance(sender, denom)
+    new_src_balance = cli.balance(sender, DEFAULT_DENOM)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -54,4 +67,37 @@ def test_authz_nested_msg(evmos):
     """
     test sending MsgEthereumTx nested in a MsgExec should be forbidden
     """
-    
+    w3: Web3 = evmos.w3
+    cli = evmos.cosmos_cli()
+
+    sender_acc = ACCOUNTS["signer1"]
+    sender_bech32_addr = eth_to_bech32(sender_acc.address)
+
+    contract, _ = deploy_contract(w3, CONTRACTS["Greeter"])
+
+    tx = contract.functions.setGreeting("world").build_transaction(
+        {
+            "from": sender_acc.address,
+            "nonce": w3.eth.get_transaction_count(sender_acc.address),
+            "gas": 999_999_999_999,
+        }
+    )
+
+    tx_call = sender_acc.sign_transaction(tx)
+
+    # save the eth tx to nest inside a MsgExec to a json file
+    with tempfile.NamedTemporaryFile("w") as tx_file:
+        json.dump(cli.build_evm_tx(tx_call.rawTransaction.hex()), tx_file)
+        tx_file.flush()
+
+        # create the tx with the MsgExec with the eth tx generated previously
+        # as nested message
+        tx = cli.authz_exec(tx_file.name, sender_bech32_addr)
+        tx = cli.sign_tx_json(tx, sender_bech32_addr, max_priority_price=0)
+
+        rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+
+        assert rsp["code"] == 4, rsp["raw_log"]
+        assert (
+            "found disabled msg type: /ethermint.evm.v1.MsgEthereumTx" in rsp["raw_log"]
+        )
