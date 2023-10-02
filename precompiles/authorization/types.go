@@ -107,25 +107,6 @@ func CheckRevokeArgs(args []interface{}) (common.Address, []string, error) {
 	return granteeAddr, typeURLs, nil
 }
 
-// CheckRevocationArgs checks the arguments for the Revoke function.
-func CheckRevocationArgs(args []interface{}) (common.Address, []string, error) {
-	if len(args) != 2 {
-		return common.Address{}, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
-	}
-
-	spenderAddr, ok := args[0].(common.Address)
-	if !ok || spenderAddr == (common.Address{}) {
-		return common.Address{}, nil, fmt.Errorf(ErrInvalidGranter, args[0])
-	}
-
-	typeURLs, err := validateMsgTypes(args[1])
-	if err != nil {
-		return common.Address{}, nil, err
-	}
-
-	return spenderAddr, typeURLs, nil
-}
-
 // CheckDistributionApprovalArgs checks the arguments passed to the distribution Approve function.
 func CheckDistributionApprovalArgs(args []interface{}, origin common.Address) (common.Address, []string, []string, error) {
 	if len(args) != 3 {

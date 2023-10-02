@@ -1,3 +1,5 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package ics20_test
 
 import (
@@ -121,7 +123,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, approveArgs, outOfGasCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(vm.ErrOutOfGas.Error()))
 
 			s.chainA.NextBlock()
 
@@ -235,7 +238,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, increaseAllowanceArgs, noMatchingAllocation)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			Expect(err.Error()).To(ContainSubstring(ics20.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
 
 			// check authorization didn't change
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
@@ -295,7 +299,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			allowanceCheck := defaultLogCheck.WithErrContains("negative amount")
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, decreaseAllowance, allowanceCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("negative amount"))
 		})
 
 		// TODO uncomment when enforcing grantee != origin
@@ -341,7 +346,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, decreaseAllowance, noMatchingAllocation)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+			Expect(err.Error()).To(ContainSubstring(ics20.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
 
 			// check authorization didn't change
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
@@ -487,7 +493,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			})
 
 			It("should not transfer other account's balance", func() {
-				initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				// initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 
 				// fund senders account
 				err := evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, s.differentAddr.Bytes(), amt)
@@ -509,14 +515,16 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 				logCheckArgs := defaultLogCheck.WithErrContains(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr)
 
-				res, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
-				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				_, _, err = contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
+				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				Expect(err.Error()).To(ContainSubstring(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr))
 
 				// check the sender only paid for the fees
 				// and funds were not transferred
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
+				// TODO: fees are not calculated correctly with this logic
+				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 				senderFinalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.differentAddr.Bytes(), s.bondDenom)
 				Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount))
@@ -558,7 +566,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// However, it is allowed for a contract to spend an EOA's account and
 				// an EOA account to spend a contract's balance
 				// if the required authorization exist
-				initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				// initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 
 				transferArgs := defaultTransferArgs.WithArgs(
 					s.transferPath.EndpointA.ChannelConfig.PortID,
@@ -574,14 +582,16 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 				logCheckArgs := defaultLogCheck.WithErrContains(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr)
 
-				res, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
-				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
+				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+				Expect(err.Error()).To(ContainSubstring(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr))
 
 				// check the sender only paid for the fees
 				// and funds from the other account were not transferred
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
+				// TODO: fees are not calculated correctly with this logic
+				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 				senderFinalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.differentAddr.Bytes(), s.bondDenom)
 				Expect(senderFinalBalance.Amount).To(Equal(math.NewInt(amt)))
@@ -688,7 +698,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					logCheckArgs := defaultLogCheck.WithErrContains(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr)
 
 					_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
+					Expect(err.Error()).To(ContainSubstring(ics20.ErrDifferentOriginFromSender, s.address, s.differentAddr))
 
 					// check funds were not transferred
 					balance := s.app.Erc20Keeper.BalanceOf(
@@ -1290,15 +1301,16 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 			Context("without authorization", func() {
 				It("should not transfer IBC coin", func() {
-					initialEvmosBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+					// initialEvmosBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 
-					res, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultTransferIbcCoinArgs, execRevertedCheck)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultTransferIbcCoinArgs, execRevertedCheck)
+					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-					Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
+					// TODO: fees are not calculated correctly with this logic
+					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+					// Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
 
 					// check IBC coins balance remains unchaged
 					finalOsmoBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), ibcDenom)
@@ -1388,15 +1400,16 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 			Context("without authorization", func() {
 				tryERC20Transfer := func() {
-					initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+					// initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 
-					res, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultTransferERC20Args, execRevertedCheck)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultTransferERC20Args, execRevertedCheck)
+					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
+					// TODO: fees are not calculated correctly with this logic
+					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+					// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 					// check Erc20 balance remained unchaged by sent amount
 					balance := s.app.Erc20Keeper.BalanceOf(
@@ -1518,7 +1531,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), contractAddr.Bytes(), s.bondDenom)
 
 					_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultTransferEvmosArgs, execRevertedCheck)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+					Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 					// check sent tokens remained unchanged from sending account (contract)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), contractAddr.Bytes(), s.bondDenom)

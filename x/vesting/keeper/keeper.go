@@ -19,25 +19,41 @@ type Keeper struct {
 	storeKey storetypes.StoreKey
 	cdc      codec.BinaryCodec
 
-	accountKeeper types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
+	accountKeeper      types.AccountKeeper
+	bankKeeper         types.BankKeeper
+	stakingKeeper      types.StakingKeeper
+	distributionKeeper types.DistributionKeeper
+	govKeeper          types.GovKeeper
+
+	// The x/gov module account used for executing transaction by governance.
+	authority sdk.AccAddress
 }
 
 // NewKeeper creates new instances of the vesting Keeper
 func NewKeeper(
 	storeKey storetypes.StoreKey,
+	authority sdk.AccAddress,
 	cdc codec.BinaryCodec,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	dk types.DistributionKeeper,
 	sk types.StakingKeeper,
+	gk types.GovKeeper,
 ) Keeper {
+	// ensure gov module account is set and is not nil
+	if err := sdk.VerifyAddressFormat(authority); err != nil {
+		panic(err)
+	}
+
 	return Keeper{
-		storeKey:      storeKey,
-		cdc:           cdc,
-		accountKeeper: ak,
-		bankKeeper:    bk,
-		stakingKeeper: sk,
+		storeKey:           storeKey,
+		authority:          authority,
+		cdc:                cdc,
+		distributionKeeper: dk,
+		accountKeeper:      ak,
+		bankKeeper:         bk,
+		stakingKeeper:      sk,
+		govKeeper:          gk,
 	}
 }
 

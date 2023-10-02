@@ -30,7 +30,7 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-// GetBalancesCmd queries the unvested tokens for a given vesting account
+// GetBalancesCmd queries the locked, unvested and vested tokens for a given vesting account.
 func GetBalancesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "balances ADDRESS",

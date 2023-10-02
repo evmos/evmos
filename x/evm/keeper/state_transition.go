@@ -5,6 +5,8 @@ package keeper
 import (
 	"math/big"
 
+	"golang.org/x/exp/slices"
+
 	tmtypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
@@ -326,6 +328,21 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 		copy(activePrecompiles[:len(vm.PrecompiledAddressesBerlin)], vm.PrecompiledAddressesBerlin)
 		copy(activePrecompiles[len(vm.PrecompiledAddressesBerlin):], customPrecompiles)
 
+		// Check if the transaction is sent to an inactive precompile
+		//
+		// NOTE: This has to be checked here instead of in the actual evm.Call method
+		// because evm.WithPrecompiles only populates the EVM with the active precompiles,
+		// so there's no telling if the To address is an inactive precompile further down the call stack.
+		toAddr := msg.To()
+		if toAddr != nil &&
+			slices.Contains(types.AvailableEVMExtensions, toAddr.String()) &&
+			!slices.Contains(activePrecompiles, *toAddr) {
+			return nil, errorsmod.Wrap(types.ErrInactivePrecompile, "failed to call precompile")
+		}
+
+		// NOTE: this only adds active precompiles to the EVM.
+		// This means that evm.Precompile(addr) will return false for inactive precompiles
+		// even though this is actually a reserved address.
 		precompileMap := k.Precompiles(activePrecompiles...)
 		evm.WithPrecompiles(precompileMap, activePrecompiles)
 	}

@@ -1,6 +1,9 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package distribution_test
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -84,7 +87,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				WithArgs(s.address, differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, outOfGasCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("out of gas"), "expected out of gas error")
 
 			// withdraw address should remain unchanged
 			withdrawAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
@@ -97,7 +101,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, withdrawAddrSetCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
 
 		It("should set withdraw address", func() {
@@ -137,7 +142,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
 
 		It("should withdraw delegation rewards", func() {
@@ -211,16 +217,19 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				WithArgs(valAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, outOfGasCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("out of gas"), "expected out of gas error")
 		})
 
 		It("should return error if the origin is different than the validator", func() {
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(s.validators[0].OperatorAddress)
+			validatorHexAddr := common.BytesToAddress(s.validators[0].GetOperator())
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), common.BytesToAddress(s.validators[0].GetOperator()).String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), validatorHexAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, withdrawalCheck)
-			Expect(err).To(BeNil(), "error while calling the precompile")
+			Expect(err).To(HaveOccurred(), "error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, validatorHexAddr)), "expected different origin error")
 		})
 
 		It("should withdraw validator commission", func() {
@@ -629,7 +638,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, execRevertedCheck)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
@@ -775,7 +784,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawValCommArgs, execRevertedCheck)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
@@ -815,7 +824,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, revertArgs, execRevertedCheck)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// check withdraw address didn't change
 			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
@@ -836,7 +845,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				WithArgs(s.address, differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, execRevertedCheck)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// check withdraw address didn't change
 			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
@@ -849,8 +858,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				WithArgs(s.address, differentAddr.String())
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, execRevertedCheck)
-			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
+			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 			// check withdraw address didn't change
 			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))

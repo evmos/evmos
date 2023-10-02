@@ -472,4 +472,36 @@ contract StakingCaller {
         // This should fail since the balance is already spent in the previous call
         payable(msg.sender).transfer(msg.value);
     }
+
+    /// @dev This function is used to check that both the cosmos and evm state are correctly
+    /// updated for a successful transaction or reverted for a failed transaction.
+    /// To test this, deploy an ERC20 token contract to chain and mint some tokens to this
+    /// contract's address.
+    /// This contract will then transfer some tokens to the msg.sender address as well as
+    /// set up a delegation approval and stake funds using the staking EVM extension.
+    /// @param _contract Address of the ERC20 to call
+    /// @param _validatorAddr Address of the validator to delegate to
+    function callERC20AndDelegate(
+        address _contract,
+        string memory _validatorAddr,
+        uint256 _amount
+    ) public {
+        bool successApprove = staking.STAKING_CONTRACT.approve(
+            address(this),
+            _amount,
+            delegateMethod
+        );
+        require(successApprove, "delegation approval failed");
+
+        (bool success, ) = _contract.call(
+            abi.encodeWithSignature("transfer(address,uint256)", msg.sender, _amount)
+        );
+        require(success, "transfer failed");
+
+        staking.STAKING_CONTRACT.delegate(
+            msg.sender,
+            _validatorAddr,
+            _amount
+        );
+    }
 }
