@@ -54,6 +54,7 @@ type EVMKeeper interface {
 	EstimateGas(c context.Context, req *evmtypes.EthCallRequest) (*evmtypes.EstimateGasResponse, error)
 	ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
 	AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
+	DeleteAccount(ctx sdk.Context, addr common.Address) error
 }
 
 // StakingKeeper defines the expected interface needed to retrieve the staking denom.

@@ -5,6 +5,8 @@ package types
 import (
 	"fmt"
 	"math/big"
+	"sort"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -128,6 +130,14 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 		precompiles[i] = common.HexToAddress(precompile)
 	}
 	return precompiles
+}
+
+func (p Params) IsPrecompileRegistered(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
+	})
+
+	return found
 }
 
 func validateEVMDenom(i interface{}) error {

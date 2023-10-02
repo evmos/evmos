@@ -12,10 +12,13 @@ import (
 
 func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	precompiles := make([]vm.PrecompiledContract, 0)
-	evmDenom := k.evmKeeper.GetParams(ctx).EvmDenom
+	params := k.evmKeeper.GetParams(ctx)
+	evmDenom := params.EvmDenom
 
 	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
-		if tokenPair.ContractOwner != types.OWNER_MODULE {
+		// skip registration if token is native or if it has already been registered
+		if tokenPair.ContractOwner != types.OWNER_MODULE ||
+			params.IsPrecompileRegistered(tokenPair.Erc20Address) {
 			return false
 		}
 
@@ -34,9 +37,17 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 			panic(fmt.Errorf("failed to load precompile for denom %s: %w", tokenPair.Denom, err))
 		}
 
+		address := tokenPair.GetERC20Contract()
+
+		// selfdestruct ERC20 contract
+		if err := k.evmKeeper.DeleteAccount(ctx, address); err != nil {
+			panic(err)
+		}
+
 		precompiles = append(precompiles, precompile)
 		return false
 	})
 
+	// add the ERC20s to the EVM active and available precompiles
 	return k.evmKeeper.AddEVMExtensions(ctx, precompiles...)
 }
