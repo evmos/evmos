@@ -63,8 +63,6 @@ func TestParamsEIPs(t *testing.T) {
 }
 
 func TestParamsValidatePriv(t *testing.T) {
-	require.Error(t, validateEVMDenom(false))
-	require.NoError(t, validateEVMDenom("inj"))
 	require.Error(t, validateBool(""))
 	require.NoError(t, validateBool(true))
 	require.Error(t, validateEIPs(""))

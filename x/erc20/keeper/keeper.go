@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
 	"github.com/evmos/evmos/v14/x/erc20/types"
 )
@@ -26,6 +27,7 @@ type Keeper struct {
 	evmKeeper     types.EVMKeeper
 	stakingKeeper types.StakingKeeper
 	claimsKeeper  types.ClaimsKeeper
+	authzKeeper   *authzkeeper.Keeper
 }
 
 // NewKeeper creates new instances of the erc20 Keeper
@@ -38,6 +40,7 @@ func NewKeeper(
 	evmKeeper types.EVMKeeper,
 	sk types.StakingKeeper,
 	ck types.ClaimsKeeper,
+	authzKeeper *authzkeeper.Keeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
@@ -53,6 +56,7 @@ func NewKeeper(
 		evmKeeper:     evmKeeper,
 		stakingKeeper: sk,
 		claimsKeeper:  ck,
+		authzKeeper:   authzKeeper,
 	}
 }
 

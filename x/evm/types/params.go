@@ -103,7 +103,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return validatePrecompiles(p.ActivePrecompiles)
+	return ValidatePrecompiles(p.ActivePrecompiles)
 }
 
 // EIPs returns the ExtraEIPS as a int slice
@@ -171,7 +171,7 @@ func validateChainConfig(i interface{}) error {
 	return cfg.Validate()
 }
 
-func validatePrecompiles(i interface{}) error {
+func ValidatePrecompiles(i interface{}) error {
 	precompiles, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid precompile slice type: %T", i)
