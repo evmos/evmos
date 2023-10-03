@@ -46,6 +46,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		}
 	})
 
+	AfterEach(func() {
+		// Start each test with a fresh block
+		err := s.network.NextBlock()
+		Expect(err).To(BeNil())
+	})
+
 	When("the params have default values", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
@@ -81,6 +87,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			)
 			Expect(err).To(BeNil())
 			Expect(contractAddr).ToNot(Equal(common.Address{}))
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
 
 			txArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
