@@ -326,7 +326,9 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
-	return buildMsgEthereumTx(txArgs, fromAddr)
+	msg := buildMsgEthereumTx(txArgs, fromAddr)
+
+	return msg, nil
 }
 
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
