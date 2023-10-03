@@ -106,7 +106,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
-            // Transaction fails before being broadcasted
+			// Transaction fails before being broadcasted
 			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
 		})
 

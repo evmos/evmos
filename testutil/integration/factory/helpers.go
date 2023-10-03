@@ -23,7 +23,7 @@ import (
 func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmtypes.MsgEthereumTx {
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
-    return *msgEthereumTx
+	return *msgEthereumTx
 }
 
 // signMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.
