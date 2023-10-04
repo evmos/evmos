@@ -490,40 +490,24 @@ class CosmosCLI:
             )
         )
 
-    def delegate_amount(self, to_addr, amount, from_addr, gas_price=None):
-        if gas_price is None:
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "staking",
-                    "delegate",
-                    to_addr,
-                    amount,
-                    "-y",
-                    home=self.data_dir,
-                    from_=from_addr,
-                    keyring_backend="test",
-                    chain_id=self.chain_id,
-                    node=self.node_rpc,
-                )
+    def delegate_amount(self, to_addr, amount, from_addr, **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "staking",
+                "delegate",
+                to_addr,
+                amount,
+                "--generate-only",
+                "--from",
+                from_addr,
+                home=self.data_dir,
+                **kwargs,
             )
-        else:
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "staking",
-                    "delegate",
-                    to_addr,
-                    amount,
-                    "-y",
-                    home=self.data_dir,
-                    from_=from_addr,
-                    keyring_backend="test",
-                    chain_id=self.chain_id,
-                    node=self.node_rpc,
-                    gas_prices=gas_price,
-                )
-            )
+        )
 
     # to_addr: croclcl1...  , from_addr: cro1...
     def unbond_amount(self, to_addr, amount, from_addr):
@@ -976,7 +960,24 @@ class CosmosCLI:
     #       VESTING Module
     # ==========================
 
+    def vesting_balance(self, addr: str):
+        balances = self.raw("q", "vesting", "balances", addr, home=self.data_dir)
+        # the '--output json' flag has no effect in this query
+        # so need to parse it
+        lines = balances.decode("utf-8").split("\n")
+        res = {}
+
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                res[key.strip().lower()] = value.strip()
+
+        return res
+
     def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",
@@ -995,6 +996,9 @@ class CosmosCLI:
     def fund_vesting_acc(
         self, address: str, funder: str, lockup_file: str, vesting_file: str, **kwargs
     ):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
         return json.loads(
             self.raw(
                 "tx",

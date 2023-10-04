@@ -32,7 +32,7 @@ def test_send_funds_to_distr_mod(evmos):
 
     assert receiver is not None
 
-    old_src_balance = cli.balance(sender, DEFAULT_DENOM)
+    old_src_balance = cli.balance(sender)
 
     tx = cli.transfer(
         sender,
@@ -59,7 +59,7 @@ def test_send_funds_to_distr_mod(evmos):
     fees = get_fees_from_tx_result(receipt["tx_result"])
 
     # only fees should be deducted from sender balance
-    new_src_balance = cli.balance(sender, DEFAULT_DENOM)
+    new_src_balance = cli.balance(sender)
     assert old_src_balance - fees == new_src_balance
 
 
@@ -112,7 +112,6 @@ def test_create_invalid_vesting_acc(evmos):
     tx = cli.create_vesting_acc(
         eth_to_bech32(ADDRS["validator"]),
         "evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7",
-        gas_prices="40000000000aevmos",
     )
     try:
         tx = cli.sign_tx_json(tx, eth_to_bech32(ADDRS["signer1"]), max_priority_price=0)
@@ -191,7 +190,6 @@ def test_vesting_acc_schedule(evmos):
         tx = cli.create_vesting_acc(
             tc["funder"],
             tc["address"],
-            gas_prices="40000000000aevmos",
         )
         tx = cli.sign_tx_json(tx, tc["address"], max_priority_price=0)
 
@@ -219,8 +217,121 @@ def test_vesting_acc_schedule(evmos):
                         tc["funder"],
                         lockup_file.name,
                         vesting_file.name,
-                        gas_prices="40000000000aevmos",
                     )
                     raise Exception("This command should have failed")
                 except Exception as error:
                     assert tc["exp_err"] in error.args[0]
+
+
+def test_unvested_token_delegation(evmos):
+    """
+    test vesting account cannot delegate unvested tokens
+    """
+    cli = evmos.cosmos_cli()
+    funder = eth_to_bech32(ADDRS["signer1"])
+    # add a new key that will be the vesting account
+    acc = cli.create_account("vesting_acc")
+    address = acc["address"]
+
+    # transfer some funds to pay for tx fees
+    # when creating the vesting account
+    tx = cli.transfer(
+        funder,
+        address,
+        f"{7000000000000000}{DEFAULT_DENOM}",
+        gas_prices=f"{cli.query_base_fee() + 100000}{DEFAULT_DENOM}",
+        generate_only=True,
+    )
+
+    tx = cli.sign_tx_json(tx, funder, max_priority_price=0)
+
+    rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+    assert rsp["code"] == 0, rsp["raw_log"]
+    # txhash = rsp["txhash"]
+
+    wait_for_new_blocks(cli, 2)
+
+    # create the vesting account
+    tx = cli.create_vesting_acc(funder, address)
+    tx = cli.sign_tx_json(tx, address, max_priority_price=0)
+    rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+
+    # assert tx returns OK code
+    assert rsp["code"] == 0
+
+    # wait tx to be committed
+    wait_for_new_blocks(cli, 2)
+
+    # fund vesting account
+    with tempfile.NamedTemporaryFile("w") as lockup_file:
+        json.dump(
+            {
+                "start_time": 1625204910,
+                "periods": [
+                    {
+                        "length_seconds": 1675184400,
+                        "coins": "10000000000000000000aevmos",
+                    }
+                ],
+            },
+            lockup_file,
+        )
+        lockup_file.flush()
+
+        with tempfile.NamedTemporaryFile("w") as vesting_file:
+            json.dump(
+                {
+                    "start_time": 1625204910,
+                    "periods": [
+                        {
+                            "length_seconds": 1675184400,
+                            "coins": "3000000000000000000aevmos",
+                        },
+                        {
+                            "length_seconds": 2419200,
+                            "coins": "3000000000000000000aevmos",
+                        },
+                        {
+                            "length_seconds": 2419200,
+                            "coins": "4000000000000000000aevmos",
+                        },
+                    ],
+                },
+                vesting_file,
+            )
+            vesting_file.flush()
+
+            tx = cli.fund_vesting_acc(
+                address,
+                funder,
+                lockup_file.name,
+                vesting_file.name,
+            )
+            tx = cli.sign_tx_json(tx, funder, max_priority_price=0)
+            rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+            # assert tx returns OK code
+            assert rsp["code"] == 0
+
+            # wait tx to be committed
+            wait_for_new_blocks(cli, 2)
+
+    # check vesting balances
+    # vested should be zero at this point
+    balances = cli.vesting_balance(address)
+    assert balances["vested"] == ""
+    assert balances["locked"] == balances["unvested"]
+
+    # try to delegate more than the allowed tokens
+    del_amt = "7000000000000000000aevmos"
+    validator_addr = cli.validators()[0]["operator_address"]
+    tx = cli.delegate_amount(
+        validator_addr,
+        del_amt,
+        address,
+    )
+    tx = cli.sign_tx_json(tx, address, max_priority_price=0)
+    rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+
+    # assert tx fails with corresponding error message
+    assert rsp["code"] == 2
+    assert "insufficient vested coins" in rsp["raw_log"]
