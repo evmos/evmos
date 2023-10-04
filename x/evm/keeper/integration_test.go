@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v14/contracts"
 
 	"github.com/evmos/evmos/v14/testutil/integration/factory"
@@ -19,7 +20,9 @@ import (
 	"github.com/evmos/evmos/v14/testutil/integration/network"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	evmostypes "github.com/evmos/evmos/v14/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
@@ -99,12 +102,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 
-			// Check balances
+			// Check sender balance after transaction
 			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(txAmount))
 			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
 
+			// Check receiver balance after transaction
 			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(txAmount))
 			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
@@ -125,6 +129,17 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
+
+            // Check contract account got created correctly
+            contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
+			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
+			Expect(err).To(BeNil())
+
+			contractETHAccount, ok := contractAccount.(evmostypes.EthAccountI)
+			Expect(ok).To(BeTrue())
+            emptyCodeHash := crypto.Keccak256(nil)
+			Expect(contractETHAccount.GetCodeHash()).NotTo(Equal(emptyCodeHash))
+            Expect(contractETHAccount.Type()).To(Equal(evmostypes.AccountTypeContract))
 
 			txArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
@@ -150,6 +165,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
+            Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
 			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
 		})
