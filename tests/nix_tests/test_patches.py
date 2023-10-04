@@ -101,3 +101,76 @@ def test_authz_nested_msg(evmos):
         assert (
             "found disabled msg type: /ethermint.evm.v1.MsgEthereumTx" in rsp["raw_log"]
         )
+
+
+def test_create_vesting_acc(evmos):
+    """
+    test create vesting account with negative/zero amounts should be forbidden
+    """
+    test_cases = [
+        {
+            "name": "fail - create vesting account with negative amount",
+            "funder": eth_to_bech32(ADDRS["validator"]),
+            "address": eth_to_bech32(ADDRS["signer1"]),
+            "lockup": {
+                "start_time": 1625204910,
+                "periods": [
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "10000000000aevmos",
+                    }
+                ],
+            },
+            "vesting": {
+                "start_time": 1625204910,
+                "periods": [
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "10000000000aevmos",
+                    },
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "10000000000aevmos",
+                    },
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "-10000000000aevmos",
+                    },
+                ],
+            },
+        },
+        {
+            "name": "fail - create vesting account with zero amount",
+            "funder": eth_to_bech32(ADDRS["validator"]),
+            "address": eth_to_bech32(ADDRS["signer2"]),
+            "lockup": {
+                "start_time": 1625204910,
+                "periods": [
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "10000000000aevmos",
+                    }
+                ],
+            },
+            "vesting": {
+                "start_time": 1625204910,
+                "periods": [
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "10000000000aevmos",
+                    },
+                    {
+                        "length_seconds": 2419200,
+                        "coins": "0aevmos",
+                    },
+                ],
+            },
+        },
+    ]
+
+    for tc in test_cases:
+        print("\nCase: {}".format(tc["name"]))
+        # create the vesting account
+
+        # funder funds the vesting account and defines the
+        # vesting and lockup schedules
