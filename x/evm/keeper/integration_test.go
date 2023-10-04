@@ -3,8 +3,10 @@
 package keeper_test
 
 import (
+	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -73,16 +75,40 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 
 		It("performs a transfer transaction", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiver.Addr,
-				Amount: big.NewInt(1000),
-			}
+			senderKey := s.keyring.GetKey(0)
+			receiverKey := s.keyring.GetKey(1)
+			denom := s.network.GetDenom()
 
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
+
+			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
+
+			txAmount := int64(1000)
+			txArgs := evmtypes.EvmTxArgs{
+				To:     &receiverKey.Addr,
+				Amount: big.NewInt(txAmount),
+			}
+			res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			// Check balances
+			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(txAmount))
+			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
+
+			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(txAmount))
+			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		})
 
 		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call", func() {
