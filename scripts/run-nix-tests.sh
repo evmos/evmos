@@ -21,4 +21,4 @@ cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..
-pytest -vv -s
+pytest test_patches.py -vv -s

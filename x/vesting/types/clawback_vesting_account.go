@@ -111,8 +111,8 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("lockup schedule extends beyond account end time")
 	}
 
-	// use coinEq to prevent panic
-	if !coinEq(lockupCoins, va.OriginalVesting) {
+	// use CoinEq to prevent panic
+	if !CoinEq(lockupCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in lockup periods")
 	}
 
@@ -128,7 +128,7 @@ func (va ClawbackVestingAccount) Validate() error {
 		return errors.New("vesting schedule exteds beyond account end time")
 	}
 
-	if !coinEq(vestingCoins, va.OriginalVesting) {
+	if !CoinEq(vestingCoins, va.OriginalVesting) {
 		return errors.New("original vesting coins does not match the sum of all coins in vesting periods")
 	}
 
@@ -170,13 +170,6 @@ func (va ClawbackVestingAccount) GetPassedPeriodCount(blockTime time.Time) int {
 func (va ClawbackVestingAccount) ComputeClawback(
 	clawbackTime int64,
 ) (ClawbackVestingAccount, sdk.Coins) {
-	// if the clawback time is before the vesting start time, perform a no-op
-	// as there is nothing to clawback
-	// NOTE: error must be checked during message execution
-	if clawbackTime < va.GetStartTime() {
-		return va, sdk.Coins{}
-	}
-
 	totalVested := va.GetVestedOnly(time.Unix(clawbackTime, 0))
 	totalUnvested := va.GetUnvestedOnly(time.Unix(clawbackTime, 0))
 
@@ -207,7 +200,7 @@ func (va ClawbackVestingAccount) ComputeClawback(
 	return va, totalUnvested
 }
 
-// HasLockedCoins returns true if the blocktime has not passed all clawback
+// HasLockedCoins returns true if the block time has not passed all clawback
 // account's lockup periods
 func (va ClawbackVestingAccount) HasLockedCoins(blockTime time.Time) bool {
 	return !va.GetLockedOnly(blockTime).IsZero()

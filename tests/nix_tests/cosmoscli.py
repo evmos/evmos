@@ -942,7 +942,6 @@ class CosmosCLI:
                 "authz",
                 "exec",
                 tx_json_file,
-                "-y",
                 "--generate-only",
                 "--from",
                 grantee,
@@ -977,7 +976,7 @@ class CosmosCLI:
     #       VESTING Module
     # ==========================
 
-    def create_vesting_acc(self, funder: str, gov_clawback=0, **kwargs):
+    def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
         return json.loads(
             self.raw(
                 "tx",
@@ -985,7 +984,8 @@ class CosmosCLI:
                 "create-clawback-vesting-account",
                 funder,
                 gov_clawback,
-                "-y",
+                "--from",
+                address,
                 "--generate-only",
                 home=self.data_dir,
                 **kwargs,
@@ -993,7 +993,7 @@ class CosmosCLI:
         )
 
     def fund_vesting_acc(
-        self, address: str, lockup_file: str, vesting_file: str, **kwargs
+        self, address: str, funder: str, lockup_file: str, vesting_file: str, **kwargs
     ):
         return json.loads(
             self.raw(
@@ -1001,8 +1001,9 @@ class CosmosCLI:
                 "vesting",
                 "fund-vesting-account",
                 address,
-                "-y",
                 "--generate-only",
+                "--from",
+                funder,
                 "--lockup",
                 lockup_file,
                 "--vesting",

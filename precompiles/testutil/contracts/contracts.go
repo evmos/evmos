@@ -81,7 +81,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 	})
 	msg.From = addr.Hex()
 
-	res, err = evmosutil.DeliverEthTxWithoutCheck(app, args.PrivKey, msg)
+	res, err = evmosutil.DeliverEthTx(app, args.PrivKey, msg)
 	if err != nil {
 		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error during deliver tx: %s", err)
 	}

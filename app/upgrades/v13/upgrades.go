@@ -31,6 +31,6 @@ func CreateUpgradeHandler(
 
 func setPrecompilesParams(ctx sdk.Context, ek evmkeeper.Keeper) error {
 	params := ek.GetParams(ctx)
-	params.ActivePrecompiles = evmtypes.DefaultActivePrecompiles
+	params.ActivePrecompiles = evmtypes.AvailableEVMExtensions
 	return ek.SetParams(ctx, params)
 }

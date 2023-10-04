@@ -105,13 +105,14 @@ def test_authz_nested_msg(evmos):
 
 def test_create_vesting_acc(evmos):
     """
-    test create vesting account with negative/zero amounts should be forbidden
+    test vesting account with negative/zero amounts should be forbidden
     """
     test_cases = [
         {
-            "name": "fail - create vesting account with negative amount",
+            "name": "fail - vesting account with negative amount",
             "funder": eth_to_bech32(ADDRS["validator"]),
             "address": eth_to_bech32(ADDRS["signer1"]),
+            "exp_err": "invalid decimal coin expression: -10000000000aevmos",
             "lockup": {
                 "start_time": 1625204910,
                 "periods": [
@@ -140,25 +141,22 @@ def test_create_vesting_acc(evmos):
             },
         },
         {
-            "name": "fail - create vesting account with zero amount",
+            "name": "fail - vesting account with zero amount",
             "funder": eth_to_bech32(ADDRS["validator"]),
             "address": eth_to_bech32(ADDRS["signer2"]),
+            "exp_err": "invalid request",
             "lockup": {
                 "start_time": 1625204910,
                 "periods": [
                     {
                         "length_seconds": 2419200,
-                        "coins": "10000000000aevmos",
+                        "coins": "0aevmos",
                     }
                 ],
             },
             "vesting": {
                 "start_time": 1625204910,
                 "periods": [
-                    {
-                        "length_seconds": 2419200,
-                        "coins": "10000000000aevmos",
-                    },
                     {
                         "length_seconds": 2419200,
                         "coins": "0aevmos",
@@ -168,9 +166,43 @@ def test_create_vesting_acc(evmos):
         },
     ]
 
+    cli = evmos.cosmos_cli()
     for tc in test_cases:
         print("\nCase: {}".format(tc["name"]))
         # create the vesting account
+        tx = cli.create_vesting_acc(
+            tc["funder"],
+            tc["address"],
+            gas_prices="40000000000aevmos",
+        )
+        tx = cli.sign_tx_json(tx, tc["address"], max_priority_price=0)
+
+        rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
+        # assert tx returns OK code
+        assert rsp["code"] == 0
+
+        # wait tx to be committed
+        wait_for_new_blocks(cli, 2)
 
         # funder funds the vesting account and defines the
         # vesting and lockup schedules
+        with tempfile.NamedTemporaryFile("w") as lockup_file:
+            json.dump(tc["lockup"], lockup_file)
+            lockup_file.flush()
+
+            with tempfile.NamedTemporaryFile("w") as vesting_file:
+                json.dump(tc["vesting"], vesting_file)
+                vesting_file.flush()
+
+                # expect an error
+                try:
+                    tx = cli.fund_vesting_acc(
+                        tc["address"],
+                        tc["funder"],
+                        lockup_file.name,
+                        vesting_file.name,
+                        gas_prices="40000000000aevmos",
+                    )
+                    raise Exception("This tx should have failed")
+                except Exception as error:
+                    assert tc["exp_err"] in error.args[0]

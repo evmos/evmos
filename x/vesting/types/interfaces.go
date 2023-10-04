@@ -9,16 +9,20 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected interface contract the vesting module
 // requires for storing accounts.
 type AccountKeeper interface {
+	GetModuleAddress(name string) sdk.AccAddress
 	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
 	SetAccount(sdk.Context, authtypes.AccountI)
 	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	IterateAccounts(ctx sdk.Context, process func(authtypes.AccountI) bool)
+	RemoveAccount(ctx sdk.Context, acc authtypes.AccountI)
 }
 
 // BankKeeper defines the expected interface contract the vesting module requires
@@ -65,4 +69,17 @@ type StakingKeeper interface {
 	// Commented this out because go throws compiling error that a Hook is not implemented
 	// even though it is implemented
 	// stakingtypes.StakingHooks
+}
+
+// DistributionKeeper defines the expected interface contract the vesting module
+// requires for clawing back unvested coins to the community pool.
+type DistributionKeeper interface {
+	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
+
+// GovKeeper defines the expected interface contract the vesting module requires
+// for accessing governance related information.
+type GovKeeper interface {
+	GetParams(ctx sdk.Context) v1.Params
+	GetProposal(ctx sdk.Context, proposalID uint64) (v1.Proposal, bool)
 }
