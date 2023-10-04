@@ -41,7 +41,7 @@ func CreateUpgradeHandler(
 		// NOTE (@fedekunze): first we must convert the all the registered tokens.
 		// If we do it the other way around, the conversion will fail since there won't
 		// be any contract code due to the selfdestruct.
-		if err := ConvertNativeCoins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+		if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
 			logger.Error("failed to convert native coins", "error", err.Error())
 		}
 
@@ -60,7 +60,10 @@ func CreateUpgradeHandler(
 	}
 }
 
-func ConvertNativeCoins(
+// ConvertERC20Coins converts Native IBC coins from their ERC20 representation
+// to the native representation. This also includes the withdrawal of WEVMOS tokens
+// to EVMOS native tokens.
+func ConvertERC20Coins(
 	ctx sdk.Context,
 	logger log.Logger,
 	accountKeeper authkeeper.AccountKeeper,
@@ -110,15 +113,7 @@ func ConvertNativeCoins(
 
 			contract := tokenPair.GetERC20Contract()
 
-			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, ethAddress)
-			if balance.Cmp(common.Big0) <= 0 {
-				return false
-			}
-
-			msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), cosmosAddress, contract, ethAddress)
-
-			_, err := erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
-			if err != nil {
+			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper); err != nil {
 				logger.Debug(
 					"failed to convert ERC20 to native Coin",
 					"account", ethHexAddr,
@@ -155,4 +150,20 @@ func WithdrawWEVMOS(ctx sdk.Context, from, wevmosContract common.Address, erc20K
 	data := []byte{}
 	res, err := erc20Keeper.CallEVMWithData(ctx, from, &wevmosContract, data, true)
 	return balance, res, err
+}
+
+func ConvertERC20Token(ctx sdk.Context, from, contract common.Address, receiver sdk.AccAddress, erc20Keeper erc20keeper.Keeper) error {
+	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, from)
+	if balance.Cmp(common.Big0) <= 0 {
+		return nil
+	}
+
+	msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), receiver, contract, from)
+
+	_, err := erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
