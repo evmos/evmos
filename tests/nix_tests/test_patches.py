@@ -103,7 +103,25 @@ def test_authz_nested_msg(evmos):
         )
 
 
-def test_create_vesting_acc(evmos):
+def test_create_invalid_vesting_acc(evmos):
+    """
+    test create vesting account with account address != signer address
+    """
+    cli = evmos.cosmos_cli()
+    # create the vesting account
+    tx = cli.create_vesting_acc(
+        eth_to_bech32(ADDRS["validator"]),
+        "evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7",
+        gas_prices="40000000000aevmos",
+    )
+    try:
+        tx = cli.sign_tx_json(tx, eth_to_bech32(ADDRS["signer1"]), max_priority_price=0)
+        raise Exception("This command should have failed")
+    except Exception as error:
+        assert "tx intended signer does not match the given signer" in error.args[0]
+
+
+def test_vesting_acc_schedule(evmos):
     """
     test vesting account with negative/zero amounts should be forbidden
     """
@@ -203,6 +221,6 @@ def test_create_vesting_acc(evmos):
                         vesting_file.name,
                         gas_prices="40000000000aevmos",
                     )
-                    raise Exception("This tx should have failed")
+                    raise Exception("This command should have failed")
                 except Exception as error:
                     assert tc["exp_err"] in error.args[0]
