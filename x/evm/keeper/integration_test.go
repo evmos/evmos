@@ -85,7 +85,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})
 
-		It("performs a contract deployment and contract call", func() {
+		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			constructorArgs := []interface{}{"coin", "token", uint8(18)}
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
