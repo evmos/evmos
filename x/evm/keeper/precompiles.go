@@ -14,7 +14,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
@@ -22,7 +21,6 @@ import (
 	ics20precompile "github.com/evmos/evmos/v14/precompiles/ics20"
 	stakingprecompile "github.com/evmos/evmos/v14/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v14/precompiles/vesting"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	"github.com/evmos/evmos/v14/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
@@ -37,10 +35,6 @@ func AvailablePrecompiles(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
-	bankKeeper bankkeeper.Keeper,
-	erc20Keeper erc20keeper.Keeper,
-	werc20Address common.Address,
-	denom string,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)

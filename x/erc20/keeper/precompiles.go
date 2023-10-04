@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/iavl/internal/logger"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/erc20"
 	"github.com/evmos/evmos/v14/precompiles/werc20"
@@ -17,6 +18,7 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 
 	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
+		// NOTE: this should handle failure during the selfdestruct
 		if tokenPair.ContractOwner != types.OWNER_MODULE ||
 			params.IsPrecompileRegistered(tokenPair.Erc20Address) {
 			return false
@@ -34,14 +36,19 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 		}
 
 		if err != nil {
-			panic(fmt.Errorf("failed to load precompile for denom %s: %w", tokenPair.Denom, err))
+			panic(fmt.Errorf("failed to instantiate ERC-20 precompile for denom %s: %w", tokenPair.Denom, err))
 		}
 
 		address := tokenPair.GetERC20Contract()
 
-		// selfdestruct ERC20 contract
+		// try selfdestruct ERC20 contract
+
+		// NOTE(@fedekunze): From now on, the contract address will map to a precompile instead
+		// of the ERC20MinterBurner contract. We try to force a selfdestruct to remove the unnecessary
+		// code and storage from the state machine. In any case, the precompiles are handled in the EVM
+		// before the regular contracts so not removing them doesn't create any issues in the implementation.
 		if err := k.evmKeeper.DeleteAccount(ctx, address); err != nil {
-			panic(err)
+			logger.Debug("failed to selfdestruct account", "error", err)
 		}
 
 		precompiles = append(precompiles, precompile)
