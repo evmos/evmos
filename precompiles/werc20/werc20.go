@@ -30,7 +30,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	erc20 "github.com/evmos/evmos/v14/precompiles/erc20"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 )
 
@@ -49,7 +48,6 @@ type Precompile struct {
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
-	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
@@ -62,7 +60,7 @@ func NewPrecompile(
 		return nil, fmt.Errorf("invalid newAbi.json file: %w", err)
 	}
 
-	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, erc20Keeper, authzKeeper)
+	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +103,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
 		// ERC20 transactions and queries
 	default:
-		bz, err = p.HandleMethod(ctx, contract, stateDB, method, args)
+		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
 	}
 
 	if err != nil {

@@ -33,7 +33,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	auth "github.com/evmos/evmos/v14/precompiles/authorization"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 )
 
@@ -48,7 +47,6 @@ type Precompile struct {
 	abi.ABI
 	tokenPair          erc20types.TokenPair
 	bankKeeper         bankkeeper.Keeper
-	erc20Keeper        erc20keeper.Keeper
 	authzKeeper        authzkeeper.Keeper
 	approvalExpiration time.Duration
 }
@@ -58,7 +56,6 @@ type Precompile struct {
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
-	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
@@ -75,7 +72,6 @@ func NewPrecompile(
 		ABI:                newAbi,
 		tokenPair:          tokenPair,
 		bankKeeper:         bankKeeper,
-		erc20Keeper:        erc20Keeper,
 		authzKeeper:        authzKeeper,
 		approvalExpiration: time.Hour * 24 * 365,
 	}, nil
