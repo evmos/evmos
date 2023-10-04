@@ -14,6 +14,7 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	precompiles := make([]vm.PrecompiledContract, 0)
 	params := k.evmKeeper.GetParams(ctx)
 	evmDenom := params.EvmDenom
+	logger := ctx.Logger()
 
 	k.IterateTokenPairs(ctx, func(tokenPair types.TokenPair) bool {
 		// skip registration if token is native or if it has already been registered
@@ -29,9 +30,9 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 		)
 
 		if tokenPair.Denom == evmDenom {
-			precompile, err = werc20.NewPrecompile(tokenPair, k.bankKeeper, k, k.authzKeeper)
+			precompile, err = werc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper)
 		} else {
-			precompile, err = erc20.NewPrecompile(tokenPair, k.bankKeeper, k, k.authzKeeper)
+			precompile, err = erc20.NewPrecompile(tokenPair, k.bankKeeper, k.authzKeeper)
 		}
 
 		if err != nil {

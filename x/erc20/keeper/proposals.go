@@ -13,6 +13,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/evmos/evmos/v14/precompiles/erc20"
 	"github.com/evmos/evmos/v14/x/erc20/types"
 )
 
@@ -51,12 +52,14 @@ func (k Keeper) RegisterCoin(
 
 	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
 
-	precompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k, k.authzKeeper)
+	precompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper)
 	if err != nil {
 		return nil, err
 	}
 
-	k.evmKeeper.AddEVMExtensions(ctx, precompile)
+	if err := k.evmKeeper.AddEVMExtensions(ctx, precompile); err != nil {
+		return nil, err
+	}
 
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
