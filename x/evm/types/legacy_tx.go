@@ -197,7 +197,7 @@ func (tx LegacyTx) Validate() error {
 	if chainID == nil {
 		return errorsmod.Wrap(
 			errortypes.ErrInvalidChainID,
-			"chain ID must be present on LegacyTx txs",
+			"chain ID must be derived from LegacyTx txs",
 		)
 	}
 

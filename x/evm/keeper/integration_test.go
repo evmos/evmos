@@ -28,6 +28,15 @@ type IntegrationTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
+// This test suite is meant to test the EVM module in the context of the EVMOS.
+// It uses the integration test framework to spin up a local EVMOS network and
+// perform transactions on it.
+// The test suite focus on testing how the MsgEthereumTx message is handled under the
+// different params configuration of the module while testing the different Tx types
+// Ethereum supports (LegacyTx, AccessListTx, DynamicFeeTx) and the different types of
+// transactions (transfer, contract deployment, contract call).
+// Note that more in depth testing of the EVM and solidity execution is done through the
+// hardhat and the nix setup.
 var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func() {
 	var s *IntegrationTestSuite
 
