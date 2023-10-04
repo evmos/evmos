@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	authz "github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -135,13 +135,19 @@ func (p Precompile) Allowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	owner, spender, err := authz.CheckERC20AllowanceArgs(args)
+	owner, spender, err := ParseAllowanceArgs(args)
 	if err != nil {
 		return nil, err
 	}
 
-	authorization, _ := p.authzKeeper.GetAuthorization(ctx, owner.Bytes(), spender.Bytes(), SendMsgURL)
+	granter := owner
+	grantee := spender
+
+	authorization, _, err := authorization.CheckAuthzExists(ctx, p.authzKeeper, grantee, granter, SendMsgURL)
 	// TODO: return error if doesn't exist?
+	if err != nil {
+		return method.Outputs.Pack(common.Big0)
+	}
 
 	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {

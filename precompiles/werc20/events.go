@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	cmn "github.com/evmos/precompiles/precompiles/common"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 const (

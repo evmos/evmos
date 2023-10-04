@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -72,6 +73,11 @@ func NewPrecompile(
 	return &Precompile{
 		Precompile: erc20Precompile,
 	}, nil
+}
+
+// Address defines the address of the ERC20 precompile contract.
+func (p Precompile) Address() common.Address {
+	return p.Precompile.Address()
 }
 
 // RequiredGas calculates the contract gas use
