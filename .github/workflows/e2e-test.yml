@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.EVMOS_CORE_PAT }}
       - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
