@@ -14,8 +14,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v14/contracts"
 	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v14/utils"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
+)
+
+const (
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	WEVMOSContractTestnet = ""
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v16
@@ -58,6 +64,12 @@ func ConvertNativeCoins(
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) error {
+	var wrappedContractAddr common.Address
+	isMainnet := utils.IsMainnet(ctx.ChainID())
+	if isMainnet {
+		wrappedContractAddr = common.HexToAddress(WEVMOSContractMainnet)
+	}
+
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		ethAccount, ok := account.(*evmostypes.EthAccount)
@@ -65,33 +77,60 @@ func ConvertNativeCoins(
 			return false
 		}
 
+		ethAddress := ethAccount.EthAddress()
+		cosmosAddress := sdk.AccAddress(ethAddress.Bytes())
+
 		// TODO: convert WEVMOS to EVMOS by using "withdraw" method
+
+		if isMainnet {
+			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, wrappedContractAddr, ethAddress)
+
+			// only execute the withdrawal if balance is positive
+			if balance.Cmp(common.Big0) > 0 {
+				// call withdraw method from the account
+				data := []byte{}
+				res, err := erc20Keeper.CallEVMWithData(ctx, ethAddress, &wrappedContractAddr, data, true)
+				if err != nil {
+					logger.Debug(
+						"failed to withdraw WEVMOS",
+						"account", cosmosAddress.String(),
+						"balance", balance.String(),
+						"error", err.Error(),
+					)
+				} else if res.VmError != "" {
+					logger.Debug(
+						"withdraw WEVMOS reverted",
+						"account", cosmosAddress.String(),
+						"balance", balance.String(),
+						"vm-error", res.VmError,
+					)
+				}
+			}
+		}
 
 		erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
 			if !tokenPair.IsNativeCoin() {
 				return false
 			}
 
-			ethAddress := ethAccount.EthAddress()
+			contract := tokenPair.GetERC20Contract()
 
-			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, tokenPair.GetERC20Contract(), ethAddress)
+			balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, ethAddress)
 			if balance.Cmp(common.Big0) <= 0 {
 				return false
 			}
 
-			cosmosAddress := sdk.AccAddress(ethAddress.Bytes())
+			msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), cosmosAddress, contract, ethAddress)
 
-			msg := erc20types.NewMsgConvertCoin(sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(balance)}, ethAddress, cosmosAddress)
-
-			// TODO: use the legacy logic here to burn the ERC20s and unlock the native tokens
-			_, err := erc20Keeper.ConvertCoin(sdk.WrapSDKContext(ctx), msg)
+			_, err := erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
 			if err != nil {
 				logger.Debug(
-					"failed to convert coin",
-					"account", cosmosAddress.String(),
-					"coin", tokenPair.Denom,
+					"failed to convert ERC20 to native Coin",
+					"account", ethAddress.String(),
+					"erc20", contract.String(),
 					"balance", balance.String(),
-					"error", err.Error())
+					"error", err.Error(),
+				)
 			}
 
 			return false
