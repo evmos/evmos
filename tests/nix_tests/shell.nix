@@ -13,6 +13,7 @@ pkgs.mkShell {
     pkgs.chain-maind
     pkgs.strided
     pkgs.osmosisd
+    pkgs.gaiad
     pkgs.hermes    
   ];
   shellHook = ''

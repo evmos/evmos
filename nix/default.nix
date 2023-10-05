@@ -26,13 +26,19 @@ import sources.nixpkgs {
         rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
         vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
       };
-      # In case of osmosis, they provide the compiled binary. We'll use this
+      # In case of osmosis & gaia, they provide the compiled binary. We'll use this
       # cause it is faster than building from source
       osmosisd = pkgs.callPackage ./bin.nix {
-        name = "osmosis";
         appName = "osmosisd";
+        version = "v19.2.0";
         binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
         sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
+      };
+      gaiad = pkgs.callPackage ./bin.nix {
+        appName = "gaiad";
+        version = "v13.0.0";
+        binUrl = "https://github.com/cosmos/gaia/releases/download/v13.0.0/gaiad-v13.0.0-linux-amd64";
+        sha256 = "sha256-7zSFdVSIjeWY7fpBHUPU3AqCC60oXPBE9dj5F2nVWZ4=";
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622

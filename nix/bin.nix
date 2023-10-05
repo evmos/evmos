@@ -1,7 +1,7 @@
 { 
     stdenv, 
     fetchurl, 
-    name, 
+    version, 
     appName,
     binUrl,
     sha256,
@@ -9,7 +9,7 @@
 stdenv.mkDerivation {
   # Use this nix file in case you want to add a compiled binary 
   # to the Nix environment
-  name = "${name}-${appName}";
+  name = "${appName}-${version}";
   
   # Define the URL to download the compiled binary
   src = fetchurl {
