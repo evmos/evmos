@@ -11,6 +11,24 @@ from .utils import ADDRS, eth_to_bech32, wait_for_port
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
 RATIO = 10**10
+# IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
+IBC_CHAINS_META = {
+    "chainmain": {
+        "chain_name": "chainmain-1",
+        "bin": "chain-maind",
+        "denom": "basecro",
+    },
+    "stride": {
+        "chain_name": "stride-1",
+        "bin": "strided",
+        "denom": "ustrd",
+    },
+    "osmosis": {
+        "chain_name": "osmosis-1",
+        "bin": "osmosisd",
+        "denom": "uosmo",
+    },
+}
 
 
 class IBCNetwork(NamedTuple):
@@ -26,16 +44,10 @@ def prepare_network(tmp_path, file, other_chain_name, incentivized=False):
     evmos = next(gen)
 
     # set up another chain to connect to evmos
-    if "chainmain" in other_chain_name:
-        other_chain_name = "chainmain-1"
-        other_chain = CosmosChain(
-            evmos.base_dir.parent / other_chain_name, "chain-maind"
-        )
-        other_chain_denom = "basecro"
-    if "stride" in other_chain_name:
-        other_chain_name = "stride-1"
-        other_chain = CosmosChain(evmos.base_dir.parent / other_chain_name, "strided")
-        other_chain_denom = "ustrd"
+    meta = IBC_CHAINS_META[other_chain_name]
+    other_chain_name = meta["chain_name"]
+    other_chain = CosmosChain(evmos.base_dir.parent / other_chain_name, meta["bin"])
+    other_chain_denom = meta["denom"]
 
     hermes = Hermes(evmos.base_dir.parent / "relayer.toml")
     # wait for grpc ready

@@ -20,10 +20,19 @@ import sources.nixpkgs {
       chain-maind = pkgs.callPackage sources.chain-main { rocksdb = null; };
       strided = pkgs.callPackage ./cosmos-chain.nix { 
         src = sources.stride; 
-        pname = "strided";
+        name = "stride";
+        appName = "strided";
         version = "v11.0.0";
         rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
         vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
+      };
+      # In case of osmosis, they provide the compiled binary. We'll use this
+      # cause it is faster than building from source
+      osmosisd = pkgs.callPackage ./bin.nix {
+        name = "osmosis";
+        appName = "osmosisd";
+        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
+        sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
