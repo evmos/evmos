@@ -77,7 +77,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("performs a transfer transaction", func() {
+		It("performs a transfer transaction as a DynamicFeeTx", func() {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
 			denom := s.network.GetDenom()
@@ -115,7 +115,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		})
 
-		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call", func() {
+		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call as DynamicFeeTx", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			constructorArgs := []interface{}{"coin", "token", uint8(18)}
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
@@ -130,16 +130,16 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
 
-            // Check contract account got created correctly
-            contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
+			// Check contract account got created correctly
+			contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
 			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
 			Expect(err).To(BeNil())
 
 			contractETHAccount, ok := contractAccount.(evmostypes.EthAccountI)
 			Expect(ok).To(BeTrue())
-            emptyCodeHash := crypto.Keccak256(nil)
+			emptyCodeHash := crypto.Keccak256(nil)
 			Expect(contractETHAccount.GetCodeHash()).NotTo(Equal(emptyCodeHash))
-            Expect(contractETHAccount.Type()).To(Equal(evmostypes.AccountTypeContract))
+			Expect(contractETHAccount.Type()).To(Equal(evmostypes.AccountTypeContract))
 
 			txArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
@@ -165,7 +165,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
-            Expect(err.Error()).To(ContainSubstring("invalid chain id"))
+			Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
 			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
 		})
@@ -239,7 +239,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				compiledContract,
 				constructorArgs...,
 			)
+
 			Expect(err).NotTo(BeNil())
+            Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
 			Expect(contractAddr).To(Equal(common.Address{}))
 		})
 	})
@@ -269,6 +271,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
+            Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
 			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 
@@ -297,6 +300,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
 			Expect(err).NotTo(BeNil())
+            Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
 			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 	})
