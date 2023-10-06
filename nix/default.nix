@@ -34,11 +34,15 @@ import sources.nixpkgs {
         binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
         sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
       };
+      # Using gaia v11 (includes the PFM) cause after this version the '--min-self-delegation' flag is removed
+      # from the 'gentx' cmd. 
+      # This is needed cause pystarport has this hardcoded when spinning up the 
+      # the environment
       gaiad = pkgs.callPackage ./bin.nix {
         appName = "gaiad";
-        version = "v13.0.0";
-        binUrl = "https://github.com/cosmos/gaia/releases/download/v13.0.0/gaiad-v13.0.0-linux-amd64";
-        sha256 = "sha256-7zSFdVSIjeWY7fpBHUPU3AqCC60oXPBE9dj5F2nVWZ4=";
+        version = "v11.0.0";
+        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-linux-amd64";
+        sha256 = "sha256-JY3y7sWyL4uq3JiOGE+/0q5vn4iOn0RhoRDMNl/oYwA=";
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622
