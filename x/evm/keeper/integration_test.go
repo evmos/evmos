@@ -3,7 +3,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -11,18 +10,17 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v14/contracts"
 
 	"github.com/evmos/evmos/v14/testutil/integration/factory"
 	"github.com/evmos/evmos/v14/testutil/integration/grpc"
 	testkeyring "github.com/evmos/evmos/v14/testutil/integration/keyring"
 	"github.com/evmos/evmos/v14/testutil/integration/network"
+	integrationutils "github.com/evmos/evmos/v14/testutil/integration/utils"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmostypes "github.com/evmos/evmos/v14/types"
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
@@ -116,6 +114,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 
 		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call as DynamicFeeTx", func() {
+			// Deploy contract
 			senderPriv := s.keyring.GetPrivKey(0)
 			constructorArgs := []interface{}{"coin", "token", uint8(18)}
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
@@ -134,24 +133,30 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
 			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
 			Expect(err).To(BeNil())
+			err = integrationutils.CheckContractAccount(contractAccount)
+			Expect(err).To(BeNil())
 
-			contractETHAccount, ok := contractAccount.(evmostypes.EthAccountI)
-			Expect(ok).To(BeTrue())
-			emptyCodeHash := crypto.Keccak256(nil)
-			Expect(contractETHAccount.GetCodeHash()).NotTo(Equal(emptyCodeHash))
-			Expect(contractETHAccount.Type()).To(Equal(evmostypes.AccountTypeContract))
-
-			txArgs := evmtypes.EvmTxArgs{
+			// Execute contract call
+			recipientKey := s.keyring.GetKey(1)
+			minTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
 			}
-			callArgs := factory.CallArgs{
+			mintArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
-				Args:        []interface{}{s.keyring.GetAddr(1), big.NewInt(1e18)},
+				Args:        []interface{}{recipientKey.Addr, big.NewInt(1e18)},
 			}
-			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
+			res, err := s.factory.ExecuteContractCall(senderPriv, minTxArgs, mintArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			// Check contract call response has the expected topics
+			expectedTopics := []string{
+				"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+				"0x0000000000000000000000000000000000000000000000000000000000000000",
+			}
+			err = integrationutils.CheckTxTopics(res, expectedTopics)
+			Expect(err).To(BeNil())
 		})
 
 		It("should fail when ChainID is wrong", func() {
@@ -241,7 +246,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			)
 
 			Expect(err).NotTo(BeNil())
-            Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
+			Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
 			Expect(contractAddr).To(Equal(common.Address{}))
 		})
 	})
@@ -271,7 +276,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
 			Expect(err).NotTo(BeNil())
-            Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
 			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 
@@ -300,7 +305,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			}
 			res, err := s.factory.ExecuteContractCall(senderPriv, txArgs, callArgs)
 			Expect(err).NotTo(BeNil())
-            Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
+			Expect(err.Error()).To(ContainSubstring("EVM Call operation is disabled"))
 			Expect(res.IsErr()).To(Equal(true), "transaction should have failed", res.GetLog())
 		})
 	})
