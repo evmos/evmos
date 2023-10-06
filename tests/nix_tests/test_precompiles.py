@@ -58,7 +58,9 @@ def test_ibc_transfer(ibc):
 
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM)
+        new_dst_balance = get_balance(
+            ibc.chains["chainmain"], dst_addr, EVMOS_IBC_DENOM
+        )
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)

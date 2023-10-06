@@ -1,11 +1,11 @@
 import json
 import subprocess
 from pathlib import Path
-from typing import NamedTuple, List, Union
+from typing import Any, Dict, List, NamedTuple
 
 from pystarport import ports
 
-from .network import CosmosChain, Evmos, Hermes, setup_custom_evmos
+from .network import CosmosChain, Hermes, setup_custom_evmos
 from .utils import ADDRS, eth_to_bech32, wait_for_port
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
@@ -37,7 +37,7 @@ IBC_CHAINS_META = {
 
 
 class IBCNetwork(NamedTuple):
-    chains: List[Union[CosmosChain, Evmos]]
+    chains: Dict[str, Any]
     hermes: Hermes
 
 
@@ -89,7 +89,7 @@ def prepare_network(tmp_path, file, other_chains_names: List[str]):
 
     # Nested loop to connect all chains with each other
     for i, chain_a in enumerate(chains_to_connect):
-        for chain_b in chains_to_connect[i + 1:]:
+        for chain_b in chains_to_connect[i + 1 :]:
             subprocess.check_call(
                 [
                     "hermes",
