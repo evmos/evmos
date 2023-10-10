@@ -141,7 +141,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			minTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
 			}
-            amountToMint := big.NewInt(1e18)
+			amountToMint := big.NewInt(1e18)
 			mintArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
@@ -175,8 +175,8 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 
-            var totalSupplyResponse *big.Int
-            err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			var totalSupplyResponse *big.Int
+			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
 			Expect(err).To(BeNil())
 			Expect(totalSupplyResponse).To(Equal(amountToMint))
 		})
