@@ -81,7 +81,8 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	newPremintWallet.BalancePost = sdk.Coins{oldPremintCoin}
 
 	// Fund the accounts to be migrated
-	affectedAccounts := append(oldStrategicReserves, oldPremintWallet)
+	affectedAccounts := oldStrategicReserves
+	affectedAccounts = append(affectedAccounts, oldPremintWallet)
 	for _, affectedAccount := range affectedAccounts {
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, affectedAccount.Addr, affectedAccount.BalancePre)
 		s.Require().NoError(err, "failed to fund account %s", affectedAccount.Addr.String())
@@ -143,7 +144,8 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.Require().NoError(err, "failed to migrate premint wallet")
 
 	// Check that the multisigs have been updated
-	expectedAccounts := append(oldStrategicReserves, newStrategicReserve, oldPremintWallet, newPremintWallet)
+	expectedAccounts := oldStrategicReserves
+	expectedAccounts = append(expectedAccounts, newStrategicReserve, oldPremintWallet, newPremintWallet)
 	for _, account := range expectedAccounts {
 		s.requireMigratedAccount(account)
 	}

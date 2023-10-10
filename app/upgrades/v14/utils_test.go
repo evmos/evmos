@@ -5,7 +5,6 @@ package v14_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -22,6 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v14/testutil"
