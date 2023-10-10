@@ -194,6 +194,8 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	s.NextBlock()
 }
 
 // NextBlock commits the current block and sets up the next block.

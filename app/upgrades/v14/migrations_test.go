@@ -13,7 +13,6 @@ import (
 // This test is where the actual mainnet data is being replicated and the full migration tested.
 func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.SetupTest()
-	s.NextBlock()
 
 	amountPremint, ok := sdk.NewIntFromString("64699999994000000000000000")
 	s.Require().True(ok, "failed to parse premint amount")
@@ -179,7 +178,6 @@ func (s *UpgradesTestSuite) TestInstantUnbonding() {
 
 func (s *UpgradesTestSuite) TestCreateDelegationWithZeroTokens() {
 	s.SetupTest()
-	s.NextBlock() // TODO: why is it necessary to call next block here?
 
 	targetValidator := s.validators[1]
 
