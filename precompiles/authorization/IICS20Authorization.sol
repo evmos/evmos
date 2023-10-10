@@ -14,7 +14,6 @@ struct Allocation {
 /// @title Authorization Interface
 /// @dev The interface through which solidity contracts will interact with smart contract approvals.
 interface IICS20Authorization {
-
     /// @dev Emitted when an ICS-20 transfer authorization is granted.
     /// @param grantee The address of the grantee.
     /// @param granter The address of the granter.
