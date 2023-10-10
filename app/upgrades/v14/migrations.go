@@ -11,7 +11,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 )
 
 // MigratedDelegation holds the relevant information about a delegation to be migrated
@@ -24,15 +23,23 @@ type MigratedDelegation struct {
 
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
-func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, ek *evmkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
+func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
 	var (
-		// evmParams are the params of the EVM module
-		evmParams = ek.GetParams(ctx)
+		// stakingParams are the params of the staking module
+		stakingParams = sk.GetParams(ctx)
 		// bondDenom is the staking bond denomination used
-		bondDenom = evmParams.EvmDenom
+		bondDenom = stakingParams.BondDenom
 		// migratedDelegations stores all delegations that must be migrated
 		migratedDelegations []MigratedDelegation
 	)
+
+	// NOTE: We are checking the bond denomination here because this is what caused the panic
+	// during the v14.0.0 upgrade.
+	if bondDenom == "" {
+		return fmt.Errorf("invalid bond denom received during migration: %s", bondDenom)
+	}
+
+	logger := ctx.Logger().With("module", "v14-migrations")
 
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
@@ -41,7 +48,15 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, ek *evmkeeper
 		for _, delegation := range delegations {
 			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
 			if err != nil {
-				return err
+				// NOTE: log error instead of aborting the whole migration
+				logger.Error(fmt.Sprintf("failed to unbond delegation %s from validator %s: %s", delegation.GetDelegatorAddr(), delegation.GetValidatorAddr(), err.Error()))
+				continue
+			}
+
+			// NOTE: if the unbonded amount is zero we are not adding it
+			// to the migrated delegations, because there is nothing to be delegated.
+			if unbondAmount.IsZero() {
+				continue
 			}
 
 			migratedDelegations = append(migratedDelegations, MigratedDelegation{
@@ -54,7 +69,9 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, ek *evmkeeper
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
 		err := bk.SendCoins(ctx, oldMultisigAcc, newMultisig, balances)
 		if err != nil {
-			return err
+			// NOTE: log error instead of aborting the whole migration
+			logger.Error(fmt.Sprintf("failed to send coins from %s to %s: %s", oldMultisig, newMultisig.String(), err.Error()))
+			continue
 		}
 	}
 
@@ -62,10 +79,16 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, ek *evmkeeper
 	for _, migration := range migratedDelegations {
 		val, ok := sk.GetValidator(ctx, migration.validator)
 		if !ok {
-			return fmt.Errorf("validator %s not found", migration.validator.String())
+			// NOTE: log error instead of aborting the whole migration
+			logger.Error(fmt.Sprintf("validator %s not found", migration.validator.String()))
+			continue
 		}
 		if _, err := sk.Delegate(ctx, newMultisig, migration.amount, stakingtypes.Unbonded, val, true); err != nil {
-			return err
+			// NOTE: log error instead of aborting the whole migration
+			logger.Error(fmt.Sprintf("failed to delegate %s from %s to %s",
+				migration.amount.String(), newMultisig.String(), migration.validator.String(),
+			))
+			continue
 		}
 	}
 
@@ -96,7 +119,14 @@ func InstantUnbonding(
 	if err != nil {
 		return math.Int{}, err
 	}
-	// NOTE: Avoid using sdk.NewCoins here because it panics on an invalid denom,
+
+	// NOTE: if the unbonded amount is zero there are no tokens to be transferred between the staking pools
+	// and neither to be undelegated from the module to the account
+	if unbondAmount.IsZero() {
+		return unbondAmount, nil
+	}
+
+	// NOTE: We avoid using sdk.NewCoins here because it panics on an invalid denom,
 	// which was the problem in the v14.0.0 release.
 	unbondCoins := sdk.Coins{sdk.Coin{Denom: bondDenom, Amount: unbondAmount}}
 	if err := unbondCoins.Validate(); err != nil {
@@ -109,7 +139,9 @@ func InstantUnbonding(
 		return math.Int{}, fmt.Errorf("validator %s not found", valAddr)
 	}
 	if validator.IsBonded() {
-		if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins); err != nil {
+		if err := bk.SendCoinsFromModuleToModule(
+			ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins,
+		); err != nil {
 			panic(err)
 		}
 	}

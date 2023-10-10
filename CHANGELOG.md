@@ -39,11 +39,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
 - (app) [#1835](https://github.com/evmos/evmos/pull/1835) Remove migration logic from the app's `BeginBlocker`.
 
 ## [v14.1.0] - 2023-09-25
 
-- (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0
+### Bug Fixes
+
+- (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0.
 
 ## [v14.0.0] - 2023-09-19
 
