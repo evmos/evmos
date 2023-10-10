@@ -35,7 +35,7 @@ interface IICS20Authorization {
 
     /// @dev Approves IBC transfer with a specific amount of tokens.
     /// @param grantee The address for which the transfer authorization is granted.
-    /// @param allocations the allocations for the authorization.
+    /// @param allocations The allocations for the authorization.
     function approve(
         address grantee,
         Allocation[] calldata allocations
@@ -48,10 +48,10 @@ interface IICS20Authorization {
 
     /// @dev Increase the allowance of a given grantee by a specific amount of tokens for IBC transfer methods.
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
-    /// @param sourcePort the port on which the packet will be sent
-    /// @param sourceChannel the channel by which the packet will be sent
-    /// @param denom the denomination of the Coin to be transferred to the receiver
-    /// @param amount The amount of tokens to be spent.
+    /// @param sourcePort The port on which the packet will be sent
+    /// @param sourceChannel The channel by which the packet will be sent
+    /// @param denom The denomination of the Coin to be transferred to the receiver
+    /// @param amount The increase in amount of tokens that can be spent.
     /// @return approved is true if the operation ran successfully
     function increaseAllowance(
         address grantee,
@@ -64,10 +64,10 @@ interface IICS20Authorization {
 
     /// @dev Decreases the allowance of a given grantee by a specific amount of tokens for for IBC transfer methods.
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
-    /// @param sourcePort the port on which the packet will be sent
-    /// @param sourceChannel the channel by which the packet will be sent
-    /// @param denom the denomination of the Coin to be transferred to the receiver
-    /// @param amount The amount of tokens to be spent.
+    /// @param sourcePort The port on which the packet will be sent
+    /// @param sourceChannel The channel by which the packet will be sent
+    /// @param denom The denomination of the Coin to be transferred to the receiver
+    /// @param amount The decrease in amount of tokens that can be spent.
     /// @return approved is true if the operation ran successfully
     function decreaseAllowance(
         address grantee,
