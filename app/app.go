@@ -121,7 +121,6 @@ import (
 
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v14/client/docs/statik"
-	"github.com/evmos/evmos/v14/utils"
 
 	"github.com/evmos/evmos/v14/app/ante"
 	ethante "github.com/evmos/evmos/v14/app/ante/evm"
@@ -966,25 +965,6 @@ func (app *Evmos) setPostHandler() {
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	// Check if block height is upgrade height plus 10
-	if ctx.BlockHeight() == 16105010 && utils.IsMainnet(ctx.ChainID()) {
-		logger := ctx.Logger().With("module", "app")
-		logger.Debug("updating vesting funders to new team multisig")
-		if err := v14.UpdateVestingFunders(ctx, app.VestingKeeper, v14.NewTeamPremintWalletAcc); err != nil {
-			logger.Error("error while updating vesting funders", "error", err)
-		}
-
-		logger.Debug("migrating strategic reserves")
-		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.StakingKeeper, v14.NewTeamStrategicReserveAcc, v14.OldStrategicReserves...); err != nil {
-			logger.Error("error while migrating native multisigs", "error", err)
-		}
-
-		logger.Debug("migrating team premint wallet")
-		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.StakingKeeper, v14.NewTeamPremintWalletAcc, v14.OldTeamPremintWallet); err != nil {
-			logger.Error("error while migrating team premint wallet", "error", err)
-		}
-	}
-
 	// Perform any scheduled forks before executing the modules logic
 	app.ScheduleForkUpgrade(ctx)
 	return app.mm.BeginBlock(ctx, req)
