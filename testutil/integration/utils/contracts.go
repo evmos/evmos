@@ -8,6 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
+	"github.com/evmos/evmos/v14/testutil/integration/factory"
+
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmostypes "github.com/evmos/evmos/v14/types"
@@ -16,7 +18,7 @@ import (
 
 // CheckTxTopics checks if all expected topics are present in the transaction response
 func CheckTxTopics(res abcitypes.ResponseDeliverTx, expectedTopics []string) error {
-	msgEthResponse, err := evmtypes.DecodeTxResponse(res.Data)
+	msgEthResponse, err := decodeResponseDeliverTx(res)
 	if err != nil {
 		return err
 	}
@@ -36,8 +38,8 @@ func CheckTxTopics(res abcitypes.ResponseDeliverTx, expectedTopics []string) err
 	return nil
 }
 
-// CheckContractAccount checks if the given account is a contract account
-func CheckContractAccount(acc authtypes.AccountI) error {
+// IsContractAccount checks if the given account is a contract account
+func IsContractAccount(acc authtypes.AccountI) error {
 	contractETHAccount, ok := acc.(evmostypes.EthAccountI)
 	if !ok {
 		return fmt.Errorf("account is not an eth account")
@@ -52,4 +54,26 @@ func CheckContractAccount(acc authtypes.AccountI) error {
 		return fmt.Errorf("account is not a contract account")
 	}
 	return nil
+}
+
+// DecodeContractCallResponse decodes the response of a contract call query
+func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs, res abcitypes.ResponseDeliverTx) error {
+	msgEthResponse, err := decodeResponseDeliverTx(res)
+	if err != nil {
+		return err
+	}
+
+	err = callArgs.ContractABI.UnpackIntoInterface(&response, callArgs.MethodName, msgEthResponse.Ret)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func decodeResponseDeliverTx(res abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error) {
+	msgEthResponse, err := evmtypes.DecodeTxResponse(res.Data)
+	if err != nil {
+		return nil, err
+	}
+	return msgEthResponse, nil
 }

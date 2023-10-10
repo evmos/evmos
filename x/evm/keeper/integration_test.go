@@ -133,7 +133,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			contractBechAddr := sdktypes.AccAddress(contractAddr.Bytes()).String()
 			contractAccount, err := s.grpcHandler.GetAccount(contractBechAddr)
 			Expect(err).To(BeNil())
-			err = integrationutils.CheckContractAccount(contractAccount)
+			err = integrationutils.IsContractAccount(contractAccount)
 			Expect(err).To(BeNil())
 
 			// Execute contract call
@@ -141,22 +141,44 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			minTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddr,
 			}
+            amountToMint := big.NewInt(1e18)
 			mintArgs := factory.CallArgs{
 				ContractABI: compiledContract.ABI,
 				MethodName:  "mint",
-				Args:        []interface{}{recipientKey.Addr, big.NewInt(1e18)},
+				Args:        []interface{}{recipientKey.Addr, amountToMint},
 			}
 			res, err := s.factory.ExecuteContractCall(senderPriv, minTxArgs, mintArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 
-			// Check contract call response has the expected topics
+			// Check contract call response has the expected topics for a mint
+			// call within an ERC20 contract
 			expectedTopics := []string{
 				"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 				"0x0000000000000000000000000000000000000000000000000000000000000000",
 			}
 			err = integrationutils.CheckTxTopics(res, expectedTopics)
 			Expect(err).To(BeNil())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddr,
+			}
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "totalSupply",
+				Args:        []interface{}{},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+            var totalSupplyResponse *big.Int
+            err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyResponse).To(Equal(amountToMint))
 		})
 
 		It("should fail when ChainID is wrong", func() {
