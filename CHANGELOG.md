@@ -63,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
+<<<<<<< HEAD
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 
 ## [v14.1.0] - 2023-09-25
@@ -70,6 +71,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0.
+=======
+- (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
+- (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
+- (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
+>>>>>>> 57b7d64c (chore(deps): Use IAVL v0.20.1 & Fix Concurrency issue on mainnet (#1829))
 
 ## [v14.0.0] - 2023-09-19
 
