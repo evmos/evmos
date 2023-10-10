@@ -6,6 +6,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	"golang.org/x/exp/slices"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -24,6 +26,7 @@ import (
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -176,6 +179,8 @@ import (
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v14/x/ibc/transfer"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+
+	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -350,6 +355,39 @@ func (*Evmos) SimulationManager() *module.SimulationManager {
 	panic("unimplemented")
 }
 
+func StoreKeys() (
+	map[string]*storetypes.KVStoreKey,
+	map[string]*storetypes.MemoryStoreKey,
+	map[string]*storetypes.TransientStoreKey,
+) {
+	storeKeys := []string{
+		// SDK keys
+		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
+		distrtypes.StoreKey, slashingtypes.StoreKey,
+		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
+		evidencetypes.StoreKey, capabilitytypes.StoreKey, consensusparamtypes.StoreKey,
+		feegrant.StoreKey, authzkeeper.StoreKey, crisistypes.StoreKey,
+		// ibc keys
+		ibcexported.StoreKey, ibctransfertypes.StoreKey,
+		// ica keys
+		icahosttypes.StoreKey,
+		// ethermint keys
+		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		// evmos keys
+		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
+		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
+		revenuetypes.StoreKey, recoverytypes.StoreKey,
+	}
+
+	keys := sdk.NewKVStoreKeys(storeKeys...)
+
+	// Add the EVM transient store key
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+
+	return keys, memKeys, tkeys
+}
+
 // NewEvmos returns a reference to a new initialized Ethermint application.
 func NewEvmos(
 	logger log.Logger,
@@ -368,6 +406,9 @@ func NewEvmos(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	eip712.SetEncodingConfig(encodingConfig)
+
+	// setup memiavl if it's enabled in config
+	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
 
 	// Setup Mempool and Proposal Handlers
 	baseAppOptions = append(baseAppOptions, func(app *baseapp.BaseApp) {
@@ -390,33 +431,23 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
-		// SDK keys
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, consensusparamtypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey, crisistypes.StoreKey,
-		// ibc keys
-		ibcexported.StoreKey, ibctransfertypes.StoreKey,
-		// ica keys
-		icahosttypes.StoreKey,
-		// ethermint keys
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// evmos keys
-		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
-		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey, recoverytypes.StoreKey,
-	)
-
-	// Add the EVM transient store key
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	keys, memKeys, tkeys := StoreKeys()
 
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
 		fmt.Printf("failed to load state streaming: %s", err)
 		os.Exit(1)
+	}
+
+	// wire up the versiondb's `StreamingService` and `MultiStore`.
+	streamers := cast.ToStringSlice(appOpts.Get("store.streamers"))
+	var qms sdk.MultiStore
+	if slices.Contains(streamers, "versiondb") {
+		var err error
+		qms, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	app := &Evmos{
@@ -906,6 +937,14 @@ func NewEvmos(
 			logger.Error("error on loading last version", "err", err)
 			os.Exit(1)
 		}
+
+		if qms != nil {
+			v1 := qms.LatestVersion()
+			v2 := app.LastBlockHeight()
+			if v1 > 0 && v1 != v2 {
+				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))
+			}
+		}
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
@@ -1382,4 +1421,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
 	}
+}
+
+// Close will be called in graceful shutdown in start cmd
+func (app *Evmos) Close() error {
+	err := app.BaseApp.Close()
+
+	if cms, ok := app.CommitMultiStore().(io.Closer); ok {
+		return errors.Join(err, cms.Close())
+	}
+
+	return err
 }
