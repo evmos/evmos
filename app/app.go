@@ -975,12 +975,12 @@ func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci
 		}
 
 		logger.Debug("migrating strategic reserves")
-		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, v14.NewTeamStrategicReserveAcc, v14.OldStrategicReserves...); err != nil {
+		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.StakingKeeper, v14.NewTeamStrategicReserveAcc, v14.OldStrategicReserves...); err != nil {
 			logger.Error("error while migrating native multisigs", "error", err)
 		}
 
 		logger.Debug("migrating team premint wallet")
-		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, v14.NewTeamPremintWalletAcc, v14.OldTeamPremintWallet); err != nil {
+		if err := v14.MigrateNativeMultisigs(ctx, app.BankKeeper, app.StakingKeeper, v14.NewTeamPremintWalletAcc, v14.OldTeamPremintWallet); err != nil {
 			logger.Error("error while migrating team premint wallet", "error", err)
 		}
 	}

@@ -150,11 +150,11 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	expectedSharesMap[s.validators[0].OperatorAddress] = expectedSharesMap[s.validators[0].OperatorAddress].Sub(math.LegacyNewDecWithPrec(1, 18))
 
 	// Migrate strategic reserves
-	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, newStrategicReserve.Addr, oldStrategicReservesAddrs...)
+	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, newStrategicReserve.Addr, oldStrategicReservesAddrs...)
 	s.Require().NoError(err, "failed to migrate strategic reserves")
 
 	// Migrate premint wallet
-	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, newPremintWallet.Addr, oldPremintWallet.Addr.String())
+	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, newPremintWallet.Addr, oldPremintWallet.Addr.String())
 	s.Require().NoError(err, "failed to migrate premint wallet")
 
 	// Check that the multisigs have been updated
