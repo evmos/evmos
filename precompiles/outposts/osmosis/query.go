@@ -2,6 +2,7 @@ package osmosis
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -19,7 +20,7 @@ func (p Precompile) Allowance(
 ) ([]byte, error) {
 	// append here the msg type. Will always be the TransferMsg
 	// for this precompile
-	args = append(args, authorization.TransferMsg)
+	args = append(args, ics20.TransferMsgURL)
 
 	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {

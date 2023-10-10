@@ -5,12 +5,14 @@ package osmosis
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
 )
 
 // Approve implements the ICS20 approve transactions.
@@ -26,7 +28,7 @@ func (p Precompile) Approve(
 		return nil, err
 	}
 
-	if err := authorization.Approve(
+	if err := ics20.Approve(
 		ctx,
 		p.AuthzKeeper,
 		p.channelKeeper,
@@ -58,7 +60,7 @@ func (p Precompile) IncreaseAllowance(
 		return nil, err
 	}
 
-	if err := authorization.IncreaseAllowance(
+	if err := ics20.IncreaseAllowance(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),
@@ -91,7 +93,7 @@ func (p Precompile) DecreaseAllowance(
 		return nil, err
 	}
 
-	if err := authorization.DecreaseAllowance(
+	if err := ics20.DecreaseAllowance(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),
@@ -123,7 +125,7 @@ func (p Precompile) Revoke(
 		return nil, fmt.Errorf(authorization.ErrInvalidGrantee, args[0])
 	}
 
-	if err := authorization.Revoke(
+	if err := ics20.Revoke(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),

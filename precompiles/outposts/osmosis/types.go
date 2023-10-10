@@ -1,11 +1,13 @@
 package osmosis
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"fmt"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"math/big"
 	"strings"
+
+	errorsmod "cosmossdk.io/errors"
+
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 
 	"cosmossdk.io/math"
 

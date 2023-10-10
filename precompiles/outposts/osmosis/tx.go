@@ -80,13 +80,13 @@ func (p Precompile) Swap(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, authorization.TransferMsg)
+		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsgURL)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
 
 		// Accept the grant and return an error if the grant is not accepted
-		resp, err = authorization.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+		resp, err = ics20.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +101,7 @@ func (p Precompile) Swap(
 	// Update grant only if is needed
 	if contract.CallerAddress != origin {
 		// accepts and updates the grant adjusting the spending limit
-		if err = authorization.UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
+		if err = ics20.UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
 			return nil, err
 		}
 	}
