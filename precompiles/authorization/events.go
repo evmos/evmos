@@ -95,7 +95,6 @@ func EmitIBCRevokeAuthorizationEvent(
 	stateDB vm.StateDB,
 	precompileAddr, granteeAddr, granterAddr common.Address,
 ) error {
-	// event := events[EventTypeRevokeIBCTransferAuthorization]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.

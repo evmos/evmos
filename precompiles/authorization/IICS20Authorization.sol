@@ -5,9 +5,9 @@ import "../common/Types.sol";
 
 /// @dev Allocation represents a single allocation for an IBC fungible token transfer.
 struct Allocation {
-    string sourcePort;
-    string sourceChannel;
-    Coin[] spendLimit;
+    string   sourcePort;
+    string   sourceChannel;
+    Coin[]   spendLimit;
     string[] allowList;
 }
 /// @author Evmos Team

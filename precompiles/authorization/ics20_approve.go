@@ -72,7 +72,7 @@ func Revoke(
 	event abi.Event,
 	stateDB vm.StateDB,
 ) error {
-	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
+	// NOTE: we do not need to check the expiration as it will return nil if both not found or expired
 	msgAuthz, _, err := CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsg)
 	if err != nil {
 		return fmt.Errorf(ErrAuthzDoesNotExistOrExpired, grantee, origin)
