@@ -211,7 +211,6 @@ type MigrationTestAccount struct {
 	PrivKey         *ethsecp256k1.PrivKey
 	BalancePre      sdk.Coins
 	BalancePost     sdk.Coins
-	DelegationsPre  stakingtypes.Delegations
 	DelegationsPost stakingtypes.Delegations
 }
 
@@ -224,7 +223,6 @@ func GenerateMigrationTestAccount() MigrationTestAccount {
 		PrivKey:         priv,
 		BalancePre:      sdk.Coins{},
 		BalancePost:     sdk.Coins{},
-		DelegationsPre:  stakingtypes.Delegations{},
 		DelegationsPost: stakingtypes.Delegations{},
 	}
 }

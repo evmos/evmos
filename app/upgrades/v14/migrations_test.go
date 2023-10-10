@@ -40,8 +40,8 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 
 		// We are delegating one token to each of the validators in the test setup
 		delegateAmount = int64(1)
-		// One delegated token equals to one share issued for the delegator
-		delegateShares = math.LegacyOneDec()
+		// One delegated token equals to 1e-18 share issued for the delegator
+		delegateShares = math.LegacyNewDecWithPrec(1, 18)
 	)
 
 	oldStrategicReserves := make([]MigrationTestAccount, 0, 5)
@@ -55,19 +55,6 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	oldStrategicReserves[2].BalancePre = sdk.Coins{stratRes3Coin}
 	oldStrategicReserves[3].BalancePre = sdk.Coins{stratRes4Coin}
 	oldStrategicReserves[4].BalancePre = sdk.Coins{stratRes5Coin}
-
-	oldStrategicReserves[0].DelegationsPre = stakingtypes.Delegations{
-		stakingtypes.Delegation{
-			DelegatorAddress: oldStrategicReserves[0].Addr.String(),
-			ValidatorAddress: s.validators[0].OperatorAddress,
-			Shares:           delegateShares,
-		},
-		stakingtypes.Delegation{
-			DelegatorAddress: oldStrategicReserves[0].Addr.String(),
-			ValidatorAddress: s.validators[1].OperatorAddress,
-			Shares:           delegateShares,
-		},
-	}
 
 	// the new strategic reserve should hold the sum of all old strategic reserves
 	newStrategicReserve := GenerateMigrationTestAccount()
@@ -145,9 +132,9 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	// NOTE: There is a minor difference expected between the pre- and post-migration shares. This is because
 	// the zero-token delegation is being unbonded and the corresponding shares are removed. Since zero tokens
 	// would be delegated to the validator after the migration, the shares are not added again, creating a reduction
-	// in the total shares of s.validators[0] of 1/1e18.
+	// in the total shares of s.validators[0] of 1e-18.
 	expectedSharesMap := s.getDelegationSharesMap()
-	expectedSharesMap[s.validators[0].OperatorAddress] = expectedSharesMap[s.validators[0].OperatorAddress].Sub(math.LegacyNewDecWithPrec(1, 18))
+	expectedSharesMap[s.validators[0].OperatorAddress] = expectedSharesMap[s.validators[0].OperatorAddress].Sub(delegateShares)
 
 	// Migrate strategic reserves
 	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, newStrategicReserve.Addr, oldStrategicReservesAddrs...)
