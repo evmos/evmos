@@ -2,7 +2,6 @@ package v14_test
 
 import (
 	"cosmossdk.io/math"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
@@ -47,22 +46,22 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	oldStrategicReserves := make([]MigrationTestAccount, 0, 5)
 	for idx := 0; idx < 5; idx++ {
 		oldStrategicReserves = append(oldStrategicReserves, GenerateMigrationTestAccount())
-		fmt.Printf("Old Strategic Reserve %d: %q\n", idx+1, oldStrategicReserves[idx].Addr.String())
+		s.T().Logf("Old Strategic Reserve %d: %q\n", idx+1, oldStrategicReserves[idx].Addr.String())
 	}
 	// assign pre-balances
-	oldStrategicReserves[0].BalancePre = sdk.Coins{stratRes1EvmosCoin, stratRes1IBCCoin}
-	oldStrategicReserves[1].BalancePre = sdk.Coins{stratRes2Coin}
-	oldStrategicReserves[2].BalancePre = sdk.Coins{stratRes3Coin}
-	oldStrategicReserves[3].BalancePre = sdk.Coins{stratRes4Coin}
-	oldStrategicReserves[4].BalancePre = sdk.Coins{stratRes5Coin}
+	oldStrategicReserves[0].BalancePre = sdk.NewCoins(stratRes1EvmosCoin, stratRes1IBCCoin)
+	oldStrategicReserves[1].BalancePre = sdk.NewCoins(stratRes2Coin)
+	oldStrategicReserves[2].BalancePre = sdk.NewCoins(stratRes3Coin)
+	oldStrategicReserves[3].BalancePre = sdk.NewCoins(stratRes4Coin)
+	oldStrategicReserves[4].BalancePre = sdk.NewCoins(stratRes5Coin)
 
 	// the new strategic reserve should hold the sum of all old strategic reserves
 	newStrategicReserve := GenerateMigrationTestAccount()
-	fmt.Printf("New Strategic Reserve: %q\n", newStrategicReserve.Addr.String())
-	newStrategicReserve.BalancePost = sdk.Coins{
+	s.T().Logf("New Strategic Reserve: %q\n", newStrategicReserve.Addr.String())
+	newStrategicReserve.BalancePost = sdk.NewCoins(
 		stratRes1IBCCoin,
 		stratRes1EvmosCoin.Add(stratRes2Coin).Add(stratRes3Coin).Add(stratRes4Coin).Add(stratRes5Coin),
-	}
+	)
 	// NOTE: after the migration the delegation that returns zero tokens should be removed / not newly delegated to
 	newStrategicReserve.DelegationsPost = stakingtypes.Delegations{
 		stakingtypes.Delegation{
@@ -74,12 +73,12 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 
 	// premint wallets
 	oldPremintWallet := GenerateMigrationTestAccount()
-	fmt.Printf("Old Premint Wallet: %q\n", oldPremintWallet.Addr.String())
+	s.T().Logf("Old Premint Wallet: %q\n", oldPremintWallet.Addr.String())
 	oldPremintWallet.BalancePre = sdk.Coins{oldPremintCoin}
 
 	// the new premint wallet should have the same balance as the old premint wallet before the migration
 	newPremintWallet := GenerateMigrationTestAccount()
-	fmt.Printf("New Premint Wallet: %q\n", newPremintWallet.Addr.String())
+	s.T().Logf("New Premint Wallet: %q\n", newPremintWallet.Addr.String())
 	newPremintWallet.BalancePost = sdk.Coins{oldPremintCoin}
 
 	// Fund the accounts to be migrated

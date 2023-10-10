@@ -3,7 +3,6 @@
 package v14_test
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
@@ -233,8 +232,7 @@ func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount)
 	// Check the new delegations
 	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, account.Addr)
 	s.Require().Len(delegations, len(account.DelegationsPost), "expected different number of delegations after migration of account %s", account.Addr.String())
-	// TODO: Figure out why shares are so different? Probably because of prior delegations?
-	//s.Require().ElementsMatch(delegations, account.DelegationsPost, "expected different delegations after migration of account %s", account.Addr.String())
+	s.Require().ElementsMatch(delegations, account.DelegationsPost, "expected different delegations after migration of account %s", account.Addr.String())
 
 	// There should not be any unbonding delegations
 	unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, account.Addr)
@@ -245,15 +243,7 @@ func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount)
 	s.Require().Len(balances, len(account.BalancePost), "expected different number of balances after migration for account %s", account.Addr.String())
 
 	for _, balance := range balances {
-		// FIXME: Why does amountOf return 0 for the IBC denom??
-		var expAmount math.Int
-		for _, postBalance := range account.BalancePost {
-			if postBalance.Denom == balance.Denom {
-				expAmount = postBalance.Amount
-				break
-			}
-		}
-		//expAmount := account.BalancePost.AmountOf(balance.Denom)
+		expAmount := account.BalancePost.AmountOf(balance.Denom)
 		s.Require().Equal(expAmount.String(), balance.Amount.String(), "expected different balance of %q after migration for account %s", balance.Denom, account.Addr.String())
 	}
 }

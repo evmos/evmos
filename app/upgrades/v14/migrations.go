@@ -127,7 +127,9 @@ func InstantUnbonding(
 		return math.Int{}, fmt.Errorf("validator %s not found", valAddr)
 	}
 	if validator.IsBonded() {
-		if err := bk.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins); err != nil {
+		if err := bk.SendCoinsFromModuleToModule(
+			ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, unbondCoins,
+		); err != nil {
 			panic(err)
 		}
 	}
