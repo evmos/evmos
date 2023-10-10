@@ -46,7 +46,7 @@ type EventRevocation struct {
 	TypeUrls []string
 }
 
-// EmitRevocationEvent creates a new approval event emitted on a Revoke transaction.
+// EmitRevocationEvent creates a new authorization event emitted on a Revoke transaction.
 func EmitRevocationEvent(args cmn.EmitEventArgs) error {
 	// Prepare the event topics
 	revocationEvent, ok := args.EventData.(EventRevocation)
@@ -88,14 +88,13 @@ func EmitRevocationEvent(args cmn.EmitEventArgs) error {
 	return nil
 }
 
-// EmitIBCRevokeAuthorizationEvent creates a new IBC transfer authorization event emitted on a TransferAuthorization transaction.
+// EmitIBCRevokeAuthorizationEvent creates a new IBC transfer authorization event emitted on a Revoke transaction.
 func EmitIBCRevokeAuthorizationEvent(
 	event abi.Event,
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	precompileAddr, granteeAddr, granterAddr common.Address,
 ) error {
-	// event := events[EventTypeRevokeIBCTransferAuthorization]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.

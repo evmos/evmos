@@ -25,7 +25,7 @@ func (p Precompile) Approve(
 	}
 
 	// Approve from ICS20 common module
-	if err := authorization.Approve(
+	if err := Approve(
 		ctx,
 		p.AuthzKeeper,
 		p.channelKeeper,
@@ -57,7 +57,7 @@ func (p Precompile) Revoke(
 	}
 
 	// Revoke from ICS20 common module
-	if err := authorization.Revoke(
+	if err := Revoke(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),
@@ -85,7 +85,7 @@ func (p Precompile) IncreaseAllowance(
 	}
 
 	// IncreaseAllowance from ICS20 common module
-	if err := authorization.IncreaseAllowance(
+	if err := IncreaseAllowance(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),
@@ -118,7 +118,7 @@ func (p Precompile) DecreaseAllowance(
 	}
 
 	// DecreaseAllowance from ICS20 common module
-	if err := authorization.DecreaseAllowance(
+	if err := DecreaseAllowance(
 		ctx,
 		p.AuthzKeeper,
 		p.Address(),
