@@ -2,55 +2,19 @@ package v14_test
 
 import (
 	"cosmossdk.io/math"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v14/testutil"
 	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
 )
 
-// zeroDec is a zero decimal value
-var zeroDec = sdk.ZeroDec()
-
-// MigrationTestAccount is a struct to hold the test account address, its private key
-// as well as its balances and delegations before and after the migration.
-type MigrationTestAccount struct {
-	Addr            sdk.AccAddress
-	PrivKey         *ethsecp256k1.PrivKey
-	BalancePre      sdk.Coins
-	BalancePost     sdk.Coins
-	DelegationsPre  stakingtypes.Delegations
-	DelegationsPost stakingtypes.Delegations
-}
-
-func GenerateMigrationTestAccount() MigrationTestAccount {
-	addr, priv := testutiltx.NewAccAddressAndKey()
-	return MigrationTestAccount{
-		Addr:            addr,
-		PrivKey:         priv,
-		BalancePre:      sdk.Coins{},
-		BalancePost:     sdk.Coins{},
-		DelegationsPre:  stakingtypes.Delegations{},
-		DelegationsPost: stakingtypes.Delegations{},
-	}
-}
-
-// requireMigratedAccount checks that the account has no delegations, no unbonding delegations
-func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount) {
-	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, account.Addr)
-	s.Require().ElementsMatch(delegations, account.DelegationsPost, "expected different delegations after migration of account %s", account.Addr.String())
-	unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, account.Addr)
-	s.Require().Len(unbondingDelegations, 0, "expected no unbonding delegations after migration for account %s", account.Addr.String())
-	balances := s.app.BankKeeper.GetAllBalances(s.ctx, account.Addr)
-	s.Require().ElementsMatch(balances, account.BalancePost, "expected different balance after migration for account %s", account.Addr.String())
-}
-
+// TestUpdateMigrateNativeMultisigs is the main test for the migration of the strategic reserves and the premint wallet.
+// This test is where the actual mainnet data is being replicated and the full migration tested.
 func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.SetupTest()
-
-	// Check validator shares before migration
-	expectedSharesMap := s.getDelegationSharesMap()
+	s.NextBlock()
 
 	amountPremint, ok := sdk.NewIntFromString("64699999994000000000000000")
 	s.Require().True(ok, "failed to parse premint amount")
@@ -73,11 +37,17 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 		stratRes3Coin      = sdk.Coin{Denom: s.bondDenom, Amount: amount3}
 		stratRes4Coin      = sdk.Coin{Denom: s.bondDenom, Amount: amount4}
 		stratRes5Coin      = sdk.Coin{Denom: s.bondDenom, Amount: amount5}
+
+		// We are delegating one token to each of the validators in the test setup
+		delegateAmount = int64(1)
+		// One delegated token equals to one share issued for the delegator
+		delegateShares = math.LegacyOneDec()
 	)
 
 	oldStrategicReserves := make([]MigrationTestAccount, 0, 5)
 	for idx := 0; idx < 5; idx++ {
 		oldStrategicReserves = append(oldStrategicReserves, GenerateMigrationTestAccount())
+		fmt.Printf("Old Strategic Reserve %d: %q\n", idx+1, oldStrategicReserves[idx].Addr.String())
 	}
 	// assign pre-balances
 	oldStrategicReserves[0].BalancePre = sdk.Coins{stratRes1EvmosCoin, stratRes1IBCCoin}
@@ -90,64 +60,102 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 		stakingtypes.Delegation{
 			DelegatorAddress: oldStrategicReserves[0].Addr.String(),
 			ValidatorAddress: s.validators[0].OperatorAddress,
-			Shares:           sdk.NewDecWithPrec(2452009409460295636, 18),
+			Shares:           delegateShares,
 		},
 		stakingtypes.Delegation{
 			DelegatorAddress: oldStrategicReserves[0].Addr.String(),
 			ValidatorAddress: s.validators[1].OperatorAddress,
-			Shares:           sdk.NewDecWithPrec(173554344899830220, 18),
+			Shares:           delegateShares,
 		},
 	}
 
 	// the new strategic reserve should hold the sum of all old strategic reserves
 	newStrategicReserve := GenerateMigrationTestAccount()
+	fmt.Printf("New Strategic Reserve: %q\n", newStrategicReserve.Addr.String())
 	newStrategicReserve.BalancePost = sdk.Coins{
 		stratRes1IBCCoin,
 		stratRes1EvmosCoin.Add(stratRes2Coin).Add(stratRes3Coin).Add(stratRes4Coin).Add(stratRes5Coin),
 	}
+	// NOTE: after the migration the delegation that returns zero tokens should be removed / not newly delegated to
 	newStrategicReserve.DelegationsPost = stakingtypes.Delegations{
 		stakingtypes.Delegation{
 			DelegatorAddress: newStrategicReserve.Addr.String(),
-			ValidatorAddress: s.validators[0].OperatorAddress,
-			Shares:           sdk.NewDecWithPrec(2452009409460295636, 18),
-		},
-		stakingtypes.Delegation{
-			DelegatorAddress: newStrategicReserve.Addr.String(),
 			ValidatorAddress: s.validators[1].OperatorAddress,
-			Shares:           sdk.NewDecWithPrec(173554344899830220, 18),
+			Shares:           delegateShares,
 		},
 	}
 
 	// premint wallets
 	oldPremintWallet := GenerateMigrationTestAccount()
+	fmt.Printf("Old Premint Wallet: %q\n", oldPremintWallet.Addr.String())
 	oldPremintWallet.BalancePre = sdk.Coins{oldPremintCoin}
 
 	// the new premint wallet should have the same balance as the old premint wallet before the migration
 	newPremintWallet := GenerateMigrationTestAccount()
+	fmt.Printf("New Premint Wallet: %q\n", newPremintWallet.Addr.String())
 	newPremintWallet.BalancePost = sdk.Coins{oldPremintCoin}
 
-	// Prepare the accounts to be migrated
+	// Fund the accounts to be migrated
 	affectedAccounts := append(oldStrategicReserves, oldPremintWallet)
 	for _, affectedAccount := range affectedAccounts {
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, affectedAccount.Addr, affectedAccount.BalancePre)
 		s.Require().NoError(err, "failed to fund account %s", affectedAccount.Addr.String())
-
-		if len(affectedAccount.DelegationsPre) == 0 {
-			continue
-		}
-
-		for _, delegation := range affectedAccount.DelegationsPre {
-			s.app.StakingKeeper.SetDelegation(s.ctx, delegation)
-		}
 	}
 
+	// delegation to validator 0 with zero tokens being returned because of the slashing
+	_, err := CreateDelegationWithZeroTokens(
+		s.ctx,
+		s.app,
+		oldStrategicReserves[0].PrivKey,
+		oldStrategicReserves[0].Addr,
+		s.validators[0],
+		delegateAmount,
+	)
+	s.Require().NoError(err, "failed to create delegation with zero tokens")
+
+	// delegation to validator 1
+	_, err = Delegate(
+		s.ctx,
+		s.app,
+		oldStrategicReserves[0].PrivKey,
+		oldStrategicReserves[0].Addr,
+		s.validators[1],
+		delegateAmount,
+	)
+	s.Require().NoError(err, "failed to create delegation")
+
+	// NOTE: We send twice the delegate amount to the old strategic reserve here, because that is
+	// the amount that was just spent on delegations and thus removed from the balance. We need to fill it up again,
+	// because the expected post-migration balance does not include the delegated amount.
+	err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldStrategicReserves[0].Addr, 2*delegateAmount)
+	s.Require().NoError(err, "failed to fund account %s to even out delegated amount", oldStrategicReserves[0].Addr.String())
+	// Additionally, we need to send twice the default fee that is charged for the delegation transaction.
+	feeAmt := testutiltx.DefaultFee.Amount.MulRaw(2)
+	err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, oldStrategicReserves[0].Addr, feeAmt.Int64())
+	s.Require().NoError(err, "failed to fund account %s to account for delegation fees", oldStrategicReserves[0].Addr.String())
+
+	// Store addresses in a slice
 	oldStrategicReservesAddrs := make([]string, 0, len(oldStrategicReserves))
 	for _, oldStrategicReserve := range oldStrategicReserves {
 		oldStrategicReservesAddrs = append(oldStrategicReservesAddrs, oldStrategicReserve.Addr.String())
 	}
 
-	err := v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, newStrategicReserve.Addr, oldStrategicReservesAddrs...)
-	s.Require().NoError(err, "failed to migrate native multisigs")
+	// Check validator shares before migration, which are stored as the expected shares map.
+	//
+	// NOTE: There is a minor difference expected between the pre- and post-migration shares. This is because
+	// the zero-token delegation is being unbonded and the corresponding shares are removed. Since zero tokens
+	// would be delegated to the validator after the migration, the shares are not added again, creating a reduction
+	// in the total shares of s.validators[0] of 1/1e18.
+	expectedSharesMap := s.getDelegationSharesMap()
+	expectedSharesMap[s.validators[0].OperatorAddress] = expectedSharesMap[s.validators[0].OperatorAddress].Sub(math.LegacyNewDecWithPrec(1, 18))
+
+	// Migrate strategic reserves
+	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, newStrategicReserve.Addr, oldStrategicReservesAddrs...)
+	s.Require().NoError(err, "failed to migrate strategic reserves")
+
+	// Migrate premint wallet
+	err = v14.MigrateNativeMultisigs(s.ctx, s.app.BankKeeper, s.app.EvmKeeper, s.app.StakingKeeper, newPremintWallet.Addr, oldPremintWallet.Addr.String())
+	s.Require().NoError(err, "failed to migrate premint wallet")
 
 	// Check that the multisigs have been updated
 	expectedAccounts := append(oldStrategicReserves, newStrategicReserve, oldPremintWallet, newPremintWallet)
@@ -156,7 +164,6 @@ func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	}
 
 	// Check validator shares after migration.
-	// NOTE: They must be equal to guarantee that the voting power is unchanged before and after the migration.
 	sharesMap := s.getDelegationSharesMap()
 	s.Require().Equal(expectedSharesMap, sharesMap, "expected different validator shares after migration")
 }
@@ -184,13 +191,25 @@ func (s *UpgradesTestSuite) TestInstantUnbonding() {
 	s.Require().Equal(poolBalancePre, poolBalancePost, "expected no change in pool balance")
 }
 
-// getDelegationSharesMap returns a map of validator operator addresses to the
-// total shares delegated to them.
-func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]sdk.Dec {
-	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
-	sharesMap := make(map[string]sdk.Dec, len(allValidators))
-	for _, validator := range allValidators {
-		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
-	}
-	return sharesMap
+func (s *UpgradesTestSuite) TestCreateDelegationWithZeroTokens() {
+	s.SetupTest()
+	s.NextBlock() // TODO: why is it necessary to call next block here?
+
+	targetValidator := s.validators[1]
+
+	// Create new account and fund it
+	addr, priv := testutiltx.NewAccAddressAndKey()
+	err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 2e18)
+	s.Require().NoError(err, "failed to fund account")
+
+	s.NextBlock()
+
+	delegation, err := CreateDelegationWithZeroTokens(s.ctx, s.app, priv, addr, targetValidator, 1)
+	s.Require().NoError(err, "failed to create delegation with zero tokens")
+	s.Require().NotEqual(sdk.ZeroDec(), delegation.Shares, "delegation shares should not be zero")
+
+	// Check that the validators tokenFromShares method returns zero tokens when truncated to an int
+	valAfterSlashing := s.app.StakingKeeper.Validator(s.ctx, targetValidator.GetOperator())
+	tokens := valAfterSlashing.TokensFromShares(delegation.Shares).TruncateInt()
+	s.Require().Equal(int64(0), tokens.Int64(), "expected zero tokens to be returned")
 }

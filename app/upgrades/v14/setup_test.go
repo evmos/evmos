@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -23,14 +22,14 @@ var s *UpgradesTestSuite
 type UpgradesTestSuite struct {
 	suite.Suite
 
-	ctx        sdk.Context
-	app        *evmosapp.Evmos
-	address    common.Address
-	validators []stakingtypes.Validator
-	ethSigner  ethtypes.Signer
-	privKey    cryptotypes.PrivKey
-	signer     keyring.Signer
-	bondDenom  string
+	ctx           sdk.Context
+	app           *evmosapp.Evmos
+	address       common.Address
+	validators    []stakingtypes.Validator
+	validatorAddr sdk.AccAddress
+	ethSigner     ethtypes.Signer
+	signer        keyring.Signer
+	bondDenom     string
 
 	precompile *vesting.Precompile
 	stateDB    *statedb.StateDB
