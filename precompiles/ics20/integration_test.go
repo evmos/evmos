@@ -152,7 +152,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(1), "expected one authorization")
-			Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins))
 		})
@@ -231,7 +231,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				)
 
 			noMatchingAllocation := defaultLogCheck.WithErrContains(
-				authorization.ErrNoMatchingAllocation,
+				ics20.ErrNoMatchingAllocation,
 				s.transferPath.EndpointA.ChannelConfig.PortID,
 				s.transferPath.EndpointA.ChannelID,
 				"urandom",
@@ -239,13 +239,13 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, increaseAllowanceArgs, noMatchingAllocation)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-			Expect(err.Error()).To(ContainSubstring(authorization.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
+			Expect(err.Error()).To(ContainSubstring(ics20.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
 
 			// check authorization didn't change
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(1), "expected one authorization")
-			Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins))
 		})
@@ -274,7 +274,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(1), "expected one authorization")
-			Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)})))
 		})
@@ -339,7 +339,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				)
 
 			noMatchingAllocation := defaultLogCheck.WithErrContains(
-				authorization.ErrNoMatchingAllocation,
+				ics20.ErrNoMatchingAllocation,
 				s.transferPath.EndpointA.ChannelConfig.PortID,
 				s.transferPath.EndpointA.ChannelID,
 				"urandom",
@@ -347,13 +347,13 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, decreaseAllowance, noMatchingAllocation)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
-			Expect(err.Error()).To(ContainSubstring(authorization.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
+			Expect(err.Error()).To(ContainSubstring(ics20.ErrNoMatchingAllocation, "transfer", "channel-0", "urandom"))
 
 			// check authorization didn't change
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(1), "expected one authorization")
-			Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins))
 		})
@@ -380,7 +380,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(1), "expected one authorization")
-			Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 			Expect(transferAuthz.Allocations[0].SpendLimit).To(HaveLen(0))
 		})
@@ -1108,7 +1108,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes())
 				Expect(err).To(BeNil(), "error while getting authorizations")
 				Expect(auths).To(HaveLen(1), "expected one authorization")
-				Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 				Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins))
 			})
@@ -1174,7 +1174,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes())
 				Expect(err).To(BeNil(), "error while getting authorizations")
 				Expect(auths).To(HaveLen(1), "expected one authorization")
-				Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(utils.BaseDenom)).To(Equal(defaultCoins.AmountOf(utils.BaseDenom).Add(math.NewIntFromBigInt(amt))))
 			})
@@ -1198,7 +1198,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes())
 				Expect(err).To(BeNil(), "error while getting authorizations")
 				Expect(auths).To(HaveLen(1), "expected one authorization")
-				Expect(auths[0].MsgTypeURL()).To(Equal(authorization.TransferMsg))
+				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
 				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(utils.BaseDenom)).To(Equal(defaultCoins.AmountOf(utils.BaseDenom).Sub(math.NewIntFromBigInt(amt))))
 			})
@@ -1247,7 +1247,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					s.chainA.NextBlock()
 
 					// The allowance is spent after the transfer thus the authorization is deleted
-					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), authorization.TransferMsg)
+					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 					Expect(authz).To(BeNil())
 
 					// check sent tokens were deducted from sending account
@@ -1348,9 +1348,9 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					s.chainA.NextBlock()
 
 					// Check the allowance spend limit is updated
-					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), authorization.TransferMsg)
+					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 					Expect(authz).NotTo(BeNil(), "expected one authorization")
-					Expect(authz.MsgTypeURL()).To(Equal(authorization.TransferMsg))
+					Expect(authz.MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 					transferAuthz := authz.(*transfertypes.TransferAuthorization)
 					Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(ibcDenom)).To(Equal(amt.Sub(sentAmt)))
 
@@ -1475,7 +1475,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					s.chainA.NextBlock()
 
 					// The allowance is spent after the transfer thus the authorization is deleted
-					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), authorization.TransferMsg)
+					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 					Expect(authz).To(BeNil())
 
 					// check only fees were deducted from sending account
@@ -1561,7 +1561,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					s.chainA.NextBlock()
 
 					// The allowance is spent after the transfer thus the authorization is deleted
-					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), authorization.TransferMsg)
+					authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), contractAddr.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 					Expect(authz).To(BeNil())
 
 					// check sent tokens were deducted from sending account

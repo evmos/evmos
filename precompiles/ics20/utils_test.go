@@ -346,7 +346,7 @@ func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *evm
 
 // GetTransferAuthorization returns the transfer authorization for the given grantee and granter
 func (s *PrecompileTestSuite) GetTransferAuthorization(ctx sdk.Context, grantee, granter common.Address) *transfertypes.TransferAuthorization {
-	grant, _ := s.app.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), authorization.TransferMsg)
+	grant, _ := s.app.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), ics20.TransferMsgURL)
 	s.Require().NotNil(grant)
 	transferAuthz, ok := grant.(*transfertypes.TransferAuthorization)
 	s.Require().True(ok)
@@ -430,7 +430,7 @@ func (s *PrecompileTestSuite) setTransferApproval(
 	s.chainA.NextBlock()
 
 	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), authorization.TransferMsg)
+	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
 	Expect(authz).NotTo(BeNil())
 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
 	Expect(ok).To(BeTrue())
@@ -456,7 +456,7 @@ func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.Call
 	s.chainA.NextBlock()
 
 	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), authorization.TransferMsg)
+	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
 	Expect(authz).NotTo(BeNil())
 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
 	Expect(ok).To(BeTrue())

@@ -1,11 +1,12 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package authorization
+package ics20
 
 import (
 	"errors"
 	"fmt"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"math/big"
 	"time"
 
@@ -23,8 +24,8 @@ import (
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
-// TransferMsg is the ICS20 transfer message type.
-var TransferMsg = sdk.MsgTypeURL(&transfertypes.MsgTransfer{})
+// TransferMsgURL is the ICS20 transfer message URL string.
+var TransferMsgURL = sdk.MsgTypeURL(&transfertypes.MsgTransfer{})
 
 // Approve implements the ICS20 Authorization approve transactions.
 func Approve(
@@ -37,6 +38,7 @@ func Approve(
 	event abi.Event,
 	stateDB vm.StateDB,
 ) error {
+
 	// If one of the allocations contains a non-existing channel, throw and error
 	for _, allocation := range transferAuthz.Allocations {
 		found := channelKeeper.HasChannel(ctx, allocation.SourcePort, allocation.SourceChannel)
@@ -53,7 +55,7 @@ func Approve(
 
 	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
-	return EmitIBCTransferAuthorizationEvent(
+	return authorization.EmitIBCTransferAuthorizationEvent(
 		event,
 		ctx,
 		stateDB,
@@ -73,9 +75,9 @@ func Revoke(
 	stateDB vm.StateDB,
 ) error {
 	// NOTE: we do not need to check the expiration as it will return nil if both not found or expired
-	msgAuthz, _, err := CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsg)
+	msgAuthz, _, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsgURL)
 	if err != nil {
-		return fmt.Errorf(ErrAuthzDoesNotExistOrExpired, grantee, origin)
+		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	// check that the stored authorization matches the transfer authorization
@@ -83,11 +85,11 @@ func Revoke(
 		return authz.ErrUnknownAuthorizationType
 	}
 
-	if err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg); err != nil {
+	if err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsgURL); err != nil {
 		return err
 	}
 
-	return EmitIBCRevokeAuthorizationEvent(
+	return authorization.EmitIBCRevokeAuthorizationEvent(
 		event,
 		ctx,
 		stateDB,
@@ -108,9 +110,9 @@ func IncreaseAllowance(
 	stateDB vm.StateDB,
 ) error {
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsg)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsgURL)
 	if err != nil {
-		return fmt.Errorf(ErrAuthzDoesNotExistOrExpired, grantee, origin)
+		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
@@ -140,7 +142,7 @@ func IncreaseAllowance(
 
 	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
-	return EmitIBCTransferAuthorizationEvent(
+	return authorization.EmitIBCTransferAuthorizationEvent(
 		event,
 		ctx,
 		stateDB,
@@ -162,9 +164,9 @@ func DecreaseAllowance(
 	stateDB vm.StateDB,
 ) error {
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsg)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsgURL)
 	if err != nil {
-		return fmt.Errorf(ErrAuthzDoesNotExistOrExpired, grantee, origin)
+		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
 	}
 
 	transferAuthz, ok := msgAuthz.(*transfertypes.TransferAuthorization)
@@ -207,7 +209,7 @@ func DecreaseAllowance(
 
 	allocations := convertToAllocation(transferAuthz.Allocations)
 	// Emit the IBC transfer authorization event
-	return EmitIBCTransferAuthorizationEvent(
+	return authorization.EmitIBCTransferAuthorizationEvent(
 		event,
 		ctx,
 		stateDB,
@@ -236,7 +238,7 @@ func AcceptGrant(
 	}
 
 	if !resp.Accept {
-		return nil, fmt.Errorf(ErrAuthzNotAccepted, caller, origin)
+		return nil, fmt.Errorf(authorization.ErrAuthzNotAccepted, caller, origin)
 	}
 
 	return &resp, nil
@@ -251,7 +253,7 @@ func UpdateGrant(
 	resp *authz.AcceptResponse,
 ) (err error) {
 	if resp.Delete {
-		err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsg)
+		err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsgURL)
 	} else if resp.Updated != nil {
 		err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), resp.Updated, expiration)
 	}

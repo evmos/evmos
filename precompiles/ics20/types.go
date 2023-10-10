@@ -309,3 +309,48 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 
 	return grantee, allocations, nil
 }
+
+// ConvertToAllocation converts the transfer types Allocation to the ICS20 Allocation.
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
+	// Convert to Allocations to emit the IBC transfer authorization event
+	allocations := make([]cmn.Allocation, len(allocs))
+	for i, allocation := range allocs {
+		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
+		for j, coin := range allocation.SpendLimit {
+			spendLimit[j] = cmn.Coin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.BigInt(),
+			}
+		}
+
+		allocations[i] = cmn.Allocation{
+			SourcePort:    allocation.SourcePort,
+			SourceChannel: allocation.SourceChannel,
+			SpendLimit:    spendLimit,
+			AllowList:     allocation.AllowList,
+		}
+	}
+
+	return allocations
+}
+
+// CheckAllocationExists checks if the given authorization allocation matches the given arguments.
+func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
+	var found bool
+	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
+
+	for i, allocation := range allocations {
+		if allocation.SourcePort != sourcePort || allocation.SourceChannel != sourceChannel {
+			continue
+		}
+
+		found, spendLimit = allocation.SpendLimit.Find(denom)
+		if !found {
+			return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+		}
+
+		return spendLimit, i, nil
+	}
+
+	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+}
