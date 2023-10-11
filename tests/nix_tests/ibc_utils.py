@@ -71,7 +71,7 @@ def prepare_network(tmp_path: Path, file: str, other_chains_names: List[str]):
         # If this is not needed (e.g. in Cosmos chains like Stride, Osmosis, etc.)
         # then overwrite the relayer key
         if "chainmain" not in other_chain_name:
-            subprocess.run(
+            subprocess.check_call(
                 [
                     "hermes",
                     "--config",
