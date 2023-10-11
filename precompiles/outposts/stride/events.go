@@ -1,18 +1,19 @@
 package stride
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"math/big"
 )
 
 const (
 	// LiquidStakeEvmos is the event type emitted on a Transfer transaction to Autopilot on Stride.
-	LiquidStakeEvmos = "LiquidStake"
+	LiquidStake = "LiquidStake"
 )
 
 // EmitLiquidStakeEvent creates a new liquid stake event on the EVM stateDB.
@@ -23,7 +24,7 @@ func (p Precompile) EmitLiquidStakeEvent(
 	amount *big.Int,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[LiquidStakeEvmos]
+	event := p.ABI.Events[LiquidStake]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.

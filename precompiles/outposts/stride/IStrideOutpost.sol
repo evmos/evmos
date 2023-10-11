@@ -9,9 +9,8 @@ address constant STRIDE_OUTPOST_ADDRESS = 0x000000000000000000000000000000000000
 /// @dev The Stride Outpost contract's instance.
 IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(STRIDE_OUTPOST_ADDRESS);
 
-
-
 /// @dev Allocation represents a single allocation for an IBC fungible token transfer.
+/// TODO: use type from ICS20
 struct Allocation {
     string sourcePort;
     string sourceChannel;
@@ -137,13 +136,14 @@ interface IStrideOutpost {
     /// @param token The hex ERC20 address of the token pair.
     /// @param amount The amount that will be liquid staked.
     /// @param receiver The bech32 address of the receiver.
+    /// @return nextSequence sequence number of the transfer packet sent
     /// @return success True if the ICS20 transfer was successful.
     function liquidStake(
         address sender,
         address token,
         uint256 amount,
         string calldata receiver
-    ) external returns (bool success);
+    ) external returns (uint64 nextSequence, bool success);
 
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
     /// the native Coin by sending an ICS20 Transfer to the specified chain.
@@ -151,11 +151,12 @@ interface IStrideOutpost {
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
     /// @param receiver The bech32-formatted address of the receiver on Stride.
+    /// @return nextSequence sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded.
     function redeem(
         address sender,
         address token,
         uint256 amount,
         string calldata receiver
-    ) external returns (bool success);
+    ) external returns (uint64 nextSequence, bool success);
 }

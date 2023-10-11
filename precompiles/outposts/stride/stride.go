@@ -4,15 +4,23 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+)
+
+const (
+	// StrideChannelID is the channel ID for the Stride channel on Evmos mainnet.
+	StrideChannelIDMainnet = "channel-25"
+	// StrideChannelIDTestnet is the channel ID for the Stride channel on Evmos testnet.
+	StrideChannelIDTestnet = "channel-25"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -24,18 +32,20 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
+	portID         string
+	channelID      string
 	transferKeeper transferkeeper.Keeper
-	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
+	evmKeeper      *evmkeeper.Keeper
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	portID, channelID string,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -55,9 +65,10 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		portID:         portID,
+		channelID:      channelID,
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
-		stakingKeeper:  stakingKeeper,
 	}, nil
 }
 
@@ -99,7 +110,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	// Stride Outpost Methods:
-	case LiquidStakeEvmosMethod:
+	case LiquidStakeMethod:
 		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
@@ -121,7 +132,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case LiquidStakeEvmosMethod:
+	case LiquidStakeMethod, RedeemMethod:
 		return true
 	default:
 		return false
