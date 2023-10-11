@@ -133,11 +133,13 @@ interface IStrideOutpost {
     ) external returns (bool approved);
 
     /// @dev Liquid stake a native Coin on the Stride chain and return it to the Evmos chain.
+    /// @param sender The sender of the liquid stake transaction.
     /// @param token The hex ERC20 address of the token pair.
     /// @param amount The amount that will be liquid staked.
     /// @param receiver The bech32 address of the receiver.
     /// @return success True if the ICS20 transfer was successful.
     function liquidStake(
+        address sender,
         address token,
         uint256 amount,
         string calldata receiver
@@ -145,11 +147,13 @@ interface IStrideOutpost {
 
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
     /// the native Coin by sending an ICS20 Transfer to the specified chain.
+    /// @param sender The sender of the redeem transaction.
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
     /// @param receiver The bech32-formatted address of the receiver on Stride.
     /// @return success The boolean value indicating whether the operation succeeded.
     function redeem(
+        address sender,
         address token,
         uint256 amount,
         string calldata receiver

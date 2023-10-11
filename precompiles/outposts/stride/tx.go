@@ -4,10 +4,14 @@ import (
 	"embed"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
 	"log"
+	"time"
 )
 
 // Embed memo json file to the executable binary. Needed when importing as dependency.
@@ -35,10 +39,11 @@ func (p Precompile) LiquidStake(
 	ctx sdk.Context,
 	origin common.Address,
 	stateDB vm.StateDB,
+	contract *vm.Contract,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	erc20Addr, amount, receiverAddress, err := CreateLiquidStakeEvmosPacket(args)
+	sender, erc20Addr, amount, receiverAddress, err := CreateLiquidStakeEvmosPacket(args)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +61,45 @@ func (p Precompile) LiquidStake(
 		return nil, fmt.Errorf("unsupported ERC20 token")
 	}
 
+	// The provided sender address should always be equal to the origin address.
+	// In case the contract caller address is the same as the sender address provided,
+	// update the sender address to be equal to the origin address.
+	// Otherwise, if the provided sender address is different from the origin address,
+	// return an error because is a forbidden operation
+	if contract.CallerAddress == sender {
+		sender = origin
+	} else if origin != sender {
+		return nil, fmt.Errorf(ics20.ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
+
 	// Create the memo for the ICS20 transfer
 	memo := p.createLiquidStakeMemo(receiverAddress)
 
 	// Build the MsgTransfer with the memo and coin
-	msg, err := NewMsgTransfer(StrideChannelID, sdk.AccAddress(origin.Bytes()).String(), receiverAddress, memo, coin)
+	msg, err := NewMsgTransfer(StrideChannelID, sdk.AccAddress(sender.Bytes()).String(), receiverAddress, memo, coin)
 	if err != nil {
 		return nil, err
+	}
+
+	// no need to have authorization when the contract caller is the same as origin (owner of funds)
+	// and the sender is the origin
+	var (
+		expiration *time.Time
+		auth       authz.Authorization
+		resp       *authz.AcceptResponse
+	)
+	if contract.CallerAddress != origin {
+		// check if authorization exists
+		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsgURL)
+		if err != nil {
+			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+		}
+
+		// Accept the grant and return an error if the grant is not accepted
+		resp, err = ics20.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Execute the ICS20 Transfer
@@ -71,25 +108,28 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
+	// Update grant only if is needed
+	if contract.CallerAddress != origin {
+		// accepts and updates the grant adjusting the spending limit
+		if err = ics20.UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
+			return nil, err
+		}
+	}
+
 	// Emit the IBC transfer Event
-	// TODO: Figure out if we want a more custom event here to signal Autopilot usage
-	if err = p.EmitLiquidStakeEvent(
-		ctx,
-		stateDB,
-		origin,
-		msg.Receiver,
-		msg.SourcePort,
-		msg.SourceChannel,
-		msg.Token,
-		msg.Memo,
-	); err != nil {
+	if err = ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg.Receiver, msg.SourcePort, msg.SourceChannel, msg.Token, msg.Memo); err != nil {
+		return nil, err
+	}
+
+	// Emit the custom LiquidStake Event
+	if err = p.EmitLiquidStakeEvent(ctx, stateDB, sender, erc20Addr, amount); err != nil {
 		return nil, err
 	}
 
 	return method.Outputs.Pack(true)
 }
 
-// createLiquidStakeMemo creates the memo for the LiquidStakeEvmos packet
+// createLiquidStakeMemo creates the memo for the LiquidStake packet
 func (p Precompile) createLiquidStakeMemo(receiverAddress string) string {
 	// Read the JSON memo from the file
 	data, err := memoF.ReadFile("memo.json")

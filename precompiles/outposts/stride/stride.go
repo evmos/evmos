@@ -100,7 +100,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	switch method.Name {
 	// Stride Outpost Methods:
 	case LiquidStakeEvmosMethod:
-		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, method, args)
+		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

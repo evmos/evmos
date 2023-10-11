@@ -7,6 +7,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"math/big"
 )
 
 const (
@@ -18,11 +19,8 @@ const (
 func (p Precompile) EmitLiquidStakeEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
-	senderAddr common.Address,
-	receiver string,
-	sourcePort, sourceChannel string,
-	token sdk.Coin,
-	memo string,
+	senderAddr, erc20Addr common.Address,
+	amount *big.Int,
 ) error {
 	// Prepare the event topics
 	event := p.ABI.Events[LiquidStakeEvmos]
@@ -38,15 +36,14 @@ func (p Precompile) EmitLiquidStakeEvent(
 		return err
 	}
 
-	// TODO: Change to custom Coin type or alternatively use uint256 for amount and string for denom
-	//topics[2], err = cmn.MakeTopic()
-	//if err != nil {
-	//	return err
-	//}
+	topics[2], err = cmn.MakeTopic(erc20Addr)
+	if err != nil {
+		return err
+	}
 
-	// Prepare the event data: denom, amount, memo
-	arguments := abi.Arguments{}
-	packed, err := arguments.Pack()
+	// Prepare the event data: amount
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(amount)
 	if err != nil {
 		return err
 	}
