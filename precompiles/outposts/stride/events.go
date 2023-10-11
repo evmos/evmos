@@ -14,8 +14,8 @@ const (
 	LiquidStakeEvmos = "LiquidStake"
 )
 
-// EmitIBCTransferEvent creates a new IBC transfer event emitted on a Transfer transaction.
-func (p Precompile) EmitIBCTransferEvent(
+// EmitLiquidStakeEvent creates a new liquid stake event on the EVM stateDB.
+func (p Precompile) EmitLiquidStakeEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	senderAddr common.Address,

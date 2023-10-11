@@ -73,7 +73,7 @@ func (p Precompile) LiquidStake(
 
 	// Emit the IBC transfer Event
 	// TODO: Figure out if we want a more custom event here to signal Autopilot usage
-	if err = p.EmitIBCTransferEvent(
+	if err = p.EmitLiquidStakeEvent(
 		ctx,
 		stateDB,
 		origin,
