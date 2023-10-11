@@ -6,9 +6,10 @@ package ics20
 import (
 	"errors"
 	"fmt"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"math/big"
 	"time"
+
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 
 	errorsmod "cosmossdk.io/errors"
 
@@ -38,7 +39,6 @@ func Approve(
 	event abi.Event,
 	stateDB vm.StateDB,
 ) error {
-
 	// If one of the allocations contains a non-existing channel, throw and error
 	for _, allocation := range transferAuthz.Allocations {
 		found := channelKeeper.HasChannel(ctx, allocation.SourcePort, allocation.SourceChannel)
