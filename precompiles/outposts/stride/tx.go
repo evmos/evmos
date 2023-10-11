@@ -45,15 +45,13 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	// TODO: temporary check if the erc20Addr is WEVMOS or the Osmosis token pair
+	// TODO: temporary check if the erc20Addr is WEVMOS
 	var coin sdk.Coin
-	tokenPairID := p.erc20Keeper.GetTokenPairID(ctx, erc20Addr.String())
-	tokenPair, _ := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
+	//tokenPairID := p.erc20Keeper.GetTokenPairID(ctx, erc20Addr.String())
+	//tokenPair, _ := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	switch {
 	case erc20Addr == WEVMOSAddress:
 		coin = sdk.NewCoin("aevmos", sdk.NewIntFromBigInt(amount))
-	case tokenPair.Erc20Address == OsmoERC20Address:
-		coin = sdk.NewCoin(tokenPair.Denom, sdk.NewIntFromBigInt(amount))
 	default:
 		return nil, fmt.Errorf("unsupported ERC20 token")
 	}
