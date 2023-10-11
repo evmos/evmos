@@ -12,6 +12,8 @@ pkgs.mkShell {
     pkgs.gomod2nix
     pkgs.chain-maind
     pkgs.strided
+    pkgs.osmosisd
+    pkgs.gaiad
     pkgs.hermes    
   ];
   shellHook = ''
