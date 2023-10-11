@@ -76,7 +76,7 @@ interface IICS20Authorization {
 
     /// @dev Returns the remaining number of tokens that a grantee smart contract
     /// will be allowed to spend on behalf of granter through
-    /// IBC transfers. This is an empty by array.
+    /// IBC transfers. This is an empty array by default.
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param granter The address of the account able to transfer the tokens.
     /// @return allocations The remaining amounts allowed to spend for
