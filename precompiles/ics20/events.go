@@ -5,6 +5,7 @@ package ics20
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -23,10 +24,7 @@ func EmitIBCTransferEvent(
 	stateDB vm.StateDB,
 	events map[string]abi.Event,
 	senderAddr, precompileAddr common.Address,
-	receiver string,
-	sourcePort, sourceChannel string,
-	token sdk.Coin,
-	memo string,
+	msg *transfertypes.MsgTransfer,
 ) error {
 	// Prepare the event topics
 	event := events[EventTypeIBCTransfer]
@@ -41,14 +39,15 @@ func EmitIBCTransferEvent(
 	if err != nil {
 		return err
 	}
-	topics[2], err = cmn.MakeTopic(receiver)
+	// TODO: This should be an address ?
+	topics[2], err = cmn.MakeTopic(msg.Receiver)
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data: denom, amount, memo
 	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4], event.Inputs[5], event.Inputs[6]}
-	packed, err := arguments.Pack(sourcePort, sourceChannel, token.Denom, token.Amount.BigInt(), memo)
+	packed, err := arguments.Pack(msg.SourcePort, msg.SourceChannel, msg.Token.Denom, msg.Token.Amount.BigInt(), msg.Memo)
 	if err != nil {
 		return err
 	}
