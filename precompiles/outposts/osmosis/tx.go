@@ -25,11 +25,15 @@ const (
 	OsmosisChannelID = "channel-0"
 	// OsmosisXCSContract defines the contract address for the Osmosis XCS contract
 	OsmosisXCSContract = "osmo1xcsjj7g9qf6qy8w4xg2j3q4q3k6x5q2x9k5x2e"
-)
-
-const (
+	// OsmoERC20Address defines the ERC20 address for the Osmosis token
+	OsmoERC20Address = "0xFA3C22C069B9556A4B2f7EcE1Ee3B467909f4864"
 	// SwapMethod defines the ABI method name for the Osmosis Swap function
 	SwapMethod = "swap"
+)
+
+var (
+	// WEVMOSAddress is the ERC20 hex address of the WEVMOS token on mainnet.
+	WEVMOSAddress = common.HexToAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 )
 
 // Swap swaps the given base denom for the given target denom on Osmosis and returns
