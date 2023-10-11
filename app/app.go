@@ -354,39 +354,6 @@ func (*Evmos) SimulationManager() *module.SimulationManager {
 	panic("unimplemented")
 }
 
-func StoreKeys() (
-	map[string]*storetypes.KVStoreKey,
-	map[string]*storetypes.MemoryStoreKey,
-	map[string]*storetypes.TransientStoreKey,
-) {
-	storeKeys := []string{
-		// SDK keys
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, consensusparamtypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey, crisistypes.StoreKey,
-		// ibc keys
-		ibcexported.StoreKey, ibctransfertypes.StoreKey,
-		// ica keys
-		icahosttypes.StoreKey,
-		// ethermint keys
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// evmos keys
-		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
-		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey, recoverytypes.StoreKey,
-	}
-
-	keys := sdk.NewKVStoreKeys(storeKeys...)
-
-	// Add the EVM transient store key
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
-
-	return keys, memKeys, tkeys
-}
-
 // NewEvmos returns a reference to a new initialized Ethermint application.
 func NewEvmos(
 	logger log.Logger,
