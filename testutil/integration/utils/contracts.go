@@ -63,7 +63,7 @@ func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs,
 		return err
 	}
 
-	err = callArgs.ContractABI.UnpackIntoInterface(&response, callArgs.MethodName, msgEthResponse.Ret)
+	err = callArgs.ContractABI.UnpackIntoInterface(response, callArgs.MethodName, msgEthResponse.Ret)
 	if err != nil {
 		return err
 	}

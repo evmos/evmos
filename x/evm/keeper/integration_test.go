@@ -11,6 +11,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v14/contracts"
+	"github.com/evmos/evmos/v14/precompiles/staking"
 
 	"github.com/evmos/evmos/v14/testutil/integration/factory"
 	"github.com/evmos/evmos/v14/testutil/integration/grpc"
@@ -218,9 +219,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 					MethodName:  "mint",
 					Args:        []interface{}{recipientKey.Addr, amountToMint},
 				}
-				res, err := s.factory.ExecuteContractCall(senderPriv, mintTxArgs, mintArgs)
+				mintResponse, err := s.factory.ExecuteContractCall(senderPriv, mintTxArgs, mintArgs)
 				Expect(err).To(BeNil())
-				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+				Expect(mintResponse.IsOK()).To(Equal(true), "transaction should have succeeded", mintResponse.GetLog())
 
 				// Check contract call response has the expected topics for a mint
 				// call within an ERC20 contract
@@ -228,7 +229,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 					"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 					"0x0000000000000000000000000000000000000000000000000000000000000000",
 				}
-				err = integrationutils.CheckTxTopics(res, expectedTopics)
+				err = integrationutils.CheckTxTopics(mintResponse, expectedTopics)
 				Expect(err).To(BeNil())
 
 				err = s.network.NextBlock()
@@ -244,7 +245,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 				}
 				totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
 				Expect(err).To(BeNil())
-				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+				Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
 
 				var totalSupplyResponse *big.Int
 				err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
@@ -331,6 +332,32 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("EVM Create operation is disabled"))
 			Expect(contractAddr).To(Equal(common.Address{}))
+		})
+
+		It("performs a contract call to the staking precompile", func() {
+			senderPriv := s.keyring.GetPrivKey(0)
+			contractAddress := common.HexToAddress(staking.PrecompileAddress)
+			contractABI, err := staking.LoadPrecompileABI()
+			Expect(err).To(BeNil())
+
+			totalSupplyTxArgs := evmtypes.EvmTxArgs{
+				To: &contractAddress,
+			}
+
+			validatorAddress := s.network.GetValidators()[0].OperatorAddress
+			totalSupplyArgs := factory.CallArgs{
+				ContractABI: contractABI,
+				MethodName:  staking.ValidatorMethod,
+				Args:        []interface{}{validatorAddress},
+			}
+			totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
+			Expect(err).To(BeNil())
+			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+
+			var validatorResponse staking.ValidatorOutput
+			err = integrationutils.DecodeContractCallResponse(&validatorResponse, totalSupplyArgs, totalSupplyRes)
+			Expect(err).To(BeNil())
+			Expect(validatorResponse.Validator.OperatorAddress).To(Equal(validatorAddress))
 		})
 	})
 
