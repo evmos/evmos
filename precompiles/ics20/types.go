@@ -6,6 +6,11 @@ package ics20
 import (
 	"fmt"
 	"math/big"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -353,4 +358,47 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 	}
 
 	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+}
+
+// CheckOriginAndSender ensures the correct sender is being used.
+func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender common.Address) (common.Address, error) {
+	if contract.CallerAddress == sender {
+		return origin, nil
+	} else if origin != sender {
+		return common.Address{}, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
+	return sender, nil
+}
+
+// CheckAndAcceptAuthorizationIfNeeded checks if authorization exists and accepts the grant.
+func CheckAndAcceptAuthorizationIfNeeded(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	origin common.Address,
+	authzKeeper authzkeeper.Keeper,
+	msg *transfertypes.MsgTransfer,
+) (*authz.AcceptResponse, *time.Time, error) {
+	if contract.CallerAddress == origin {
+		return nil, nil, nil
+	}
+
+	auth, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, contract.CallerAddress, origin, TransferMsgURL)
+	if err != nil {
+		return nil, nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+	}
+
+	resp, err := AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resp, expiration, nil
+}
+
+// UpdateGrantIfNeeded updates the grant if needed.
+func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper authzkeeper.Keeper, origin common.Address, expiration *time.Time, resp *authz.AcceptResponse) error {
+	if contract.CallerAddress != origin {
+		return UpdateGrant(ctx, authzKeeper, contract.CallerAddress, origin, expiration, resp)
+	}
+	return nil
 }
