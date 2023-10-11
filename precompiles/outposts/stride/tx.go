@@ -117,7 +117,7 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Emit the IBC transfer Event
-	if err = ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg.Receiver, msg.SourcePort, msg.SourceChannel, msg.Token, msg.Memo); err != nil {
+	if err = ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg); err != nil {
 		return nil, err
 	}
 
