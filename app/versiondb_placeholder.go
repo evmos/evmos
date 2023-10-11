@@ -15,11 +15,11 @@ import (
 )
 
 func setupVersionDB(
-	homePath string,
-	app *baseapp.BaseApp,
-	keys map[string]*storetypes.KVStoreKey,
-	tkeys map[string]*storetypes.TransientStoreKey,
-	memKeys map[string]*storetypes.MemoryStoreKey,
+	_ string,
+	_ *baseapp.BaseApp,
+	_ map[string]*storetypes.KVStoreKey,
+	_ map[string]*storetypes.TransientStoreKey,
+	_ map[string]*storetypes.MemoryStoreKey,
 ) (sdk.MultiStore, error) {
 	return nil, errors.New("versiondb is not supported in this binary")
 }
