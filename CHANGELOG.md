@@ -52,6 +52,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
+- (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
 
 ## [v14.0.0] - 2023-09-19
 
