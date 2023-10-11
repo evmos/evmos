@@ -63,13 +63,13 @@ func (p Precompile) Transfer(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, TransferMsg)
+		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, TransferMsgURL)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
 
 		// Accept the grant and return an error if the grant is not accepted
-		resp, err = p.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+		resp, err = AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func (p Precompile) Transfer(
 	// Update grant only if is needed
 	if contract.CallerAddress != origin {
 		// accepts and updates the grant adjusting the spending limit
-		if err = p.UpdateGrant(ctx, contract.CallerAddress, origin, expiration, resp); err != nil {
+		if err = UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
 			return nil, err
 		}
 	}

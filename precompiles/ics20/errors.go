@@ -18,10 +18,10 @@ const (
 	ErrInvalidMemo = "invalid memo: %s"
 	// ErrInvalidHash is raised when the hash is invalid.
 	ErrInvalidHash = "invalid hash: %s"
-	// ErrNoMatchingAllocation is raised when no matching allocation is found.
-	ErrNoMatchingAllocation = "no matching allocation found for source port: %s, source channel: %s, and denom: %s"
 	// ErrDifferentOriginFromSender is raised when the origin address is not the same as the sender address.
 	ErrDifferentOriginFromSender = "origin address %s is not the same as sender address %s"
 	// ErrTraceNotFound is raised when the denom trace for the specified request does not exist.
 	ErrTraceNotFound = "denomination trace not found"
+	// ErrNoMatchingAllocation is raised when no matching allocation is found.
+	ErrNoMatchingAllocation = "no matching allocation found for source port: %s, source channel: %s, and denom: %s"
 )

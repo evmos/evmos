@@ -21,7 +21,23 @@ var (
 	DefaultExpirationDuration = time.Hour * 24 * 365
 	// DefaultChainID is the standard chain id used for testing purposes
 	DefaultChainID = evmosutils.MainnetChainID + "-1"
+	// DefaultPrecompilesBech32 is the standard bech32 address for the precompiles
+	DefaultPrecompilesBech32 = []string{
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqq4xrkxv", // Staking precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
+	}
 )
+
+// Allocation defines the spend limit for a particular port and channel
+// we need this to be able to unpack to big.Int instead of sdkmath.Int
+type Allocation struct {
+	SourcePort    string
+	SourceChannel string
+	SpendLimit    []Coin
+	AllowList     []string
+}
 
 // Coin defines a struct that stores all needed information about a coin
 // in types native to the EVM.

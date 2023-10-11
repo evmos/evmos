@@ -102,9 +102,9 @@ func (p Precompile) Allowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	// append here the msg type. Will always be the TransferMsg
+	// append here the msg type. Will always be the TransferMsgURL
 	// for this precompile
-	args = append(args, TransferMsg)
+	args = append(args, TransferMsgURL)
 
 	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {

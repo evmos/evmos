@@ -346,32 +346,12 @@ func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *evm
 
 // GetTransferAuthorization returns the transfer authorization for the given grantee and granter
 func (s *PrecompileTestSuite) GetTransferAuthorization(ctx sdk.Context, grantee, granter common.Address) *transfertypes.TransferAuthorization {
-	grant, _ := s.app.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), ics20.TransferMsg)
+	grant, _ := s.app.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), ics20.TransferMsgURL)
 	s.Require().NotNil(grant)
 	transferAuthz, ok := grant.(*transfertypes.TransferAuthorization)
 	s.Require().True(ok)
 	s.Require().NotNil(transferAuthz)
 	return transferAuthz
-}
-
-// CheckAllowanceChangeEvent is a helper function used to check the allowance change event arguments.
-func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, methods []string, amounts []*big.Int) {
-	// Check event signature matches the one emitted
-	event := s.precompile.ABI.Events[authorization.EventTypeAllowanceChange]
-	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
-
-	var approvalEvent authorization.EventAllowanceChange
-	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
-	s.Require().NoError(err)
-	s.Require().Equal(s.address, approvalEvent.Grantee)
-	s.Require().Equal(s.address, approvalEvent.Granter)
-	s.Require().Equal(len(methods), len(approvalEvent.Methods))
-
-	for i, method := range methods {
-		s.Require().Equal(method, approvalEvent.Methods[i])
-		s.Require().Equal(amounts[i], approvalEvent.Values[i])
-	}
 }
 
 // NewTransferPath creates a new path between two chains with the specified portIds and version.
@@ -440,7 +420,7 @@ func (s *PrecompileTestSuite) setTransferApproval(
 
 	logCheckArgs := testutil.LogCheckArgs{
 		ABIEvents: s.precompile.Events,
-		ExpEvents: []string{ics20.EventTypeIBCTransferAuthorization},
+		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
 		ExpPass:   true,
 	}
 
@@ -450,7 +430,7 @@ func (s *PrecompileTestSuite) setTransferApproval(
 	s.chainA.NextBlock()
 
 	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsg)
+	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
 	Expect(authz).NotTo(BeNil())
 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
 	Expect(ok).To(BeTrue())
@@ -466,7 +446,7 @@ func (s *PrecompileTestSuite) setTransferApproval(
 func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.CallArgs) {
 	logCheckArgs := testutil.LogCheckArgs{
 		ABIEvents: s.precompile.Events,
-		ExpEvents: []string{ics20.EventTypeIBCTransferAuthorization},
+		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
 		ExpPass:   true,
 	}
 
@@ -476,7 +456,7 @@ func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.Call
 	s.chainA.NextBlock()
 
 	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsg)
+	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
 	Expect(authz).NotTo(BeNil())
 	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
 	Expect(ok).To(BeTrue())
