@@ -14,6 +14,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const versionDB = "versiondb"
+
 func setupVersionDB(
 	_ string,
 	_ *baseapp.BaseApp,

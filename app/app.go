@@ -6,7 +6,6 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -440,10 +439,12 @@ func NewEvmos(
 	}
 
 	// wire up the versiondb's `StreamingService` and `MultiStore`.
-	streamers := cast.ToStringSlice(appOpts.Get("store.streamers"))
-	var qms sdk.MultiStore
-	if slices.Contains(streamers, "versiondb") {
-		var err error
+	var (
+		qms sdk.MultiStore
+		err error
+	)
+	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
+	if slices.Contains(streamers, versionDB) {
 		qms, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
 		if err != nil {
 			panic(err)
@@ -1421,15 +1422,4 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
 	}
-}
-
-// Close will be called in graceful shutdown in start cmd
-func (app *Evmos) Close() error {
-	err := app.BaseApp.Close()
-
-	if cms, ok := app.CommitMultiStore().(io.Closer); ok {
-		return errors.Join(err, cms.Close())
-	}
-
-	return err
 }

@@ -17,6 +17,8 @@ import (
 	"github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
 )
 
+const versionDB = "versiondb"
+
 func setupVersionDB(
 	homePath string,
 	app *baseapp.BaseApp,
@@ -24,11 +26,11 @@ func setupVersionDB(
 	tkeys map[string]*storetypes.TransientStoreKey,
 	memKeys map[string]*storetypes.MemoryStoreKey,
 ) (sdk.MultiStore, error) {
-	dataDir := filepath.Join(homePath, "data", "versiondb")
+	dataDir := filepath.Join(homePath, "data", versionDB)
 	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
 		return nil, err
 	}
-	versionDB, err := tsrocksdb.NewStore(dataDir)
+	store, err := tsrocksdb.NewStore(dataDir)
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +41,10 @@ func setupVersionDB(
 		exposeStoreKeys = append(exposeStoreKeys, storeKey)
 	}
 
-	service := versiondb.NewStreamingService(versionDB, exposeStoreKeys)
+	service := versiondb.NewStreamingService(store, exposeStoreKeys)
 	app.SetStreamingService(service)
 
-	verDB := versiondb.NewMultiStore(versionDB, exposeStoreKeys)
+	verDB := versiondb.NewMultiStore(store, exposeStoreKeys)
 	verDB.MountTransientStores(tkeys)
 	verDB.MountMemoryStores(memKeys)
 
