@@ -26,7 +26,7 @@ const (
 
 // LiquidStakeEvmos is a transaction that liquid stakes Evmos using
 // a ICS20 transfer with a custom memo field that will trigger Stride's Autopilot middleware
-func (p Precompile) LiquidStakeEvmos(
+func (p Precompile) LiquidStake(
 	ctx sdk.Context,
 	origin common.Address,
 	stateDB vm.StateDB,
@@ -46,7 +46,6 @@ func (p Precompile) LiquidStakeEvmos(
 
 	// Create the memo for the ICS20 transfer
 	memo := p.createLiquidStakeMemo(receiverAddress)
-	fmt.Println(memo)
 
 	// Build the MsgTransfer with the memo and coin
 	msg, err := NewMsgTransfer(StrideChannelID, sdk.AccAddress(origin.Bytes()).String(), receiverAddress, memo, coin)

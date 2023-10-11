@@ -11,7 +11,7 @@ import (
 
 const (
 	// LiquidStakeEvmos is the event type emitted on a Transfer transaction to Autopilot on Stride.
-	LiquidStakeEvmos = "LiquidStakeEvmos"
+	LiquidStakeEvmos = "LiquidStake"
 )
 
 // EmitIBCTransferEvent creates a new IBC transfer event emitted on a Transfer transaction.

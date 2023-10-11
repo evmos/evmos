@@ -98,7 +98,7 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			_, err := s.precompile.LiquidStakeEvmos(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			_, err := s.precompile.LiquidStake(s.ctx, s.address, s.stateDB, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
