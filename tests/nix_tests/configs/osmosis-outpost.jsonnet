@@ -2,8 +2,6 @@ local config = import 'default.jsonnet';
 
 config {
   'evmos_9000-1'+: {
-    'account-prefix': 'evmos',
-    'coin-type': 60,
     key_name: 'signer1',
     'app-config'+: {
       'index-events': super['index-events'] + ['message.action'],
