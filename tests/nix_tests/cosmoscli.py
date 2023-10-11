@@ -5,7 +5,8 @@ import requests
 from dateutil.parser import isoparse
 from pystarport.utils import build_cli_args_safe, interact
 
-DEFAULT_DENOM = "aevmos"
+from .utils import DEFAULT_DENOM
+
 DEFAULT_GAS_PRICE = f"5000000000000{DEFAULT_DENOM}"
 DEFAULT_GAS = "250000"
 
@@ -43,48 +44,6 @@ class CosmosCLI:
     def node_rpc_http(self):
         return "http" + self.node_rpc.removeprefix("tcp")
 
-    def node_id(self):
-        "get tendermint node id"
-        output = self.raw("tendermint", "show-node-id", home=self.data_dir)
-        return output.decode().strip()
-
-    def delete_account(self, name):
-        "delete wallet account in node's keyring"
-        return self.raw(
-            "keys",
-            "delete",
-            name,
-            "-y",
-            "--force",
-            home=self.data_dir,
-            output="json",
-            keyring_backend="test",
-        )
-
-    def create_account(self, name, mnemonic=None):
-        "create new keypair in node's keyring"
-        if mnemonic is None:
-            output = self.raw(
-                "keys",
-                "add",
-                name,
-                home=self.data_dir,
-                output="json",
-                keyring_backend="test",
-            )
-        else:
-            output = self.raw(
-                "keys",
-                "add",
-                name,
-                "--recover",
-                home=self.data_dir,
-                output="json",
-                keyring_backend="test",
-                stdin=mnemonic.encode() + b"\n",
-            )
-        return json.loads(output)
-
     def init(self, moniker):
         "the node's config is already added"
         return self.raw(
@@ -94,13 +53,24 @@ class CosmosCLI:
             home=self.data_dir,
         )
 
+    def status(self):
+        return json.loads(self.raw("status", node=self.node_rpc))
+
+    def block_height(self):
+        return int(self.status()["SyncInfo"]["latest_block_height"])
+
+    def block_time(self):
+        return isoparse(self.status()["SyncInfo"]["latest_block_time"])
+
+    def rollback(self):
+        self.raw("rollback", home=self.data_dir)
+
+    # ==========================
+    #       GENESIS cmds
+    # ==========================
+
     def validate_genesis(self):
         return self.raw("validate-genesis", home=self.data_dir)
-
-    def consensus_address(self):
-        "get tendermint consensus address"
-        output = self.raw("tendermint", "show-address", home=self.data_dir)
-        return output.decode().strip()
 
     def add_genesis_account(self, addr, coins, **kwargs):
         return self.raw(
@@ -127,23 +97,99 @@ class CosmosCLI:
     def collect_gentxs(self, gentx_dir):
         return self.raw("collect-gentxs", gentx_dir, home=self.data_dir)
 
-    def status(self):
-        return json.loads(self.raw("status", node=self.node_rpc))
+    # ==========================
+    #     ACCOUNT KEYS utils
+    # ==========================
 
-    def block_height(self):
-        return int(self.status()["SyncInfo"]["latest_block_height"])
+    def migrate_keystore(self):
+        return self.raw("keys", "migrate", home=self.data_dir)
 
-    def block_time(self):
-        return isoparse(self.status()["SyncInfo"]["latest_block_time"])
+    def address(self, name, bech="acc"):
+        output = self.raw(
+            "keys",
+            "show",
+            name,
+            "-a",
+            home=self.data_dir,
+            keyring_backend="test",
+            bech=bech,
+        )
+        return output.strip().decode()
 
-    def balances(self, addr):
+    def create_account(self, name, mnemonic=None):
+        "create new keypair in node's keyring"
+        if mnemonic is None:
+            output = self.raw(
+                "keys",
+                "add",
+                name,
+                home=self.data_dir,
+                output="json",
+                keyring_backend="test",
+            )
+        else:
+            output = self.raw(
+                "keys",
+                "add",
+                name,
+                "--recover",
+                home=self.data_dir,
+                output="json",
+                keyring_backend="test",
+                stdin=mnemonic.encode() + b"\n",
+            )
+        return json.loads(output)
+
+    def delete_account(self, name):
+        "delete wallet account in node's keyring"
+        return self.raw(
+            "keys",
+            "delete",
+            name,
+            "-y",
+            "--force",
+            home=self.data_dir,
+            output="json",
+            keyring_backend="test",
+        )
+
+    def make_multisig(self, name, signer1, signer2):
+        self.raw(
+            "keys",
+            "add",
+            name,
+            multisig=f"{signer1},{signer2}",
+            multisig_threshold="2",
+            home=self.data_dir,
+            keyring_backend="test",
+        )
+
+    # ==========================
+    #        TX utils
+    # ==========================
+
+    def tx_search(self, events: str):
+        "/tx_search"
         return json.loads(
-            self.raw("query", "bank", "balances", addr, home=self.data_dir)
-        )["balances"]
+            self.raw("query", "txs", events=events, output="json", node=self.node_rpc)
+        )
 
-    def balance(self, addr, denom=DEFAULT_DENOM):
-        denoms = {coin["denom"]: int(coin["amount"]) for coin in self.balances(addr)}
-        return denoms.get(denom, 0)
+    def tx_search_rpc(self, events: str):
+        rsp = requests.get(
+            f"{self.node_rpc_http}/tx_search",
+            params={
+                "query": f'"{events}"',
+            },
+        ).json()
+        assert "error" not in rsp, rsp["error"]
+        return rsp["result"]["txs"]
+
+    def tx(self, value, **kwargs):
+        "/tx"
+        default_kwargs = {
+            "home": self.data_dir,
+        }
+        return json.loads(self.raw("query", "tx", value, **(default_kwargs | kwargs)))
 
     def query_tx(self, tx_type, tx_value):
         tx = self.raw(
@@ -169,254 +215,6 @@ class CosmosCLI:
             node=self.node_rpc,
         )
         return json.loads(txs)
-
-    def distribution_commission(self, addr):
-        coin = json.loads(
-            self.raw(
-                "query",
-                "distribution",
-                "commission",
-                addr,
-                output="json",
-                node=self.node_rpc,
-            )
-        )["commission"][0]
-        return float(coin["amount"])
-
-    def distribution_community(self):
-        coin = json.loads(
-            self.raw(
-                "query",
-                "distribution",
-                "community-pool",
-                output="json",
-                node=self.node_rpc,
-            )
-        )["pool"][0]
-        return float(coin["amount"])
-
-    def distribution_reward(self, delegator_addr):
-        coin = json.loads(
-            self.raw(
-                "query",
-                "distribution",
-                "rewards",
-                delegator_addr,
-                output="json",
-                node=self.node_rpc,
-            )
-        )["total"][0]
-        return float(coin["amount"])
-
-    def address(self, name, bech="acc"):
-        output = self.raw(
-            "keys",
-            "show",
-            name,
-            "-a",
-            home=self.data_dir,
-            keyring_backend="test",
-            bech=bech,
-        )
-        return output.strip().decode()
-
-    def account(self, addr):
-        return json.loads(
-            self.raw(
-                "query", "auth", "account", addr, output="json", node=self.node_rpc
-            )
-        )
-
-    def tx_search(self, events: str):
-        "/tx_search"
-        return json.loads(
-            self.raw("query", "txs", events=events, output="json", node=self.node_rpc)
-        )
-
-    def tx_search_rpc(self, events: str):
-        rsp = requests.get(
-            f"{self.node_rpc_http}/tx_search",
-            params={
-                "query": f'"{events}"',
-            },
-        ).json()
-        assert "error" not in rsp, rsp["error"]
-        return rsp["result"]["txs"]
-
-    def tx(self, value, **kwargs):
-        "/tx"
-        default_kwargs = {
-            "home": self.data_dir,
-        }
-        return json.loads(self.raw("query", "tx", value, **(default_kwargs | kwargs)))
-
-    def total_supply(self):
-        return json.loads(
-            self.raw("query", "bank", "total", output="json", node=self.node_rpc)
-        )
-
-    def validator(self, addr):
-        return json.loads(
-            self.raw(
-                "query",
-                "staking",
-                "validator",
-                addr,
-                output="json",
-                node=self.node_rpc,
-            )
-        )
-
-    def validators(self):
-        return json.loads(
-            self.raw(
-                "query", "staking", "validators", output="json", node=self.node_rpc
-            )
-        )["validators"]
-
-    def staking_params(self):
-        return json.loads(
-            self.raw("query", "staking", "params", output="json", node=self.node_rpc)
-        )
-
-    def staking_pool(self, bonded=True):
-        return int(
-            json.loads(
-                self.raw("query", "staking", "pool", output="json", node=self.node_rpc)
-            )["bonded_tokens" if bonded else "not_bonded_tokens"]
-        )
-
-    def transfer(self, from_, to, coins, generate_only=False, **kwargs):
-        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
-        return json.loads(
-            self.raw(
-                "tx",
-                "bank",
-                "send",
-                from_,
-                to,
-                coins,
-                "-y",
-                "--generate-only" if generate_only else None,
-                home=self.data_dir,
-                **kwargs,
-            )
-        )
-
-    def get_delegated_amount(self, which_addr):
-        return json.loads(
-            self.raw(
-                "query",
-                "staking",
-                "delegations",
-                which_addr,
-                home=self.data_dir,
-                chain_id=self.chain_id,
-                node=self.node_rpc,
-                output="json",
-            )
-        )
-
-    def delegate_amount(self, to_addr, amount, from_addr, gas_price=None):
-        if gas_price is None:
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "staking",
-                    "delegate",
-                    to_addr,
-                    amount,
-                    "-y",
-                    home=self.data_dir,
-                    from_=from_addr,
-                    keyring_backend="test",
-                    chain_id=self.chain_id,
-                    node=self.node_rpc,
-                )
-            )
-        else:
-            return json.loads(
-                self.raw(
-                    "tx",
-                    "staking",
-                    "delegate",
-                    to_addr,
-                    amount,
-                    "-y",
-                    home=self.data_dir,
-                    from_=from_addr,
-                    keyring_backend="test",
-                    chain_id=self.chain_id,
-                    node=self.node_rpc,
-                    gas_prices=gas_price,
-                )
-            )
-
-    # to_addr: croclcl1...  , from_addr: cro1...
-    def unbond_amount(self, to_addr, amount, from_addr):
-        return json.loads(
-            self.raw(
-                "tx",
-                "staking",
-                "unbond",
-                to_addr,
-                amount,
-                "-y",
-                home=self.data_dir,
-                from_=from_addr,
-                keyring_backend="test",
-                chain_id=self.chain_id,
-                node=self.node_rpc,
-            )
-        )
-
-    # to_validator_addr: crocncl1...  ,  from_from_validator_addraddr: crocl1...
-    def redelegate_amount(
-        self, to_validator_addr, from_validator_addr, amount, from_addr
-    ):
-        return json.loads(
-            self.raw(
-                "tx",
-                "staking",
-                "redelegate",
-                from_validator_addr,
-                to_validator_addr,
-                amount,
-                "-y",
-                home=self.data_dir,
-                from_=from_addr,
-                keyring_backend="test",
-                chain_id=self.chain_id,
-                node=self.node_rpc,
-            )
-        )
-
-    # from_delegator can be account name or address
-    def withdraw_all_rewards(self, from_delegator):
-        return json.loads(
-            self.raw(
-                "tx",
-                "distribution",
-                "withdraw-all-rewards",
-                "-y",
-                from_=from_delegator,
-                home=self.data_dir,
-                keyring_backend="test",
-                chain_id=self.chain_id,
-                node=self.node_rpc,
-            )
-        )
-
-    def make_multisig(self, name, signer1, signer2):
-        self.raw(
-            "keys",
-            "add",
-            name,
-            multisig=f"{signer1},{signer2}",
-            multisig_threshold="2",
-            home=self.data_dir,
-            keyring_backend="test",
-        )
 
     def sign_multisig_tx(self, tx_file, multi_addr, signer_name):
         return json.loads(
@@ -532,6 +330,103 @@ class CosmosCLI:
             fp.flush()
             return self.broadcast_tx(fp.name, **kwargs)
 
+    # ==========================
+    #       BANK module
+    # ==========================
+
+    def total_supply(self):
+        return json.loads(
+            self.raw("query", "bank", "total", output="json", node=self.node_rpc)
+        )
+
+    def transfer(self, from_, to, coins, generate_only=False, **kwargs):
+        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        return json.loads(
+            self.raw(
+                "tx",
+                "bank",
+                "send",
+                from_,
+                to,
+                coins,
+                "-y",
+                "--generate-only" if generate_only else None,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def balances(self, addr):
+        return json.loads(
+            self.raw("query", "bank", "balances", addr, home=self.data_dir)
+        )["balances"]
+
+    def balance(self, addr, denom=DEFAULT_DENOM):
+        denoms = {coin["denom"]: int(coin["amount"]) for coin in self.balances(addr)}
+        return denoms.get(denom, 0)
+
+    # ==========================
+    #    DISTRIBUTION module
+    # ==========================
+
+    def distribution_commission(self, addr):
+        coin = json.loads(
+            self.raw(
+                "query",
+                "distribution",
+                "commission",
+                addr,
+                output="json",
+                node=self.node_rpc,
+            )
+        )["commission"][0]
+        return float(coin["amount"])
+
+    def distribution_community(self):
+        coin = json.loads(
+            self.raw(
+                "query",
+                "distribution",
+                "community-pool",
+                output="json",
+                node=self.node_rpc,
+            )
+        )["pool"][0]
+        return float(coin["amount"])
+
+    def distribution_reward(self, delegator_addr):
+        coin = json.loads(
+            self.raw(
+                "query",
+                "distribution",
+                "rewards",
+                delegator_addr,
+                output="json",
+                node=self.node_rpc,
+            )
+        )["total"][0]
+        return float(coin["amount"])
+
+    # from_delegator can be account name or address
+    def withdraw_all_rewards(self, from_delegator):
+        return json.loads(
+            self.raw(
+                "tx",
+                "distribution",
+                "withdraw-all-rewards",
+                "-y",
+                from_=from_delegator,
+                home=self.data_dir,
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                node=self.node_rpc,
+            )
+        )
+
+    # ==========================
+    #       SLASHING module
+    # ==========================
+
     def unjail(self, addr):
         return json.loads(
             self.raw(
@@ -544,6 +439,113 @@ class CosmosCLI:
                 node=self.node_rpc,
                 keyring_backend="test",
                 chain_id=self.chain_id,
+            )
+        )
+
+    # ==========================
+    #       STAKING module
+    # ==========================
+
+    def validator(self, addr):
+        return json.loads(
+            self.raw(
+                "query",
+                "staking",
+                "validator",
+                addr,
+                output="json",
+                node=self.node_rpc,
+            )
+        )
+
+    def validators(self):
+        return json.loads(
+            self.raw(
+                "query", "staking", "validators", output="json", node=self.node_rpc
+            )
+        )["validators"]
+
+    def staking_params(self):
+        return json.loads(
+            self.raw("query", "staking", "params", output="json", node=self.node_rpc)
+        )
+
+    def staking_pool(self, bonded=True):
+        return int(
+            json.loads(
+                self.raw("query", "staking", "pool", output="json", node=self.node_rpc)
+            )["bonded_tokens" if bonded else "not_bonded_tokens"]
+        )
+
+    def get_delegated_amount(self, which_addr):
+        return json.loads(
+            self.raw(
+                "query",
+                "staking",
+                "delegations",
+                which_addr,
+                home=self.data_dir,
+                chain_id=self.chain_id,
+                node=self.node_rpc,
+                output="json",
+            )
+        )
+
+    def delegate_amount(self, to_addr, amount, from_addr, **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "staking",
+                "delegate",
+                to_addr,
+                amount,
+                "--generate-only",
+                "--from",
+                from_addr,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    # to_addr: croclcl1...  , from_addr: cro1...
+    def unbond_amount(self, to_addr, amount, from_addr):
+        return json.loads(
+            self.raw(
+                "tx",
+                "staking",
+                "unbond",
+                to_addr,
+                amount,
+                "-y",
+                home=self.data_dir,
+                from_=from_addr,
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                node=self.node_rpc,
+            )
+        )
+
+    # to_validator_addr: crocncl1...  ,  from_from_validator_addraddr: crocl1...
+    def redelegate_amount(
+        self, to_validator_addr, from_validator_addr, amount, from_addr
+    ):
+        return json.loads(
+            self.raw(
+                "tx",
+                "staking",
+                "redelegate",
+                from_validator_addr,
+                to_validator_addr,
+                amount,
+                "-y",
+                home=self.data_dir,
+                from_=from_addr,
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                node=self.node_rpc,
             )
         )
 
@@ -636,6 +638,10 @@ class CosmosCLI:
                 **{k: v for k, v in options.items() if v is not None},
             )
         )
+
+    # ==========================
+    #         GOV module
+    # ==========================
 
     def gov_propose(self, proposer, kind, proposal, **kwargs):
         method = "submit-legacy-proposal"
@@ -771,6 +777,10 @@ class CosmosCLI:
             )
         )
 
+    # ==========================
+    #           IBC
+    # ==========================
+
     def ibc_transfer(
         self,
         from_,
@@ -801,45 +811,6 @@ class CosmosCLI:
                 packet_timeout_timestamp=0,
             )
         )
-
-    def export(self):
-        return self.raw("export", home=self.data_dir)
-
-    def unsaferesetall(self):
-        return self.raw("unsafe-reset-all")
-
-    def build_evm_tx(self, raw_tx: str, **kwargs):
-        return json.loads(
-            self.raw(
-                "tx",
-                "evm",
-                "raw",
-                raw_tx,
-                "-y",
-                "--generate-only",
-                home=self.data_dir,
-                **kwargs,
-            )
-        )
-
-    def query_base_fee(self, **kwargs):
-        default_kwargs = {"home": self.data_dir}
-        return int(
-            json.loads(
-                self.raw(
-                    "q",
-                    "feemarket",
-                    "base-fee",
-                    **(default_kwargs | kwargs),
-                )
-            )["base_fee"]
-        )
-
-    def rollback(self):
-        self.raw("rollback", home=self.data_dir)
-
-    def migrate_keystore(self):
-        return self.raw("keys", "migrate", home=self.data_dir)
 
     def register_counterparty_payee(
         self, port_id, channel_id, relayer, counterparty_payee, **kwargs
@@ -896,6 +867,24 @@ class CosmosCLI:
             )
         )
 
+    # ==========================
+    #        EVM Module
+    # ==========================
+
+    def build_evm_tx(self, raw_tx: str, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "evm",
+                "raw",
+                raw_tx,
+                "-y",
+                "--generate-only",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
     def evm_params(self, **kwargs):
         default_kwargs = {
             "node": self.node_rpc,
@@ -909,3 +898,142 @@ class CosmosCLI:
                 **(default_kwargs | kwargs),
             )
         )
+
+    # ==========================
+    #       FEEMARKET Module
+    # ==========================
+
+    def query_base_fee(self, **kwargs):
+        default_kwargs = {"home": self.data_dir}
+        return int(
+            json.loads(
+                self.raw(
+                    "q",
+                    "feemarket",
+                    "base-fee",
+                    **(default_kwargs | kwargs),
+                )
+            )["base_fee"]
+        )
+
+    # ==========================
+    #        AUTHZ Module
+    # ==========================
+
+    def authz_exec(self, tx_json_file: str, grantee: str, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "authz",
+                "exec",
+                tx_json_file,
+                "--generate-only",
+                "--from",
+                grantee,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    # ==========================
+    #        AUTH Module
+    # ==========================
+
+    def account(self, addr):
+        return json.loads(
+            self.raw(
+                "query", "auth", "account", addr, output="json", node=self.node_rpc
+            )
+        )
+
+    def query_module_accounts(self, **kwargs):
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        return json.loads(
+            self.raw(
+                "q",
+                "auth",
+                "module-accounts",
+                **(default_kwargs | kwargs),
+            )
+        )["accounts"]
+
+    # ==========================
+    #       VESTING Module
+    # ==========================
+
+    def vesting_balance(self, addr: str):
+        balances = self.raw("q", "vesting", "balances", addr, home=self.data_dir)
+        # the '--output json' flag has no effect in this query
+        # so need to parse it
+        lines = balances.decode("utf-8").split("\n")
+        res = {}
+
+        for line in lines:
+            if ":" in line:
+                key, value = line.split(":", 1)
+                res[key.strip().lower()] = value.strip()
+
+        return res
+
+    def create_vesting_acc(self, funder: str, address: str, gov_clawback="0", **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "vesting",
+                "create-clawback-vesting-account",
+                funder,
+                gov_clawback,
+                "--from",
+                address,
+                "--generate-only",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def fund_vesting_acc(
+        self, address: str, funder: str, lockup_file: str, vesting_file: str, **kwargs
+    ):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "vesting",
+                "fund-vesting-account",
+                address,
+                "--generate-only",
+                "--from",
+                funder,
+                "--lockup",
+                lockup_file,
+                "--vesting",
+                vesting_file,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    # ==========================
+    #        Tendermint
+    # ==========================
+
+    def consensus_address(self):
+        "get tendermint consensus address"
+        output = self.raw("tendermint", "show-address", home=self.data_dir)
+        return output.decode().strip()
+
+    def node_id(self):
+        "get tendermint node id"
+        output = self.raw("tendermint", "show-node-id", home=self.data_dir)
+        return output.decode().strip()
+
+    def export(self):
+        return self.raw("export", home=self.data_dir)
+
+    def unsaferesetall(self):
+        return self.raw("unsafe-reset-all")
