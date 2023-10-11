@@ -17,7 +17,8 @@ from .utils import (
 
 def test_send_funds_to_distr_mod(evmos):
     """
-    test transfer funds to distribution module account should be forbidden
+    This tests the transfer of funds to the distribution module account,
+    which should be forbidden, since this is a blocked address.
     """
     cli = evmos.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
@@ -247,7 +248,6 @@ def test_unvested_token_delegation(evmos):
 
     rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
     assert rsp["code"] == 0, rsp["raw_log"]
-    # txhash = rsp["txhash"]
 
     wait_for_new_blocks(cli, 2)
 
@@ -257,7 +257,7 @@ def test_unvested_token_delegation(evmos):
     rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
 
     # assert tx returns OK code
-    assert rsp["code"] == 0
+    assert rsp["code"] == 0, rsp["raw_log"]
 
     # wait tx to be committed
     wait_for_new_blocks(cli, 2)
@@ -310,7 +310,7 @@ def test_unvested_token_delegation(evmos):
             tx = cli.sign_tx_json(tx, funder, max_priority_price=0)
             rsp = cli.broadcast_tx_json(tx, broadcast_mode="sync")
             # assert tx returns OK code
-            assert rsp["code"] == 0
+            assert rsp["code"] == 0, rsp["raw_log"]
 
             # wait tx to be committed
             wait_for_new_blocks(cli, 2)

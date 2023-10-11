@@ -261,8 +261,8 @@ def compare_fields(a, b, fields):
         assert a[field] == b[field], f"{field} field mismatch"
 
 
-# get_fees_from_tx_result returns the fees from the tx_result
-# of a cosmos transaction. It gets them from the tx events
+# get_fees_from_tx_result returns the fees by unpacking them 
+# from the events contained in the tx_result of a cosmos transaction.
 def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
     for event in tx_result["events"]:
         if event["type"] == "tx":
