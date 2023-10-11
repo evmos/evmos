@@ -1,4 +1,4 @@
-FROM golang:1.21.1-alpine3.18 AS build-env
+FROM golang:1.21.2-alpine3.18 AS build-env
 
 WORKDIR /go/src/github.com/evmos/evmos
 
