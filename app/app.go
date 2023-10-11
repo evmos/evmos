@@ -1304,6 +1304,19 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+<<<<<<< HEAD
+=======
+	// v14.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v142.UpgradeName,
+		v142.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.BankKeeper,
+			app.StakingKeeper,
+		),
+	)
+
+>>>>>>> fc2c9a2a (chore(upgrade): add migration to upgrade logic (#1845))
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
