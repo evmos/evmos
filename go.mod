@@ -42,7 +42,7 @@ require (
 	github.com/zondax/hid v0.9.1
 	go.opencensus.io v0.24.0
 	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	golang.org/x/net v0.16.0
+	golang.org/x/net v0.17.0
 	golang.org/x/text v0.13.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230711160842-782d3b101e98
 	google.golang.org/grpc v1.58.3
