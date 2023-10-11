@@ -6,45 +6,46 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"math/big"
 	"strings"
 )
 
 // CreateLiquidStakeEvmosPacket creates a new packet for the liquid staking
-func CreateLiquidStakeEvmosPacket(args []interface{}, bondDenom string) (sdk.Coin, string, error) {
-	if len(args) != 2 {
-		return sdk.Coin{}, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+func CreateLiquidStakeEvmosPacket(args []interface{}) (common.Address, *big.Int, string, error) {
+	if len(args) != 3 {
+		return common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
 	}
 
-	coin, ok := args[0].(cmn.Coin)
+	erc20Addr, ok := args[0].(common.Address)
 	if !ok {
-		return sdk.Coin{}, "", fmt.Errorf(cmn.ErrInvalidType, "amount", cmn.Coin{}, args[0])
+		return common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "erc20Addr", "", args[0])
 	}
 
-	if coin.Denom != bondDenom {
-		return sdk.Coin{}, "", fmt.Errorf(cmn.ErrInvalidDenom, "aevmos")
+	amount, ok := args[1].(*big.Int)
+	if !ok {
+		return common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", "", args[1])
 	}
-
-	// Convert our common Coin into an SDK Coin
-	sdkCoin := sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount))
 
 	receiverAddress, ok := args[1].(string)
 	if !ok {
-		return sdk.Coin{}, "", fmt.Errorf(cmn.ErrInvalidType, "receiverAddress", "", args[1])
+		return common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiverAddress", "", args[2])
 	}
 
 	// Check if the receiver address has stride before
+	// TODO: This might be unnecessary
 	if receiverAddress[:6] != "stride" {
-		return sdk.Coin{}, "", fmt.Errorf("receiverAddress is not a stride address")
+		return common.Address{}, nil, "", fmt.Errorf("receiverAddress is not a stride address")
 	}
 
 	// Check if account is a valid bech32 address
 	_, err := AccAddressFromBech32(receiverAddress, "stride")
 	if err != nil {
-		return sdk.Coin{}, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid bech32 address: %s", err)
+		return common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid bech32 address: %s", err)
 	}
 
-	return sdkCoin, receiverAddress, nil
+	return erc20Addr, amount, receiverAddress, nil
 }
 
 // NewMsgTransfer creates a new MsgTransfer

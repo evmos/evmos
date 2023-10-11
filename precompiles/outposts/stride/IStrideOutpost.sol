@@ -5,13 +5,13 @@ pragma solidity >=0.8.18;
 address constant STRIDE_OUTPOST_ADDRESS = 0x0000000000000000000000000000000000000900;
 
 /// @dev The Stride Outpost contract's instance.
-StrideOutpostI constant STRIDE_OUTPOST_CONTRACT = StrideOutpostI(STRIDE_OUTPOST_ADDRESS);
+IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(STRIDE_OUTPOST_ADDRESS);
 
 /// @author Evmos Team
 /// @title StrideOutpost Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with Stride Outpost that uses ICS20 under the hood
 /// @custom:address 0x0000000000000000000000000000000000000900
-interface StrideOutpostI {
+interface IStrideOutpost {
     /// @dev Emitted on a LiquidStake transaction.
     /// @param sender The address of the sender.
     /// @param token The address of the ERC-20 token pair.

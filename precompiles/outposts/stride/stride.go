@@ -7,11 +7,11 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 )
 
@@ -25,15 +25,15 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	transferKeeper transferkeeper.Keeper
-	channelKeeper  channelkeeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
+	erc20Keeper    erc20keeper.Keeper
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
-	channelKeeper channelkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 ) (*Precompile, error) {
@@ -56,7 +56,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		transferKeeper: transferKeeper,
-		channelKeeper:  channelKeeper,
+		erc20Keeper:    erc20Keeper,
 		stakingKeeper:  stakingKeeper,
 	}, nil
 }

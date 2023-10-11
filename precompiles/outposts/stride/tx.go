@@ -4,8 +4,6 @@ import (
 	"embed"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -18,13 +16,20 @@ import (
 var memoF embed.FS
 
 const (
-	// StrideChannelID is the channel ID for the Stride channel
+	// StrideChannelID is the channel ID for the Stride channel on mainnet.
 	StrideChannelID = "channel-25"
 	// LiquidStakeEvmosMethod is the method name of the LiquidStakeEvmos method
 	LiquidStakeEvmosMethod = "liquidStakeEvmos"
+	// OsmoERC20Address is the ERC20 hex address of the Osmosis token on mainnet.
+	OsmoERC20Address = "0xFA3C22C069B9556A4B2f7EcE1Ee3B467909f4864"
 )
 
-// LiquidStakeEvmos is a transaction that liquid stakes Evmos using
+var (
+	// WEVMOSAddress is the ERC20 hex address of the WEVMOS token on mainnet.
+	WEVMOSAddress = common.HexToAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
+)
+
+// LiquidStake is a transaction that liquid stakes Evmos using
 // a ICS20 transfer with a custom memo field that will trigger Stride's Autopilot middleware
 func (p Precompile) LiquidStake(
 	ctx sdk.Context,
@@ -33,15 +38,22 @@ func (p Precompile) LiquidStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	coin, receiverAddress, err := CreateLiquidStakeEvmosPacket(args, p.stakingKeeper.BondDenom(ctx))
+	erc20Addr, amount, receiverAddress, err := CreateLiquidStakeEvmosPacket(args)
 	if err != nil {
 		return nil, err
 	}
 
-	// Check if the channel with Stride is found
-	_, found := p.channelKeeper.GetChannel(ctx, transfertypes.PortID, StrideChannelID)
-	if !found {
-		return nil, channeltypes.ErrChannelNotFound
+	// TODO: temporary check if the erc20Addr is WEVMOS or the Osmosis token pair
+	var coin sdk.Coin
+	tokenPairID := p.erc20Keeper.GetTokenPairID(ctx, erc20Addr.String())
+	tokenPair, _ := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
+	switch {
+	case erc20Addr == WEVMOSAddress:
+		coin = sdk.NewCoin("aevmos", sdk.NewIntFromBigInt(amount))
+	case tokenPair.Erc20Address == OsmoERC20Address:
+		coin = sdk.NewCoin(tokenPair.Denom, sdk.NewIntFromBigInt(amount))
+	default:
+		return nil, fmt.Errorf("unsupported ERC20 token")
 	}
 
 	// Create the memo for the ICS20 transfer
