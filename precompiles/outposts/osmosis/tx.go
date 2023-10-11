@@ -77,7 +77,6 @@ func (p Precompile) Swap(
 		auth       authz.Authorization
 		resp       *authz.AcceptResponse
 	)
-
 	if contract.CallerAddress != origin {
 		// check if authorization exists
 		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsgURL)
@@ -107,7 +106,7 @@ func (p Precompile) Swap(
 	}
 
 	// Emit the ICS20 Transfer Event
-	if err := p.EmitIBCTransferEvent(ctx, stateDB, sender, amount, inputDenom, memo); err != nil {
+	if err := ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg); err != nil {
 		return nil, err
 	}
 
