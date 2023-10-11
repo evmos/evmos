@@ -41,7 +41,7 @@ class IBCNetwork(NamedTuple):
     hermes: Hermes
 
 
-def prepare_network(tmp_path, file, other_chains_names: List[str]):
+def prepare_network(tmp_path: Path, file: str, other_chains_names: List[str]):
     file = f"configs/{file}.jsonnet"
     gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
     evmos = next(gen)

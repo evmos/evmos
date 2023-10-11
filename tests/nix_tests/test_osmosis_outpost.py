@@ -6,7 +6,9 @@ from .utils import ADDRS, get_precompile_contract, wait_for_fn
 
 @pytest.fixture(scope="module")
 def ibc(tmp_path_factory):
-    "prepare-network"
+    """
+    Prepares the network.
+    """
     name = "osmosis-outpost"
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections

@@ -8,7 +8,9 @@ from .utils import ADDRS, get_precompile_contract, wait_for_fn
 
 @pytest.fixture(scope="module")
 def ibc(tmp_path_factory):
-    "prepare-network"
+    """
+    Prepares the network.
+    """
     name = "ibc-precompile"
     path = tmp_path_factory.mktemp(name)
     network = prepare_network(path, name, ["chainmain"])
