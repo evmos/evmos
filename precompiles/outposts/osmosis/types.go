@@ -80,14 +80,14 @@ func CreateSwapPacketData(args []interface{}) (*big.Int, common.Address, string,
 		return nil, common.Address{}, "", "", "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
-	amount, ok := args[0].(*big.Int)
+	sender, ok := args[0].(common.Address)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid amount: %v", args[0])
+		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid sender address: %v", args[0])
 	}
 
-	sender, ok := args[1].(common.Address)
+	amount, ok := args[1].(*big.Int)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid sender address: %v", args[1])
+		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid amount: %v", args[1])
 	}
 
 	receiverAddress, ok := args[2].(string)
