@@ -6,6 +6,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 )
 
 // CosmosTxArgs contains the params to create a cosmos tx
@@ -32,4 +33,12 @@ type CallArgs struct {
 	MethodName string
 	// Args are the arguments to pass to the method.
 	Args []interface{}
+}
+
+// ContractDeploymentData is a struct to define all relevant data to deploy a smart contract.
+type ContractDeploymentData struct {
+	// Contract is the compiled contract to deploy.
+	Contract evmtypes.CompiledContract
+	// ConstructorArgs are the arguments to pass to the constructor.
+	ConstructorArgs []interface{}
 }

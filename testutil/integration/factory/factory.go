@@ -40,7 +40,7 @@ const (
 type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
-	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
+	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
@@ -76,11 +76,12 @@ func New(
 }
 
 // DeployContract deploys a contract with the provided private key,
-// compiled contract data and constructor arguments
+// compiled contract data and constructor arguments.
+// TxArgs Input and Nonce fields are overwritten.
 func (tf *IntegrationTxFactory) DeployContract(
 	priv cryptotypes.PrivKey,
-	contract evmtypes.CompiledContract,
-	constructorArgs ...interface{},
+	txArgs evmtypes.EvmTxArgs,
+	deploymentData ContractDeploymentData,
 ) (common.Address, error) {
 	// Get account's nonce to create contract hash
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
@@ -90,23 +91,19 @@ func (tf *IntegrationTxFactory) DeployContract(
 	}
 	nonce := account.GetNonce()
 
-	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
+	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
 	if err != nil {
 		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
 	}
-	data := contract.Bin
+	data := deploymentData.Contract.Bin
 	data = append(data, ctorArgs...)
 
-	args := evmtypes.EvmTxArgs{
-		Input: data,
-		Nonce: nonce,
-	}
-
-	res, err := tf.ExecuteEthTx(priv, args)
+	txArgs.Input = data
+	txArgs.Nonce = nonce
+	res, err := tf.ExecuteEthTx(priv, txArgs)
 	if err != nil || !res.IsOK() {
 		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
-
 	return crypto.CreateAddress(from, nonce), nil
 }
 

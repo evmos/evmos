@@ -75,7 +75,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 		})
 
-		It("performs a transfer transaction as a DynamicFeeTx", func() {
+		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
 			denom := s.network.GetDenom()
@@ -88,11 +88,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
 
-			txAmount := int64(1000)
-			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiverKey.Addr,
-				Amount: big.NewInt(txAmount),
-			}
+			transferAmount := int64(1000)
+
+			// Taking custom args from the table entry
+			txArgs := getTxArgs()
+			txArgs.Amount = big.NewInt(transferAmount)
+			txArgs.To = &receiverKey.Addr
+
 			res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
@@ -101,27 +103,49 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 
 			// Check sender balance after transaction
-			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(txAmount))
+			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
 			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
 
 			// Check receiver balance after transaction
-			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(txAmount))
+			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
 			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
-		})
+		},
+			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
+			Entry("as an AccessListTx",
+				func() evmtypes.EvmTxArgs {
+					return evmtypes.EvmTxArgs{
+						Accesses: &ethtypes.AccessList{{
+							Address:     s.keyring.GetAddr(1),
+							StorageKeys: []common.Hash{{0}},
+						}},
+					}
+				},
+			),
+			Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
+				return evmtypes.EvmTxArgs{
+					GasPrice: big.NewInt(1e9),
+				}
+			}),
+		)
 
-		It("performs an ERC20MinterBurnerDecimalsContract contract deployment and contract call as DynamicFeeTx", func() {
+		DescribeTable("Executes a contract deployment", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			// Deploy contract
 			senderPriv := s.keyring.GetPrivKey(0)
 			constructorArgs := []interface{}{"coin", "token", uint8(18)}
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+
+			txArgs := getTxArgs()
 			contractAddr, err := s.factory.DeployContract(
 				senderPriv,
-				compiledContract,
-				constructorArgs...,
+				txArgs,
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
 			)
 			Expect(err).To(BeNil())
 			Expect(contractAddr).ToNot(Equal(common.Address{}))
@@ -135,50 +159,115 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).To(BeNil())
 			err = integrationutils.IsContractAccount(contractAccount)
 			Expect(err).To(BeNil())
+		},
+			Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
+			Entry("as an AccessListTx",
+				func() evmtypes.EvmTxArgs {
+					return evmtypes.EvmTxArgs{
+						Accesses: &ethtypes.AccessList{{
+							Address:     s.keyring.GetAddr(1),
+							StorageKeys: []common.Hash{{0}},
+						}},
+					}
+				},
+			),
+			Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
+				return evmtypes.EvmTxArgs{
+					GasPrice: big.NewInt(1e9),
+				}
+			}),
+		)
 
-			// Execute contract call
-			recipientKey := s.keyring.GetKey(1)
-			minTxArgs := evmtypes.EvmTxArgs{
-				To: &contractAddr,
-			}
-			amountToMint := big.NewInt(1e18)
-			mintArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "mint",
-				Args:        []interface{}{recipientKey.Addr, amountToMint},
-			}
-			res, err := s.factory.ExecuteContractCall(senderPriv, minTxArgs, mintArgs)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+		Context("With a predeployed ERC20MinterBurnerDecimalsContract", func() {
+			var contractAddr common.Address
 
-			// Check contract call response has the expected topics for a mint
-			// call within an ERC20 contract
-			expectedTopics := []string{
-				"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-				"0x0000000000000000000000000000000000000000000000000000000000000000",
-			}
-			err = integrationutils.CheckTxTopics(res, expectedTopics)
-			Expect(err).To(BeNil())
+			BeforeEach(func() {
+				// Deploy contract
+				senderPriv := s.keyring.GetPrivKey(0)
+				constructorArgs := []interface{}{"coin", "token", uint8(18)}
+				compiledContract := contracts.ERC20MinterBurnerDecimalsContract
 
-			err = s.network.NextBlock()
-			Expect(err).To(BeNil())
+				var err error // Avoid shadowing
+				contractAddr, err = s.factory.DeployContract(
+					senderPriv,
+					evmtypes.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
+				Expect(err).To(BeNil())
+				Expect(contractAddr).ToNot(Equal(common.Address{}))
 
-			totalSupplyTxArgs := evmtypes.EvmTxArgs{
-				To: &contractAddr,
-			}
-			totalSupplyArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "totalSupply",
-				Args:        []interface{}{},
-			}
-			totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+				err = s.network.NextBlock()
+				Expect(err).To(BeNil())
+			})
 
-			var totalSupplyResponse *big.Int
-			err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
-			Expect(err).To(BeNil())
-			Expect(totalSupplyResponse).To(Equal(amountToMint))
+			DescribeTable("Executes a contract call", func(getTxArgs func() evmtypes.EvmTxArgs) {
+				senderPriv := s.keyring.GetPrivKey(0)
+				compiledContract := contracts.ERC20MinterBurnerDecimalsContract
+				recipientKey := s.keyring.GetKey(1)
+
+				// Execute contract call
+				mintTxArgs := getTxArgs()
+				mintTxArgs.To = &contractAddr
+
+				amountToMint := big.NewInt(1e18)
+				mintArgs := factory.CallArgs{
+					ContractABI: compiledContract.ABI,
+					MethodName:  "mint",
+					Args:        []interface{}{recipientKey.Addr, amountToMint},
+				}
+				res, err := s.factory.ExecuteContractCall(senderPriv, mintTxArgs, mintArgs)
+				Expect(err).To(BeNil())
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+				// Check contract call response has the expected topics for a mint
+				// call within an ERC20 contract
+				expectedTopics := []string{
+					"0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+					"0x0000000000000000000000000000000000000000000000000000000000000000",
+				}
+				err = integrationutils.CheckTxTopics(res, expectedTopics)
+				Expect(err).To(BeNil())
+
+				err = s.network.NextBlock()
+				Expect(err).To(BeNil())
+
+				totalSupplyTxArgs := evmtypes.EvmTxArgs{
+					To: &contractAddr,
+				}
+				totalSupplyArgs := factory.CallArgs{
+					ContractABI: compiledContract.ABI,
+					MethodName:  "totalSupply",
+					Args:        []interface{}{},
+				}
+				totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
+				Expect(err).To(BeNil())
+				Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+				var totalSupplyResponse *big.Int
+				err = integrationutils.DecodeContractCallResponse(&totalSupplyResponse, totalSupplyArgs, totalSupplyRes)
+				Expect(err).To(BeNil())
+				Expect(totalSupplyResponse).To(Equal(amountToMint))
+			},
+				Entry("as a DynamicFeeTx", func() evmtypes.EvmTxArgs { return evmtypes.EvmTxArgs{} }),
+				Entry("as an AccessListTx",
+					func() evmtypes.EvmTxArgs {
+						return evmtypes.EvmTxArgs{
+							Accesses: &ethtypes.AccessList{{
+								Address:     s.keyring.GetAddr(1),
+								StorageKeys: []common.Hash{{0}},
+							}},
+						}
+					},
+				),
+				Entry("as a LegacyTx", func() evmtypes.EvmTxArgs {
+					return evmtypes.EvmTxArgs{
+						GasPrice: big.NewInt(1e9),
+					}
+				}),
+			)
 		})
 
 		It("should fail when ChainID is wrong", func() {
@@ -195,37 +284,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
 			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
-		})
-
-		It("performs an AccessListTx", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
-			accessList := &ethtypes.AccessList{{Address: receiver.Addr, StorageKeys: []common.Hash{{0}}}}
-			// GasFeeCap and GasTipCap are populated by default by the factory
-			txArgs := evmtypes.EvmTxArgs{
-				To:       &receiver.Addr,
-				Amount:   big.NewInt(1000),
-				Accesses: accessList,
-			}
-
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
-		})
-
-		It("performs a LegacyTx", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
-			// GasFeeCap and GasTipCap are populated by default by the factory
-			txArgs := evmtypes.EvmTxArgs{
-				To:       &receiver.Addr,
-				Amount:   big.NewInt(1000),
-				GasPrice: big.NewInt(1e9),
-			}
-
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
-			Expect(err).To(BeNil())
-			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
 		})
 	})
 
@@ -263,8 +321,11 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
 			contractAddr, err := s.factory.DeployContract(
 				senderPriv,
-				compiledContract,
-				constructorArgs...,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
 			)
 
 			Expect(err).NotTo(BeNil())
@@ -308,8 +369,11 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			compiledContract := contracts.ERC20MinterBurnerDecimalsContract
 			contractAddr, err := s.factory.DeployContract(
 				senderPriv,
-				compiledContract,
-				constructorArgs...,
+				evmtypes.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
 			)
 			Expect(err).To(BeNil())
 			Expect(contractAddr).ToNot(Equal(common.Address{}))
