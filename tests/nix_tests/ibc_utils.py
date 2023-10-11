@@ -83,8 +83,7 @@ def prepare_network(tmp_path: Path, file: str, other_chains_names: List[str]):
                     "--mnemonic-file",
                     evmos.base_dir.parent / "relayer.env",
                     "--overwrite",
-                ],
-                check=True,
+                ]
             )
 
     # Nested loop to connect all chains with each other
