@@ -5,11 +5,12 @@ package ics20
 
 import (
 	"fmt"
+	"math/big"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"math/big"
-	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
