@@ -11,6 +11,8 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
 	"github.com/evmos/evmos/v14/utils"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
+	"golang.org/x/exp/slices"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v14_2
@@ -18,6 +20,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	bk bankkeeper.Keeper,
+	ek *evmkeeper.Keeper,
 	sk stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -33,8 +36,33 @@ func CreateUpgradeHandler(
 			}
 		}
 
+		// Add EIP contained in Shanghai hard fork to the extra EIPs
+		// in the EVM parameters. This enables using the PUSH0 opcode and
+		// thus supports Solidity v0.8.20.
+		logger.Info("adding EIP 3855 to EVM parameters")
+		err := EnableEIPs(ctx, ek, 3855)
+		if err != nil {
+			logger.Error("error while enabling EIPs", "error", err)
+		}
+
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
+}
+
+// EnableEIPs enables the given EIPs in the EVM parameters.
+func EnableEIPs(ctx sdk.Context, ek *evmkeeper.Keeper, eips ...int64) error {
+	evmParams := ek.GetParams(ctx)
+
+	extraEIPs := evmParams.ExtraEIPs
+	for _, eip := range eips {
+		if !slices.Contains(extraEIPs, eip) {
+			extraEIPs = append(extraEIPs, eip)
+		}
+	}
+
+	evmParams.ExtraEIPs = extraEIPs
+
+	return ek.SetParams(ctx, evmParams)
 }
