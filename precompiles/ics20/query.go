@@ -115,7 +115,7 @@ func (p Precompile) Allowance(
 
 	if msgAuthz == nil {
 		// return empty array
-		return method.Outputs.Pack([]Allocation{})
+		return method.Outputs.Pack([]cmn.Allocation{})
 	}
 
 	transferAuthz, ok := msgAuthz.(*transfertypes.TransferAuthorization)
@@ -123,9 +123,9 @@ func (p Precompile) Allowance(
 		return nil, fmt.Errorf(cmn.ErrInvalidType, "transfer authorization", &transfertypes.TransferAuthorization{}, transferAuthz)
 	}
 
-	// need to convert to ics20.Allocation (uses big.Int)
+	// need to convert to cmn.Allocation (uses big.Int)
 	// because ibc Allocation has sdkmath.Int
-	allocs := make([]Allocation, len(transferAuthz.Allocations))
+	allocs := make([]cmn.Allocation, len(transferAuthz.Allocations))
 	for i, a := range transferAuthz.Allocations {
 		spendLimit := make([]cmn.Coin, len(a.SpendLimit))
 		for j, c := range a.SpendLimit {
@@ -135,7 +135,7 @@ func (p Precompile) Allowance(
 			}
 		}
 
-		allocs[i] = Allocation{
+		allocs[i] = cmn.Allocation{
 			SourcePort:    a.SourcePort,
 			SourceChannel: a.SourceChannel,
 			SpendLimit:    spendLimit,
