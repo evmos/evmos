@@ -92,7 +92,7 @@ func (p Precompile) Revoke(
 		return nil, err
 	}
 
-	if err = p.EmitIBCTransferAuthorizationEvent(ctx, stateDB, grantee, origin, []cmn.Allocation{}); err != nil {
+	if err = p.EmitIBCTransferAuthorizationEvent(ctx, stateDB, grantee, origin, []cmn.ICS20Allocation{}); err != nil {
 		return nil, err
 	}
 

@@ -99,7 +99,7 @@
 					}
 				],
 				"indexed": false,
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -157,7 +157,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -207,7 +207,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}

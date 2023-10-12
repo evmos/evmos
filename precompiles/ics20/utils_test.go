@@ -430,7 +430,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 func (s *PrecompileTestSuite) setTransferApproval(
 	args contracts.CallArgs,
 	grantee common.Address,
-	allocations []cmn.Allocation,
+	allocations []cmn.ICS20Allocation,
 ) {
 	args.MethodName = authorization.ApproveMethod
 	args.Args = []interface{}{
@@ -485,7 +485,7 @@ func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.Call
 
 // setupAllocationsForTesting sets the allocations for testing
 func (s *PrecompileTestSuite) setupAllocationsForTesting() {
-	defaultSingleAlloc = []cmn.Allocation{
+	defaultSingleAlloc = []cmn.ICS20Allocation{
 		{
 			SourcePort:    ibctesting.TransferPort,
 			SourceChannel: s.transferPath.EndpointA.ChannelID,
@@ -493,7 +493,7 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 		},
 	}
 
-	defaultManyAllocs = []cmn.Allocation{
+	defaultManyAllocs = []cmn.ICS20Allocation{
 		{
 			SourcePort:    ibctesting.TransferPort,
 			SourceChannel: s.transferPath.EndpointA.ChannelID,

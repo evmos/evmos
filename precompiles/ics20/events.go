@@ -26,7 +26,7 @@ func (p Precompile) EmitIBCTransferAuthorizationEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	granteeAddr, granterAddr common.Address,
-	allocations []cmn.Allocation,
+	allocations []cmn.ICS20Allocation,
 ) error {
 	event := p.ABI.Events[EventTypeIBCTransferAuthorization]
 	topics := make([]common.Hash, 3)
