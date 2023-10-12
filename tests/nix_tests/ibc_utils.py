@@ -1,116 +1,118 @@
 import json
 import subprocess
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, Dict, List, NamedTuple
 
 from pystarport import ports
 
-from .network import CosmosChain, Evmos, Hermes, setup_custom_evmos
+from .network import CosmosChain, Hermes, setup_custom_evmos
 from .utils import ADDRS, eth_to_bech32, wait_for_port
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
 RATIO = 10**10
+# IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
+IBC_CHAINS_META = {
+    "chainmain": {
+        "chain_name": "chainmain-1",
+        "bin": "chain-maind",
+        "denom": "basecro",
+    },
+    "stride": {
+        "chain_name": "stride-1",
+        "bin": "strided",
+        "denom": "ustrd",
+    },
+    "osmosis": {
+        "chain_name": "osmosis-1",
+        "bin": "osmosisd",
+        "denom": "uosmo",
+    },
+    "gaia": {
+        "chain_name": "cosmoshub-1",
+        "bin": "gaiad",
+        "denom": "uatom",
+    },
+}
 
 
 class IBCNetwork(NamedTuple):
-    evmos: Evmos
-    other_chain: CosmosChain
+    chains: Dict[str, Any]
     hermes: Hermes
-    incentivized: bool
 
 
-def prepare_network(tmp_path, file, other_chain_name, incentivized=False):
+def prepare_network(tmp_path: Path, file: str, other_chains_names: List[str]):
     file = f"configs/{file}.jsonnet"
     gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
     evmos = next(gen)
-
-    # set up another chain to connect to evmos
-    if "chainmain" in other_chain_name:
-        other_chain_name = "chainmain-1"
-        other_chain = CosmosChain(
-            evmos.base_dir.parent / other_chain_name, "chain-maind"
-        )
-        other_chain_denom = "basecro"
-    if "stride" in other_chain_name:
-        other_chain_name = "stride-1"
-        other_chain = CosmosChain(evmos.base_dir.parent / other_chain_name, "strided")
-        other_chain_denom = "ustrd"
-
-    hermes = Hermes(evmos.base_dir.parent / "relayer.toml")
+    chains = {"evmos": evmos}
     # wait for grpc ready
-    wait_for_port(ports.grpc_port(other_chain.base_port(0)))  # other_chain grpc
     wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc
 
-    version = {"fee_version": "ics29-1", "app_version": "ics20-1"}
-    incentivized_args = (
-        [
-            "--channel-version",
-            json.dumps(version),
-        ]
-        if incentivized
-        else []
-    )
+    # relayer
+    hermes = Hermes(evmos.base_dir.parent / "relayer.toml")
 
-    # pystarport (used to start the setup), by default uses ethereum
-    # hd-path to create the relayers keys on hermes.
-    # If this is not needed (e.g. in Cosmos chains like Stride, Osmosis, etc.)
-    # then overwrite the relayer key
-    if "chainmain" not in other_chain_name:
-        subprocess.run(
-            [
-                "hermes",
-                "--config",
-                hermes.configpath,
-                "keys",
-                "add",
-                "--chain",
-                other_chain_name,
-                "--mnemonic-file",
-                evmos.base_dir.parent / "relayer.env",
-                "--overwrite",
-            ],
-            check=True,
+    chains_to_connect = ["evmos_9000-1"]
+
+    # set up the other chains to connect to evmos
+    for chain in other_chains_names:
+        meta = IBC_CHAINS_META[chain]
+        other_chain_name = meta["chain_name"]
+        chain_instance = CosmosChain(
+            evmos.base_dir.parent / other_chain_name, meta["bin"]
         )
+        # wait for grpc ready in other_chains
+        wait_for_port(ports.grpc_port(chain_instance.base_port(0)))
 
-    subprocess.check_call(
-        [
-            "hermes",
-            "--config",
-            hermes.configpath,
-            "create",
-            "channel",
-            "--a-port",
-            "transfer",
-            "--b-port",
-            "transfer",
-            "--a-chain",
-            "evmos_9000-1",
-            "--b-chain",
-            other_chain_name,
-            "--new-client-connection",
-            "--yes",
-        ]
-        + incentivized_args
-    )
+        chains[chain] = chain_instance
+        chains_to_connect.append(other_chain_name)
+        # pystarport (used to start the setup), by default uses ethereum
+        # hd-path to create the relayers keys on hermes.
+        # If this is not needed (e.g. in Cosmos chains like Stride, Osmosis, etc.)
+        # then overwrite the relayer key
+        if "chainmain" not in other_chain_name:
+            subprocess.run(
+                [
+                    "hermes",
+                    "--config",
+                    hermes.configpath,
+                    "keys",
+                    "add",
+                    "--chain",
+                    other_chain_name,
+                    "--mnemonic-file",
+                    evmos.base_dir.parent / "relayer.env",
+                    "--overwrite",
+                ],
+                check=True,
+            )
 
-    if incentivized:
-        # register fee payee
-        src_chain = evmos.cosmos_cli()
-        dst_chain = other_chain.cosmos_cli()
-        rsp = dst_chain.register_counterparty_payee(
-            "transfer",
-            "channel-0",
-            dst_chain.address("relayer"),
-            src_chain.address("signer1"),
-            from_="relayer",
-            fees=f"100000000{other_chain_denom}",
-        )
-        assert rsp["code"] == 0, rsp["raw_log"]
+    # Nested loop to connect all chains with each other
+    for i, chain_a in enumerate(chains_to_connect):
+        for chain_b in chains_to_connect[i + 1 :]:
+            subprocess.check_call(
+                [
+                    "hermes",
+                    "--config",
+                    hermes.configpath,
+                    "create",
+                    "channel",
+                    "--a-port",
+                    "transfer",
+                    "--b-port",
+                    "transfer",
+                    "--a-chain",
+                    chain_a,
+                    "--b-chain",
+                    chain_b,
+                    "--new-client-connection",
+                    "--yes",
+                ]
+            )
 
     evmos.supervisorctl("start", "relayer-demo")
     wait_for_port(hermes.port)
-    yield IBCNetwork(evmos, other_chain, hermes, incentivized)
+    yield IBCNetwork(chains, hermes)
 
 
 def assert_ready(ibc):
