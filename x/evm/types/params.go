@@ -10,7 +10,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-	"golang.org/x/exp/slices"
 
 	"github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/utils"
@@ -147,23 +146,23 @@ func validateEIPs(i interface{}) error {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
 	}
 
-	uniqueEIPs := make([]int64, 0, len(eips))
+	uniqueEIPs := make(map[int64]struct{})
 	duplicateEIPs := make([]int64, 0, len(eips))
-	for _, eip := range eips {
-		if slices.Contains(uniqueEIPs, eip) {
-			duplicateEIPs = append(duplicateEIPs, eip)
-			continue
-		}
-		uniqueEIPs = append(uniqueEIPs, eip)
-	}
-	if len(duplicateEIPs) != 0 {
-		return fmt.Errorf("found duplicate EIPs: %v", duplicateEIPs)
-	}
 
 	for _, eip := range eips {
 		if !vm.ValidEip(int(eip)) {
 			return fmt.Errorf("EIP %d is not activateable, valid EIPS are: %s", eip, vm.ActivateableEips())
 		}
+
+		if _, ok := uniqueEIPs[eip]; ok {
+			duplicateEIPs = append(duplicateEIPs, eip)
+		} else {
+			uniqueEIPs[eip] = struct{}{}
+		}
+	}
+
+	if len(duplicateEIPs) != 0 {
+		return fmt.Errorf("found duplicate EIPs: %v", duplicateEIPs)
 	}
 
 	return nil

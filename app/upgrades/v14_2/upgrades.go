@@ -12,7 +12,6 @@ import (
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
 	"github.com/evmos/evmos/v14/utils"
 	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	"golang.org/x/exp/slices"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v14_2
@@ -56,9 +55,7 @@ func EnableEIPs(ctx sdk.Context, ek *evmkeeper.Keeper, eips ...int64) error {
 	evmParams := ek.GetParams(ctx)
 
 	for _, eip := range eips {
-		if !slices.Contains(evmParams.ExtraEIPs, eip) {
-			evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eip)
-		}
+		evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eip)
 	}
 
 	return ek.SetParams(ctx, evmParams)

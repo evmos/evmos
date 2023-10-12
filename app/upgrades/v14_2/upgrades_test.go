@@ -34,7 +34,7 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 			expPass:   true,
 		},
 		{
-			name:      "success - EIP already contained and then filtered",
+			name:      "fail - duplicate EIP",
 			extraEIPs: []int64{3855, 1344, 2200},
 			malleate: func(ctx sdk.Context, ek *evmkeeper.Keeper) {
 				params := evmtypes.DefaultParams()
@@ -42,11 +42,12 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 				err := ek.SetParams(ctx, params)
 				s.Require().NoError(err, "expected no error setting params")
 			},
-			expEIPs: []int64{1344, 2200, 3855},
-			expPass: true,
+			expEIPs:     []int64{2200}, // NOTE: since the function is failing, we expect the EIPs to remain the same
+			expPass:     false,
+			errContains: "found duplicate EIPs: [2200]",
 		},
 		{
-			name:        "failure - invalid EIP",
+			name:        "fail - invalid EIP",
 			extraEIPs:   []int64{3860},
 			expEIPs:     []int64{},
 			expPass:     false,
