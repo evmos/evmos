@@ -10,7 +10,7 @@ interface IICS20Authorization {
     /// @dev Emitted when an ICS-20 transfer authorization is granted.
     /// @param grantee The address of the grantee.
     /// @param granter The address of the granter.
-    /// @param allocations The Allocations authorized with this grant.
+    /// @param allocations An array of Allocation authorized with this grant.
     event IBCTransferAuthorization(
         address indexed grantee,
         address indexed granter,
