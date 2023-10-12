@@ -48,27 +48,17 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-<<<<<<< HEAD
 - (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
-=======
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
-- (app) [#1835](https://github.com/evmos/evmos/pull/1835) Remove migration logic from the app's `BeginBlocker`.
->>>>>>> 695d91ae (chore(upgrade): improve v14 migration tests and utilities (#1834))
 
 ### Bug Fixes
 
-<<<<<<< HEAD
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
-=======
-### Bug Fixes
-
-- (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0.
->>>>>>> 695d91ae (chore(upgrade): improve v14 migration tests and utilities (#1834))
 
 ## [v14.0.0] - 2023-09-19
 

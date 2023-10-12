@@ -25,15 +25,8 @@ type MigratedDelegation struct {
 // staking delegations.
 func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
 	var (
-<<<<<<< HEAD
 		// bondDenom is the staking bond denomination used
 		bondDenom = sk.BondDenom(ctx)
-=======
-		// stakingParams are the params of the staking module
-		stakingParams = sk.GetParams(ctx)
-		// bondDenom is the staking bond denomination used
-		bondDenom = stakingParams.BondDenom
->>>>>>> 695d91ae (chore(upgrade): improve v14 migration tests and utilities (#1834))
 		// migratedDelegations stores all delegations that must be migrated
 		migratedDelegations []MigratedDelegation
 	)
@@ -124,9 +117,6 @@ func InstantUnbonding(
 	if err != nil {
 		return math.Int{}, err
 	}
-<<<<<<< HEAD
-	unbondCoins := sdk.NewCoins(sdk.NewCoin(bondDenom, unbondAmount))
-=======
 
 	// NOTE: if the unbonded amount is zero there are no tokens to be transferred between the staking pools
 	// and neither to be undelegated from the module to the account
@@ -140,7 +130,6 @@ func InstantUnbonding(
 	if err := unbondCoins.Validate(); err != nil {
 		return math.Int{}, fmt.Errorf("invalid unbonding coins: %v", err)
 	}
->>>>>>> 695d91ae (chore(upgrade): improve v14 migration tests and utilities (#1834))
 
 	// transfer the validator tokens to the not bonded pool if necessary
 	validator, found := sk.GetValidator(ctx, valAddr)
