@@ -42,6 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (upgrade) [#1845](https://github.com/evmos/evmos/pull/1845) Include remaining strategic reserve migrations.
 - (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
@@ -49,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
+- (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
