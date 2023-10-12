@@ -55,14 +55,11 @@ func CreateUpgradeHandler(
 func EnableEIPs(ctx sdk.Context, ek *evmkeeper.Keeper, eips ...int64) error {
 	evmParams := ek.GetParams(ctx)
 
-	extraEIPs := evmParams.ExtraEIPs
 	for _, eip := range eips {
-		if !slices.Contains(extraEIPs, eip) {
-			extraEIPs = append(extraEIPs, eip)
+		if !slices.Contains(evmParams.ExtraEIPs, eip) {
+			evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eip)
 		}
 	}
-
-	evmParams.ExtraEIPs = extraEIPs
 
 	return ek.SetParams(ctx, evmParams)
 }
