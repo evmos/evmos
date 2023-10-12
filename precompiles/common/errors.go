@@ -23,9 +23,9 @@ const (
 	// ErrUnknownMethod is raised when the method is not known.
 	ErrUnknownMethod = "unknown method: %s"
 	// ErrIntegerOverflow is raised when an integer overflow occurs.
-	ErrIntegerOverflow = "integer overflow"
+	ErrIntegerOverflow = "integer overflow when increasing allowance"
 	// ErrNegativeAmount is raised when an amount is negative.
-	ErrNegativeAmount = "negative amount"
+	ErrNegativeAmount = "negative amount when decreasing allowance"
 	// ErrInvalidType is raised when the provided type is different than the expected.
 	ErrInvalidType = "invalid type for %s: expected %T, received %T"
 )
