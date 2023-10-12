@@ -39,7 +39,8 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 			malleate: func(ctx sdk.Context, ek *evmkeeper.Keeper) {
 				params := evmtypes.DefaultParams()
 				params.ExtraEIPs = []int64{2200}
-				ek.SetParams(ctx, params)
+				err := ek.SetParams(ctx, params)
+				s.Require().NoError(err, "expected no error setting params")
 			},
 			expEIPs: []int64{1344, 2200, 3855},
 			expPass: true,
