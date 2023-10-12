@@ -39,6 +39,9 @@ func (p Precompile) CreateClawbackVestingAccount(
 	}
 
 	// Check if the origin matches the vesting address
+	// NOTE: This has to stay only for EOAs because converting a SC to a vesting account
+	// will replace the current contract code with the vesting account code loosing all logic and
+	// rendering the contract useless.
 	if origin != vestingAddr {
 		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, vestingAddr)
 	}
@@ -64,6 +67,7 @@ func (p Precompile) CreateClawbackVestingAccount(
 // FundVestingAccount funds a vesting account by creating vesting schedules
 func (p Precompile) FundVestingAccount(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -72,11 +76,6 @@ func (p Precompile) FundVestingAccount(
 	msg, funderAddr, vestingAddr, lockupPeriods, vestingPeriods, err := NewMsgFundVestingAccount(args, method)
 	if err != nil {
 		return nil, err
-	}
-
-	// Check if the origin matches the funders address
-	if origin != funderAddr {
-		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, funderAddr)
 	}
 
 	p.Logger(ctx).Debug(
@@ -103,6 +102,7 @@ func (p Precompile) FundVestingAccount(
 // Clawback clawbacks tokens from a clawback vesting account
 func (p Precompile) Clawback(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -113,9 +113,12 @@ func (p Precompile) Clawback(
 		return nil, err
 	}
 
+	fmt.Println("caller", contract.CallerAddress, "origin", origin, "funder", funderAddr)
 	// Check if the funder matches the origin
-	if origin != funderAddr {
+	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
+	} else if contract.CallerAddress != origin && contract.CallerAddress != funderAddr {
+		return nil, fmt.Errorf(ErrDifferentFunderOrigin, contract.CallerAddress, funderAddr)
 	}
 
 	p.Logger(ctx).Debug(
@@ -144,6 +147,7 @@ func (p Precompile) Clawback(
 // UpdateVestingFunder updates the vesting funder of a clawback vesting account
 func (p Precompile) UpdateVestingFunder(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -155,7 +159,7 @@ func (p Precompile) UpdateVestingFunder(
 	}
 
 	// Check if the origin matches the funder address
-	if origin != funderAddr {
+	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
 
