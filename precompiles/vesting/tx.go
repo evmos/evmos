@@ -117,6 +117,7 @@ func (p Precompile) Clawback(
 	if origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
+
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
@@ -157,6 +158,7 @@ func (p Precompile) UpdateVestingFunder(
 	if origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
+
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
