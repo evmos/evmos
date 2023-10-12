@@ -104,7 +104,7 @@ func (p Precompile) Allowance(
 ) ([]byte, error) {
 	// append here the msg type. Will always be the TransferMsg
 	// for this precompile
-	args = append(args, TransferMsg)
+	args = append(args, TransferMsgURL)
 
 	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {
