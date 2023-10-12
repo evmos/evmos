@@ -53,10 +53,7 @@ func CreateUpgradeHandler(
 // EnableEIPs enables the given EIPs in the EVM parameters.
 func EnableEIPs(ctx sdk.Context, ek *evmkeeper.Keeper, eips ...int64) error {
 	evmParams := ek.GetParams(ctx)
-
-	for _, eip := range eips {
-		evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eip)
-	}
+	evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eips...)
 
 	return ek.SetParams(ctx, evmParams)
 }
