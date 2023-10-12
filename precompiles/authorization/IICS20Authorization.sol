@@ -19,7 +19,7 @@ interface IICS20Authorization {
 
     /// @dev Approves IBC transfer with a specific amount of tokens.
     /// @param grantee The address for which the transfer authorization is granted.
-    /// @param allocations The Allocations for the authorization.
+    /// @param allocations An array of Allocation for the authorization.
     function approve(address grantee, Allocation[] calldata allocations) external returns (bool approved);
 
     /// @dev Revokes IBC transfer authorization for a specific grantee.
