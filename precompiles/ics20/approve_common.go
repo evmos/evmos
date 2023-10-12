@@ -96,7 +96,7 @@ func Revoke(
 		precompileAddr,
 		grantee,
 		origin,
-		[]cmn.Allocation{},
+		[]cmn.ICS20Allocation{},
 	)
 }
 
@@ -104,16 +104,16 @@ func Revoke(
 func IncreaseAllowance(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
-	precompileAddr, grantee, origin common.Address,
+	precompileAddr, grantee, granter common.Address,
 	sourcePort, sourceChannel, denom string,
 	amount *big.Int,
 	event abi.Event,
 	stateDB vm.StateDB,
 ) error {
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsgURL)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, granter, TransferMsgURL)
 	if err != nil {
-		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
+		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, granter)
 	}
 
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
@@ -137,7 +137,7 @@ func IncreaseAllowance(
 
 	transferAuthz.Allocations[allocationIdx].SpendLimit = transferAuthz.Allocations[allocationIdx].SpendLimit.Add(allowanceCoin)
 
-	if err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
+	if err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), transferAuthz, expiration); err != nil {
 		return err
 	}
 
@@ -149,7 +149,7 @@ func IncreaseAllowance(
 		stateDB,
 		precompileAddr,
 		grantee,
-		origin,
+		granter,
 		allocations,
 	)
 }
@@ -158,16 +158,16 @@ func IncreaseAllowance(
 func DecreaseAllowance(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
-	precompileAddr, grantee, origin common.Address,
+	precompileAddr, grantee, granter common.Address,
 	sourcePort, sourceChannel, denom string,
 	amount *big.Int,
 	event abi.Event,
 	stateDB vm.StateDB,
 ) error {
 	// NOTE: we do not need to check the expiration as it will return nil if both found or expired
-	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, origin, TransferMsgURL)
+	msgAuthz, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, granter, TransferMsgURL)
 	if err != nil {
-		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, origin)
+		return fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, grantee, granter)
 	}
 
 	transferAuthz, ok := msgAuthz.(*transfertypes.TransferAuthorization)
@@ -204,7 +204,7 @@ func DecreaseAllowance(
 		}
 	}
 	transferAuthz.Allocations[allocationIdx] = allocation
-	if err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, expiration); err != nil {
+	if err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), transferAuthz, expiration); err != nil {
 		return err
 	}
 
@@ -216,7 +216,7 @@ func DecreaseAllowance(
 		stateDB,
 		precompileAddr,
 		grantee,
-		origin,
+		granter,
 		allocations,
 	)
 }
@@ -224,7 +224,7 @@ func DecreaseAllowance(
 // AcceptGrant implements the ICS20 accept grant.
 func AcceptGrant(
 	ctx sdk.Context,
-	caller, origin common.Address,
+	contractCaller, granter common.Address,
 	msg *transfertypes.MsgTransfer,
 	authzAuthorization authz.Authorization,
 ) (*authz.AcceptResponse, error) {
@@ -239,7 +239,7 @@ func AcceptGrant(
 	}
 
 	if !resp.Accept {
-		return nil, fmt.Errorf(authorization.ErrAuthzNotAccepted, caller, origin)
+		return nil, fmt.Errorf(authorization.ErrAuthzNotAccepted, contractCaller, granter)
 	}
 
 	return &resp, nil
@@ -249,14 +249,14 @@ func AcceptGrant(
 func UpdateGrant(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
-	grantee, origin common.Address,
+	grantee, granter common.Address,
 	expiration *time.Time,
 	resp *authz.AcceptResponse,
 ) (err error) {
 	if resp.Delete {
-		err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), origin.Bytes(), TransferMsgURL)
+		err = authzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), TransferMsgURL)
 	} else if resp.Updated != nil {
-		err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), resp.Updated, expiration)
+		err = authzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), resp.Updated, expiration)
 	}
 
 	if err != nil {

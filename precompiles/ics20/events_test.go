@@ -101,7 +101,7 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					s.address,
-					[]cmn.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,
