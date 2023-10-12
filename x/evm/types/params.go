@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+	"golang.org/x/exp/slices"
 
 	"github.com/evmos/evmos/v14/types"
 	"github.com/evmos/evmos/v14/utils"
@@ -144,6 +145,17 @@ func validateEIPs(i interface{}) error {
 	eips, ok := i.([]int64)
 	if !ok {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
+	}
+
+	var uniqueEIPs, duplicateEIPs []int64
+	for _, eip := range eips {
+		if slices.Contains(uniqueEIPs, eip) {
+			duplicateEIPs = append(duplicateEIPs, eip)
+		}
+		uniqueEIPs = append(uniqueEIPs, eip)
+	}
+	if len(duplicateEIPs) != 0 {
+		return fmt.Errorf("found duplicate EIPs: %v", duplicateEIPs)
 	}
 
 	for _, eip := range eips {
