@@ -1,11 +1,13 @@
 package stride_test
 
 import (
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
+	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
-	method := s.precompile.Methods[stride.LiquidStakeEvmosMethod]
+	method := s.precompile.Methods[stride.LiquidStakeMethod]
 
 	testCases := []struct {
 		name        string
@@ -92,7 +94,9 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			_, err := s.precompile.LiquidStake(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
+
+			_, err := s.precompile.LiquidStake(s.ctx, s.address, s.stateDB, contract, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

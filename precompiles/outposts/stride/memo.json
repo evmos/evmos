@@ -1,8 +1,0 @@
-{
-  "autopilot": {
-    "receiver": "%s",
-    "stakeibc": {
-      "action": "LiquidStake"
-    }
-  }
-}

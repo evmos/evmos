@@ -1,7 +1,9 @@
 package stride
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 
@@ -19,24 +21,11 @@ type StakeIBCPacketMetadata struct {
 	StrideAddress string
 }
 
-// Validate stakeibc packet metadata fields
-// including the stride address and action type
-func (m StakeIBCPacketMetadata) Validate() error {
-	_, err := sdk.AccAddressFromBech32(m.StrideAddress)
-	if err != nil {
-		return err
-	}
-	if m.Action != "LiquidStake" {
-		return errorsmod.Wrapf(ErrUnsupportedStakeibcAction, "action %s is not supported", m.Action)
-	}
-
-	return nil
-}
-
+// RawPacketMetadata is the raw packet metadata used to construct a JSON string
 type RawPacketMetadata struct {
 	Autopilot *struct {
 		Receiver string                  `json:"receiver"`
-		Stakeibc *StakeibcPacketMetadata `json:"stakeibc,omitempty"`
+		StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
 	} `json:"autopilot"`
 }
 
@@ -122,4 +111,30 @@ func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddr
 	}
 
 	return sdk.AccAddress(bz), nil
+}
+
+// createLiquidStakeMemo creates the memo for the LiquidStake packet
+func (p Precompile) createMemo(action, receiverAddress string) string {
+	// Create a new instance of the struct and populate it
+	data := &RawPacketMetadata{
+		Autopilot: &struct {
+			Receiver string                  `json:"receiver"`
+			StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
+		}{
+			Receiver: receiverAddress,
+			StakeIBC: &StakeIBCPacketMetadata{
+				Action: action,
+			},
+		},
+	}
+
+	// Convert the struct to a JSON string
+	jsonBytes, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Failed to marshal JSON: %v", err)
+	}
+
+	// Print the JSON string
+	fmt.Println(string(jsonBytes))
+	return string(jsonBytes)
 }
