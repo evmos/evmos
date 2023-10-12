@@ -4,6 +4,7 @@ package v14_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -20,6 +21,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v14/app"
+	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v14/testutil"
@@ -133,14 +135,12 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 
 func (s *UpgradesTestSuite) DoSetupTest() {
 	nValidators := 3
-	signers := make(map[string]tmtypes.PrivValidator, nValidators)
 	validators := make([]*tmtypes.Validator, 0, nValidators)
 
 	for i := 0; i < nValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
-		signers[pubKey.Address().String()] = privVal
 		validator := tmtypes.NewValidator(pubKey, 1)
 		validators = append(validators, validator)
 	}
@@ -149,9 +149,7 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 
 	// generate genesis account
 	addr, priv := testutiltx.NewAddrKey()
-	s.privKey = priv
 	s.address = addr
-	s.signer = testutiltx.NewSigner(priv)
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
@@ -175,7 +173,7 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
-	stakingParams.MinCommissionRate = zeroDec
+	stakingParams.MinCommissionRate = sdk.ZeroDec()
 	s.bondDenom = stakingParams.BondDenom
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err, "failed to set params")
@@ -196,6 +194,8 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	s.NextBlock()
 }
 
 // NextBlock commits the current block and sets up the next block.
@@ -203,4 +203,115 @@ func (s *UpgradesTestSuite) NextBlock() {
 	var err error
 	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, nil)
 	s.Require().NoError(err)
+}
+
+// MigrationTestAccount is a struct to hold the test account address, its private key
+// as well as its balances and delegations before and after the migration.
+type MigrationTestAccount struct {
+	Addr            sdk.AccAddress
+	PrivKey         *ethsecp256k1.PrivKey
+	BalancePre      sdk.Coins
+	BalancePost     sdk.Coins
+	DelegationsPost stakingtypes.Delegations
+}
+
+// GenerateMigrationTestAccount returns a new MigrationTestAccount with a new address and private key.
+// All expected pre- and post-migration balances and delegations are initialized to be empty.
+func GenerateMigrationTestAccount() MigrationTestAccount {
+	addr, priv := testutiltx.NewAccAddressAndKey()
+	return MigrationTestAccount{
+		Addr:            addr,
+		PrivKey:         priv,
+		BalancePre:      sdk.Coins{},
+		BalancePost:     sdk.Coins{},
+		DelegationsPost: stakingtypes.Delegations{},
+	}
+}
+
+// requireMigratedAccount checks that the account has the expected balances and delegations
+// after the migration.
+func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount) {
+	// Check the new delegations
+	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, account.Addr)
+	s.Require().Len(delegations, len(account.DelegationsPost), "expected different number of delegations after migration of account %s", account.Addr.String())
+	s.Require().ElementsMatch(delegations, account.DelegationsPost, "expected different delegations after migration of account %s", account.Addr.String())
+
+	// There should not be any unbonding delegations
+	unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, account.Addr)
+	s.Require().Len(unbondingDelegations, 0, "expected no unbonding delegations after migration for account %s", account.Addr.String())
+
+	// Check balances
+	balances := s.app.BankKeeper.GetAllBalances(s.ctx, account.Addr)
+	s.Require().Len(balances, len(account.BalancePost), "expected different number of balances after migration for account %s", account.Addr.String())
+
+	for _, balance := range balances {
+		expAmount := account.BalancePost.AmountOf(balance.Denom)
+		s.Require().Equal(expAmount.String(), balance.Amount.String(), "expected different balance of %q after migration for account %s", balance.Denom, account.Addr.String())
+	}
+}
+
+// getDelegationSharesMap returns a map of validator operator addresses to the
+// total shares delegated to them.
+func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]sdk.Dec {
+	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
+	sharesMap := make(map[string]sdk.Dec, len(allValidators))
+	for _, validator := range allValidators {
+		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
+	}
+	return sharesMap
+}
+
+// CreateDelegationWithZeroTokens is a helper script, which creates a delegation and
+// slashes the validator afterwards, so that the shares are not zero but the query
+// for token amount returns zero tokens.
+//
+// NOTE: This is replicating an edge case that was found in mainnet data, which led to
+// the account migrations not succeeding.
+func CreateDelegationWithZeroTokens(
+	ctx sdk.Context,
+	app *evmosapp.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	delegator sdk.AccAddress,
+	validator stakingtypes.Validator,
+	amount int64,
+) (stakingtypes.Delegation, error) {
+	delegation, err := Delegate(ctx, app, priv, delegator, validator, amount)
+	if err != nil {
+		return stakingtypes.Delegation{}, err
+	}
+
+	consAddr, err := validator.GetConsAddr()
+	if err != nil {
+		return stakingtypes.Delegation{}, fmt.Errorf("failed to get validator consensus address: %w", err)
+	}
+
+	// Slash the validator
+	app.SlashingKeeper.Slash(s.ctx, consAddr, sdk.NewDecWithPrec(5, 2), 1, 0)
+
+	return delegation, nil
+}
+
+// Delegate is a helper function to delegation one atto-Evmos to a validator.
+func Delegate(
+	ctx sdk.Context,
+	app *evmosapp.Evmos,
+	priv *ethsecp256k1.PrivKey,
+	delegator sdk.AccAddress,
+	validator stakingtypes.Validator,
+	amount int64,
+) (stakingtypes.Delegation, error) {
+	stakingDenom := app.StakingKeeper.BondDenom(ctx)
+
+	msgDelegate := stakingtypes.NewMsgDelegate(delegator, validator.GetOperator(), sdk.NewInt64Coin(stakingDenom, amount))
+	_, err := evmosutil.DeliverTx(ctx, app, priv, nil, msgDelegate)
+	if err != nil {
+		return stakingtypes.Delegation{}, fmt.Errorf("failed to delegate: %w", err)
+	}
+
+	delegation, found := app.StakingKeeper.GetDelegation(s.ctx, delegator, validator.GetOperator())
+	if !found {
+		return stakingtypes.Delegation{}, fmt.Errorf("delegation not found")
+	}
+
+	return delegation, nil
 }
