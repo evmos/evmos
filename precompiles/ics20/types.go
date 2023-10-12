@@ -61,15 +61,6 @@ type DenomTracesResponse struct {
 	PageResponse query.PageResponse
 }
 
-// Allocation defines the spend limit for a particular port and channel
-// we need this to be able to unpack to big.Int instead of sdkmath.Int
-type Allocation struct {
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
-	AllowList     []string
-}
-
 // height is a struct used to parse the TimeoutHeight parameter
 // used as input in the transfer method
 type height struct {
@@ -79,7 +70,7 @@ type height struct {
 // allocs is a struct used to parse the Allocations parameter
 // used as input in the transfer authorization method
 type allocs struct {
-	Allocations []Allocation
+	Allocations []cmn.ICS20Allocation
 }
 
 // NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.
@@ -312,7 +303,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 	return grantee, allocations, nil
 }
 
-// checkAllocationExists checks if the given authorization allocation matches the given arguments.
+// CheckAllocationExists checks if the given authorization allocation matches the given arguments.
 func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
 	var found bool
 	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}

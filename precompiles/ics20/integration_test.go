@@ -52,9 +52,9 @@ var (
 	gasPrice = big.NewInt(200_000)
 
 	// array of allocations with only one allocation for 'aevmos' coin
-	defaultSingleAlloc []ics20.Allocation
+	defaultSingleAlloc []cmn.ICS20Allocation
 	// array of allocations with only two allocation for 'aevmos' and 'uatom' coins
-	defaultManyAllocs []ics20.Allocation
+	defaultManyAllocs []cmn.ICS20Allocation
 )
 
 var _ = Describe("IBCTransfer Precompile", func() {
@@ -87,7 +87,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			auths, err := s.app.AuthzKeeper.GetAuthorizations(s.chainA.GetContext(), s.differentAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil(), "error while getting authorizations")
 			Expect(auths).To(HaveLen(0), "expected no authorizations before tests")
-			defaultSingleAlloc = []ics20.Allocation{
+			defaultSingleAlloc = []cmn.ICS20Allocation{
 				{
 					SourcePort:    ibctesting.TransferPort,
 					SourceChannel: s.transferPath.EndpointA.ChannelID,
@@ -1006,7 +1006,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var out []ics20.Allocation
+				var out []cmn.ICS20Allocation
 				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
 				Expect(err).To(BeNil(), "error while unpacking the output: %v", err)
 				Expect(out).To(HaveLen(0))
@@ -1028,7 +1028,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-				var out []ics20.Allocation
+				var out []cmn.ICS20Allocation
 				err = s.precompile.UnpackIntoInterface(&out, method, ethRes.Ret)
 				Expect(err).To(BeNil(), "error while unpacking the output: %v", err)
 				Expect(out).To(HaveLen(1))
@@ -1321,7 +1321,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			Context("with authorization", func() {
 				BeforeEach(func() {
 					// create grant to allow spending the ibc coins
-					args := defaultApproveArgs.WithArgs([]ics20.Allocation{
+					args := defaultApproveArgs.WithArgs([]cmn.ICS20Allocation{
 						{
 							ibctesting.TransferPort,
 							s.transferPath.EndpointA.ChannelID,
@@ -1428,7 +1428,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				Context("with authorization, but not for ERC20 token", func() {
 					BeforeEach(func() {
 						// create grant to allow spending the ibc coins
-						args := defaultApproveArgs.WithArgs([]ics20.Allocation{
+						args := defaultApproveArgs.WithArgs([]cmn.ICS20Allocation{
 							{
 								ibctesting.TransferPort,
 								s.transferPath.EndpointA.ChannelID,
@@ -1448,7 +1448,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			Context("with authorization", func() {
 				BeforeEach(func() {
 					// create grant to allow spending the erc20 tokens
-					args := defaultApproveArgs.WithArgs([]ics20.Allocation{
+					args := defaultApproveArgs.WithArgs([]cmn.ICS20Allocation{
 						{
 							ibctesting.TransferPort,
 							s.transferPath.EndpointA.ChannelID,
@@ -1594,7 +1594,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, defaultAllowanceArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
-			var out []ics20.Allocation
+			var out []cmn.ICS20Allocation
 			err = contracts.InterchainSenderContract.ABI.UnpackIntoInterface(&out, "testAllowance", ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the output: %v", err)
 			Expect(out).To(HaveLen(1))
