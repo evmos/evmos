@@ -30,7 +30,7 @@ interface IICS20Authorization {
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param sourcePort The port on which the packet will be sent.
     /// @param sourceChannel The channel by which the packet will be sent.
-    /// @param denom The denomination of the Coin to be transferred to the receiver
+    /// @param denom The denomination of the Coin to be transferred to the receiver.
     /// @param amount The increase in amount of tokens that can be spent.
     /// @return approved Is true if the operation ran successfully.
     function increaseAllowance(
@@ -41,12 +41,12 @@ interface IICS20Authorization {
         uint256 amount
     ) external returns (bool approved);
 
-    /// @dev Decreases the allowance of a given grantee by a specific amount of tokens for for IBC transfer methods.
+    /// @dev Decreases the allowance of a given grantee by a specific amount of tokens for IBC transfer methods.
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param sourcePort The port on which the packet will be sent.
     /// @param sourceChannel The channel by which the packet will be sent.
     /// @param denom The denomination of the Coin to be transferred to the receiver.
-    /// @param amount The decrease in amount of tokens that can be spent.
+    /// @param amount The amount by which the spendable tokens are decreased.
     /// @return approved Is true if the operation ran successfully.
     function decreaseAllowance(
         address grantee,
@@ -56,12 +56,12 @@ interface IICS20Authorization {
         uint256 amount
     ) external returns (bool approved);
 
-    /// @dev Returns the remaining number of tokens that a grantee smart contract
+    /// @dev Returns the remaining number of tokens that a grantee
     /// will be allowed to spend on behalf of granter through
     /// IBC transfers. This is an empty array by default.
     /// @param grantee The address of the contract that is allowed to spend the granter's tokens.
     /// @param granter The address of the account able to transfer the tokens.
-    /// @return allocations The remaining amounts allowed to spend for
+    /// @return allocations The remaining amounts allowed to be spent for
     /// corresponding source port and channel.
     function allowance(
         address grantee,
