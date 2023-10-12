@@ -127,6 +127,7 @@ import (
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
+	v142 "github.com/evmos/evmos/v14/app/upgrades/v14_2"
 	v15 "github.com/evmos/evmos/v14/app/upgrades/v15"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
@@ -1301,6 +1302,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,
 			app.appCodec,
+		),
+	)
+
+	// v14.2 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v142.UpgradeName,
+		v142.CreateUpgradeHandler(
+			app.mm, app.configurator,
 		),
 	)
 
