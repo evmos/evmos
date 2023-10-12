@@ -21,19 +21,10 @@ import (
 var memoF embed.FS
 
 const (
-	// OsmosisChannelID defines the channel id for the Osmosis IBC channel
-	OsmosisChannelID = "channel-0"
 	// OsmosisXCSContract defines the contract address for the Osmosis XCS contract
-	OsmosisXCSContract = "osmo1xcsjj7g9qf6qy8w4xg2j3q4q3k6x5q2x9k5x2e"
-	// OsmoERC20Address defines the ERC20 address for the Osmosis token
-	OsmoERC20Address = "0xFA3C22C069B9556A4B2f7EcE1Ee3B467909f4864"
+	// OsmosisXCSContract = "osmo1xcsjj7g9qf6qy8w4xg2j3q4q3k6x5q2x9k5x2e"
 	// SwapMethod defines the ABI method name for the Osmosis Swap function
 	SwapMethod = "swap"
-)
-
-var (
-	// WEVMOSAddress is the ERC20 hex address of the WEVMOS token on mainnet.
-	WEVMOSAddress = common.HexToAddress("0xD4949664cD82660AaE99bEdc034a0deA8A0bd517")
 )
 
 // Swap swaps the given base denom for the given target denom on Osmosis and returns
@@ -46,7 +37,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	amount, sender, inputDenom, outputDenom, prefix, receiverAccAddr, err := CreateSwapPacketData(args)
+	sender, input, output,amount, receiver, err := CreateSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
@@ -62,14 +53,17 @@ func (p Precompile) Swap(
 		return nil, fmt.Errorf(ics20.ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
 
+
+	
+
 	// Create the memo field for the Swap from the JSON file
-	memo, err := createSwapMemo(outputDenom, receiverAccAddr.String())
+	memo, err := createSwapMemo(output, receiver)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create the IBC Transfer message
-	msg, err := NewMsgTransfer(inputDenom, memo, amount, origin)
+	msg, err := NewMsgTransfer(input, memo, amount, origin)
 	if err != nil {
 		return nil, err
 	}

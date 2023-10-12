@@ -12,9 +12,9 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
@@ -74,83 +74,74 @@ import (
 //	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
 //}
 
-// CreateSwapPacketData creates the packet data for the Osmosis swap function.
-func CreateSwapPacketData(args []interface{}) (*big.Int, common.Address, string, string, string, sdk.AccAddress, error) {
+// CreateSwapPacketData creates the packet data for the Osmosis swap function. This function will check that:
+// - the number of input variable is correct
+// - the sender is a correct Ethereum address
+// - the input is a correct Ethereum address
+// - the output is a correct Ethereum address
+// - the amount is of the correct type
+// - the receiver address is an Osmosis address
+func CreateSwapPacketData(args []interface{}) (sender common.Address, input common.Address, output common.Address, amount *big.Int, receiver string, err error) {
 	if len(args) != 5 {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid sender address: %v", args[0])
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid sender address: %v", args[0])
 	}
 
-	amount, ok := args[1].(*big.Int)
+	input, ok = args[1].(common.Address)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid amount: %v", args[1])
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid input denom: %v", args[1])
 	}
 
-	receiverAddress, ok := args[2].(string)
+	output, ok = args[2].(common.Address)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid receiver address: %v", args[2])
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid output denom: %v", args[2])
 	}
 
-	inputDenom, ok := args[3].(string)
+	amount, ok = args[3].(*big.Int)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid input denom: %v", args[3])
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid amount: %v", args[3])
 	}
 
-	outputDenom, ok := args[4].(string)
+	receiver, ok = args[4].(string)
 	if !ok {
-		return nil, common.Address{}, "", "", "", nil, fmt.Errorf("invalid output denom: %v", args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid receiver address: %v", args[4])
 	}
 
-	// Get the prefix from the bech32 receiver address
-	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
+	// Check if the receiver address has osmo prefix
+	// TODO: This might be unnecessary
+	if receiver[:4] != "osmo" {
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("receiver is not an Osmosis address")
+	}
+
+	_, err = AccAddressFromBech32(receiver, "osmo")
 	if err != nil {
-		return nil, common.Address{}, "", "", "", nil, err
+		return common.Address{}, common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid Osmosis bech32 address: %s", err)
 	}
 
-	// Convert it to an AccAddress that can be from any chain
-	receiverAccAddr, err := AccAddressFromBech32(receiverAddress, prefix)
-	if err != nil {
-		return nil, common.Address{}, "", "", "", nil, err
-	}
-
-	return amount, sender, inputDenom, outputDenom, prefix, receiverAccAddr, nil
+	return sender, input, output, amount, receiver, nil
 }
 
-// NewMsgTransfer returns a new transfer message from the given arguments.
-func NewMsgTransfer(denom, memo string, amount *big.Int, sender common.Address) (*transfertypes.MsgTransfer, error) {
-	// Default to 100 blocks timeout
-	timeoutHeight := types.NewHeight(100, 100)
-
-	// Use instance to prevent errors on denom or amount
-	token := sdk.Coin{
-		Denom:  denom,
-		Amount: math.NewIntFromBigInt(amount),
-	}
-
-	// Validate the token before creating the message
-	if err := token.Validate(); err != nil {
-		return nil, err
-	}
-
-	msg := &transfertypes.MsgTransfer{
-		SourcePort:    transfertypes.PortID,
-		SourceChannel: OsmosisChannelID,
-		Token:         token,
-		Sender:        sdk.AccAddress(sender.Bytes()).String(), // convert to bech32 format
-		Receiver:      OsmosisXCSContract,                      // The XCS contract address on Osmosis
-		TimeoutHeight: timeoutHeight,
-		Memo:          memo,
-	}
-
-	// Validate the message before returning
+// NewMsgTransfer creates a new MsgTransfer
+func NewMsgTransfer(sourcePort, sourceChannel, senderAddress, receiverAddress, memo string, coin sdk.Coin) (*transfertypes.MsgTransfer, error) {
+	// TODO: what are some sensible defaults here
+	timeoutHeight := clienttypes.NewHeight(100, 100)
+	msg := transfertypes.NewMsgTransfer(
+		sourcePort,
+		sourceChannel,
+		coin,
+		senderAddress,
+		receiverAddress,
+		timeoutHeight,
+		0,
+		memo,
+	)
 	if err := msg.ValidateBasic(); err != nil {
 		return nil, err
 	}
-
 	return msg, nil
 }
 

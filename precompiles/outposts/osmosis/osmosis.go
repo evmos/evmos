@@ -21,6 +21,13 @@ import (
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 )
 
+const (
+	// OsmosisChannelIDMainnet is the channel ID for the Osmosis channel on Evmos mainnet.
+	OsmosisChannelIDMainnet = "channel-0"
+	// OsmosisChannelIDTestnet is the channel ID for the Osmosis channel on Evmos testnet.
+	OsmosisChannelIDTestnet = "channel-0"
+)
+
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -30,6 +37,10 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
+	portID 			string
+	channelID 		string
+	osmosisXCSContract string
+
 	transferKeeper transferkeeper.Keeper
 	channelKeeper  channelkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -39,6 +50,8 @@ type Precompile struct {
 // NewPrecompile creates a new staking Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	portID , channelID string,
+	osmosisXCSContract string,
 	transferKeeper transferkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper erc20types.BankKeeper,
@@ -63,6 +76,9 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		portID: portID,
+		channelID: channelID,
+		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper: transferKeeper,
 		bankKeeper:     bankKeeper,
 		erc20Keeper:    erc20Keeper,
