@@ -147,10 +147,12 @@ func validateEIPs(i interface{}) error {
 		return fmt.Errorf("invalid EIP slice type: %T", i)
 	}
 
-	var uniqueEIPs, duplicateEIPs []int64
+	uniqueEIPs := make([]int64, 0, len(eips))
+	duplicateEIPs := make([]int64, 0, len(eips))
 	for _, eip := range eips {
 		if slices.Contains(uniqueEIPs, eip) {
 			duplicateEIPs = append(duplicateEIPs, eip)
+			continue
 		}
 		uniqueEIPs = append(uniqueEIPs, eip)
 	}
