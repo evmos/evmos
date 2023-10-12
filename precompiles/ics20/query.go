@@ -123,7 +123,6 @@ func (p Precompile) Allowance(
 		return nil, fmt.Errorf(cmn.ErrInvalidType, "transfer authorization", &transfertypes.TransferAuthorization{}, transferAuthz)
 	}
 
-
 	// need to convert to cmn.ICS20Allocation (uses big.Int)
 	// because ibc ICS20Allocation has sdkmath.Int
 	allocs := make([]cmn.ICS20Allocation, len(transferAuthz.Allocations))

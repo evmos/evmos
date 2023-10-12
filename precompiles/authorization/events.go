@@ -136,7 +136,7 @@ func EmitIBCTransferAuthorizationEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	precompileAddr, granteeAddr, granterAddr common.Address,
-	allocations []cmn.Allocation,
+	allocations []cmn.ICS20Allocation,
 ) error {
 	topics := make([]common.Hash, 3)
 

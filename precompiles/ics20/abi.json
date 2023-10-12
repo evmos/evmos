@@ -68,6 +68,14 @@
 					{
 						"internalType": "string",
 						"name": "sourcePort",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "sourceChannel",
+						"type": "string"
+					},
+					{
 						"components": [
 							{
 								"internalType": "string",

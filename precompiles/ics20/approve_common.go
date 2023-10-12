@@ -96,7 +96,7 @@ func Revoke(
 		precompileAddr,
 		grantee,
 		origin,
-		[]cmn.Allocation{},
+		[]cmn.ICS20Allocation{},
 	)
 }
 

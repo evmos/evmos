@@ -34,7 +34,7 @@ type EventIBCTransfer struct {
 type EventTransferAuthorization struct {
 	Grantee     common.Address
 	Granter     common.Address
-	Allocations []cmn.Allocation
+	Allocations []cmn.ICS20Allocation
 }
 
 // EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
@@ -323,9 +323,9 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 }
 
 // convertToAllocation converts the transfer types Allocation to the ICS20 Allocation.
-func convertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocation {
 	// Convert to Allocations to emit the IBC transfer authorization event
-	allocations := make([]cmn.Allocation, len(allocs))
+	allocations := make([]cmn.ICS20Allocation, len(allocs))
 	for i, allocation := range allocs {
 		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
 		for j, coin := range allocation.SpendLimit {
@@ -335,7 +335,7 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.Allocation {
 			}
 		}
 
-		allocations[i] = cmn.Allocation{
+		allocations[i] = cmn.ICS20Allocation{
 			SourcePort:    allocation.SourcePort,
 			SourceChannel: allocation.SourceChannel,
 			SpendLimit:    spendLimit,

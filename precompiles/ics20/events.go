@@ -9,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
@@ -24,7 +25,7 @@ func (p Precompile) EmitIBCTransferAuthorizationEvent(
 	granteeAddr, granterAddr common.Address,
 	allocations []cmn.ICS20Allocation,
 ) error {
-	event := p.ABI.Events[EventTypeIBCTransferAuthorization]
+	event := p.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
