@@ -68,14 +68,6 @@
 					{
 						"internalType": "string",
 						"name": "sourcePort",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "sourceChannel",
-						"type": "string"
-					},
-					{
 						"components": [
 							{
 								"internalType": "string",
@@ -99,7 +91,7 @@
 					}
 				],
 				"indexed": false,
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -157,7 +149,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -207,7 +199,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}

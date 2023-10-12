@@ -68,7 +68,7 @@ type height struct {
 // allocs is a struct used to parse the Allocations parameter
 // used as input in the transfer authorization method
 type allocs struct {
-	Allocations []cmn.Allocation
+	Allocations []cmn.ICS20Allocation
 }
 
 // NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.

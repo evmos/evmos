@@ -30,9 +30,9 @@ var (
 	}
 )
 
-// Allocation defines the spend limit for a particular port and channel
-// we need this to be able to unpack to big.Int instead of sdkmath.Int
-type Allocation struct {
+// ICS20Allocation defines the spend limit for a particular port and channel.
+// We need this to be able to unpack to big.Int instead of sdkmath.Int.
+type ICS20Allocation struct {
 	SourcePort    string
 	SourceChannel string
 	SpendLimit    []Coin

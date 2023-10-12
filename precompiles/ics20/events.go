@@ -17,6 +17,47 @@ const (
 	EventTypeIBCTransfer = "IBCTransfer"
 )
 
+// EmitIBCTransferAuthorizationEvent creates a new IBC transfer authorization event emitted on a TransferAuthorization transaction.
+func (p Precompile) EmitIBCTransferAuthorizationEvent(
+	ctx sdk.Context,
+	stateDB vm.StateDB,
+	granteeAddr, granterAddr common.Address,
+	allocations []cmn.ICS20Allocation,
+) error {
+	event := p.ABI.Events[EventTypeIBCTransferAuthorization]
+	topics := make([]common.Hash, 3)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(granteeAddr)
+	if err != nil {
+		return err
+	}
+
+	topics[2], err = cmn.MakeTopic(granterAddr)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the event data: sourcePort, sourceChannel, denom, amount
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(allocations)
+	if err != nil {
+		return err
+	}
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
+
 // EmitIBCTransferEvent creates a new IBC transfer event emitted on a Transfer transaction.
 func (p Precompile) EmitIBCTransferEvent(
 	ctx sdk.Context,
