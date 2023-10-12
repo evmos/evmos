@@ -51,16 +51,12 @@ func (p Precompile) Approve(
 		return nil, err
 	}
 
-	// Emit the IBC transfer authorization event
-	allocation := transferAuthz.Allocations[0]
 	if err = p.EmitIBCTransferAuthorizationEvent(
 		ctx,
 		stateDB,
 		grantee,
 		origin,
-		allocation.SourcePort,
-		allocation.SourceChannel,
-		allocation.SpendLimit,
+		transferAuthz.Allocations,
 	); err != nil {
 		return nil, err
 	}
@@ -96,7 +92,7 @@ func (p Precompile) Revoke(
 		return nil, err
 	}
 
-	if err = p.EmitIBCRevokeAuthorizationEvent(ctx, stateDB, grantee, origin); err != nil {
+	if err = p.EmitIBCTransferAuthorizationEvent(ctx, stateDB, grantee, origin, []cmn.ICS20Allocation{}); err != nil {
 		return nil, err
 	}
 

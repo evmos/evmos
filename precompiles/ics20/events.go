@@ -26,8 +26,7 @@ func (p Precompile) EmitIBCTransferAuthorizationEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	granteeAddr, granterAddr common.Address,
-	sourcePort, sourceChannel string,
-	spendLimit sdk.Coins,
+	allocations []cmn.ICS20Allocation,
 ) error {
 	event := p.ABI.Events[EventTypeIBCTransferAuthorization]
 	topics := make([]common.Hash, 3)
@@ -46,11 +45,9 @@ func (p Precompile) EmitIBCTransferAuthorizationEvent(
 		return err
 	}
 
-	// Convert the sdk.Coins to cmn.Coins to be ABI compatible
-	abiCoins := cmn.NewCoinsResponse(spendLimit)
 	// Prepare the event data: sourcePort, sourceChannel, denom, amount
-	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4]}
-	packed, err := arguments.Pack(sourcePort, sourceChannel, abiCoins)
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(allocations)
 	if err != nil {
 		return err
 	}
