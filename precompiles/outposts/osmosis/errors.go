@@ -4,7 +4,6 @@
 package osmosis
 
 import (
-	errorsmod "cosmossdk.io/errors"
 )
 
 const (
