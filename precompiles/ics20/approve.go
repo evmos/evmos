@@ -63,7 +63,7 @@ func (p Precompile) Revoke(
 		p.Address(),
 		grantee,
 		origin,
-		p.ABI.Events[authorization.EventTypeRevokeIBCTransferAuthorization],
+		p.ABI.Events[authorization.EventTypeIBCTransferAuthorization],
 		stateDB,
 	); err != nil {
 		return nil, err

@@ -354,6 +354,31 @@ func (s *PrecompileTestSuite) GetTransferAuthorization(ctx sdk.Context, grantee,
 	return transferAuthz
 }
 
+// CheckAllowanceChangeEvent is a helper function used to check the allowance change event arguments.
+func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, amount *big.Int, isIncrease bool) {
+	// Check event signature matches the one emitted
+	event := s.precompile.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
+	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
+	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+
+	var approvalEvent ics20.EventTransferAuthorization
+	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeIBCTransferAuthorization, *log)
+	s.Require().NoError(err)
+	s.Require().Equal(s.address, approvalEvent.Grantee)
+	s.Require().Equal(s.address, approvalEvent.Granter)
+	s.Require().Equal("transfer", approvalEvent.Allocations[0].SourcePort)
+	s.Require().Equal("channel-0", approvalEvent.Allocations[0].SourceChannel)
+
+	allocationAmount := approvalEvent.Allocations[0].SpendLimit[0].Amount
+	if isIncrease {
+		newTotal := amount.Add(allocationAmount, amount)
+		s.Require().Equal(amount, newTotal)
+	} else {
+		newTotal := amount.Sub(allocationAmount, amount)
+		s.Require().Equal(amount, newTotal)
+	}
+}
+
 // NewTransferPath creates a new path between two chains with the specified portIds and version.
 func NewTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(chainA, chainB)
@@ -410,7 +435,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 func (s *PrecompileTestSuite) setTransferApproval(
 	args contracts.CallArgs,
 	grantee common.Address,
-	allocations []ics20.Allocation,
+	allocations []cmn.ICS20Allocation,
 ) {
 	args.MethodName = authorization.ApproveMethod
 	args.Args = []interface{}{
@@ -465,7 +490,7 @@ func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.Call
 
 // setupAllocationsForTesting sets the allocations for testing
 func (s *PrecompileTestSuite) setupAllocationsForTesting() {
-	defaultSingleAlloc = []ics20.Allocation{
+	defaultSingleAlloc = []cmn.ICS20Allocation{
 		{
 			SourcePort:    ibctesting.TransferPort,
 			SourceChannel: s.transferPath.EndpointA.ChannelID,
@@ -473,7 +498,7 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 		},
 	}
 
-	defaultManyAllocs = []ics20.Allocation{
+	defaultManyAllocs = []cmn.ICS20Allocation{
 		{
 			SourcePort:    ibctesting.TransferPort,
 			SourceChannel: s.transferPath.EndpointA.ChannelID,

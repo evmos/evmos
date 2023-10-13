@@ -32,12 +32,10 @@ jobs:
         if: env.GIT_DIFF
   test-nix:
     runs-on: ubuntu-latest
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # changes in gomod2nix file to the repository if corresponds.
-      contents: write    
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.E2E_PAT }}
       - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,
@@ -76,9 +74,7 @@ jobs:
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}      
+      - uses: actions/checkout@v4   
       - uses: cachix/install-nix-action@v23
         with:
           # pin to nix-2.13 to workaround compability issue of 2.14,

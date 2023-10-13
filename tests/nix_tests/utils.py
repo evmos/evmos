@@ -27,6 +27,7 @@ ACCOUNTS = {
 KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
+DEFAULT_DENOM = "aevmos"
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -258,3 +259,13 @@ def derive_new_account(n=1):
 def compare_fields(a, b, fields):
     for field in fields:
         assert a[field] == b[field], f"{field} field mismatch"
+
+
+# get_fees_from_tx_result returns the fees by unpacking them
+# from the events contained in the tx_result of a cosmos transaction.
+def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
+    for event in tx_result["events"]:
+        if event["type"] == "tx":
+            for attr in event["attributes"]:
+                if attr["key"] == "fee":
+                    return int(attr["value"].split(denom)[0])
