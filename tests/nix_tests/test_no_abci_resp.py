@@ -1,8 +1,9 @@
 from pathlib import Path
+
 import pytest
 
-from .utils import w3_wait_for_new_blocks
 from .network import setup_custom_evmos
+from .utils import w3_wait_for_new_blocks
 
 
 @pytest.fixture(scope="module")
