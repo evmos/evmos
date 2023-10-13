@@ -49,6 +49,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
+- (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods. 
 - (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
