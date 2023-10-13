@@ -38,7 +38,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 ### API Breaking
-- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event
+
+- (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
+- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
 
 ### State Machine Breaking
 

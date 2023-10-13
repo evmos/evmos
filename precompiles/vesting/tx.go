@@ -140,7 +140,7 @@ func (p Precompile) Clawback(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ClawbackVestingAccountMsg)
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ClawbackMsg)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}

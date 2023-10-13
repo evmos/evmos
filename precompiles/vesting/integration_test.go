@@ -554,7 +554,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			BeforeEach(func() {
 				if callType.directCall == false {
-					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.ClawbackVestingAccountMsg)
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.ClawbackMsg)
 					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
 				}
 			})

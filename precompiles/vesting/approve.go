@@ -18,8 +18,8 @@ var (
 	FundVestingAccountMsg = sdk.MsgTypeURL(&vestingtypes.MsgFundVestingAccount{})
 	// UpdateVestingFunderMsg defines the authorization type for MsgDelegate
 	UpdateVestingFunderMsg = sdk.MsgTypeURL(&vestingtypes.MsgUpdateVestingFunder{})
-	// ClawbackVestingAccountMsg defines the authorization type for MsgDelegate
-	ClawbackVestingAccountMsg = sdk.MsgTypeURL(&vestingtypes.MsgClawback{})
+	// ClawbackMsg defines the authorization type for MsgDelegate
+	ClawbackMsg = sdk.MsgTypeURL(&vestingtypes.MsgClawback{})
 )
 
 // Approve is the precompile function for approving vesting transactions with a generic grant.
@@ -36,7 +36,7 @@ func (p Precompile) Approve(
 	}
 
 	switch typeURL {
-	case FundVestingAccountMsg, ClawbackVestingAccountMsg, UpdateVestingFunderMsg:
+	case FundVestingAccountMsg, ClawbackMsg, UpdateVestingFunderMsg:
 		if err := CreateGenericAuthz(ctx, p.AuthzKeeper, grantee, origin, typeURL); err != nil {
 			return nil, err
 		}
