@@ -21,6 +21,7 @@ const (
 	EventTypeRevokeIBCTransferAuthorization = "RevokeIBCTransferAuthorization"
 )
 
+<<<<<<< HEAD
 // EmitIBCTransferAuthorizationEvent creates a new IBC transfer authorization event emitted on a TransferAuthorization transaction.
 func (p Precompile) EmitIBCTransferAuthorizationEvent(
 	ctx sdk.Context,
@@ -98,6 +99,8 @@ func (p Precompile) EmitIBCRevokeAuthorizationEvent(
 	return nil
 }
 
+=======
+>>>>>>> 6d2d0f1f (fix(ics20): Extract grant checking and updating functions for reuse (#1850))
 // EmitIBCTransferEvent creates a new IBC transfer event emitted on a Transfer transaction.
 func (p Precompile) EmitIBCTransferEvent(
 	ctx sdk.Context,
