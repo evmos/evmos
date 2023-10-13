@@ -20,6 +20,7 @@ const (
 	// StrideChannelID is the channel ID for the Stride channel on Evmos mainnet.
 	StrideChannelIDMainnet = "channel-25"
 	// StrideChannelIDTestnet is the channel ID for the Stride channel on Evmos testnet.
+	// TODO: use the correct channel ID for testnet.
 	StrideChannelIDTestnet = "channel-25"
 )
 
@@ -112,6 +113,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// Stride Outpost Methods:
 	case LiquidStakeMethod:
 		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, contract, method, args)
+	case RedeemMethod:
+		bz, err = p.Redeem(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

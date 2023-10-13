@@ -3,7 +3,6 @@ package stride
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 	"strings"
 
@@ -21,16 +20,20 @@ type StakeIBCPacketMetadata struct {
 	StrideAddress string
 }
 
-// RawPacketMetadata is the raw packet metadata used to construct a JSON string
-type RawPacketMetadata struct {
-	Autopilot *struct {
-		Receiver string                  `json:"receiver"`
-		StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
-	} `json:"autopilot"`
+// Autopilot defines the receiver and IBC packet metadata info specific to the
+// Stride Autopilot liquid staking behaviour
+type Autopilot struct {
+	Receiver string                  `json:"receiver"`
+	StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
 }
 
-// ParseLiquidStakeArgs parses the arguments from the Liquid Stake method call
-func ParseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
+// RawPacketMetadata is the raw packet metadata used to construct a JSON string
+type RawPacketMetadata struct {
+	Autopilot *Autopilot `json:"autopilot"`
+}
+
+// parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
+func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
 		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
@@ -56,13 +59,11 @@ func ParseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 	}
 
 	// Check if the receiver address has stride before
-	// TODO: This might be unnecessary
 	if receiver[:6] != "stride" {
 		return common.Address{}, common.Address{}, nil, "", fmt.Errorf("receiver is not a stride address")
 	}
 
 	// Check if account is a valid bech32 address
-
 	_, err := AccAddressFromBech32(receiver, "stride")
 	if err != nil {
 		return common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
@@ -113,14 +114,11 @@ func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddr
 	return sdk.AccAddress(bz), nil
 }
 
-// createLiquidStakeMemo creates the memo for the LiquidStake packet
-func (p Precompile) createMemo(action, receiverAddress string) string {
+// CreateMemo creates the memo for the StakeIBC actions - LiquidStake and Redeem.
+func CreateMemo(action, receiverAddress string) (string, error) {
 	// Create a new instance of the struct and populate it
 	data := &RawPacketMetadata{
-		Autopilot: &struct {
-			Receiver string                  `json:"receiver"`
-			StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
-		}{
+		Autopilot: &Autopilot{
 			Receiver: receiverAddress,
 			StakeIBC: &StakeIBCPacketMetadata{
 				Action: action,
@@ -131,10 +129,8 @@ func (p Precompile) createMemo(action, receiverAddress string) string {
 	// Convert the struct to a JSON string
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		log.Fatalf("Failed to marshal JSON: %v", err)
+		return "", sdkerrors.ErrJSONMarshal.Wrap("autopilot packet")
 	}
 
-	// Print the JSON string
-	fmt.Println(string(jsonBytes))
-	return string(jsonBytes)
+	return string(jsonBytes), nil
 }
