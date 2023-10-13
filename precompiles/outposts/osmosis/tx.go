@@ -1,15 +1,12 @@
 package osmosis
 
 import (
-	"embed"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -17,11 +14,6 @@ import (
 	"github.com/evmos/evmos/v14/precompiles/ics20"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
-
-// Embed memo json file to the executable binary. Needed when importing as dependency.
-//
-//go:embed memo.json
-var memoF embed.FS
 
 const (
 	// OsmosisXCSContract defines the contract address for the Osmosis XCS contract
@@ -75,13 +67,15 @@ func (p Precompile) Swap(
 	}
 
 	// Create the memo field for the Swap from the JSON file
-	memo, err := createSwapMemo(output, receiver)
+	memo, err := CreateMemo(outputDenom, receiver, p.osmosisXCSContract)
 	if err != nil {
 		return nil, err
 	}
 
+	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
+
 	// Create the IBC Transfer message
-	msg, err := NewMsgTransfer(input, memo, amount, origin)
+	msg, err := NewMsgTransfer(p.portID, p.channelID, sender.String(), receiver, memo, coin)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +121,7 @@ func (p Precompile) Swap(
 	}
 
 	// Emit the Osmosis Swap Event
-	if err := p.EmitSwapEvent(ctx, stateDB, sender, common.BytesToAddress(receiverAccAddr), amount, inputDenom, outputDenom, prefix); err != nil {
+	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, receiver); err != nil {
 		return nil, err
 	}
 
@@ -146,8 +140,7 @@ func (p Precompile) validateSwap(
 	}
 
 	// We have to compute the ibc voucher string for the osmo coin
-	osmoIBCDenom := cmn.ComputeIBCDenom(p.portID, p.channelID, "uosmos")
-
+	osmoIBCDenom := cmn.ComputeIBCDenom(p.portID, p.channelID, "uosmo")
 	// We need to get evmDenom from Params to have the code valid also in testnet
 	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
 
@@ -158,25 +151,4 @@ func (p Precompile) validateSwap(
 	}
 
 	return nil
-}
-
-func (p Precompile) createMemo() string {
-
-	osmosisSwap := OsmosisSwap{}
-	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		log.Fatalf("Failed to marshal JSON: %v", err)
-	}
-
-	// Print the JSON string
-	fmt.Println(string(jsonBytes))
-	return string(jsonBytes)
-}
-
-// createSwapMemo creates a memo for the swap transaction
-func createSwapMemo(outputDenom, receiverAddress string) (string, error) {
-
-
-	return fmt.Sprintf(string(data), OsmosisXCSContract, outputDenom, receiverAddress), nil
 }
