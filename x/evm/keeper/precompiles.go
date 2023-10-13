@@ -14,11 +14,14 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v14/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v14/precompiles/ics20"
+	strideoutpost "github.com/evmos/evmos/v14/precompiles/outposts/stride"
 	stakingprecompile "github.com/evmos/evmos/v14/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v14/precompiles/vesting"
+	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
 )
@@ -32,6 +35,7 @@ func AvailablePrecompiles(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -56,10 +60,18 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
 
+	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, strideoutpost.StrideChannelIDMainnet, transferKeeper, erc20Keeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load stride outpost: %w", err))
+	}
+
+	// EVM Extensions
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	// Outposts
+	precompiles[strideOutpost.Address()] = strideOutpost
 	return precompiles
 }
 
