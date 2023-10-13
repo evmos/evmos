@@ -1311,6 +1311,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v142.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.BankKeeper,
+			app.EvmKeeper,
 			app.StakingKeeper,
 		),
 	)
