@@ -7,13 +7,12 @@ import (
 	"math/big"
 	"strings"
 	"time"
-	"fmt"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	evmosutils "github.com/evmos/evmos/v14/utils"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 )
 
 var (
@@ -112,18 +111,4 @@ func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 func SafeAdd(a, b sdkmath.Int) (res *big.Int, overflow bool) {
 	res = a.BigInt().Add(a.BigInt(), b.BigInt())
 	return res, res.BitLen() > sdkmath.MaxBitLen
-}
-
-// computeIBCDenom compute the ibc voucher denom associated to
-// the portID and channelID of the precompile given a token denomination.
-func ComputeIBCDenom(
-	portID, channelID,
-	baseDenom string,
-) string {
-	denomTrace := ibctransfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: baseDenom,
-	}
-
-	return denomTrace.IBCDenom()
 }

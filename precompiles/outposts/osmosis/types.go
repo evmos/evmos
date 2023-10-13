@@ -9,6 +9,7 @@ import (
 	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v14/ibc"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -128,7 +129,7 @@ func ValidateSwap(
 	}
 
 	// We have to compute the ibc voucher string for the osmo coin
-	osmoIBCDenom := cmn.ComputeIBCDenom(portID, channelID, "uosmo")
+	osmoIBCDenom := ibc.ComputeIBCDenom(portID, channelID, "uosmo")
 	// We need to get evmDenom from Params to have the code valid also in testnet
 
 	// Check that the input token is evmos or osmo. This constraint will be removed in future
