@@ -69,10 +69,9 @@ func (p Precompile) Swap(
 	// update the sender address to be equal to the origin address.
 	// Otherwise, if the provided sender address is different from the origin address,
 	// return an error because is a forbidden operation
-	if contract.CallerAddress == sender {
-		sender = origin
-	} else if origin != sender {
-		return nil, fmt.Errorf(ics20.ErrDifferentOriginFromSender, origin.String(), sender.String())
+	sender, err = ics20.CheckOriginAndSender(contract, origin, sender)
+	if err != nil {
+		return nil, err
 	}
 
 	// Create the memo field for the Swap from the JSON file
