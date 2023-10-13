@@ -147,7 +147,6 @@ func validateEIPs(i interface{}) error {
 	}
 
 	uniqueEIPs := make(map[int64]struct{})
-	duplicateEIPs := make([]int64, 0, len(eips))
 
 	for _, eip := range eips {
 		if !vm.ValidEip(int(eip)) {
@@ -155,14 +154,9 @@ func validateEIPs(i interface{}) error {
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
-			duplicateEIPs = append(duplicateEIPs, eip)
-		} else {
-			uniqueEIPs[eip] = struct{}{}
+			return fmt.Errorf("found duplicate EIP: %d", eip)
 		}
-	}
-
-	if len(duplicateEIPs) != 0 {
-		return fmt.Errorf("found duplicate EIPs: %v", duplicateEIPs)
+		uniqueEIPs[eip] = struct{}{}
 	}
 
 	return nil

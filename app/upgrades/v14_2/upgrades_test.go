@@ -44,7 +44,7 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 			},
 			expEIPs:     []int64{2200}, // NOTE: since the function is failing, we expect the EIPs to remain the same
 			expPass:     false,
-			errContains: "found duplicate EIPs: [2200]",
+			errContains: "found duplicate EIP: 2200",
 		},
 		{
 			name:        "fail - invalid EIP",
