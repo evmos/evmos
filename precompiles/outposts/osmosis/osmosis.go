@@ -19,6 +19,7 @@ import (
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 )
 
 const (
@@ -45,6 +46,7 @@ type Precompile struct {
 	channelKeeper  channelkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     erc20types.BankKeeper
+	evmKeeper      *evmkeeper.Keeper
 }
 
 // NewPrecompile creates a new staking Precompile instance as a

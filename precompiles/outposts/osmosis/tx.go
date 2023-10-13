@@ -3,16 +3,18 @@ package osmosis
 import (
 	"embed"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	"github.com/evmos/evmos/v14/precompiles/ics20"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
 )
 
 // Embed memo json file to the executable binary. Needed when importing as dependency.
@@ -37,11 +39,31 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, input, output,amount, receiver, err := CreateSwapPacketData(args)
+	sender, input, output, amount, receiver, err := ParseSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
 
+	inputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, input)
+	inputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, inputTokenPairID)
+	if !found {
+		return nil, fmt.Errorf("token pair for input address %s not found", input)
+	}
+	inputDenom := inputTokenPair.Denom
+
+	outputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, output)
+	outputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, outputTokenPairID)
+	if !found {
+		return nil, fmt.Errorf("token pair for output address %s not found", output)
+	}
+	outputDenom := outputTokenPair.Denom
+
+	err = p.validateSwap(ctx, inputDenom, outputDenom)
+	if err != nil {
+		return nil, err
+	}
+
+	// NOTE: substitute this logic with `ics20.CheckOriginAndSender`
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
 	// update the sender address to be equal to the origin address.
@@ -52,9 +74,6 @@ func (p Precompile) Swap(
 	} else if origin != sender {
 		return nil, fmt.Errorf(ics20.ErrDifferentOriginFromSender, origin.String(), sender.String())
 	}
-
-
-	
 
 	// Create the memo field for the Swap from the JSON file
 	memo, err := createSwapMemo(output, receiver)
@@ -114,6 +133,35 @@ func (p Precompile) Swap(
 	}
 
 	return method.Outputs.Pack(true)
+}
+
+// validateSwap performs validation on input and output denom.
+func (p Precompile) validateSwap(
+	ctx sdk.Context,
+	input, output string,
+) (err error) {
+
+	// input and output cannot be equal
+	if input == output {
+		return fmt.Errorf("input and output token cannot be the same: %s", input)
+	}
+
+	// We have to compute the ibc voucher string for the osmo coin
+	osmoTrace := ibctransfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", p.portID, p.channelID),
+		BaseDenom: "uosmo",
+	}
+	osmoIBCDenom := osmoTrace.IBCDenom()
+	// We need to get evmDenom from Params to have the code valid also in testnet
+	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
+
+	// Check that the input token is evmos or osmo. This constraint will be removed in future
+	validInput := []string{evmDenom, osmoIBCDenom}
+	if !slices.Contains(validInput, input) {
+		return fmt.Errorf("supported only the following input tokens: %v", validInput)
+	}
+
+	return nil
 }
 
 // createSwapMemo creates a memo for the swap transaction

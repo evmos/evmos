@@ -74,14 +74,8 @@ import (
 //	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
 //}
 
-// CreateSwapPacketData creates the packet data for the Osmosis swap function. This function will check that:
-// - the number of input variable is correct
-// - the sender is a correct Ethereum address
-// - the input is a correct Ethereum address
-// - the output is a correct Ethereum address
-// - the amount is of the correct type
-// - the receiver address is an Osmosis address
-func CreateSwapPacketData(args []interface{}) (sender common.Address, input common.Address, output common.Address, amount *big.Int, receiver string, err error) {
+// ParseSwapPacketData parses the packet data for the Osmosis swap function.
+func ParseSwapPacketData(args []interface{}) (sender common.Address, input common.Address, output common.Address, amount *big.Int, receiver string, err error) {
 	if len(args) != 5 {
 		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
@@ -111,18 +105,18 @@ func CreateSwapPacketData(args []interface{}) (sender common.Address, input comm
 		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("invalid receiver address: %v", args[4])
 	}
 
-	// Check if the receiver address has osmo prefix
-	// TODO: This might be unnecessary
-	if receiver[:4] != "osmo" {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", fmt.Errorf("receiver is not an Osmosis address")
-	}
-
-	_, err = AccAddressFromBech32(receiver, "osmo")
-	if err != nil {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid Osmosis bech32 address: %s", err)
-	}
-
 	return sender, input, output, amount, receiver, nil
+}
+
+// ValidateSwapPacketData performs data validation for the packet data for the Osmosis swap function.
+// - the input and output token cannot be the same
+// - the receiver address is an Osmosis address
+func ValidateSwapPacketData(input,output common.Address) (err error) {
+	if input == output {
+		return fmt.Errorf("input and output token cannot be the same: %s", input) 
+	}
+
+	return nil
 }
 
 // NewMsgTransfer creates a new MsgTransfer
