@@ -1,0 +1,24 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+syntax = "proto3";
+package evmos.crypto.v1.secp256r1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/evmos/evmos/v14/crypto/secp256r1";
+
+// PubKey defines a type alias for an P256 PublicKey that implements
+// Comet BFT's PubKey interface.
+message PubKey {
+  option (gogoproto.goproto_stringer) = false;
+
+  // key is the public key in byte form
+  bytes key = 1;
+}
+
+// PrivKey defines a type alias for an P256 PrivateKey that implements
+// Comet BFT's PrivateKey interface.
+message PrivKey {
+  // key is the private key in byte form
+  bytes key = 1;
+}
