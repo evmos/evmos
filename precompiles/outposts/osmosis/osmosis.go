@@ -11,6 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -18,7 +19,6 @@ import (
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 )
 
 const (
@@ -26,7 +26,7 @@ const (
 	OsmosisChannelIDMainnet = "channel-0"
 	// OsmosisChannelIDTestnet is the channel ID for the Osmosis channel on Evmos testnet.
 	OsmosisChannelIDTestnet = "channel-0"
-	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
+	OsmosisOutpostAddress   = "0x0000000000000000000000000000000000000901"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -38,21 +38,21 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	portID 			string
-	channelID 		string
+	portID             string
+	channelID          string
 	osmosisXCSContract string
 
 	transferKeeper transferkeeper.Keeper
 	channelKeeper  channelkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     erc20types.BankKeeper
-	stakingKeeper      stakingkeeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	portID , channelID string,
+	portID, channelID string,
 	osmosisXCSContract string,
 	transferKeeper transferkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -78,13 +78,13 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		portID: portID,
-		channelID: channelID,
+		portID:             portID,
+		channelID:          channelID,
 		osmosisXCSContract: osmosisXCSContract,
-		transferKeeper: transferKeeper,
-		bankKeeper:     bankKeeper,
-		erc20Keeper:    erc20Keeper,
-		channelKeeper:  channelKeeper,
+		transferKeeper:     transferKeeper,
+		bankKeeper:         bankKeeper,
+		erc20Keeper:        erc20Keeper,
+		channelKeeper:      channelKeeper,
 	}, nil
 }
 

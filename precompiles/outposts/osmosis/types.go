@@ -1,17 +1,17 @@
 package osmosis
 
 import (
-	"fmt"
-	"math/big"
 	"encoding/json"
+	"fmt"
 	"log"
+	"math/big"
 	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v14/ibc"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v14/ibc"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
@@ -27,9 +27,9 @@ type Slippage struct {
 type OsmosisSwap struct {
 	OutputDenom      string   `json:"output_denom"`
 	Slippage         Slippage `json:"slippage"`
-	Receiver         string `json:"receiver"`
-	OnFailedDelivery string `json:"on_failed_delivery"`
-	NextMemo         string `json:"next_memo"`
+	Receiver         string   `json:"receiver"`
+	OnFailedDelivery string   `json:"on_failed_delivery"`
+	NextMemo         string   `json:"next_memo"`
 }
 
 type Msg struct {
@@ -46,22 +46,21 @@ type RawPacketMetadata struct {
 }
 
 func CreateMemo(outputDenom, receiver, contract string) (string, error) {
-
 	data := &RawPacketMetadata{
-		Memo {
+		Memo{
 			Contract: contract,
 			Msg: Msg{
 				OsmosisSwap: OsmosisSwap{
 					OutputDenom: outputDenom,
 					Slippage: Slippage{
-						Twap {
+						Twap{
 							SlippagePercentage: "5",
-							WindowSeconds: "10",
+							WindowSeconds:      "10",
 						},
 					},
-					Receiver: receiver,
+					Receiver:         receiver,
 					OnFailedDelivery: "do_nothing",
-					NextMemo: "",
+					NextMemo:         "",
 				},
 			},
 		},
@@ -121,7 +120,6 @@ func ValidateSwap(
 	output,
 	stakingDenom string,
 ) (err error) {
-
 	// input and output cannot be equal
 	if input == output {
 		return fmt.Errorf("input and output token cannot be the same: %s", input)

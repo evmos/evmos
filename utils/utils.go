@@ -4,8 +4,8 @@
 package utils
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 
