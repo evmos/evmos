@@ -121,7 +121,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    "port-1",
 							SourceChannel: "channel-1",
@@ -143,7 +143,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					s.address,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,
@@ -169,7 +169,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					differentAddress,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,

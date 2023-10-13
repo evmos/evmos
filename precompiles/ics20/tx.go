@@ -59,13 +59,20 @@ func (p Precompile) Transfer(
 		return nil, err
 	}
 
-	// Update grant only if is needed
 	if err := UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, resp); err != nil {
 		return nil, err
 	}
 
-	// Emit the IBC transfer event
-	if err = EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg); err != nil {
+	if err = p.EmitIBCTransferEvent(
+		ctx,
+		stateDB,
+		sender,
+		msg.Receiver,
+		msg.SourcePort,
+		msg.SourceChannel,
+		msg.Token,
+		msg.Memo,
+	); err != nil {
 		return nil, err
 	}
 

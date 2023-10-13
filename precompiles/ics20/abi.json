@@ -99,31 +99,12 @@
 					}
 				],
 				"indexed": false,
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
 		],
 		"name": "IBCTransferAuthorization",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "grantee",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "granter",
-				"type": "address"
-			}
-		],
-		"name": "RevokeIBCTransferAuthorization",
 		"type": "event"
 	},
 	{
@@ -176,7 +157,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -226,7 +207,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
