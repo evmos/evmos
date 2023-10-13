@@ -89,7 +89,6 @@ func NewPrecompile(
 }
 
 // Address defines the address of the Osmosis Outpost precompile contract.
-// address: 0x0000000000000000000000000000000000000901
 func (Precompile) Address() common.Address {
 	return common.HexToAddress(OsmosisOutpostAddress)
 }
