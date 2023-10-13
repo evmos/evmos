@@ -1,9 +1,10 @@
 package stride_test
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
-	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
@@ -79,7 +80,6 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
 			"success",
 			func() []interface{} {
 				return []interface{}{
-
 					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
 				}
 			},

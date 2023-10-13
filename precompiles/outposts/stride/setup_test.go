@@ -3,9 +3,10 @@
 package stride_test
 
 import (
-	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
 	"testing"
 	"time"
+
+	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"

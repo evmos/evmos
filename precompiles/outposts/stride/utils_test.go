@@ -4,9 +4,10 @@ package stride_test
 
 import (
 	"encoding/json"
-	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
 	"math/big"
 	"time"
+
+	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
