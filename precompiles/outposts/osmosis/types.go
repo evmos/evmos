@@ -32,7 +32,7 @@ type OsmosisSwap struct {
 }
 
 type Msg struct {
-	OsmosisSwap OsmosisSwap `json:"osmosis_swap",omitempty`
+	OsmosisSwap OsmosisSwap `json:"osmosis_swap,omitempty"`
 }
 
 type Memo struct {
