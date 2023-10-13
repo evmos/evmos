@@ -47,14 +47,14 @@ func (p Precompile) Swap(
 	inputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, input)
 	inputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, inputTokenPairID)
 	if !found {
-		return nil, fmt.Errorf("token pair for input address %s not found", input)
+		return nil, fmt.Errorf(ErrTokenPairNotFound, input)
 	}
 	inputDenom := inputTokenPair.Denom
 
 	outputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, output)
 	outputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, outputTokenPairID)
 	if !found {
-		return nil, fmt.Errorf("token pair for output address %s not found", output)
+		return nil, fmt.Errorf(ErrTokenPairNotFound, output)
 	}
 	outputDenom := outputTokenPair.Denom
 
@@ -158,7 +158,7 @@ func (p Precompile) validateSwap(
 	// Check that the input token is evmos or osmo. This constraint will be removed in future
 	validInput := []string{evmDenom, osmoIBCDenom}
 	if !slices.Contains(validInput, input) {
-		return fmt.Errorf("supported only the following input tokens: %v", validInput)
+		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
 	}
 
 	return nil
