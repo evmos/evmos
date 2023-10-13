@@ -165,19 +165,8 @@ func (p Precompile) validateSwap(
 }
 
 func (p Precompile) createMemo() string {
-	// Create a new instance of the struct and populate it
-	data := &RawPacketMetadata{
-		Autopilot: &struct {
-			Receiver string                  `json:"receiver"`
-			StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
-		}{
-			Receiver: receiverAddress,
-			StakeIBC: &StakeIBCPacketMetadata{
-				Action: action,
-			},
-		},
-	}
 
+	osmosisSwap := OsmosisSwap{}
 	// Convert the struct to a JSON string
 	jsonBytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {

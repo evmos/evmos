@@ -20,9 +20,9 @@ const (
 func (p Precompile) EmitSwapEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
-	senderAddr, receiverAddr common.Address,
+	sender, input, output common.Address,
 	amount *big.Int,
-	inputDenom, outputDenom, chainPrefix string,
+	receiver string,
 ) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeSwap]
@@ -32,19 +32,23 @@ func (p Precompile) EmitSwapEvent(
 	topics[0] = event.ID
 
 	var err error
-	// sender and receiver are indexed
-	topics[1], err = cmn.MakeTopic(senderAddr)
+	// sender, input and output are indexed
+	topics[1], err = cmn.MakeTopic(sender)
 	if err != nil {
 		return err
 	}
-	topics[2], err = cmn.MakeTopic(receiverAddr)
+	topics[2], err = cmn.MakeTopic(input)
+	if err != nil {
+		return err
+	}
+	topics[3], err = cmn.MakeTopic(output)
 	if err != nil {
 		return err
 	}
 
-	// Prepare the event data: denom, amount, memo
-	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4], event.Inputs[5]}
-	packed, err := arguments.Pack(amount, inputDenom, outputDenom, chainPrefix)
+	// Prepare the event data: amount, receiver
+	arguments := abi.Arguments{event.Inputs[4], event.Inputs[5]}
+	packed, err := arguments.Pack(amount, receiver)
 	if err != nil {
 		return err
 	}
