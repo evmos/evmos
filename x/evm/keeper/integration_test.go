@@ -301,19 +301,43 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 
 		It("performs a transfer transaction", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
-			receiver := s.keyring.GetKey(1)
+			senderKey := s.keyring.GetKey(0)
+			receiverKey := s.keyring.GetKey(1)
+			denom := s.network.GetDenom()
+
+			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
+
+			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
+
+			transferAmount := int64(1000)
+
 			txArgs := evmtypes.EvmTxArgs{
-				To:     &receiver.Addr,
-				Amount: big.NewInt(1000),
-				// Hard coded gas limit to avoid failure on gas estimation because
-				// of the param
-				GasLimit: 100000,
+				To:     &receiverKey.Addr,
+				Amount: big.NewInt(transferAmount),
 			}
 
-			res, err := s.factory.ExecuteEthTx(senderPriv, txArgs)
+			res, err := s.factory.ExecuteEthTx(senderKey.Priv, txArgs)
 			Expect(err).To(BeNil())
 			Expect(res.IsOK()).To(Equal(true), "transaction should have succeeded", res.GetLog())
+
+			err = s.network.NextBlock()
+			Expect(err).To(BeNil())
+
+			// Check sender balance after transaction
+			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
+			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
+
+			// Check receiver balance after transaction
+			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
+			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			Expect(err).To(BeNil())
+			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		})
 
 		It("fails when trying to perform contract deployment", func() {
