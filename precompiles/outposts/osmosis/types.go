@@ -6,6 +6,7 @@ import (
 	"strings"
 	"encoding/json"
 	"log"
+	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -109,6 +110,34 @@ func ParseSwapPacketData(args []interface{}) (sender common.Address, input commo
 	}
 
 	return sender, input, output, amount, receiver, nil
+}
+
+// validateSwap performs validation on input and output denom.
+func ValidateSwap(
+	ctx sdk.Context,
+	portID,
+	channelID,
+	input,
+	output,
+	stakingDenom string,
+) (err error) {
+
+	// input and output cannot be equal
+	if input == output {
+		return fmt.Errorf("input and output token cannot be the same: %s", input)
+	}
+
+	// We have to compute the ibc voucher string for the osmo coin
+	osmoIBCDenom := cmn.ComputeIBCDenom(portID, channelID, "uosmo")
+	// We need to get evmDenom from Params to have the code valid also in testnet
+
+	// Check that the input token is evmos or osmo. This constraint will be removed in future
+	validInput := []string{stakingDenom, osmoIBCDenom}
+	if !slices.Contains(validInput, input) {
+		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
+	}
+
+	return nil
 }
 
 // NewMsgTransfer creates a new MsgTransfer

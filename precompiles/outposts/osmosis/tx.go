@@ -2,7 +2,6 @@ package osmosis
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"github.com/evmos/evmos/v14/precompiles/ics20"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 const (
@@ -51,7 +49,9 @@ func (p Precompile) Swap(
 	}
 	outputDenom := outputTokenPair.Denom
 
-	err = p.validateSwap(ctx, inputDenom, outputDenom)
+	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+
+	err = ValidateSwap(ctx, p.portID, p.channelID, inputDenom, outputDenom, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -128,27 +128,3 @@ func (p Precompile) Swap(
 	return method.Outputs.Pack(true)
 }
 
-// validateSwap performs validation on input and output denom.
-func (p Precompile) validateSwap(
-	ctx sdk.Context,
-	input, output string,
-) (err error) {
-
-	// input and output cannot be equal
-	if input == output {
-		return fmt.Errorf("input and output token cannot be the same: %s", input)
-	}
-
-	// We have to compute the ibc voucher string for the osmo coin
-	osmoIBCDenom := cmn.ComputeIBCDenom(p.portID, p.channelID, "uosmo")
-	// We need to get evmDenom from Params to have the code valid also in testnet
-	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-
-	// Check that the input token is evmos or osmo. This constraint will be removed in future
-	validInput := []string{evmDenom, osmoIBCDenom}
-	if !slices.Contains(validInput, input) {
-		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-	}
-
-	return nil
-}
