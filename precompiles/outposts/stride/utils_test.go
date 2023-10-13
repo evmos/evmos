@@ -22,10 +22,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -34,8 +31,6 @@ import (
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/ics20"
-	"github.com/evmos/evmos/v14/precompiles/testutil"
-	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v14/testutil"
 	evmosutiltx "github.com/evmos/evmos/v14/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v14/types"
@@ -44,32 +39,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
-
-	. "github.com/onsi/gomega"
-)
-
-type erc20Meta struct {
-	Name     string
-	Symbol   string
-	Decimals uint8
-}
-
-var (
-	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewIntFromBigInt(abi.MaxUint256)}}
-	maxUint256CmnCoins = []cmn.Coin{{Denom: utils.BaseDenom, Amount: abi.MaxUint256}}
-	defaultCoins       = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}}
-	baseDenomCmnCoin   = cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}
-	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
-	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
-	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	atomComnCoins      = []cmn.Coin{atomCmnCoin}
-	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
-	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
-	testERC20          = erc20Meta{
-		Name:     "TestCoin",
-		Symbol:   "TC",
-		Decimals: 18,
-	}
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -273,7 +242,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	portID := "transfer"
 	channelID := "channel-0"
 
-	precompile, err := stride.NewPrecompile(portID, channelID, s.app.TransferKeeper, s.app.Erc20Keeper, s.app.AuthzKeeper)
+	precompile, err := stride.NewPrecompile(portID, channelID, s.app.TransferKeeper, s.app.Erc20Keeper, s.app.AuthzKeeper, s.app.StakingKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 
@@ -426,93 +395,4 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().Equal("07-tendermint-0", s.transferPath.EndpointA.ClientID)
 	s.Require().Equal("connection-0", s.transferPath.EndpointA.ConnectionID)
 	s.Require().Equal("channel-0", s.transferPath.EndpointA.ChannelID)
-}
-
-// setTransferApproval sets the transfer approval for the given grantee and allocations
-func (s *PrecompileTestSuite) setTransferApproval(
-	args contracts.CallArgs,
-	grantee common.Address,
-	allocations []cmn.ICS20Allocation,
-) {
-	args.MethodName = authorization.ApproveMethod
-	args.Args = []interface{}{
-		grantee,
-		allocations,
-	}
-
-	logCheckArgs := testutil.LogCheckArgs{
-		ABIEvents: s.precompile.Events,
-		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
-		ExpPass:   true,
-	}
-
-	_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, logCheckArgs)
-	Expect(err).To(BeNil(), "error while calling the contract to approve")
-
-	s.chainA.NextBlock()
-
-	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), grantee.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
-	Expect(authz).NotTo(BeNil())
-	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
-	Expect(ok).To(BeTrue())
-	Expect(len(transferAuthz.Allocations[0].SpendLimit)).To(Equal(len(allocations[0].SpendLimit)))
-	for i, sl := range transferAuthz.Allocations[0].SpendLimit {
-		// NOTE order may change if there're more than one coin
-		Expect(sl.Denom).To(Equal(allocations[0].SpendLimit[i].Denom))
-		Expect(sl.Amount.BigInt()).To(Equal(allocations[0].SpendLimit[i].Amount))
-	}
-}
-
-// setTransferApprovalForContract sets the transfer approval for the given contract
-func (s *PrecompileTestSuite) setTransferApprovalForContract(args contracts.CallArgs) {
-	logCheckArgs := testutil.LogCheckArgs{
-		ABIEvents: s.precompile.Events,
-		ExpEvents: []string{authorization.EventTypeIBCTransferAuthorization},
-		ExpPass:   true,
-	}
-
-	_, _, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, args, logCheckArgs)
-	Expect(err).To(BeNil(), "error while calling the contract to approve")
-
-	s.chainA.NextBlock()
-
-	// check auth created successfully
-	authz, _ := s.app.AuthzKeeper.GetAuthorization(s.chainA.GetContext(), args.ContractAddr.Bytes(), args.PrivKey.PubKey().Address().Bytes(), ics20.TransferMsgURL)
-	Expect(authz).NotTo(BeNil())
-	transferAuthz, ok := authz.(*transfertypes.TransferAuthorization)
-	Expect(ok).To(BeTrue())
-	Expect(len(transferAuthz.Allocations) > 0).To(BeTrue())
-}
-
-// makePacket is a helper function to build the sent IBC packet
-// to perform an ICS20 tranfer.
-// This packet is then used to test the IBC callbacks (Timeout, Ack)
-func (s *PrecompileTestSuite) makePacket(
-	senderAddr,
-	receiverAddr,
-	denom,
-	memo string,
-	amt *big.Int,
-	seq uint64,
-	timeoutHeight clienttypes.Height,
-) channeltypes.Packet {
-	packetData := transfertypes.NewFungibleTokenPacketData(
-		denom,
-		amt.String(),
-		senderAddr,
-		receiverAddr,
-		memo,
-	)
-
-	return channeltypes.NewPacket(
-		packetData.GetBytes(),
-		seq,
-		s.transferPath.EndpointA.ChannelConfig.PortID,
-		s.transferPath.EndpointA.ChannelID,
-		s.transferPath.EndpointB.ChannelConfig.PortID,
-		s.transferPath.EndpointB.ChannelID,
-		timeoutHeight,
-		0,
-	)
 }

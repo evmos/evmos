@@ -60,7 +60,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
 
-	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, strideoutpost.StrideChannelIDMainnet, transferKeeper, erc20Keeper, authzKeeper)
+	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, strideoutpost.StrideChannelIDMainnet, transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load stride outpost: %w", err))
 	}

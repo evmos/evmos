@@ -4,13 +4,16 @@
 package stride_test
 
 import (
+	"fmt"
 	"math/big"
 
+	common "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
 )
 
-func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
+func (s *PrecompileTestSuite) TestLiquidStake() {
 	method := s.precompile.Methods[stride.LiquidStakeMethod]
 
 	testCases := []struct {
@@ -21,75 +24,51 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
 		expError    bool
 		errContains string
 	}{
-		//{
-		//	"fail - empty input args",
-		//	func() []interface{} {
-		//		return []interface{}{}
-		//	},
-		//	func() {},
-		//	200000,
-		//	true,
-		//	fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
-		//},
-		//{
-		//	"fail - bond denom is not aevmos",
-		//	func() []interface{} {
-		//		return []interface{}{
-		//			cmn.Coin{
-		//				Denom:  "uosmos",
-		//				Amount: big.NewInt(1000),
-		//			},
-		//			s.address.String(),
-		//		}
-		//	},
-		//	func() {},
-		//	200000,
-		//	true,
-		//	fmt.Sprintf(cmn.ErrInvalidDenom, "aevmos"),
-		//},
-		//{
-		//	"fail - invalid receiver address (not a stride address)",
-		//	func() []interface{} {
-		//		return []interface{}{
-		//			cmn.Coin{
-		//				Denom:  "aevmos",
-		//				Amount: big.NewInt(10000000),
-		//			},
-		//			"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
-		//		}
-		//	},
-		//	func() {},
-		//	200000,
-		//	true,
-		//	"receiverAddress is not a stride address",
-		//},
-		//{
-		//	"fail - receiver address is not a valid bech32",
-		//	func() []interface{} {
-		//		return []interface{}{
-		//			cmn.Coin{
-		//				Denom:  "aevmos",
-		//				Amount: big.NewInt(10000000),
-		//			},
-		//			"stride1xv9tklw7d82sezh9haa573wufgy9vmwe6xxe5",
-		//		}
-		//	},
-		//	func() {},
-		//	200000,
-		//	true,
-		//	"invalid bech32 address: decoding bech32 failed: invalid checksum",
-		//},
 		{
-			"success",
+			"fail - empty input args",
 			func() []interface{} {
+				return []interface{}{}
+			},
+			func() {},
+			200000,
+			true,
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
+		},
+		{
+			"fail - invalid receiver address (not a stride address)",
+			func() []interface{} {
+				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889")
+				tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
+				s.Require().True(ok, "expected token pair to be found")
 				return []interface{}{
-					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					s.address,
+					common.HexToAddress(tokenPair.Erc20Address),
+					big.NewInt(1e18),
+					"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
 				}
 			},
 			func() {},
-			20000,
-			false,
-			"",
+			200000,
+			true,
+			"receiverAddress is not a stride address",
+		},
+		{
+			"fail - receiver address is an invalid stride bech32 address",
+			func() []interface{} {
+				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889")
+				tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
+				s.Require().True(ok, "expected token pair to be found")
+				return []interface{}{
+					s.address,
+					common.HexToAddress(tokenPair.Erc20Address),
+					big.NewInt(1e18),
+					"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe",
+				}
+			},
+			func() {},
+			200000,
+			true,
+			"invalid stride bech32 address",
 		},
 	}
 
@@ -109,4 +88,8 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvmos() {
 			}
 		})
 	}
+}
+
+func (s *PrecompileTestSuite) TestRedeem() {
+
 }

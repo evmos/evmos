@@ -50,9 +50,9 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
+	bondDenom := p.stakingKeeper.BondDenom(ctx)
 
-	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, evmDenom)
+	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	// NOTE this should always exist
 	if !found {
@@ -66,7 +66,7 @@ func (p Precompile) LiquidStake(
 
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
 
-	// Create the memo for the ICS20 transfer
+	// Create the memo for the ICS20 transfer packet
 	memo, err := CreateMemo(LiquidStakeAction, receiver)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (p Precompile) LiquidStake(
 
 	// Build the MsgTransfer with the memo and coin
 	// TODO: move out this function
-	msg, err := NewMsgTransfer(p.channelID, sdk.AccAddress(sender.Bytes()).String(), receiver, memo, coin)
+	msg, err := NewMsgTransfer(p.portID, p.channelID, sdk.AccAddress(sender.Bytes()).String(), receiver, memo, p.timeoutHeight, coin)
 	if err != nil {
 		return nil, err
 	}
@@ -136,8 +136,8 @@ func (p Precompile) Redeem(
 		return nil, err
 	}
 
-	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-	stToken := fmt.Sprintf("st%s", evmDenom)
+	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	stToken := "st" + bondDenom
 
 	ibcDenom := computeIBCDenom(p.portID, p.channelID, stToken)
 
@@ -160,8 +160,7 @@ func (p Precompile) Redeem(
 	}
 
 	// Build the MsgTransfer with the memo and coin
-	// TODO: move out this function
-	msg, err := NewMsgTransfer(p.channelID, sdk.AccAddress(sender.Bytes()).String(), receiver, memo, coin)
+	msg, err := NewMsgTransfer(p.portID, p.channelID, sdk.AccAddress(sender.Bytes()).String(), receiver, memo, p.timeoutHeight, coin)
 	if err != nil {
 		return nil, err
 	}

@@ -24,7 +24,7 @@ type StakeIBCPacketMetadata struct {
 }
 
 // Autopilot defines the receiver and IBC packet metadata info specific to the
-// Stride Autopilot liquid staking behaviour
+// Stride Autopilot liquid staking behavior
 type Autopilot struct {
 	Receiver string                  `json:"receiver"`
 	StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
@@ -75,13 +75,10 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 	return sender, token, amount, receiver, nil
 }
 
-// NewMsgTransfer creates a new MsgTransfer
-func NewMsgTransfer(sourceChannel, senderAddress, receiverAddress, memo string, coin sdk.Coin) (*transfertypes.MsgTransfer, error) {
-	// TODO: what are some sensible defaults here
-	timeoutHeight := clienttypes.NewHeight(100, 100)
-
+// NewMsgTransfer creates a new MsgTransfer message
+func NewMsgTransfer(sourcePort, sourceChannel, senderAddress, receiverAddress, memo string, timeoutHeight clienttypes.Height, coin sdk.Coin) (*transfertypes.MsgTransfer, error) {
 	msg := transfertypes.NewMsgTransfer(
-		transfertypes.PortID,
+		sourcePort,
 		sourceChannel,
 		coin,
 		senderAddress,

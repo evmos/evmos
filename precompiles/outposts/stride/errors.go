@@ -14,7 +14,7 @@ const (
 var (
 	ErrInvalidPacketMetadata     = errorsmod.Register(OutpostName, 1501, "invalid packet metadata")
 	ErrUnsupportedStakeibcAction = errorsmod.Register(OutpostName, 1502, "unsupported stakeibc action")
-	ErrInvalidClaimAirdropId     = errorsmod.Register(OutpostName, 1503, "invalid claim airdrop ID (cannot be empty)")
+	ErrInvalidClaimAirdropID     = errorsmod.Register(OutpostName, 1503, "invalid claim airdrop ID (cannot be empty)")
 	ErrInvalidModuleRoutes       = errorsmod.Register(OutpostName, 1504, "invalid number of module routes, only 1 module is allowed at a time")
 	ErrUnsupportedAutopilotRoute = errorsmod.Register(OutpostName, 1505, "unsupported autpilot route")
 	ErrInvalidReceiverAddress    = errorsmod.Register(OutpostName, 1506, "receiver address must be specified when using autopilot")

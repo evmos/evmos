@@ -10,12 +10,13 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
 )
 
@@ -38,9 +39,10 @@ type Precompile struct {
 	cmn.Precompile
 	portID         string
 	channelID      string
+	timeoutHeight  clienttypes.Height
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
-	evmKeeper      *evmkeeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
@@ -50,6 +52,7 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -71,13 +74,14 @@ func NewPrecompile(
 		},
 		portID:         portID,
 		channelID:      channelID,
+		timeoutHeight:  clienttypes.NewHeight(100, 100),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
+		stakingKeeper:  stakingKeeper,
 	}, nil
 }
 
 // Address defines the address of the Stride Outpost precompile contract.
-// address: 0x0000000000000000000000000000000000000900
 func (Precompile) Address() common.Address {
 	return common.HexToAddress("0x0000000000000000000000000000000000000900")
 }
