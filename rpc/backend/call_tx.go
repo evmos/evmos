@@ -170,7 +170,7 @@ func (b *Backend) SetTxDefaults(args evmtypes.TransactionArgs) (evmtypes.Transac
 		return args, errors.New("both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified")
 	}
 
-	head, _ := b.CurrentHeader() // #nosec G701 -- no need to check if err != nil cause we're already checking that head == nil
+	head, _ := b.CurrentHeader() // #nosec G701 -- no need to check error cause we're already checking that head == nil
 	if head == nil {
 		return args, errors.New("latest header is nil")
 	}
