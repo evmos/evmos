@@ -29,6 +29,13 @@ import (
 	"github.com/evmos/evmos/v14/x/evm/types"
 )
 
+// AvailableExtraEIPs define the list of all EIPs that can be enabled by the
+// EVM interpreter. These EIPs are applied in order and can override the
+// instruction sets from the latest hard fork enabled by the ChainConfig. For
+// more info check:
+// https://github.com/ethereum/go-ethereum/blob/master/core/vm/interpreter.go#L97
+var AvailableExtraEIPs = []int64{1344, 1884, 2200, 2929, 3198, 3529}
+
 func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
@@ -38,7 +45,7 @@ func TestMigrate(t *testing.T) {
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)
 
-	extraEIPs := v5types.V5ExtraEIPs{EIPs: types.AvailableExtraEIPs}
+	extraEIPs := v5types.V5ExtraEIPs{EIPs: AvailableExtraEIPs}
 	extraEIPsBz := cdc.MustMarshal(&extraEIPs)
 	chainConfig := types.DefaultChainConfig()
 	chainConfigBz := cdc.MustMarshal(&chainConfig)
