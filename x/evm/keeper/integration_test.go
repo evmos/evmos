@@ -337,7 +337,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		It("performs a contract call to the staking precompile", func() {
 			senderPriv := s.keyring.GetPrivKey(0)
 			contractAddress := common.HexToAddress(staking.PrecompileAddress)
-			contractABI, err := staking.LoadPrecompileABI()
+			contractABI, err := staking.LoadABI()
 			Expect(err).To(BeNil())
 
 			totalSupplyTxArgs := evmtypes.EvmTxArgs{

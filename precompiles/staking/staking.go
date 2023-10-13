@@ -4,9 +4,7 @@
 package staking
 
 import (
-	"bytes"
 	"embed"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -37,19 +35,10 @@ type Precompile struct {
 	stakingKeeper stakingkeeper.Keeper
 }
 
-// LoadPrecompileABI loads the staking ABI from the embedded abi.json file
+// LoadABI loads the staking ABI from the embedded abi.json file
 // for the staking precompile.
-func LoadPrecompileABI() (abi.ABI, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return abi.ABI{}, fmt.Errorf("error loading the staking ABI %s", err)
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
-	if err != nil {
-		return abi.ABI{}, fmt.Errorf(cmn.ErrInvalidABI, err)
-	}
-	return newAbi, nil
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
@@ -58,7 +47,7 @@ func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abi, err := LoadPrecompileABI()
+	abi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
