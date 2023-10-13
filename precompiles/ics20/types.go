@@ -356,6 +356,7 @@ func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender c
 }
 
 // CheckAndAcceptAuthorizationIfNeeded checks if authorization exists and accepts the grant.
+// In case the origin is the caller of the address, no authorization is required.
 func CheckAndAcceptAuthorizationIfNeeded(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -380,7 +381,7 @@ func CheckAndAcceptAuthorizationIfNeeded(
 	return resp, expiration, nil
 }
 
-// UpdateGrantIfNeeded updates the grant if needed.
+// UpdateGrantIfNeeded updates the grant in case the contract caller is not the origin of the message.
 func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper authzkeeper.Keeper, origin common.Address, expiration *time.Time, resp *authz.AcceptResponse) error {
 	if contract.CallerAddress != origin {
 		return UpdateGrant(ctx, authzKeeper, contract.CallerAddress, origin, expiration, resp)
