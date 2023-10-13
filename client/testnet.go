@@ -420,7 +420,7 @@ func initGenFiles(
 
 	mintGenState.Params.MintDenom = coinDenom
 	appGenState[mintypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&mintGenState)
-	
+
 	var evmGenState evmtypes.GenesisState
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmtypes.ModuleName], &evmGenState)
 
