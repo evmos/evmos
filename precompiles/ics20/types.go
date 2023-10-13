@@ -6,6 +6,11 @@ package ics20
 import (
 	"fmt"
 	"math/big"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -35,12 +40,6 @@ type EventTransferAuthorization struct {
 	Grantee     common.Address
 	Granter     common.Address
 	Allocations []cmn.ICS20Allocation
-}
-
-// EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
-type EventRevokeAuthorization struct {
-	Grantee common.Address
-	Granter common.Address
 }
 
 // DenomTraceResponse defines the data for the denom trace response.
@@ -344,4 +343,48 @@ func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocatio
 	}
 
 	return allocations
+}
+
+// CheckOriginAndSender ensures the correct sender is being used.
+func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender common.Address) (common.Address, error) {
+	if contract.CallerAddress == sender {
+		return origin, nil
+	} else if origin != sender {
+		return common.Address{}, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
+	return sender, nil
+}
+
+// CheckAndAcceptAuthorizationIfNeeded checks if authorization exists and accepts the grant.
+// In case the origin is the caller of the address, no authorization is required.
+func CheckAndAcceptAuthorizationIfNeeded(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	origin common.Address,
+	authzKeeper authzkeeper.Keeper,
+	msg *transfertypes.MsgTransfer,
+) (*authz.AcceptResponse, *time.Time, error) {
+	if contract.CallerAddress == origin {
+		return nil, nil, nil
+	}
+
+	auth, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, contract.CallerAddress, origin, TransferMsgURL)
+	if err != nil {
+		return nil, nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+	}
+
+	resp, err := AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resp, expiration, nil
+}
+
+// UpdateGrantIfNeeded updates the grant in case the contract caller is not the origin of the message.
+func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper authzkeeper.Keeper, origin common.Address, expiration *time.Time, resp *authz.AcceptResponse) error {
+	if contract.CallerAddress != origin {
+		return UpdateGrant(ctx, authzKeeper, contract.CallerAddress, origin, expiration, resp)
+	}
+	return nil
 }
