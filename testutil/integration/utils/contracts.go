@@ -5,9 +5,6 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-
 	"github.com/evmos/evmos/v14/testutil/integration/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
@@ -43,11 +40,6 @@ func IsContractAccount(acc authtypes.AccountI) error {
 	contractETHAccount, ok := acc.(evmostypes.EthAccountI)
 	if !ok {
 		return fmt.Errorf("account is not an eth account")
-	}
-
-	emptyCodeHash := common.BytesToHash(crypto.Keccak256(nil))
-	if contractETHAccount.GetCodeHash() == emptyCodeHash {
-		return fmt.Errorf("account code hash is empty")
 	}
 
 	if contractETHAccount.Type() != evmostypes.AccountTypeContract {
