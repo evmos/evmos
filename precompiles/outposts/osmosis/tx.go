@@ -2,14 +2,11 @@ package osmosis
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"github.com/evmos/evmos/v14/precompiles/ics20"
 )
 
@@ -82,37 +79,19 @@ func (p Precompile) Swap(
 
 	// no need to have authorization when the contract caller is the same as origin (owner of funds)
 	// and the sender is the origin
-	var (
-		expiration *time.Time
-		auth       authz.Authorization
-		resp       *authz.AcceptResponse
-	)
-	if contract.CallerAddress != origin {
-		// check if authorization exists
-		auth, expiration, err = authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ics20.TransferMsgURL)
-		if err != nil {
-			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
-		}
-
-		// Accept the grant and return an error if the grant is not accepted
-		resp, err = ics20.AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// Send the IBC Transfer message
-	_, err = p.transferKeeper.Transfer(ctx, msg)
+	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(ctx, contract, origin, p.AuthzKeeper, msg)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update grant only if is needed
-	if contract.CallerAddress != origin {
-		// accepts and updates the grant adjusting the spending limit
-		if err = ics20.UpdateGrant(ctx, p.AuthzKeeper, contract.CallerAddress, origin, expiration, resp); err != nil {
-			return nil, err
-		}
+	// Send the IBC Transfer message
+	res, err := p.transferKeeper.Transfer(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = ics20.UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, accept); err != nil {
+		return nil, err
 	}
 
 	// Emit the ICS20 Transfer Event
@@ -125,6 +104,6 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(true)
+	return method.Outputs.Pack(res.Sequence, true)
 }
 

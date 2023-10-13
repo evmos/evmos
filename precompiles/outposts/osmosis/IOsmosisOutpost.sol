@@ -27,7 +27,8 @@ interface IOsmosisOutpost {
     /// @param amount The amount of input tokens to be swapped
     /// @param receiver The bech32-formatted address of the receiver
     /// of the newly swapped tokens, can be any chain connected to Osmosis
-    /// e.g. evmosAddr, junoAddr, co
+    /// e.g. evmosAddr, junoAddr, ...
+    /// @return nextSequence sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded
     function swap(
         address sender,
@@ -35,5 +36,5 @@ interface IOsmosisOutpost {
         address output,
         uint256 amount,
         string calldata receiver
-    ) external returns (bool success);
+    ) external returns (uint64 nextSequence, bool success);
 }
