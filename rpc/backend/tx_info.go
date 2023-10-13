@@ -352,7 +352,7 @@ func (b *Backend) queryTendermintTxIndexer(query string, txGetter func(*rpctypes
 		return nil, errors.New("ethereum tx not found")
 	}
 	txResult := resTxs.Txs[0]
-	if !rpctypes.TxSuccessOrExceedsBlockGasLimit(&txResult.TxResult) {
+	if !rpctypes.TxSucessOrExpectedFailure(&txResult.TxResult) {
 		return nil, errors.New("invalid ethereum tx")
 	}
 
