@@ -164,6 +164,31 @@ func (p Precompile) validateSwap(
 	return nil
 }
 
+func (p Precompile) createMemo() string {
+	// Create a new instance of the struct and populate it
+	data := &RawPacketMetadata{
+		Autopilot: &struct {
+			Receiver string                  `json:"receiver"`
+			StakeIBC *StakeIBCPacketMetadata `json:"stakeibc,omitempty"`
+		}{
+			Receiver: receiverAddress,
+			StakeIBC: &StakeIBCPacketMetadata{
+				Action: action,
+			},
+		},
+	}
+
+	// Convert the struct to a JSON string
+	jsonBytes, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatalf("Failed to marshal JSON: %v", err)
+	}
+
+	// Print the JSON string
+	fmt.Println(string(jsonBytes))
+	return string(jsonBytes)
+}
+
 // createSwapMemo creates a memo for the swap transaction
 func createSwapMemo(outputDenom, receiverAddress string) (string, error) {
 	// Read the JSON memo from the file

@@ -21,58 +21,89 @@ import (
 
 // TODO: This is the function we will use for V1 of the Osmosis swap function.
 // CreateSwapPacketDataV1 creates the packet data for the Osmosis swap function.
-// func CreateSwapPacketDataV1(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
-//	if len(args) != 4 {
-//		return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+//
+//	func CreateSwapPacketDataV1(args []interface{}, ctx sdk.Context, bankKeeper erc20types.BankKeeper, erc20Keeper erckeeper.Keeper) (*big.Int, string, string, string, error) {
+//		if len(args) != 4 {
+//			return nil, "", "", "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+//		}
+//
+//		amount, ok := args[0].(*big.Int)Yeah
+//		if !ok {
+//			return nil, "", "", "", fmt.Errorf("invalid amount: %v", args[0])
+//		}
+//
+//		receiverAddress, ok := args[1].(string)
+//		if !ok {
+//			return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[1])
+//		}
+//
+//		inputContract, ok := args[2].(common.Address)
+//		if !ok {
+//			return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[2])
+//		}
+//
+//		inputVoucher, found := erc20Keeper.GetTokenPair(ctx, erc20Keeper.GetERC20Map(ctx, inputContract))
+//		if !found {
+//			return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//		}
+//
+//		inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputVoucher.Denom)
+//		if !found {
+//			return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//		}
+//
+//		fmt.Println(inputDenomMetadata)
+//
+//		outputContract, ok := args[3].(common.Address)
+//		if !ok {
+//			return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[3])
+//		}
+//
+//		outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
+//		if !found {
+//			return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
+//		}
+//
+//		// TODO: is this the right way to extract the prefix
+//		prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
+//		if err != nil {
+//			return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", err)
+//		}
+//
+//		fmt.Println(prefix)
+//
+//		return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
 //	}
-//
-//	amount, ok := args[0].(*big.Int)Yeah
-//	if !ok {
-//		return nil, "", "", "", fmt.Errorf("invalid amount: %v", args[0])
-//	}
-//
-//	receiverAddress, ok := args[1].(string)
-//	if !ok {
-//		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", args[1])
-//	}
-//
-//	inputContract, ok := args[2].(common.Address)
-//	if !ok {
-//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", args[2])
-//	}
-//
-//	inputVoucher, found := erc20Keeper.GetTokenPair(ctx, erc20Keeper.GetERC20Map(ctx, inputContract))
-//	if !found {
-//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-//	}
-//
-//	inputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, inputVoucher.Denom)
-//	if !found {
-//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-//	}
-//
-//	fmt.Println(inputDenomMetadata)
-//
-//	outputContract, ok := args[3].(common.Address)
-//	if !ok {
-//		return nil, "", "", "", fmt.Errorf("invalid output denom: %v", args[3])
-//	}
-//
-//	outputDenomMetadata, found := bankKeeper.GetDenomMetaData(ctx, outputContract.String())
-//	if !found {
-//		return nil, "", "", "", fmt.Errorf("invalid input denom: %v", inputContract.String())
-//	}
-//
-//	// TODO: is this the right way to extract the prefix
-//	prefix, _, err := bech32.DecodeAndConvert(receiverAddress)
-//	if err != nil {
-//		return nil, "", "", "", fmt.Errorf("invalid receiver address: %v", err)
-//	}
-//
-//	fmt.Println(prefix)
-//
-//	return amount, inputDenomMetadata.Base, outputDenomMetadata.Base, receiverAddress, nil
-//}
+
+type Twap struct {
+	SlippagePercentage string `json:"slippage_percentage"`
+	WindowSeconds      string `json:"window_seconds"`
+}
+
+type Slippage struct {
+	Twap Twap `json:"twap"`
+}
+
+type OsmosisSwap struct {
+	OutputDenom      string   `json:"output_denom"`
+	Slippage         Slippage `json:"slippage"`
+	receiver         string
+	onFailedDelivery string `json:"on_failed_delivery"`
+	nextMemo         string `json:"next_memo"`
+}
+
+type Msg struct {
+	OsmosisSwap OsmosisSwap `json:"osmosis_swap",omitempty`
+}
+
+type Memo struct {
+	Contract string `json:"contract"`
+	Msg      Msg    `json:"msg"`
+}
+
+type RawPacketMetadata struct {
+	Memo Memo `json:"memo"`
+}
 
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (sender common.Address, input common.Address, output common.Address, amount *big.Int, receiver string, err error) {
@@ -106,17 +137,6 @@ func ParseSwapPacketData(args []interface{}) (sender common.Address, input commo
 	}
 
 	return sender, input, output, amount, receiver, nil
-}
-
-// ValidateSwapPacketData performs data validation for the packet data for the Osmosis swap function.
-// - the input and output token cannot be the same
-// - the receiver address is an Osmosis address
-func ValidateSwapPacketData(input,output common.Address) (err error) {
-	if input == output {
-		return fmt.Errorf("input and output token cannot be the same: %s", input) 
-	}
-
-	return nil
 }
 
 // NewMsgTransfer creates a new MsgTransfer
