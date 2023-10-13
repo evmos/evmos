@@ -16,6 +16,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ChangeSetCmd returns a Cobra command for interacting with change sets.
+// NOTE: this is only included in builds with rocksdb
 func ChangeSetCmd() *cobra.Command {
 	keys, _, _ := app.StoreKeys()
 	storeNames := make([]string, 0, len(keys))

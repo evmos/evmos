@@ -17,8 +17,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/types"
 )
 
+// BlockCacheSize defines the size of the cache of a block.
 const BlockCacheSize = 1 << 30
 
+// OpenDB opens a database based on the specified backend type.
+// It takes the home directory where the database data will be stored, along with the backend type.
+// If the backend type is RocksDB, it opens a RocksDB database located in a subdirectory called "application.db" under the data directory.
+// For other backend types, it opens a database named "application" using the specified backend type and the data directory.
+// It returns the opened database and an error (if any). If the database opens successfully, the error will be nil.
+// NOTE: This function is only included in builds with rocksdb.
+// Otherwise, the 'OpenDB' function from 'opendb.go' will be included
 func OpenDB(_ types.AppOptions, home string, backendType dbm.BackendType) (dbm.DB, error) {
 	dataDir := filepath.Join(home, "data")
 	if backendType == dbm.RocksDBBackend {

@@ -34,6 +34,8 @@ import (
 	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
 )
 
+// StoreKeys returns the application store keys,
+// the EVM transient store keys and the memory store keys
 func StoreKeys() (
 	map[string]*storetypes.KVStoreKey,
 	map[string]*storetypes.MemoryStoreKey,

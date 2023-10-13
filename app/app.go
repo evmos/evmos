@@ -36,6 +36,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/simapp"
 	simappparams "cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -405,14 +406,14 @@ func NewEvmos(
 
 	// wire up the versiondb's `StreamingService` and `MultiStore`.
 	var (
-		qms sdk.MultiStore
-		err error
+		queryMultiStore sdk.MultiStore
+		err             error
 	)
 	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
 	if slices.Contains(streamers, versionDB) {
-		qms, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
+		queryMultiStore, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
 		if err != nil {
-			panic(err)
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
 		}
 	}
 
@@ -891,8 +892,10 @@ func NewEvmos(
 			os.Exit(1)
 		}
 
-		if qms != nil {
-			v1 := qms.LatestVersion()
+		// queryMultiStore will be only defined when using versionDB
+		// when defined, we check if the iavl & versionDB versions match
+		if queryMultiStore != nil {
+			v1 := queryMultiStore.LatestVersion()
 			v2 := app.LastBlockHeight()
 			if v1 > 0 && v1 != v2 {
 				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))

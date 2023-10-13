@@ -17,8 +17,17 @@ import (
 	"github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
 )
 
+// versionDB constant for 'versiondb'
+// is same constant as in 'app/db_placeholder.go' but need to include it here too
+// cause only one of these files ('db.go' or 'db_placeholder.go') will be
+// included in the compiled binary depending on the build type (with or without rocksdb)
 const versionDB = "versiondb"
 
+// setupVersionDB sets up versionDB and
+// returns the corresponding QueryMultiStore
+// NOTE: this code is only included in a build with rocksdb.
+// Otherwise, the setupVersionDB code on 'app/db_placeholder.go' will be included
+// in the compiled binary
 func setupVersionDB(
 	homePath string,
 	app *baseapp.BaseApp,
