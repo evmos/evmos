@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	"github.com/evmos/evmos/v14/precompiles/ics20"
+	cmn "github.com/evmos/evmos/v14/precompiles/common"
 )
 
 // Embed memo json file to the executable binary. Needed when importing as dependency.
@@ -63,7 +64,6 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// NOTE: substitute this logic with `ics20.CheckOriginAndSender`
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
 	// update the sender address to be equal to the origin address.
@@ -146,11 +146,8 @@ func (p Precompile) validateSwap(
 	}
 
 	// We have to compute the ibc voucher string for the osmo coin
-	osmoTrace := ibctransfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", p.portID, p.channelID),
-		BaseDenom: "uosmo",
-	}
-	osmoIBCDenom := osmoTrace.IBCDenom()
+	osmoIBCDenom := cmn.ComputeIBCDenom(p.portID, p.channelID, "uosmos")
+
 	// We need to get evmDenom from Params to have the code valid also in testnet
 	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
 
@@ -179,11 +176,7 @@ func (p Precompile) createMemo() string {
 
 // createSwapMemo creates a memo for the swap transaction
 func createSwapMemo(outputDenom, receiverAddress string) (string, error) {
-	// Read the JSON memo from the file
-	data, err := memoF.ReadFile("memo.json")
-	if err != nil {
-		return "", fmt.Errorf("failed to read JSON memo: %v", err)
-	}
+
 
 	return fmt.Sprintf(string(data), OsmosisXCSContract, outputDenom, receiverAddress), nil
 }
