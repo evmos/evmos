@@ -5,6 +5,7 @@ package utils
 
 import (
 	"strings"
+	"fmt"
 
 	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
 
@@ -84,4 +85,23 @@ func GetEvmosAddressFromBech32(address string) (sdk.AccAddress, error) {
 	}
 
 	return sdk.AccAddress(addressBz), nil
+}
+
+// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
+func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddress, err error) {
+	if len(strings.TrimSpace(address)) == 0 {
+		return sdk.AccAddress{}, fmt.Errorf("empty address string is not allowed")
+	}
+
+	bz, err := sdk.GetFromBech32(address, bech32prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	err = sdk.VerifyAddressFormat(bz)
+	if err != nil {
+		return nil, err
+	}
+
+	return sdk.AccAddress(bz), nil
 }
