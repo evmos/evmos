@@ -47,7 +47,7 @@ func (p Precompile) EmitSwapEvent(
 	}
 
 	// Prepare the event data: amount, receiver
-	arguments := abi.Arguments{event.Inputs[4], event.Inputs[5]}
+	arguments := abi.Arguments{event.Inputs[3], event.Inputs[4]}
 	packed, err := arguments.Pack(amount, receiver)
 	if err != nil {
 		return err

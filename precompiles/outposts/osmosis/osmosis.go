@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
 
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -27,6 +26,7 @@ const (
 	OsmosisChannelIDMainnet = "channel-0"
 	// OsmosisChannelIDTestnet is the channel ID for the Osmosis channel on Evmos testnet.
 	OsmosisChannelIDTestnet = "channel-0"
+	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -91,7 +91,7 @@ func NewPrecompile(
 // Address defines the address of the Osmosis Outpost precompile contract.
 // address: 0x0000000000000000000000000000000000000901
 func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000901")
+	return common.HexToAddress(OsmosisOutpostAddress)
 }
 
 // IsStateful returns true since the precompile contract has access to the
@@ -125,16 +125,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
-	// ICS20 Approval Methods
-	case authorization.ApproveMethod:
-		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
-	case authorization.IncreaseAllowanceMethod:
-		bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
-	case authorization.DecreaseAllowanceMethod:
-		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
-	case authorization.RevokeMethod:
-		bz, err = p.Revoke(ctx, evm.Origin, stateDB, method, args)
-	// Osmosis Outpost Methods:
 	case SwapMethod:
 		bz, err = p.Swap(ctx, evm.Origin, contract, stateDB, method, args)
 	default:
@@ -157,8 +147,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case SwapMethod,
-		authorization.ApproveMethod:
+	case SwapMethod:
 		return true
 	default:
 		return false
