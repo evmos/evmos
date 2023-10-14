@@ -26,11 +26,6 @@ import (
 // - Tx priority is set to `effectiveGasPrice / DefaultPriorityReduction`.
 func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 	return func(ctx sdk.Context, feeTx sdk.FeeTx) (sdk.Coins, int64, error) {
-		if ctx.BlockHeight() == 0 {
-			// genesis transactions: fallback to min-gas-price logic
-			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
-		}
-
 		params := k.GetParams(ctx)
 		denom := params.EvmDenom
 		ethCfg := params.ChainConfig.EthereumConfig(k.ChainID())
