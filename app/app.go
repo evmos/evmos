@@ -127,7 +127,6 @@ import (
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-	v142 "github.com/evmos/evmos/v14/app/upgrades/v14_2"
 	v15 "github.com/evmos/evmos/v14/app/upgrades/v15"
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
@@ -1305,10 +1304,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v14.2 upgrade handler
+	// v15 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v142.UpgradeName,
-		v142.CreateUpgradeHandler(
+		v15.UpgradeName,
+		v15.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.BankKeeper,
 			app.EvmKeeper,
