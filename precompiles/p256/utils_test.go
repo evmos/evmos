@@ -8,6 +8,8 @@ import (
 	"errors"
 	"time"
 
+	. "github.com/onsi/gomega"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -205,6 +207,13 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 }
 
+// NextBlock commits the current block and sets up the next block.
+func (s *PrecompileTestSuite) NextBlock() {
+	var err error
+	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, nil)
+	Expect(err).To(BeNil(), "failed to commit block")
+}
+
 func parseSignature(sig []byte) (r, s []byte, err error) {
 	var inner cryptobyte.String
 	input := cryptobyte.String(sig)
@@ -218,16 +227,16 @@ func parseSignature(sig []byte) (r, s []byte, err error) {
 	return r, s, nil
 }
 
-func (suite PrecompileTestSuite) signMsg(msg []byte, priv *ecdsa.PrivateKey) []byte {
+func (s *PrecompileTestSuite) signMsg(msg []byte, priv *ecdsa.PrivateKey) []byte {
 	hash := crypto.Sha256(msg)
 
-	r, s, err := ecdsa.Sign(rand.Reader, priv, hash)
-	suite.Require().NoError(err)
+	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)
+	s.Require().NoError(err)
 
 	input := make([]byte, p256.VerifyInputLength)
 	copy(input[0:32], hash)
-	copy(input[32:64], r.Bytes())
-	copy(input[64:96], s.Bytes())
+	copy(input[32:64], rInt.Bytes())
+	copy(input[64:96], sInt.Bytes())
 	copy(input[96:128], priv.PublicKey.X.Bytes())
 	copy(input[128:160], priv.PublicKey.Y.Bytes())
 

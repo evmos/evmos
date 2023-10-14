@@ -11,7 +11,11 @@ import (
 	"github.com/evmos/evmos/v14/precompiles/p256"
 )
 
-func (suite *PrecompileTestSuite) TestRun() {
+func (s *PrecompileTestSuite) TestAddress() {
+	s.Require().Equal("0x0000000000000000000000000000000000000013", s.precompile.Address().String())
+}
+
+func (s *PrecompileTestSuite) TestRun() {
 	testCases := []struct {
 		name     string
 		sign     func() []byte
@@ -24,15 +28,15 @@ func (suite *PrecompileTestSuite) TestRun() {
 				msg := []byte("hello world")
 				hash := crypto.Sha256(msg)
 
-				r, s, err := ecdsa.Sign(rand.Reader, suite.p256Priv, hash)
-				suite.Require().NoError(err)
+				rInt, sInt, err := ecdsa.Sign(rand.Reader, s.p256Priv, hash)
+				s.Require().NoError(err)
 
 				input := make([]byte, p256.VerifyInputLength)
 				copy(input[0:32], hash)
-				copy(input[32:64], r.Bytes())
-				copy(input[64:96], s.Bytes())
-				copy(input[96:128], suite.p256Priv.PublicKey.X.Bytes())
-				copy(input[128:160], suite.p256Priv.PublicKey.Y.Bytes())
+				copy(input[32:64], rInt.Bytes())
+				copy(input[64:96], sInt.Bytes())
+				copy(input[96:128], s.p256Priv.PublicKey.X.Bytes())
+				copy(input[128:160], s.p256Priv.PublicKey.Y.Bytes())
 
 				return input
 			},
@@ -46,17 +50,17 @@ func (suite *PrecompileTestSuite) TestRun() {
 				hash := crypto.Sha256(msg)
 
 				sig, err := ecdsa.SignASN1(rand.Reader, s.p256Priv, hash)
-				suite.Require().NoError(err)
+				s.Require().NoError(err)
 
-				r, s, err := parseSignature(sig)
-				suite.Require().NoError(err)
+				rBz, sBz, err := parseSignature(sig)
+				s.Require().NoError(err)
 
 				input := make([]byte, p256.VerifyInputLength)
 				copy(input[0:32], hash)
-				copy(input[32:64], r)
-				copy(input[64:96], s)
-				copy(input[96:128], suite.p256Priv.PublicKey.X.Bytes())
-				copy(input[128:160], suite.p256Priv.PublicKey.Y.Bytes())
+				copy(input[32:64], rBz)
+				copy(input[64:96], sBz)
+				copy(input[96:128], s.p256Priv.PublicKey.X.Bytes())
+				copy(input[128:160], s.p256Priv.PublicKey.Y.Bytes())
 
 				return input
 			},
@@ -69,19 +73,19 @@ func (suite *PrecompileTestSuite) TestRun() {
 				privB, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 				s.Require().NoError(err)
 
-				bz := elliptic.MarshalCompressed(elliptic.P256(), suite.p256Priv.X, suite.p256Priv.Y)
+				bz := elliptic.MarshalCompressed(elliptic.P256(), s.p256Priv.X, s.p256Priv.Y)
 				s.Require().NotEmpty(bz)
 
 				msg := []byte("hello world")
 				hash := crypto.Sha256(msg)
 
-				r, s, err := ecdsa.Sign(rand.Reader, suite.p256Priv, hash)
-				suite.Require().NoError(err)
+				rInt, sInt, err := ecdsa.Sign(rand.Reader, s.p256Priv, hash)
+				s.Require().NoError(err)
 
 				input := make([]byte, p256.VerifyInputLength)
 				copy(input[0:32], hash)
-				copy(input[32:64], r.Bytes())
-				copy(input[64:96], s.Bytes())
+				copy(input[32:64], rInt.Bytes())
+				copy(input[64:96], sInt.Bytes())
 				copy(input[96:128], privB.PublicKey.X.Bytes())
 				copy(input[128:160], privB.PublicKey.Y.Bytes())
 
@@ -110,15 +114,15 @@ func (suite *PrecompileTestSuite) TestRun() {
 
 	for _, tc := range testCases {
 		input := tc.sign()
-		bz, err := suite.precompile.Run(nil, &vm.Contract{Input: input}, false)
+		bz, err := s.precompile.Run(nil, &vm.Contract{Input: input}, false)
 		if !tc.expError {
-			suite.Require().NoError(err)
+			s.Require().NoError(err)
 			if tc.expPass {
-				suite.Require().Equal(trueValue, bz, tc.name)
+				s.Require().Equal(trueValue, bz, tc.name)
 			}
 		} else {
-			suite.Require().NoError(err)
-			suite.Require().Empty(bz, tc.name)
+			s.Require().NoError(err)
+			s.Require().Empty(bz, tc.name)
 		}
 	}
 }

@@ -3,11 +3,16 @@
 package p256_test
 
 import (
-	// . "github.com/onsi/ginkgo/v2"
-	// . "github.com/onsi/gomega"
+	"math/big"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v14/precompiles/p256"
 	"github.com/evmos/evmos/v14/precompiles/testutil"
 	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v14/x/evm/types"
 )
 
 var (
@@ -19,97 +24,77 @@ var (
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
-	passCheck testutil.LogCheckArgs
+	// passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
 	outOfGasCheck testutil.LogCheckArgs
 )
 
-// var _ = Describe("Calling staking precompile directly", func() {
-// 	var (
-// 		// oneE18Coin is a sdk.Coin with an amount of 1e18 in the test suite's bonding denomination
-// 		oneE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(1e18))
-// 		// twoE18Coin is a sdk.Coin with an amount of 2e18 in the test suite's bonding denomination
-// 		twoE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(2e18))
-// 	)
+var _ = Describe("Calling p256 precompile directly", func() {
+	BeforeEach(func() {
+		s.SetupTest()
+		s.NextBlock()
 
-// 	BeforeEach(func() {
-// 		s.SetupTest()
-// 		s.NextBlock()
+		defaultCallArgs = contracts.CallArgs{
+			ContractAddr: s.precompile.Address(),
+			PrivKey:      s.privKey,
+			Input:        s.signMsg([]byte("hello world"), s.p256Priv),
+		}
 
-// 		defaultCallArgs = contracts.CallArgs{
-// 			ContractAddr: s.precompile.Address(),
-// 			PrivKey:      s.privKey,
-// 		}
-// 		defaultApproveArgs = defaultCallArgs.WithMethodName(authorization.ApproveMethod)
+		defaultLogCheck = testutil.LogCheckArgs{ExpPass: true}
+		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
+	})
 
-// 		defaultLogCheck = testutil.LogCheckArgs{ExpPass: true}
-// 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
-// 	})
+	Describe("when the precompile is not enabled in the EVM params", func() {
+		It("should return an error", func() {
+			// disable the precompile
+			params := s.app.EvmKeeper.GetParams(s.ctx)
+			var activePrecompiles []string
+			for _, precompile := range params.ActivePrecompiles {
+				if precompile != s.precompile.Address().String() {
+					activePrecompiles = append(activePrecompiles, precompile)
+				}
+			}
 
-// 	Describe("when the precompile is not enabled in the EVM params", func() {
-// 		It("should return an error", func() {
-// 			// disable the precompile
-// 			params := s.app.EvmKeeper.GetParams(s.ctx)
-// 			var activePrecompiles []string
-// 			for _, precompile := range params.ActivePrecompiles {
-// 				if precompile != s.precompile.Address().String() {
-// 					activePrecompiles = append(activePrecompiles, precompile)
-// 				}
-// 			}
+			params.ActivePrecompiles = activePrecompiles
+			err := s.app.EvmKeeper.SetParams(s.ctx, types.DefaultParams())
+			Expect(err).To(BeNil(), "error while setting params")
 
-// 			params.ActivePrecompiles = activePrecompiles
-// 			err := s.app.EvmKeeper.SetParams(s.ctx, params)
-// 			Expect(err).To(BeNil(), "error while setting params")
+			_, _, err = contracts.Call(s.ctx, s.app, defaultCallArgs)
+			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
+			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
+		})
+	})
 
-// 			input := s.signMsg([]byte("hello world"), s.p256Priv)
+	Describe("Revert transaction", func() {
+		It("should run out of gas if the gas limit is too low", func() {
+			outOfGasArgs := defaultCallArgs.
+				WithGasLimit(p256.VerifyGas - 1)
 
-// 			// try to call the precompile
-// 			verifyArg := defaultCallArgs.
-// 				WithArgs(input)
+			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, outOfGasArgs, outOfGasCheck)
+			Expect(err).To(HaveOccurred(), "error while calling precompile")
+		})
+	})
 
-// 			_, _, err = contracts.Call(s.ctx, s.app, verifyArg)
-// 			Expect(err).To(HaveOccurred(), "expected error while calling the precompile")
-// 			Expect(err.Error()).To(ContainSubstring("precompile not enabled"))
-// 		})
-// 	})
+	It("Should refund leftover gas", func() {
+		balancePre := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+		gasPrice := big.NewInt(1e9)
 
-// 	Describe("Revert transaction", func() {
-// 		It("should run out of gas if the gas limit is too low", func() {
-// 			input := s.signMsg([]byte("hello world"), s.p256Priv)
+		// Call the precompile with a lot of gas
+		args := defaultCallArgs.WithGasPrice(gasPrice)
 
-// 			outOfGasArgs := defaultCallArgs.
-// 				WithGasLimit(p256.VerifyGas - 1).
-// 				WithArgs(input)
+		res, _, err := contracts.Call(s.ctx, s.app, args)
+		Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-// 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, outOfGasArgs, outOfGasCheck)
-// 			Expect(err).To(HaveOccurred(), "error while calling precompile")
-// 		})
-// 	})
+		s.NextBlock()
 
-// 	It("Should refund leftover gas", func() {
-// 		balancePre := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-// 		gasPrice := big.NewInt(1e9)
+		balancePost := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+		difference := balancePre.Sub(balancePost)
 
-// 		// Call the precompile with a lot of gas
-// 		approveArgs := defaultApproveArgs.
-// 			WithGasPrice(gasPrice).
-// 			WithArgs(s.precompile.Address(), big.NewInt(1e18), []string{staking.DelegateMsg})
-
-// 		approvalCheck := passCheck.WithExpEvents(authorization.EventTypeApproval)
-
-// 		res, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, approveArgs, approvalCheck)
-// 		Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-// 		s.NextBlock()
-
-// 		balancePost := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-// 		difference := balancePre.Sub(balancePost)
-
-// 		// NOTE: the expected difference is the gas price multiplied by the gas used, because the rest should be refunded
-// 		expDifference := gasPrice.Int64() * res.GasUsed
-// 		Expect(difference.Amount.Int64()).To(Equal(expDifference), "expected different total transaction cost")
-// 	})
-// })
+		// NOTE: the expected difference is the gas price multiplied by the gas used, because the rest should be refunded
+		expDifference := gasPrice.Int64() * res.GasUsed
+		Expect(difference.Amount.Int64()).To(Equal(expDifference), "expected different total transaction cost")
+	})
+})
 
 // var _ = Describe("Calling staking precompile via Solidity", func() {
 // 	var (
