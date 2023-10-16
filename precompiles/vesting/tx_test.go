@@ -15,7 +15,7 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v15/testutil"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
+	evmostypes "github.com/evmos/evmos/v15/types" //nolint
 	"github.com/evmos/evmos/v15/utils"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )

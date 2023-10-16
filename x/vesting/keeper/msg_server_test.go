@@ -9,10 +9,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
+	vestingexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported" // nolint
 	"github.com/evmos/evmos/v15/testutil"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
+	evmostypes "github.com/evmos/evmos/v15/types" // nolint
 	"github.com/evmos/evmos/v15/x/vesting/types"
 )
 
