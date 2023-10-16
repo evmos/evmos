@@ -5,8 +5,8 @@ package v14
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
+	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // UpdateVestingFunders updates the vesting funders for accounts managed by the team

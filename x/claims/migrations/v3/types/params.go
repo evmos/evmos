@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v14/utils"
-	"github.com/evmos/evmos/v14/x/claims/types"
+	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v15/x/claims/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"

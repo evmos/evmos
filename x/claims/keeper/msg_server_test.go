@@ -9,7 +9,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
-	"github.com/evmos/evmos/v14/x/claims/types"
+	"github.com/evmos/evmos/v15/x/claims/types"
 )
 
 func (suite *KeeperTestSuite) TestUpdateParams() {

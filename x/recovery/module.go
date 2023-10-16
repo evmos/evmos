@@ -21,9 +21,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v14/x/recovery/client/cli"
-	"github.com/evmos/evmos/v14/x/recovery/keeper"
-	"github.com/evmos/evmos/v14/x/recovery/types"
+	"github.com/evmos/evmos/v15/x/recovery/client/cli"
+	"github.com/evmos/evmos/v15/x/recovery/keeper"
+	"github.com/evmos/evmos/v15/x/recovery/types"
 )
 
 // consensusVersion defines the current x/recovery module consensus version.
