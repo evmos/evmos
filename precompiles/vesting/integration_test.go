@@ -229,6 +229,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 		for _, callType := range callTypes {
 			callType := callType
 
+			BeforeEach(func() {
+				if callType.directCall == false {
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.FundVestingAccountMsgURL)
+					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
+				}
+			})
+
 			It(fmt.Sprintf("should fund the vesting when defining only lockup (%s)", callType.name), func() {
 				s.CreateTestClawbackVestingAccount(s.address, toAddr)
 				createClawbackArgs := s.BuildCallArgs(callType, contractAddr).
@@ -545,6 +552,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 		for _, callType := range callTypes {
 			callType := callType
 
+			BeforeEach(func() {
+				if callType.directCall == false {
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.ClawbackMsgURL)
+					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
+				}
+			})
+
 			It(fmt.Sprintf("should claw back from the vesting when sending as the funder (%s)", callType.name), func() {
 				balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePre.Amount).To(Equal(sdk.NewInt(1100)), "expected different balance after setup")
@@ -675,6 +689,13 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 		for _, callType := range callTypes {
 			callType := callType
+
+			BeforeEach(func() {
+				if callType.directCall == false {
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.UpdateVestingFunderMsgURL)
+					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
+				}
+			})
 
 			It(fmt.Sprintf("should update the vesting funder when sending as the funder (%s)", callType.name), func() {
 				updateFunderArgs := s.BuildCallArgs(callType, contractAddr).
