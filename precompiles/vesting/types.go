@@ -59,8 +59,6 @@ func checkApprovalArgs(args []interface{}) (common.Address, string, error) {
 		return common.Address{}, "", fmt.Errorf(authorization.ErrInvalidMethod, typeURL)
 	}
 
-	// TODO: check if the typeURLs are valid? e.g. with a regex pattern?
-
 	return grantee, typeURL, nil
 }
 

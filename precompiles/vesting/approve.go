@@ -26,7 +26,7 @@ var (
 func (p Precompile) Approve(
 	ctx sdk.Context,
 	origin common.Address,
-	_ vm.StateDB,
+	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
@@ -44,7 +44,9 @@ func (p Precompile) Approve(
 		return nil, fmt.Errorf(cmn.ErrInvalidMsgType, "vesting", typeURL)
 	}
 
-	// TODO: Add event emitting maybe ?
+	if err := p.EmitApprovalEvent(ctx, stateDB, origin, grantee, typeURL); err != nil {
+		return nil, err
+	}
 
 	return method.Outputs.Pack(true)
 }
