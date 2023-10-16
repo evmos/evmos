@@ -11,7 +11,7 @@ def evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("no-abci-resp")
     yield from setup_custom_evmos(
         path,
-        26660,
+        26260,
         Path(__file__).parent / "configs/discard-abci-resp.jsonnet",
     )
 
