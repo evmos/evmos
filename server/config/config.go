@@ -101,7 +101,7 @@ const (
 
 	// DefaultSnapshotKeepRecent default value for how many old snapshots
 	// (excluding the latest one) should be kept after new snapshots
-	// when using memIAVL 
+	// when using memIAVL
 	DefaultSnapshotKeepRecent = 1
 )
 
