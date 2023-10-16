@@ -7,6 +7,9 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/vesting"
@@ -180,7 +183,10 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			bz, err := s.precompile.FundVestingAccount(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			var contract *vm.Contract
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+
+			bz, err := s.precompile.FundVestingAccount(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -255,7 +261,10 @@ func (s *PrecompileTestSuite) TestClawback() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			bz, err := s.precompile.Clawback(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			var contract *vm.Contract
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+
+			bz, err := s.precompile.Clawback(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -338,7 +347,10 @@ func (s *PrecompileTestSuite) TestUpdateVestingFunder() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			bz, err := s.precompile.UpdateVestingFunder(s.ctx, s.address, s.stateDB, &method, tc.malleate())
+			var contract *vm.Contract
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+
+			bz, err := s.precompile.UpdateVestingFunder(s.ctx, contract, s.address, s.stateDB, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
