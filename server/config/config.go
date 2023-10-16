@@ -94,6 +94,15 @@ const (
 
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
+
+	// DefaultAsyncCommitBuffer value to use as default for the size of
+	// asynchronous commit queue when using memIAVL
+	DefaultAsyncCommitBuffer = 0
+
+	// DefaultSnapshotKeepRecent default value for how many old snapshots
+	// (excluding the latest one) should be kept after new snapshots
+	// when using memIAVL 
+	DefaultSnapshotKeepRecent = 1
 )
 
 var evmTracers = []string{"json", "markdown", "struct", "access_list"}
@@ -352,8 +361,8 @@ func DefaultMemIAVLConfig() *MemIAVLConfig {
 	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
 		Enable:             false,
 		ZeroCopy:           false,
-		AsyncCommitBuffer:  0,
-		SnapshotKeepRecent: 1,
+		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
+		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
 		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
 		CacheSize:          memiavlcfg.DefaultCacheSize,
 	}}
