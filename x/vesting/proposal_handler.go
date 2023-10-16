@@ -11,8 +11,8 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v14/x/vesting/keeper"
-	"github.com/evmos/evmos/v14/x/vesting/types"
+	"github.com/evmos/evmos/v15/x/vesting/keeper"
+	"github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // NewVestingProposalHandler creates a governance handler to manage new proposal types.

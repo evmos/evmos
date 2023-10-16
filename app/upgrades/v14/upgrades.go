@@ -26,12 +26,12 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctmmigrations "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint/migrations"
 	"github.com/ethereum/go-ethereum/common"
-	vestingprecompile "github.com/evmos/evmos/v14/precompiles/vesting"
-	"github.com/evmos/evmos/v14/utils"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
+	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
+	"github.com/evmos/evmos/v15/utils"
+	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
 
 const (

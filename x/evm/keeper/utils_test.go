@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v14/server/config"
-	"github.com/evmos/evmos/v14/testutil"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/server/config"
+	"github.com/evmos/evmos/v15/testutil"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

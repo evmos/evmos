@@ -7,12 +7,12 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v14/x/inflation/types"
-	revtypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
