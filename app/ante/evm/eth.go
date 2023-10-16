@@ -191,15 +191,8 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
 		}
 
-		// If the account balance is not sufficient, try to withdraw enough staking rewards
-		err = anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, from, fees)
-		if err != nil {
+		if err = egcd.deductFee(ctx, fees, from); err != nil {
 			return ctx, err
-		}
-
-		err = egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.HexToAddress(msgEthTx.From))
-		if err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 		}
 
 		events = append(events,
@@ -246,6 +239,24 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	// we know that we have enough gas on the pool to cover the intrinsic gas
 	return next(newCtx, tx, simulate)
+}
+
+// deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
+// If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
+func (egcd EthGasConsumeDecorator) deductFee(ctx sdk.Context, fees sdk.Coins, feePayer sdk.AccAddress) error {
+	if fees.IsZero() {
+		return nil
+	}
+
+	// If the account balance is not sufficient, try to withdraw enough staking rewards
+	if err := anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, feePayer, fees); err != nil {
+		return err
+	}
+
+	if err := egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.BytesToAddress(feePayer)); err != nil {
+		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
+	}
+	return nil
 }
 
 // CanTransferDecorator checks if the sender is allowed to transfer funds according to the EVM block
