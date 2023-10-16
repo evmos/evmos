@@ -185,8 +185,6 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 	fi
 
-		sed -i 's/async-commit-buffer = 0/async-commit-buffer = -20/g' "$APP_TOML"
-
 	# Change proposal periods to pass within a reasonable time for local testing
 	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
 	sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
