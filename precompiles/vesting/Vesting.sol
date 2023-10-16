@@ -9,13 +9,12 @@ address constant VESTING_PRECOMPILE_ADDRESS = 0x00000000000000000000000000000000
 /// @dev The VestingI contract's instance.
 VestingI constant VESTING_CONTRACT = VestingI(VESTING_PRECOMPILE_ADDRESS);
 
-/// @dev Define all the available staking methods.
+/// @dev Define all the available vesting methods.
 string constant MSG_CREATE_CLAWBACK_VESTING_ACCOUNT = "/evmos.vesting.v2.MsgCreateClawbackVestingAccount";
 string constant MSG_FUND_VESTING_ACCOUNT = "/evmos.vesting.v2.MsgFundVestingAccount";
 string constant MSG_CLAWBACK = "/evmos.vesting.v2.MsgClawback";
 string constant MSG_CONVERT_VESTING_ACCOUNT = "/evmos.vesting.v2.MsgConvertVestingAccount";
 string constant MSG_UPDATE_VESTING_FUNDER = "/evmos.vesting.v2.MsgUpdateVestingFunder";
-
 
 // Period defines a length of time and amount of coins that will vest.
 struct Period {

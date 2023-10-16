@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	// FundVestingAccountMsg defines the authorization type for MsgDelegate
+	// FundVestingAccountMsg defines the authorization type for MsgFundVestingAccount
 	FundVestingAccountMsg = sdk.MsgTypeURL(&vestingtypes.MsgFundVestingAccount{})
-	// UpdateVestingFunderMsg defines the authorization type for MsgDelegate
+	// UpdateVestingFunderMsg defines the authorization type for MsgUpdateVestingFunder
 	UpdateVestingFunderMsg = sdk.MsgTypeURL(&vestingtypes.MsgUpdateVestingFunder{})
 	// ClawbackMsg defines the authorization type for MsgDelegate
 	ClawbackMsg = sdk.MsgTypeURL(&vestingtypes.MsgClawback{})
@@ -49,7 +49,7 @@ func (p Precompile) Approve(
 	return method.Outputs.Pack(true)
 }
 
-// CreateGenericAuthz Creates a generic authorization grant.
+// CreateGenericAuthz creates a generic authorization grant.
 func CreateGenericAuthz(
 	ctx sdk.Context,
 	authzKeeper authzkeeper.Keeper,
