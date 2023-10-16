@@ -17,6 +17,12 @@ const (
 	SwapMethod = "swap"
 )
 
+// Constants used during memo creation
+const (
+	slippage_percentage = "5"
+	window_seconds = 10
+)
+
 // Swap swaps the given base denom for the given target denom on Osmosis and returns
 // the newly swapped tokens to the receiver address.
 func (p Precompile) Swap(
@@ -64,7 +70,7 @@ func (p Precompile) Swap(
 	}
 
 	// Create the memo field for the Swap from the JSON file
-	memo, err := CreateMemo(outputDenom, receiver, p.osmosisXCSContract)
+	memo, err := CreateMemo(outputDenom, receiver, p.osmosisXCSContract, slippage_percentage, window_seconds)
 	if err != nil {
 		return nil, err
 	}
