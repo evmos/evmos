@@ -120,7 +120,6 @@ import (
 	// unnamed import of statik for swagger UI support
 	_ "github.com/evmos/evmos/v15/client/docs/statik"
 
-<<<<<<< HEAD
 	"github.com/evmos/evmos/v15/app/ante"
 	ethante "github.com/evmos/evmos/v15/app/ante/evm"
 	v10 "github.com/evmos/evmos/v15/app/upgrades/v10"
@@ -172,59 +171,6 @@ import (
 	vestingclient "github.com/evmos/evmos/v15/x/vesting/client"
 	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
-=======
-	"github.com/evmos/evmos/v14/app/ante"
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	v10 "github.com/evmos/evmos/v14/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v14/app/upgrades/v11"
-	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
-	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
-	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-	v15 "github.com/evmos/evmos/v14/app/upgrades/v15"
-	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v14/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v14/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v14/encoding"
-	"github.com/evmos/evmos/v14/ethereum/eip712"
-	"github.com/evmos/evmos/v14/precompiles/common"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/x/claims"
-	claimskeeper "github.com/evmos/evmos/v14/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
-	"github.com/evmos/evmos/v14/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v14/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v14/x/epochs/types"
-	"github.com/evmos/evmos/v14/x/erc20"
-	erc20client "github.com/evmos/evmos/v14/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
-	"github.com/evmos/evmos/v14/x/evm"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	"github.com/evmos/evmos/v14/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v14/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v14/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v14/x/incentives/types"
-	"github.com/evmos/evmos/v14/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v14/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
-	"github.com/evmos/evmos/v14/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v14/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v14/x/recovery/types"
-	revenue "github.com/evmos/evmos/v14/x/revenue/v1"
-	revenuekeeper "github.com/evmos/evmos/v14/x/revenue/v1/keeper"
-	revenuetypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
-	"github.com/evmos/evmos/v14/x/vesting"
-	vestingclient "github.com/evmos/evmos/v14/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
->>>>>>> a4569105 (imp: remove `crisis` module in v15 upgrade (#1847))
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
 	"github.com/evmos/evmos/v15/x/ibc/transfer"
@@ -1423,7 +1369,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v15.UpgradeName:
 		// crisis module is deprecated in v15
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"crisis"},
+			Deleted: []string{crisistypes.ModuleName},
 		}
 	}
 
