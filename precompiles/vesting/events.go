@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
