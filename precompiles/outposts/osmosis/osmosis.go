@@ -17,6 +17,7 @@ import (
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 )
 
 const (
@@ -38,6 +39,7 @@ type Precompile struct {
 	cmn.Precompile
 	portID             string
 	channelID          string
+	timeoutHeight  clienttypes.Height
 	osmosisXCSContract string
 
 	transferKeeper transferkeeper.Keeper
@@ -76,6 +78,7 @@ func NewPrecompile(
 		},
 		portID:             portID,
 		channelID:          channelID,
+		timeoutHeight:  clienttypes.NewHeight(100, 100),
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,

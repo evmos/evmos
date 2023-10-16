@@ -78,7 +78,7 @@ func (p Precompile) Swap(
 	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
 
 	// Create the IBC Transfer message
-	msg, err := NewMsgTransfer(p.portID, p.channelID, sender.String(), receiver, memo, coin)
+	msg, err := NewMsgTransfer(p.portID, p.channelID, sender.String(), receiver, memo, coin, p.timeoutHeight)
 	if err != nil {
 		return nil, err
 	}

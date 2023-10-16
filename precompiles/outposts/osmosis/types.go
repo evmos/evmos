@@ -139,9 +139,15 @@ func ValidateSwap(
 }
 
 // NewMsgTransfer creates a new MsgTransfer
-func NewMsgTransfer(sourcePort, sourceChannel, sender, receiver, memo string, coin sdk.Coin) (*transfertypes.MsgTransfer, error) {
-	// TODO: what are some sensible defaults here
-	timeoutHeight := clienttypes.NewHeight(100, 100)
+func NewMsgTransfer(
+	sourcePort, 
+	sourceChannel, 
+	sender, 
+	receiver, 
+	memo string, 
+	coin sdk.Coin,
+	timeoutHeight clienttypes.Height,
+	) (*transfertypes.MsgTransfer, error) {
 	msg := transfertypes.NewMsgTransfer(
 		sourcePort,
 		sourceChannel,
