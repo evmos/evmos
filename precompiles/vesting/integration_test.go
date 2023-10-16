@@ -231,7 +231,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			BeforeEach(func() {
 				if callType.directCall == false {
-					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.FundVestingAccountMsg)
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.FundVestingAccountMsgURL)
 					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
 				}
 			})
@@ -554,7 +554,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			BeforeEach(func() {
 				if callType.directCall == false {
-					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.ClawbackMsg)
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.ClawbackMsgURL)
 					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
 				}
 			})
@@ -692,7 +692,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			BeforeEach(func() {
 				if callType.directCall == false {
-					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.UpdateVestingFunderMsg)
+					err = vesting.CreateGenericAuthz(s.ctx, s.app.AuthzKeeper, contractAddr, s.address, vesting.UpdateVestingFunderMsgURL)
 					Expect(err).ToNot(HaveOccurred(), "error while creating the generic authorization: %v", err)
 				}
 			})

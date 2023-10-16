@@ -29,6 +29,66 @@ struct Period {
 /// wraps the pallet.
 /// @custom:address 0x0000000000000000000000000000000000000803
 interface VestingI {
+    /// @dev This event is emitted when the allowance of a granter is set by a call to the approve method.
+    /// The value field specifies the new allowance and the methods field holds the information for which methods
+    /// the approval was set.
+    /// @param grantee The contract address that received an Authorization from the granter.
+    /// @param granter The account address that granted an Authorization.
+    /// @param method The message type URL of the methods for which the approval is set.
+    event Approval(
+        address indexed grantee,
+        address indexed granter,
+        string method
+    );
+
+    /// @dev Defines an event that is emitted when a clawback vesting account is created.
+    /// @param funderAddress The address of the account that funded the vesting account.
+    /// @param vestingAddress The address of the account that received the vesting account.
+    event CreateClawbackVestingAccount(
+        address indexed funderAddress,
+        address indexed vestingAddress
+    );
+
+    /// @dev Defines an event that is emitted when a clawback vesting account is funded.
+    /// @param funderAddress The address of the account that funded the vesting account.
+    /// @param vestingAddress The address of the account that received the vesting account.
+    /// @param startTime The time at which the vesting account will start.
+    /// @param lockupPeriods The lockup periods of the vesting account.
+    /// @param vestingPeriods The vesting periods of the vesting account.
+    event FundVestingAccount(
+        address indexed funderAddress,
+        address indexed vestingAddress,
+        uint64 startTime,
+        Period[] lockupPeriods,
+        Period[] vestingPeriods
+    );
+
+    /// @dev Defines an event that is emitted when a vesting account is clawed back.
+    /// @param funderAddress The address of the account that funded the vesting account.
+    /// @param accountAddress The address of the vesting account.
+    /// @param destAddress The address of the account that received the clawed back coins.
+    event Clawback(
+        address indexed funderAddress,
+        address indexed accountAddress,
+        address destAddress
+    );
+
+    /// @dev Defines an event that is emitted when a vesting account's funder is updated.
+    /// @param funderAddress The address of the account that funded the vesting account.
+    /// @param newFunderAddress The address of the new funder of the vesting account.
+    /// @param vestingAddress The address of the vesting account.
+    event UpdateVestingFunder(
+        address indexed funderAddress,
+        address indexed vestingAddress,
+        address  newFunderAddress
+    );
+
+    /// @dev Defines an event that is emitted when a vesting account is converted to a clawback vesting account.
+    /// @param vestingAddress The address of the vesting account.
+    event ConvertVestingAccount(
+        address indexed vestingAddress
+    );
+
     /// @dev Approves a list of Cosmos or IBC transactions with a specific amount of tokens.
     /// @param grantee The contract address which will have an authorization to spend the origin funds.
     /// @param method The message type URL of the method to approve.
@@ -95,64 +155,4 @@ interface VestingI {
     function balances(
         address vestingAddress
     ) external view returns (Coin[] memory locked, Coin[] memory unvested, Coin[] memory vested);
-
-    /// @dev This event is emitted when the allowance of a granter is set by a call to the approve method.
-    /// The value field specifies the new allowance and the methods field holds the information for which methods
-    /// the approval was set.
-    /// @param grantee The contract address that received an Authorization from the granter.
-    /// @param granter The account address that granted an Authorization.
-    /// @param method The message type URL of the methods for which the approval is set.
-    event Approval(
-        address indexed grantee,
-        address indexed granter,
-        string method
-    );
-
-    /// @dev Defines an event that is emitted when a clawback vesting account is created.
-    /// @param funderAddress The address of the account that funded the vesting account.
-    /// @param vestingAddress The address of the account that received the vesting account.
-    event CreateClawbackVestingAccount(
-        address indexed funderAddress,
-        address indexed vestingAddress
-    );
-
-    /// @dev Defines an event that is emitted when a clawback vesting account is funded.
-    /// @param funderAddress The address of the account that funded the vesting account.
-    /// @param vestingAddress The address of the account that received the vesting account.
-    /// @param startTime The time at which the vesting account will start.
-    /// @param lockupPeriods The lockup periods of the vesting account.
-    /// @param vestingPeriods The vesting periods of the vesting account.
-    event FundVestingAccount(
-        address indexed funderAddress,
-        address indexed vestingAddress,
-        uint64 startTime,
-        Period[] lockupPeriods,
-        Period[] vestingPeriods
-    );
-
-    /// @dev Defines an event that is emitted when a vesting account is clawed back.
-    /// @param funderAddress The address of the account that funded the vesting account.
-    /// @param accountAddress The address of the vesting account.
-    /// @param destAddress The address of the account that received the clawed back coins.
-    event Clawback(
-        address indexed funderAddress,
-        address indexed accountAddress,
-        address destAddress
-    );
-
-    /// @dev Defines an event that is emitted when a vesting account's funder is updated.
-    /// @param funderAddress The address of the account that funded the vesting account.
-    /// @param newFunderAddress The address of the new funder of the vesting account.
-    /// @param vestingAddress The address of the vesting account.
-    event UpdateVestingFunder(
-        address indexed funderAddress,
-        address indexed vestingAddress,
-        address  newFunderAddress
-    );
-
-    /// @dev Defines an event that is emitted when a vesting account is converted to a clawback vesting account.
-    /// @param vestingAddress The address of the vesting account.
-    event ConvertVestingAccount(
-        address indexed vestingAddress
-    );
 }

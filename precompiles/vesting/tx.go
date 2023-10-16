@@ -92,7 +92,7 @@ func (p Precompile) FundVestingAccount(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, FundVestingAccountMsg)
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, FundVestingAccountMsgURL)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
@@ -140,7 +140,7 @@ func (p Precompile) Clawback(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ClawbackMsg)
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ClawbackMsgURL)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
@@ -190,7 +190,7 @@ func (p Precompile) UpdateVestingFunder(
 
 	if contract.CallerAddress != origin {
 		// check if authorization exists
-		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, UpdateVestingFunderMsg)
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, UpdateVestingFunderMsgURL)
 		if err != nil {
 			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
 		}
