@@ -8,6 +8,8 @@ import (
 	"embed"
 	"fmt"
 
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cometbft/cometbft/libs/log"
@@ -96,15 +98,18 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	}
 
 	switch method.Name {
+	// Approval transaction
+	case authorization.ApproveMethod:
+		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
 	// Vesting transactions
 	case CreateClawbackVestingAccountMethod:
 		bz, err = p.CreateClawbackVestingAccount(ctx, evm.Origin, stateDB, method, args)
 	case FundVestingAccountMethod:
-		bz, err = p.FundVestingAccount(ctx, evm.Origin, stateDB, method, args)
+		bz, err = p.FundVestingAccount(ctx, contract, evm.Origin, stateDB, method, args)
 	case ClawbackMethod:
-		bz, err = p.Clawback(ctx, evm.Origin, stateDB, method, args)
+		bz, err = p.Clawback(ctx, contract, evm.Origin, stateDB, method, args)
 	case UpdateVestingFunderMethod:
-		bz, err = p.UpdateVestingFunder(ctx, evm.Origin, stateDB, method, args)
+		bz, err = p.UpdateVestingFunder(ctx, contract, evm.Origin, stateDB, method, args)
 	case ConvertVestingAccountMethod:
 		bz, err = p.ConvertVestingAccount(ctx, stateDB, method, args)
 	// Vesting queries
@@ -133,13 +138,15 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - Clawback
 //   - UpdateVestingFunder
 //   - ConvertVestingAccount
+//   - Approve
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
 	case CreateClawbackVestingAccountMethod,
 		FundVestingAccountMethod,
 		ClawbackMethod,
 		UpdateVestingFunderMethod,
-		ConvertVestingAccountMethod:
+		ConvertVestingAccountMethod,
+		authorization.ApproveMethod:
 		return true
 	default:
 		return false
