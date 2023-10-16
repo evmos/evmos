@@ -49,6 +49,7 @@ import (
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/evmos/evmos/v15/cmd/evmosd/opendb"
 	"github.com/evmos/evmos/v15/indexer"
 	ethdebug "github.com/evmos/evmos/v15/rpc/namespaces/ethereum/debug"
 	"github.com/evmos/evmos/v15/server/config"
@@ -71,7 +72,7 @@ func NewDefaultStartOptions(appCreator types.AppCreator, defaultNodeHome string)
 	return StartOptions{
 		AppCreator:      appCreator,
 		DefaultNodeHome: defaultNodeHome,
-		DBOpener:        openDB,
+		DBOpener:        opendb.OpenDB,
 	}
 }
 
@@ -627,11 +628,6 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 	}
 	// Wait for SIGINT or SIGTERM signal
 	return server.WaitForQuitSignals()
-}
-
-func openDB(_ types.AppOptions, rootDir string, backendType dbm.BackendType) (dbm.DB, error) {
-	dataDir := filepath.Join(rootDir, "data")
-	return dbm.NewDB("application", backendType, dataDir)
 }
 
 // OpenIndexerDB opens the custom eth indexer db, using the same db backend as the main app

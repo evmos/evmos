@@ -114,6 +114,9 @@ evmosd gentx $KEY 1000000000000000000000aevmos --keyring-backend $KEYRING --chai
 # Enable the APIs for the tests to be successful
 sed -i 's/enable = false/enable = true/g' "$APP_TOML"
 
+# Don't enable memiavl by default
+grep -q -F '[memiavl]' "$APP_TOML" && sed -i.bak '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
+
 # Collect genesis tx
 evmosd collect-gentxs
 
