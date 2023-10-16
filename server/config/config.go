@@ -96,7 +96,7 @@ const (
 	DefaultGasAdjustment = 1.2
 
 	// ============================
-	// 			MemIAVL
+	//           MemIAVL
 	// ============================
 
 	// DefaultMemIAVLEnable is the default value that defines if memIAVL is enabled
