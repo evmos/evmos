@@ -59,6 +59,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (docker) [#1743](https://github.com/evmos/evmos/pull/1743) Add rclone binary to Docker image.
 
+### Bug Fixes
+
+- (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
+
 ## [v14.1.0] - 2023-09-25
 
 ### Bug Fixes
