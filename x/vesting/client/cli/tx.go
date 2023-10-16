@@ -19,7 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/evmos/evmos/v14/x/vesting/types"
+	"github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // Transaction command flags

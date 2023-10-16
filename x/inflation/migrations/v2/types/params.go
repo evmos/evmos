@@ -10,8 +10,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	evm "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/inflation/types"
+	evm "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v15/x/inflation/types"
 )
 
 var _ types.LegacyParams = &V2Params{}

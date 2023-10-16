@@ -8,11 +8,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	"github.com/evmos/evmos/v14/testutil"
-	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
+	ethante "github.com/evmos/evmos/v15/app/ante/evm"
+	"github.com/evmos/evmos/v15/testutil"
+	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // global variables used for testing the eth vesting ante handler
