@@ -24,44 +24,18 @@ func (p Precompile) Approve(
 		return nil, err
 	}
 
-<<<<<<< HEAD
-	// If one of the allocations contains a non-existing channel, throw and error
-	for _, allocation := range transferAuthz.Allocations {
-		found := p.channelKeeper.HasChannel(ctx, allocation.SourcePort, allocation.SourceChannel)
-		if !found {
-			return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", allocation.SourcePort, allocation.SourceChannel)
-		}
-	}
-
-	// Only the origin can approve a transfer to the grantee address
-	expiration := ctx.BlockTime().Add(p.ApprovalExpiration).UTC()
-	if err = p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), origin.Bytes(), transferAuthz, &expiration); err != nil {
-		return nil, err
-	}
-
-	// Emit the IBC transfer authorization event
-	allocation := transferAuthz.Allocations[0]
-	if err = p.EmitIBCTransferAuthorizationEvent(
-=======
 	// Approve from ICS20 common module
 	if err := Approve(
->>>>>>> ee3e7daf (impv(ics20): Common approval methods and tests refactor (#1849))
 		ctx,
 		p.AuthzKeeper,
 		p.channelKeeper,
 		p.Address(),
 		grantee,
 		origin,
-<<<<<<< HEAD
-		allocation.SourcePort,
-		allocation.SourceChannel,
-		allocation.SpendLimit,
-=======
 		p.ApprovalExpiration,
 		transferAuthz,
 		p.ABI.Events[authorization.EventTypeIBCTransferAuthorization],
 		stateDB,
->>>>>>> ee3e7daf (impv(ics20): Common approval methods and tests refactor (#1849))
 	); err != nil {
 		return nil, err
 	}
@@ -94,14 +68,7 @@ func (p Precompile) Revoke(
 	); err != nil {
 		return nil, err
 	}
-<<<<<<< HEAD
 
-	if err = p.EmitIBCRevokeAuthorizationEvent(ctx, stateDB, grantee, origin); err != nil {
-		return nil, err
-	}
-
-=======
->>>>>>> ee3e7daf (impv(ics20): Common approval methods and tests refactor (#1849))
 	return method.Outputs.Pack(true)
 }
 
