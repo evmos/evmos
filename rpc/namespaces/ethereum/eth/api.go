@@ -321,7 +321,10 @@ func (e *PublicAPI) FeeHistory(blockCount rpc.DecimalOrHex,
 // MaxPriorityFeePerGas returns a suggestion for a gas tip cap for dynamic fee transactions.
 func (e *PublicAPI) MaxPriorityFeePerGas() (*hexutil.Big, error) {
 	e.logger.Debug("eth_maxPriorityFeePerGas")
-	head := e.backend.CurrentHeader()
+	head, err := e.backend.CurrentHeader()
+	if err != nil {
+		return nil, err
+	}
 	tipcap, err := e.backend.SuggestGasTipCap(head.BaseFee)
 	if err != nil {
 		return nil, err
