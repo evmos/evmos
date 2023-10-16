@@ -170,7 +170,7 @@ func (b *Backend) SetTxDefaults(args evmtypes.TransactionArgs) (evmtypes.Transac
 		return args, errors.New("both gasPrice and (maxFeePerGas or maxPriorityFeePerGas) specified")
 	}
 
-	head := b.CurrentHeader()
+	head, _ := b.CurrentHeader() // #nosec G703 -- no need to check error cause we're already checking that head == nil
 	if head == nil {
 		return args, errors.New("latest header is nil")
 	}
@@ -388,7 +388,13 @@ func (b *Backend) GasPrice() (*hexutil.Big, error) {
 		result *big.Int
 		err    error
 	)
-	if head := b.CurrentHeader(); head.BaseFee != nil {
+
+	head, err := b.CurrentHeader()
+	if err != nil {
+		return nil, err
+	}
+
+	if head.BaseFee != nil {
 		result, err = b.SuggestGasTipCap(head.BaseFee)
 		if err != nil {
 			return nil, err

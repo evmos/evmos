@@ -301,7 +301,7 @@ func (b *Backend) HeaderByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Heade
 
 	blockRes, err := b.TendermintBlockResultByNumber(&resBlock.Block.Height)
 	if err != nil {
-		return nil, fmt.Errorf("block result not found for height %d", resBlock.Block.Height)
+		return nil, fmt.Errorf("block result not found for height %d. %w", resBlock.Block.Height, err)
 	}
 
 	bloom, err := b.BlockBloom(blockRes)
