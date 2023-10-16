@@ -16,8 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

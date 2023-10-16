@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v14/testutil"
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
+	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v15/testutil"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/stretchr/testify/mock"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -19,11 +19,11 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	ibcmock "github.com/cosmos/ibc-go/v7/testing/mock"
 
-	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
-	incentivestypes "github.com/evmos/evmos/v14/x/incentives/types"
-	"github.com/evmos/evmos/v14/x/recovery/keeper"
-	"github.com/evmos/evmos/v14/x/recovery/types"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
+	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
+	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
+	"github.com/evmos/evmos/v15/x/recovery/keeper"
+	"github.com/evmos/evmos/v15/x/recovery/types"
+	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 func (suite *KeeperTestSuite) TestOnRecvPacket() {

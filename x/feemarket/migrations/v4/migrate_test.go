@@ -20,10 +20,10 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
-	v4 "github.com/evmos/evmos/v14/x/feemarket/migrations/v4"
-	"github.com/evmos/evmos/v14/x/feemarket/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
+	v4 "github.com/evmos/evmos/v15/x/feemarket/migrations/v4"
+	"github.com/evmos/evmos/v15/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -20,8 +20,8 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/evmos/evmos/v14/encoding"
-	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v15/encoding"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 func TestEvmosExport(t *testing.T) {

@@ -49,11 +49,11 @@ import (
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v14/indexer"
-	ethdebug "github.com/evmos/evmos/v14/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/evmos/v14/server/config"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
-	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v15/indexer"
+	ethdebug "github.com/evmos/evmos/v15/rpc/namespaces/ethereum/debug"
+	"github.com/evmos/evmos/v15/server/config"
+	srvflags "github.com/evmos/evmos/v15/server/flags"
+	evmostypes "github.com/evmos/evmos/v15/types"
 )
 
 // DBOpener is a function to open `application.db`, potentially with customized options.

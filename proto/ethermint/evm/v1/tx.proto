@@ -10,7 +10,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/any.proto";
 
-option go_package = "github.com/evmos/evmos/v14/x/evm/types";
+option go_package = "github.com/evmos/evmos/v15/x/evm/types";
 
 // Msg defines the evm Msg service.
 service Msg {

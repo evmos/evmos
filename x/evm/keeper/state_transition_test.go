@@ -15,10 +15,10 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
-	"github.com/evmos/evmos/v14/x/evm/keeper"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	"github.com/evmos/evmos/v14/x/evm/types"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/x/evm/keeper"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	"github.com/evmos/evmos/v15/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
