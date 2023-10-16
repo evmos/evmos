@@ -60,6 +60,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
 - (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
+- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
 
 ### Bug Fixes
 
