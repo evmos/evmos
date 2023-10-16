@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/common"
 

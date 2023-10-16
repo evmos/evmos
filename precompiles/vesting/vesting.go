@@ -8,7 +8,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/staking" //nolint
+	"github.com/evmos/evmos/v15/precompiles/staking"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
