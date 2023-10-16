@@ -17,13 +17,9 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
-<<<<<<< HEAD
-	github.com/cosmos/ibc-go/v7 v7.2.1-0.20230829085526-4d114bd09096
-=======
 	github.com/cosmos/ibc-go/v7 v7.3.0
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231009123906-58ea507932a3
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231009123906-58ea507932a3
->>>>>>> d1e339df (chore: add support for memIAVL + versionDB (#1842))
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.3
@@ -32,14 +28,9 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/improbable-eng/grpc-web v0.15.0
-<<<<<<< HEAD
-	github.com/onsi/ginkgo/v2 v2.11.0
-	github.com/onsi/gomega v1.27.10
-=======
 	github.com/linxGnu/grocksdb v1.8.4
 	github.com/onsi/ginkgo/v2 v2.13.0
 	github.com/onsi/gomega v1.28.0
->>>>>>> d1e339df (chore: add support for memIAVL + versionDB (#1842))
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
@@ -100,11 +91,7 @@ require (
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-<<<<<<< HEAD
-	github.com/cosmos/iavl v0.20.0 // indirect
-=======
 	github.com/cosmos/iavl v0.21.0-alpha.1.0.20230904092046-df3db2d96583 // indirect
->>>>>>> d1e339df (chore: add support for memIAVL + versionDB (#1842))
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.2 // indirect
 	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
