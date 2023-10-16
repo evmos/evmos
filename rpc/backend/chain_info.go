@@ -14,10 +14,10 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	rpctypes "github.com/evmos/evmos/v14/rpc/types"
-	"github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
+	rpctypes "github.com/evmos/evmos/v15/rpc/types"
+	"github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	"github.com/pkg/errors"
 )
 
@@ -92,9 +92,10 @@ func (b *Backend) BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, er
 }
 
 // CurrentHeader returns the latest block header
-func (b *Backend) CurrentHeader() *ethtypes.Header {
-	header, _ := b.HeaderByNumber(rpctypes.EthLatestBlockNumber) // #nosec G703
-	return header
+// This will return error as per node configuration
+// if the ABCI responses are discarded ('discard_abci_responses' config param)
+func (b *Backend) CurrentHeader() (*ethtypes.Header, error) {
+	return b.HeaderByNumber(rpctypes.EthLatestBlockNumber)
 }
 
 // PendingTransactions returns the transactions that are in the transaction pool

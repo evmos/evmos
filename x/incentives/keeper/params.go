@@ -6,7 +6,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v14/x/incentives/types"
+	"github.com/evmos/evmos/v15/x/incentives/types"
 )
 
 // GetParams returns the total set of incentives parameters.

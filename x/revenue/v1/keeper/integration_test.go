@@ -6,11 +6,7 @@ import (
 	"math/big"
 	"strings"
 
-<<<<<<< HEAD
-	"github.com/evmos/evmos/v14/precompiles/staking"
-
-=======
->>>>>>> 33bcc1e2 (fix(vesting): Add generic authorization grants and fix tests (#1862))
+	"github.com/evmos/evmos/v15/precompiles/staking"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/staking"
 	. "github.com/onsi/ginkgo/v2"
@@ -18,11 +14,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v14/testutil"
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/revenue/v1/types"
+	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v15/testutil"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v15/x/revenue/v1/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )

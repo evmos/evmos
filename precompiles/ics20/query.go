@@ -11,8 +11,8 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 const (
@@ -104,7 +104,7 @@ func (p Precompile) Allowance(
 ) ([]byte, error) {
 	// append here the msg type. Will always be the TransferMsg
 	// for this precompile
-	args = append(args, TransferMsg)
+	args = append(args, TransferMsgURL)
 
 	grantee, granter, msg, err := authorization.CheckAllowanceArgs(args)
 	if err != nil {
@@ -115,7 +115,7 @@ func (p Precompile) Allowance(
 
 	if msgAuthz == nil {
 		// return empty array
-		return method.Outputs.Pack([]Allocation{})
+		return method.Outputs.Pack([]cmn.ICS20Allocation{})
 	}
 
 	transferAuthz, ok := msgAuthz.(*transfertypes.TransferAuthorization)
@@ -123,9 +123,9 @@ func (p Precompile) Allowance(
 		return nil, fmt.Errorf(cmn.ErrInvalidType, "transfer authorization", &transfertypes.TransferAuthorization{}, transferAuthz)
 	}
 
-	// need to convert to ics20.Allocation (uses big.Int)
-	// because ibc Allocation has sdkmath.Int
-	allocs := make([]Allocation, len(transferAuthz.Allocations))
+	// need to convert to cmn.ICS20Allocation (uses big.Int)
+	// because ibc ICS20Allocation has sdkmath.Int
+	allocs := make([]cmn.ICS20Allocation, len(transferAuthz.Allocations))
 	for i, a := range transferAuthz.Allocations {
 		spendLimit := make([]cmn.Coin, len(a.SpendLimit))
 		for j, c := range a.SpendLimit {
@@ -135,7 +135,7 @@ func (p Precompile) Allowance(
 			}
 		}
 
-		allocs[i] = Allocation{
+		allocs[i] = cmn.ICS20Allocation{
 			SourcePort:    a.SourcePort,
 			SourceChannel: a.SourceChannel,
 			SpendLimit:    spendLimit,

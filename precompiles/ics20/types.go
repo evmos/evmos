@@ -6,6 +6,11 @@ package ics20
 import (
 	"fmt"
 	"math/big"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -15,8 +20,8 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.
@@ -32,17 +37,9 @@ type EventIBCTransfer struct {
 
 // EventTransferAuthorization is the event type emitted when a transfer authorization is created.
 type EventTransferAuthorization struct {
-	Grantee       common.Address
-	Granter       common.Address
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
-}
-
-// EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
-type EventRevokeAuthorization struct {
-	Grantee common.Address
-	Granter common.Address
+	Grantee     common.Address
+	Granter     common.Address
+	Allocations []cmn.ICS20Allocation
 }
 
 // DenomTraceResponse defines the data for the denom trace response.
@@ -331,4 +328,72 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 	}
 
 	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+}
+
+// convertToAllocation converts the Allocation type from the IBC transfer types to our implementation of ICS20 Allocation. The conversion maps the native SDK coin type to the custom coin type, which uses Ethereum native big integers.
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocation {
+	// Convert to Allocations to emit the IBC transfer authorization event
+	allocations := make([]cmn.ICS20Allocation, len(allocs))
+	for i, allocation := range allocs {
+		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
+		for j, coin := range allocation.SpendLimit {
+			spendLimit[j] = cmn.Coin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.BigInt(),
+			}
+		}
+
+		allocations[i] = cmn.ICS20Allocation{
+			SourcePort:    allocation.SourcePort,
+			SourceChannel: allocation.SourceChannel,
+			SpendLimit:    spendLimit,
+			AllowList:     allocation.AllowList,
+		}
+	}
+
+	return allocations
+}
+
+// CheckOriginAndSender ensures the correct sender is being used.
+func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender common.Address) (common.Address, error) {
+	if contract.CallerAddress == sender {
+		return origin, nil
+	} else if origin != sender {
+		return common.Address{}, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
+	return sender, nil
+}
+
+// CheckAndAcceptAuthorizationIfNeeded checks if authorization exists and accepts the grant.
+// In case the origin is the caller of the address, no authorization is required.
+func CheckAndAcceptAuthorizationIfNeeded(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	origin common.Address,
+	authzKeeper authzkeeper.Keeper,
+	msg *transfertypes.MsgTransfer,
+) (*authz.AcceptResponse, *time.Time, error) {
+	if contract.CallerAddress == origin {
+		return nil, nil, nil
+	}
+
+	auth, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, contract.CallerAddress, origin, TransferMsgURL)
+	if err != nil {
+		return nil, nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+	}
+
+	resp, err := AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resp, expiration, nil
+}
+
+// UpdateGrantIfNeeded updates the grant in case the contract caller is not the origin of the message.
+func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper authzkeeper.Keeper, origin common.Address, expiration *time.Time, resp *authz.AcceptResponse) error {
+	if contract.CallerAddress != origin {
+		return UpdateGrant(ctx, authzKeeper, contract.CallerAddress, origin, expiration, resp)
+	}
+	return nil
 }

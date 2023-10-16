@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
-	"github.com/evmos/evmos/v14/x/incentives/types"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/x/incentives/types"
 )
 
 type ProposalTestSuite struct {

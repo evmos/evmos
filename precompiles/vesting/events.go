@@ -8,14 +8,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-<<<<<<< HEAD
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
-=======
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
->>>>>>> 33bcc1e2 (fix(vesting): Add generic authorization grants and fix tests (#1862))
 )
 
 const (

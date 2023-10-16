@@ -11,7 +11,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "github.com/evmos/evmos/v14/utils"
+	evmosutils "github.com/evmos/evmos/v15/utils"
 )
 
 var (
@@ -29,6 +29,15 @@ var (
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
 	}
 )
+
+// ICS20Allocation defines the spend limit for a particular port and channel.
+// We need this to be able to unpack to big.Int instead of sdkmath.Int.
+type ICS20Allocation struct {
+	SourcePort    string
+	SourceChannel string
+	SpendLimit    []Coin
+	AllowList     []string
+}
 
 // Coin defines a struct that stores all needed information about a coin
 // in types native to the EVM.

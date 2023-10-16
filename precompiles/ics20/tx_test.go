@@ -9,11 +9,11 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/ics20"
-	evmosutil "github.com/evmos/evmos/v14/testutil"
-	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
-	"github.com/evmos/evmos/v14/utils"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
+	evmosutil "github.com/evmos/evmos/v15/testutil"
+	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 var (
@@ -162,7 +162,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, sender, sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, sender, sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
 
@@ -196,7 +196,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// Check allowance was deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				s.Require().Nil(authz)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
@@ -229,7 +229,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 
@@ -263,7 +263,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
@@ -310,7 +310,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
