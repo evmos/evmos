@@ -48,17 +48,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-<<<<<<< HEAD
 - (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods. 
 - (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
-=======
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
 - (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
 - (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
->>>>>>> 66eaddb0 (add: integration tests network suite (#1728))
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
