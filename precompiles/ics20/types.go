@@ -331,8 +331,6 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 
 	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
 }
-<<<<<<< HEAD
-=======
 
 // convertToAllocation converts the Allocation type from the IBC transfer types to our implementation of ICS20 Allocation. The conversion maps the native SDK coin type to the custom coin type, which uses Ethereum native big integers.
 func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocation {
@@ -401,4 +399,3 @@ func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper aut
 	}
 	return nil
 }
->>>>>>> 6d2d0f1f (fix(ics20): Extract grant checking and updating functions for reuse (#1850))
