@@ -37,6 +37,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+<<<<<<< HEAD
+=======
+### API Breaking
+
+- (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
+- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
+
+>>>>>>> 33bcc1e2 (fix(vesting): Add generic authorization grants and fix tests (#1862))
 ### State Machine Breaking
 
 - (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.

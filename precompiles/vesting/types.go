@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,6 +36,30 @@ type VestingPeriods struct {
 type Period struct {
 	Length int64
 	Amount []cmn.Coin
+}
+
+// CheckApprovalArgs checks the arguments passed to the approve function as well as
+// the functions to change the allowance. This is refactored into one function as
+// they all take in the same arguments.
+func checkApprovalArgs(args []interface{}) (common.Address, string, error) {
+	if len(args) != 2 {
+		return common.Address{}, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
+	}
+	grantee, ok := args[0].(common.Address)
+	if !ok || grantee == (common.Address{}) {
+		return common.Address{}, "", fmt.Errorf(authorization.ErrInvalidGranter, args[0])
+	}
+
+	typeURL, ok := args[1].(string)
+	if !ok {
+		return common.Address{}, "", fmt.Errorf(authorization.ErrInvalidMethod, args[2])
+	}
+
+	if typeURL == "" {
+		return common.Address{}, "", fmt.Errorf(authorization.ErrInvalidMethod, typeURL)
+	}
+
+	return grantee, typeURL, nil
 }
 
 // NewMsgCreateClawbackVestingAccount creates a new MsgCreateClawbackVestingAccount instance.

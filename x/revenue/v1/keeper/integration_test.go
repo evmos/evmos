@@ -6,9 +6,13 @@ import (
 	"math/big"
 	"strings"
 
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v14/precompiles/staking"
 
+=======
+>>>>>>> 33bcc1e2 (fix(vesting): Add generic authorization grants and fix tests (#1862))
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/precompiles/staking"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
