@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### API Breaking
+
+- (ics20) #1848 Refactor ICS20 Authorization and remove Revoke Event.
+
 ### State Machine Breaking
 
 - (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
@@ -44,15 +48,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Improvements
 
-<<<<<<< HEAD
-=======
 - (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods. 
 - (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
->>>>>>> 6d2d0f1f (fix(ics20): Extract grant checking and updating functions for reuse (#1850))
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
 - (app) [#1835](https://github.com/evmos/evmos/pull/1835) Remove migration logic from the app's `BeginBlocker`.
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
