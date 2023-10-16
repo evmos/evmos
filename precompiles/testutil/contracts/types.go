@@ -80,7 +80,6 @@ func (c CallArgs) WithPrivKey(privKey *ethsecp256k1.PrivKey) CallArgs {
 // WithArgs populates the CallArgs struct's Args field with the given list of arguments.
 // These are the arguments that will be packed into the contract call input.
 func (c CallArgs) WithArgs(args ...interface{}) CallArgs {
-
 	c.Args = append([]interface{}{}, args...)
 	return c
 }

@@ -5,12 +5,12 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/evmos/evmos/v14/testutil/integration/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response
