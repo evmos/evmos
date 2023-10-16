@@ -37,11 +37,9 @@ type EventIBCTransfer struct {
 
 // EventTransferAuthorization is the event type emitted when a transfer authorization is created.
 type EventTransferAuthorization struct {
-	Grantee       common.Address
-	Granter       common.Address
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
+	Grantee     common.Address
+	Granter     common.Address
+	Allocations []cmn.ICS20Allocation
 }
 
 // DenomTraceResponse defines the data for the denom trace response.
