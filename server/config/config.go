@@ -95,6 +95,18 @@ const (
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
 
+	// ============================
+	// 			MemIAVL
+	// ============================
+
+	// DefaultMemIAVLEnable is the default value that defines if memIAVL is enabled
+	DefaultMemIAVLEnable = false
+
+	// DefaultZeroCopy is the default value that defines if
+	// the zero-copied slices must be retained beyond current block's execution
+	// the sdk address cache will be disabled if zero-copy is enabled
+	DefaultZeroCopy = false
+
 	// DefaultAsyncCommitBuffer value to use as default for the size of
 	// asynchronous commit queue when using memIAVL
 	DefaultAsyncCommitBuffer = 0
@@ -359,8 +371,8 @@ func (c TLSConfig) Validate() error {
 // DefaultMemIAVLConfig returns the default MemIAVL configuration
 func DefaultMemIAVLConfig() *MemIAVLConfig {
 	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
-		Enable:             false,
-		ZeroCopy:           false,
+		Enable:             DefaultMemIAVLEnable,
+		ZeroCopy:           DefaultZeroCopy,
 		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
 		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
 		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
