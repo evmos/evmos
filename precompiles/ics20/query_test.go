@@ -276,7 +276,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				}
 			},
 			func(bz []byte) {
-				var allocations []ics20.Allocation
+				var allocations []cmn.ICS20Allocation
 				err := s.precompile.UnpackIntoInterface(&allocations, authorization.AllowanceMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 				s.Require().Len(allocations, 0)
@@ -305,7 +305,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				}
 			},
 			func(bz []byte) {
-				expAllocs := []ics20.Allocation{
+				expAllocs := []cmn.ICS20Allocation{
 					{
 						SourcePort:    path.EndpointA.ChannelConfig.PortID,
 						SourceChannel: path.EndpointA.ChannelID,
@@ -314,7 +314,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 					},
 				}
 
-				var allocations []ics20.Allocation
+				var allocations []cmn.ICS20Allocation
 				err := s.precompile.UnpackIntoInterface(&allocations, authorization.AllowanceMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 
@@ -352,9 +352,9 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				}
 			},
 			func(bz []byte) {
-				expAllocs := make([]ics20.Allocation, len(paths))
+				expAllocs := make([]cmn.ICS20Allocation, len(paths))
 				for i, p := range paths {
-					expAllocs[i] = ics20.Allocation{
+					expAllocs[i] = cmn.ICS20Allocation{
 						SourcePort:    p.EndpointA.ChannelConfig.PortID,
 						SourceChannel: p.EndpointA.ChannelID,
 						SpendLimit:    mutliCmnCoins,
@@ -362,7 +362,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 					}
 				}
 
-				var allocations []ics20.Allocation
+				var allocations []cmn.ICS20Allocation
 				err := s.precompile.UnpackIntoInterface(&allocations, authorization.AllowanceMethod, bz)
 				s.Require().NoError(err, "failed to unpack output")
 

@@ -162,7 +162,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, sender, sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, sender, sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
 
@@ -196,7 +196,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// Check allowance was deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				s.Require().Nil(authz)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
@@ -229,7 +229,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 
@@ -263,7 +263,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
@@ -310,7 +310,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func(sender, receiver sdk.AccAddress, data []byte, inputArgs []interface{}) {
 				// The allowance is spent after the transfer thus the authorization is deleted
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
