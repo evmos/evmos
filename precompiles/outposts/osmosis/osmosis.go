@@ -5,8 +5,6 @@ import (
 	"embed"
 	"fmt"
 
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
-
 	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -43,7 +41,6 @@ type Precompile struct {
 	osmosisXCSContract string
 
 	transferKeeper transferkeeper.Keeper
-	channelKeeper  channelkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 	bankKeeper     erc20types.BankKeeper
 	stakingKeeper  stakingkeeper.Keeper
@@ -58,7 +55,6 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper erc20types.BankKeeper,
 	erc20Keeper erc20keeper.Keeper,
-	channelKeeper channelkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -84,7 +80,6 @@ func NewPrecompile(
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
 		erc20Keeper:        erc20Keeper,
-		channelKeeper:      channelKeeper,
 	}, nil
 }
 
