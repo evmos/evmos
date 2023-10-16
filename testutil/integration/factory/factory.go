@@ -22,7 +22,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v15/testutil/integration/grpc"
 	"github.com/evmos/evmos/v15/testutil/integration/network"
@@ -41,8 +40,11 @@ const (
 type TxFactory interface {
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
-	DeployContract(privKey cryptotypes.PrivKey, contract evmtypes.CompiledContract, constructorArgs ...interface{}) (common.Address, error)
-	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs
+	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
+	// ExecuteContractCall executes a contract call with the provided private key
+	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
+	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// ExecuteEthTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -62,9 +64,9 @@ type IntegrationTxFactory struct {
 
 // New creates a new IntegrationTxFactory instance
 func New(
-	grpcHandler grpc.Handler,
 	network network.Network,
-) *IntegrationTxFactory {
+	grpcHandler grpc.Handler,
+) TxFactory {
 	ec := makeConfig(app.ModuleBasics)
 	return &IntegrationTxFactory{
 		grpcHandler: grpcHandler,
@@ -74,11 +76,12 @@ func New(
 }
 
 // DeployContract deploys a contract with the provided private key,
-// compiled contract data and constructor arguments
+// compiled contract data and constructor arguments.
+// TxArgs Input and Nonce fields are overwritten.
 func (tf *IntegrationTxFactory) DeployContract(
 	priv cryptotypes.PrivKey,
-	contract evmtypes.CompiledContract,
-	constructorArgs ...interface{},
+	txArgs evmtypes.EvmTxArgs,
+	deploymentData ContractDeploymentData,
 ) (common.Address, error) {
 	// Get account's nonce to create contract hash
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
@@ -88,23 +91,32 @@ func (tf *IntegrationTxFactory) DeployContract(
 	}
 	nonce := account.GetNonce()
 
-	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
+	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
 	if err != nil {
 		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
 	}
-	data := contract.Bin
+	data := deploymentData.Contract.Bin
 	data = append(data, ctorArgs...)
 
-	args := evmtypes.EvmTxArgs{
-		Input: data,
-		Nonce: nonce,
-	}
-	_, err = tf.ExecuteEthTx(priv, args)
-	if err != nil {
+	txArgs.Input = data
+	txArgs.Nonce = nonce
+	res, err := tf.ExecuteEthTx(priv, txArgs)
+	if err != nil || !res.IsOK() {
 		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
 	}
-
 	return crypto.CreateAddress(from, nonce), nil
+}
+
+// ExecuteContractCall executes a contract call with the provided private key
+func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
+	// Create MsgEthereumTx that calls the contract
+	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+	}
+	txArgs.Input = input
+
+	return tf.ExecuteEthTx(privKey, txArgs)
 }
 
 // ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
@@ -134,25 +146,9 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	}
 
 	if err := tf.checkEthTxResponse(&res); err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed ETH tx")
+		return res, errorsmod.Wrap(err, "failed ETH tx")
 	}
 	return res, nil
-}
-
-// CosmosTxArgs contains the params to create a cosmos tx
-type CosmosTxArgs struct {
-	// ChainID is the chain's id in cosmos format, e.g. 'evmos_9000-1'
-	ChainID string
-	// Gas to be used on the tx
-	Gas uint64
-	// GasPrice to use on tx
-	GasPrice *sdkmath.Int
-	// Fees is the fee to be used on the tx (amount and denom)
-	Fees sdktypes.Coins
-	// FeeGranter is the account address of the fee granter
-	FeeGranter sdktypes.AccAddress
-	// Msgs slice of messages to include on the tx
-	Msgs []sdktypes.Msg
 }
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
@@ -173,8 +169,10 @@ func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txA
 // EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
 	args, err := json.Marshal(evmtypes.TransactionArgs{
-		Data: (*hexutil.Bytes)(&txArgs.Input),
-		From: from,
+		Data:       (*hexutil.Bytes)(&txArgs.Input),
+		From:       from,
+		To:         txArgs.To,
+		AccessList: txArgs.Accesses,
 	})
 	if err != nil {
 		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
@@ -325,7 +323,9 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
-	return buildMsgEthereumTx(txArgs, fromAddr)
+	msg := buildMsgEthereumTx(txArgs, fromAddr)
+
+	return msg, nil
 }
 
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
@@ -350,6 +350,8 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.Nonce = accountResp.GetNonce()
 	}
 
+	// If there is no GasPrice it is assume this is a DynamicFeeTx.
+	// If fields are empty they are populated with current dynamic values.
 	if txArgs.GasPrice == nil {
 		if txArgs.GasTipCap == nil {
 			txArgs.GasTipCap = big.NewInt(1)
@@ -373,9 +375,6 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.GasLimit = gasLimit
 	}
 
-	if txArgs.Accesses == nil {
-		txArgs.Accesses = &ethtypes.AccessList{}
-	}
 	return txArgs, nil
 }
 
