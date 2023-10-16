@@ -16,6 +16,8 @@ import sources.nixpkgs {
         inherit (pkgs.darwin.apple_sdk.frameworks) IOKit;
         buildGoModule = pkgs.buildGo118Module;
       };
+      # evmos with rocksdb build
+      evmosd-rocksdb = pkgs.callPackage ./evmos-rocksdb.nix {};
       # other chains to use in IBC tests
       chain-maind = pkgs.callPackage sources.chain-main { rocksdb = null; };
       strided = pkgs.callPackage ./cosmos-chain.nix { 

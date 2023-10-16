@@ -10,6 +10,7 @@ pkgs.mkShell {
     pkgs.nodejs
     pkgs.test-env
     pkgs.gomod2nix
+    pkgs.evmosd-rocksdb
     pkgs.chain-maind
     pkgs.strided
     pkgs.osmosisd
