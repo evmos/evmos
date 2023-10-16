@@ -15,6 +15,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/crypto-org-chain/cronos/memiavl"
 	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
@@ -348,7 +349,14 @@ func (c TLSConfig) Validate() error {
 
 // DefaultMemIAVLConfig returns the default MemIAVL configuration
 func DefaultMemIAVLConfig() *MemIAVLConfig {
-	return &MemIAVLConfig{memiavlcfg.DefaultMemIAVLConfig()}
+	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
+		Enable:             false,
+		ZeroCopy:           false,
+		AsyncCommitBuffer:  0,
+		SnapshotKeepRecent: 1,
+		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
+		CacheSize:          memiavlcfg.DefaultCacheSize,
+	}}
 }
 
 // Validate returns an error if the MemIAVL configuration fields are invalid.
