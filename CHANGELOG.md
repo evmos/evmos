@@ -63,6 +63,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#1835](https://github.com/evmos/evmos/pull/1835) Remove migration logic from the app's `BeginBlocker`.
 - (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
 - (docker) [#1743](https://github.com/evmos/evmos/pull/1743) Add rclone binary to Docker image.
+- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
 
 ### Bug Fixes
 
