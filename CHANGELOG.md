@@ -46,6 +46,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (sdk) [#1869](https://github.com/evmos/evmos/pull/1869) Bump Cosmos SDK to v0.47.5.
 - (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
+- (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (upgrade) [#1845](https://github.com/evmos/evmos/pull/1845) Include remaining strategic reserve migrations.
 
 ### Improvements
@@ -80,7 +81,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
 - (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
-- (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 
 ### Improvements
 
