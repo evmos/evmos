@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	distrKeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v9

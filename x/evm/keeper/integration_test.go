@@ -10,19 +10,19 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v14/contracts"
-	"github.com/evmos/evmos/v14/precompiles/staking"
+	"github.com/evmos/evmos/v15/contracts"
+	"github.com/evmos/evmos/v15/precompiles/staking"
 
-	"github.com/evmos/evmos/v14/testutil/integration/factory"
-	"github.com/evmos/evmos/v14/testutil/integration/grpc"
-	testkeyring "github.com/evmos/evmos/v14/testutil/integration/keyring"
-	"github.com/evmos/evmos/v14/testutil/integration/network"
-	integrationutils "github.com/evmos/evmos/v14/testutil/integration/utils"
+	"github.com/evmos/evmos/v15/testutil/integration/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/grpc"
+	testkeyring "github.com/evmos/evmos/v15/testutil/integration/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/network"
+	integrationutils "github.com/evmos/evmos/v15/testutil/integration/utils"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 type IntegrationTestSuite struct {

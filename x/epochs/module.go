@@ -22,9 +22,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/evmos/evmos/v14/x/epochs/client/cli"
-	"github.com/evmos/evmos/v14/x/epochs/keeper"
-	"github.com/evmos/evmos/v14/x/epochs/types"
+	"github.com/evmos/evmos/v15/x/epochs/client/cli"
+	"github.com/evmos/evmos/v15/x/epochs/keeper"
+	"github.com/evmos/evmos/v15/x/epochs/types"
 )
 
 // consensusVersion defines the current x/epochs module consensus version.

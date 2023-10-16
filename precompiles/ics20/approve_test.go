@@ -9,10 +9,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/ics20"
-	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 type allowanceTestCase struct {
@@ -137,7 +137,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    "port-1",
 							SourceChannel: "channel-1",
@@ -159,7 +159,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					s.address,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,
@@ -170,7 +170,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				}
 			},
 			func(_ []byte, _ []interface{}) {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 			},
@@ -185,7 +185,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					differentAddress,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,
@@ -196,7 +196,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				}
 			},
 			func(_ []byte, _ []interface{}) {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
 			},
@@ -277,14 +277,14 @@ func (s *PrecompileTestSuite) TestRevoke() {
 				s.coordinator.Setup(path)
 				err := s.NewTransferAuthorization(s.ctx, s.app, differentAddress, s.address, path, defaultCoins, nil)
 				s.Require().NoError(err)
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 				s.Require().NotNil(authz)
 				return []interface{}{
 					differentAddress,
 				}
 			},
 			func() {
-				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsg)
+				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, differentAddress.Bytes(), s.address.Bytes(), ics20.TransferMsgURL)
 				s.Require().Nil(authz)
 			},
 			200000,

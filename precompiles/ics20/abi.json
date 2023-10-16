@@ -5,37 +5,6 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "grantee",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "granter",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "string[]",
-				"name": "methods",
-				"type": "string[]"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256[]",
-				"name": "values",
-				"type": "uint256[]"
-			}
-		],
-		"name": "AllowanceChange",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
 				"name": "sender",
 				"type": "address"
 			},
@@ -95,56 +64,47 @@
 				"type": "address"
 			},
 			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "sourcePort",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "sourceChannel",
-				"type": "string"
-			},
-			{
 				"components": [
 					{
 						"internalType": "string",
-						"name": "denom",
+						"name": "sourcePort",
 						"type": "string"
 					},
 					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
+						"internalType": "string",
+						"name": "sourceChannel",
+						"type": "string"
+					},
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "denom",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct Coin[]",
+						"name": "spendLimit",
+						"type": "tuple[]"
+					},
+					{
+						"internalType": "string[]",
+						"name": "allowList",
+						"type": "string[]"
 					}
 				],
 				"indexed": false,
-				"internalType": "struct Coin[]",
-				"name": "spendLimit",
+				"internalType": "struct ICS20Allocation[]",
+				"name": "allocations",
 				"type": "tuple[]"
 			}
 		],
 		"name": "IBCTransferAuthorization",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "grantee",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "granter",
-				"type": "address"
-			}
-		],
-		"name": "RevokeIBCTransferAuthorization",
 		"type": "event"
 	},
 	{
@@ -197,7 +157,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}
@@ -247,7 +207,7 @@
 						"type": "string[]"
 					}
 				],
-				"internalType": "struct Allocation[]",
+				"internalType": "struct ICS20Allocation[]",
 				"name": "allocations",
 				"type": "tuple[]"
 			}

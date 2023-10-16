@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
+
+/// @dev Allocation represents a single allocation for an IBC fungible token transfer.
+struct ICS20Allocation {
+    string   sourcePort;
+    string   sourceChannel;
+    Coin[]   spendLimit;
+    string[] allowList;
+}
+
 /// @dev Dec represents a fixed point decimal value. The value is stored as an integer, and the
 /// precision is stored as a uint8. The value is multiplied by 10^precision to get the actual value.
 struct Dec {

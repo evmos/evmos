@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v14/x/vesting/types"
+	"github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // Keeper of this module maintains collections of vesting.
