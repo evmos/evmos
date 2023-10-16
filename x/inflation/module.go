@@ -21,9 +21,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/evmos/evmos/v14/x/inflation/client/cli"
-	"github.com/evmos/evmos/v14/x/inflation/keeper"
-	"github.com/evmos/evmos/v14/x/inflation/types"
+	"github.com/evmos/evmos/v15/x/inflation/client/cli"
+	"github.com/evmos/evmos/v15/x/inflation/keeper"
+	"github.com/evmos/evmos/v15/x/inflation/types"
 )
 
 // consensusVersion defines the current x/inflation module consensus version.

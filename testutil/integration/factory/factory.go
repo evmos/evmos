@@ -24,14 +24,14 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v14/testutil/integration/grpc"
-	"github.com/evmos/evmos/v14/testutil/integration/network"
-	"github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/testutil/integration/grpc"
+	"github.com/evmos/evmos/v15/testutil/integration/network"
+	"github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/server/config"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/server/config"
 )
 
 const (

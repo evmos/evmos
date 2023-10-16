@@ -5,7 +5,7 @@ package keeper
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v14/x/feemarket/types"
+	"github.com/evmos/evmos/v15/x/feemarket/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

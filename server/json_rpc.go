@@ -14,10 +14,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
-	"github.com/evmos/evmos/v14/rpc"
+	"github.com/evmos/evmos/v15/rpc"
 
-	"github.com/evmos/evmos/v14/server/config"
-	evmostypes "github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v15/server/config"
+	evmostypes "github.com/evmos/evmos/v15/types"
 )
 
 // StartJSONRPC starts the JSON-RPC server
