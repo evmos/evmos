@@ -1,7 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
-package v142
+package v15
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +13,7 @@ import (
 	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v14_2
+// CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
@@ -43,6 +42,10 @@ func CreateUpgradeHandler(
 		if err != nil {
 			logger.Error("error while enabling EIPs", "error", err)
 		}
+
+		// we are deprecating the crisis module since it is not being used
+		logger.Debug("deleting crisis module from version map...")
+		delete(vm, "crisis")
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
