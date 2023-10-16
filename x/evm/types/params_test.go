@@ -69,6 +69,7 @@ func TestParamsValidatePriv(t *testing.T) {
 	require.NoError(t, validateBool(true))
 	require.Error(t, validateEIPs(""))
 	require.NoError(t, validateEIPs([]int64{1884}))
+	require.ErrorContains(t, validateEIPs([]int64{1884, 1884, 1885, 1886}), "duplicate EIP: 1884")
 }
 
 func TestValidateChainConfig(t *testing.T) {
