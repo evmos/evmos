@@ -58,6 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
+- (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
 
 ### Bug Fixes
