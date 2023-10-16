@@ -34,28 +34,28 @@ install=true
 overwrite=""
 
 while [[ $# -gt 0 ]]; do
-  key="$1"
-  case $key in
-    -y)
-      echo "Flag -y passed -> Overwriting the previous chain data."
-	  overwrite="y"
-      shift # Move past the flag
-      ;;
-    -n)
-      echo "Flag -n passed -> Not overwriting the previous chain data."
-	  overwrite="n"
-      shift # Move past the argument
-      ;;
-    --no-install)
-      echo "Flag --no-install passed -> Skipping installation of the evmosd binary."
-      install=false
-      shift # Move past the flag
-      ;;
-    *)
-      echo "Unknown flag passed: $key -> Exiting script!"
-	  exit 1
-      ;;
-  esac
+	key="$1"
+	case $key in
+	-y)
+		echo "Flag -y passed -> Overwriting the previous chain data."
+		overwrite="y"
+		shift # Move past the flag
+		;;
+	-n)
+		echo "Flag -n passed -> Not overwriting the previous chain data."
+		overwrite="n"
+		shift # Move past the argument
+		;;
+	--no-install)
+		echo "Flag --no-install passed -> Skipping installation of the evmosd binary."
+		install=false
+		shift # Move past the flag
+		;;
+	*)
+		echo "Unknown flag passed: $key -> Exiting script!"
+		exit 1
+		;;
+	esac
 done
 
 if [[ $install == true ]]; then
@@ -174,12 +174,18 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		sed -i '' 's/prometheus-retention-time = 0/prometheus-retention-time  = 1000000000000/g' "$APP_TOML"
 		sed -i '' 's/enabled = false/enabled = true/g' "$APP_TOML"
 		sed -i '' 's/enable = false/enable = true/g' "$APP_TOML"
+		# Don't enable memiavl by default
+		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 	else
 		sed -i 's/prometheus = false/prometheus = true/' "$CONFIG"
 		sed -i 's/prometheus-retention-time  = "0"/prometheus-retention-time  = "1000000000000"/g' "$APP_TOML"
 		sed -i 's/enabled = false/enabled = true/g' "$APP_TOML"
 		sed -i 's/enable = false/enable = true/g' "$APP_TOML"
+		# Don't enable memiavl by default
+		grep -q -F '[memiavl]' "$APP_TOML" && sed -i '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 	fi
+
+		sed -i 's/async-commit-buffer = 0/async-commit-buffer = -20/g' "$APP_TOML"
 
 	# Change proposal periods to pass within a reasonable time for local testing
 	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
@@ -197,8 +203,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	evmosd add-genesis-account "$(evmosd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 	evmosd add-genesis-account "$(evmosd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 
-	# bc is required to add these big numbers 
-	# NOTE: we have the validator account (1e26) plus 4 (1e21) accounts 
+	# bc is required to add these big numbers
+	# NOTE: we have the validator account (1e26) plus 4 (1e21) accounts
 	#       plus the claimed amount (1e4)
 	total_supply=100004000000000000000010000
 	jq -r --arg total_supply "$total_supply" '.app_state["bank"]["supply"][0]["amount"]=$total_supply' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -225,9 +231,9 @@ fi
 
 # Start the node
 evmosd start \
-  --metrics "$TRACE" \
-  --log_level $LOGLEVEL \
-  --minimum-gas-prices=0.0001aevmos \
-  --json-rpc.api eth,txpool,personal,net,debug,web3 \
-  --home "$HOMEDIR" \
-  --chain-id "$CHAINID"
+	--metrics "$TRACE" \
+	--log_level $LOGLEVEL \
+	--minimum-gas-prices=0.0001aevmos \
+	--json-rpc.api eth,txpool,personal,net,debug,web3 \
+	--home "$HOMEDIR" \
+	--chain-id "$CHAINID"
