@@ -76,7 +76,7 @@ func (p Precompile) FundVestingAccount(
 		return nil, err
 	}
 
-	// if caller address is origin, check if the funder matches the origin
+	// if caller address is origin, the funder MUST match the origin
 	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, funderAddr)
 	}
@@ -124,7 +124,7 @@ func (p Precompile) Clawback(
 		return nil, err
 	}
 
-	// if caller address is origin, check if the funder matches the origin
+	// if caller address is origin, the funder MUST match the origin
 	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
@@ -174,7 +174,7 @@ func (p Precompile) UpdateVestingFunder(
 		return nil, err
 	}
 
-	// if caller address is origin, check if the funder matches the origin
+	// if caller address is origin, the funder MUST match the origin
 	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
