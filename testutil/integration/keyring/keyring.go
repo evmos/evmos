@@ -34,6 +34,8 @@ type Keyring interface {
 	GetAddr(index int) common.Address
 	// GetAccAddr returns the SDK address of the account at the given keyring index.
 	GetAccAddr(index int) sdktypes.AccAddress
+	// GetAllAccAddrs returns all the SDK addresses of the accounts in the keyring.
+	GetAllAccAddrs() []sdktypes.AccAddress
 	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
 
@@ -51,14 +53,14 @@ type IntegrationKeyring struct {
 
 var _ Keyring = (*IntegrationKeyring)(nil)
 
-// NewKeyring returns a new keyring with nAccs accounts.
-func NewKeyring(nAccs int) IntegrationKeyring {
+// New returns a new keyring with nAccs accounts.
+func New(nAccs int) Keyring {
 	accs := make([]Key, 0, nAccs)
 	for i := 0; i < nAccs; i++ {
 		acc := NewKey()
 		accs = append(accs, acc)
 	}
-	return IntegrationKeyring{
+	return &IntegrationKeyring{
 		keys: accs,
 	}
 }
@@ -76,6 +78,15 @@ func (kr *IntegrationKeyring) GetAddr(index int) common.Address {
 // GetAccAddr returns the sdk address of the specified account.
 func (kr *IntegrationKeyring) GetAccAddr(index int) sdktypes.AccAddress {
 	return kr.keys[index].AccAddr
+}
+
+// GetAllAccAddrs returns all the sdk addresses of the accounts in the keyring.
+func (kr *IntegrationKeyring) GetAllAccAddrs() []sdktypes.AccAddress {
+	accs := make([]sdktypes.AccAddress, 0, len(kr.keys))
+	for _, key := range kr.keys {
+		accs = append(accs, key.AccAddr)
+	}
+	return accs
 }
 
 // GetKey returns the key specified by index
