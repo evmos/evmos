@@ -32,11 +32,9 @@ type EventIBCTransfer struct {
 
 // EventTransferAuthorization is the event type emitted when a transfer authorization is created.
 type EventTransferAuthorization struct {
-	Grantee       common.Address
-	Granter       common.Address
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
+	Grantee     common.Address
+	Granter     common.Address
+	Allocations []cmn.ICS20Allocation
 }
 
 // EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
@@ -61,15 +59,6 @@ type DenomTracesResponse struct {
 	PageResponse query.PageResponse
 }
 
-// Allocation defines the spend limit for a particular port and channel
-// we need this to be able to unpack to big.Int instead of sdkmath.Int
-type Allocation struct {
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
-	AllowList     []string
-}
-
 // height is a struct used to parse the TimeoutHeight parameter
 // used as input in the transfer method
 type height struct {
@@ -79,7 +68,7 @@ type height struct {
 // allocs is a struct used to parse the Allocations parameter
 // used as input in the transfer authorization method
 type allocs struct {
-	Allocations []Allocation
+	Allocations []cmn.ICS20Allocation
 }
 
 // NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.
@@ -312,7 +301,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 	return grantee, allocations, nil
 }
 
-// checkAllocationExists checks if the given authorization allocation matches the given arguments.
+// CheckAllocationExists checks if the given authorization allocation matches the given arguments.
 func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
 	var found bool
 	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
@@ -331,4 +320,28 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 	}
 
 	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+}
+
+// convertToAllocation converts the Allocation type from the IBC transfer types to our implementation of ICS20 Allocation. The conversion maps the native SDK coin type to the custom coin type, which uses Ethereum native big integers.
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocation {
+	// Convert to Allocations to emit the IBC transfer authorization event
+	allocations := make([]cmn.ICS20Allocation, len(allocs))
+	for i, allocation := range allocs {
+		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
+		for j, coin := range allocation.SpendLimit {
+			spendLimit[j] = cmn.Coin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.BigInt(),
+			}
+		}
+
+		allocations[i] = cmn.ICS20Allocation{
+			SourcePort:    allocation.SourcePort,
+			SourceChannel: allocation.SourceChannel,
+			SpendLimit:    spendLimit,
+			AllowList:     allocation.AllowList,
+		}
+	}
+
+	return allocations
 }
