@@ -129,11 +129,7 @@ import (
 	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-<<<<<<< HEAD
-	v142 "github.com/evmos/evmos/v14/app/upgrades/v14_2"
-=======
 	v15 "github.com/evmos/evmos/v14/app/upgrades/v15"
->>>>>>> 576e2c21 (chore(upgrade): port v14.2 handler, utils and tests to v15 handler (#1860))
 	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
