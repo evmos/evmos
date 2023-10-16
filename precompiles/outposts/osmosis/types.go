@@ -17,7 +17,7 @@ import (
 
 type Twap struct {
 	SlippagePercentage string `json:"slippage_percentage"`
-	WindowSeconds      string `json:"window_seconds"`
+	WindowSeconds      int64 `json:"window_seconds"`
 }
 
 type Slippage struct {
@@ -45,7 +45,7 @@ type RawPacketMetadata struct {
 	Memo Memo `json:"memo"`
 }
 
-func CreateMemo(outputDenom, receiver, contract string) (string, error) {
+func CreateMemo(outputDenom, receiver, contract, slippage_percentage string, window_seconds int64) (string, error) {
 	data := &RawPacketMetadata{
 		Memo{
 			Contract: contract,
@@ -54,13 +54,13 @@ func CreateMemo(outputDenom, receiver, contract string) (string, error) {
 					OutputDenom: outputDenom,
 					Slippage: Slippage{
 						Twap{
-							SlippagePercentage: "5",
-							WindowSeconds:      "10",
+							SlippagePercentage: slippage_percentage, 
+							WindowSeconds:      window_seconds, 
 						},
 					},
 					Receiver:         receiver,
 					OnFailedDelivery: "do_nothing",
-					NextMemo:         "",
+					// NextMemo:         "",
 				},
 			},
 		},
