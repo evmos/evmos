@@ -10,7 +10,12 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+<<<<<<< HEAD
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+=======
+	"github.com/ethereum/go-ethereum/core/vm"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+>>>>>>> 469c5cc7 (update module version to v15 (#1867))
 )
 
 // EventApproval is the event emitted on a successful Approve transaction.

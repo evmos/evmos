@@ -10,9 +10,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"golang.org/x/exp/slices"
 
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
-	"github.com/evmos/evmos/v14/x/revenue/v1/types"
+	"github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}

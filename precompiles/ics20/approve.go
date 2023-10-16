@@ -17,8 +17,12 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+<<<<<<< HEAD
 	"github.com/evmos/evmos/v14/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+=======
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+>>>>>>> 469c5cc7 (update module version to v15 (#1867))
 )
 
 // TransferMsg is the ICS20 transfer message type.

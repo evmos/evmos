@@ -6,14 +6,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	"github.com/evmos/evmos/v14/server/config"
-	"github.com/evmos/evmos/v14/testutil"
-	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
-	"github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/utils"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	ethante "github.com/evmos/evmos/v15/app/ante/evm"
+	"github.com/evmos/evmos/v15/server/config"
+	"github.com/evmos/evmos/v15/testutil"
+	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 )
