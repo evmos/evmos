@@ -64,6 +64,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
+- (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 
@@ -84,7 +85,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
 
 ### Improvements
-
 
 - (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
 - (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
