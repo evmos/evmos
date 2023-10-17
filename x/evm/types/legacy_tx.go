@@ -124,7 +124,7 @@ func (tx *LegacyTx) GetTo() *common.Address {
 	return &to
 }
 
-// AsEthereumData returns an AccessListTx transaction tx from the proto-formatted
+// AsEthereumData returns an LegacyTx transaction tx from the proto-formatted
 // TxData defined on the Cosmos EVM.
 func (tx *LegacyTx) AsEthereumData() ethtypes.TxData {
 	v, r, s := tx.GetRawSignatureValues()
@@ -197,7 +197,7 @@ func (tx LegacyTx) Validate() error {
 	if chainID == nil {
 		return errorsmod.Wrap(
 			errortypes.ErrInvalidChainID,
-			"chain ID must be present on AccessList txs",
+			"chain ID must be derived from LegacyTx txs",
 		)
 	}
 
