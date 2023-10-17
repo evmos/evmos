@@ -130,7 +130,7 @@ import (
 	v12 "github.com/evmos/evmos/v15/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v15/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
-	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
+	v15rc1 "github.com/evmos/evmos/v15/app/upgrades/v15rc1"
 	v8 "github.com/evmos/evmos/v15/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v15/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v15/app/upgrades/v8_2"
@@ -1311,10 +1311,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v15 upgrade handler
+	// v15rc1 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v15.UpgradeName,
-		v15.CreateUpgradeHandler(
+		v15rc1.UpgradeName,
+		v15rc1.CreateUpgradeHandler(
 			app.mm, app.configurator,
 			app.BankKeeper,
 			app.EvmKeeper,
@@ -1376,8 +1376,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 				crisistypes.ModuleName,
 			},
 		}
-	case v15.UpgradeName:
-		// crisis module is deprecated in v15
+	case v15rc1.UpgradeName:
+		// crisis module is deprecated in v15rc1
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{crisistypes.ModuleName},
 		}
