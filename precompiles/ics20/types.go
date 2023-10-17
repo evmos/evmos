@@ -86,7 +86,7 @@ func NewTransferAuthorization(method *abi.Method, args []interface{}) (common.Ad
 }
 
 // CreateMsgTransfer returns a new transfer message from the given arguments.
-func CreateMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgTransfer, common.Address, error) {
+func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgTransfer, common.Address, error) {
 	if len(args) != 9 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 9, len(args))
 	}
@@ -143,7 +143,7 @@ func CreateMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.M
 		Amount: sdk.NewIntFromBigInt(amount),
 	}
 
-	msg, err := NewMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
+	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
 	if err != nil {
 		return nil, common.Address{}, err
 	}
@@ -151,8 +151,14 @@ func CreateMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.M
 	return msg, sender, nil
 }
 
-// NewMsgTransfer creates a new MsgTransfer message
-func NewMsgTransfer(sourcePort, sourceChannel string, coin sdk.Coin, senderAddress, receiverAddress string, timeoutHeight clienttypes.Height, timeoutTimestamp uint64, memo string) (*transfertypes.MsgTransfer, error) {
+// CreateAndValidateMsgTransfer creates a new MsgTransfer message and run validate basic.
+func CreateAndValidateMsgTransfer(
+	sourcePort, sourceChannel string, 
+	coin sdk.Coin, senderAddress, receiverAddress string, 
+	timeoutHeight clienttypes.Height, 
+	timeoutTimestamp uint64, 
+	memo string,
+	) (*transfertypes.MsgTransfer, error) {
 	msg := transfertypes.NewMsgTransfer(
 		sourcePort,
 		sourceChannel,

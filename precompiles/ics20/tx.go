@@ -27,7 +27,7 @@ func (p Precompile) Transfer(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, sender, err := CreateMsgTransfer(method, args)
+	msg, sender, err := NewMsgTransfer(method, args)
 	if err != nil {
 		return nil, err
 	}
