@@ -31,8 +31,8 @@ type Handler interface {
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
 
-    // Staking methods
-    GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
+	// Staking methods
+	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
 
 	// Revenue methods
 	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
