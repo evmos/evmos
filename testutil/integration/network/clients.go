@@ -20,7 +20,8 @@ import (
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	interfaceRegistry := encCfg.InterfaceRegistry
-	// Without this, state transitions will not be persisted on precompiles
+	// This is needed so that state changes are not commited in precompiles
+	// simulations.
 	cacheCtx, _ := ctx.CacheContext()
 	return baseapp.NewQueryServerTestHelper(cacheCtx, interfaceRegistry)
 }
