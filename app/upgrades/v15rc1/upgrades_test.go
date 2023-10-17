@@ -1,8 +1,8 @@
-package v15_test
+package v15rc1_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
+	v15 "github.com/evmos/evmos/v15/app/upgrades/v15rc1"
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
