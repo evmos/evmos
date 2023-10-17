@@ -167,7 +167,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 				var ubdOut staking.UnbondingDelegationOutput
 				err := s.precompile.UnpackIntoInterface(&ubdOut, staking.UnbondingDelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(ubdOut.Entries, 0)
+				s.Require().Len(ubdOut.UnbondingDelegation.Entries, 0)
 			},
 			100000,
 			false,
@@ -185,9 +185,9 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 				var ubdOut staking.UnbondingDelegationOutput
 				err := s.precompile.UnpackIntoInterface(&ubdOut, staking.UnbondingDelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(ubdOut.Entries, 1)
-				s.Require().Equal(ubdOut.Entries[0].CreationHeight, s.ctx.BlockHeight())
-				s.Require().Equal(ubdOut.Entries[0].Balance, big.NewInt(1e18))
+				s.Require().Len(ubdOut.UnbondingDelegation.Entries, 1)
+				s.Require().Equal(ubdOut.UnbondingDelegation.Entries[0].CreationHeight, s.ctx.BlockHeight())
+				s.Require().Equal(ubdOut.UnbondingDelegation.Entries[0].Balance, big.NewInt(1e18))
 			},
 			100000,
 			false,
@@ -452,9 +452,9 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				var redOut staking.RedelegationOutput
 				err := s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(redOut.Entries, 1)
-				s.Require().Equal(redOut.Entries[0].CreationHeight, s.ctx.BlockHeight())
-				s.Require().Equal(redOut.Entries[0].SharesDst, big.NewInt(1e18))
+				s.Require().Len(redOut.Redelegation.Entries, 1)
+				s.Require().Equal(redOut.Redelegation.Entries[0].CreationHeight, s.ctx.BlockHeight())
+				s.Require().Equal(redOut.Redelegation.Entries[0].SharesDst, big.NewInt(1e18))
 			},
 			100000,
 			false,
@@ -474,7 +474,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 				var redOut staking.RedelegationOutput
 				err := s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Len(redOut.Entries, 0)
+				s.Require().Len(redOut.Redelegation.Entries, 0)
 			},
 			gas: 100000,
 		},
