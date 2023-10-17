@@ -44,11 +44,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (sdk) [#1869](https://github.com/evmos/evmos/pull/1869) Bump Cosmos SDK to v0.47.5.
-- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
+- (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (upgrade) [#1845](https://github.com/evmos/evmos/pull/1845) Include remaining strategic reserve migrations.
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
+- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
+- (sdk) [#1869](https://github.com/evmos/evmos/pull/1869) Bump Cosmos SDK to v0.47.5.
 
 ### Improvements
 

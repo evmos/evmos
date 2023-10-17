@@ -993,10 +993,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
 			err = s.precompile.UnpackIntoInterface(&unbondingDelegationOutput, staking.UnbondingDelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
-			Expect(unbondingDelegationOutput.Entries).To(HaveLen(1), "expected one unbonding delegation entry")
+			Expect(unbondingDelegationOutput.UnbondingDelegation.Entries).To(HaveLen(1), "expected one unbonding delegation entry")
 			// TODO: why are initial balance and balance the same always?
-			Expect(unbondingDelegationOutput.Entries[0].InitialBalance).To(Equal(undelAmount), "expected different initial balance")
-			Expect(unbondingDelegationOutput.Entries[0].Balance).To(Equal(undelAmount), "expected different balance")
+			Expect(unbondingDelegationOutput.UnbondingDelegation.Entries[0].InitialBalance).To(Equal(undelAmount), "expected different initial balance")
+			Expect(unbondingDelegationOutput.UnbondingDelegation.Entries[0].Balance).To(Equal(undelAmount), "expected different balance")
 		})
 
 		It("should return an empty slice if the unbonding delegation is not found", func() {
@@ -1011,7 +1011,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
 			err = s.precompile.UnpackIntoInterface(&unbondingDelegationOutput, staking.UnbondingDelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
-			Expect(unbondingDelegationOutput.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
+			Expect(unbondingDelegationOutput.UnbondingDelegation.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
 		})
 	})
 
@@ -1049,9 +1049,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var redelegationOutput staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redelegationOutput, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redelegationOutput.Entries).To(HaveLen(1), "expected one redelegation entry")
-			Expect(redelegationOutput.Entries[0].InitialBalance).To(Equal(big.NewInt(1e17)), "expected different initial balance")
-			Expect(redelegationOutput.Entries[0].SharesDst).To(Equal(big.NewInt(1e17)), "expected different balance")
+			Expect(redelegationOutput.Redelegation.Entries).To(HaveLen(1), "expected one redelegation entry")
+			Expect(redelegationOutput.Redelegation.Entries[0].InitialBalance).To(Equal(big.NewInt(1e17)), "expected different initial balance")
+			Expect(redelegationOutput.Redelegation.Entries[0].SharesDst).To(Equal(big.NewInt(1e17)), "expected different balance")
 		})
 
 		It("should return an empty output if the redelegation is not found", func() {
@@ -1067,7 +1067,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var redelegationOutput staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redelegationOutput, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redelegationOutput.Entries).To(HaveLen(0), "expected no redelegation entries")
+			Expect(redelegationOutput.Redelegation.Entries).To(HaveLen(0), "expected no redelegation entries")
 		})
 	})
 
@@ -2273,7 +2273,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var redOut staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redOut.Entries).To(HaveLen(0), "expected no redelegation entries")
+			Expect(redOut.Redelegation.Entries).To(HaveLen(0), "expected no redelegation entries")
 		})
 
 		It("which exists should return the redelegation", func() {
@@ -2315,7 +2315,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var redOut staking.RedelegationOutput
 			err = s.precompile.UnpackIntoInterface(&redOut, staking.RedelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the redelegation output: %v", err)
-			Expect(redOut.Entries).To(HaveLen(1), "expected one redelegation entry to be returned")
+			Expect(redOut.Redelegation.Entries).To(HaveLen(1), "expected one redelegation entry to be returned")
 		})
 	})
 
@@ -2420,7 +2420,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var unbondingDelegationOutput staking.UnbondingDelegationOutput
 			err = s.precompile.UnpackIntoInterface(&unbondingDelegationOutput, staking.UnbondingDelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
-			Expect(unbondingDelegationOutput.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
+			Expect(unbondingDelegationOutput.UnbondingDelegation.Entries).To(HaveLen(0), "expected one unbonding delegation entry")
 		})
 
 		It("which exists should return the unbonding delegation", func() {
@@ -2434,8 +2434,8 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var unbondOut staking.UnbondingDelegationOutput
 			err = s.precompile.UnpackIntoInterface(&unbondOut, staking.UnbondingDelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the unbonding delegation output: %v", err)
-			Expect(unbondOut.Entries).To(HaveLen(1), "expected one unbonding delegation entry to be returned")
-			Expect(unbondOut.Entries[0].Balance).To(Equal(big.NewInt(1e18)), "expected different balance")
+			Expect(unbondOut.UnbondingDelegation.Entries).To(HaveLen(1), "expected one unbonding delegation entry to be returned")
+			Expect(unbondOut.UnbondingDelegation.Entries[0].Balance).To(Equal(big.NewInt(1e18)), "expected different balance")
 		})
 	})
 
