@@ -31,6 +31,9 @@ var (
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 	}
+	// DefaultExtraEIPs defines the default extra EIPs to be included
+	// On v15, EIP 3855 was enabled
+	DefaultExtraEIPs = []int64{3855}
 )
 
 // NewParams creates a new Params instance
@@ -64,7 +67,7 @@ func DefaultParams() Params {
 		EnableCreate:        DefaultEnableCreate,
 		EnableCall:          DefaultEnableCall,
 		ChainConfig:         DefaultChainConfig(),
-		ExtraEIPs:           nil,
+		ExtraEIPs:           DefaultExtraEIPs,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 	}
