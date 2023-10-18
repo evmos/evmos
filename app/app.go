@@ -512,7 +512,7 @@ func NewEvmos(
 	govKeeper := govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.AccountKeeper, app.BankKeeper,
 		stakingKeeper, app.MsgServiceRouter(), govConfig, authAddr,
-	)
+	) 
 
 	// Set legacy router for backwards compatibility with gov v1beta1
 	govKeeper.SetLegacyRouter(govRouter)
