@@ -359,29 +359,55 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 
 		It("performs a contract call to the staking precompile", func() {
-			senderPriv := s.keyring.GetPrivKey(0)
+			senderKey := s.keyring.GetKey(1)
 			contractAddress := common.HexToAddress(staking.PrecompileAddress)
+			validatorAddress := s.network.GetValidators()[1].OperatorAddress
 			contractABI, err := staking.LoadABI()
 			Expect(err).To(BeNil())
+
+			// If grpc query fails, that means there were no previous delegations
+			prevDelegation := big.NewInt(0)
+			prevDelegationRes, err := s.grpcHandler.GetDelegation(senderKey.AccAddr.String(), validatorAddress)
+			if err == nil {
+				prevDelegation = prevDelegationRes.DelegationResponse.Balance.Amount.BigInt()
+			}
+
+			amountToDelegate := big.NewInt(200)
 
 			totalSupplyTxArgs := evmtypes.EvmTxArgs{
 				To: &contractAddress,
 			}
 
-			validatorAddress := s.network.GetValidators()[0].OperatorAddress
-			totalSupplyArgs := factory.CallArgs{
+			// Perform a delegate transaction to the staking precompile
+			delegateArgs := factory.CallArgs{
 				ContractABI: contractABI,
-				MethodName:  staking.ValidatorMethod,
-				Args:        []interface{}{validatorAddress},
+				MethodName:  staking.DelegateMethod,
+				Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
 			}
-			totalSupplyRes, err := s.factory.ExecuteContractCall(senderPriv, totalSupplyTxArgs, totalSupplyArgs)
+			delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
 			Expect(err).To(BeNil())
-			Expect(totalSupplyRes.IsOK()).To(Equal(true), "transaction should have succeeded", totalSupplyRes.GetLog())
+			Expect(delegateResponse.IsOK()).To(Equal(true), "transaction should have succeeded", delegateResponse.GetLog())
 
-			var validatorResponse staking.ValidatorOutput
-			err = integrationutils.DecodeContractCallResponse(&validatorResponse, totalSupplyArgs, totalSupplyRes)
+			err = s.network.NextBlock()
 			Expect(err).To(BeNil())
-			Expect(validatorResponse.Validator.OperatorAddress).To(Equal(validatorAddress))
+
+			// Perform query to check the delegation was successful
+			queryDelegationArgs := factory.CallArgs{
+				ContractABI: contractABI,
+				MethodName:  staking.DelegationMethod,
+				Args:        []interface{}{senderKey.Addr, validatorAddress},
+			}
+			queryDelegationResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, queryDelegationArgs)
+			Expect(err).To(BeNil())
+			Expect(queryDelegationResponse.IsOK()).To(Equal(true), "transaction should have succeeded", queryDelegationResponse.GetLog())
+
+			// Make sure the delegation amount is correct
+			var delegationOutput staking.DelegationOutput
+			err = integrationutils.DecodeContractCallResponse(&delegationOutput, queryDelegationArgs, queryDelegationResponse)
+			Expect(err).To(BeNil())
+
+			expectedDelegationAmt := amountToDelegate.Add(amountToDelegate, prevDelegation)
+			Expect(delegationOutput.Balance.Amount.String()).To(Equal(expectedDelegationAmt.String()))
 		})
 	})
 

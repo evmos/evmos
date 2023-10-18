@@ -7,6 +7,8 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/encoding"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -18,7 +20,10 @@ import (
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	interfaceRegistry := encCfg.InterfaceRegistry
-	return baseapp.NewQueryServerTestHelper(ctx, interfaceRegistry)
+	// This is needed so that state changes are not committed in precompiles
+	// simulations.
+	cacheCtx, _ := ctx.CacheContext()
+	return baseapp.NewQueryServerTestHelper(cacheCtx, interfaceRegistry)
 }
 
 func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
@@ -55,4 +60,10 @@ func (n *IntegrationNetwork) GetAuthClient() authtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	authtypes.RegisterQueryServer(queryHelper, n.app.AccountKeeper)
 	return authtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: &n.app.StakingKeeper})
+	return stakingtypes.NewQueryClient(queryHelper)
 }
