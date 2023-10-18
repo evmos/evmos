@@ -85,7 +85,7 @@ func NewTransferAuthorization(method *abi.Method, args []interface{}) (common.Ad
 	return grantee, transferAuthz, nil
 }
 
-// CreateMsgTransfer returns a new transfer message from the given arguments.
+// NewMsgTransfer returns a new transfer message from the given arguments.
 func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgTransfer, common.Address, error) {
 	if len(args) != 9 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 9, len(args))
