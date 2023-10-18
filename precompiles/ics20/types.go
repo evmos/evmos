@@ -143,22 +143,38 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 		Amount: sdk.NewIntFromBigInt(amount),
 	}
 
-	msg := &transfertypes.MsgTransfer{
-		SourcePort:       sourcePort,
-		SourceChannel:    sourceChannel,
-		Token:            token,
-		Sender:           sdk.AccAddress(sender.Bytes()).String(), // convert to bech32 format
-		Receiver:         receiver,
-		TimeoutHeight:    input.TimeoutHeight,
-		TimeoutTimestamp: timeoutTimestamp,
-		Memo:             memo,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
+	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
+	if err != nil {
 		return nil, common.Address{}, err
 	}
 
 	return msg, sender, nil
+}
+
+// CreateAndValidateMsgTransfer creates a new MsgTransfer message and run validate basic.
+func CreateAndValidateMsgTransfer(
+	sourcePort, sourceChannel string,
+	coin sdk.Coin, senderAddress, receiverAddress string,
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	memo string,
+) (*transfertypes.MsgTransfer, error) {
+	msg := transfertypes.NewMsgTransfer(
+		sourcePort,
+		sourceChannel,
+		coin,
+		senderAddress,
+		receiverAddress,
+		timeoutHeight,
+		timeoutTimestamp,
+		memo,
+	)
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	return msg, nil
 }
 
 // NewDenomTraceRequest returns a new denom trace request from the given arguments.
