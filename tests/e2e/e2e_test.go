@@ -29,11 +29,13 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
 		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
 
-		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+5)
+		currentHeight, err = s.upgradeManager.GetNodeHeight(ctx)
+		s.Require().NoError(err)
+
+		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+1)
 		s.Require().NoError(err)
 		s.voteForProposal(idx)
 
-		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+8)
 		s.Require().NoError(err)
 		s.upgrade(version.ImageName, version.ImageTag)
 	}
