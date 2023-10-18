@@ -10,10 +10,6 @@
 , zlib
 , zstd
 , windows
-  # only enable jemalloc for non-windows platforms
-  # see: https://github.com/NixOS/nixpkgs/issues/216479
-, enableJemalloc ? !stdenv.hostPlatform.isWindows && !stdenv.hostPlatform.isStatic
-, jemalloc
 , enableLite ? false
 , enableShared ? !stdenv.hostPlatform.isStatic
 , sse42Support ? stdenv.hostPlatform.sse4_2Support
@@ -34,9 +30,6 @@ stdenv.mkDerivation rec {
 
   propagatedBuildInputs = [ bzip2 lz4 snappy zlib zstd ];
 
-  buildInputs = lib.optional enableJemalloc jemalloc
-    ++ lib.optional stdenv.hostPlatform.isMinGW windows.mingw_w64_pthreads;
-
   outputs = [
     "out"
     "tools"
@@ -55,7 +48,6 @@ stdenv.mkDerivation rec {
 
   cmakeFlags = [
     "-DPORTABLE=1"
-    "-DWITH_JEMALLOC=${if enableJemalloc then "1" else "0"}"
     "-DWITH_JNI=0"
     "-DWITH_BENCHMARK_TOOLS=0"
     "-DWITH_TESTS=1"
@@ -68,7 +60,6 @@ stdenv.mkDerivation rec {
     "-DWITH_ZSTD=1"
     "-DWITH_GFLAGS=0"
     "-DUSE_RTTI=1"
-    "-DROCKSDB_INSTALL_ON_WINDOWS=YES" # harmless elsewhere
     (lib.optional sse42Support "-DFORCE_SSE42=1")
     (lib.optional enableLite "-DROCKSDB_LITE=1")
     "-DFAIL_ON_WARNINGS=${if stdenv.hostPlatform.isMinGW then "NO" else "YES"}"
