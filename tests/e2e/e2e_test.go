@@ -29,7 +29,6 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 
 		err = s.upgradeManager.WaitNBlocks(ctx, 1)
 		s.Require().NoError(err)
-		s.Require().NoError(err)
 		s.voteForProposal(idx)
 
 		s.Require().NoError(err)
