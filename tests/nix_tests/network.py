@@ -109,6 +109,29 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
     yield from setup_custom_evmos(path, base_port, cfg)
 
 
+# for memiavl need to create the data/snapshots dir
+# for the nodes
+def create_snapshots_dir(path, base_port, config):
+    data_snapshots_dir = path / "evmos_9000-1" / "node0" / "data" / "snapshots"
+    os.makedirs(data_snapshots_dir, exist_ok=True)
+    data_snapshots_dir = path / "evmos_9000-1" / "node1" / "data" / "snapshots"
+    os.makedirs(data_snapshots_dir, exist_ok=True)
+
+
+# setup_evmos_rocksdb is evmos chain compiled with rocksdb
+# and configured to use memIAVL + versionBD
+def setup_evmos_rocksdb(path, base_port):
+    config = "configs/memiavl-default.jsonnet"
+    cfg = Path(__file__).parent / config
+    yield from setup_custom_evmos(
+        path,
+        base_port,
+        cfg,
+        chain_binary="evmosd-rocksdb",
+        post_init=create_snapshots_dir,
+    )
+
+
 def setup_geth(path, base_port):
     with (path / "geth.log").open("w") as logfile:
         cmd = [
