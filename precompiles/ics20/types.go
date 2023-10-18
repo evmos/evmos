@@ -153,12 +153,12 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 
 // CreateAndValidateMsgTransfer creates a new MsgTransfer message and run validate basic.
 func CreateAndValidateMsgTransfer(
-	sourcePort, sourceChannel string, 
-	coin sdk.Coin, senderAddress, receiverAddress string, 
-	timeoutHeight clienttypes.Height, 
-	timeoutTimestamp uint64, 
+	sourcePort, sourceChannel string,
+	coin sdk.Coin, senderAddress, receiverAddress string,
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
 	memo string,
-	) (*transfertypes.MsgTransfer, error) {
+) (*transfertypes.MsgTransfer, error) {
 	msg := transfertypes.NewMsgTransfer(
 		sourcePort,
 		sourceChannel,
