@@ -1,0 +1,26 @@
+name: Auto Format
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  format-go-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+          check-latest: true
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.E2E_PAT }}
+      - run: go install mvdan.cc/gofumpt@latest
+      - run: make format
+      # Commit formatted files if necessary
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: run make format
