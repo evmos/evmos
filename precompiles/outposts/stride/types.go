@@ -14,7 +14,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking)

@@ -15,9 +15,9 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
 const (

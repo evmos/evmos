@@ -6,8 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	strideoutpost "github.com/evmos/evmos/v14/precompiles/outposts/stride"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0
@@ -28,15 +26,15 @@ func CreateUpgradeHandler(
 	}
 }
 
-// EnableOutposts appends the address of the Stride and Osmosis Outposts
-// to the list of active precompiles.
-// NOTE: the osmosis outpost address need to be added
-func EnableOutposts(ctx sdk.Context, evmKeeper *evmkeeper.Keeper) error {
-	// Get the list of active precompiles from the genesis state
-	params := evmKeeper.GetParams(ctx)
-	activePrecompiles := params.ActivePrecompiles
-	activePrecompiles = append(activePrecompiles, strideoutpost.Precompile{}.Address().String())
-	params.ActivePrecompiles = activePrecompiles
-
-	return evmKeeper.SetParams(ctx, params)
-}
+//// EnableOutposts appends the address of the Stride and Osmosis Outposts
+//// to the list of active precompiles.
+//// NOTE: the osmosis outpost address need to be added
+//func EnableOutposts(ctx sdk.Context, evmKeeper *evmkeeper.Keeper) error {
+//	// Get the list of active precompiles from the genesis state
+//	params := evmKeeper.GetParams(ctx)
+//	activePrecompiles := params.ActivePrecompiles
+//	activePrecompiles = append(activePrecompiles, strideoutpost.Precompile{}.Address().String())
+//	params.ActivePrecompiles = activePrecompiles
+//
+//	return evmKeeper.SetParams(ctx, params)
+//}

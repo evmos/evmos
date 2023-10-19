@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/evmos/v14/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -17,10 +17,10 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v14/app"
-	evmosibc "github.com/evmos/evmos/v14/ibc/testing"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v15/app"
+	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
