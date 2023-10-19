@@ -91,5 +91,4 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 }
 
 func (s *PrecompileTestSuite) TestRedeem() {
-
 }
