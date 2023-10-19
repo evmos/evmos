@@ -39,16 +39,16 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v14/crypto/hd"
-	"github.com/evmos/evmos/v14/server/config"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
+	"github.com/evmos/evmos/v15/crypto/hd"
+	"github.com/evmos/evmos/v15/server/config"
+	srvflags "github.com/evmos/evmos/v15/server/flags"
 
-	evmostypes "github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
-	cmdcfg "github.com/evmos/evmos/v14/cmd/config"
-	evmoskr "github.com/evmos/evmos/v14/crypto/keyring"
-	"github.com/evmos/evmos/v14/testutil/network"
+	cmdcfg "github.com/evmos/evmos/v15/cmd/config"
+	evmoskr "github.com/evmos/evmos/v15/crypto/keyring"
+	"github.com/evmos/evmos/v15/testutil/network"
 )
 
 var (

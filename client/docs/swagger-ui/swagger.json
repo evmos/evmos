@@ -6,9 +6,6 @@
     "version": "1.0.0"
   },
   "servers": [
-    {
-      "url": "https://rest.bd.evmos.dev:1317/"
-    }
   ],
   "paths": {
     "/evmos/claims/v1/claims_records": {

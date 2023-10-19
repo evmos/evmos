@@ -5,9 +5,9 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v2 "github.com/evmos/evmos/v14/x/inflation/migrations/v2"
-	v3 "github.com/evmos/evmos/v14/x/inflation/migrations/v3"
-	"github.com/evmos/evmos/v14/x/inflation/types"
+	v2 "github.com/evmos/evmos/v15/x/inflation/migrations/v2"
+	v3 "github.com/evmos/evmos/v15/x/inflation/migrations/v3"
+	"github.com/evmos/evmos/v15/x/inflation/types"
 )
 
 // Migrator is a struct for handling in-place store migrations.
