@@ -166,6 +166,16 @@ func (m *Manager) GetLogs(containerID string) (stdOut, stdErr string, err error)
 	return outBuf.String(), errBuf.String(), nil
 }
 
+// WaitNBlocks is a helper function to wait the specified number of blocks
+func (m *Manager) WaitNBlocks(ctx context.Context, n int) error {
+	currentHeight, err := m.GetNodeHeight(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = m.WaitForHeight(ctx, currentHeight+n)
+	return err
+}
+
 // WaitForHeight queries the Evmos node every second until the node will reach the specified height.
 // After 5 minutes this function times out and returns an error
 func (m *Manager) WaitForHeight(ctx context.Context, height int) (string, error) {
