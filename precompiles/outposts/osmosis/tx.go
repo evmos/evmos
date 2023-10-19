@@ -20,7 +20,7 @@ const (
 // Constants used during memo creation
 const (
 	slippage_percentage = "5"
-	window_seconds = 10
+	window_seconds      = 10
 )
 
 // Swap swaps the given base denom for the given target denom on Osmosis and returns
@@ -112,4 +112,3 @@ func (p Precompile) Swap(
 
 	return method.Outputs.Pack(res.Sequence, true)
 }
-

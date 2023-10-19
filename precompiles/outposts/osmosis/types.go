@@ -17,7 +17,7 @@ import (
 
 type Twap struct {
 	SlippagePercentage string `json:"slippage_percentage"`
-	WindowSeconds      int64 `json:"window_seconds"`
+	WindowSeconds      int64  `json:"window_seconds"`
 }
 
 type Slippage struct {
@@ -54,8 +54,8 @@ func CreateMemo(outputDenom, receiver, contract, slippage_percentage string, win
 					OutputDenom: outputDenom,
 					Slippage: Slippage{
 						Twap{
-							SlippagePercentage: slippage_percentage, 
-							WindowSeconds:      window_seconds, 
+							SlippagePercentage: slippage_percentage,
+							WindowSeconds:      window_seconds,
 						},
 					},
 					Receiver:         receiver,
@@ -140,14 +140,14 @@ func ValidateSwap(
 
 // NewMsgTransfer creates a new MsgTransfer
 func NewMsgTransfer(
-	sourcePort, 
-	sourceChannel, 
-	sender, 
-	receiver, 
-	memo string, 
+	sourcePort,
+	sourceChannel,
+	sender,
+	receiver,
+	memo string,
 	coin sdk.Coin,
 	timeoutHeight clienttypes.Height,
-	) (*transfertypes.MsgTransfer, error) {
+) (*transfertypes.MsgTransfer, error) {
 	msg := transfertypes.NewMsgTransfer(
 		sourcePort,
 		sourceChannel,

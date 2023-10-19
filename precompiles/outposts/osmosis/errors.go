@@ -15,4 +15,3 @@ var (
 	// input token for the swap.
 	ErrInputTokenNotSupported = "input not supported, supported tokens: %v"
 )
-
