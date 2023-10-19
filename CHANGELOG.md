@@ -38,7 +38,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## Unreleased
 
 ### API Breaking
-- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event
+
+- (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
+- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
 
 ### State Machine Breaking
 
@@ -47,6 +49,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
+- (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
 
 ### Improvements
 
@@ -56,7 +59,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
 - (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
+- (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
+- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
 
 ### Bug Fixes
 
@@ -64,6 +69,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
 - (testnet) [#1857](https://github.com/evmos/evmos/pull/1857) Remove the crisis module causing an error when using the `evmosd testnet init-files` command.
+- (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 
 ## [v14.0.0] - 2023-09-19
 

@@ -9,6 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 )
 
 const (
@@ -64,6 +65,7 @@ func (p Precompile) CreateClawbackVestingAccount(
 // FundVestingAccount funds a vesting account by creating vesting schedules
 func (p Precompile) FundVestingAccount(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -74,8 +76,8 @@ func (p Precompile) FundVestingAccount(
 		return nil, err
 	}
 
-	// Check if the origin matches the funders address
-	if origin != funderAddr {
+	// if caller address is origin, the funder MUST match the origin
+	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFromOrigin, origin, funderAddr)
 	}
 
@@ -87,6 +89,14 @@ func (p Precompile) FundVestingAccount(
 			msg.FunderAddress, msg.VestingAddress, msg.StartTime, msg.LockupPeriods, msg.VestingPeriods,
 		),
 	)
+
+	if contract.CallerAddress != origin {
+		// check if authorization exists
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, FundVestingAccountMsgURL)
+		if err != nil {
+			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+		}
+	}
 
 	_, err = p.vestingKeeper.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
@@ -103,6 +113,7 @@ func (p Precompile) FundVestingAccount(
 // Clawback clawbacks tokens from a clawback vesting account
 func (p Precompile) Clawback(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -113,8 +124,8 @@ func (p Precompile) Clawback(
 		return nil, err
 	}
 
-	// Check if the funder matches the origin
-	if origin != funderAddr {
+	// if caller address is origin, the funder MUST match the origin
+	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
 
@@ -126,6 +137,14 @@ func (p Precompile) Clawback(
 			msg.FunderAddress, msg.AccountAddress, msg.DestAddress,
 		),
 	)
+
+	if contract.CallerAddress != origin {
+		// check if authorization exists
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, ClawbackMsgURL)
+		if err != nil {
+			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+		}
+	}
 
 	response, err := p.vestingKeeper.Clawback(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
@@ -144,6 +163,7 @@ func (p Precompile) Clawback(
 // UpdateVestingFunder updates the vesting funder of a clawback vesting account
 func (p Precompile) UpdateVestingFunder(
 	ctx sdk.Context,
+	contract *vm.Contract,
 	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -154,8 +174,8 @@ func (p Precompile) UpdateVestingFunder(
 		return nil, err
 	}
 
-	// Check if the origin matches the funder address
-	if origin != funderAddr {
+	// if caller address is origin, the funder MUST match the origin
+	if contract.CallerAddress == origin && origin != funderAddr {
 		return nil, fmt.Errorf(ErrDifferentFunderOrigin, origin, funderAddr)
 	}
 
@@ -167,6 +187,14 @@ func (p Precompile) UpdateVestingFunder(
 			msg.FunderAddress, msg.NewFunderAddress, msg.VestingAddress,
 		),
 	)
+
+	if contract.CallerAddress != origin {
+		// check if authorization exists
+		_, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, contract.CallerAddress, origin, UpdateVestingFunderMsgURL)
+		if err != nil {
+			return nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+		}
+	}
 
 	_, err = p.vestingKeeper.UpdateVestingFunder(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {

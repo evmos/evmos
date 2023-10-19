@@ -1,10 +1,10 @@
-package v142_test
+package v15_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v142 "github.com/evmos/evmos/v14/app/upgrades/v14_2"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
+	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 func (s *UpgradesTestSuite) TestEnableEIPs() {
@@ -65,7 +65,7 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 				tc.malleate(s.ctx, s.app.EvmKeeper)
 			}
 
-			err := v142.EnableEIPs(s.ctx, s.app.EvmKeeper, tc.extraEIPs...)
+			err := v15.EnableEIPs(s.ctx, s.app.EvmKeeper, tc.extraEIPs...)
 
 			if tc.expPass {
 				s.Require().NoError(err, "expected no error enabling EIPs")

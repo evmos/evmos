@@ -1,6 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package v142_test
+package v15_test
 
 import (
 	"encoding/json"
@@ -19,16 +19,16 @@ import (
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v14/app"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/vesting"
-	evmosutil "github.com/evmos/evmos/v14/testutil"
-	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/utils"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
+	evmosapp "github.com/evmos/evmos/v15/app"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v15/testutil"
+	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -123,6 +123,13 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 
 	// create Context
 	s.ctx = app.BaseApp.NewContext(false, header)
+
+	// set empty extraEIPs in default params
+	// that's the expected initial state
+	evmParams := app.EvmKeeper.GetParams(s.ctx)
+	evmParams.ExtraEIPs = nil
+	err = app.EvmKeeper.SetParams(s.ctx, evmParams)
+	s.Require().NoError(err)
 
 	// commit genesis changes
 	app.Commit()

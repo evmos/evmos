@@ -12,13 +12,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	utiltx "github.com/evmos/evmos/v14/testutil/tx"
-	"github.com/evmos/evmos/v14/utils"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/utils"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/x/recovery"
-	"github.com/evmos/evmos/v14/x/recovery/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/x/recovery"
+	"github.com/evmos/evmos/v15/x/recovery/types"
 )
 
 type GenesisTestSuite struct {

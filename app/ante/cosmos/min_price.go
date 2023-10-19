@@ -8,7 +8,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmante "github.com/evmos/evmos/v14/app/ante/evm"
+	evmante "github.com/evmos/evmos/v15/app/ante/evm"
 )
 
 // MinGasPriceDecorator will check if the transaction's fee is at least as large
