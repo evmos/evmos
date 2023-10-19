@@ -4,6 +4,7 @@
 package common
 
 import (
+	"fmt"
 	"math/big"
 	"strings"
 	"time"
@@ -110,4 +111,23 @@ func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 func SafeAdd(a, b sdkmath.Int) (res *big.Int, overflow bool) {
 	res = a.BigInt().Add(a.BigInt(), b.BigInt())
 	return res, res.BitLen() > sdkmath.MaxBitLen
+}
+
+// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
+func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddress, err error) {
+	if len(strings.TrimSpace(address)) == 0 {
+		return sdk.AccAddress{}, fmt.Errorf("empty address string is not allowed")
+	}
+
+	bz, err := sdk.GetFromBech32(address, bech32prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	err = sdk.VerifyAddressFormat(bz)
+	if err != nil {
+		return nil, err
+	}
+
+	return sdk.AccAddress(bz), nil
 }

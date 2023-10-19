@@ -6,18 +6,20 @@ package stride
 import (
 	"encoding/json"
 	"fmt"
-	"math/big"
-	"strings"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"math/big"
+)
+
+const (
+	// StrideBech32Prefix is the Bech32 prefix for Stride addresses
+	StrideBech32Prefix = "stride"
 )
 
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking)
 type StakeIBCPacketMetadata struct {
-	Action        string `json:"action"`
+	Action        string
 	StrideAddress string
 }
 
@@ -62,36 +64,17 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 	}
 
 	// Check if the receiver address has stride before
-	if receiver[:6] != "stride" {
+	if receiver[:6] != StrideBech32Prefix {
 		return common.Address{}, common.Address{}, nil, "", fmt.Errorf("receiver is not a stride address")
 	}
 
 	// Check if account is a valid bech32 address
-	_, err := AccAddressFromBech32(receiver, "stride")
+	_, err := cmn.AccAddressFromBech32(receiver, StrideBech32Prefix)
 	if err != nil {
 		return common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
 	}
 
 	return sender, token, amount, receiver, nil
-}
-
-// AccAddressFromBech32 creates an AccAddress from a Bech32 string.
-func AccAddressFromBech32(address string, bech32prefix string) (addr sdk.AccAddress, err error) {
-	if len(strings.TrimSpace(address)) == 0 {
-		return sdk.AccAddress{}, fmt.Errorf("empty address string is not allowed")
-	}
-
-	bz, err := sdk.GetFromBech32(address, bech32prefix)
-	if err != nil {
-		return nil, err
-	}
-
-	err = sdk.VerifyAddressFormat(bz)
-	if err != nil {
-		return nil, err
-	}
-
-	return sdk.AccAddress(bz), nil
 }
 
 // CreateMemo creates the memo for the StakeIBC actions - LiquidStake and Redeem.
