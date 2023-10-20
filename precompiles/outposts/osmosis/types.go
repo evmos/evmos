@@ -7,18 +7,27 @@ import (
 	"math/big"
 	"slices"
 
+	"github.com/cosmos/btcutil/bech32"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v14/ibc"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+)
+
+const (
+	/// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
+	/// definition of the slippage for the swap.
+	MaxSlippagePercentage uint8  = 20
+	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
+	/// definition of the slippage for the swap.
+	MaxWindowSeconds      uint64 = 60
 )
 
 // Twap represents a Time-Weighted Average Price configuration.
 type Twap struct {
 	// SlippagePercentage specifies the acceptable slippage percentage for a transaction.
-	SlippagePercentage string `json:"slippage_percentage"`
+	SlippagePercentage uint8 `json:"slippage_percentage"`
 	// WindowSeconds defines the duration for which the TWAP is calculated.
 	WindowSeconds uint64 `json:"window_seconds"`
 }
@@ -64,15 +73,16 @@ type Memo struct {
 
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string
 type RawPacketMetadata struct {
-	// The Osmosis outpost IBC memo. 
+	// The Osmosis outpost IBC memo.
 	Memo Memo `json:"memo"`
 }
 
 // CreateMemo creates the IBC memo for the Osmosis outpost that can be parsed by the ibc hook
 // middleware on the Osmosis chain.
 func CreateMemo(
-	outputDenom, receiver, contract, slippagePercentage string, 
-	windowSeconds uint64, 
+	outputDenom, receiver, contract string,
+	slippagePercentage uint8,
+	windowSeconds uint64,
 	onFailedDelivery string,
 ) (string, error) {
 
@@ -109,53 +119,59 @@ func CreateMemo(
 
 // parseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
-	sender, input, output common.Address, 
+	sender, input, output common.Address,
 	amount *big.Int,
-	slippagePercentage string,
+	slippagePercentage uint8,
 	windowSeconds uint64,
 	receiver string,
 	err error,
 ) {
 	if len(args) != 7 {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType,"sender", common.Address{}, args[0])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
 
 	input, ok = args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType,"sender", common.Address{}, args[1])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[1])
 	}
 
 	output, ok = args[2].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType, "output", common.Address{}, args[2])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "output", common.Address{}, args[2])
 	}
 
 	amount, ok = args[3].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType,"amount", big.Int{}, args[3])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
 	}
 
-	slippagePercentage, ok = args[4].(string)
+	slippagePercentage, ok = args[4].(uint8)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType, "slippagePercentage", "", args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "slippagePercentage", uint8(0), args[4])
 	}
 
 	windowSeconds, ok = args[5].(uint64)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[4])
 	}
 
 	receiver, ok = args[6].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, "", 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[4])
 	}
 
-	return sender, input, output, amount, slippagePercentage,  windowSeconds, receiver, nil
+	// Check if account is a valid bech32 address
+	_, _, err = bech32.Decode(receiver, 1023)
+	if err != nil {
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", sdkerrors.ErrInvalidAddress.Wrapf("not a bech32 address %s", err)
+	}
+
+	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
 }
 
 // validateSwap performs validation on input and output denom.
@@ -172,9 +188,10 @@ func ValidateSwap(
 		return fmt.Errorf("input and output token cannot be the same: %s", input)
 	}
 
-	// We have to compute the ibc voucher string for the osmo coin
-	osmoIBCDenom := ibc.ComputeIBCDenom(portID, channelID, "uosmo")
-	// We need to get evmDenom from Params to have the code valid also in testnet
+	osmoIBCDenom := transfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: "osmo",
+	}.IBCDenom()
 
 	// Check that the input token is evmos or osmo. This constraint will be removed in future
 	validInput := []string{stakingDenom, osmoIBCDenom}

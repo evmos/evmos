@@ -8,6 +8,7 @@ const (
 )
 
 var (
+	ErrSlippagePercentage = "slippage percentage must be a string containing an uint64 type"
 	// ErrTokenPairNotFound is raised when a token pair for a certain address
 	// is not found and it is required by the executing function.
 	ErrTokenPairNotFound = "token pair for address %s not found"
