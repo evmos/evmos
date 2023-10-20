@@ -3,10 +3,6 @@
 
 package osmosis
 
-const (
-	OutpostName = "osmosis-outpost"
-)
-
 var (
 	// ErrTokenPairNotFound is raised when input and output tokens are the same.
 	ErrInputEqualOutput = "input and output token cannot be the same"

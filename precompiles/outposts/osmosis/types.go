@@ -8,10 +8,9 @@ import (
 	"slices"
 
 	"github.com/cosmos/btcutil/bech32"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 const (
@@ -83,9 +82,9 @@ func CreateMemo(
 	slippagePercentage uint8,
 	windowSeconds uint64,
 	onFailedDelivery string,
-) (string, error) {
-	data := &RawPacketMetadata{
-		Memo{
+) *Memo {
+
+	return &Memo{
 			Contract: contract,
 			Msg: Msg{
 				OsmosisSwap: &OsmosisSwap{
@@ -101,29 +100,30 @@ func CreateMemo(
 					// NextMemo:         "",
 				},
 			},
-		},
-	}
+		}
+}
 
+func (r Memo) ConvertToJSON() (string, error) {
 	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(data, "", "  ")
+	jsonBytes, err := json.MarshalIndent(r, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to marshal JSON: %v", err)
 	}
 
 	// Print the JSON string
 	fmt.Println(string(jsonBytes))
-	return string(jsonBytes), nil
+	return string(jsonBytes), nil	
 }
 
 // validateSwap performs validation on the fields used to construct the memo.
-func(r RawPacketMetadata) validateSwap(
+func (m Memo) ValidateSwap(
 	portID,
 	channelID,
 	stakingDenom,
 	input string,
 ) (err error) {
 	// input and output cannot be equal
-	if r.Memo.Msg.OsmosisSwap.OutputDenom == input {
+	if m.Msg.OsmosisSwap.OutputDenom == input {
 		return fmt.Errorf(ErrInputEqualOutput, input)
 	}
 
@@ -138,11 +138,11 @@ func(r RawPacketMetadata) validateSwap(
 		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
 	}
 
-	if r.Memo.Msg.OsmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
+	if m.Msg.OsmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
 		return fmt.Errorf(ErrMaxSlippagePercentage, MaxSlippagePercentage)
 	}
 
-	if uint8(r.Memo.Msg.OsmosisSwap.Slippage.Twap.WindowSeconds) > uint8(MaxWindowSeconds) {
+	if uint8(m.Msg.OsmosisSwap.Slippage.Twap.WindowSeconds) > uint8(MaxWindowSeconds) {
 		return fmt.Errorf(ErrMaxWindowSeconds, MaxWindowSeconds)
 	}
 
@@ -159,7 +159,7 @@ func ParseSwapPacketData(args []interface{}) (
 	err error,
 ) {
 	if len(args) != 7 {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
@@ -200,7 +200,7 @@ func ParseSwapPacketData(args []interface{}) (
 	// Check if account is a valid bech32 address
 	_, _, err = bech32.Decode(receiver, 1023)
 	if err != nil {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", sdkerrors.ErrInvalidAddress.Wrapf("not a bech32 address %s", err)
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", err
 	}
 
 	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
