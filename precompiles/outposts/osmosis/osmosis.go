@@ -136,7 +136,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
-	// Stride Outpost Methods:
+	// Osmosis Outpost Methods:
 	case SwapMethod:
 		bz, err = p.Swap(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
