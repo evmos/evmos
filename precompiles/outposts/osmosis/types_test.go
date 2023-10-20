@@ -79,7 +79,7 @@ func TestValidateSwap(t *testing.T) {
 			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
-			input: osmoVoucher,
+			input:   osmoVoucher,
 			expPass: true,
 		},
 		{
@@ -96,7 +96,7 @@ func TestValidateSwap(t *testing.T) {
 				memo.Msg.OsmosisSwap.OutputDenom = osmoVoucher
 				return memo
 			},
-			input: osmoVoucher,
+			input:       osmoVoucher,
 			expPass:     false,
 			errContains: osmosisoutpost.ErrInputEqualOutput,
 		},
