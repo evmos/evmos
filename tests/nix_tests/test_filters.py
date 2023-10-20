@@ -30,8 +30,11 @@ def evmos_indexer(tmp_path_factory):
     )
 
 
-@pytest.fixture(scope="module", params=["evmos", "geth", "evmos-ws", "enable-indexer"])
-def cluster(request, custom_evmos, evmos_indexer, geth):
+@pytest.fixture(
+    scope="module",
+    params=["evmos", "geth", "evmos-ws", "enable-indexer", "evmos-rocksdb"],
+)
+def cluster(request, custom_evmos, evmos_indexer, evmos_rocksdb, geth):
     """
     run on both evmos and geth
     """
@@ -46,6 +49,8 @@ def cluster(request, custom_evmos, evmos_indexer, geth):
         yield evmos_ws
     elif provider == "enable-indexer":
         yield evmos_indexer
+    elif provider == "evmos-rocksdb":
+        yield evmos_rocksdb
     else:
         raise NotImplementedError
 
