@@ -63,7 +63,7 @@ func TestValidateSwap(t *testing.T) {
 	channelID := osmosisoutpost.OsmosisChannelIDMainnet
 	osmoVoucher := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: "osmo",
+		BaseDenom: osmosisoutpost.OsmosisDenom,
 	}.IBCDenom()
 	stakingDenom := "aevmos"
 
@@ -79,10 +79,7 @@ func TestValidateSwap(t *testing.T) {
 			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
-			input: transfertypes.DenomTrace{
-				Path:      fmt.Sprintf("%s/%s", portID, channelID),
-				BaseDenom: "osmo",
-			}.IBCDenom(),
+			input: osmoVoucher,
 			expPass: true,
 		},
 		{
@@ -90,7 +87,7 @@ func TestValidateSwap(t *testing.T) {
 			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
-			input:   "aevmos",
+			input:   stakingDenom,
 			expPass: true,
 		},
 		{
@@ -99,10 +96,7 @@ func TestValidateSwap(t *testing.T) {
 				memo.Msg.OsmosisSwap.OutputDenom = osmoVoucher
 				return memo
 			},
-			input: transfertypes.DenomTrace{
-				Path:      fmt.Sprintf("%s/%s", portID, channelID),
-				BaseDenom: "osmo",
-			}.IBCDenom(),
+			input: osmoVoucher,
 			expPass:     false,
 			errContains: osmosisoutpost.ErrInputEqualOutput,
 		},

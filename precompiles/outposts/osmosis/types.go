@@ -20,6 +20,8 @@ const (
 	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
 	/// definition of the slippage for the swap.
 	MaxWindowSeconds uint64 = 60
+	// OsmosisDenom is the base denom in the Osmosis chain.
+	OsmosisDenom = "uosmo"
 )
 
 // Twap represents a Time-Weighted Average Price configuration.
@@ -128,7 +130,7 @@ func (m Memo) ValidateSwap(
 
 	osmoIBCDenom := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: "osmo",
+		BaseDenom: OsmosisDenom,
 	}.IBCDenom()
 
 	// Check that the input token is evmos or osmo. This constraint will be removed in future
