@@ -25,8 +25,7 @@ const (
 func (p Precompile) EmitLiquidStakeEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
-	sender,
-	token common.Address,
+	sender, token common.Address,
 	amount *big.Int,
 ) error {
 	// Prepare the event topics
@@ -37,7 +36,7 @@ func (p Precompile) EmitLiquidStakeEvent(
 	topics[0] = event.ID
 
 	var err error
-	// sender and receiver are indexed
+	// sender and token are indexed
 	topics[1], err = cmn.MakeTopic(sender)
 	if err != nil {
 		return err

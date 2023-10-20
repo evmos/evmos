@@ -11,6 +11,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/utils"
 )
 
 const (
@@ -18,7 +19,8 @@ const (
 	StrideBech32Prefix = "stride"
 )
 
-// StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking)
+// StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking).
+// Used to create the memo field for the ICS20 transfer corresponding to Autopilot LiquidStake.
 type StakeIBCPacketMetadata struct {
 	Action        string
 	StrideAddress string
@@ -70,7 +72,7 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 	}
 
 	// Check if account is a valid bech32 address
-	_, err := cmn.AccAddressFromBech32(receiver, StrideBech32Prefix)
+	_, err := utils.CreateAccAddressFromBech32(receiver, StrideBech32Prefix)
 	if err != nil {
 		return common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
 	}
