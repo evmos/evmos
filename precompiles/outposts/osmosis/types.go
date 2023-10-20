@@ -20,7 +20,7 @@ type Twap struct {
 	// SlippagePercentage specifies the acceptable slippage percentage for a transaction.
 	SlippagePercentage string `json:"slippage_percentage"`
 	// WindowSeconds defines the duration for which the TWAP is calculated.
-	WindowSeconds int64 `json:"window_seconds"`
+	WindowSeconds uint64 `json:"window_seconds"`
 }
 
 // Slippage specify how to compute the slippage of the swap. For this version of the outpost
@@ -72,7 +72,7 @@ type RawPacketMetadata struct {
 // middleware on the Osmosis chain.
 func CreateMemo(
 	outputDenom, receiver, contract, slippagePercentage string, 
-	windowSeconds int64, 
+	windowSeconds uint64, 
 	onFailedDelivery string,
 ) (string, error) {
 
@@ -183,30 +183,4 @@ func ValidateSwap(
 	}
 
 	return nil
-}
-
-// NewMsgTransfer creates a new MsgTransfer
-func NewMsgTransfer(
-	sourcePort,
-	sourceChannel,
-	sender,
-	receiver,
-	memo string,
-	coin sdk.Coin,
-	timeoutHeight clienttypes.Height,
-) (*transfertypes.MsgTransfer, error) {
-	msg := transfertypes.NewMsgTransfer(
-		sourcePort,
-		sourceChannel,
-		coin,
-		sender,
-		receiver,
-		timeoutHeight,
-		0,
-		memo,
-	)
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, err
-	}
-	return msg, nil
 }
