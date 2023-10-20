@@ -98,3 +98,8 @@ func NewPrecompile(
 		erc20Keeper:        erc20Keeper,
 	}, nil
 }
+
+// Address defines the address of the Osmosis outpost precompile contract.
+func (Precompile) Address() common.Address {
+	return common.HexToAddress(OsmosisChannelIDTestnet)
+}
