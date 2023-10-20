@@ -17,7 +17,7 @@ const (
 	SwapAction = "Swap"
 )
 
-// Swap is a transaction that swap tokens on the Osmosis chain using 
+// Swap is a transaction that swap tokens on the Osmosis chain using
 // an ICS20 transfer with a custom memo field to trigger the XCS V2 contract.
 func (p Precompile) Swap(
 	_ sdk.Context,
