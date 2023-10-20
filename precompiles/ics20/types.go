@@ -24,6 +24,12 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+const (
+	// TimeoutHeight is the default value used in the IBC timeout height for
+	// the client.
+	DefaultTimeoutHeight = 100
+)
+
 // EventIBCTransfer is the event type emitted when a transfer is executed.
 type EventIBCTransfer struct {
 	Sender        common.Address
