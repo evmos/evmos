@@ -8,16 +8,13 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v14/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
@@ -31,12 +28,6 @@ const (
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress   = "0x0000000000000000000000000000000000000901"
-)
-
-const (
-	// TimeoutHeight is the default value used in the IBC timeout height for
-	// the client.
-	DefaultTimeoutHeight = 100
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -91,7 +82,7 @@ func NewPrecompile(
 		},
 		portID:             portID,
 		channelID:          channelID,
-		timeoutHeight:      clienttypes.NewHeight(DefaultTimeoutHeight, DefaultTimeoutHeight),
+		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, DefaultTimeoutHeight),
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
@@ -102,4 +93,65 @@ func NewPrecompile(
 // Address defines the address of the Osmosis outpost precompile contract.
 func (Precompile) Address() common.Address {
 	return common.HexToAddress(OsmosisChannelIDTestnet)
+}
+
+// IsStateful returns true since the precompile contract has access to the
+// chain state.
+func (Precompile) IsStateful() bool {
+	return true
+}
+
+// RequiredGas calculates the precompiled contract's base gas rate.
+func (p Precompile) RequiredGas(input []byte) uint64 {
+	methodID := input[:4]
+
+	method, err := p.MethodById(methodID)
+	if err != nil {
+		// This should never happen since this method is going to fail during Run
+		return 0
+	}
+
+	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
+}
+
+// IsTransaction checks if the given method name corresponds to a transaction or query.
+func (Precompile) IsTransaction(method string) bool {
+	switch method {
+	case SwapMethod:
+		return true
+	default:
+		return false
+	}
+}
+
+// Run executes the precompiled contract IBC transfer methods defined in the ABI.
+func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
+	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	if err != nil {
+		return nil, err
+	}
+
+	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
+	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
+	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
+
+	switch method.Name {
+	// Stride Outpost Methods:
+	case SwapMethod:
+		bz, err = p.Swap(ctx, evm.Origin, stateDB, contract, method, args)
+	default:
+		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	cost := ctx.GasMeter().GasConsumed() - initialGas
+
+	if !contract.UseGas(cost) {
+		return nil, vm.ErrOutOfGas
+	}
+
+	return bz, nil
 }
