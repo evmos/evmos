@@ -14,10 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 )
 
 const (
@@ -27,23 +27,24 @@ const (
 	OsmosisChannelIDTestnet = "channel-0"
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
-	OsmosisOutpostAddress   = "0x0000000000000000000000000000000000000901"
+	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
+//
 //go:embed abi.json
 var f embed.FS
 
-/// Precompile is the structure that define the Osmosis outpost precompiles extending 
-/// the common Precompile type.
+// / Precompile is the structure that define the Osmosis outpost precompiles extending
+// / the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
-	// IBC 
-	portID             string
-	channelID          string
-	timeoutHeight      clienttypes.Height
+	// IBC
+	portID        string
+	channelID     string
+	timeoutHeight clienttypes.Height
 
 	// Osmosis
 	osmosisXCSContract string

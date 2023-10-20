@@ -18,10 +18,10 @@ import (
 const (
 	/// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
 	/// definition of the slippage for the swap.
-	MaxSlippagePercentage uint8  = 20
+	MaxSlippagePercentage uint8 = 20
 	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
 	/// definition of the slippage for the swap.
-	MaxWindowSeconds      uint64 = 60
+	MaxWindowSeconds uint64 = 60
 )
 
 // Twap represents a Time-Weighted Average Price configuration.
@@ -85,7 +85,6 @@ func CreateMemo(
 	windowSeconds uint64,
 	onFailedDelivery string,
 ) (string, error) {
-
 	data := &RawPacketMetadata{
 		Memo{
 			Contract: contract,
