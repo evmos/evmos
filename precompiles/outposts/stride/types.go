@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v15/utils"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/utils"
 )
 
 const (
