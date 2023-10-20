@@ -6,14 +6,15 @@ from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_netwo
 from .utils import ADDRS, get_precompile_contract, wait_for_fn
 
 
-@pytest.fixture(scope="module")
-def ibc(tmp_path_factory):
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def ibc(request, tmp_path_factory):
     """
     Prepares the network.
     """
     name = "ibc-precompile"
+    evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, ["chainmain"])
+    network = prepare_network(path, name, [evmos_build, "chainmain"])
     yield from network
 
 

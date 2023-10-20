@@ -40,7 +40,9 @@ def evmos_rpc_ws(request, evmos):
 @pytest.fixture(scope="module", params=["evmos", "evmos-ws", "evmos-rocksdb", "geth"])
 def cluster(request, evmos, evmos_rocksdb, geth):
     """
-    run on evmos, evmos websocket and geth
+    run on evmos, evmos websocket,
+    evmos built with rocksdb (memIAVL + versionDB)
+    and geth
     """
     provider = request.param
     if provider == "evmos":

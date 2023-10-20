@@ -10,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import supervisorctl, wait_for_port
+from .utils import supervisorctl, wait_for_port, memiavl_config
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -120,8 +120,10 @@ def create_snapshots_dir(path, base_port, config):
 
 # setup_evmos_rocksdb is evmos chain compiled with rocksdb
 # and configured to use memIAVL + versionBD
-def setup_evmos_rocksdb(path, base_port):
-    config = "configs/memiavl-default.jsonnet"
+def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
+    config = memiavl_config(path, "default")
+    if long_timeout_commit is True:
+        config = memiavl_config(path, "long_timeout_commit")
     cfg = Path(__file__).parent / config
     yield from setup_custom_evmos(
         path,
@@ -176,8 +178,6 @@ def setup_custom_evmos(
         str(base_port),
         "--no_remove",
     ]
-    if chain_binary is not None:
-        cmd = cmd[:1] + ["--cmd", chain_binary] + cmd[1:]
     print(*cmd)
     subprocess.run(cmd, check=True)
     if post_init is not None:

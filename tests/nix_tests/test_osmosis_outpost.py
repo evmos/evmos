@@ -4,18 +4,19 @@ from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_netwo
 from .utils import ADDRS, get_precompile_contract, wait_for_fn
 
 
-@pytest.fixture(scope="module")
-def ibc(tmp_path_factory):
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def ibc(request, tmp_path_factory):
     """
     Prepares the network.
     """
     name = "osmosis-outpost"
+    evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections
     # evmos     (channel-0) <> (channel-0)  gaia
     # evmos     (channel-1) <> (channel-0)  osmosis
     # osmosis   (channel-1) <> (channel-1)  gaia
-    network = prepare_network(path, name, ["gaia", "osmosis"])
+    network = prepare_network(path, name, [evmos_build, "gaia", "osmosis"])
     yield from network
 
 
