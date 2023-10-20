@@ -7,7 +7,9 @@ import "../../common/Types.sol";
 address constant STRIDE_OUTPOST_ADDRESS = 0x0000000000000000000000000000000000000900;
 
 /// @dev The Stride Outpost contract's instance.
-IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(STRIDE_OUTPOST_ADDRESS);
+IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(
+    STRIDE_OUTPOST_ADDRESS
+);
 
 /// @author Evmos Team
 /// @title StrideOutpost Precompiled Contract

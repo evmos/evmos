@@ -37,6 +37,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Improvements
+
+- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABI.
+- (stride-outpost) [#1913](https://github.com/evmos/evmos/pull/1913) Add Run function, Precompile struct and tx definitions.
+- (stride-outpost) [#1914](https://github.com/evmos/evmos/pull/1914) Add types, events and common util function.
+- (osmosis-outpost) [#1915](https://github.com/evmos/evmos/pull/1915) Add Osmosis Outpost interface and ABI.
+- (ics20) [#1916](https://github.com/evmos/evmos/pull/1916) Make ICS20 Transfer event a common function.
+
 ### API Breaking
 
 - (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
