@@ -18,17 +18,17 @@ const (
 )
 
 // EmitIBCTransferEvent creates a new IBC transfer event emitted on a Transfer transaction.
-func (p Precompile) EmitIBCTransferEvent(
+func EmitIBCTransferEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
-	senderAddr common.Address,
+	event abi.Event,
+	precompileAddr, senderAddr common.Address,
 	receiver string,
 	sourcePort, sourceChannel string,
 	token sdk.Coin,
 	memo string,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeIBCTransfer]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -53,7 +53,7 @@ func (p Precompile) EmitIBCTransferEvent(
 	}
 
 	stateDB.AddLog(&ethtypes.Log{
-		Address:     p.Address(),
+		Address:     precompileAddr,
 		Topics:      topics,
 		Data:        packed,
 		BlockNumber: uint64(ctx.BlockHeight()),
