@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/ics20"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
@@ -82,7 +82,7 @@ func NewPrecompile(
 		},
 		portID:             portID,
 		channelID:          channelID,
-		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, DefaultTimeoutHeight),
+		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
