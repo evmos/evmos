@@ -62,6 +62,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
 - (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
+- (ics20) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
 
 ### Bug Fixes
 
