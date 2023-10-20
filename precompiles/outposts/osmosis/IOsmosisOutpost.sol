@@ -9,9 +9,9 @@ IOsmosisOutpost constant OSMOSIS_OUTPOST_CONTRACT = IOsmosisOutpost(OSMOSIS_OUTP
 
 
 /// @dev The default value used for the slippage_percentage in the swap
-string constant DEFAULT_TWAP_SLIPPAGE_PERCENTAGE = "20";
+string constant DEFAULT_TWAP_SLIPPAGE_PERCENTAGE = "5";
 /// @dev the default value used for window_seconds in the swap
-uint64 constant DEFAULT_TWAP_WINDOW_SECONDS = 60;
+uint64 constant DEFAULT_TWAP_WINDOW_SECONDS = 10;
 
 /// @author Evmos Core Team
 /// @dev Interface for directly interacting with Osmosis Outpost
@@ -56,10 +56,8 @@ interface IOsmosisOutpost {
     /// @param amount The amount of input tokens to be swapped
 	/// @param receiver The bech32-formatted address of the receiver of the newly swapped 
     /// tokens. It can be any chain connected to Osmosis e.g. evmos1..., cosmos1..., etc.
-	/// @param slippage_percentage The percentage of slippage accepted for
-	/// the swap.
-	/// @param window_seconds The amount of seconds considered to compute
-	/// TWAP price
+	/// @param slippage_percentage The percentage of slippage accepted for the swap.
+	/// @param window_seconds The amount of seconds considered to compute TWAP price
     /// @return success The boolean value indicating whether the operation succeeded
     function swap(
         address sender,
