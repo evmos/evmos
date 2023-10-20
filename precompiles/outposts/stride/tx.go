@@ -106,12 +106,23 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Emit the IBC transfer Event
-	if err = ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg); err != nil {
+	if err := ics20.EmitIBCTransferEvent(
+		ctx,
+		stateDB,
+		p.ABI.Events[ics20.EventTypeIBCTransfer],
+		p.Address(),
+		sender,
+		msg.Receiver,
+		msg.SourcePort,
+		msg.SourceChannel,
+		coin,
+		memo,
+	); err != nil {
 		return nil, err
 	}
 
 	// Emit the custom LiquidStake Event
-	if err = p.EmitLiquidStakeEvent(ctx, stateDB, sender, token, amount); err != nil {
+	if err := p.EmitLiquidStakeEvent(ctx, stateDB, sender, token, amount); err != nil {
 		return nil, err
 	}
 
@@ -168,7 +179,17 @@ func (p Precompile) Redeem(
 	}
 
 	// Build the MsgTransfer with the memo and coin
-	msg, err := NewMsgTransfer(p.portID, p.channelID, sdk.AccAddress(sender.Bytes()).String(), receiver, memo, p.timeoutHeight, coin)
+	// Build the MsgTransfer with the memo and coin
+	msg, err := ics20.CreateAndValidateMsgTransfer(
+		p.portID,
+		p.channelID,
+		coin,
+		sdk.AccAddress(sender.Bytes()).String(),
+		receiver,
+		p.timeoutHeight,
+		ibctransfertypes.DefaultRelativePacketTimeoutTimestamp,
+		memo,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -192,12 +213,24 @@ func (p Precompile) Redeem(
 	}
 
 	// Emit the IBC transfer Event
-	if err = ics20.EmitIBCTransferEvent(ctx, stateDB, p.ABI.Events, sender, p.Address(), msg); err != nil {
+	// Emit the IBC transfer Event
+	if err := ics20.EmitIBCTransferEvent(
+		ctx,
+		stateDB,
+		p.ABI.Events[ics20.EventTypeIBCTransfer],
+		p.Address(),
+		sender,
+		msg.Receiver,
+		msg.SourcePort,
+		msg.SourceChannel,
+		coin,
+		memo,
+	); err != nil {
 		return nil, err
 	}
 
 	// Emit the custom Redeem Event
-	if err = p.EmitRedeemEvent(ctx, stateDB, sender, token, receiver, amount); err != nil {
+	if err := p.EmitRedeemEvent(ctx, stateDB, sender, token, receiver, amount); err != nil {
 		return nil, err
 	}
 
