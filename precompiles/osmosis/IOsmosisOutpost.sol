@@ -54,9 +54,8 @@ interface IOsmosisOutpost {
     /// @param input The ERC-20 token contract address to be swapped for
     /// @param output The ERC-20 token contract address to be swapped to (received)
     /// @param amount The amount of input tokens to be swapped
-    /// @param receiver The bech32-formatted address of the receiver
-    /// of the newly swapped tokens, can be any chain connected to Osmosis
-    /// e.g. evmosAddr, junoAddr, cosmosAddr
+	/// @param receiver The bech32-formatted address of the receiver of the newly swapped 
+    /// tokens, can be any chain connected to Osmosis e.g. evmosAddr, cosmosAddr, ...
 	/// @param slippage_percentage The percentage of slippage accepted for
 	/// the swap.
 	/// @param window_seconds The amount of seconds considered to compute
