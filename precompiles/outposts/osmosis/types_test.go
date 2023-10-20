@@ -1,11 +1,11 @@
 package osmosis_test
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 
-	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,31 +70,31 @@ func TestValidateSwap(t *testing.T) {
 	testcases := []struct {
 		name        string
 		modifier    func(osmosisoutpost.Memo) osmosisoutpost.Memo
-		input string
+		input       string
 		expPass     bool
 		errContains string
 	}{
 		{
-			name:     "success - create memo with ibc osmo",
-			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo { 
+			name: "success - create memo with ibc osmo",
+			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
 			input: transfertypes.DenomTrace{
 				Path:      fmt.Sprintf("%s/%s", portID, channelID),
 				BaseDenom: "osmo",
 			}.IBCDenom(),
-			expPass:  true,
+			expPass: true,
 		},
 		{
-			name:     "success - create memo with aevmos",
-			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo { 
+			name: "success - create memo with aevmos",
+			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
-			input: "aevmos",
-			expPass:  true,
+			input:   "aevmos",
+			expPass: true,
 		},
 		{
-			name:     "fail - input and output equal",
+			name: "fail - input and output equal",
 			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				memo.Msg.OsmosisSwap.OutputDenom = osmoVoucher
 				return memo
@@ -103,16 +103,16 @@ func TestValidateSwap(t *testing.T) {
 				Path:      fmt.Sprintf("%s/%s", portID, channelID),
 				BaseDenom: "osmo",
 			}.IBCDenom(),
-			expPass:  false,
+			expPass:     false,
 			errContains: osmosisoutpost.ErrInputEqualOutput,
 		},
 		{
-			name:     "fail - input and output equal",
+			name: "fail - input and output equal",
 			modifier: func(memo osmosisoutpost.Memo) osmosisoutpost.Memo {
 				return memo
 			},
-			input: "eth",
-			expPass:  false,
+			input:   "eth",
+			expPass: false,
 			errContains: fmt.Sprintf(
 				osmosisoutpost.ErrInputTokenNotSupported,
 				[]string{stakingDenom, osmoVoucher},
@@ -233,6 +233,6 @@ func TestValidateSwap(t *testing.T) {
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
 			}
 		})
-	}	
+	}
 }
 */

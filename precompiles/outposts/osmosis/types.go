@@ -83,24 +83,23 @@ func CreateMemo(
 	windowSeconds uint64,
 	onFailedDelivery string,
 ) *Memo {
-
 	return &Memo{
-			Contract: contract,
-			Msg: Msg{
-				OsmosisSwap: &OsmosisSwap{
-					OutputDenom: outputDenom,
-					Slippage: Slippage{
-						Twap{
-							SlippagePercentage: slippagePercentage,
-							WindowSeconds:      windowSeconds,
-						},
+		Contract: contract,
+		Msg: Msg{
+			OsmosisSwap: &OsmosisSwap{
+				OutputDenom: outputDenom,
+				Slippage: Slippage{
+					Twap{
+						SlippagePercentage: slippagePercentage,
+						WindowSeconds:      windowSeconds,
 					},
-					Receiver:         receiver,
-					OnFailedDelivery: onFailedDelivery,
-					// NextMemo:         "",
 				},
+				Receiver:         receiver,
+				OnFailedDelivery: onFailedDelivery,
+				// NextMemo:         "",
 			},
-		}
+		},
+	}
 }
 
 func (r Memo) ConvertToJSON() (string, error) {
@@ -112,7 +111,7 @@ func (r Memo) ConvertToJSON() (string, error) {
 
 	// Print the JSON string
 	fmt.Println(string(jsonBytes))
-	return string(jsonBytes), nil	
+	return string(jsonBytes), nil
 }
 
 // validateSwap performs validation on the fields used to construct the memo.

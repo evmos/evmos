@@ -14,10 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
 )
 
 const (
