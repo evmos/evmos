@@ -183,3 +183,53 @@ func TestEvmosCoinDenom(t *testing.T) {
 		})
 	}
 }
+
+func TestAccAddressFromBech32(t *testing.T) {
+	testCases := []struct {
+		address      string
+		bech32Prefix string
+		expErr       bool
+		errContains  string
+	}{
+		{
+			"",
+			"",
+			true,
+			"empty address string is not allowed",
+		},
+		{
+			"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+			"stride",
+			true,
+			"invalid Bech32 prefix; expected stride, got cosmos",
+		},
+		{
+			"cosmos1xv9tklw7d82sezh9haa573wufgy59vmw5",
+			"cosmos",
+			true,
+			"decoding bech32 failed: invalid checksum",
+		},
+		{
+			"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+			"stride",
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.address, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := CreateAccAddressFromBech32(tc.address, tc.bech32Prefix)
+			if tc.expErr {
+				require.Error(t, err, "expected error while creating AccAddress")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			} else {
+				require.NoError(t, err, "expected no error while creating AccAddress")
+			}
+		})
+	}
+}
