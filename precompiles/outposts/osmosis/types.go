@@ -8,7 +8,6 @@ import (
 	"slices"
 
 	"github.com/cosmos/btcutil/bech32"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -116,6 +115,40 @@ func CreateMemo(
 	return string(jsonBytes), nil
 }
 
+// validateSwap performs validation on the fields used to construct the memo.
+func(r RawPacketMetadata) validateSwap(
+	portID,
+	channelID,
+	stakingDenom,
+	input string,
+) (err error) {
+	// input and output cannot be equal
+	if r.Memo.Msg.OsmosisSwap.OutputDenom == input {
+		return fmt.Errorf(ErrInputEqualOutput, input)
+	}
+
+	osmoIBCDenom := transfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: "osmo",
+	}.IBCDenom()
+
+	// Check that the input token is evmos or osmo. This constraint will be removed in future
+	validInput := []string{stakingDenom, osmoIBCDenom}
+	if !slices.Contains(validInput, input) {
+		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
+	}
+
+	if r.Memo.Msg.OsmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrMaxSlippagePercentage, MaxSlippagePercentage)
+	}
+
+	if uint8(r.Memo.Msg.OsmosisSwap.Slippage.Twap.WindowSeconds) > uint8(MaxWindowSeconds) {
+		return fmt.Errorf(ErrMaxWindowSeconds, MaxWindowSeconds)
+	}
+
+	return nil
+}
+
 // parseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
 	sender, input, output common.Address,
@@ -171,32 +204,4 @@ func ParseSwapPacketData(args []interface{}) (
 	}
 
 	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
-}
-
-// validateSwap performs validation on input and output denom.
-func ValidateSwap(
-	ctx sdk.Context,
-	portID,
-	channelID,
-	input,
-	output,
-	stakingDenom string,
-) (err error) {
-	// input and output cannot be equal
-	if input == output {
-		return fmt.Errorf("input and output token cannot be the same: %s", input)
-	}
-
-	osmoIBCDenom := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: "osmo",
-	}.IBCDenom()
-
-	// Check that the input token is evmos or osmo. This constraint will be removed in future
-	validInput := []string{stakingDenom, osmoIBCDenom}
-	if !slices.Contains(validInput, input) {
-		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-	}
-
-	return nil
 }
