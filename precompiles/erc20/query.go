@@ -38,8 +38,8 @@ const (
 // Name returns the name of the token.
 func (p Precompile) Name(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
@@ -54,8 +54,8 @@ func (p Precompile) Name(
 // Symbol returns the symbol of the token.
 func (p Precompile) Symbol(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
@@ -70,10 +70,10 @@ func (p Precompile) Symbol(
 // Decimals returns the decimals places of the token.
 func (p Precompile) Decimals(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
-	args []interface{},
+	_ []interface{},
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
@@ -98,8 +98,8 @@ func (p Precompile) Decimals(
 // TotalSupply returns the amount of tokens in existence.
 func (p Precompile) TotalSupply(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
@@ -111,8 +111,8 @@ func (p Precompile) TotalSupply(
 // BalanceOf returns the amount of tokens owned by account.
 func (p Precompile) BalanceOf(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
@@ -133,8 +133,8 @@ func (p Precompile) BalanceOf(
 // Allowance returns the remaining allowance of a spender to the contract
 func (p Precompile) Allowance(
 	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
+	_ *vm.Contract,
+	_ vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {

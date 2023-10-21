@@ -88,31 +88,34 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
+	// TODO: these values were obtained from Remix using the ERC20.sol from OpenZeppelin.
+	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Evmos testnet
+	// to ensure parity in the values.
 	switch method.Name {
 	// ERC20 transactions
 	case TransferMethod:
-		return 21000
+		return 3_000_000
 	case TransferFromMethod:
-		return 21000
+		return 3_000_000
 	case auth.ApproveMethod:
-		return 21000
+		return 30_956
 	case auth.IncreaseAllowanceMethod:
-		return 21000
+		return 34_605
 	case auth.DecreaseAllowanceMethod:
-		return 21000
+		return 34_519
 	// ERC20 queries
 	case NameMethod:
-		return 21000
+		return 3_421
 	case SymbolMethod:
-		return 21000
+		return 3_464
 	case DecimalsMethod:
-		return 21000
+		return 427
 	case TotalSupplyMethod:
-		return 21000
+		return 2_477
 	case BalanceOfMethod:
-		return 21000
+		return 2_851
 	case auth.AllowanceMethod:
-		return 21000
+		return 3_246
 	default:
 		return 0
 	}

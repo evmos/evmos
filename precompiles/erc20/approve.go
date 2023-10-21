@@ -124,6 +124,10 @@ func (p Precompile) IncreaseAllowance(
 		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization)
 	}
 
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO: check owner?
 	if err := p.EmitApprovalEvent(ctx, stateDB, p.Address(), spender, amount); err != nil {
 		return nil, err
@@ -173,6 +177,10 @@ func (p Precompile) DecreaseAllowance(
 	case authorization != nil && subtractedValue != nil && subtractedValue.Cmp(common.Big0) > 0:
 		// case 2.2: authorization exists, amount positive -> update authorization
 		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	// TODO: check owner?

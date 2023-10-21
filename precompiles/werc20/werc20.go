@@ -66,9 +66,30 @@ func (p Precompile) Address() common.Address {
 }
 
 // RequiredGas calculates the contract gas use
-func (Precompile) RequiredGas(_ []byte) uint64 {
+func (p Precompile) RequiredGas(input []byte) uint64 {
 	// TODO: gas should be the same ERC20
-	return 0
+	// Validate input length
+	if len(input) < 4 {
+		return 0
+	}
+
+	methodID := input[:4]
+	method, err := p.MethodById(methodID)
+	if err != nil {
+		return 0
+	}
+
+	// TODO: these values were obtained from Remix using the WEVMOS9.sol.
+	// We should execute the transactions from Evmos testnet
+	// to ensure parity in the values.
+	switch method.Name {
+	case cmn.FallbackMethod, DepositMethod:
+		return 28_799
+	case WithdrawMethod:
+		return 3_000_000
+	}
+
+	return p.Precompile.RequiredGas(input)
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.
