@@ -20,16 +20,10 @@ import (
 )
 
 // buildMsgEthereumTx builds an Ethereum transaction from the given arguments and populates the From field.
-func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) (evmtypes.MsgEthereumTx, error) {
+func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmtypes.MsgEthereumTx {
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
-
-	// Validate the transaction to avoid unrealistic behavior
-	err := msgEthereumTx.ValidateBasic()
-	if err != nil {
-		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to validate transaction")
-	}
-	return *msgEthereumTx, nil
+	return *msgEthereumTx
 }
 
 // signMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.
@@ -43,6 +37,11 @@ func signMsgEthereumTx(msgEthereumTx evmtypes.MsgEthereumTx, privKey cryptotypes
 	err = msgEthereumTx.Sign(signer, tx.NewSigner(privKey))
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to sign transaction")
+	}
+
+	// Validate the transaction to avoid unrealistic behavior
+	if err = msgEthereumTx.ValidateBasic(); err != nil {
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to validate transaction")
 	}
 	return msgEthereumTx, nil
 }

@@ -20,20 +20,17 @@ func (s *IntegrationTestSuite) TestUpgrade() {
 			s.runInitialNode(version)
 			continue
 		}
-		currentHeight, err := s.upgradeManager.GetNodeHeight(ctx)
-		s.Require().NoError(err)
 
 		// wait one block to execute the txs
-		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+1)
+		err := s.upgradeManager.WaitNBlocks(ctx, 1)
 		s.Require().NoError(err)
 		s.T().Logf("(upgrade %d): UPGRADING TO %s WITH PROPOSAL NAME %s", idx, version.ImageTag, version.UpgradeName)
 		s.proposeUpgrade(version.UpgradeName, version.ImageTag)
 
-		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+2)
+		err = s.upgradeManager.WaitNBlocks(ctx, 1)
 		s.Require().NoError(err)
 		s.voteForProposal(idx)
 
-		_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+3)
 		s.Require().NoError(err)
 		s.upgrade(version.ImageName, version.ImageTag)
 	}
@@ -176,10 +173,7 @@ func (s *IntegrationTestSuite) TestCLITxs() {
 			s.Require().NoError(err)
 
 			// wait one block to execute the tx
-			currentHeight, err := s.upgradeManager.GetNodeHeight(ctx)
-			s.Require().NoError(err)
-
-			_, err = s.upgradeManager.WaitForHeight(ctx, currentHeight+1)
+			err = s.upgradeManager.WaitNBlocks(ctx, 1)
 			s.Require().NoError(err)
 
 			// execute the tx

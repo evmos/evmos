@@ -124,6 +124,13 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 	// create Context
 	s.ctx = app.BaseApp.NewContext(false, header)
 
+	// set empty extraEIPs in default params
+	// that's the expected initial state
+	evmParams := app.EvmKeeper.GetParams(s.ctx)
+	evmParams.ExtraEIPs = nil
+	err = app.EvmKeeper.SetParams(s.ctx, evmParams)
+	s.Require().NoError(err)
+
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})

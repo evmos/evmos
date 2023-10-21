@@ -41,6 +41,7 @@ type Network interface {
 	GetBankClient() banktypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 	GetAuthClient() authtypes.QueryClient
+	GetStakingClient() stakingtypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params

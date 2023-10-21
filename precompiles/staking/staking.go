@@ -4,9 +4,7 @@
 package staking
 
 import (
-	"bytes"
 	"embed"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -28,10 +26,42 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
+// PrecompileAddress defines the contract address of the staking precompile.
+const PrecompileAddress = "0x0000000000000000000000000000000000000800"
+
 // Precompile defines the precompiled contract for staking.
 type Precompile struct {
 	cmn.Precompile
 	stakingKeeper stakingkeeper.Keeper
+}
+
+// LoadABI loads the staking ABI from the embedded abi.json file
+// for the staking precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
+}
+
+// NewPrecompile creates a new staking Precompile instance as a
+// PrecompiledContract interface.
+func NewPrecompile(
+	stakingKeeper stakingkeeper.Keeper,
+	authzKeeper authzkeeper.Keeper,
+) (*Precompile, error) {
+	abi, err := LoadABI()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Precompile{
+		Precompile: cmn.Precompile{
+			ABI:                  abi,
+			AuthzKeeper:          authzKeeper,
+			KvGasConfig:          storetypes.KVGasConfig(),
+			TransientKVGasConfig: storetypes.TransientGasConfig(),
+			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
+		},
+		stakingKeeper: stakingKeeper,
+	}, nil
 }
 
 // RequiredGas returns the required bare minimum gas to execute the precompile.
@@ -47,38 +77,10 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
-// PrecompiledContract interface.
-func NewPrecompile(
-	stakingKeeper stakingkeeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
-) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, fmt.Errorf("error loading the staking ABI %s", err)
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
-	if err != nil {
-		return nil, fmt.Errorf(cmn.ErrInvalidABI, err)
-	}
-
-	return &Precompile{
-		Precompile: cmn.Precompile{
-			ABI:                  newAbi,
-			AuthzKeeper:          authzKeeper,
-			KvGasConfig:          storetypes.KVGasConfig(),
-			TransientKVGasConfig: storetypes.TransientGasConfig(),
-			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
-		},
-		stakingKeeper: stakingKeeper,
-	}, nil
-}
-
 // Address defines the address of the staking compile contract.
 // address: 0x0000000000000000000000000000000000000800
 func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000800")
+	return common.HexToAddress(PrecompileAddress)
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.

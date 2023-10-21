@@ -70,7 +70,7 @@ func TestMigrate(t *testing.T) {
 	var extraEIPs v4types.ExtraEIPs
 	bz = kvStore.Get(types.ParamStoreKeyExtraEIPs)
 	cdc.MustUnmarshal(bz, &extraEIPs)
-	require.Equal(t, []int64(nil), extraEIPs.EIPs)
+	require.Equal(t, types.DefaultExtraEIPs, extraEIPs.EIPs)
 
 	params := v4types.V4Params{
 		EvmDenom:            evmDenom,

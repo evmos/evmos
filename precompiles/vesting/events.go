@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
@@ -26,6 +27,43 @@ const (
 	// EventTypeConvertVestingAccount defines the event type for the vesting ConvertVestingAccount transaction.
 	EventTypeConvertVestingAccount = "ConvertVestingAccount"
 )
+
+// EmitApprovalEvent creates a new approval event emitted on an Approve, IncreaseAllowance and DecreaseAllowance transactions.
+func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, grantee, granter common.Address, typeURL string) error {
+	// Prepare the event topics
+	event := p.ABI.Events[authorization.EventTypeApproval]
+	topics := make([]common.Hash, 3)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(grantee)
+	if err != nil {
+		return err
+	}
+
+	topics[2], err = cmn.MakeTopic(granter)
+	if err != nil {
+		return err
+	}
+
+	// Pack the arguments to be used as the Data field
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(typeURL)
+	if err != nil {
+		return err
+	}
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
 
 // EmitCreateClawbackVestingAccountEvent creates a new create clawback vesting account event emitted
 // on a CreateClawbackVestingAccount transaction.
