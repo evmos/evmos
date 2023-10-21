@@ -14,12 +14,12 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v14/contracts"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/utils"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/contracts"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v15/utils"
+	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 const (

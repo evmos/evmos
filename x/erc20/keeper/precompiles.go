@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/erc20"
-	"github.com/evmos/evmos/v14/precompiles/werc20"
-	"github.com/evmos/evmos/v14/x/erc20/types"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/precompiles/werc20"
+	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {

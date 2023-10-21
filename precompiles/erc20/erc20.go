@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -19,8 +19,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v14/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 // abiPath defines the path to the staking precompile ABI JSON file.
@@ -75,10 +75,47 @@ func (Precompile) IsStateful() bool {
 	return true
 }
 
-// RequiredGas calculates the contract gas use
-func (Precompile) RequiredGas(_ []byte) uint64 {
-	// TODO: gas should be the same ERC20
-	return 0
+// RequiredGas calculates the contract gas used for the
+func (p Precompile) RequiredGas(input []byte) uint64 {
+	// Validate input length
+	if len(input) < 4 {
+		return 0
+	}
+
+	methodID := input[:4]
+	method, err := p.MethodById(methodID)
+	if err != nil {
+		return 0
+	}
+
+	switch method.Name {
+	// ERC20 transactions
+	case TransferMethod:
+		return 21000
+	case TransferFromMethod:
+		return 21000
+	case auth.ApproveMethod:
+		return 21000
+	case auth.IncreaseAllowanceMethod:
+		return 21000
+	case auth.DecreaseAllowanceMethod:
+		return 21000
+	// ERC20 queries
+	case NameMethod:
+		return 21000
+	case SymbolMethod:
+		return 21000
+	case DecimalsMethod:
+		return 21000
+	case TotalSupplyMethod:
+		return 21000
+	case BalanceOfMethod:
+		return 21000
+	case auth.AllowanceMethod:
+		return 21000
+	default:
+		return 0
+	}
 }
 
 // Run executes the precompiled contract staking methods defined in the ABI.

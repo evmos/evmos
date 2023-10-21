@@ -10,7 +10,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"

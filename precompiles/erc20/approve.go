@@ -14,7 +14,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	auth "github.com/evmos/evmos/v14/precompiles/authorization"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 )
 
 // SendMsgURL defines the authorization type for MsgSend
