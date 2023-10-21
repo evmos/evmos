@@ -6,6 +6,11 @@ package ics20
 import (
 	"fmt"
 	"math/big"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	"github.com/ethereum/go-ethereum/core/vm"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -15,8 +20,14 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+)
+
+const (
+	// TimeoutHeight is the default value used in the IBC timeout height for
+	// the client.
+	DefaultTimeoutHeight = 100
 )
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.
@@ -32,17 +43,9 @@ type EventIBCTransfer struct {
 
 // EventTransferAuthorization is the event type emitted when a transfer authorization is created.
 type EventTransferAuthorization struct {
-	Grantee       common.Address
-	Granter       common.Address
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
-}
-
-// EventRevokeAuthorization is the event type emitted when a transfer authorization is revoked.
-type EventRevokeAuthorization struct {
-	Grantee common.Address
-	Granter common.Address
+	Grantee     common.Address
+	Granter     common.Address
+	Allocations []cmn.ICS20Allocation
 }
 
 // DenomTraceResponse defines the data for the denom trace response.
@@ -61,15 +64,6 @@ type DenomTracesResponse struct {
 	PageResponse query.PageResponse
 }
 
-// Allocation defines the spend limit for a particular port and channel
-// we need this to be able to unpack to big.Int instead of sdkmath.Int
-type Allocation struct {
-	SourcePort    string
-	SourceChannel string
-	SpendLimit    []cmn.Coin
-	AllowList     []string
-}
-
 // height is a struct used to parse the TimeoutHeight parameter
 // used as input in the transfer method
 type height struct {
@@ -79,7 +73,7 @@ type height struct {
 // allocs is a struct used to parse the Allocations parameter
 // used as input in the transfer authorization method
 type allocs struct {
-	Allocations []Allocation
+	Allocations []cmn.ICS20Allocation
 }
 
 // NewTransferAuthorization returns a new transfer authorization authz type from the given arguments.
@@ -155,22 +149,38 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 		Amount: sdk.NewIntFromBigInt(amount),
 	}
 
-	msg := &transfertypes.MsgTransfer{
-		SourcePort:       sourcePort,
-		SourceChannel:    sourceChannel,
-		Token:            token,
-		Sender:           sdk.AccAddress(sender.Bytes()).String(), // convert to bech32 format
-		Receiver:         receiver,
-		TimeoutHeight:    input.TimeoutHeight,
-		TimeoutTimestamp: timeoutTimestamp,
-		Memo:             memo,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
+	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
+	if err != nil {
 		return nil, common.Address{}, err
 	}
 
 	return msg, sender, nil
+}
+
+// CreateAndValidateMsgTransfer creates a new MsgTransfer message and run validate basic.
+func CreateAndValidateMsgTransfer(
+	sourcePort, sourceChannel string,
+	coin sdk.Coin, senderAddress, receiverAddress string,
+	timeoutHeight clienttypes.Height,
+	timeoutTimestamp uint64,
+	memo string,
+) (*transfertypes.MsgTransfer, error) {
+	msg := transfertypes.NewMsgTransfer(
+		sourcePort,
+		sourceChannel,
+		coin,
+		senderAddress,
+		receiverAddress,
+		timeoutHeight,
+		timeoutTimestamp,
+		memo,
+	)
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+
+	return msg, nil
 }
 
 // NewDenomTraceRequest returns a new denom trace request from the given arguments.
@@ -312,7 +322,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 	return grantee, allocations, nil
 }
 
-// checkAllocationExists checks if the given authorization allocation matches the given arguments.
+// CheckAllocationExists checks if the given authorization allocation matches the given arguments.
 func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
 	var found bool
 	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
@@ -331,4 +341,72 @@ func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, s
 	}
 
 	return spendLimit, 0, fmt.Errorf(ErrNoMatchingAllocation, sourcePort, sourceChannel, denom)
+}
+
+// convertToAllocation converts the Allocation type from the IBC transfer types to our implementation of ICS20 Allocation. The conversion maps the native SDK coin type to the custom coin type, which uses Ethereum native big integers.
+func convertToAllocation(allocs []transfertypes.Allocation) []cmn.ICS20Allocation {
+	// Convert to Allocations to emit the IBC transfer authorization event
+	allocations := make([]cmn.ICS20Allocation, len(allocs))
+	for i, allocation := range allocs {
+		spendLimit := make([]cmn.Coin, len(allocation.SpendLimit))
+		for j, coin := range allocation.SpendLimit {
+			spendLimit[j] = cmn.Coin{
+				Denom:  coin.Denom,
+				Amount: coin.Amount.BigInt(),
+			}
+		}
+
+		allocations[i] = cmn.ICS20Allocation{
+			SourcePort:    allocation.SourcePort,
+			SourceChannel: allocation.SourceChannel,
+			SpendLimit:    spendLimit,
+			AllowList:     allocation.AllowList,
+		}
+	}
+
+	return allocations
+}
+
+// CheckOriginAndSender ensures the correct sender is being used.
+func CheckOriginAndSender(contract *vm.Contract, origin common.Address, sender common.Address) (common.Address, error) {
+	if contract.CallerAddress == sender {
+		return origin, nil
+	} else if origin != sender {
+		return common.Address{}, fmt.Errorf(ErrDifferentOriginFromSender, origin.String(), sender.String())
+	}
+	return sender, nil
+}
+
+// CheckAndAcceptAuthorizationIfNeeded checks if authorization exists and accepts the grant.
+// In case the origin is the caller of the address, no authorization is required.
+func CheckAndAcceptAuthorizationIfNeeded(
+	ctx sdk.Context,
+	contract *vm.Contract,
+	origin common.Address,
+	authzKeeper authzkeeper.Keeper,
+	msg *transfertypes.MsgTransfer,
+) (*authz.AcceptResponse, *time.Time, error) {
+	if contract.CallerAddress == origin {
+		return nil, nil, nil
+	}
+
+	auth, expiration, err := authorization.CheckAuthzExists(ctx, authzKeeper, contract.CallerAddress, origin, TransferMsgURL)
+	if err != nil {
+		return nil, nil, fmt.Errorf(authorization.ErrAuthzDoesNotExistOrExpired, contract.CallerAddress, origin)
+	}
+
+	resp, err := AcceptGrant(ctx, contract.CallerAddress, origin, msg, auth)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return resp, expiration, nil
+}
+
+// UpdateGrantIfNeeded updates the grant in case the contract caller is not the origin of the message.
+func UpdateGrantIfNeeded(ctx sdk.Context, contract *vm.Contract, authzKeeper authzkeeper.Keeper, origin common.Address, expiration *time.Time, resp *authz.AcceptResponse) error {
+	if contract.CallerAddress != origin {
+		return UpdateGrant(ctx, authzKeeper, contract.CallerAddress, origin, expiration, resp)
+	}
+	return nil
 }

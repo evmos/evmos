@@ -7,10 +7,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v14/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/ics20"
-	"github.com/evmos/evmos/v14/utils"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 func (s *PrecompileTestSuite) TestTransferEvent() {
@@ -101,7 +101,7 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				s.coordinator.Setup(path)
 				return []interface{}{
 					s.address,
-					[]ics20.Allocation{
+					[]cmn.ICS20Allocation{
 						{
 							SourcePort:    path.EndpointA.ChannelConfig.PortID,
 							SourceChannel: path.EndpointA.ChannelID,
@@ -117,19 +117,19 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
-				event := s.precompile.ABI.Events[ics20.EventTypeIBCTransferAuthorization]
+				event := s.precompile.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
 				var transferAuthorizationEvent ics20.EventTransferAuthorization
-				err := cmn.UnpackLog(s.precompile.ABI, &transferAuthorizationEvent, ics20.EventTypeIBCTransferAuthorization, *log)
+				err := cmn.UnpackLog(s.precompile.ABI, &transferAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, transferAuthorizationEvent.Granter)
 				s.Require().Equal(s.address, transferAuthorizationEvent.Grantee)
-				s.Require().Equal("transfer", transferAuthorizationEvent.SourcePort)
-				s.Require().Equal("channel-0", transferAuthorizationEvent.SourceChannel)
+				s.Require().Equal("transfer", transferAuthorizationEvent.Allocations[0].SourcePort)
+				s.Require().Equal("channel-0", transferAuthorizationEvent.Allocations[0].SourceChannel)
 				abiCoins := cmn.NewCoinsResponse(defaultCoins)
-				s.Require().Equal(abiCoins, transferAuthorizationEvent.SpendLimit)
+				s.Require().Equal(abiCoins, transferAuthorizationEvent.Allocations[0].SpendLimit)
 			},
 		},
 	}
@@ -177,15 +177,16 @@ func (s *PrecompileTestSuite) TestRevokeTransferAuthorizationEvent() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
-				event := s.precompile.ABI.Events[ics20.EventTypeRevokeIBCTransferAuthorization]
+				event := s.precompile.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-				var transferRevokeAuthorizationEvent ics20.EventRevokeAuthorization
-				err := cmn.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, ics20.EventTypeRevokeIBCTransferAuthorization, *log)
+				var transferRevokeAuthorizationEvent ics20.EventTransferAuthorization
+				err := cmn.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Grantee)
 				s.Require().Equal(s.address, transferRevokeAuthorizationEvent.Granter)
+				s.Require().Equal(0, len(transferRevokeAuthorizationEvent.Allocations))
 			},
 		},
 	}
@@ -235,9 +236,8 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 			"",
 			func() {
 				log := s.stateDB.Logs()[0]
-				methods := []string{ics20.TransferMsg}
-				amounts := []*big.Int{big.NewInt(1e18)}
-				s.CheckAllowanceChangeEvent(log, methods, amounts)
+				amount := big.NewInt(1e18)
+				s.CheckAllowanceChangeEvent(log, amount, true)
 			},
 		},
 	}
@@ -287,9 +287,8 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 			"",
 			func() {
 				log := s.stateDB.Logs()[0]
-				methods := []string{ics20.TransferMsg}
-				amounts := []*big.Int{big.NewInt(1e18 / 2)}
-				s.CheckAllowanceChangeEvent(log, methods, amounts)
+				amount := big.NewInt(1e18 / 2)
+				s.CheckAllowanceChangeEvent(log, amount, false)
 			},
 		},
 	}

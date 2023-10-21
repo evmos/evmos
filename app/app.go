@@ -16,6 +16,7 @@ import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	runtimeservices "github.com/cosmos/cosmos-sdk/runtime/services"
+	"golang.org/x/exp/slices"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -24,6 +25,7 @@ import (
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -34,6 +36,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/simapp"
 	simappparams "cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/runtime"
@@ -60,8 +63,6 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -120,62 +121,65 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v14/client/docs/statik"
+	_ "github.com/evmos/evmos/v15/client/docs/statik"
 
-	"github.com/evmos/evmos/v14/app/ante"
-	ethante "github.com/evmos/evmos/v14/app/ante/evm"
-	v10 "github.com/evmos/evmos/v14/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v14/app/upgrades/v11"
-	v12 "github.com/evmos/evmos/v14/app/upgrades/v12"
-	v13 "github.com/evmos/evmos/v14/app/upgrades/v13"
-	v14 "github.com/evmos/evmos/v14/app/upgrades/v14"
-	v8 "github.com/evmos/evmos/v14/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v14/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v14/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v14/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v14/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v14/encoding"
-	"github.com/evmos/evmos/v14/ethereum/eip712"
-	"github.com/evmos/evmos/v14/precompiles/common"
-	srvflags "github.com/evmos/evmos/v14/server/flags"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/x/claims"
-	claimskeeper "github.com/evmos/evmos/v14/x/claims/keeper"
-	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
-	"github.com/evmos/evmos/v14/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v14/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v14/x/epochs/types"
-	"github.com/evmos/evmos/v14/x/erc20"
-	erc20client "github.com/evmos/evmos/v14/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
-	"github.com/evmos/evmos/v14/x/evm"
-	evmkeeper "github.com/evmos/evmos/v14/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	"github.com/evmos/evmos/v14/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v14/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	"github.com/evmos/evmos/v14/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v14/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v14/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v14/x/incentives/types"
-	"github.com/evmos/evmos/v14/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v14/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
-	"github.com/evmos/evmos/v14/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v14/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v14/x/recovery/types"
-	revenue "github.com/evmos/evmos/v14/x/revenue/v1"
-	revenuekeeper "github.com/evmos/evmos/v14/x/revenue/v1/keeper"
-	revenuetypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
-	"github.com/evmos/evmos/v14/x/vesting"
-	vestingclient "github.com/evmos/evmos/v14/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v14/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
+	"github.com/evmos/evmos/v15/app/ante"
+	ethante "github.com/evmos/evmos/v15/app/ante/evm"
+	v10 "github.com/evmos/evmos/v15/app/upgrades/v10"
+	v11 "github.com/evmos/evmos/v15/app/upgrades/v11"
+	v12 "github.com/evmos/evmos/v15/app/upgrades/v12"
+	v13 "github.com/evmos/evmos/v15/app/upgrades/v13"
+	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
+	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
+	v8 "github.com/evmos/evmos/v15/app/upgrades/v8"
+	v81 "github.com/evmos/evmos/v15/app/upgrades/v8_1"
+	v82 "github.com/evmos/evmos/v15/app/upgrades/v8_2"
+	v9 "github.com/evmos/evmos/v15/app/upgrades/v9"
+	v91 "github.com/evmos/evmos/v15/app/upgrades/v9_1"
+	"github.com/evmos/evmos/v15/encoding"
+	"github.com/evmos/evmos/v15/ethereum/eip712"
+	"github.com/evmos/evmos/v15/precompiles/common"
+	srvflags "github.com/evmos/evmos/v15/server/flags"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v15/x/claims"
+	claimskeeper "github.com/evmos/evmos/v15/x/claims/keeper"
+	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
+	"github.com/evmos/evmos/v15/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v15/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
+	"github.com/evmos/evmos/v15/x/erc20"
+	erc20client "github.com/evmos/evmos/v15/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v15/x/evm"
+	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v15/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v15/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v15/x/incentives"
+	incentivesclient "github.com/evmos/evmos/v15/x/incentives/client"
+	incentiveskeeper "github.com/evmos/evmos/v15/x/incentives/keeper"
+	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
+	"github.com/evmos/evmos/v15/x/inflation"
+	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/keeper"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	"github.com/evmos/evmos/v15/x/recovery"
+	recoverykeeper "github.com/evmos/evmos/v15/x/recovery/keeper"
+	recoverytypes "github.com/evmos/evmos/v15/x/recovery/types"
+	revenue "github.com/evmos/evmos/v15/x/revenue/v1"
+	revenuekeeper "github.com/evmos/evmos/v15/x/revenue/v1/keeper"
+	revenuetypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v15/x/vesting"
+	vestingclient "github.com/evmos/evmos/v15/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v14/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v15/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+
+	memiavlstore "github.com/crypto-org-chain/cronos/store"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -227,7 +231,6 @@ var (
 			},
 		),
 		params.AppModuleBasic{},
-		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		ibctm.AppModuleBasic{},
@@ -304,7 +307,6 @@ type Evmos struct {
 	SlashingKeeper        slashingkeeper.Keeper
 	DistrKeeper           distrkeeper.Keeper
 	GovKeeper             govkeeper.Keeper
-	CrisisKeeper          crisiskeeper.Keeper
 	UpgradeKeeper         upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
@@ -369,6 +371,9 @@ func NewEvmos(
 
 	eip712.SetEncodingConfig(encodingConfig)
 
+	// setup memiavl if it's enabled in config
+	baseAppOptions = memiavlstore.SetupMemIAVL(logger, homePath, appOpts, false, false, baseAppOptions)
+
 	// Setup Mempool and Proposal Handlers
 	baseAppOptions = append(baseAppOptions, func(app *baseapp.BaseApp) {
 		mempool := mempool.NoOpMempool{}
@@ -390,33 +395,25 @@ func NewEvmos(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
-		// SDK keys
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, capabilitytypes.StoreKey, consensusparamtypes.StoreKey,
-		feegrant.StoreKey, authzkeeper.StoreKey, crisistypes.StoreKey,
-		// ibc keys
-		ibcexported.StoreKey, ibctransfertypes.StoreKey,
-		// ica keys
-		icahosttypes.StoreKey,
-		// ethermint keys
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// evmos keys
-		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
-		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
-		revenuetypes.StoreKey, recoverytypes.StoreKey,
-	)
-
-	// Add the EVM transient store key
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
+	keys, memKeys, tkeys := StoreKeys()
 
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
 		fmt.Printf("failed to load state streaming: %s", err)
 		os.Exit(1)
+	}
+
+	// wire up the versiondb's `StreamingService` and `MultiStore`.
+	var (
+		queryMultiStore sdk.MultiStore
+		err             error
+	)
+	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
+	if slices.Contains(streamers, versionDB) {
+		queryMultiStore, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
+		if err != nil {
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
+		}
 	}
 
 	app := &Evmos{
@@ -470,9 +467,6 @@ func NewEvmos(
 	)
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, app.LegacyAmino(), keys[slashingtypes.StoreKey], stakingKeeper, authAddr,
-	)
-	app.CrisisKeeper = *crisiskeeper.NewKeeper(
-		appCodec, keys[crisistypes.StoreKey], invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName, authAddr,
 	)
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = *upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp, authAddr)
@@ -691,10 +685,6 @@ func NewEvmos(
 
 	/****  Module Options ****/
 
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
-
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -706,7 +696,6 @@ func NewEvmos(
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper, false),
-		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants, app.GetSubspace(crisistypes.ModuleName)),
 		gov.NewAppModule(appCodec, &app.GovKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(govtypes.ModuleName)),
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName)),
 		distr.NewAppModule(appCodec, app.DistrKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GetSubspace(distrtypes.ModuleName)),
@@ -766,7 +755,6 @@ func NewEvmos(
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		govtypes.ModuleName,
-		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
@@ -783,7 +771,6 @@ func NewEvmos(
 
 	// NOTE: fee market module must go last in order to retrieve the block gas used.
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		evmtypes.ModuleName,
@@ -855,12 +842,9 @@ func NewEvmos(
 		epochstypes.ModuleName,
 		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
-		// NOTE: crisis module must go at the end to check for invariants on each module
-		crisistypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
 
-	app.mm.RegisterInvariants(&app.CrisisKeeper)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.mm.RegisterServices(app.configurator)
 
@@ -906,6 +890,16 @@ func NewEvmos(
 		if err := app.LoadLatestVersion(); err != nil {
 			logger.Error("error on loading last version", "err", err)
 			os.Exit(1)
+		}
+
+		// queryMultiStore will be only defined when using versionDB
+		// when defined, we check if the iavl & versionDB versions match
+		if queryMultiStore != nil {
+			v1 := queryMultiStore.LatestVersion()
+			v2 := app.LastBlockHeight()
+			if v1 > 0 && v1 != v2 {
+				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))
+			}
 		}
 	}
 
@@ -1204,7 +1198,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(distrtypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck
-	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
@@ -1322,6 +1315,17 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v15 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v15.UpgradeName,
+		v15.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.BankKeeper,
+			app.EvmKeeper,
+			app.StakingKeeper,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1376,7 +1380,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 				crisistypes.ModuleName,
 			},
 		}
-		// !! ATTENTION !!
+	case v15.UpgradeName:
+		// crisis module is deprecated in v15
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"crisis"},
+		}
 	}
 
 	if storeUpgrades != nil {

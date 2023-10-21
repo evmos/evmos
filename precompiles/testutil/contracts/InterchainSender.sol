@@ -8,7 +8,7 @@ contract InterchainSender {
     /// @dev Approves the required spend limits for IBC transactions.
     /// @dev This creates a Cosmos Authorization Grants for the given methods.
     /// @dev This emits an Approval event.
-    function testApprove(Allocation[] calldata allocs) public {
+    function testApprove(ICS20Allocation[] calldata allocs) public {
         bool success = ICS20_CONTRACT.approve(address(this), allocs);
         require(success, "Failed to perform approval");
     }
@@ -138,7 +138,7 @@ contract InterchainSender {
     function testAllowance(
         address owner,
         address spender
-    ) public view returns (Allocation[] memory allocations) {
+    ) public view returns (ICS20Allocation[] memory allocations) {
         return ICS20_CONTRACT.allowance(owner, spender);
     }
 }

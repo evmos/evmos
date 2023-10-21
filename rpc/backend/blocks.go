@@ -16,8 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/trie"
-	rpctypes "github.com/evmos/evmos/v14/rpc/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v15/rpc/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -301,7 +301,7 @@ func (b *Backend) HeaderByNumber(blockNum rpctypes.BlockNumber) (*ethtypes.Heade
 
 	blockRes, err := b.TendermintBlockResultByNumber(&resBlock.Block.Height)
 	if err != nil {
-		return nil, fmt.Errorf("block result not found for height %d", resBlock.Block.Height)
+		return nil, fmt.Errorf("block result not found for height %d. %w", resBlock.Block.Height, err)
 	}
 
 	bloom, err := b.BlockBloom(blockRes)

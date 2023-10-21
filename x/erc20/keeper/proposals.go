@@ -12,9 +12,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-
-	"github.com/evmos/evmos/v14/precompiles/erc20"
-	"github.com/evmos/evmos/v14/x/erc20/types"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the

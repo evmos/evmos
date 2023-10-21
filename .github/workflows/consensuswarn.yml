@@ -16,4 +16,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: orijtech/consensuswarn@main
         with:
-          roots: 'github.com/evmos/evmos/v14/app.Evmos.DeliverTx,github.com/evmos/evmos/v14/app.Evmos.BeginBlocker,github.com/evmos/evmos/v14/app.Evmos.EndBlocker'
+          roots: 'github.com/evmos/evmos/v15/app.Evmos.DeliverTx,github.com/evmos/evmos/v15/app.Evmos.BeginBlocker,github.com/evmos/evmos/v15/app.Evmos.EndBlocker'

@@ -20,14 +20,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/x/evm/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
-	v4 "github.com/evmos/evmos/v14/x/evm/migrations/v4"
-	v4types "github.com/evmos/evmos/v14/x/evm/migrations/v4/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
+	v4 "github.com/evmos/evmos/v15/x/evm/migrations/v4"
+	v4types "github.com/evmos/evmos/v15/x/evm/migrations/v4/types"
 )
 
 type mockSubspace struct {
@@ -70,7 +70,7 @@ func TestMigrate(t *testing.T) {
 	var extraEIPs v4types.ExtraEIPs
 	bz = kvStore.Get(types.ParamStoreKeyExtraEIPs)
 	cdc.MustUnmarshal(bz, &extraEIPs)
-	require.Equal(t, []int64(nil), extraEIPs.EIPs)
+	require.Equal(t, types.DefaultExtraEIPs, extraEIPs.EIPs)
 
 	params := v4types.V4Params{
 		EvmDenom:            evmDenom,
