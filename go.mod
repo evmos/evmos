@@ -17,7 +17,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
-	github.com/cosmos/ibc-go/v7 v7.3.0
+	github.com/cosmos/ibc-go/v7 v7.3.1
 	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231009123906-58ea507932a3
 	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231009123906-58ea507932a3
 	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231009123906-58ea507932a3
