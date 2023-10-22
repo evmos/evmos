@@ -11,6 +11,8 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/p256"
 )
 
+var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)
+
 func (s *PrecompileTestSuite) TestAddress() {
 	s.Require().Equal("0x0000000000000000000000000000000000000013", s.precompile.Address().String())
 }
@@ -109,8 +111,6 @@ func (s *PrecompileTestSuite) TestRun() {
 			false,
 		},
 	}
-
-	trueValue := common.LeftPadBytes(common.Big1.Bytes(), 32)
 
 	for _, tc := range testCases {
 		input := tc.sign()

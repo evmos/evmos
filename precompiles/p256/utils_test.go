@@ -227,7 +227,7 @@ func parseSignature(sig []byte) (r, s []byte, err error) {
 	return r, s, nil
 }
 
-func (s *PrecompileTestSuite) signMsg(msg []byte, priv *ecdsa.PrivateKey) []byte {
+func signMsg(msg []byte, priv *ecdsa.PrivateKey) []byte {
 	hash := crypto.Sha256(msg)
 
 	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)
