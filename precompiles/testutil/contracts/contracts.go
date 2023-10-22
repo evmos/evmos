@@ -61,12 +61,10 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 		gasPrice = args.GasPrice
 	}
 
-	if args.Input == nil {
-		input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
-		if err != nil {
-			return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
-		}
-		args = args.WithInput(input)
+	// Create MsgEthereumTx that calls the contract
+	input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
 	}
 
 	// Create MsgEthereumTx that calls the contract
@@ -79,7 +77,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 		GasPrice:  gasPrice,
 		GasFeeCap: args.GasFeeCap,
 		GasTipCap: args.GasTipCap,
-		Input:     args.Input,
+		Input:     input,
 		Accesses:  args.AccessList,
 	})
 	msg.From = addr.Hex()
