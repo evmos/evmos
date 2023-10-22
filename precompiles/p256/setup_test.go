@@ -9,6 +9,9 @@ import (
 	"errors"
 	"testing"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/evmos/evmos/v15/precompiles/p256"
 	"github.com/stretchr/testify/suite"
@@ -27,6 +30,10 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Precompile Test Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
