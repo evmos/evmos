@@ -20,9 +20,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/evmos/evmos/v14/x/claims/client/cli"
-	"github.com/evmos/evmos/v14/x/claims/keeper"
-	"github.com/evmos/evmos/v14/x/claims/types"
+	"github.com/evmos/evmos/v15/x/claims/client/cli"
+	"github.com/evmos/evmos/v15/x/claims/keeper"
+	"github.com/evmos/evmos/v15/x/claims/types"
 )
 
 // consensusVersion defines the current x/claims module consensus version.

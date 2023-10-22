@@ -8,7 +8,7 @@ import (
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/p256"
+	"github.com/evmos/evmos/v15/precompiles/p256"
 )
 
 func (s *PrecompileTestSuite) TestAddress() {

@@ -4,7 +4,7 @@ package factory
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
 	amino "github.com/cosmos/cosmos-sdk/codec"
@@ -14,22 +14,16 @@ import (
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	enccodec "github.com/evmos/evmos/v14/encoding/codec"
-	"github.com/evmos/evmos/v14/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v14/types"
+	enccodec "github.com/evmos/evmos/v15/encoding/codec"
+	"github.com/evmos/evmos/v15/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v15/types"
 )
 
 // buildMsgEthereumTx builds an Ethereum transaction from the given arguments and populates the From field.
-func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) (evmtypes.MsgEthereumTx, error) {
+func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmtypes.MsgEthereumTx {
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
-
-	// Validate the transaction to avoid unrealistic behavior
-	err := msgEthereumTx.ValidateBasic()
-	if err != nil {
-		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to validate transaction")
-	}
-	return *msgEthereumTx, nil
+	return *msgEthereumTx
 }
 
 // signMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.
@@ -43,6 +37,11 @@ func signMsgEthereumTx(msgEthereumTx evmtypes.MsgEthereumTx, privKey cryptotypes
 	err = msgEthereumTx.Sign(signer, tx.NewSigner(privKey))
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to sign transaction")
+	}
+
+	// Validate the transaction to avoid unrealistic behavior
+	if err = msgEthereumTx.ValidateBasic(); err != nil {
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to validate transaction")
 	}
 	return msgEthereumTx, nil
 }

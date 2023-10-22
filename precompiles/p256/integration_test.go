@@ -9,10 +9,10 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/p256"
-	"github.com/evmos/evmos/v14/precompiles/testutil"
-	"github.com/evmos/evmos/v14/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/precompiles/p256"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
+	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v15/x/evm/types"
 )
 
 var (

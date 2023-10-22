@@ -19,10 +19,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	rpctypes "github.com/evmos/evmos/v14/rpc/types"
-	"github.com/evmos/evmos/v14/server/config"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v15/rpc/types"
+	"github.com/evmos/evmos/v15/server/config"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // BackendI implements the Cosmos and EVM backend.
@@ -94,7 +94,7 @@ type EVMBackend interface {
 	ChainConfig() *params.ChainConfig
 	GlobalMinGasPrice() (sdk.Dec, error)
 	BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error)
-	CurrentHeader() *ethtypes.Header
+	CurrentHeader() (*ethtypes.Header, error)
 	PendingTransactions() ([]*sdk.Tx, error)
 	GetCoinbase() (sdk.AccAddress, error)
 	FeeHistory(blockCount rpc.DecimalOrHex, lastBlock rpc.BlockNumber, rewardPercentiles []float64) (*rpctypes.FeeHistoryResult, error)
