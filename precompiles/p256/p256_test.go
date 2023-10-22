@@ -19,6 +19,10 @@ func (s *PrecompileTestSuite) TestAddress() {
 	s.Require().Equal("0x0000000000000000000000000000000000000013", s.precompile.Address().String())
 }
 
+func (s *PrecompileTestSuite) TestRequiredGas() {
+	s.Require().Equal(p256.VerifyGas, s.precompile.RequiredGas(nil))
+}
+
 func (s *PrecompileTestSuite) TestRun() {
 	testCases := []struct {
 		name     string
