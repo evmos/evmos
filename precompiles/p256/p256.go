@@ -26,9 +26,9 @@ import (
 var _ vm.PrecompiledContract = &Precompile{}
 
 const (
-	// P256VerifyGas is the secp256r1 elliptic curve signature verifier gas price
+	// VerifyGas is the secp256r1 elliptic curve signature verifier gas price.
 	VerifyGas uint64 = 3450
-	// Required input length is 160 bytes
+	// VerifyInputLength defines the required input length (160 bytes).
 	VerifyInputLength = 160
 )
 
@@ -36,7 +36,7 @@ const (
 const PrecompileAddress = "0x0000000000000000000000000000000000000013"
 
 // Precompile secp256r1 (P256) signature verification
-// implemented as a native contract as per EIP-7212
+// implemented as a native contract as per EIP-7212.
 // See https://eips.ethereum.org/EIPS/eip-7212 for details
 type Precompile struct{}
 
@@ -46,20 +46,22 @@ func (Precompile) Address() common.Address {
 	return common.BytesToAddress([]byte{19})
 }
 
-// RequiredGas returns the static gas required to execute the precompiled contract
+// RequiredGas returns the static gas required to execute the precompiled contract.
 func (p Precompile) RequiredGas(_ []byte) uint64 {
 	return VerifyGas
 }
 
-// Run executes the P256 signature verification using ECDSA.
+// Run executes the p256 signature verification using ECDSA.
+//
 // Input data: 160 bytes of data including:
-// - 32 bytes of the signed data hash
-// - 32 bytes of the r component of the signature
-// - 32 bytes of the s component of the signature
-// - 32 bytes of the x coordinate of the public key
-// - 32 bytes of the y coordinate of the public key
+//   - 32 bytes of the signed data hash
+//   - 32 bytes of the r component of the signature
+//   - 32 bytes of the s component of the signature
+//   - 32 bytes of the x coordinate of the public key
+//   - 32 bytes of the y coordinate of the public key
+//
 // Output data: 32 bytes of result data and error
-// - If the signature verification process succeeds, it returns 1 in 32 bytes format
+//   - If the signature verification process succeeds, it returns 1 in 32 bytes format
 func (p *Precompile) Run(_ *vm.EVM, contract *vm.Contract, _ bool) (bz []byte, err error) {
 	input := contract.Input
 	// Check the input length

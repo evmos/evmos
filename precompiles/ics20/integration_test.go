@@ -27,7 +27,9 @@ import (
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
