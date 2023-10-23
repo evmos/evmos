@@ -14,7 +14,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 
 	packet := osmosisoutpost.CreatePacketWithMemo("aevmos", "receiver", "contract", 10, 30, "osmoAddress")
 
-	jsonPacket, err := packet.ConvertToJSON()
+	jsonPacket, err := packet.ConvertToJSONString()
 	require.NoError(t, err, "expected no error while creating memo")
 	require.NotEmpty(t, jsonPacket, "expected memo not to be empty")
 }

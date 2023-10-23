@@ -111,7 +111,9 @@ func CreatePacketWithMemo(
 	}
 }
 
-func (r RawPacketMetadata) ConvertToJSON() (string, error) {
+// ConvertToJSON convert the RawPacketMetadata type into a JSON formatted
+// string.
+func (r RawPacketMetadata) ConvertToJSONString() (string, error) {
 	// Convert the struct to a JSON string
 	jsonBytes, err := json.MarshalIndent(r, "", "  ")
 	if err != nil {
