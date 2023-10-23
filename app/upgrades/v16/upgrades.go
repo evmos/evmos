@@ -15,10 +15,12 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
+	"github.com/evmos/evmos/v15/precompiles/p256"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -33,10 +35,19 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
+		p256Address := p256.Precompile{}.Address()
+
+		// enable secp256r1 precompile on testnet
+		if utils.IsTestnet(ctx.ChainID()) {
+			if err := evmKeeper.EnablePrecompiles(ctx, p256Address); err != nil {
+				logger.Error("failed to enable precompiles", "error", err.Error())
+			}
+		}
 
 		// NOTE (@fedekunze): first we must convert the all the registered tokens.
 		// If we do it the other way around, the conversion will fail since there won't

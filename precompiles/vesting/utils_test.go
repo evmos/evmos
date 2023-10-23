@@ -33,6 +33,7 @@ import (
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 

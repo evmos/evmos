@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"time"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	"cosmossdk.io/math"

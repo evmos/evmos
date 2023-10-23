@@ -13,7 +13,9 @@ import (
 	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/evmos/evmos/v15/x/recovery/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 

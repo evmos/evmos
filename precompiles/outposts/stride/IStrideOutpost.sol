@@ -26,7 +26,7 @@ interface IStrideOutpost {
     /// @param memo The IBC transaction memo.
     event IBCTransfer(
         address indexed sender,
-        address indexed receiver,
+        string indexed receiver,
         string sourcePort,
         string sourceChannel,
         string denom,
