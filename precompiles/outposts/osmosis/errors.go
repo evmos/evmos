@@ -17,5 +17,5 @@ var (
 	ErrTokenPairNotFound = "token pair for address %s not found"
 	// ErrInputTokenNotSupported is raised when a the osmosis outpost receive a non supported
 	// input token for the swap.
-	ErrInputTokenNotSupported = "input not supported, supported tokens: %v"
+	ErrInputTokenNotSupported = "input not supported, supported tokens: %v" //#nosec G101 -- no hardcoded credentials here
 )

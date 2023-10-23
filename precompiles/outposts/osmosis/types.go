@@ -41,6 +41,8 @@ type Slippage struct {
 // OsmosisSwap represents the details for a swap transaction on the Osmosis chain
 // using the XCS V2 contract. This payload is one of the variant of the entry_point Execute
 // in the CosmWasm contract.
+//
+//nolint:revive
 type OsmosisSwap struct {
 	// OutputDenom specifies the desired output denomination for the swap.
 	OutputDenom string `json:"output_denom"`
@@ -104,9 +106,9 @@ func CreateMemo(
 	}
 }
 
-func (r Memo) ConvertToJSON() (string, error) {
+func (m Memo) ConvertToJSON() (string, error) {
 	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(r, "", "  ")
+	jsonBytes, err := json.MarshalIndent(m, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to marshal JSON: %v", err)
 	}
