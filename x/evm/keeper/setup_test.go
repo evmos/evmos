@@ -7,7 +7,9 @@ import (
 
 	"github.com/evmos/evmos/v15/utils"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	sdkmath "cosmossdk.io/math"
