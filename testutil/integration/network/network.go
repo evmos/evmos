@@ -16,6 +16,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -44,6 +45,7 @@ type Network interface {
 	GetFeeMarketClient() feemarkettypes.QueryClient
 	GetAuthClient() authtypes.QueryClient
 	GetStakingClient() stakingtypes.QueryClient
+	GetAuthzClient() authz.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params

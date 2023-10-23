@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -18,20 +19,20 @@ import (
 )
 
 const (
-	// NameMethod defines the ABI method name for the IERC20 Transfer
-	// transaction.
+	// NameMethod defines the ABI method name for the ERC20 Name
+	// query.
 	NameMethod = "name"
-	// SymbolMethod defines the ABI method name for the IERC20 Undelegate
-	// transaction.
+	// SymbolMethod defines the ABI method name for the ERC20 Symbol
+	// query.
 	SymbolMethod = "symbol"
-	// DecimalsMethod defines the ABI method name for the IERC20 Undelegate
-	// transaction.
+	// DecimalsMethod defines the ABI method name for the ERC20 Decimals
+	// query.
 	DecimalsMethod = "decimals"
-	// TotalSupplyMethod defines the ABI method name for the IERC20 Undelegate
-	// transaction.
+	// TotalSupplyMethod defines the ABI method name for the ERC20 TotalSupply
+	// query.
 	TotalSupplyMethod = "totalSupply"
-	// BalanceOfMethod defines the ABI method name for the IERC20 Undelegate
-	// transaction.
+	// BalanceOfMethod defines the ABI method name for the ERC20 BalanceOf
+	// query.
 	BalanceOfMethod = "balanceOf"
 )
 
@@ -45,7 +46,9 @@ func (p Precompile) Name(
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
-		return nil, banktypes.ErrDenomMetadataNotFound
+		// TODO: assume the symbol is the title case version of the IBC DenomTrace BaseDenom
+		denom := p.tokenPair.Denom // FIXME: use denomTrace.BaseDenom
+		return method.Outputs.Pack(strings.ToUpper(string(denom[1])) + denom[2:])
 	}
 
 	return method.Outputs.Pack(metadata.Name)
@@ -61,7 +64,9 @@ func (p Precompile) Symbol(
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
-		return nil, banktypes.ErrDenomMetadataNotFound
+		// TODO: assume the symbol is the uppercase version of the IBC DenomTrace BaseDenom
+		denom := p.tokenPair.Denom // FIXME: use denomTrace.BaseDenom
+		return method.Outputs.Pack(strings.ToUpper(denom[1:]))
 	}
 
 	return method.Outputs.Pack(metadata.Symbol)
@@ -77,6 +82,13 @@ func (p Precompile) Decimals(
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
+		// we assume the decimal from the first character of the denomination
+		switch string(p.tokenPair.Denom[0]) { // FIXME: use denomTrace.BaseDenom[0]
+		case "u":
+			return method.Outputs.Pack(uint8(6))
+		case "a":
+			return method.Outputs.Pack(uint8(18))
+		}
 		return nil, banktypes.ErrDenomMetadataNotFound
 	}
 
