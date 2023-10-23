@@ -16,7 +16,7 @@ import (
 var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)
 
 func (s *PrecompileTestSuite) TestAddress() {
-	s.Require().Equal("0x0000000000000000000000000000000000000013", s.precompile.Address().String())
+	s.Require().Equal(p256.PrecompileAddress, s.precompile.Address().String())
 }
 
 func (s *PrecompileTestSuite) TestRequiredGas() {

@@ -32,18 +32,21 @@ const (
 	VerifyInputLength = 160
 )
 
+// PrecompileAddress defines the hex address of the p256 precompiled contract.
+const PrecompileAddress = "0x0000000000000000000000000000000000000013"
+
 // Precompile secp256r1 (P256) signature verification
 // implemented as a native contract as per EIP-7212
 // See https://eips.ethereum.org/EIPS/eip-7212 for details
 type Precompile struct{}
 
-// Address defines the address of the staking compile contract.
+// Address defines the address of the p256 precompiled contract.
 // address: 0x0000000000000000000000000000000000000013
 func (Precompile) Address() common.Address {
 	return common.BytesToAddress([]byte{19})
 }
 
-// RequiredGas returns the gas required to execute the precompiled contract
+// RequiredGas returns the static gas required to execute the precompiled contract
 func (p Precompile) RequiredGas(_ []byte) uint64 {
 	return VerifyGas
 }
@@ -71,7 +74,6 @@ func (p *Precompile) Run(_ *vm.EVM, contract *vm.Contract, _ bool) (bz []byte, e
 	x, y := new(big.Int).SetBytes(input[96:128]), new(big.Int).SetBytes(input[128:160])
 
 	// Verify the secp256r1 signature
-
 	if secp256r1.Verify(hash, r, s, x, y) {
 		// Signature is valid
 		return common.LeftPadBytes(common.Big1.Bytes(), 32), nil
