@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	// TimeoutHeight is the default value used in the IBC timeout height for
+	// DefaultTimeoutHeight is the default value used in the IBC timeout height for
 	// the client.
 	DefaultTimeoutHeight = 100
 )

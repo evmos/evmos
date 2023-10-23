@@ -55,8 +55,6 @@ type RawPacketMetadata struct {
 }
 
 // parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
-//
-//nolint:unused
 func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
 		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))

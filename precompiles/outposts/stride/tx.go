@@ -180,7 +180,6 @@ func (p Precompile) Redeem(
 	}
 
 	// Build the MsgTransfer with the memo and coin
-	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		p.portID,
 		p.channelID,
@@ -188,7 +187,7 @@ func (p Precompile) Redeem(
 		sdk.AccAddress(sender.Bytes()).String(),
 		receiver,
 		p.timeoutHeight,
-		ibctransfertypes.DefaultRelativePacketTimeoutTimestamp,
+		0,
 		memo,
 	)
 	if err != nil {
@@ -213,7 +212,6 @@ func (p Precompile) Redeem(
 		return nil, err
 	}
 
-	// Emit the IBC transfer Event
 	// Emit the IBC transfer Event
 	if err := ics20.EmitIBCTransferEvent(
 		ctx,

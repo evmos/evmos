@@ -4,8 +4,11 @@ package stride_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"time"
+
+	"github.com/evmos/evmos/v15/contracts"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 
@@ -251,14 +254,14 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
 	// Register EVMOS ERC20 equivalent
-	ibcBase := s.app.StakingKeeper.BondDenom(s.ctx)
+	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
 	evmosMetadata := banktypes.Metadata{
 		Description: "The native token of Evmos",
-		Base:        ibcBase,
+		Base:        bondDenom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    ibcBase,
+				Denom:    bondDenom,
 				Exponent: 0,
 				Aliases:  []string{"aevmos"},
 			},
@@ -278,6 +281,42 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// Register some Token Pairs
 	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, evmosMetadata)
+	s.Require().NoError(err)
+
+	// stEvmosAddr, err := s.DeployContract("stEvmos", "stEvmos", 18)
+
+	// Register stEvmos Token Pair
+	denomTrace := transfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: "st" + bondDenom,
+	}
+
+	stEvmosMetadata := banktypes.Metadata{
+		Description: "The native token of Evmos",
+		Base:        denomTrace.IBCDenom(),
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    denomTrace.IBCDenom(),
+				Exponent: 0,
+				Aliases:  []string{"stEvmos"},
+			},
+			{
+				Denom:    "stEvmos",
+				Exponent: 18,
+			},
+		},
+		Name:    "stEvmos",
+		Symbol:  "STEVMOS",
+		Display: "stEvmos",
+	}
+
+	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, sdk.NewInt(1000000000000000000))
+	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(stEvmos))
+	s.Require().NoError(err)
+
+	// Register some Token Pairs
+	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, stEvmosMetadata)
 	s.Require().NoError(err)
 
 	// create an account to send transactions from
@@ -425,4 +464,17 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().Equal("07-tendermint-0", s.transferPath.EndpointA.ClientID)
 	s.Require().Equal("connection-0", s.transferPath.EndpointA.ConnectionID)
 	s.Require().Equal("channel-0", s.transferPath.EndpointA.ChannelID)
+}
+
+// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
+func (s *PrecompileTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
+	addr, err := evmosutil.DeployContract(
+		s.ctx,
+		s.app,
+		s.privKey,
+		s.queryClientEVM,
+		contracts.ERC20MinterBurnerDecimalsContract,
+		name, symbol, decimals,
+	)
+	return addr, err
 }
