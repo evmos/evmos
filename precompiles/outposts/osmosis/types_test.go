@@ -60,7 +60,7 @@ func TestValidateSwap(t *testing.T) {
 
 	memo := osmosisoutpost.CreateMemo("atom", "receiveraddress", "xcscontract", 5, 10, "do_nothing")
 	portID := "transfer"
-	channelID := osmosisoutpost.OsmosisChannelIDMainnet
+	channelID := "channel-0"
 	osmoVoucher := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: osmosisoutpost.OsmosisDenom,
