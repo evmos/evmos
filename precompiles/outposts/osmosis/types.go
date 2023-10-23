@@ -6,9 +6,10 @@ package osmosis
 import (
 	"encoding/json"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"log"
 	"math/big"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/cosmos/btcutil/bech32"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
