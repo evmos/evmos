@@ -1326,7 +1326,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v15 upgrade handler
+	// v16 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v16.UpgradeName,
 		v16.CreateUpgradeHandler(
