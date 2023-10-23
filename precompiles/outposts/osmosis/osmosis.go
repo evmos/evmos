@@ -13,19 +13,14 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v14/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v14/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v14/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
+	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
 const (
-	// OsmosisChannelIDMainnet is the channel ID for the Osmosis channel on Evmos mainnet.
-	OsmosisChannelIDMainnet = "channel-0"
-	// OsmosisChannelIDTestnet is the channel ID for the Osmosis channel on Evmos testnet.
-	OsmosisChannelIDTestnet = "channel-0"
-
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
@@ -93,7 +88,7 @@ func NewPrecompile(
 
 // Address defines the address of the Osmosis outpost precompile contract.
 func (Precompile) Address() common.Address {
-	return common.HexToAddress(OsmosisChannelIDTestnet)
+	return common.HexToAddress(OsmosisOutpostAddress)
 }
 
 // IsStateful returns true since the precompile contract has access to the
