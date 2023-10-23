@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/common"
 	rpctypes "github.com/evmos/evmos/v15/rpc/types"
 	evmostypes "github.com/evmos/evmos/v15/types"
@@ -67,7 +66,7 @@ func (kv *KVIndexer) IndexBlock(block *tmtypes.Block, txResults []*abci.Response
 			continue
 		}
 
-		if !isEthTx(tx) {
+		if !evmostypes.IsEthTx(tx) {
 			continue
 		}
 
@@ -197,18 +196,6 @@ func LoadFirstBlock(db dbm.DB) (int64, error) {
 	return parseBlockNumberFromKey(it.Key())
 }
 
-// isEthTx check if the tx is an eth tx
-func isEthTx(tx sdk.Tx) bool {
-	extTx, ok := tx.(authante.HasExtensionOptionsTx)
-	if !ok {
-		return false
-	}
-	opts := extTx.GetExtensionOptions()
-	if len(opts) != 1 || opts[0].GetTypeUrl() != "/ethermint.evm.v1.ExtensionOptionsEthereumTx" {
-		return false
-	}
-	return true
-}
 
 // saveTxResult index the txResult into the kv db batch
 func saveTxResult(codec codec.Codec, batch dbm.Batch, txHash common.Hash, txResult *evmostypes.TxResult) error {
