@@ -250,6 +250,35 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
+	ibcBase := "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889"
+	osmoMetadata := banktypes.Metadata{
+		Description: "The native token of Evmos",
+		Base:        ibcBase,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    ibcBase,
+				Exponent: 0,
+				Aliases:  []string{"aevmos"},
+			},
+			{
+				Denom:    "aevmos",
+				Exponent: 18,
+			},
+		},
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+		Display: "evmos",
+	}
+
+	coin := sdk.NewCoin(osmoMetadata.Base, sdk.NewInt(1000000000000000000))
+	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
+	s.Require().NoError(err)
+
+	// Register some Token Pairs
+	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, osmoMetadata)
+	s.Require().NoError(err)
+
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
 		T:              s.T(),

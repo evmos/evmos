@@ -35,6 +35,21 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
 		},
 		{
+			"fail - token pair not found",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+					big.NewInt(1e18),
+					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+				}
+			},
+			func() {},
+			200000,
+			true,
+			"token pair not found",
+		},
+		{
 			"fail - invalid receiver address (not a stride address)",
 			func() []interface{} {
 				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889")
@@ -55,7 +70,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 		{
 			"fail - receiver address is an invalid stride bech32 address",
 			func() []interface{} {
-				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889")
+				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, s.app.StakingKeeper.BondDenom(s.ctx))
 				tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 				s.Require().True(ok, "expected token pair to be found")
 				return []interface{}{
@@ -81,6 +96,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			_, err := s.precompile.LiquidStake(s.ctx, s.address, s.stateDB, contract, &method, tc.malleate())
 
 			if tc.expError {
+				fmt.Println(err)
 				s.Require().ErrorContains(err, tc.errContains)
 			} else {
 				s.Require().NoError(err)
