@@ -1,3 +1,6 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package osmosis
 
 import (
@@ -35,7 +38,7 @@ type Twap struct {
 // Slippage specify how to compute the slippage of the swap. For this version of the outpost
 // only the TWAP is allowed.
 type Slippage struct {
-	Twap Twap `json:"twap"`
+	Twap *Twap `json:"twap"`
 }
 
 // OsmosisSwap represents the details for a swap transaction on the Osmosis chain
@@ -47,7 +50,7 @@ type OsmosisSwap struct {
 	// OutputDenom specifies the desired output denomination for the swap.
 	OutputDenom string `json:"output_denom"`
 	// Twap represents the TWAP configuration for the swap.
-	Slippage Slippage `json:"slippage"`
+	Slippage *Slippage `json:"slippage"`
 	// Receiver is the address of the entity receiving the swapped amount.
 	Receiver string `json:"receiver"`
 	// OnFailedDelivery specifies the action to be taken in case the swap delivery fails.
@@ -70,45 +73,46 @@ type Memo struct {
 	// Contract represents the address or identifier of the contract to be called.
 	Contract string `json:"contract"`
 	// Msg contains the details of the operation to be executed on the contract.
-	Msg Msg `json:"msg"`
+	Msg *Msg `json:"msg"`
 }
 
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo.
-	Memo Memo `json:"memo"`
+	Memo *Memo `json:"memo"`
 }
 
-// CreateMemo creates the IBC memo for the Osmosis outpost that can be parsed by the ibc hook
-// middleware on the Osmosis chain.
-func CreateMemo(
+// CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis
+// outpost that can be parsed by the ibc hook middleware on the Osmosis chain.
+func CreatePacketWithMemo(
 	outputDenom, receiver, contract string,
 	slippagePercentage uint8,
 	windowSeconds uint64,
 	onFailedDelivery string,
-) *Memo {
-	return &Memo{
-		Contract: contract,
-		Msg: Msg{
-			OsmosisSwap: &OsmosisSwap{
-				OutputDenom: outputDenom,
-				Slippage: Slippage{
-					Twap{
-						SlippagePercentage: slippagePercentage,
-						WindowSeconds:      windowSeconds,
+) *RawPacketMetadata {
+	return &RawPacketMetadata{
+		&Memo{
+			Contract: contract,
+			Msg: &Msg{
+				OsmosisSwap: &OsmosisSwap{
+					OutputDenom: outputDenom,
+					Slippage: &Slippage{
+						&Twap{
+							SlippagePercentage: slippagePercentage,
+							WindowSeconds:      windowSeconds,
+						},
 					},
+					Receiver:         receiver,
+					OnFailedDelivery: onFailedDelivery,
+					// NextMemo:         "",
 				},
-				Receiver:         receiver,
-				OnFailedDelivery: onFailedDelivery,
-				// NextMemo:         "",
 			},
-		},
-	}
+		}}
 }
 
-func (m Memo) ConvertToJSON() (string, error) {
+func (r RawPacketMetadata) ConvertToJSON() (string, error) {
 	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(m, "", "  ")
+	jsonBytes, err := json.MarshalIndent(r, "", "  ")
 	if err != nil {
 		log.Fatalf("Failed to marshal JSON: %v", err)
 	}
@@ -139,35 +143,14 @@ func ValidateSwapTokens(input, output, stakingDenom, portID, channelID string) e
 	return nil
 }
 
-// validateSwap performs validation on the fields used to construct the memo.
-func (m Memo) ValidateSwap(
-	portID,
-	channelID,
-	stakingDenom,
-	input string,
-) (err error) {
-	// input and output cannot be equal
-	if m.Msg.OsmosisSwap.OutputDenom == input {
-		return fmt.Errorf(ErrInputEqualOutput, input)
+// ValidateSwapParameters validates the parameters used to perform the swap.
+func ValidateSwapParameters(slippagePercentage uint8, windowSeconds uint64) error {
+	if slippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrMaxSlippagePercentage)
 	}
 
-	osmoIBCDenom := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: OsmosisDenom,
-	}.IBCDenom()
-
-	// Check that the input token is evmos or osmo. This constraint will be removed in future
-	validInput := []string{stakingDenom, osmoIBCDenom}
-	if !slices.Contains(validInput, input) {
-		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-	}
-
-	if m.Msg.OsmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrMaxSlippagePercentage, MaxSlippagePercentage)
-	}
-
-	if uint8(m.Msg.OsmosisSwap.Slippage.Twap.WindowSeconds) > uint8(MaxWindowSeconds) {
-		return fmt.Errorf(ErrMaxWindowSeconds, MaxWindowSeconds)
+	if windowSeconds > MaxWindowSeconds {
+		return fmt.Errorf(ErrMaxWindowSeconds)
 	}
 
 	return nil

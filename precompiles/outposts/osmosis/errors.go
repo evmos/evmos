@@ -3,6 +3,8 @@
 
 package osmosis
 
+import "fmt"
+
 var (
 	// ErrTokenPairNotFound is raised when input and output tokens are the same.
 	ErrInputEqualOutput = "input and output token cannot be the same"
@@ -11,7 +13,7 @@ var (
 	ErrMaxSlippagePercentage = "slippage cannot be higher than the %s"
 	// ErrMaxWindowSeconds is raised when the requested window seconds is
 	// higher than a pre-defined amount.
-	ErrMaxWindowSeconds = "window seconds cannot be higher than the %s"
+	ErrMaxWindowSeconds = fmt.Sprintf("window seconds cannot be higher than the %d", MaxWindowSeconds)
 	// ErrTokenPairNotFound is raised when a token pair for a certain address
 	// is not found and it is required by the executing function.
 	ErrTokenPairNotFound = "token pair for address %s not found"
