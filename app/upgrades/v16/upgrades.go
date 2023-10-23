@@ -11,7 +11,7 @@ import (
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0
+// CreateUpgradeHandler creates an SDK upgrade handler for v16.0.0
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
