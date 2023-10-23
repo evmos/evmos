@@ -20,6 +20,8 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/evmos/evmos/v15/x/erc20/types"
+
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 )
 

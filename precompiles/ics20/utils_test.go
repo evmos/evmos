@@ -46,6 +46,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
