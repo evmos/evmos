@@ -17,7 +17,7 @@ import (
 
 // CheckTxTopics checks if all expected topics are present in the transaction response
 func CheckTxTopics(res abcitypes.ResponseDeliverTx, expectedTopics []string) error {
-	msgEthResponse, err := decodeResponseDeliverTx(res)
+	msgEthResponse, err := DecodeResponseDeliverTx(res)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func IsContractAccount(acc authtypes.AccountI) error {
 
 // DecodeContractCallResponse decodes the response of a contract call query
 func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs, res abcitypes.ResponseDeliverTx) error {
-	msgEthResponse, err := decodeResponseDeliverTx(res)
+	msgEthResponse, err := DecodeResponseDeliverTx(res)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs,
 	return nil
 }
 
-func decodeResponseDeliverTx(res abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error) {
+func DecodeResponseDeliverTx(res abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error) {
 	msgEthResponse, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
 		return nil, err

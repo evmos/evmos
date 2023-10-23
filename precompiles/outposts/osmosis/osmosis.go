@@ -21,11 +21,6 @@ import (
 )
 
 const (
-	// OsmosisChannelIDMainnet is the channel ID for the Osmosis channel on Evmos mainnet.
-	OsmosisChannelIDMainnet = "channel-0"
-	// OsmosisChannelIDTestnet is the channel ID for the Osmosis channel on Evmos testnet.
-	OsmosisChannelIDTestnet = "channel-0"
-
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
@@ -93,7 +88,7 @@ func NewPrecompile(
 
 // Address defines the address of the Osmosis outpost precompile contract.
 func (Precompile) Address() common.Address {
-	return common.HexToAddress(OsmosisChannelIDTestnet)
+	return common.HexToAddress(OsmosisOutpostAddress)
 }
 
 // IsStateful returns true since the precompile contract has access to the
