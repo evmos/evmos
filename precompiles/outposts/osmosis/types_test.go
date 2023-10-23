@@ -9,38 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// func TestCreatePacketWithMemo(t *testing.T) {
-// 	t.Parallel()
-//
-// 	testcases := []struct {
-// 		name        string
-// 		expPass     bool
-// 		errContains string
-// 	}{
-// 		{
-// 			name:    "success - create memo",
-// 			expPass: true,
-// 		},
-// 	}
-//
-// 	for _, tc := range testcases {
-// 		tc := tc
-//
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			t.Parallel()
-//
-// 			packet := osmosisoutpost.CreateMemo(tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery)
-// 			if tc.expPass {
-// 				require.NoError(t, err, "expected no error while creating memo")
-// 				require.NotEmpty(t, memo, "expected memo not to be empty")
-// 			} else {
-// 				fmt.Printf(err)
-// 				require.Error(t, err, "expected error while creating memo")
-// 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
-// 			}
-// 		})
-// 	}
-// }
+func TestCreatePacketWithMemo(t *testing.T) {
+	t.Parallel()
+
+	packet := osmosisoutpost.CreatePacketWithMemo("aevmos", "receiver", "contract", 10, 30, "osmoAddress")
+
+	jsonPacket, err := packet.ConvertToJSON()
+	require.NoError(t, err, "expected no error while creating memo")
+	require.NotEmpty(t, jsonPacket, "expected memo not to be empty")
+}
 
 func TestValidateSwapTokens(t *testing.T) {
 	t.Parallel()
