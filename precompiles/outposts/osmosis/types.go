@@ -120,8 +120,6 @@ func (r RawPacketMetadata) ConvertToJSONString() (string, error) {
 		log.Fatalf("Failed to marshal JSON: %v", err)
 	}
 
-	// Print the JSON string
-	fmt.Println(string(jsonBytes))
 	return string(jsonBytes), nil
 }
 
