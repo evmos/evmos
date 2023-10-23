@@ -11,11 +11,11 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v14/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v14/testutil"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	evmosapp "github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v15/testutil"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // Call is a helper function to call any arbitrary smart contract.
@@ -61,12 +61,10 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 		gasPrice = args.GasPrice
 	}
 
-	if args.Input == nil {
-		input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
-		if err != nil {
-			return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
-		}
-		args = args.WithInput(input)
+	// Create MsgEthereumTx that calls the contract
+	input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
 	}
 
 	// Create MsgEthereumTx that calls the contract
@@ -79,7 +77,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 		GasPrice:  gasPrice,
 		GasFeeCap: args.GasFeeCap,
 		GasTipCap: args.GasTipCap,
-		Input:     args.Input,
+		Input:     input,
 		Accesses:  args.AccessList,
 	})
 	msg.From = addr.Hex()

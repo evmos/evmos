@@ -1,49 +1,41 @@
-package p256_test
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+package v15_test
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"encoding/json"
-	"errors"
 	"time"
 
-	. "github.com/onsi/gomega"
-
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/crypto"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"golang.org/x/crypto/cryptobyte"
-	"golang.org/x/crypto/cryptobyte/asn1"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/ibc-go/v7/testing/mock"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v14/app"
-	cmn "github.com/evmos/evmos/v14/precompiles/common"
-	"github.com/evmos/evmos/v14/precompiles/p256"
-	evmosutil "github.com/evmos/evmos/v14/testutil"
-	testutiltx "github.com/evmos/evmos/v14/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	"github.com/evmos/evmos/v14/utils"
-	"github.com/evmos/evmos/v14/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v14/x/inflation/types"
+	evmosapp "github.com/evmos/evmos/v15/app"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/vesting"
+	evmosutil "github.com/evmos/evmos/v15/testutil"
+	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -132,6 +124,13 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// create Context
 	s.ctx = app.BaseApp.NewContext(false, header)
 
+	// set empty extraEIPs in default params
+	// that's the expected initial state
+	evmParams := app.EvmKeeper.GetParams(s.ctx)
+	evmParams.ExtraEIPs = nil
+	err = app.EvmKeeper.SetParams(s.ctx, evmParams)
+	s.Require().NoError(err)
+
 	// commit genesis changes
 	app.Commit()
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -139,16 +138,14 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	s.app = app
 }
 
-func (s *PrecompileTestSuite) DoSetupTest() {
+func (s *UpgradesTestSuite) DoSetupTest() {
 	nValidators := 3
-	signers := make(map[string]tmtypes.PrivValidator, nValidators)
 	validators := make([]*tmtypes.Validator, 0, nValidators)
 
 	for i := 0; i < nValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
-		signers[pubKey.Address().String()] = privVal
 		validator := tmtypes.NewValidator(pubKey, 1)
 		validators = append(validators, validator)
 	}
@@ -157,14 +154,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	// generate genesis account
 	addr, priv := testutiltx.NewAddrKey()
-	s.privKey = priv
-
-	p256Priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	s.Require().NoError(err)
-	s.p256Priv = p256Priv
-
 	s.address = addr
-	s.signer = testutiltx.NewSigner(priv)
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
@@ -188,13 +178,16 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.MinCommissionRate = sdk.ZeroDec()
 	s.bondDenom = stakingParams.BondDenom
-	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
-	s.Require().NoError(err)
+	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	s.Require().NoError(err, "failed to set params")
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
-	s.precompile = &p256.Precompile{}
+	precompile, err := vesting.NewPrecompile(s.app.VestingKeeper, s.app.AuthzKeeper)
+	s.Require().NoError(err)
+	s.precompile = precompile
 
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(5000000000000000000)))
 	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(2000000000000000000)))
@@ -205,40 +198,14 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
+	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
+
+	s.NextBlock()
 }
 
 // NextBlock commits the current block and sets up the next block.
-func (s *PrecompileTestSuite) NextBlock() {
+func (s *UpgradesTestSuite) NextBlock() {
 	var err error
 	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, nil)
-	Expect(err).To(BeNil(), "failed to commit block")
-}
-
-func parseSignature(sig []byte) (r, s []byte, err error) {
-	var inner cryptobyte.String
-	input := cryptobyte.String(sig)
-	if !input.ReadASN1(&inner, asn1.SEQUENCE) ||
-		!input.Empty() ||
-		!inner.ReadASN1Integer(&r) ||
-		!inner.ReadASN1Integer(&s) ||
-		!inner.Empty() {
-		return nil, nil, errors.New("invalid ASN.1")
-	}
-	return r, s, nil
-}
-
-func (s *PrecompileTestSuite) signMsg(msg []byte, priv *ecdsa.PrivateKey) []byte {
-	hash := crypto.Sha256(msg)
-
-	rInt, sInt, err := ecdsa.Sign(rand.Reader, priv, hash)
 	s.Require().NoError(err)
-
-	input := make([]byte, p256.VerifyInputLength)
-	copy(input[0:32], hash)
-	copy(input[32:64], rInt.Bytes())
-	copy(input[64:96], sInt.Bytes())
-	copy(input[96:128], priv.PublicKey.X.Bytes())
-	copy(input[128:160], priv.PublicKey.Y.Bytes())
-
-	return input
 }

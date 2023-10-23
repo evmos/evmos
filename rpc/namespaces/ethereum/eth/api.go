@@ -15,11 +15,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v14/rpc/backend"
+	"github.com/evmos/evmos/v15/rpc/backend"
 
-	rpctypes "github.com/evmos/evmos/v14/rpc/types"
-	"github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v15/rpc/types"
+	"github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // The Ethereum API allows applications to connect to an Evmos node that is
@@ -321,7 +321,10 @@ func (e *PublicAPI) FeeHistory(blockCount rpc.DecimalOrHex,
 // MaxPriorityFeePerGas returns a suggestion for a gas tip cap for dynamic fee transactions.
 func (e *PublicAPI) MaxPriorityFeePerGas() (*hexutil.Big, error) {
 	e.logger.Debug("eth_maxPriorityFeePerGas")
-	head := e.backend.CurrentHeader()
+	head, err := e.backend.CurrentHeader()
+	if err != nil {
+		return nil, err
+	}
 	tipcap, err := e.backend.SuggestGasTipCap(head.BaseFee)
 	if err != nil {
 		return nil, err

@@ -1,3 +1,5 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package p256_test
 
 import (
@@ -8,11 +10,17 @@ import (
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v14/precompiles/p256"
+	"github.com/evmos/evmos/v15/precompiles/p256"
 )
+
+var trueValue = common.LeftPadBytes(common.Big1.Bytes(), 32)
 
 func (s *PrecompileTestSuite) TestAddress() {
 	s.Require().Equal("0x0000000000000000000000000000000000000013", s.precompile.Address().String())
+}
+
+func (s *PrecompileTestSuite) TestRequiredGas() {
+	s.Require().Equal(p256.VerifyGas, s.precompile.RequiredGas(nil))
 }
 
 func (s *PrecompileTestSuite) TestRun() {
@@ -109,8 +117,6 @@ func (s *PrecompileTestSuite) TestRun() {
 			false,
 		},
 	}
-
-	trueValue := common.LeftPadBytes(common.Big1.Bytes(), 32)
 
 	for _, tc := range testCases {
 		input := tc.sign()

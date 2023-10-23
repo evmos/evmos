@@ -5,9 +5,10 @@ package network
 import (
 	"encoding/json"
 	"math"
+	"math/big"
 
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/types"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
@@ -17,10 +18,10 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v14/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v14/x/inflation/types"
-	revtypes "github.com/evmos/evmos/v14/x/revenue/v1/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -30,6 +31,7 @@ import (
 type Network interface {
 	GetContext() sdktypes.Context
 	GetChainID() string
+	GetEIP155ChainID() *big.Int
 	GetDenom() string
 	GetValidators() []stakingtypes.Validator
 
@@ -41,6 +43,7 @@ type Network interface {
 	GetBankClient() banktypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 	GetAuthClient() authtypes.QueryClient
+	GetStakingClient() stakingtypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params
@@ -186,6 +189,11 @@ func (n *IntegrationNetwork) GetContext() sdktypes.Context {
 // GetChainID returns the network's chainID
 func (n *IntegrationNetwork) GetChainID() string {
 	return n.cfg.chainID
+}
+
+// GetEIP155ChainID returns the network EIp-155 chainID number
+func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
+	return n.cfg.eip155ChainID
 }
 
 // GetDenom returns the network's denom

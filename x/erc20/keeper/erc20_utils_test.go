@@ -6,9 +6,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v14/contracts"
-	"github.com/evmos/evmos/v14/x/erc20/types"
-	evm "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/contracts"
+	"github.com/evmos/evmos/v15/x/erc20/types"
+	evm "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {

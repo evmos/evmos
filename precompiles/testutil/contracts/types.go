@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v14/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
 )
 
 // CallArgs is a struct to define all relevant data to call a smart contract.
@@ -39,8 +39,6 @@ type CallArgs struct {
 	PrivKey cryptotypes.PrivKey
 	// Args are the arguments to pass to the method.
 	Args []interface{}
-	// Input is the raw payload bytes for Ethereum precompiles
-	Input []byte
 }
 
 // WithAddress returns the CallArgs with the given address.
@@ -76,12 +74,6 @@ func (c CallArgs) WithGasLimit(gasLimit uint64) CallArgs {
 // WithPrivKey returns the CallArgs with the given private key.
 func (c CallArgs) WithPrivKey(privKey *ethsecp256k1.PrivKey) CallArgs {
 	c.PrivKey = privKey
-	return c
-}
-
-// WithInput returns the CallArgs with the given input bytes
-func (c CallArgs) WithInput(input []byte) CallArgs {
-	c.Input = input
 	return c
 }
 
