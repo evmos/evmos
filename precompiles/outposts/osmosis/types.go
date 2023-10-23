@@ -170,7 +170,7 @@ func ParseSwapPacketData(args []interface{}) (
 
 	input, ok = args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[1])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "input", common.Address{}, args[1])
 	}
 
 	output, ok = args[2].(common.Address)
