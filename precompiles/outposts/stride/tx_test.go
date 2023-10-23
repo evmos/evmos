@@ -16,6 +16,10 @@ import (
 func (s *PrecompileTestSuite) TestLiquidStake() {
 	method := s.precompile.Methods[stride.LiquidStakeMethod]
 
+	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "aevmos")
+	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
+	s.Require().True(ok, "expected token pair to be found")
+
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -35,7 +39,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
 		},
 		{
-			"fail - token pair not found",
+			"fail - unsupported token",
 			func() []interface{} {
 				return []interface{}{
 					s.address,
@@ -47,14 +51,11 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			func() {},
 			200000,
 			true,
-			"token pair not found",
+			"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
 		},
 		{
 			"fail - invalid receiver address (not a stride address)",
 			func() []interface{} {
-				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889")
-				tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
-				s.Require().True(ok, "expected token pair to be found")
 				return []interface{}{
 					s.address,
 					common.HexToAddress(tokenPair.Erc20Address),
@@ -65,14 +66,11 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			func() {},
 			200000,
 			true,
-			"receiverAddress is not a stride address",
+			"receiver is not a stride address",
 		},
 		{
 			"fail - receiver address is an invalid stride bech32 address",
 			func() []interface{} {
-				denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, s.app.StakingKeeper.BondDenom(s.ctx))
-				tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
-				s.Require().True(ok, "expected token pair to be found")
 				return []interface{}{
 					s.address,
 					common.HexToAddress(tokenPair.Erc20Address),
@@ -85,6 +83,23 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			true,
 			"invalid stride bech32 address",
 		},
+		{
+			"success",
+			func() []interface{} {
+				path := NewTransferPath(s.chainA, s.chainB)
+				s.coordinator.Setup(path)
+				return []interface{}{
+					s.address,
+					common.HexToAddress(tokenPair.Erc20Address),
+					big.NewInt(1e18),
+					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+				}
+			},
+			func() {},
+			200000,
+			false,
+			"",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -96,7 +111,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			_, err := s.precompile.LiquidStake(s.ctx, s.address, s.stateDB, contract, &method, tc.malleate())
 
 			if tc.expError {
-				fmt.Println(err)
 				s.Require().ErrorContains(err, tc.errContains)
 			} else {
 				s.Require().NoError(err)

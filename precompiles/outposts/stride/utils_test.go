@@ -250,8 +250,9 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
-	ibcBase := "ibc/3A5B71F2AA11D24F9688A10D4279CE71560489D7A695364FC361EC6E09D02889"
-	osmoMetadata := banktypes.Metadata{
+	// Register EVMOS ERC20 equivalent
+	ibcBase := s.app.StakingKeeper.BondDenom(s.ctx)
+	evmosMetadata := banktypes.Metadata{
 		Description: "The native token of Evmos",
 		Base:        ibcBase,
 		// NOTE: Denom units MUST be increasing
@@ -271,12 +272,12 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Display: "evmos",
 	}
 
-	coin := sdk.NewCoin(osmoMetadata.Base, sdk.NewInt(1000000000000000000))
+	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(1000000000000000000))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
-	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, osmoMetadata)
+	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, evmosMetadata)
 	s.Require().NoError(err)
 
 	// create an account to send transactions from

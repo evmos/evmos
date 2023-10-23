@@ -53,7 +53,7 @@ func (p Precompile) LiquidStake(
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
-	fmt.Println(tokenPairID)
+
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	// NOTE this should always exist
 	if !found {
@@ -81,7 +81,7 @@ func (p Precompile) LiquidStake(
 		sdk.AccAddress(sender.Bytes()).String(),
 		receiver,
 		p.timeoutHeight,
-		ibctransfertypes.DefaultRelativePacketTimeoutTimestamp,
+		0,
 		memo,
 	)
 	if err != nil {
