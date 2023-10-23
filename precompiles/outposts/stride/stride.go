@@ -12,10 +12,12 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
@@ -37,7 +39,7 @@ type Precompile struct {
 	stakingKeeper  stakingkeeper.Keeper
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new Stride outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	portID, channelID string,
@@ -66,7 +68,7 @@ func NewPrecompile(
 		},
 		portID:         portID,
 		channelID:      channelID,
-		timeoutHeight:  clienttypes.NewHeight(100, 100),
+		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
 		stakingKeeper:  stakingKeeper,

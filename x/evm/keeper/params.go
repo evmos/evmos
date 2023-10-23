@@ -3,7 +3,10 @@
 package keeper
 
 import (
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -39,4 +42,35 @@ func (k Keeper) GetLegacyParams(ctx sdk.Context) types.Params {
 	var params types.Params
 	k.ss.GetParamSetIfExists(ctx, &params)
 	return params
+}
+
+// EnablePrecompiles appends the addresses of the given Precompiles to the list
+// of active precompiles.
+func (k Keeper) EnablePrecompiles(ctx sdk.Context, addresses ...common.Address) error {
+	params := k.GetParams(ctx)
+	activePrecompiles := params.ActivePrecompiles
+
+	for _, address := range addresses {
+		activePrecompiles = append(activePrecompiles, address.String())
+	}
+
+	sort.Slice(activePrecompiles, func(i, j int) bool {
+		return activePrecompiles[i] < activePrecompiles[j]
+	})
+
+	params.ActivePrecompiles = activePrecompiles
+
+	return k.SetParams(ctx, params)
+}
+
+// EnableEIPs enables the given EIPs in the EVM parameters.
+func (k Keeper) EnableEIPs(ctx sdk.Context, eips ...int64) error {
+	evmParams := k.GetParams(ctx)
+	evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, eips...)
+
+	sort.Slice(evmParams.ExtraEIPs, func(i, j int) bool {
+		return evmParams.ExtraEIPs[i] < evmParams.ExtraEIPs[j]
+	})
+
+	return k.SetParams(ctx, evmParams)
 }

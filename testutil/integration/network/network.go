@@ -5,6 +5,7 @@ package network
 import (
 	"encoding/json"
 	"math"
+	"math/big"
 
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/types"
@@ -30,6 +31,7 @@ import (
 type Network interface {
 	GetContext() sdktypes.Context
 	GetChainID() string
+	GetEIP155ChainID() *big.Int
 	GetDenom() string
 	GetValidators() []stakingtypes.Validator
 
@@ -187,6 +189,11 @@ func (n *IntegrationNetwork) GetContext() sdktypes.Context {
 // GetChainID returns the network's chainID
 func (n *IntegrationNetwork) GetChainID() string {
 	return n.cfg.chainID
+}
+
+// GetEIP155ChainID returns the network EIp-155 chainID number
+func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
+	return n.cfg.eip155ChainID
 }
 
 // GetDenom returns the network's denom

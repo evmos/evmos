@@ -67,6 +67,7 @@ func Call(ctx sdk.Context, app *evmosapp.Evmos, args CallArgs) (res abci.Respons
 		return abci.ResponseDeliverTx{}, nil, fmt.Errorf("error while packing the input: %v", err)
 	}
 
+	// Create MsgEthereumTx that calls the contract
 	msg := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   app.EvmKeeper.ChainID(),
 		Nonce:     nonce,
