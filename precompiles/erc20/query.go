@@ -11,6 +11,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -44,14 +45,20 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
-	if !found {
-		// TODO: assume the symbol is the title case version of the IBC DenomTrace BaseDenom
-		denom := p.tokenPair.Denom // FIXME: use denomTrace.BaseDenom
-		return method.Outputs.Pack(strings.ToUpper(string(denom[1])) + denom[2:])
+	denom := p.tokenPair.Denom
+	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, denom)
+	if found {
+		return method.Outputs.Pack(metadata.Name)
 	}
 
-	return method.Outputs.Pack(metadata.Name)
+	denomTrace := p.getDenomTrace(ctx)
+	if denomTrace == nil {
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return method.Outputs.Pack("")
+	}
+
+	name := strings.ToUpper(string(denomTrace.BaseDenom[1])) + denomTrace.BaseDenom[2:]
+	return method.Outputs.Pack(name)
 }
 
 // Symbol returns the symbol of the token.
@@ -63,13 +70,18 @@ func (p Precompile) Symbol(
 	_ []interface{},
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
-	if !found {
-		// TODO: assume the symbol is the uppercase version of the IBC DenomTrace BaseDenom
-		denom := p.tokenPair.Denom // FIXME: use denomTrace.BaseDenom
-		return method.Outputs.Pack(strings.ToUpper(denom[1:]))
+	if found {
+		return method.Outputs.Pack(metadata.Symbol)
 	}
 
-	return method.Outputs.Pack(metadata.Symbol)
+	denomTrace := p.getDenomTrace(ctx)
+	if denomTrace == nil {
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return method.Outputs.Pack("")
+	}
+
+	symbol := strings.ToUpper(denomTrace.BaseDenom[1:])
+	return method.Outputs.Pack(symbol)
 }
 
 // Decimals returns the decimals places of the token.
@@ -82,6 +94,12 @@ func (p Precompile) Decimals(
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
+		denomTrace := p.getDenomTrace(ctx)
+		if denomTrace == nil {
+			// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+			return nil, nil
+		}
+
 		// we assume the decimal from the first character of the denomination
 		switch string(p.tokenPair.Denom[0]) { // FIXME: use denomTrace.BaseDenom[0]
 		case "u":
@@ -89,7 +107,8 @@ func (p Precompile) Decimals(
 		case "a":
 			return method.Outputs.Pack(uint8(18))
 		}
-		return nil, banktypes.ErrDenomMetadataNotFound
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return nil, nil
 	}
 
 	var decimals uint32
@@ -171,4 +190,22 @@ func (p Precompile) Allowance(
 	}
 
 	return method.Outputs.Pack(sendAuth.SpendLimit[0].Amount.BigInt())
+}
+
+func (p Precompile) getDenomTrace(ctx sdk.Context) *transfertypes.DenomTrace {
+	if !strings.HasPrefix(p.tokenPair.Denom, "ibc/") {
+		return nil
+	}
+
+	hash, err := transfertypes.ParseHexHash(p.tokenPair.Denom[4:])
+	if err != nil {
+		return nil
+	}
+
+	denomTrace, found := p.transferKeeper.GetDenomTrace(ctx, hash)
+	if !found {
+		return nil
+	}
+
+	return &denomTrace
 }

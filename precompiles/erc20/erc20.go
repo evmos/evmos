@@ -21,6 +21,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the staking precompile ABI JSON file.
@@ -35,6 +36,7 @@ type Precompile struct {
 	tokenPair          erc20types.TokenPair
 	bankKeeper         bankkeeper.Keeper
 	authzKeeper        authzkeeper.Keeper
+	transferKeeper     transferkeeper.Keeper
 	approvalExpiration time.Duration
 }
 
@@ -44,6 +46,7 @@ func NewPrecompile(
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
 	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
 	if err != nil {
@@ -60,6 +63,7 @@ func NewPrecompile(
 		tokenPair:          tokenPair,
 		bankKeeper:         bankKeeper,
 		authzKeeper:        authzKeeper,
+		transferKeeper:     transferKeeper,
 		approvalExpiration: time.Hour * 24 * 365,
 	}, nil
 }
