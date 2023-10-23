@@ -131,6 +131,7 @@ import (
 	v13 "github.com/evmos/evmos/v15/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
 	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
+	v16 "github.com/evmos/evmos/v15/app/upgrades/v16"
 	v8 "github.com/evmos/evmos/v15/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v15/app/upgrades/v8_1"
 	v82 "github.com/evmos/evmos/v15/app/upgrades/v8_2"
@@ -1322,6 +1323,15 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.BankKeeper,
 			app.EvmKeeper,
 			app.StakingKeeper,
+		),
+	)
+
+	// v15 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v16.UpgradeName,
+		v16.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			app.EvmKeeper,
 		),
 	)
 
