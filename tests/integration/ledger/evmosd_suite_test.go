@@ -36,7 +36,9 @@ import (
 	evmoskeyring "github.com/evmos/evmos/v15/crypto/keyring"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 

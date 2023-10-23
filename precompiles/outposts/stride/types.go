@@ -20,6 +20,21 @@ const (
 	StrideBech32Prefix = "stride"
 )
 
+// EventLiquidStake is the event type emitted on a liquidStake transaction
+type EventLiquidStake struct {
+	Sender common.Address
+	Token  common.Address
+	Amount *big.Int
+}
+
+// EventRedeem is the event type emitted on a redeem transaction
+type EventRedeem struct {
+	Sender   common.Address
+	Token    common.Address
+	Receiver string
+	Amount   *big.Int
+}
+
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking).
 // Used to create the memo field for the ICS20 transfer corresponding to Autopilot LiquidStake.
 type StakeIBCPacketMetadata struct {

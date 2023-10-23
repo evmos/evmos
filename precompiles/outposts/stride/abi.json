@@ -10,9 +10,9 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
+        "internalType": "string",
         "name": "receiver",
-        "type": "address"
+        "type": "string"
       },
       {
         "indexed": false,

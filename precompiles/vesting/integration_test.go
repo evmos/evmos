@@ -19,7 +19,9 @@ import (
 	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 

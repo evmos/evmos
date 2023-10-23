@@ -1,6 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package v15
+package v16
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +11,7 @@ import (
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0
+// CreateUpgradeHandler creates an SDK upgrade handler for v16.0.0
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,

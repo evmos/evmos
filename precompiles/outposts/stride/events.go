@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	// EventLiquidStake is the event type emitted on a liquidStake transaction to Autopilot on Stride.
-	EventLiquidStake = "LiquidStake"
-	// EventRedeem is the event type emitted on a redeem transaction to Autopilot on Stride.
-	EventRedeem = "Redeem"
+	// EventTypeLiquidStake is the event type emitted on a liquidStake transaction to Autopilot on Stride.
+	EventTypeLiquidStake = "LiquidStake"
+	// EventTypeRedeem is the event type emitted on a redeem transaction to Autopilot on Stride.
+	EventTypeRedeem = "Redeem"
 )
 
 // EmitLiquidStakeEvent creates a new LiquidStake event on the EVM stateDB.
@@ -29,7 +29,7 @@ func (p Precompile) EmitLiquidStakeEvent(
 	amount *big.Int,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventLiquidStake]
+	event := p.ABI.Events[EventTypeLiquidStake]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
@@ -74,7 +74,7 @@ func (p Precompile) EmitRedeemEvent(
 	amount *big.Int,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventRedeem]
+	event := p.ABI.Events[EventTypeRedeem]
 	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
