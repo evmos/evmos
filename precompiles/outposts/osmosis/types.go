@@ -24,6 +24,9 @@ const (
 	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
 	/// definition of the slippage for the swap.
 	MaxWindowSeconds uint64 = 60
+)
+
+const (
 	// OsmosisDenom is the base denom in the Osmosis chain.
 	OsmosisDenom = "uosmo"
 )
@@ -124,7 +127,7 @@ func (r RawPacketMetadata) ConvertToJSONString() (string, error) {
 	return string(jsonBytes), nil
 }
 
-// ValidateTokens validates the input and outpost tokens for the swap.
+// ValidateSwapToken validates the input and outpost tokens for the swap.
 func ValidateSwapTokens(input, output, stakingDenom, portID, channelID string) error {
 	if input == output {
 		return fmt.Errorf(ErrInputEqualOutput, input)
