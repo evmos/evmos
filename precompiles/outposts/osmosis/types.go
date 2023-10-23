@@ -201,12 +201,12 @@ func ParseSwapPacketData(args []interface{}) (
 
 	windowSeconds, ok = args[5].(uint64)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[5])
 	}
 
 	receiver, ok = args[6].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[4])
+		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[6])
 	}
 
 	// Check if account is a valid bech32 address

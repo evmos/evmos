@@ -2,7 +2,10 @@ package osmosis_test
 
 import (
 	"fmt"
+	"math/big"
 	"testing"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
@@ -17,6 +20,141 @@ func TestCreatePacketWithMemo(t *testing.T) {
 	jsonPacket, err := packet.ConvertToJSONString()
 	require.NoError(t, err, "expected no error while creating memo")
 	require.NotEmpty(t, jsonPacket, "expected memo not to be empty")
+}
+
+// TestParseSwapPacketData is mainly to test that the returned error of the
+// parser is clear and contains the correct data type. For this reason the
+// expected error has been hardcoded as a string litera.
+func TestParseSwapPacketData(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - valid payload",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				uint8(10),
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass: true,
+		}, {
+			name: "fail - wrong sender type",
+			args: []interface{}{
+				"sender",
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				uint8(10),
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for sender: expected common.Address, received string",
+		}, {
+			name: "fail - wrong input type",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				"input",
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				uint8(10),
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for input: expected common.Address, received string",
+		}, {
+			name: "fail - wrong output type",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				common.HexToAddress("input"),
+				"output",
+				big.NewInt(3),
+				uint8(10),
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for output: expected common.Address, received string",
+		}, {
+			name: "fail - wrong amount type",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				3,
+				uint8(10),
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for amount: expected big.Int, received int",
+		}, {
+			name: "fail - wrong slippage percentage type",
+			args: []interface{}{
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				10,
+				uint64(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for slippagePercentage: expected uint8, received int",
+		}, {
+			name: "fail - wrong window seconds type",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				uint8(10),
+				uint16(20),
+				"cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			},
+			expPass:     false,
+			errContains: "invalid type for windowSeconds: expected uint64, received uint16",
+		}, {
+			name: "fail - receiver not bech32",
+			args: []interface{}{
+				common.HexToAddress("sender"),
+				common.HexToAddress("input"),
+				common.HexToAddress("output"),
+				big.NewInt(3),
+				uint8(10),
+				uint16(20),
+				"address",
+			},
+			expPass: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, _, _, _, _, _, err := osmosisoutpost.ParseSwapPacketData(tc.args)
+
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
 }
 
 func TestValidateSwapTokens(t *testing.T) {
