@@ -17,6 +17,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v15/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v15/precompiles/ics20"
+	"github.com/evmos/evmos/v15/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
@@ -35,6 +36,9 @@ func AvailablePrecompiles(
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
+
+	// secp256r1 precompile as per EIP-7212
+	p256Precompile := &p256.Precompile{}
 
 	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
 	if err != nil {
@@ -56,6 +60,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
 
+	precompiles[p256Precompile.Address()] = p256Precompile
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile

@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package stride
+package osmosis
 
 import (
 	"bytes"
@@ -9,17 +9,20 @@ import (
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+)
+
+const (
+	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
+	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -29,24 +32,32 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
+// / Precompile is the structure that define the Osmosis outpost precompiles extending
+// / the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
-	portID         string
-	channelID      string
-	timeoutHeight  clienttypes.Height
+	// IBC
+	portID        string
+	channelID     string
+	timeoutHeight clienttypes.Height
+
+	// Osmosis
+	osmosisXCSContract string
+
+	// Keepers
+	bankKeeper     erc20types.BankKeeper
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
-	stakingKeeper  stakingkeeper.Keeper
 }
 
-// NewPrecompile creates a new Stride outpost Precompile instance as a
+// NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	portID, channelID string,
+	osmosisXCSContract string,
+	bankKeeper erc20types.BankKeeper,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -61,23 +72,23 @@ func NewPrecompile(
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
-			AuthzKeeper:          authzKeeper,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		portID:         portID,
-		channelID:      channelID,
-		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		transferKeeper: transferKeeper,
-		erc20Keeper:    erc20Keeper,
-		stakingKeeper:  stakingKeeper,
+		portID:             portID,
+		channelID:          channelID,
+		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		osmosisXCSContract: osmosisXCSContract,
+		transferKeeper:     transferKeeper,
+		bankKeeper:         bankKeeper,
+		erc20Keeper:        erc20Keeper,
 	}, nil
 }
 
-// Address defines the address of the Stride Outpost precompile contract.
+// Address defines the address of the Osmosis outpost precompile contract.
 func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000900")
+	return common.HexToAddress(OsmosisOutpostAddress)
 }
 
 // IsStateful returns true since the precompile contract has access to the
@@ -99,6 +110,16 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input, p.IsTransaction(method.Name))
 }
 
+// IsTransaction checks if the given method name corresponds to a transaction or query.
+func (Precompile) IsTransaction(method string) bool {
+	switch method {
+	case SwapMethod:
+		return true
+	default:
+		return false
+	}
+}
+
 // Run executes the precompiled contract IBC transfer methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
@@ -111,11 +132,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
-	// Stride Outpost Methods:
-	case LiquidStakeMethod:
-		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, contract, method, args)
-	case RedeemMethod:
-		bz, err = p.Redeem(ctx, evm.Origin, stateDB, contract, method, args)
+	// Osmosis Outpost Methods:
+	case SwapMethod:
+		bz, err = p.Swap(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -131,14 +150,4 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	}
 
 	return bz, nil
-}
-
-// IsTransaction checks if the given method name corresponds to a transaction or query.
-func (Precompile) IsTransaction(method string) bool {
-	switch method {
-	case LiquidStakeMethod, RedeemMethod:
-		return true
-	default:
-		return false
-	}
 }
