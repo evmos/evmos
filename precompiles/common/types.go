@@ -11,7 +11,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "github.com/evmos/evmos/v14/utils"
+	evmosutils "github.com/evmos/evmos/v15/utils"
 )
 
 var (
@@ -23,6 +23,7 @@ var (
 	DefaultChainID = evmosutils.MainnetChainID + "-1"
 	// DefaultPrecompilesBech32 is the standard bech32 address for the precompiles
 	DefaultPrecompilesBech32 = []string{
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn2svlxe", // secp256r1 curve precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqq4xrkxv", // Staking precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile

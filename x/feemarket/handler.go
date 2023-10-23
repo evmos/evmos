@@ -6,7 +6,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v14/x/feemarket/types"
+	"github.com/evmos/evmos/v15/x/feemarket/types"
 )
 
 // NewHandler returns a handler for Ethermint type messages.

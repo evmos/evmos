@@ -8,11 +8,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
-	v3 "github.com/evmos/evmos/v14/x/claims/migrations/v3"
-	v3types "github.com/evmos/evmos/v14/x/claims/migrations/v3/types"
-	"github.com/evmos/evmos/v14/x/claims/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
+	v3 "github.com/evmos/evmos/v15/x/claims/migrations/v3"
+	v3types "github.com/evmos/evmos/v15/x/claims/migrations/v3/types"
+	"github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/stretchr/testify/require"
 )
 

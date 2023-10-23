@@ -141,9 +141,11 @@ evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING
 ## 4. Run `gentx` in each of those folders
 ## 5. Copy the `gentx-*` folders under `~/.clonedEvmosd/config/gentx/` folders into the original `~/.evmosd/config/gentx`
 
-
 # Enable the APIs for the tests to be successful
 sed -i.bak 's/enable = false/enable = true/g' "$APP_TOML"
+
+# Don't enable memiavl by default
+grep -q -F '[memiavl]' "$APP_TOML" && sed -i.bak '/\[memiavl\]/,/^\[/ s/enable = true/enable = false/' "$APP_TOML"
 
 # Collect genesis tx
 evmosd collect-gentxs

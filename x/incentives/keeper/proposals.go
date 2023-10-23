@@ -9,7 +9,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v14/x/incentives/types"
+	"github.com/evmos/evmos/v15/x/incentives/types"
 )
 
 // RegisterIncentive creates an incentive for a contract

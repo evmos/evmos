@@ -22,11 +22,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v14/app"
-	"github.com/evmos/evmos/v14/encoding"
-	v5 "github.com/evmos/evmos/v14/x/evm/migrations/v5"
-	v5types "github.com/evmos/evmos/v14/x/evm/migrations/v5/types"
-	"github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
+	v5 "github.com/evmos/evmos/v15/x/evm/migrations/v5"
+	v5types "github.com/evmos/evmos/v15/x/evm/migrations/v5/types"
+	"github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // AvailableExtraEIPs define the list of all EIPs that can be enabled by the

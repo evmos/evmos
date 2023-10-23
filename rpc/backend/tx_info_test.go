@@ -12,11 +12,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/evmos/v14/indexer"
-	"github.com/evmos/evmos/v14/rpc/backend/mocks"
-	rpctypes "github.com/evmos/evmos/v14/rpc/types"
-	evmostypes "github.com/evmos/evmos/v14/types"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	"github.com/evmos/evmos/v15/indexer"
+	"github.com/evmos/evmos/v15/rpc/backend/mocks"
+	rpctypes "github.com/evmos/evmos/v15/rpc/types"
+	evmostypes "github.com/evmos/evmos/v15/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
 

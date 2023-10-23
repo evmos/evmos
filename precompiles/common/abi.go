@@ -4,6 +4,8 @@
 package common
 
 import (
+	"bytes"
+	"embed"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -127,4 +129,17 @@ func PackNum(value reflect.Value) []byte {
 	default:
 		panic("abi: fatal error")
 	}
+}
+
+func LoadABI(fs embed.FS, path string) (abi.ABI, error) {
+	abiBz, err := fs.ReadFile(path)
+	if err != nil {
+		return abi.ABI{}, fmt.Errorf("error loading the staking ABI %s", err)
+	}
+
+	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	if err != nil {
+		return abi.ABI{}, fmt.Errorf(ErrInvalidABI, err)
+	}
+	return newAbi, nil
 }

@@ -15,7 +15,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
-	claimstypes "github.com/evmos/evmos/v14/x/claims/types"
+	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 )
 
 // BankKeeper defines the banking keeper that must be fulfilled when

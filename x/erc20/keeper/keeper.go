@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v14/x/erc20/types"
+	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 // Keeper of this module maintains collections of erc20.

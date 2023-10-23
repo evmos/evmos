@@ -15,13 +15,13 @@ import (
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
-	cosmosante "github.com/evmos/evmos/v14/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v14/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v14/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v14/x/evm/types"
+	cosmosante "github.com/evmos/evmos/v15/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v15/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
-	vestingtypes "github.com/evmos/evmos/v14/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
