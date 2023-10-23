@@ -1,6 +1,8 @@
 package stride_test
 
 import (
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -8,7 +10,6 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v15/utils"
-	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
@@ -67,7 +68,6 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 				liquidStakeEvent := s.precompile.ABI.Events[stride.EventTypeLiquidStake]
 				s.Require().Equal(liquidStakeEvent.ID, common.HexToHash(liquidStakeLog.Topics[0].Hex()))
 				s.Require().Equal(liquidStakeLog.BlockNumber, uint64(s.ctx.BlockHeight()))
-
 			},
 			200000,
 			false,
