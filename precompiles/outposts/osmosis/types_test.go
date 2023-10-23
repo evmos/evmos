@@ -55,6 +55,76 @@ func TestCreateMemo(t *testing.T) {
 }
 */
 
+func TestValidateSwapTokens(t *testing.T) {
+	t.Parallel()
+
+	portID := "transfer"
+	channelID := "channel-0"
+	osmoVoucher := transfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: osmosisoutpost.OsmosisDenom,
+	}.IBCDenom()
+	stakingDenom := "aevmos"
+
+	testCases := []struct {
+		name        string
+		input       string
+		output      string
+		expPass     bool
+		errContains string
+	}{
+		{
+			name:    "success - valid tokens uosmo for aevmos",
+			input:   osmoVoucher,
+			output:  stakingDenom,
+			expPass: true,
+		}, {
+			name:    "success - valid tokens aevmos for uosmo",
+			input:   stakingDenom,
+			output:  osmoVoucher,
+			expPass: true,
+		}, {
+			name:        "fail - input equal to output aevmos",
+			input:       stakingDenom,
+			output:      stakingDenom,
+			expPass:     false,
+			errContains: osmosisoutpost.ErrInputEqualOutput,
+		}, {
+			name:        "fail - input equal to output uosmos",
+			input:       osmoVoucher,
+			output:      osmoVoucher,
+			expPass:     false,
+			errContains: osmosisoutpost.ErrInputEqualOutput,
+		}, {
+			name:    "fail - input not supported",
+			input:   "btc",
+			output:  stakingDenom,
+			expPass: false,
+			errContains: fmt.Sprintf(
+				osmosisoutpost.ErrInputTokenNotSupported,
+				[]string{stakingDenom, osmoVoucher},
+			),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := osmosisoutpost.ValidateSwapTokens(tc.input, tc.output, stakingDenom, portID, channelID)
+
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
 func TestValidateSwap(t *testing.T) {
 	t.Parallel()
 

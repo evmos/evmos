@@ -118,6 +118,27 @@ func (m Memo) ConvertToJSON() (string, error) {
 	return string(jsonBytes), nil
 }
 
+// ValidateTokens validates the input and outpost tokens for the swap.
+func ValidateSwapTokens(input, output, stakingDenom, portID, channelID string) error {
+	if input == output {
+		return fmt.Errorf(ErrInputEqualOutput, input)
+	}
+
+	osmoIBCDenom := transfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: OsmosisDenom,
+	}.IBCDenom()
+
+	// Check that the input token is evmos or osmo.
+	// This constraint will be removed in future
+	validInput := []string{stakingDenom, osmoIBCDenom}
+	if !slices.Contains(validInput, input) {
+		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
+	}
+
+	return nil
+}
+
 // validateSwap performs validation on the fields used to construct the memo.
 func (m Memo) ValidateSwap(
 	portID,
