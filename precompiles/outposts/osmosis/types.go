@@ -107,7 +107,8 @@ func CreatePacketWithMemo(
 					// NextMemo:         "",
 				},
 			},
-		}}
+		},
+	}
 }
 
 func (r RawPacketMetadata) ConvertToJSON() (string, error) {
