@@ -80,7 +80,7 @@ type Memo struct {
 	Msg *Msg `json:"msg"`
 }
 
-// RawPacketMetadata is the raw packet metadata used to construct a JSON string
+// RawPacketMetadata is the raw packet metadata used to construct a JSON string.
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo.
 	Memo *Memo `json:"memo"`
@@ -161,7 +161,7 @@ func ValidateSwapParameters(slippagePercentage uint8, windowSeconds uint64) erro
 	return nil
 }
 
-// parseSwapPacketData parses the packet data for the Osmosis swap function.
+// ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
 	sender, input, output common.Address,
 	amount *big.Int,
