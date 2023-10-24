@@ -45,8 +45,11 @@ func setupVersionDB(
 	}
 
 	// default to exposing all
-	exposeStoreKeys := make([]storetypes.StoreKey, 0, len(keys))
+	exposeStoreKeys := make([]storetypes.StoreKey, 0, len(keys) + len(memKeys))
 	for _, storeKey := range keys {
+		exposeStoreKeys = append(exposeStoreKeys, storeKey)
+	}
+	for _, storeKey := range memKeys {
 		exposeStoreKeys = append(exposeStoreKeys, storeKey)
 	}
 
@@ -55,7 +58,7 @@ func setupVersionDB(
 
 	verDB := versiondb.NewMultiStore(store, exposeStoreKeys)
 	verDB.MountTransientStores(tkeys)
-	verDB.MountMemoryStores(memKeys)
+	// verDB.MountMemoryStores(memKeys)
 
 	app.SetQueryMultiStore(verDB)
 	return verDB, nil
