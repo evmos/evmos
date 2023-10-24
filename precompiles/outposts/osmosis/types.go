@@ -131,7 +131,6 @@ func (r RawPacketMetadata) String() string {
 func (r RawPacketMetadata) Validate(
 	input, stakingDenom, portID, channelID string,
 ) error {
-
 	osmosisSwap := r.Memo.Msg.OsmosisSwap
 
 	if osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
