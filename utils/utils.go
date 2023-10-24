@@ -109,7 +109,7 @@ func CreateAccAddressFromBech32(address string, bech32prefix string) (addr sdk.A
 }
 
 // ComputeIBCDenom compute the ibc voucher denom associated to
-// the portID and channelID of the precompile given a token denomination.
+// the portID, channelID, and the given a token denomination.
 func ComputeIBCDenom(
 	portID, channelID,
 	denom string,
