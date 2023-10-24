@@ -5,13 +5,10 @@ package stride_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/evmos/evmos/v15/server/config"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"math/big"
 	"time"
 
-	"github.com/evmos/evmos/v15/contracts"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 
@@ -40,7 +37,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evm "github.com/evmos/evmos/v15/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
@@ -277,7 +273,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Display: "evmos",
 	}
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(1000000000000000000))
+	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(2e18))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
@@ -290,7 +286,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: "st" + bondDenom,
 	}
-
+	s.app.TransferKeeper.SetDenomTrace(s.ctx, denomTrace)
 	stEvmosMetadata := banktypes.Metadata{
 		Description: "The native token of Evmos",
 		Base:        denomTrace.IBCDenom(),
@@ -311,17 +307,24 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Display: "stEvmos",
 	}
 
-	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, sdk.NewInt(1000000000000000000))
+	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, sdk.NewInt(9e18))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(stEvmos))
+	s.Require().NoError(err)
+	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, inflationtypes.ModuleName, s.address.Bytes(), sdk.NewCoins(stEvmos))
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
-	tokenPair, err := s.app.Erc20Keeper.RegisterCoin(s.ctx, stEvmosMetadata)
+	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, stEvmosMetadata)
 	s.Require().NoError(err)
 
-	erc20ModuleAddress := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
-	fmt.Println(erc20ModuleAddress)
-	s.MintERC20Token(common.HexToAddress(tokenPair.Erc20Address), erc20ModuleAddress, s.address, big.NewInt(1000000000000000000))
+	convertCoin := erc20types.NewMsgConvertCoin(
+		stEvmos,
+		s.address,
+		s.address.Bytes(),
+	)
+
+	_, err = s.app.Erc20Keeper.ConvertCoin(s.ctx, convertCoin)
+	s.Require().NoError(err)
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
@@ -407,58 +410,4 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().Equal("07-tendermint-0", s.transferPath.EndpointA.ClientID)
 	s.Require().Equal("connection-0", s.transferPath.EndpointA.ConnectionID)
 	s.Require().Equal("channel-0", s.transferPath.EndpointA.ChannelID)
-}
-
-func (s *PrecompileTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
-	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
-	s.Require().NoError(err)
-	return s.sendTx(contractAddr, from, transferData)
-}
-
-func (s *PrecompileTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
-	ctx := sdk.WrapSDKContext(s.ctx)
-	chainID := s.app.EvmKeeper.ChainID()
-
-	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
-	s.Require().NoError(err)
-	res, err := s.queryClientEVM.EstimateGas(ctx, &evm.EthCallRequest{
-		Args:   args,
-		GasCap: config.DefaultGasCap,
-	})
-	s.Require().NoError(err)
-
-	nonce := s.app.EvmKeeper.GetNonce(s.ctx, s.address)
-
-	// Mint the max gas to the FeeCollector to ensure balance in case of refund
-	evmParams := s.app.EvmKeeper.GetParams(s.ctx)
-	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, big.NewInt(1))
-	s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmParams.EvmDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(res.Gas)))))
-	ercTransferTxParams := &evm.EvmTxArgs{
-		ChainID:   chainID,
-		Nonce:     nonce,
-		To:        &contractAddr,
-		GasLimit:  res.Gas,
-		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
-		GasTipCap: big.NewInt(1),
-		Input:     transferData,
-		Accesses:  &ethtypes.AccessList{},
-	}
-	fmt.Println(ercTransferTxParams)
-	ercTransferTx := evm.NewTx(ercTransferTxParams)
-
-	ercTransferTx.From = s.address.Hex()
-	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
-	s.Require().NoError(err)
-	rsp, err := s.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
-	s.Require().NoError(err)
-	fmt.Println(rsp.VmError, rsp.Logs)
-	s.Require().Empty(rsp.VmError)
-	return ercTransferTx
-}
-
-func (s *PrecompileTestSuite) MintFeeCollector(coins sdk.Coins) {
-	err := s.app.BankKeeper.MintCoins(s.ctx, erc20types.ModuleName, coins)
-	s.Require().NoError(err)
-	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, erc20types.ModuleName, authtypes.FeeCollectorName, coins)
-	s.Require().NoError(err)
 }

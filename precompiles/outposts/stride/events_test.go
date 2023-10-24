@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 )
 
-//nolint:dupl
 func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 	method := s.precompile.Methods[stride.LiquidStakeMethod]
 
@@ -104,7 +103,6 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 	}
 }
 
-//nolint:dupl
 func (s *PrecompileTestSuite) TestRedeemEvent() {
 	method := s.precompile.Methods[stride.RedeemMethod]
 
@@ -157,25 +155,25 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 				s.Require().Equal("transfer", ibcTransferEvent.SourcePort)
 				s.Require().Equal("channel-0", ibcTransferEvent.SourceChannel)
 				s.Require().Equal(big.NewInt(1e18), ibcTransferEvent.Amount)
-				s.Require().Equal(utils.BaseDenom, ibcTransferEvent.Denom)
+				s.Require().Equal("ibc/04CDA5EBB8A7E94BB60879B7F43EF0EDD2604990D8AB5BA18ADCB173F66FF874", ibcTransferEvent.Denom)
 
 				memo, err := stride.CreateMemo(stride.RedeemAction, receiver)
 				s.Require().NoError(err)
 				s.Require().Equal(memo, ibcTransferEvent.Memo)
 
-				liquidStakeLog := s.stateDB.Logs()[1]
-				s.Require().Equal(liquidStakeLog.Address, s.precompile.Address())
+				redeemLog := s.stateDB.Logs()[1]
+				s.Require().Equal(redeemLog.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[stride.EventTypeRedeem]
-				s.Require().Equal(event.ID, common.HexToHash(liquidStakeLog.Topics[0].Hex()))
-				s.Require().Equal(liquidStakeLog.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(event.ID, common.HexToHash(redeemLog.Topics[0].Hex()))
+				s.Require().Equal(redeemLog.BlockNumber, uint64(s.ctx.BlockHeight()))
 
-				var liquidStakeEvent stride.EventLiquidStake
-				err = cmn.UnpackLog(s.precompile.ABI, &liquidStakeEvent, stride.EventTypeRedeem, *liquidStakeLog)
+				var redeemEvent stride.EventRedeem
+				err = cmn.UnpackLog(s.precompile.ABI, &redeemEvent, stride.EventTypeRedeem, *redeemLog)
 				s.Require().NoError(err)
-				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), liquidStakeEvent.Sender)
-				s.Require().Equal(common.HexToAddress(tokenPair.Erc20Address), liquidStakeEvent.Token)
-				s.Require().Equal(big.NewInt(1e18), liquidStakeEvent.Amount)
+				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), redeemEvent.Sender)
+				s.Require().Equal(common.HexToAddress(tokenPair.Erc20Address), redeemEvent.Token)
+				s.Require().Equal(big.NewInt(1e18), redeemEvent.Amount)
 			},
 			200000,
 			false,
