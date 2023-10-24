@@ -5,6 +5,9 @@ package stride_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/evmos/evmos/v15/server/config"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"math/big"
 	"time"
 
@@ -31,14 +34,13 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	evmosapp "github.com/evmos/evmos/v15/app"
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
 	evmosutil "github.com/evmos/evmos/v15/testutil"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
+	evm "github.com/evmos/evmos/v15/x/evm/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
@@ -283,8 +285,6 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, evmosMetadata)
 	s.Require().NoError(err)
 
-	// stEvmosAddr, err := s.DeployContract("stEvmos", "stEvmos", 18)
-
 	// Register stEvmos Token Pair
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
@@ -316,8 +316,12 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
-	_, err = s.app.Erc20Keeper.RegisterCoin(s.ctx, stEvmosMetadata)
+	tokenPair, err := s.app.Erc20Keeper.RegisterCoin(s.ctx, stEvmosMetadata)
 	s.Require().NoError(err)
+
+	erc20ModuleAddress := common.BytesToAddress(authtypes.NewModuleAddress(erc20types.ModuleName).Bytes())
+	fmt.Println(erc20ModuleAddress)
+	s.MintERC20Token(common.HexToAddress(tokenPair.Erc20Address), erc20ModuleAddress, s.address, big.NewInt(1000000000000000000))
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
@@ -351,67 +355,6 @@ func (s *PrecompileTestSuite) NewPrecompileContract(gas uint64) *vm.Contract {
 	s.Require().Zero(initialGas)
 
 	return contract
-}
-
-// NewTransferAuthorizationWithAllocations creates a new allocation for the given grantee and granter and the given coins
-func (s *PrecompileTestSuite) NewTransferAuthorizationWithAllocations(ctx sdk.Context, app *evmosapp.Evmos, grantee, granter common.Address, allocations []transfertypes.Allocation) error {
-	transferAuthz := &transfertypes.TransferAuthorization{Allocations: allocations}
-	if err := transferAuthz.ValidateBasic(); err != nil {
-		return err
-	}
-
-	// create the authorization
-	return app.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), transferAuthz, &s.defaultExpirationDuration)
-}
-
-// NewTransferAuthorization creates a new transfer authorization for the given grantee and granter and the given coins
-func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *evmosapp.Evmos, grantee, granter common.Address, path *ibctesting.Path, coins sdk.Coins, allowList []string) error {
-	allocations := []transfertypes.Allocation{
-		{
-			SourcePort:    path.EndpointA.ChannelConfig.PortID,
-			SourceChannel: path.EndpointA.ChannelID,
-			SpendLimit:    coins,
-			AllowList:     allowList,
-		},
-	}
-
-	transferAuthz := &transfertypes.TransferAuthorization{Allocations: allocations}
-	if err := transferAuthz.ValidateBasic(); err != nil {
-		return err
-	}
-
-	// create the authorization
-	return app.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), transferAuthz, &s.defaultExpirationDuration)
-}
-
-// GetTransferAuthorization returns the transfer authorization for the given grantee and granter
-func (s *PrecompileTestSuite) GetTransferAuthorization(ctx sdk.Context, grantee, granter common.Address) *transfertypes.TransferAuthorization {
-	grant, _ := s.app.AuthzKeeper.GetAuthorization(ctx, grantee.Bytes(), granter.Bytes(), ics20.TransferMsgURL)
-	s.Require().NotNil(grant)
-	transferAuthz, ok := grant.(*transfertypes.TransferAuthorization)
-	s.Require().True(ok)
-	s.Require().NotNil(transferAuthz)
-	return transferAuthz
-}
-
-// CheckAllowanceChangeEvent is a helper function used to check the allowance change event arguments.
-func (s *PrecompileTestSuite) CheckAllowanceChangeEvent(log *ethtypes.Log, methods []string, amounts []*big.Int) {
-	// Check event signature matches the one emitted
-	event := s.precompile.ABI.Events[authorization.EventTypeAllowanceChange]
-	s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-	s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
-
-	var approvalEvent authorization.EventAllowanceChange
-	err := cmn.UnpackLog(s.precompile.ABI, &approvalEvent, authorization.EventTypeAllowanceChange, *log)
-	s.Require().NoError(err)
-	s.Require().Equal(s.address, approvalEvent.Grantee)
-	s.Require().Equal(s.address, approvalEvent.Granter)
-	s.Require().Equal(len(methods), len(approvalEvent.Methods))
-
-	for i, method := range methods {
-		s.Require().Equal(method, approvalEvent.Methods[i])
-		s.Require().Equal(amounts[i], approvalEvent.Values[i])
-	}
 }
 
 // NewTransferPath creates a new path between two chains with the specified portIds and version.
@@ -466,15 +409,56 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().Equal("channel-0", s.transferPath.EndpointA.ChannelID)
 }
 
-// DeployContract deploys the ERC20MinterBurnerDecimalsContract.
-func (s *PrecompileTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
-	addr, err := evmosutil.DeployContract(
-		s.ctx,
-		s.app,
-		s.privKey,
-		s.queryClientEVM,
-		contracts.ERC20MinterBurnerDecimalsContract,
-		name, symbol, decimals,
-	)
-	return addr, err
+func (s *PrecompileTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {
+	transferData, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("mint", to, amount)
+	s.Require().NoError(err)
+	return s.sendTx(contractAddr, from, transferData)
+}
+
+func (s *PrecompileTestSuite) sendTx(contractAddr, from common.Address, transferData []byte) *evm.MsgEthereumTx {
+	ctx := sdk.WrapSDKContext(s.ctx)
+	chainID := s.app.EvmKeeper.ChainID()
+
+	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
+	s.Require().NoError(err)
+	res, err := s.queryClientEVM.EstimateGas(ctx, &evm.EthCallRequest{
+		Args:   args,
+		GasCap: config.DefaultGasCap,
+	})
+	s.Require().NoError(err)
+
+	nonce := s.app.EvmKeeper.GetNonce(s.ctx, s.address)
+
+	// Mint the max gas to the FeeCollector to ensure balance in case of refund
+	evmParams := s.app.EvmKeeper.GetParams(s.ctx)
+	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, big.NewInt(1))
+	s.MintFeeCollector(sdk.NewCoins(sdk.NewCoin(evmParams.EvmDenom, sdk.NewInt(s.app.FeeMarketKeeper.GetBaseFee(s.ctx).Int64()*int64(res.Gas)))))
+	ercTransferTxParams := &evm.EvmTxArgs{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        &contractAddr,
+		GasLimit:  res.Gas,
+		GasFeeCap: s.app.FeeMarketKeeper.GetBaseFee(s.ctx),
+		GasTipCap: big.NewInt(1),
+		Input:     transferData,
+		Accesses:  &ethtypes.AccessList{},
+	}
+	fmt.Println(ercTransferTxParams)
+	ercTransferTx := evm.NewTx(ercTransferTxParams)
+
+	ercTransferTx.From = s.address.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), s.signer)
+	s.Require().NoError(err)
+	rsp, err := s.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	s.Require().NoError(err)
+	fmt.Println(rsp.VmError, rsp.Logs)
+	s.Require().Empty(rsp.VmError)
+	return ercTransferTx
+}
+
+func (s *PrecompileTestSuite) MintFeeCollector(coins sdk.Coins) {
+	err := s.app.BankKeeper.MintCoins(s.ctx, erc20types.ModuleName, coins)
+	s.Require().NoError(err)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, erc20types.ModuleName, authtypes.FeeCollectorName, coins)
+	s.Require().NoError(err)
 }
