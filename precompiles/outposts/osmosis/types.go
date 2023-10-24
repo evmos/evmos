@@ -108,7 +108,7 @@ func CreatePacketWithMemo(
 					},
 					Receiver:         receiver,
 					OnFailedDelivery: onFailedDelivery,
-					// NextMemo:         "",
+					NextMemo:         "",
 				},
 			},
 		},
