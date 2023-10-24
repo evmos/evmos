@@ -128,8 +128,21 @@ func (r RawPacketMetadata) String() string {
 }
 
 // ValidateSwapToken validates the input and outpost tokens for the swap.
-func ValidateSwapTokens(input, output, stakingDenom, portID, channelID string) error {
-	if input == output {
+func (r RawPacketMetadata) Validate(
+	input, stakingDenom, portID, channelID string,
+) error {
+
+	osmosisSwap := r.Memo.Msg.OsmosisSwap
+
+	if osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrMaxSlippagePercentage)
+	}
+
+	if osmosisSwap.Slippage.Twap.WindowSeconds > MaxWindowSeconds {
+		return fmt.Errorf(ErrMaxWindowSeconds)
+	}
+
+	if osmosisSwap.OutputDenom == input {
 		return fmt.Errorf(ErrInputEqualOutput, input)
 	}
 
