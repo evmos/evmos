@@ -252,6 +252,9 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
+	// Registered the supported Coin and ERC20
+	s.registerStrideCoinERC20()
+
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
 		T:              s.T(),
