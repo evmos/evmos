@@ -75,6 +75,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ics20) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
 - (stride-outpost) [#1926](https://github.com/evmos/evmos/pull/1926) Refactor event names and definitions.
 - (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
+- (stride-outpost) [#1932](https://github.com/evmos/evmos/pull/1932) Add transaction implementation and events unit tests.
 
 ### Bug Fixes
 
