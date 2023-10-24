@@ -5,11 +5,12 @@ package stride_test
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
+	"time"
+
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/evmos/evmos/v15/server/config"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	"math/big"
-	"time"
 
 	"github.com/evmos/evmos/v15/contracts"
 
