@@ -160,19 +160,6 @@ func (r RawPacketMetadata) Validate(
 	return nil
 }
 
-// ValidateSwapParameters validates the parameters used to perform the swap.
-func ValidateSwapParameters(slippagePercentage uint8, windowSeconds uint64) error {
-	if slippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrMaxSlippagePercentage)
-	}
-
-	if windowSeconds > MaxWindowSeconds {
-		return fmt.Errorf(ErrMaxWindowSeconds)
-	}
-
-	return nil
-}
-
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
 	sender, input, output common.Address,
