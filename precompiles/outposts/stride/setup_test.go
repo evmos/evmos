@@ -22,8 +22,6 @@ import (
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -60,10 +58,6 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "ICS20 Precompile Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
