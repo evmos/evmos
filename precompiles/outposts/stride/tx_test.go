@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v15/utils"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
@@ -19,7 +21,7 @@ import (
 func (s *PrecompileTestSuite) TestLiquidStake() {
 	method := s.precompile.Methods[stride.LiquidStakeMethod]
 
-	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, "aevmos")
+	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, utils.BaseDenom)
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
@@ -146,7 +148,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 
 	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
 	denomTrace := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", "transfer", "channel-0"),
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: "st" + bondDenom,
 	}
 
