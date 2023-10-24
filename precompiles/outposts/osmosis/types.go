@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/address"
 	"golang.org/x/exp/slices"
 
-	"github.com/cosmos/btcutil/bech32"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
@@ -155,19 +155,6 @@ func (r RawPacketMetadata) Validate(
 	validInput := []string{stakingDenom, osmoIBCDenom}
 	if !slices.Contains(validInput, input) {
 		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-	}
-
-	return nil
-}
-
-// ValidateSwapParameters validates the parameters used to perform the swap.
-func ValidateSwapParameters(slippagePercentage uint8, windowSeconds uint64) error {
-	if slippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrMaxSlippagePercentage)
-	}
-
-	if windowSeconds > MaxWindowSeconds {
-		return fmt.Errorf(ErrMaxWindowSeconds)
 	}
 
 	return nil

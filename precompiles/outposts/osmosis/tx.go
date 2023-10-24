@@ -5,7 +5,11 @@ package osmosis
 
 import (
 	"fmt"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
@@ -18,6 +22,19 @@ const (
 	SwapMethod = "swap"
 	// SwapAction is the action name needed in the memo field
 	SwapAction = "Swap"
+)
+
+const (
+	// NextMemo is the memo to use after the swap of the token in the IBC packet
+	// built on the Osmosis chain. In the alpha version of the outpost this is
+	// an empty string that will not be included in the XCS contract payload.
+	NextMemo = ""
+
+	//TODO: XCSContract is the swap contract on the Osmosis chain
+	XCSContract = "placeholder"
+
+	// OsmosisPrefix is the prefix for osmosis addresses
+	OsmosisPrefix = "osmo"
 )
 
 // Swap is a transaction that swap tokens on the Osmosis chain using
@@ -68,8 +85,26 @@ func (p Precompile) Swap(
 	// the only two inputs allowed are aevmos and uosmo.
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 
-	packet := osmosisoutpost.CreatePacketWithMemo(
-		tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
+	// If the receiver has not the prefix "osmo", we should compute its address
+	// in the Osmosis chain as a recovery address for the contract. This address
+	// is computed on the outpost for the alpha version just to be sure that it
+	// is provided in the payload.
+
+	// Assume that receiver is an Osmosis address and update if not
+	onFailedDelivery := receiver
+	bech32Prefix, address, err := bech32.DecodeAndConvert(receiver)
+	if err != nil {
+		return nil, err
+	}
+	if bech32Prefix != OsmosisPrefix {
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	packet := CreatePacketWithMemo(
+		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
 	packetString := packet.String()
 
