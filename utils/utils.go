@@ -5,6 +5,7 @@ package utils
 
 import (
 	"fmt"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"strings"
 
 	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
@@ -104,4 +105,18 @@ func CreateAccAddressFromBech32(address string, bech32prefix string) (addr sdk.A
 	}
 
 	return sdk.AccAddress(bz), nil
+}
+
+// ComputeIBCDenom compute the ibc voucher denom associated to
+// the portID and channelID of the precompile given a token denomination.
+func ComputeIBCDenom(
+	portID, channelID,
+	denom string,
+) string {
+	denomTrace := ibctransfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: denom,
+	}
+
+	return denomTrace.IBCDenom()
 }

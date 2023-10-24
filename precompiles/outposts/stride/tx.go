@@ -6,8 +6,9 @@ package stride
 import (
 	"fmt"
 
+	"github.com/evmos/evmos/v15/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -159,7 +160,7 @@ func (p Precompile) Redeem(
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 	stToken := "st" + bondDenom
 
-	ibcDenom := computeIBCDenom(p.portID, p.channelID, stToken)
+	ibcDenom := utils.ComputeIBCDenom(p.portID, p.channelID, stToken)
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, ibcDenom)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
@@ -234,18 +235,4 @@ func (p Precompile) Redeem(
 	}
 
 	return method.Outputs.Pack(res.Sequence, true)
-}
-
-// computeIBCDenom compute the ibc voucher denom associated to
-// the portID and channelID of the precompile given a token denomination.
-func computeIBCDenom(
-	portID, channelID,
-	denom string,
-) string {
-	denomTrace := ibctransfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: denom,
-	}
-
-	return denomTrace.IBCDenom()
 }
