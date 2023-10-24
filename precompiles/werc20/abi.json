@@ -30,31 +30,6 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "DecreaseAllowance",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
 				"name": "dst",
 				"type": "address"
 			},
@@ -66,31 +41,6 @@
 			}
 		],
 		"name": "Deposit",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "IncreaseAllowance",
 		"type": "event"
 	},
 	{
@@ -230,7 +180,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "subtractedValue",
 				"type": "uint256"
 			}
 		],
@@ -261,7 +211,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "addedValue",
 				"type": "uint256"
 			}
 		],
@@ -380,5 +330,9 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]
