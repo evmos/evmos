@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -47,6 +48,7 @@ type Precompile struct {
 	// Keepers
 	bankKeeper     erc20types.BankKeeper
 	transferKeeper transferkeeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 }
 
@@ -57,6 +59,7 @@ func NewPrecompile(
 	osmosisXCSContract string,
 	bankKeeper erc20types.BankKeeper,
 	transferKeeper transferkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
@@ -82,6 +85,7 @@ func NewPrecompile(
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
+		stakingKeeper:      stakingKeeper,
 		erc20Keeper:        erc20Keeper,
 	}, nil
 }
