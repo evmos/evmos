@@ -214,7 +214,7 @@ func TestParseSwapPacketData(t *testing.T) {
 	}
 }
 
-func TestValidateSwapTokens(t *testing.T) {
+func TestValidatePacket(t *testing.T) {
 	t.Parallel()
 
 	portID := "transfer"
