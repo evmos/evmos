@@ -59,15 +59,12 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			packet := osmosisoutpost.CreatePacketWithMemo(
 				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
 			)
-			jsonPacket := packet.String()
+			packetString := packet.String()
 
 			if tc.expMemo {
-				t.Log(jsonPacket)
-				t.Log(fmt.Printf("next_memo: %s", tc.nextMemo))
-				require.Contains(t, jsonPacket, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
+				require.Contains(t, packetString, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
 			} else {
-				t.Log(fmt.Printf("next_memo: %s", tc.nextMemo))
-				require.NotContains(t, jsonPacket, fmt.Sprintf("next_memo: %s", tc.nextMemo))
+				require.NotContains(t, packetString, fmt.Sprintf("next_memo: %s", tc.nextMemo))
 			}
 		})
 
