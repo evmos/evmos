@@ -74,6 +74,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ics20) [#1916](https://github.com/evmos/evmos/pull/1916) Make ICS20 Transfer event a common function.
 - (ics20) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
 - (stride-outpost) [#1926](https://github.com/evmos/evmos/pull/1926) Refactor event names and definitions.
+- (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
 
 ### Bug Fixes
 
