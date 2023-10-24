@@ -5,8 +5,9 @@ package utils
 
 import (
 	"fmt"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"strings"
+
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
 
