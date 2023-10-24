@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from .network import create_snapshots_dir, setup_custom_evmos
-from .utils import memiavl_config, w3_wait_for_new_blocks
+from .utils import memiavl_config, wait_for_block
 
 
 @pytest.fixture(scope="module")
@@ -48,7 +48,7 @@ def test_gas_eth_tx(evmos_cluster):
     When node does not persist ABCI responses
     eth_gasPrice should return an error instead of crashing
     """
-    w3_wait_for_new_blocks(evmos_cluster.w3, 3)
+    wait_for_block(evmos_cluster.cosmos_cli(), 3)
     try:
         evmos_cluster.w3.eth.gas_price
         raise Exception("This query should have failed")
