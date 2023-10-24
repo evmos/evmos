@@ -6,7 +6,6 @@ package osmosis
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 
 	"golang.org/x/exp/slices"
@@ -92,7 +91,7 @@ func CreatePacketWithMemo(
 	outputDenom, receiver, contract string,
 	slippagePercentage uint8,
 	windowSeconds uint64,
-	onFailedDelivery string,
+	onFailedDelivery, nextMemo string,
 ) *RawPacketMetadata {
 	return &RawPacketMetadata{
 		&Memo{
@@ -108,7 +107,7 @@ func CreatePacketWithMemo(
 					},
 					Receiver:         receiver,
 					OnFailedDelivery: onFailedDelivery,
-					NextMemo:         "",
+					NextMemo:         nextMemo,
 				},
 			},
 		},
@@ -117,14 +116,14 @@ func CreatePacketWithMemo(
 
 // ConvertToJSON convert the RawPacketMetadata type into a JSON formatted
 // string.
-func (r RawPacketMetadata) ConvertToJSONString() (string, error) {
+func (r RawPacketMetadata) String() string {
 	// Convert the struct to a JSON string
 	jsonBytes, err := json.MarshalIndent(r, "", "  ")
 	if err != nil {
-		log.Fatalf("Failed to marshal JSON: %v", err)
+		return ""
 	}
 
-	return string(jsonBytes), nil
+	return string(jsonBytes)
 }
 
 // ValidateSwapToken validates the input and outpost tokens for the swap.

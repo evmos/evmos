@@ -15,11 +15,63 @@ import (
 func TestCreatePacketWithMemo(t *testing.T) {
 	t.Parallel()
 
-	packet := osmosisoutpost.CreatePacketWithMemo("aevmos", "receiver", "contract", 10, 30, "osmoAddress")
+	testCases := []struct {
+		name               string
+		outputDenom        string
+		receiver           string
+		contract           string
+		slippagePercentage uint8
+		windowSeconds      uint64
+		onFailedDelivery   string
+		nextMemo           string
+		expMemo            bool
+	}{
+		{
+			name:               "pass - correct string without memo",
+			outputDenom:        "aevmos",
+			receiver:           "receiver",
+			contract:           "contract",
+			slippagePercentage: 10,
+			windowSeconds:      30,
+			onFailedDelivery:   "do_nothing",
+			nextMemo:           "",
+			expMemo:            false,
+		},
+		{
+			name:               "pass - correct string with memo",
+			outputDenom:        "aevmos",
+			receiver:           "receiver",
+			contract:           "contract",
+			slippagePercentage: 10,
+			windowSeconds:      30,
+			onFailedDelivery:   "do_nothing",
+			nextMemo:           "a next memo",
+			expMemo:            true,
+		},
+	}
 
-	jsonPacket, err := packet.ConvertToJSONString()
-	require.NoError(t, err, "expected no error while creating memo")
-	require.NotEmpty(t, jsonPacket, "expected memo not to be empty")
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			packet := osmosisoutpost.CreatePacketWithMemo(
+				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
+			)
+			jsonPacket := packet.String()
+
+			if tc.expMemo {
+				t.Log(jsonPacket)
+				t.Log(fmt.Printf("next_memo: %s", tc.nextMemo))
+				require.Contains(t, jsonPacket, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
+			} else {
+				t.Log(fmt.Printf("next_memo: %s", tc.nextMemo))
+				require.NotContains(t, jsonPacket, fmt.Sprintf("next_memo: %s", tc.nextMemo))
+			}
+		})
+
+	}
 }
 
 // TestParseSwapPacketData is mainly to test that the returned error of the
