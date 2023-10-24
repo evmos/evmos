@@ -29,6 +29,7 @@ import (
 // It was designed to avoid users to access module's keepers directly and force integration tests
 // to be closer to the real user's behavior.
 type Network interface {
+	GetApp() *app.Evmos
 	GetContext() sdktypes.Context
 	GetChainID() string
 	GetEIP155ChainID() *big.Int
@@ -179,6 +180,11 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
 	n.validators = validators
 	return nil
+}
+
+// GetApp returns the network's application
+func (n *IntegrationNetwork) GetApp() *app.Evmos {
+	return n.app
 }
 
 // GetContext returns the network's context
