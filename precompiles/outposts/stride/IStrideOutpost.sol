@@ -46,15 +46,15 @@ interface IStrideOutpost {
 
     /// @dev Emitted on a Redeem transaction.
     /// @param sender The address of the sender.
+    /// @param receiver The address of the receiver on the Evmos chain.
     /// @param token The token to be un-luquid staked.
-    /// @param evmosReceiver The address of the receiver on the Evmos chain.
-    /// @param receiver The bech32-formatted address of the receiver on the Stride chain.
+    /// @param strideForwarder The bech32-formatted address of the receiver on the Stride chain.
     /// @param amount The amount of tokens to unstake.
     event RedeemStake(
         address indexed sender,
+        address indexed receiver,
         address indexed token,
-        address evmosReceiver,
-        string receiver,
+        string strideForwarder,
         uint256 amount
     );
 
@@ -75,17 +75,17 @@ interface IStrideOutpost {
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
     /// the native Coin by sending an ICS20 Transfer to the specified chain.
     /// @param sender The sender of the redeem transaction.
+    /// @param receiver the address of the receiver on Evmos.
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
-    /// @param evmosReceiver the address of the receiver on Evmos.
-    /// @param receiver The bech32-formatted address of the receiver on Stride.
+    /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
     /// @return nextSequence sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded.
     function redeemStake(
         address sender,
+        address receiver,
         address token,
-        uint256 amount,
-        address evmosReceiver,
-        string calldata receiver
+        string calldata strideForwarder,
+        uint256 amount
     ) external returns (uint64 nextSequence, bool success);
 }

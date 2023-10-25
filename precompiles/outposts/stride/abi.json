@@ -85,19 +85,19 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "token",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "evmosReceiver",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "string",
-        "name": "receiver",
+        "name": "strideForwarder",
         "type": "string"
       },
       {
@@ -158,23 +158,23 @@
       },
       {
         "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "token",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "strideForwarder",
+        "type": "string"
       },
       {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "evmosReceiver",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "receiver",
-        "type": "string"
       }
     ],
     "name": "redeemStake",

@@ -142,7 +142,7 @@ func (p Precompile) RedeemStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, token, amount, evmosReceiver, receiver, err := parseRedeemStakeArgs(args)
+	sender, receiver, token, strideForwarder, amount, err := parseRedeemStakeArgs(args)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +175,7 @@ func (p Precompile) RedeemStake(
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer
-	memo, err := CreateMemo(RedeemStakeAction, receiver, sdk.AccAddress(evmosReceiver.Bytes()).String())
+	memo, err := CreateMemo(RedeemStakeAction, strideForwarder, sdk.AccAddress(receiver.Bytes()).String())
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (p Precompile) RedeemStake(
 		p.channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
+		strideForwarder,
 		p.timeoutHeight,
 		0,
 		memo,
@@ -230,7 +230,7 @@ func (p Precompile) RedeemStake(
 	}
 
 	// Emit the custom RedeemStake Event
-	if err := p.EmitRedeemEvent(ctx, stateDB, sender, token, evmosReceiver, receiver, amount); err != nil {
+	if err := p.EmitRedeemStakeEvent(ctx, stateDB, sender, token, receiver, strideForwarder, amount); err != nil {
 		return nil, err
 	}
 
