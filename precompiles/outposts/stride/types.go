@@ -29,17 +29,18 @@ type EventLiquidStake struct {
 
 // EventRedeem is the event type emitted on a redeem transaction
 type EventRedeem struct {
-	Sender   common.Address
-	Token    common.Address
-	Receiver string
-	Amount   *big.Int
+	Sender          common.Address
+	Token           common.Address
+	Receiver        common.Address
+	StrideForwarder string
+	Amount          *big.Int
 }
 
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking).
 // Used to create the memo field for the ICS20 transfer corresponding to Autopilot LiquidStake.
 type StakeIBCPacketMetadata struct {
-	Action        string
-	StrideAddress string
+	Action      string
+	IBCReceiver string
 }
 
 // Autopilot defines the receiver and IBC packet metadata info specific to the
@@ -54,6 +55,23 @@ type RawPacketMetadata struct {
 	Autopilot *Autopilot `json:"autopilot"`
 }
 
+// ValidateBasic validates the RawPacketMetadata structure and fields
+func (r RawPacketMetadata) ValidateBasic() error {
+	if r.Autopilot.StakeIBC.Action == "" {
+		return fmt.Errorf(ErrEmptyAutopilotAction)
+	}
+
+	if r.Autopilot.Receiver == "" {
+		return fmt.Errorf(ErrEmptyReceiver)
+	}
+
+	if r.Autopilot.StakeIBC.Action == RedeemStakeAction && r.Autopilot.StakeIBC.IBCReceiver == "" {
+		return fmt.Errorf(ErrRedeemStakeEmptyIBCReceiver)
+	}
+
+	return nil
+}
+
 // parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
 func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
@@ -62,22 +80,22 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "sender", "", args[0])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
 
 	token, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "token", "", args[1])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", "", args[2])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[2])
 	}
 
 	receiver, ok := args[3].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[3])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", fmt.Sprintf("%T", args[3]))
 	}
 
 	// Check if the receiver address has stride before
@@ -94,16 +112,70 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 	return sender, token, amount, receiver, nil
 }
 
-// CreateMemo creates the memo for the StakeIBC actions - LiquidStake and Redeem.
-func CreateMemo(action, receiverAddress string) (string, error) {
+// parseRedeemStakeArgs parses the arguments from the Redeem Stake method call
+func parseRedeemStakeArgs(args []interface{}) (common.Address, common.Address, common.Address, string, *big.Int, error) {
+	if len(args) != 5 {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+	}
+
+	sender, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
+	}
+
+	receiver, ok := args[1].(common.Address)
+	if !ok {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "receiver", common.Address{}, args[1])
+	}
+
+	token, ok := args[2].(common.Address)
+	if !ok {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[2])
+	}
+
+	amount, ok := args[3].(*big.Int)
+	if !ok {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[3])
+	}
+
+	strideForwarder, ok := args[4].(string)
+	if !ok {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "strideForwardeer", "", fmt.Sprintf("%T", args[4]))
+	}
+
+	// Check if the receiver address has stride before
+	if strideForwarder[:6] != StrideBech32Prefix {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf("receiver is not a stride address")
+	}
+
+	// Check if account is a valid bech32 address
+	_, err := utils.CreateAccAddressFromBech32(strideForwarder, StrideBech32Prefix)
+	if err != nil {
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
+	}
+
+	return sender, receiver, token, strideForwarder, amount, nil
+}
+
+// CreateMemo creates the memo for the StakeIBC actions - LiquidStake and RedeemStake.
+func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 	// Create a new instance of the struct and populate it
 	data := &RawPacketMetadata{
 		Autopilot: &Autopilot{
-			Receiver: receiverAddress,
+			Receiver: strideForwarder,
 			StakeIBC: &StakeIBCPacketMetadata{
 				Action: action,
 			},
 		},
+	}
+
+	// Populate the IBC Receiver field if the action is RedeemStake
+	if action == RedeemStakeAction {
+		data.Autopilot.StakeIBC.IBCReceiver = receiver
+	}
+
+	if err := data.ValidateBasic(); err != nil {
+		return "", err
 	}
 
 	// Convert the struct to a JSON string

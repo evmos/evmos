@@ -11,17 +11,26 @@ func TestCreateMemo(t *testing.T) {
 	t.Parallel()
 
 	testcases := []struct {
-		name        string
-		action      string
-		receiver    string
-		expPass     bool
-		errContains string
+		name          string
+		action        string
+		receiver      string
+		evmosReceiver string
+		expPass       bool
+		errContains   string
 	}{
 		{
-			name:     "success - liquid stake",
-			action:   strideoutpost.LiquidStakeAction,
-			receiver: "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
-			expPass:  true,
+			name:          "success - liquid stake",
+			action:        strideoutpost.LiquidStakeAction,
+			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+			evmosReceiver: strideoutpost.NoReceiver,
+			expPass:       true,
+		},
+		{
+			name:          "success - redeem stake",
+			action:        strideoutpost.RedeemStakeAction,
+			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+			evmosReceiver: "evmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+			expPass:       true,
 		},
 	}
 
@@ -31,7 +40,7 @@ func TestCreateMemo(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			memo, err := strideoutpost.CreateMemo(tc.action, tc.receiver)
+			memo, err := strideoutpost.CreateMemo(tc.action, tc.receiver, tc.evmosReceiver)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 				require.NotEmpty(t, memo, "expected memo not to be empty")
