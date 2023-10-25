@@ -24,6 +24,8 @@ const (
 	LiquidStakeAction = "LiquidStake"
 	// RedeemStakeAction is the action name needed in the memo field
 	RedeemStakeAction = "RedeemStake"
+	// NoReceiver is the string used in the memo field when the receiver is not needed
+	NoReceiver = ""
 )
 
 // LiquidStake is a transaction that liquid stakes tokens using
@@ -69,7 +71,7 @@ func (p Precompile) LiquidStake(
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
-	memo, err := CreateMemo(LiquidStakeAction, receiver, "")
+	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)
 	if err != nil {
 		return nil, err
 	}
