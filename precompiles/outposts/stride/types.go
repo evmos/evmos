@@ -153,13 +153,8 @@ func CreateMemo(action, receiverAddress, evmosReceiver string) (string, error) {
 	}
 
 	// Populate the IBC Receiver field if the action is RedeemStake
-	switch action {
-	case RedeemStakeAction:
+	if action == RedeemStakeAction {
 		data.Autopilot.StakeIBC.IBCReceiver = evmosReceiver
-	case LiquidStakeAction:
-		data.Autopilot.StakeIBC.IBCReceiver = ""
-	default:
-		return "", fmt.Errorf("invalid action: %s", action)
 	}
 
 	// Convert the struct to a JSON string
