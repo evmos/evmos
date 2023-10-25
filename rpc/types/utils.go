@@ -30,6 +30,11 @@ import (
 // The tx fee is deducted in ante handler, so it shouldn't be ignored in JSON-RPC API.
 const ExceedBlockGasLimitError = "out of gas in location: block gas meter; gasWanted:"
 
+// StateDBCommitError defines the error message when commit after executing EVM transaction, for example
+// transfer native token to a distribution module account 0x93354845030274cD4bf1686Abd60AB28EC52e1a7 using an evm type transaction
+// note: the transfer amount cannot be set to 0, otherwise this problem will not be triggered
+const StateDBCommitError = "failed to commit stateDB"
+
 // RawTxToEthTx returns a evm MsgEthereum transaction from raw tx bytes.
 func RawTxToEthTx(clientCtx client.Context, txBz tmtypes.Tx) ([]*evmtypes.MsgEthereumTx, error) {
 	tx, err := clientCtx.TxConfig.TxDecoder()(txBz)
@@ -266,8 +271,13 @@ func TxExceedBlockGasLimit(res *abci.ResponseDeliverTx) bool {
 	return strings.Contains(res.Log, ExceedBlockGasLimitError)
 }
 
-// TxSuccessOrExceedsBlockGasLimit returnsrue if the transaction was successful
-// or if it failed with an ExceedBlockGasLimit error
-func TxSuccessOrExceedsBlockGasLimit(res *abci.ResponseDeliverTx) bool {
-	return res.Code == 0 || TxExceedBlockGasLimit(res)
+// TxStateDBCommitError returns true if the evm tx commit error.
+func TxStateDBCommitError(res *abci.ResponseDeliverTx) bool {
+	return strings.Contains(res.Log, StateDBCommitError)
+}
+
+// TxSucessOrExpectedFailure returns true if the transaction was successful
+// or if it failed with an ExceedBlockGasLimit error or TxStateDBCommitError error
+func TxSucessOrExpectedFailure(res *abci.ResponseDeliverTx) bool {
+	return res.Code == 0 || TxExceedBlockGasLimit(res) || TxStateDBCommitError(res)
 }
