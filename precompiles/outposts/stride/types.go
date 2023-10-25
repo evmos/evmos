@@ -90,7 +90,7 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[2])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[2])
 	}
 
 	receiver, ok := args[3].(string)
@@ -135,7 +135,7 @@ func parseRedeemStakeArgs(args []interface{}) (common.Address, common.Address, c
 
 	amount, ok := args[3].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[3])
 	}
 
 	strideForwarder, ok := args[4].(string)
