@@ -31,7 +31,7 @@ const (
 	// an empty string that will not be included in the XCS contract payload.
 	NextMemo = ""
 
-	//TODO: XCSContract is the swap contract on the Osmosis chain
+	// TODO: XCSContract is the swap contract on the Osmosis chain
 	XCSContract = "placeholder"
 
 	// OsmosisPrefix is the prefix for osmosis addresses
@@ -48,7 +48,6 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-
 	sender, input, output, amount, slippagePercentage, windowSeconds, receiver, err := ParseSwapPacketData(args)
 	if err != nil {
 		return nil, err
