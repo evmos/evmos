@@ -245,6 +245,7 @@ func TestValidateMemo(t *testing.T) {
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrEmptyOnFailedDelivery),
 		}, {
 			name:               "fail - over max slippage percentage",
 			receiver:           receiver,
