@@ -9,19 +9,16 @@ parent:
 
 <div align="center">
   <a href="https://github.com/evmos/evmos/releases/latest">
-    <img alt="Version" src="https://img.shields.io/github/tag/tharsis/evmos.svg" />
+    <img alt="Version" src="https://img.shields.io/github/tag/evmos/evmos.svg" />
   </a>
   <a href="https://github.com/evmos/evmos/blob/main/LICENSE">
-    <img alt="License: Apache-2.0" src="https://img.shields.io/github/license/tharsis/evmos.svg" />
+    <img alt="License" src="https://img.shields.io/github/license/evmos/evmos.svg" />
   </a>
   <a href="https://pkg.go.dev/github.com/evmos/evmos">
     <img alt="GoDoc" src="https://godoc.org/github.com/evmos/evmos?status.svg" />
   </a>
   <a href="https://goreportcard.com/report/github.com/evmos/evmos">
     <img alt="Go report card" src="https://goreportcard.com/badge/github.com/evmos/evmos"/>
-  </a>
-  <a href="https://bestpractices.coreinfrastructure.org/projects/5018">
-    <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/tharsis/evmos">
   </a>
 </div>
 <div align="center">
@@ -39,10 +36,12 @@ parent:
   </a>
 </div>
 
-Evmos is a scalable, high-throughput Proof-of-Stake blockchain
+## About
+
+Evmos is a scalable, high-throughput Proof-of-Stake EVM blockchain
 that is fully compatible and interoperable with Ethereum.
 It's built using the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/)
-which runs on top of the [Tendermint Core](https://github.com/tendermint/tendermint) consensus engine.
+which runs on top of the [CometBFT](https://github.com/cometbft/cometbft) consensus engine.
 
 ## Quick Start
 
@@ -90,8 +89,8 @@ See our open positions on [Greenhouse](https://boards.eu.greenhouse.io/evmos).
 ## Licensing
 
 Starting from April 21st, 2023, the Evmos repository will update its License
-from GNU Lesser General Public License v3.0 (LGPLv3) to Evmos Non-Commercial
-License 1.0 (ENCL-1.0). This license applies to all software released from Evmos
+from GNU Lesser General Public License v3.0 (LGPLv3) to [Evmos Non-Commercial
+License 1.0 (ENCL-1.0)](./LICENSE). This license applies to all software released from Evmos
 version 13 or later, except for specific files, as follows, which will continue
 to be licensed under LGPLv3:
 
@@ -100,12 +99,16 @@ to be licensed under LGPLv3:
 - `x/erc20/keeper/proposals.go`
 - `x/erc20/types/utils.go`
 
-LGPLv3 will continue to apply to older versions (<v13.0.0) of the Evmos
-repository. For more information see LICENSE.
+LGPLv3 will continue to apply to older versions ([<v13.0.0](https://github.com/evmos/evmos/releases/tag/v12.1.5)) of the Evmos
+repository. For more information see [LICENSE]((./LICENSE)).
+
+> [!WARNING] 
+> 
+> **NOTE: If you are interested in using this software** email us at [evmos-sdk@evmos.org](mailto:evmos-sdk@evmos.org) with copy to [legal@thars.is](mailto:legal@thars.is)
 
 ### SPDX Identifier
 
-The following header including a license identifier in SPDX short form has been added to all ENCL-1.0 files:
+The following header including a license identifier in [SPDX](https://spdx.dev/learn/handling-license-info/) short form has been added to all ENCL-1.0 files:
 
 ```go
 // Copyright Tharsis Labs Ltd.(Evmos)
