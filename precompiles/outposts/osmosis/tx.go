@@ -64,8 +64,6 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Given the HEX address of the input, we obtain the denom from the ERC20
-	// keeper. We need it to compare the input and output denom.
 	inputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, input)
 	inputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, inputTokenPairID)
 	if !found {
@@ -73,8 +71,6 @@ func (p Precompile) Swap(
 	}
 	inputDenom := inputTokenPair.Denom
 
-	// Given the HEX address of the output, we obtain the denom from the ERC20
-	// keeper. We need it to compare the input and output denom.
 	outputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, output)
 	outputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, outputTokenPairID)
 	if !found {
