@@ -51,6 +51,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
 - (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
 
+
+### Features
+
+- (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
+
 ### Improvements
 
 - (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods. 
@@ -68,6 +73,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#1915](https://github.com/evmos/evmos/pull/1915) Add Osmosis Outpost interface and ABI.
 - (ics20) [#1916](https://github.com/evmos/evmos/pull/1916) Make ICS20 Transfer event a common function.
 - (ics20) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
+- (stride-outpost) [#1926](https://github.com/evmos/evmos/pull/1926) Refactor event names and definitions.
+- (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
+- (stride-outpost) [#1932](https://github.com/evmos/evmos/pull/1932) Add transaction implementation and events unit tests.
+- (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
+- (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 
 ### Bug Fixes
 

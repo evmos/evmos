@@ -108,9 +108,9 @@
 				"type": "uint256"
 			},
 			{
-				"internalType": "string",
+				"internalType": "uint8",
 				"name": "slippage_percentage",
-				"type": "string"
+				"type": "uint8"
 			},
 			{
 				"internalType": "uint64",

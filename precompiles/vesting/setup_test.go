@@ -17,7 +17,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	"github.com/stretchr/testify/suite"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
