@@ -90,6 +90,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "evmosReceiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "receiver",
         "type": "string"
@@ -101,7 +107,7 @@
         "type": "uint256"
       }
     ],
-    "name": "Redeem",
+    "name": "RedeemStake",
     "type": "event"
   },
   {
@@ -161,12 +167,17 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "evmosReceiver",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "receiver",
         "type": "string"
       }
     ],
-    "name": "redeem",
+    "name": "redeemStake",
     "outputs": [
       {
         "internalType": "uint64",

@@ -47,11 +47,13 @@ interface IStrideOutpost {
     /// @dev Emitted on a Redeem transaction.
     /// @param sender The address of the sender.
     /// @param token The token to be un-luquid staked.
+    /// @param evmosReceiver The address of the receiver on the Evmos chain.
     /// @param receiver The bech32-formatted address of the receiver on the Stride chain.
     /// @param amount The amount of tokens to unstake.
-    event Redeem(
+    event RedeemStake(
         address indexed sender,
         address indexed token,
+        address evmosReceiver,
         string receiver,
         uint256 amount
     );
@@ -75,13 +77,15 @@ interface IStrideOutpost {
     /// @param sender The sender of the redeem transaction.
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
+    /// @param evmosReceiver the address of the receiver on Evmos.
     /// @param receiver The bech32-formatted address of the receiver on Stride.
     /// @return nextSequence sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded.
-    function redeem(
+    function redeemStake(
         address sender,
         address token,
         uint256 amount,
+        address evmosReceiver,
         string calldata receiver
     ) external returns (uint64 nextSequence, bool success);
 }

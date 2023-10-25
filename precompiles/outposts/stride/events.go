@@ -18,7 +18,7 @@ const (
 	// EventTypeLiquidStake is the event type emitted on a liquidStake transaction to Autopilot on Stride.
 	EventTypeLiquidStake = "LiquidStake"
 	// EventTypeRedeem is the event type emitted on a redeem transaction to Autopilot on Stride.
-	EventTypeRedeem = "Redeem"
+	EventTypeRedeem = "RedeemStake"
 )
 
 // EmitLiquidStakeEvent creates a new LiquidStake event on the EVM stateDB.
@@ -64,12 +64,12 @@ func (p Precompile) EmitLiquidStakeEvent(
 	return nil
 }
 
-// EmitRedeemEvent creates a new Redeem event on the EVM stateDB.
+// EmitRedeemEvent creates a new RedeemStake event on the EVM stateDB.
 func (p Precompile) EmitRedeemEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	sender,
-	token common.Address,
+	token, evmosReceiver common.Address,
 	receiver string,
 	amount *big.Int,
 ) error {
@@ -92,8 +92,8 @@ func (p Precompile) EmitRedeemEvent(
 	}
 
 	// Prepare the event data: receiver, amount
-	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
-	packed, err := arguments.Pack(receiver, amount)
+	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3], event.Inputs[4]}
+	packed, err := arguments.Pack(evmosReceiver, receiver, amount)
 	if err != nil {
 		return err
 	}

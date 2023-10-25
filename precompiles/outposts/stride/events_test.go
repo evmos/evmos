@@ -19,7 +19,6 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl
 	testCases := []struct {
 		name      string
 		postCheck func()
@@ -68,7 +67,6 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl
 	testCases := []struct {
 		name      string
 		postCheck func()
@@ -88,6 +86,7 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 				s.Require().NoError(err)
 				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), redeemEvent.Sender)
 				s.Require().Equal(common.HexToAddress(tokenPair.Erc20Address), redeemEvent.Token)
+				s.Require().Equal(s.address, redeemEvent.EvmosReceiver)
 				s.Require().Equal(big.NewInt(1e18), redeemEvent.Amount)
 			},
 		},
@@ -97,7 +96,7 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			err := s.precompile.EmitRedeemEvent(s.ctx, s.stateDB, s.address, common.HexToAddress(tokenPair.Erc20Address), receiver, big.NewInt(1e18))
+			err := s.precompile.EmitRedeemEvent(s.ctx, s.stateDB, s.address, common.HexToAddress(tokenPair.Erc20Address), s.address, receiver, big.NewInt(1e18))
 			s.Require().NoError(err)
 			tc.postCheck()
 		})
