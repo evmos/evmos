@@ -1,6 +1,8 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
+// Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
+// This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
+// chain, targeting the XCSV
 package osmosis
 
 import (

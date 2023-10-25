@@ -32,8 +32,8 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
-// / Precompile is the structure that define the Osmosis outpost precompiles extending
-// / the common Precompile type.
+// Precompile is the structure that define the Osmosis outpost precompile extending
+// the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
 	// IBC

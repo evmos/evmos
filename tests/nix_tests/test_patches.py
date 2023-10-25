@@ -8,6 +8,7 @@ from .utils import (
     ADDRS,
     CONTRACTS,
     DEFAULT_DENOM,
+    decode_bech32,
     deploy_contract,
     eth_to_bech32,
     get_fees_from_tx_result,
@@ -61,6 +62,45 @@ def test_send_funds_to_distr_mod(evmos):
 
     # only fees should be deducted from sender balance
     new_src_balance = cli.balance(sender)
+    assert old_src_balance - fees == new_src_balance
+
+
+def test_send_funds_to_distr_mod_eth_tx(evmos):
+    """
+    This tests the transfer of funds to the distribution module account,
+    via ethereum tx
+    which should be forbidden, since this is a blocked address.
+    """
+    cli = evmos.cosmos_cli()
+    w3 = evmos.w3
+
+    sender = ADDRS["signer1"]
+    mod_accs = cli.query_module_accounts()
+    old_src_balance = cli.balance(eth_to_bech32(sender))
+
+    for acc in mod_accs:
+        if acc["name"] != "distribution":
+            continue
+        receiver = decode_bech32(acc["base_account"]["address"])
+
+    assert receiver is not None
+
+    txhash = w3.eth.send_transaction(
+        {
+            "from": sender,
+            "to": receiver,
+            "value": 1000,
+        }
+    )
+    receipt = w3.eth.wait_for_transaction_receipt(txhash)
+    assert receipt.status == 0  # failed status expected
+
+    wait_for_new_blocks(cli, 2)
+    # only fees should be deducted from sender balance
+    fees = receipt["gasUsed"] * receipt["effectiveGasPrice"]
+    assert fees > 0
+
+    new_src_balance = cli.balance(eth_to_bech32(sender))
     assert old_src_balance - fees == new_src_balance
 
 
