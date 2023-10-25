@@ -234,7 +234,7 @@ func TestValidateMemo(t *testing.T) {
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
-			errContains:        fmt.Sprintf(bech32.ErrInvalidLength(len("")).Error()),
+			errContains:        fmt.Sprint(bech32.ErrInvalidLength(len("")).Error()),
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
