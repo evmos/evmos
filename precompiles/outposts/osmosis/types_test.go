@@ -239,12 +239,12 @@ func TestValidateMemo(t *testing.T) {
 			windowSeconds:      windowSeconds,
 			expPass:            true,
 		}, {
-			name:               "fail - on failde delivery empty",
+			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
 			onFailedDelivery:   "",
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
-			expPass:            true,
+			expPass:            false,
 		}, {
 			name:               "fail - over max slippage percentage",
 			receiver:           receiver,

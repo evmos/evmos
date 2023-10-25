@@ -16,10 +16,10 @@ var (
 	ErrInputEqualOutput = "input and output token cannot be the same"
 	// ErrMaxSlippagePercentage is raised when the requested slippage percentage is
 	// higher than a pre-defined amount.
-	ErrSlippagePercentage = fmt.Sprintf("slippage percentage must be: 0 < slippagePercentage <= %s", MaxSlippagePercentage)
+	ErrSlippagePercentage = fmt.Sprintf("slippage percentage must be: 0 < slippagePercentage <= %d", MaxSlippagePercentage)
 	// ErrMaxWindowSeconds is raised when the requested window seconds is
 	// higher than a pre-defined amount.
-	ErrWindowSeconds = fmt.Sprintf("window seconds must be: 0 < windowSeconds <= %s", MaxWindowSeconds)
+	ErrWindowSeconds = fmt.Sprintf("window seconds must be: 0 < windowSeconds <= %d", MaxWindowSeconds)
 	// ErrTokenPairNotFound is raised when a token pair for a certain address
 	// is not found and it is required by the executing function.
 	ErrTokenPairNotFound = "token pair for address %s not found"
