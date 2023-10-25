@@ -41,7 +41,7 @@ def test_block_cmd(evmos_cluster):
             "flags": ["--height", last_block + 10],
             "exp_out": None,
             "exp_err": True,
-            "err_msg": f"invalid height, the latest height found in the db is {last_block}, and you asked for {last_block+10}",
+            "err_msg": f"invalid height, the latest height found in the db is {last_block}, and you asked for {last_block+10}",  # noqa: E501 - ignore line too long linter
         },
     ]
     for tc in test_cases:
