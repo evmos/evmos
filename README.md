@@ -99,16 +99,18 @@ to be licensed under LGPLv3:
 - `x/erc20/keeper/proposals.go`
 - `x/erc20/types/utils.go`
 
-LGPLv3 will continue to apply to older versions ([<v13.0.0](https://github.com/evmos/evmos/releases/tag/v12.1.5)) of the Evmos
-repository. For more information see [LICENSE]((./LICENSE)).
+LGPLv3 will continue to apply to older versions ([<v13.0.0](https://github.com/evmos/evmos/releases/tag/v12.1.5))
+of the Evmos repository. For more information see [LICENSE]((./LICENSE)).
 
-> [!WARNING] 
-> 
-> **NOTE: If you are interested in using this software** email us at [evmos-sdk@evmos.org](mailto:evmos-sdk@evmos.org) with copy to [legal@thars.is](mailto:legal@thars.is)
+> [!WARNING]
+>
+> **NOTE: If you are interested in using this software**
+> email us at [evmos-sdk@evmos.org](mailto:evmos-sdk@evmos.org) with copy to [legal@thars.is](mailto:legal@thars.is)
 
 ### SPDX Identifier
 
-The following header including a license identifier in [SPDX](https://spdx.dev/learn/handling-license-info/) short form has been added to all ENCL-1.0 files:
+The following header including a license identifier in [SPDX](https://spdx.dev/learn/handling-license-info/)
+short form has been added to all ENCL-1.0 files:
 
 ```go
 // Copyright Tharsis Labs Ltd.(Evmos)

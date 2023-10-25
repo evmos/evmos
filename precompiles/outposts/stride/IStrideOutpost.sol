@@ -46,13 +46,15 @@ interface IStrideOutpost {
 
     /// @dev Emitted on a Redeem transaction.
     /// @param sender The address of the sender.
+    /// @param receiver The address of the receiver on the Evmos chain.
     /// @param token The token to be un-luquid staked.
-    /// @param receiver The bech32-formatted address of the receiver on the Stride chain.
+    /// @param strideForwarder The bech32-formatted address of the receiver on the Stride chain.
     /// @param amount The amount of tokens to unstake.
-    event Redeem(
+    event RedeemStake(
         address indexed sender,
+        address indexed receiver,
         address indexed token,
-        string receiver,
+        string strideForwarder,
         uint256 amount
     );
 
@@ -61,7 +63,7 @@ interface IStrideOutpost {
     /// @param token The hex ERC20 address of the token pair.
     /// @param amount The amount that will be liquid staked.
     /// @param receiver The bech32 address of the receiver.
-    /// @return nextSequence sequence number of the transfer packet sent
+    /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success True if the ICS20 transfer was successful.
     function liquidStake(
         address sender,
@@ -73,15 +75,17 @@ interface IStrideOutpost {
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
     /// the native Coin by sending an ICS20 Transfer to the specified chain.
     /// @param sender The sender of the redeem transaction.
+    /// @param receiver the address of the receiver on Evmos.
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
-    /// @param receiver The bech32-formatted address of the receiver on Stride.
-    /// @return nextSequence sequence number of the transfer packet sent
+    /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
+    /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded.
-    function redeem(
+    function redeemStake(
         address sender,
+        address receiver,
         address token,
-        uint256 amount,
-        string calldata receiver
+        string calldata strideForwarder,
+        uint256 amount
     ) external returns (uint64 nextSequence, bool success);
 }

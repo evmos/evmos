@@ -17,8 +17,8 @@ import (
 const (
 	// EventTypeLiquidStake is the event type emitted on a liquidStake transaction to Autopilot on Stride.
 	EventTypeLiquidStake = "LiquidStake"
-	// EventTypeRedeem is the event type emitted on a redeem transaction to Autopilot on Stride.
-	EventTypeRedeem = "Redeem"
+	// EventTypeRedeemStake is the event type emitted on a redeem transaction to Autopilot on Stride.
+	EventTypeRedeemStake = "RedeemStake"
 )
 
 // EmitLiquidStakeEvent creates a new LiquidStake event on the EVM stateDB.
@@ -64,18 +64,18 @@ func (p Precompile) EmitLiquidStakeEvent(
 	return nil
 }
 
-// EmitRedeemEvent creates a new Redeem event on the EVM stateDB.
-func (p Precompile) EmitRedeemEvent(
+// EmitRedeemStakeEvent creates a new RedeemStake event on the EVM stateDB.
+func (p Precompile) EmitRedeemStakeEvent(
 	ctx sdk.Context,
 	stateDB vm.StateDB,
 	sender,
-	token common.Address,
-	receiver string,
+	token, receiver common.Address,
+	strideForwarder string,
 	amount *big.Int,
 ) error {
 	// Prepare the event topics
-	event := p.ABI.Events[EventTypeRedeem]
-	topics := make([]common.Hash, 3)
+	event := p.ABI.Events[EventTypeRedeemStake]
+	topics := make([]common.Hash, 4)
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
@@ -86,14 +86,20 @@ func (p Precompile) EmitRedeemEvent(
 	if err != nil {
 		return err
 	}
-	topics[2], err = cmn.MakeTopic(token)
+
+	topics[2], err = cmn.MakeTopic(receiver)
+	if err != nil {
+		return err
+	}
+
+	topics[3], err = cmn.MakeTopic(token)
 	if err != nil {
 		return err
 	}
 
 	// Prepare the event data: receiver, amount
-	arguments := abi.Arguments{event.Inputs[2], event.Inputs[3]}
-	packed, err := arguments.Pack(receiver, amount)
+	arguments := abi.Arguments{event.Inputs[3], event.Inputs[4]}
+	packed, err := arguments.Pack(strideForwarder, amount)
 	if err != nil {
 		return err
 	}
