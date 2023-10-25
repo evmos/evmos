@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+//
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
 // chain, targeting the XCSV
@@ -104,7 +105,7 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
-	err = packet.Validate(inputDenom, bondDenom, p.portID, p.channelID)
+	err = packet.Memo.Validate()
 	if err != nil {
 		return nil, err
 	}
