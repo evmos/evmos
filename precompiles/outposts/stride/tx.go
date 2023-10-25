@@ -18,12 +18,14 @@ import (
 const (
 	// LiquidStakeMethod is the name of the liquidStake method
 	LiquidStakeMethod = "liquidStake"
-	// RedeemMethod is the name of the redeem method
-	RedeemMethod = "redeem"
+	// RedeemStakeMethod is the name of the redeem method
+	RedeemStakeMethod = "redeemStake"
 	// LiquidStakeAction is the action name needed in the memo field
 	LiquidStakeAction = "LiquidStake"
-	// RedeemAction is the action name needed in the memo field
-	RedeemAction = "Redeem"
+	// RedeemStakeAction is the action name needed in the memo field
+	RedeemStakeAction = "RedeemStake"
+	// NoReceiver is the string used in the memo field when the receiver is not needed
+	NoReceiver = ""
 )
 
 // LiquidStake is a transaction that liquid stakes tokens using
@@ -69,7 +71,7 @@ func (p Precompile) LiquidStake(
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
-	memo, err := CreateMemo(LiquidStakeAction, receiver)
+	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)
 	if err != nil {
 		return nil, err
 	}
@@ -131,10 +133,10 @@ func (p Precompile) LiquidStake(
 	return method.Outputs.Pack(res.Sequence, true)
 }
 
-// Redeem is a transaction that redeems the native tokens using the liquid stake
+// RedeemStake is a transaction that redeems the native tokens using the liquid stake
 // tokens. It executes a ICS20 transfer with a custom memo field that will
 // trigger Stride's Autopilot middleware
-func (p Precompile) Redeem(
+func (p Precompile) RedeemStake(
 	ctx sdk.Context,
 	origin common.Address,
 	stateDB vm.StateDB,
@@ -142,7 +144,7 @@ func (p Precompile) Redeem(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, token, amount, receiver, err := parseLiquidStakeArgs(args)
+	sender, receiver, token, strideForwarder, amount, err := parseRedeemStakeArgs(args)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +177,7 @@ func (p Precompile) Redeem(
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer
-	memo, err := CreateMemo(RedeemAction, receiver)
+	memo, err := CreateMemo(RedeemStakeAction, strideForwarder, sdk.AccAddress(receiver.Bytes()).String())
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +188,7 @@ func (p Precompile) Redeem(
 		p.channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
+		strideForwarder,
 		p.timeoutHeight,
 		0,
 		memo,
@@ -229,8 +231,8 @@ func (p Precompile) Redeem(
 		return nil, err
 	}
 
-	// Emit the custom Redeem Event
-	if err := p.EmitRedeemEvent(ctx, stateDB, sender, token, receiver, amount); err != nil {
+	// Emit the custom RedeemStake Event
+	if err := p.EmitRedeemStakeEvent(ctx, stateDB, sender, token, receiver, strideForwarder, amount); err != nil {
 		return nil, err
 	}
 
