@@ -55,6 +55,23 @@ type RawPacketMetadata struct {
 	Autopilot *Autopilot `json:"autopilot"`
 }
 
+// ValidateBasic validates the RawPacketMetadata structure and fields
+func (r RawPacketMetadata) ValidateBasic() error {
+	if r.Autopilot.StakeIBC.Action == "" {
+		return fmt.Errorf(ErrEmptyAutopilotAction)
+	}
+
+	if r.Autopilot.Receiver == "" {
+		return fmt.Errorf(ErrEmptyReceiver)
+	}
+
+	if r.Autopilot.StakeIBC.Action == RedeemStakeAction && r.Autopilot.StakeIBC.IBCReceiver == "" {
+		return fmt.Errorf(ErrRedeemStakeEmptyIBCReceiver)
+	}
+
+	return nil
+}
+
 // parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
 func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
@@ -150,6 +167,10 @@ func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 				Action: action,
 			},
 		},
+	}
+
+	if err := data.ValidateBasic(); err != nil {
+		return "", err
 	}
 
 	// Populate the IBC Receiver field if the action is RedeemStake
