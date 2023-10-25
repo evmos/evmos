@@ -76,7 +76,7 @@ type initArgs struct {
 	outputDir         string
 	startingIPAddress string
 	baseFee           sdkmath.Int
-	minGasPrice       sdkmath.Int
+	minGasPrice       sdkmath.LegacyDec
 }
 
 type startArgs struct {
@@ -160,11 +160,11 @@ Example:
 			ok := false
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
 			if !ok {
-				return fmt.Errorf("param --base-fee %s is error", baseFee)
+				return fmt.Errorf("invalid value for --base-fee. expected an int; got %s", baseFee)
 			}
-			args.minGasPrice, ok = sdk.NewIntFromString(minGasPrice)
-			if !ok {
-				return fmt.Errorf("param --min-gas-price %s is error", minGasPrice)
+			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
+			if err != nil {
+				return fmt.Errorf("invalid value for --min-gas-price. expected an int or decimal; got %s", minGasPrice)
 			}
 
 			return initTestnetFiles(clientCtx, cmd, serverCtx.Config, mbm, genBalIterator, args)
@@ -342,15 +342,15 @@ func initTestnetFiles(
 			return err
 		}
 
-		const CreateValidatorTxGasLimit = 300000
+		const CreateValidatorTxGasLimit = 300000 // This transaction consumes approximately 220,000 gas when executed in the genesis block.
 		minGasPrice := args.minGasPrice
-		if args.baseFee.GT(args.minGasPrice) {
-			minGasPrice = args.baseFee
+		if sdkmath.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
+			minGasPrice = sdkmath.LegacyNewDecFromInt(args.baseFee)
 		}
 
 		txBuilder.SetMemo(memo)
 		txBuilder.SetGasLimit(CreateValidatorTxGasLimit)
-		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulRaw(CreateValidatorTxGasLimit))))
+		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulInt64(CreateValidatorTxGasLimit).Ceil().TruncateInt())))
 
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
@@ -409,7 +409,7 @@ func initGenFiles(
 	genFiles []string,
 	numValidators int,
 	baseFee sdkmath.Int,
-	minGasPrice sdkmath.Int,
+	minGasPrice sdkmath.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
 	// set the accounts in the genesis state
@@ -453,7 +453,7 @@ func initGenFiles(
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[feemarkettypes.ModuleName], &feemarketGenState)
 
 	feemarketGenState.Params.BaseFee = baseFee
-	feemarketGenState.Params.MinGasPrice = sdk.NewDecFromInt(minGasPrice)
+	feemarketGenState.Params.MinGasPrice = minGasPrice
 	appGenState[feemarkettypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&feemarketGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
