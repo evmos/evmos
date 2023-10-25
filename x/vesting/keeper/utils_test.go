@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	sdkmath "cosmossdk.io/math"

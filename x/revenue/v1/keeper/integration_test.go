@@ -8,7 +8,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/staking"
+
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,6 +34,7 @@ var factoryCode = "603061000e60003960306000f3007f600661000e60003960066000f300612
 // Creates the above factory
 var doubleFactoryCode = "605461000e60003960546000f3007f603061000e60003960306000f3007f600661000e60003960066000f3006122226000527f600055000000000000000000000000600052601460006000f060006000a10000602052603e60006000f060006000a1"
 
+//nolint:goconst
 var _ = Describe("Fee distribution:", Ordered, func() {
 	feeCollectorAddr := s.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
 	denom := s.denom

@@ -63,9 +63,11 @@ func (p Precompile) Transfer(
 		return nil, err
 	}
 
-	if err = p.EmitIBCTransferEvent(
+	if err = EmitIBCTransferEvent(
 		ctx,
 		stateDB,
+		p.ABI.Events[EventTypeIBCTransfer],
+		p.Address(),
 		sender,
 		msg.Receiver,
 		msg.SourcePort,

@@ -49,6 +49,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
+- (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
+
+
+### Features
+
+- (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
 
 ### Improvements
 
@@ -60,12 +66,25 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
 - (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
 - (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
+- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
+- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABI.
+- (stride-outpost) [#1913](https://github.com/evmos/evmos/pull/1913) Add Run function, Precompile struct and tx definitions.
+- (stride-outpost) [#1914](https://github.com/evmos/evmos/pull/1914) Add types, events and common util function.
+- (osmosis-outpost) [#1915](https://github.com/evmos/evmos/pull/1915) Add Osmosis Outpost interface and ABI.
+- (ics20) [#1916](https://github.com/evmos/evmos/pull/1916) Make ICS20 Transfer event a common function.
+- (ics20) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
+- (stride-outpost) [#1926](https://github.com/evmos/evmos/pull/1926) Refactor event names and definitions.
+- (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
+- (stride-outpost) [#1932](https://github.com/evmos/evmos/pull/1932) Add transaction implementation and events unit tests.
+- (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
+- (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 
 ### Bug Fixes
 
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
+- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account
 - (testnet) [#1857](https://github.com/evmos/evmos/pull/1857) Remove the crisis module causing an error when using the `evmosd testnet init-files` command.
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 

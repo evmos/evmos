@@ -6,6 +6,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/testutil/integration/network"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -29,6 +30,9 @@ type Handler interface {
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
+
+	// Staking methods
+	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
 
 	// Revenue methods
 	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)

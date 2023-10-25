@@ -55,7 +55,7 @@ def test_ibc_transfer(ibc):
 
     assert receipt.status == 1
     # check gas used
-    assert receipt.gasUsed == 127581
+    assert receipt.gasUsed == 133680
 
     fee = receipt.gasUsed * evmos_gas_price
 

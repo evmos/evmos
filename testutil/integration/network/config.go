@@ -3,6 +3,8 @@
 package network
 
 import (
+	"math/big"
+
 	testtx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/utils"
 
@@ -15,6 +17,7 @@ import (
 // testing needs.
 type Config struct {
 	chainID            string
+	eip155ChainID      *big.Int
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	denom              string
@@ -25,6 +28,7 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 	return Config{
 		chainID:            utils.MainnetChainID + "-1",
+		eip155ChainID:      big.NewInt(9001),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
 		preFundedAccounts: []sdktypes.AccAddress{account},
@@ -39,12 +43,13 @@ type ConfigOption func(*Config)
 
 // WithChainID sets a custom chainID for the network. It panics if the chainID is invalid.
 func WithChainID(chainID string) ConfigOption {
-	_, err := evmostypes.ParseChainID(chainID)
+	chainIDNum, err := evmostypes.ParseChainID(chainID)
 	if err != nil {
 		panic(err)
 	}
 	return func(cfg *Config) {
 		cfg.chainID = chainID
+		cfg.eip155ChainID = chainIDNum
 	}
 }
 
