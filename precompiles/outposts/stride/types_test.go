@@ -22,7 +22,7 @@ func TestCreateMemo(t *testing.T) {
 			name:          "success - liquid stake",
 			action:        strideoutpost.LiquidStakeAction,
 			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
-			evmosReceiver: "",
+			evmosReceiver: strideoutpost.NoReceiver,
 			expPass:       true,
 		},
 		{

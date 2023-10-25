@@ -169,13 +169,13 @@ func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 		},
 	}
 
-	if err := data.ValidateBasic(); err != nil {
-		return "", err
-	}
-
 	// Populate the IBC Receiver field if the action is RedeemStake
 	if action == RedeemStakeAction {
 		data.Autopilot.StakeIBC.IBCReceiver = receiver
+	}
+
+	if err := data.ValidateBasic(); err != nil {
+		return "", err
 	}
 
 	// Convert the struct to a JSON string
