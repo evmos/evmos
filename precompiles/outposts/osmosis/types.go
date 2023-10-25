@@ -137,8 +137,10 @@ func (m Memo) Validate() error {
 		return fmt.Errorf(ErrEmptyOnFailedDelivery)
 	}
 
-	if osmosisSwap.Receiver == "" {
-		return fmt.Errorf(ErrEmptyReceiver)
+	// Check if account is a valid bech32 address
+	_, _, err := bech32.Decode(osmosisSwap.Receiver, address.MaxAddrLen)
+	if err != nil {
+		return err
 	}
 
 	if osmosisSwap.Slippage.Twap.SlippagePercentage == 0 || osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
@@ -216,12 +218,6 @@ func ParseSwapPacketData(args []interface{}) (
 	receiver, ok = args[6].(string)
 	if !ok {
 		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[6])
-	}
-
-	// Check if account is a valid bech32 address
-	_, _, err = bech32.Decode(receiver, address.MaxAddrLen)
-	if err != nil {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", err
 	}
 
 	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil

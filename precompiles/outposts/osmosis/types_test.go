@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 
 	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -181,18 +182,6 @@ func TestParseSwapPacketData(t *testing.T) {
 			},
 			expPass:     false,
 			errContains: "invalid type for windowSeconds: expected uint64, received uint16",
-		}, {
-			name: "fail - receiver not bech32",
-			args: []interface{}{
-				testSender,
-				testInput,
-				testOutput,
-				testAmount,
-				testSlippagePercentage,
-				testWindowSeconds,
-				"address",
-			},
-			expPass: false,
 		},
 	}
 
@@ -217,7 +206,7 @@ func TestParseSwapPacketData(t *testing.T) {
 func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
-	receiver := "receiver"
+	receiver := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
@@ -238,6 +227,14 @@ func TestValidateMemo(t *testing.T) {
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            true,
+		}, {
+			name:               "fail - empty receiver",
+			receiver:           "",
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprint(bech32.ErrInvalidLength(len("")).Error()),
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
