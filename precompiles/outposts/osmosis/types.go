@@ -9,10 +9,10 @@ import (
 	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/types/address"
-	"golang.org/x/exp/slices"
+	// "golang.org/x/exp/slices"
 
 	"github.com/cosmos/btcutil/bech32"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
@@ -127,38 +127,48 @@ func (r RawPacketMetadata) String() string {
 	return string(jsonBytes)
 }
 
-// ValidateSwapToken validates the input and outpost tokens for the swap.
-func (r RawPacketMetadata) Validate(
-	input, stakingDenom, portID, channelID string,
-) error {
-	osmosisSwap := r.Memo.Msg.OsmosisSwap
+// Validate performs basic validation of the IBC memo for the Osmosis outpost.
+// This function assumes that memo field are parsed with ParseSwapPacketData, which
+// performs data casting ensuring outputDenom cannot be an empty string.
+func (m Memo) Validate() error {
+	osmosisSwap := m.Msg.OsmosisSwap
 
-	if osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrMaxSlippagePercentage)
+	if osmosisSwap.OnFailedDelivery == "" {
+		return fmt.Errorf(ErrEmptyOnFailedDelivery)
 	}
 
-	if osmosisSwap.Slippage.Twap.WindowSeconds > MaxWindowSeconds {
-		return fmt.Errorf(ErrMaxWindowSeconds)
+	if osmosisSwap.Receiver == "" {
+		return fmt.Errorf(ErrEmptyReceiver)
 	}
 
-	if osmosisSwap.OutputDenom == input {
-		return fmt.Errorf(ErrInputEqualOutput, input)
+	if osmosisSwap.Slippage.Twap.SlippagePercentage == 0 || osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrSlippagePercentage)
 	}
 
-	osmoIBCDenom := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: OsmosisDenom,
-	}.IBCDenom()
-
-	// Check that the input token is evmos or osmo.
-	// This constraint will be removed in future
-	validInput := []string{stakingDenom, osmoIBCDenom}
-	if !slices.Contains(validInput, input) {
-		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
+	if osmosisSwap.Slippage.Twap.WindowSeconds == 0 || osmosisSwap.Slippage.Twap.WindowSeconds > MaxWindowSeconds {
+		return fmt.Errorf(ErrWindowSeconds)
 	}
 
 	return nil
 }
+
+// func tmpValidate() {
+// 	if osmosisSwap.OutputDenom == input {
+// 		return fmt.Errorf(ErrInputEqualOutput, input)
+// 	}
+//
+// 	osmoIBCDenom := transfertypes.DenomTrace{
+// 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+// 		BaseDenom: OsmosisDenom,
+// 	}.IBCDenom()
+//
+// 	// Check that the input token is evmos or osmo.
+// 	// This constraint will be removed in future
+// 	validInput := []string{stakingDenom, osmoIBCDenom}
+// 	if !slices.Contains(validInput, input) {
+// 		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
+// 	}
+// }
 
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
