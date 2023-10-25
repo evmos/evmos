@@ -38,9 +38,10 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	// IBC
-	portID        string
-	channelID     string
-	timeoutHeight clienttypes.Height
+	portID           string
+	channelID        string
+	timeoutHeight    clienttypes.Height
+	timeoutTimestamp uint64
 
 	// Osmosis
 	osmosisXCSContract string
@@ -82,6 +83,7 @@ func NewPrecompile(
 		portID:             portID,
 		channelID:          channelID,
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,

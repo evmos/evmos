@@ -5,10 +5,8 @@ package osmosis
 
 import (
 	"fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -89,8 +87,6 @@ func (p Precompile) Swap(
 	// in the Osmosis chain as a recovery address for the contract. This address
 	// is computed on the outpost for the alpha version just to be sure that it
 	// is provided in the payload.
-
-	// Assume that receiver is an Osmosis address and update if not
 	onFailedDelivery := receiver
 	bech32Prefix, address, err := bech32.DecodeAndConvert(receiver)
 	if err != nil {
@@ -106,7 +102,23 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
+	err = packet.Validate(inputDenom, bondDenom, p.portID, p.channelID)
+	if err != nil {
+		return nil, err
+	}
 	packetString := packet.String()
+
+	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
+	msg, err := ics20.CreateAndValidateMsgTransfer(
+		p.portID,
+		p.channelID,
+		coin,
+		sdk.AccAddress(sender.Bytes()).String(),
+		receiver,
+		p.timeoutHeight,
+		p.timeoutTimestamp,
+		packetString,
+	)
 
 	return nil, nil
 }

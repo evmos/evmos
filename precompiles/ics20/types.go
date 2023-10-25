@@ -25,9 +25,13 @@ import (
 )
 
 const (
-	// TimeoutHeight is the default value used in the IBC timeout height for
+	// DefaultTimeoutHeight is the default value used in the IBC timeout height for
 	// the client.
 	DefaultTimeoutHeight = 100
+
+	// DefaultTimeoutTimestamp is the default value used in the IBC timeout
+	// timestamp for the client.
+	DefaultTimeoutTimestamp = 0
 )
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.
