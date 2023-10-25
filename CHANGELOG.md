@@ -77,6 +77,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
 - (stride-outpost) [#1932](https://github.com/evmos/evmos/pull/1932) Add transaction implementation and events unit tests.
 - (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
+- (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 
 ### Bug Fixes
 
