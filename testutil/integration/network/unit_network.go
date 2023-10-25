@@ -12,6 +12,8 @@ type UnitTestNetwork struct {
 	App *app.Evmos
 }
 
+var _ Network = &UnitTestNetwork{}
+
 // NewUnitTestNetwork configures and initializes a new Evmos Network instance with
 // the given configuration options. If no configuration options are provided
 // it uses the default configuration.
