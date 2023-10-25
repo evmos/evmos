@@ -63,17 +63,17 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "sender", "", args[0])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
 
 	token, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "token", "", args[1])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", "", args[2])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[2])
 	}
 
 	receiver, ok := args[3].(string)
@@ -103,22 +103,22 @@ func parseRedeemStakeArgs(args []interface{}) (common.Address, common.Address, c
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "sender", "", args[0])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
 
 	receiver, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[1])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "receiver", common.Address{}, args[1])
 	}
 
 	token, ok := args[2].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "token", "", args[2])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[2])
 	}
 
 	amount, ok := args[3].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", "", args[3])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
 	}
 
 	strideForwarder, ok := args[4].(string)

@@ -63,7 +63,7 @@ interface IStrideOutpost {
     /// @param token The hex ERC20 address of the token pair.
     /// @param amount The amount that will be liquid staked.
     /// @param receiver The bech32 address of the receiver.
-    /// @return nextSequence sequence number of the transfer packet sent
+    /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success True if the ICS20 transfer was successful.
     function liquidStake(
         address sender,
@@ -79,7 +79,7 @@ interface IStrideOutpost {
     /// @param token The hex address of the token to be redeemed.
     /// @param amount The amount of tokens unstaked.
     /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
-    /// @return nextSequence sequence number of the transfer packet sent
+    /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded.
     function redeemStake(
         address sender,
