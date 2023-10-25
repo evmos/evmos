@@ -25,7 +25,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -77,7 +76,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
 		},
 		{
-			"fail - invalid receiver address (not a stride address)",
+			"fail - invalid strideForwarder address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
 					s.address,
@@ -92,7 +91,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"receiver is not a stride address",
 		},
 		{
-			"fail - receiver address is an invalid stride bech32 address",
+			"fail - strideForwarder address is an invalid stride bech32 address",
 			func() []interface{} {
 				return []interface{}{
 					s.address,
@@ -144,7 +143,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 }
 
 func (s *PrecompileTestSuite) TestRedeem() {
-	method := s.precompile.Methods[stride.RedeemMethod]
+	method := s.precompile.Methods[stride.RedeemStakeMethod]
 
 	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
 	denomTrace := transfertypes.DenomTrace{
@@ -158,7 +157,6 @@ func (s *PrecompileTestSuite) TestRedeem() {
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -175,7 +173,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			func() {},
 			200000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 5, 0),
 		},
 		{
 			"fail - token not found",
@@ -183,6 +181,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 				err := s.app.StakingKeeper.SetParams(s.ctx, stakingtypes.DefaultParams())
 				s.Require().NoError(err)
 				return []interface{}{
+					s.address,
 					s.address,
 					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
 					big.NewInt(1e18),
@@ -199,6 +198,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
+					s.address,
 					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
 					big.NewInt(1e18),
 					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
@@ -214,6 +214,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
+					s.address,
 					common.HexToAddress(tokenPair.Erc20Address),
 					big.NewInt(1e18),
 					"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
@@ -228,6 +229,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"fail - receiver address is an invalid stride bech32 address",
 			func() []interface{} {
 				return []interface{}{
+					s.address,
 					s.address,
 					common.HexToAddress(tokenPair.Erc20Address),
 					big.NewInt(1e18),
@@ -245,6 +247,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 				path := NewTransferPath(s.chainA, s.chainB)
 				s.coordinator.Setup(path)
 				return []interface{}{
+					s.address,
 					s.address,
 					common.HexToAddress(tokenPair.Erc20Address),
 					big.NewInt(1e18),
@@ -264,7 +267,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			_, err := s.precompile.Redeem(s.ctx, s.address, s.stateDB, contract, &method, tc.malleate())
+			_, err := s.precompile.RedeemStake(s.ctx, s.address, s.stateDB, contract, &method, tc.malleate())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
