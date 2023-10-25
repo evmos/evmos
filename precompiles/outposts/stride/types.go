@@ -95,7 +95,7 @@ func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *
 
 	receiver, ok := args[3].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[3])
+		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", fmt.Sprintf("%T", args[3]))
 	}
 
 	// Check if the receiver address has stride before
@@ -140,7 +140,7 @@ func parseRedeemStakeArgs(args []interface{}) (common.Address, common.Address, c
 
 	strideForwarder, ok := args[4].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "strideForwardeer", "", args[4])
+		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "strideForwardeer", "", fmt.Sprintf("%T", args[4]))
 	}
 
 	// Check if the receiver address has stride before
