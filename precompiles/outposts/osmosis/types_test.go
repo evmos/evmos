@@ -7,7 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	"github.com/stretchr/testify/require"
 )
@@ -214,23 +214,18 @@ func TestParseSwapPacketData(t *testing.T) {
 	}
 }
 
-func TestValidatePacket(t *testing.T) {
+func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
-	portID := "transfer"
-	channelID := "channel-0"
-	osmoVoucher := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: osmosisoutpost.OsmosisDenom,
-	}.IBCDenom()
-	stakingDenom := "aevmos"
+	receiver := "receiver"
+	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
 
 	testCases := []struct {
 		name               string
-		input              string
-		outputDenom        string
+		receiver           string
+		onFailedDelivery   string
 		slippagePercentage uint8
 		windowSeconds      uint64
 		expPass            bool
@@ -238,61 +233,50 @@ func TestValidatePacket(t *testing.T) {
 	}{
 		{
 			name:               "success - valid packet",
-			input:              osmoVoucher,
-			outputDenom:        stakingDenom,
+			receiver:           receiver,
+			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            true,
 		}, {
-			name:               "success - valid tokens aevmos for uosmo",
-			input:              stakingDenom,
-			outputDenom:        osmoVoucher,
+			name:               "fail - on failde delivery empty",
+			receiver:           receiver,
+			onFailedDelivery:   "",
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            true,
 		}, {
-			name:               "fail - input equal to output aevmos",
-			input:              stakingDenom,
-			outputDenom:        stakingDenom,
-			slippagePercentage: slippagePercentage,
-			windowSeconds:      windowSeconds,
-			expPass:            false,
-			errContains:        osmosisoutpost.ErrInputEqualOutput,
-		}, {
-			name:               "fail - input equal to output uosmos",
-			input:              osmoVoucher,
-			outputDenom:        osmoVoucher,
-			slippagePercentage: slippagePercentage,
-			windowSeconds:      windowSeconds,
-			expPass:            false,
-			errContains:        osmosisoutpost.ErrInputEqualOutput,
-		}, {
-			name:               "fail - input not supported",
-			input:              "btc",
-			outputDenom:        stakingDenom,
-			slippagePercentage: slippagePercentage,
-			windowSeconds:      windowSeconds,
-			expPass:            false,
-			errContains: fmt.Sprintf(
-				osmosisoutpost.ErrInputTokenNotSupported,
-				[]string{stakingDenom, osmoVoucher},
-			),
-		}, {
-			name:               "fail - over max slippage",
-			input:              osmoVoucher,
-			outputDenom:        stakingDenom,
+			name:               "fail - over max slippage percentage",
+			receiver:           receiver,
+			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: osmosisoutpost.MaxSlippagePercentage + 1,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
-			errContains:        fmt.Sprintf(osmosisoutpost.ErrMaxSlippagePercentage),
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrSlippagePercentage),
+		}, {
+			name:               "fail - zero slippage percentage",
+			receiver:           receiver,
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: 0,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrSlippagePercentage),
 		}, {
 			name:               "fail - over max window seconds",
-			input:              osmoVoucher,
-			outputDenom:        stakingDenom,
+			receiver:           receiver,
+			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      osmosisoutpost.MaxWindowSeconds + 1,
 			expPass:            false,
-			errContains:        fmt.Sprintf(osmosisoutpost.ErrMaxWindowSeconds),
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrWindowSeconds),
+		}, {
+			name:               "fail - zero window seconds",
+			receiver:           receiver,
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      0,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrWindowSeconds),
 		},
 	}
 
@@ -302,16 +286,16 @@ func TestValidatePacket(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			receiver := "receiver"
+			// Variable used for the memo that are not parameters for the tests.
+			output := "output"
 			nextMemo := ""
-			onFailedDelivery := "do_nothing"
-			contract := "xcsContract"
+			contract := "contract"
 
 			packet := osmosisoutpost.CreatePacketWithMemo(
-				tc.outputDenom, receiver, contract, tc.slippagePercentage, tc.windowSeconds, onFailedDelivery, nextMemo,
+				output, tc.receiver, contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
 			)
 
-			err := packet.Validate(tc.input, stakingDenom, portID, channelID)
+			err := packet.Memo.Validate()
 
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")

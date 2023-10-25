@@ -6,14 +6,20 @@ package osmosis
 import "fmt"
 
 var (
+	// ErrEmptyReceiver is raised when the receiver used in the memo is an
+	// empty string.
+	ErrEmptyReceiver = "receiver address cannot be an empty"
+	// ErrEmptyOnFailedDelivery is raised when the onFailedDeliver field of the
+	// IBC memo is an empty string.
+	ErrEmptyOnFailedDelivery = "onFailedDelivery cannot be empty"
 	// ErrTokenPairNotFound is raised when input and output tokens are the same.
 	ErrInputEqualOutput = "input and output token cannot be the same"
 	// ErrMaxSlippagePercentage is raised when the requested slippage percentage is
 	// higher than a pre-defined amount.
-	ErrMaxSlippagePercentage = "slippage cannot be higher than the %s"
+	ErrSlippagePercentage = fmt.Sprintf("slippage percentage must be: 0 < slippagePercentage <= %s", MaxSlippagePercentage)
 	// ErrMaxWindowSeconds is raised when the requested window seconds is
 	// higher than a pre-defined amount.
-	ErrMaxWindowSeconds = fmt.Sprintf("window seconds cannot be higher than the %d", MaxWindowSeconds)
+	ErrWindowSeconds = fmt.Sprintf("window seconds must be: 0 < windowSeconds <= %s", MaxWindowSeconds)
 	// ErrTokenPairNotFound is raised when a token pair for a certain address
 	// is not found and it is required by the executing function.
 	ErrTokenPairNotFound = "token pair for address %s not found"
