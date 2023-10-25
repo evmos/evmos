@@ -10,8 +10,6 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-
 	common "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
@@ -145,13 +143,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 func (s *PrecompileTestSuite) TestRedeem() {
 	method := s.precompile.Methods[stride.RedeemStakeMethod]
 
-	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
-	denomTrace := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: "st" + bondDenom,
-	}
-
-	stEvmos := denomTrace.IBCDenom()
+	stEvmos := utils.ComputeIBCDenom(portID, channelID, "st"+s.bondDenom)
 
 	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, stEvmos)
 	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
