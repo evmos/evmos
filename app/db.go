@@ -45,7 +45,7 @@ func setupVersionDB(
 	}
 
 	// default to exposing all
-	exposeStoreKeys := make([]storetypes.StoreKey, 0, len(keys) + len(memKeys))
+	exposeStoreKeys := make([]storetypes.StoreKey, 0, len(keys)+len(memKeys))
 	for _, storeKey := range keys {
 		exposeStoreKeys = append(exposeStoreKeys, storeKey)
 	}
