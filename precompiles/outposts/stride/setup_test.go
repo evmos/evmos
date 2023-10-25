@@ -1,10 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-package ics20_test
+
+package stride_test
 
 import (
 	"testing"
 	"time"
+
+	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -16,14 +19,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v15/app"
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -44,7 +41,7 @@ type PrecompileTestSuite struct {
 	signer        keyring.Signer
 	bondDenom     string
 
-	precompile *ics20.Precompile
+	precompile *stride.Precompile
 	stateDB    *statedb.StateDB
 
 	coordinator    *ibctesting.Coordinator
@@ -61,10 +58,6 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "ICS20 Precompile Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {

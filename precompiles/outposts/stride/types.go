@@ -20,6 +20,21 @@ const (
 	StrideBech32Prefix = "stride"
 )
 
+// EventLiquidStake is the event type emitted on a liquidStake transaction
+type EventLiquidStake struct {
+	Sender common.Address
+	Token  common.Address
+	Amount *big.Int
+}
+
+// EventRedeem is the event type emitted on a redeem transaction
+type EventRedeem struct {
+	Sender   common.Address
+	Token    common.Address
+	Receiver string
+	Amount   *big.Int
+}
+
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking).
 // Used to create the memo field for the ICS20 transfer corresponding to Autopilot LiquidStake.
 type StakeIBCPacketMetadata struct {
@@ -40,8 +55,6 @@ type RawPacketMetadata struct {
 }
 
 // parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
-//
-//nolint:unused
 func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
 	if len(args) != 4 {
 		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))

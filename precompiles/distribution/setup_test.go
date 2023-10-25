@@ -6,7 +6,9 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/distribution"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
 	tmtypes "github.com/cometbft/cometbft/types"
