@@ -55,8 +55,8 @@ type RawPacketMetadata struct {
 	Autopilot *Autopilot `json:"autopilot"`
 }
 
-// ValidateBasic validates the RawPacketMetadata structure and fields
-func (r RawPacketMetadata) ValidateBasic() error {
+// Validate validates the correctness of RawPacketMetadata structure and fields
+func (r RawPacketMetadata) Validate() error {
 	if r.Autopilot.StakeIBC.Action == "" {
 		return fmt.Errorf(ErrEmptyAutopilotAction)
 	}
@@ -169,7 +169,7 @@ func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 		},
 	}
 
-	if err := data.ValidateBasic(); err != nil {
+	if err := data.Validate(); err != nil {
 		return "", err
 	}
 
