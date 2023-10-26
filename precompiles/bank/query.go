@@ -87,7 +87,7 @@ func (p Precompile) TotalSupply(
 		// NOTE: we already charged for a single totalSupply request so we don't
 		// need to charge on the first iteration
 		if i > 0 {
-			ctx.GasMeter().ConsumeGas(GasBalanceOf, "ERC-20 extension balances method")
+			ctx.GasMeter().ConsumeGas(GasTotalSupply, "ERC-20 extension totalSupply method")
 		}
 
 		contractAddress, ok := p.GetCoinAddress(ctx, coin.Denom)
