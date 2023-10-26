@@ -32,6 +32,12 @@ const (
 )
 
 const (
+	// DefaultOnFailedDelivery is the default value used in the XCSV2 contract
+	// for the on_failed_delivery field.
+	DefaultOnFailedDelivery = "do_nothing"
+)
+
+const (
 	// OsmosisDenom is the base denom in the Osmosis chain.
 	OsmosisDenom = "uosmo"
 )
@@ -166,13 +172,13 @@ func CreateOnFailedDeliveryField(receiver string) string {
 	onFailedDelivery := receiver
 	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
 	if err != nil {
-		return "do_nothing"
+		return DefaultOnFailedDelivery
 	}
 	// TODO: use constant instead of hardcoded
 	if bech32Prefix != "osmo" {
 		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
 		if err != nil {
-			return "do_nothing"
+			return DefaultOnFailedDelivery
 		}
 	}
 
