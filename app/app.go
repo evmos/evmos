@@ -1322,18 +1322,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-<<<<<<< HEAD
-=======
-	// v16 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeName,
-		v16.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.EvmKeeper,
-		),
-	)
-
->>>>>>> 900ae789 (fix(tests): fix local_node script for MacOS and other minor adjustments (#1925))
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
