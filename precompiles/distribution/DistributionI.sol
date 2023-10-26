@@ -38,6 +38,16 @@ struct DelegationDelegatorReward {
 /// @custom:address 0x0000000000000000000000000000000000000801
 interface DistributionI {
     /// TRANSACTIONS
+
+    /// @dev Claims all rewards from a select set of validators or all of them for a delegator.
+    /// @param delegatorAddress The address of the delegator
+    /// @param maxRetrieve The maximum number of validators to claim rewards from
+    /// @return success Whether the transaction was successful or not
+    function claimRewards(
+        address delegatorAddress,
+        uint32 maxRetrieve
+    ) external returns (bool success);
+
     /// @dev Change the address, that can withdraw the rewards of a delegator.
     /// Note that this address cannot be a module account.
     /// @param delegatorAddress The address of the delegator
@@ -149,6 +159,14 @@ interface DistributionI {
     function delegatorWithdrawAddress(
         address delegatorAddress
     ) external view returns (string memory withdrawAddress);
+
+    /// @dev ClaimRewards defines an Event emitted when rewards are claimed
+    /// @param delegatorAddress the address of the delegator
+    /// @param amount the amount being claimed
+    event ClaimRewards(
+        address indexed delegatorAddress,
+        uint256 amount
+    );
 
     /// @dev SetWithdrawerAddress defines an Event emitted when a new withdrawer address is being set
     /// @param caller the caller of the transaction
