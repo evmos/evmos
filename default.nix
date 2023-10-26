@@ -19,7 +19,7 @@ let
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
-  buildInputs = [ rocksdb ];
+  buildInputs = if dbBackend == "rocksdb" then [ rocksdb ] else [];
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;
