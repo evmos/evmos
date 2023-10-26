@@ -63,19 +63,14 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	inputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, input)
-	inputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, inputTokenPairID)
-	if !found {
-		return nil, fmt.Errorf(ErrTokenPairNotFound, input)
+	inputDenom, err := p.GetTokenDenom(ctx, input)
+	if err != nil {
+		return nil, err
 	}
-	inputDenom := inputTokenPair.Denom
-
-	outputTokenPairID := p.erc20Keeper.GetERC20Map(ctx, output)
-	outputTokenPair, found := p.erc20Keeper.GetTokenPair(ctx, outputTokenPairID)
-	if !found {
-		return nil, fmt.Errorf(ErrTokenPairNotFound, output)
+	outputDenom, err := p.GetTokenDenom(ctx, output)
+	if err != nil {
+		return nil, err
 	}
-	outputDenom := outputTokenPair.Denom
 
 	// We need the bonded denom just for the outpost alpha version where the
 	// the only two inputs allowed are aevmos and uosmo.
@@ -85,18 +80,7 @@ func (p Precompile) Swap(
 	// in the Osmosis chain as a recovery address for the contract. This address
 	// is computed on the outpost for the alpha version just to be sure that it
 	// is provided in the payload.
-	onFailedDelivery := receiver
-	bech32Prefix, address, err := bech32.DecodeAndConvert(receiver)
-	if err != nil {
-		return nil, err
-	}
-	if bech32Prefix != OsmosisPrefix {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	onFailedDelivery := CreateOnFailedDeliveryField(receiver)
 	packet := CreatePacketWithMemo(
 		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
@@ -132,4 +116,24 @@ func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) 
 	}
 
 	return TokenPair.Denom, nil
+}
+
+// CreateOnFailedDeliveryField is an utility function to create the memo field
+// onFailedDelivery. The reurned is string is the bech32 of the receiver input
+// or "do_nothing".
+func CreateOnFailedDeliveryField(receiver string) string {
+
+	onFailedDelivery := receiver
+	bech32Prefix, address, err := bech32.DecodeAndConvert(receiver)
+	if err != nil {
+		return "do_nothing"
+	}
+	if bech32Prefix != OsmosisPrefix {
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
+		if err != nil {
+			return "do_nothing"
+		}
+	}
+
+	return onFailedDelivery
 }
