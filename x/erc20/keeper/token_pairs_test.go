@@ -232,3 +232,56 @@ func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 		}
 	}
 }
+
+func (suite *KeeperTestSuite) TestGetTokenDenom() {
+	tokenAddress := utiltx.GenerateAddress()
+	tokenDenom := "token"
+
+	testCases := []struct {
+		name        string
+		tokenDenom  string
+		malleate    func()
+		ok          bool
+		errContains string
+	}{
+		{
+			"denom found",
+			tokenDenom,
+			func() {
+				pair := types.NewTokenPair(tokenAddress, tokenDenom, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, tokenAddress, pair.GetID())
+			},
+			true,
+			"",
+		},
+		{
+			"denom not found",
+			tokenDenom,
+			func() {
+				address := utiltx.GenerateAddress()
+				pair := types.NewTokenPair(address, tokenDenom, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, address, pair.GetID())
+			},
+			false,
+			fmt.Sprint(types.ErrTokenPairNotFound.Error()),
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.GetTokenDenom(suite.ctx, tokenAddress)
+
+			if tc.ok {
+				suite.Require().NoError(err)
+				suite.Require().Equal(res, tokenDenom)
+			} else {
+				suite.Require().Error(err, "expected an error while getting the token denom")
+				suite.Require().Contains(err, tc.errContains)
+			}
+		})
+	}
+}

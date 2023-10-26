@@ -141,3 +141,15 @@ func (k Keeper) IsDenomRegistered(ctx sdk.Context, denom string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
 	return store.Has([]byte(denom))
 }
+
+// GetTokenDenom returns the denom associated with the tokenAddress or an error
+// if the TokenPair does not exist.
+func (k Keeper) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
+	TokenPairID := k.GetERC20Map(ctx, tokenAddress)
+	TokenPair, found := k.GetTokenPair(ctx, TokenPairID)
+	if !found {
+		return "", types.ErrTokenPairNotFound
+	}
+
+	return TokenPair.Denom, nil
+}
