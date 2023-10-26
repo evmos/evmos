@@ -114,8 +114,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// Stride Outpost Methods:
 	case LiquidStakeMethod:
 		bz, err = p.LiquidStake(ctx, evm.Origin, stateDB, contract, method, args)
-	case RedeemMethod:
-		bz, err = p.Redeem(ctx, evm.Origin, stateDB, contract, method, args)
+	case RedeemStakeMethod:
+		bz, err = p.RedeemStake(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
@@ -136,7 +136,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case LiquidStakeMethod, RedeemMethod:
+	case LiquidStakeMethod, RedeemStakeMethod:
 		return true
 	default:
 		return false

@@ -65,7 +65,7 @@ interface IOsmosisOutpost {
         address input,
         address output,
         uint256 amount,
-        string calldata slippage_percentage,
+        uint8 slippage_percentage,
         uint64 window_seconds,
         string calldata receiver
     ) external returns (bool success);
