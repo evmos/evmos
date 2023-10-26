@@ -111,25 +111,6 @@
         "internalType": "address",
         "name": "delegatorAddress",
         "type": "address"
-      }
-    ],
-    "name": "claimRewards",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "delegatorAddress",
-        "type": "address"
       },
       {
         "internalType": "string",
@@ -271,6 +252,30 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "delegatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "withdrawerAddress",
+        "type": "string"
+      }
+    ],
+    "name": "setWithdrawAddress",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

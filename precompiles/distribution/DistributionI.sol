@@ -37,6 +37,40 @@ struct DelegationDelegatorReward {
 /// @dev The interface through which solidity contracts will interact with Distribution
 /// @custom:address 0x0000000000000000000000000000000000000801
 interface DistributionI {
+    /// @dev ClaimRewards defines an Event emitted when rewards are claimed
+    /// @param delegatorAddress the address of the delegator
+    /// @param amount the amount being claimed
+    event ClaimRewards(
+        address indexed delegatorAddress,
+        uint256 amount
+    );
+
+    /// @dev SetWithdrawerAddress defines an Event emitted when a new withdrawer address is being set
+    /// @param caller the caller of the transaction
+    /// @param withdrawerAddress the newly set withdrawer address
+    event SetWithdrawerAddress(
+        address indexed caller,
+        string withdrawerAddress
+    );
+
+    /// @dev WithdrawDelegatorRewards defines an Event emitted when rewards from a delegation are withdrawn
+    /// @param delegatorAddress the address of the delegator
+    /// @param validatorAddress the address of the validator
+    /// @param amount the amount being withdrawn from the delegation
+    event WithdrawDelegatorRewards(
+        address indexed delegatorAddress,
+        string indexed validatorAddress,
+        uint256 amount
+    );
+
+    /// @dev WithdrawValidatorCommission defines an Event emitted when validator commissions are being withdrawn
+    /// @param validatorAddress is the address of the validator
+    /// @param commission is the total commission earned by the validator
+    event WithdrawValidatorCommission(
+        string indexed validatorAddress,
+        uint256 commission
+    );
+
     /// TRANSACTIONS
 
     /// @dev Claims all rewards from a select set of validators or all of them for a delegator.
@@ -81,11 +115,11 @@ interface DistributionI {
     function validatorDistributionInfo(
         string memory validatorAddress
     )
-        external
-        view
-        returns (
-            ValidatorDistributionInfo calldata distributionInfo
-        );
+    external
+    view
+    returns (
+        ValidatorDistributionInfo calldata distributionInfo
+    );
 
     /// @dev Queries the outstanding rewards of a validator address.
     /// @param validatorAddress The address of the validator
@@ -115,12 +149,12 @@ interface DistributionI {
         uint64 endingHeight,
         PageRequest calldata pageRequest
     )
-        external
-        view
-        returns (
-            ValidatorSlashEvent[] calldata slashes,
-            PageResponse calldata pageResponse
-        );
+    external
+    view
+    returns (
+        ValidatorSlashEvent[] calldata slashes,
+        PageResponse calldata pageResponse
+    );
 
     /// @dev Queries the total rewards accrued by a delegation from a specific address to a given validator.
     /// @param delegatorAddress The address of the delegator
@@ -139,12 +173,12 @@ interface DistributionI {
     function delegationTotalRewards(
         address delegatorAddress
     )
-        external
-        view
-        returns (
-            DelegationDelegatorReward[] calldata rewards,
-            DecCoin[] calldata total
-        );
+    external
+    view
+    returns (
+        DelegationDelegatorReward[] calldata rewards,
+        DecCoin[] calldata total
+    );
 
     /// @dev Queries all validators, that a given address has delegated to.
     /// @param delegatorAddress The address of the delegator
@@ -160,37 +194,4 @@ interface DistributionI {
         address delegatorAddress
     ) external view returns (string memory withdrawAddress);
 
-    /// @dev ClaimRewards defines an Event emitted when rewards are claimed
-    /// @param delegatorAddress the address of the delegator
-    /// @param amount the amount being claimed
-    event ClaimRewards(
-        address indexed delegatorAddress,
-        uint256 amount
-    );
-
-    /// @dev SetWithdrawerAddress defines an Event emitted when a new withdrawer address is being set
-    /// @param caller the caller of the transaction
-    /// @param withdrawerAddress the newly set withdrawer address
-    event SetWithdrawerAddress(
-        address indexed caller,
-        string withdrawerAddress
-    );
-
-    /// @dev WithdrawDelegatorRewards defines an Event emitted when rewards from a delegation are withdrawn
-    /// @param delegatorAddress the address of the delegator
-    /// @param validatorAddress the address of the validator
-    /// @param amount the amount being withdrawn from the delegation
-    event WithdrawDelegatorRewards(
-        address indexed delegatorAddress,
-        string indexed validatorAddress,
-        uint256 amount
-    );
-
-    /// @dev WithdrawValidatorCommission defines an Event emitted when validator commissions are being withdrawn
-    /// @param validatorAddress is the address of the validator
-    /// @param commission is the total commission earned by the validator
-    event WithdrawValidatorCommission(
-        string indexed validatorAddress,
-        uint256 commission
-    );
 }
