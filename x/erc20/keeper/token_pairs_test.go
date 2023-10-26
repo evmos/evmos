@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -265,7 +264,7 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, address, pair.GetID())
 			},
 			false,
-			fmt.Sprint(types.ErrTokenPairNotFound.Error()),
+			fmt.Sprintf("token '%s' not registered", tokenAddress),
 		},
 	}
 	for _, tc := range testCases {
@@ -280,7 +279,7 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 				suite.Require().Equal(res, tokenDenom)
 			} else {
 				suite.Require().Error(err, "expected an error while getting the token denom")
-				suite.Require().Contains(err, tc.errContains)
+				suite.Require().ErrorContains(err, tc.errContains)
 			}
 		})
 	}

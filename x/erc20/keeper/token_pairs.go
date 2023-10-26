@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -148,7 +149,10 @@ func (k Keeper) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (str
 	TokenPairID := k.GetERC20Map(ctx, tokenAddress)
 	TokenPair, found := k.GetTokenPair(ctx, TokenPairID)
 	if !found {
-		return "", types.ErrTokenPairNotFound
+		return "", errorsmod.Wrapf(
+			types.ErrTokenPairNotFound, "token '%s' not registered", tokenAddress,
+		)
+
 	}
 
 	return TokenPair.Denom, nil
