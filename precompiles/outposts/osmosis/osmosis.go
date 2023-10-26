@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
@@ -84,6 +85,19 @@ func NewPrecompile(
 		bankKeeper:         bankKeeper,
 		erc20Keeper:        erc20Keeper,
 	}, nil
+}
+
+// GetTokenDenom returns the denom associated to the tokenAddress from the
+// erc20 store. Returns an error if the TokenPair associated to the tokenAddress
+// is not found.
+func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
+	TokenPairID := p.erc20Keeper.GetERC20Map(ctx, tokenAddress)
+	TokenPair, found := p.erc20Keeper.GetTokenPair(ctx, TokenPairID)
+	if !found {
+		return "", fmt.Errorf(ErrTokenPairNotFound, tokenAddress)
+	}
+
+	return TokenPair.Denom, nil
 }
 
 // Address defines the address of the Osmosis outpost precompile contract.

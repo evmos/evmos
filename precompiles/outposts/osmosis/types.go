@@ -8,8 +8,13 @@ import (
 	"fmt"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
+	"github.com/evmos/evmos/v15/utils"
+	"golang.org/x/exp/slices"
+
 	// "golang.org/x/exp/slices"
+	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"github.com/cosmos/btcutil/bech32"
 	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -154,23 +159,23 @@ func (m Memo) Validate() error {
 	return nil
 }
 
-// func tmpValidate() {
-// 	if osmosisSwap.OutputDenom == input {
-// 		return fmt.Errorf(ErrInputEqualOutput, input)
-// 	}
-//
-// 	osmoIBCDenom := transfertypes.DenomTrace{
-// 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-// 		BaseDenom: OsmosisDenom,
-// 	}.IBCDenom()
-//
-// 	// Check that the input token is evmos or osmo.
-// 	// This constraint will be removed in future
-// 	validInput := []string{stakingDenom, osmoIBCDenom}
-// 	if !slices.Contains(validInput, input) {
-// 		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-// 	}
-// }
+func ValidateInputOutput(
+	inputDenom, outputDenom, stakingDenom, portID, channelID string,
+) error {
+	if outputDenom == inputDenom {
+		return fmt.Errorf(ErrInputEqualOutput, inputDenom)
+	}
+
+	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, OsmosisDenom)
+
+	// Check that the input token is evmos or osmo.
+	// This constraint will be removed in future
+	validInputs := []string{stakingDenom, osmoIBCDenom}
+	if !slices.Contains(validInputs, inputDenom) {
+		return fmt.Errorf(ErrInputTokenNotSupported, validInputs)
+	}
+	return nil
+}
 
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
@@ -221,4 +226,37 @@ func ParseSwapPacketData(args []interface{}) (
 	}
 
 	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
+}
+
+// GetTokenDenom returns the denom associated to the tokenAddress from the
+// erc20 store. Returns an error if the TokenPair associated to the tokenAddress
+// is not found.
+func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
+	TokenPairID := p.erc20Keeper.GetERC20Map(ctx, tokenAddress)
+	TokenPair, found := p.erc20Keeper.GetTokenPair(ctx, TokenPairID)
+	if !found {
+		return "", fmt.Errorf(ErrTokenPairNotFound, tokenAddress)
+	}
+
+	return TokenPair.Denom, nil
+}
+
+// CreateOnFailedDeliveryField is an utility function to create the memo field
+// onFailedDelivery. The reurned is string is the bech32 of the receiver input
+// or "do_nothing".
+func CreateOnFailedDeliveryField(receiver string) string {
+
+	onFailedDelivery := receiver
+	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
+	if err != nil {
+		return "do_nothing"
+	}
+	if bech32Prefix != OsmosisPrefix {
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
+		if err != nil {
+			return "do_nothing"
+		}
+	}
+
+	return onFailedDelivery
 }
