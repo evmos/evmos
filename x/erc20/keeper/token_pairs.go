@@ -11,7 +11,7 @@ import (
 	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
-// GetTokenPairs - get all registered token tokenPairs
+// GetTokenPairs get all registered token tokenPairs
 func (k Keeper) GetTokenPairs(ctx sdk.Context) []types.TokenPair {
 	tokenPairs := []types.TokenPair{}
 
