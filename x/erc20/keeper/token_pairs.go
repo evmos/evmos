@@ -152,7 +152,6 @@ func (k Keeper) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (str
 		return "", errorsmod.Wrapf(
 			types.ErrTokenPairNotFound, "token '%s' not registered", tokenAddress,
 		)
-
 	}
 
 	return TokenPair.Denom, nil
