@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-only
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.18;
 
 import "./IERC20Metadata.sol";
 
 /**
  * @author Evmos Team
- * @author ERC20 Metadata Allowance Interface
+ * @title ERC20 Metadata Allowance Interface
  * @dev Interface for the optional metadata and allowance functions from the ERC20 standard.
  */
 interface IERC20MetadataAllowance is IERC20Metadata {	
