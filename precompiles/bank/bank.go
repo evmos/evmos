@@ -61,12 +61,6 @@ func (Precompile) Address() common.Address {
 	return common.HexToAddress(PrecompileAddress)
 }
 
-// IsStateful returns false since the precompile contract doesn't perform any
-// state transitions.
-func (Precompile) IsStateful() bool {
-	return false
-}
-
 // RequiredGas calculates the precompiled contract's base gas rate.
 func (p Precompile) RequiredGas(input []byte) uint64 {
 	methodID := input[:4]
