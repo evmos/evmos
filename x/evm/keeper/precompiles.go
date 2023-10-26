@@ -45,7 +45,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load staking precompile: %w", err))
 	}
 
-	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, authzKeeper)
+	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, stakingKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
 	}
