@@ -163,7 +163,6 @@ func (m Memo) Validate() error {
 // onFailedDelivery. The reurned is string is the bech32 of the receiver input
 // or "do_nothing".
 func CreateOnFailedDeliveryField(receiver string) string {
-
 	onFailedDelivery := receiver
 	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
 	if err != nil {
