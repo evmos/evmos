@@ -12,8 +12,10 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
 
 	tmconfig "github.com/cometbft/cometbft/config"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
@@ -93,14 +95,18 @@ type startArgs struct {
 	printMnemonic  bool
 }
 
+// createValidatorMsgGasLimit is the gas limit used in the MsgCreateValidator included in genesis transactions.
+// This transaction consumes approximately 220,000 gas when executed in the genesis block.
+const createValidatorMsgGasLimit = 250_000
+
 func addTestnetFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
 	cmd.Flags().StringP(flagOutputDir, "o", "./.testnets", "Directory to store initialization data for the testnet")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(sdkserver.FlagMinGasPrices, fmt.Sprintf("0.000006%s", cmdcfg.BaseDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyType, string(hd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
-	cmd.Flags().String(flagBaseFee, "1000000000", "The params base_fee in the feemarket module in geneis")
-	cmd.Flags().String(flagMinGasPrice, "100000000", "The params min_gas_price in the feemarket module in geneis")
+	cmd.Flags().String(flagBaseFee, strconv.Itoa(params.InitialBaseFee), "The params base_fee in the feemarket module in geneis")
+	cmd.Flags().String(flagMinGasPrice, "0", "The params min_gas_price in the feemarket module in geneis")
 }
 
 // NewTestnetCmd creates a root testnet command with subcommands to run an in-process testnet or initialize
@@ -157,14 +163,14 @@ Example:
 			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
-			ok := false
+			ok := true
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
-			if !ok {
-				return fmt.Errorf("invalid value for --base-fee. expected an int; got %s", baseFee)
+			if !ok || !args.baseFee.IsPositive() {
+				return fmt.Errorf("invalid value for --base-fee. expected an uint but got %s", baseFee)
 			}
 			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
-			if err != nil {
-				return fmt.Errorf("invalid value for --min-gas-price. expected an int or decimal; got %s", minGasPrice)
+			if err != nil || !args.minGasPrice.IsPositive() {
+				return fmt.Errorf("invalid value for --min-gas-price. expected an uint or positive decimal but got %s", minGasPrice)
 			}
 
 			return initTestnetFiles(clientCtx, cmd, serverCtx.Config, mbm, genBalIterator, args)
@@ -342,15 +348,14 @@ func initTestnetFiles(
 			return err
 		}
 
-		const CreateValidatorTxGasLimit = 300000 // This transaction consumes approximately 220,000 gas when executed in the genesis block.
 		minGasPrice := args.minGasPrice
 		if sdkmath.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
 			minGasPrice = sdkmath.LegacyNewDecFromInt(args.baseFee)
 		}
 
 		txBuilder.SetMemo(memo)
-		txBuilder.SetGasLimit(CreateValidatorTxGasLimit)
-		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulInt64(CreateValidatorTxGasLimit).Ceil().TruncateInt())))
+		txBuilder.SetGasLimit(createValidatorMsgGasLimit)
+		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
 
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
