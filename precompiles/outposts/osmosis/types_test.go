@@ -10,6 +10,7 @@ import (
 
 	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v15/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -295,6 +296,53 @@ func TestValidateMemo(t *testing.T) {
 
 			err := packet.Memo.Validate()
 
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
+func TestValidateInputOutput(t *testing.T) {
+	t.Parallel()
+
+	inputDenom := "aevmos"
+	stakingDernom := "aevmos"
+	portID := "transfer"
+	channelID := "channel-0"
+	outputDenom := utils.ComputeIBCDenom(portID, channelID, "osmo")
+
+	testCases := []struct {
+		name         string
+		inputDenom   string
+		outputDenom  string
+		stakingDenom string
+		portID       string
+		channelID    string
+		expPass      bool
+		errContains  string
+	}{
+		{
+			name:         "pass - correct input and output",
+			inputDenom:   inputDenom,
+			outputDenom:  outputDenom,
+			stakingDenom: stakingDernom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, tc.portID, tc.channelID)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 			} else {
