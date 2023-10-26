@@ -240,7 +240,7 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 		name        string
 		tokenDenom  string
 		malleate    func()
-		ok          bool
+		expError    bool
 		errContains string
 	}{
 		{
@@ -274,7 +274,7 @@ func (suite *KeeperTestSuite) TestGetTokenDenom() {
 			tc.malleate()
 			res, err := suite.app.Erc20Keeper.GetTokenDenom(suite.ctx, tokenAddress)
 
-			if tc.ok {
+			if tc.expError {
 				suite.Require().NoError(err)
 				suite.Require().Equal(res, tokenDenom)
 			} else {
