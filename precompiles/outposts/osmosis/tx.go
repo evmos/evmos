@@ -120,3 +120,16 @@ func (p Precompile) Swap(
 
 	return nil, nil
 }
+
+// GetTokenDenom returns the denom associated to the tokenAddress from the
+// erc20 store. Returns an error if the TokenPair associated to the tokenAddress
+// is not found.
+func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
+	TokenPairID := p.erc20Keeper.GetERC20Map(ctx, tokenAddress)
+	TokenPair, found := p.erc20Keeper.GetTokenPair(ctx, TokenPairID)
+	if !found {
+		return "", fmt.Errorf(ErrTokenPairNotFound, tokenAddress)
+	}
+
+	return TokenPair.Denom, nil
+}
