@@ -37,7 +37,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-## ## [v15.0.0-rc1] - 2023-10-18
+### State Machine Breaking
+
+- (authz) [#1957](https://github.com/evmos/evmos/pull/1957) Remove outdated distribution authorizations from testnet.
+
+## [v15.0.0-rc1] - 2023-10-18
 
 ### API Breaking
 
