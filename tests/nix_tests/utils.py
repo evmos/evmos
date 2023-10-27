@@ -192,14 +192,14 @@ def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     return w3.eth.contract(address=address, abi=info["abi"]), txreceipt
 
 
-def register_ibc_coin(cli, meta=WEVMOS_META, proposer_addr=ADDRS["validator"]):
+def register_ibc_coin(cli, meta_array=[WEVMOS_META], proposer_addr=ADDRS["validator"]):
     """
     submits a register_coin proposal for the provided coin metadata
     """
     proposer = eth_to_bech32(proposer_addr)
-        # save the 
+        # save the coin metadata in a json file
     with tempfile.NamedTemporaryFile("w") as meta_file:
-        json.dump({"metadata": [meta]}, meta_file)
+        json.dump({"metadata": meta_array}, meta_file)
         meta_file.flush()
         res = cli.gov_propose(proposer, "register-coin", proposal={"metadata": meta_file.name})
         print(res)
