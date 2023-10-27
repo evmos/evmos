@@ -174,9 +174,8 @@ func CreateOnFailedDeliveryField(receiver string) string {
 	if err != nil {
 		return DefaultOnFailedDelivery
 	}
-	// TODO: use constant instead of hardcoded
-	if bech32Prefix != "osmo" {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
+	if bech32Prefix != OsmosisPrefix {
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, address)
 		if err != nil {
 			return DefaultOnFailedDelivery
 		}

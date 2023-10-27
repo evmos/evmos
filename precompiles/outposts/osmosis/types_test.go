@@ -383,3 +383,42 @@ func TestValidateInputOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateOnFailedDeliveryField(t *testing.T) {
+	t.Parallel()
+
+	receiver := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
+	testCases := []struct {
+		name     string
+		receiver string
+		expRes   string
+	}{
+		{
+			name:     "pass - receiver osmo bech32",
+			receiver: receiver,
+			expRes:   receiver,
+		},
+		{
+			name:     "pass - receiver osmo bech32",
+			receiver: "receiver",
+			expRes:   osmosisoutpost.DefaultOnFailedDelivery,
+		},
+		{
+			name:     "pass - convert receiver to osmo bech32",
+			receiver: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			expRes:   receiver,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.receiver)
+
+			require.Contains(t, onFailedDelivery, tc.expRes)
+		})
+	}
+}
