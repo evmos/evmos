@@ -7,10 +7,7 @@
 package osmosis
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
@@ -28,14 +25,11 @@ const (
 const (
 	// NextMemo is the memo to use after the swap of the token in the IBC packet
 	// built on the Osmosis chain. In the alpha version of the outpost this is
-	// an empty string that will not be included in the XCS contract payload.
+	// an empty string that will not be included in the XCS V2 contract payload.
 	NextMemo = ""
 
 	// TODO: XCSContract is the swap contract on the Osmosis chain
 	XCSContract = "placeholder"
-
-	// OsmosisPrefix is the prefix for osmosis addresses
-	OsmosisPrefix = "osmo"
 )
 
 // Swap is a transaction that swap tokens on the Osmosis chain using
@@ -76,6 +70,11 @@ func (p Precompile) Swap(
 	// the only two inputs allowed are aevmos and uosmo.
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 
+	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, p.portID, p.channelID)
+	if err != nil {
+		return nil, err
+	}
+
 	// If the receiver has not the prefix "osmo", we should compute its address
 	// in the Osmosis chain as a recovery address for the contract. This address
 	// is computed on the outpost for the alpha version just to be sure that it
@@ -101,39 +100,48 @@ func (p Precompile) Swap(
 		p.timeoutTimestamp,
 		packetString,
 	)
-
-	return nil, nil
-}
-
-// GetTokenDenom returns the denom associated to the tokenAddress from the
-// erc20 store. Returns an error if the TokenPair associated to the tokenAddress
-// is not found.
-func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
-	TokenPairID := p.erc20Keeper.GetERC20Map(ctx, tokenAddress)
-	TokenPair, found := p.erc20Keeper.GetTokenPair(ctx, TokenPairID)
-	if !found {
-		return "", fmt.Errorf(ErrTokenPairNotFound, tokenAddress)
-	}
-
-	return TokenPair.Denom, nil
-}
-
-// CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The reurned is string is the bech32 of the receiver input
-// or "do_nothing".
-func CreateOnFailedDeliveryField(receiver string) string {
-
-	onFailedDelivery := receiver
-	bech32Prefix, address, err := bech32.DecodeAndConvert(receiver)
 	if err != nil {
-		return "do_nothing"
-	}
-	if bech32Prefix != OsmosisPrefix {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
-		if err != nil {
-			return "do_nothing"
-		}
+		return nil, err
 	}
 
-	return onFailedDelivery
+	// No need to have authorization when the contract caller is the same as
+	// origin (owner of funds) and the sender is the origin
+	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(ctx, contract, origin, p.AuthzKeeper, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Execute the ICS20 Transfer
+	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update grant only if is needed
+	if err := ics20.UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, accept); err != nil {
+		return nil, err
+	}
+
+	// Emit the IBC transfer Event
+	if err := ics20.EmitIBCTransferEvent(
+		ctx,
+		stateDB,
+		p.ABI.Events[ics20.EventTypeIBCTransfer],
+		p.Address(),
+		sender,
+		msg.Receiver,
+		msg.SourcePort,
+		msg.SourceChannel,
+		coin,
+		packetString,
+	); err != nil {
+		return nil, err
+	}
+
+	// Emit the custom Swap Event
+	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, receiver); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(res.Sequence, true)
 }

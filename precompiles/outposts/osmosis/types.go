@@ -81,7 +81,7 @@ type Msg struct {
 	OsmosisSwap *OsmosisSwap `json:"osmosis_swap"`
 }
 
-// Memo wraps the message details for the IBC packet relyaed to the Osmosis chain. This include the
+// Memo wraps the message details for the IBC packet relayed to the Osmosis chain. This include the
 // address of the smart contract that will receive the Msg.
 type Memo struct {
 	// Contract represents the address or identifier of the contract to be called.
@@ -164,10 +164,8 @@ func (m Memo) Validate() error {
 	return nil
 }
 
-<<<<<<< HEAD
-=======
 // CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The reurned is string is the bech32 of the receiver input
+// onFailedDelivery. The return is string is the bech32 of the receiver input
 // or "do_nothing".
 func CreateOnFailedDeliveryField(receiver string) string {
 	onFailedDelivery := receiver
@@ -187,7 +185,6 @@ func CreateOnFailedDeliveryField(receiver string) string {
 
 // ValidateInputOutput validate the input and output tokens used in the Osmosis
 // swap.
->>>>>>> main
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom, portID, channelID string,
 ) error {
@@ -255,37 +252,4 @@ func ParseSwapPacketData(args []interface{}) (
 	}
 
 	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
-}
-
-// GetTokenDenom returns the denom associated to the tokenAddress from the
-// erc20 store. Returns an error if the TokenPair associated to the tokenAddress
-// is not found.
-func (p Precompile) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
-	TokenPairID := p.erc20Keeper.GetERC20Map(ctx, tokenAddress)
-	TokenPair, found := p.erc20Keeper.GetTokenPair(ctx, TokenPairID)
-	if !found {
-		return "", fmt.Errorf(ErrTokenPairNotFound, tokenAddress)
-	}
-
-	return TokenPair.Denom, nil
-}
-
-// CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The reurned is string is the bech32 of the receiver input
-// or "do_nothing".
-func CreateOnFailedDeliveryField(receiver string) string {
-
-	onFailedDelivery := receiver
-	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
-	if err != nil {
-		return "do_nothing"
-	}
-	if bech32Prefix != OsmosisPrefix {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisDenom, address)
-		if err != nil {
-			return "do_nothing"
-		}
-	}
-
-	return onFailedDelivery
 }
