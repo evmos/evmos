@@ -34,12 +34,23 @@ type EventWithdrawValidatorRewards struct {
 	Commission       *big.Int
 }
 
-// EventApproval defines the event data for the authorization Approve transaction.
-type EventApproval struct {
-	Owner       common.Address
-	Spender     common.Address
-	Methods     []string
-	AllowedList []string
+// parseClaimRewardsArgs parses the arguments for the ClaimRewards method.
+func parseClaimRewardsArgs(args []interface{}) (common.Address, uint32, error) {
+	if len(args) != 2 {
+		return common.Address{}, 0, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	delegatorAddress, ok := args[0].(common.Address)
+	if !ok || delegatorAddress == (common.Address{}) {
+		return common.Address{}, 0, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
+	}
+
+	maxRetrieve, ok := args[1].(uint32)
+	if !ok {
+		return common.Address{}, 0, fmt.Errorf(cmn.ErrInvalidType, "maxRetrieve", uint32(0), args[1])
+	}
+
+	return delegatorAddress, maxRetrieve, nil
 }
 
 // NewMsgSetWithdrawAddress creates a new MsgSetWithdrawAddress instance.

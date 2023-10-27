@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -230,5 +229,58 @@ func (suite *KeeperTestSuite) TestIsDenomRegistered() {
 		} else {
 			suite.Require().False(found, tc.name)
 		}
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetTokenDenom() {
+	tokenAddress := utiltx.GenerateAddress()
+	tokenDenom := "token"
+
+	testCases := []struct {
+		name        string
+		tokenDenom  string
+		malleate    func()
+		expError    bool
+		errContains string
+	}{
+		{
+			"denom found",
+			tokenDenom,
+			func() {
+				pair := types.NewTokenPair(tokenAddress, tokenDenom, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, tokenAddress, pair.GetID())
+			},
+			true,
+			"",
+		},
+		{
+			"denom not found",
+			tokenDenom,
+			func() {
+				address := utiltx.GenerateAddress()
+				pair := types.NewTokenPair(address, tokenDenom, types.OWNER_MODULE)
+				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
+				suite.app.Erc20Keeper.SetERC20Map(suite.ctx, address, pair.GetID())
+			},
+			false,
+			fmt.Sprintf("token '%s' not registered", tokenAddress),
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			suite.SetupTest() // reset
+
+			tc.malleate()
+			res, err := suite.app.Erc20Keeper.GetTokenDenom(suite.ctx, tokenAddress)
+
+			if tc.expError {
+				suite.Require().NoError(err)
+				suite.Require().Equal(res, tokenDenom)
+			} else {
+				suite.Require().Error(err, "expected an error while getting the token denom")
+				suite.Require().ErrorContains(err, tc.errContains)
+			}
+		})
 	}
 }
