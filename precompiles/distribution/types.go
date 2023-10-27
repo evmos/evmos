@@ -34,6 +34,12 @@ type EventWithdrawValidatorRewards struct {
 	Commission       *big.Int
 }
 
+// EventClaimRewards defines the event data for the ClaimRewards transaction.
+type EventClaimRewards struct {
+	DelegatorAddress common.Address
+	Amount           *big.Int
+}
+
 // parseClaimRewardsArgs parses the arguments for the ClaimRewards method.
 func parseClaimRewardsArgs(args []interface{}) (common.Address, uint32, error) {
 	if len(args) != 2 {
