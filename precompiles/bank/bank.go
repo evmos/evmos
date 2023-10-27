@@ -8,6 +8,7 @@ import (
 	"embed"
 	"fmt"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -57,8 +58,14 @@ func NewPrecompile(
 		return nil, err
 	}
 
+	// NOTE: we set an empty gas configuration to avoid extra gas costs
+	// during the run execution
 	return &Precompile{
-		Precompile:  cmn.Precompile{ABI: newAbi},
+		Precompile: cmn.Precompile{
+			ABI:                  newAbi,
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
+		},
 		bankKeeper:  bankKeeper,
 		erc20Keeper: erc20Keeper,
 	}, nil
@@ -94,8 +101,6 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract bank query methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	// FIXME: we need a new Setup function that sets the Cosmos Store Gas Costs to 0
-
 	ctx, _, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
