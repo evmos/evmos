@@ -182,6 +182,8 @@ func CreateOnFailedDeliveryField(receiver string) string {
 	return onFailedDelivery
 }
 
+// ValidateInputOutput validate the input and output tokens used in the Osmosis
+// swap.
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom, portID, channelID string,
 ) error {
