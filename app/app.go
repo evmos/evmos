@@ -1328,6 +1328,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v15rc2.UpgradeName,
 		v15rc2.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.AuthzKeeper,
 		),
 	)
 
