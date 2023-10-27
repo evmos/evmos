@@ -54,7 +54,7 @@ func (p Precompile) ClaimRewards(
 	}
 
 	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
-	totalCoins := sdk.NewCoins(sdk.NewCoin(p.stakingKeeper.BondDenom(ctx), sdk.ZeroInt()))
+	totalCoins := sdk.Coins{}
 	for _, validator := range validators {
 		// Convert the validator operator address into an ValAddress
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
