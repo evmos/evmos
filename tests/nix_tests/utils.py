@@ -4,6 +4,7 @@ import os
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -38,7 +39,27 @@ TEST_CONTRACTS = {
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "StakingI": "evmos/staking/StakingI.sol",
+    "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
 }
+WEVMOS_META = {
+    "description": "The native staking and governance token of the Evmos chain",
+	"denom_units": [
+	    {
+	        "denom": "aevmos",
+	    	"exponent": 18,
+	    	"aliases": ["aevmos"]
+        },
+	    {
+	    	"denom": "WEVMOS",
+	    	"exponent": 18
+	    }
+	],
+	"base": "aevmos",
+	"display": "WEVMOS",
+	"name": "Wrapped EVMOS",
+	"symbol": "WEVMOS"
+}
+
 
 
 def contract_path(name, filename):
@@ -146,10 +167,12 @@ def get_precompile_contract(w3, name):
     info = json.loads(jsonfile.read_text())
     if name == "StakingI":
         addr = "0x0000000000000000000000000000000000000800"
-    if name == "DistributionI":
+    elif name == "DistributionI":
         addr = "0x0000000000000000000000000000000000000801"
-    if name == "ICS20I":
+    elif name == "ICS20I":
         addr = "0x0000000000000000000000000000000000000802"
+    elif name == "IStrideOutpost":
+        addr = "0x0000000000000000000000000000000000000900"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
@@ -167,6 +190,19 @@ def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     assert txreceipt.status == 1
     address = txreceipt.contractAddress
     return w3.eth.contract(address=address, abi=info["abi"]), txreceipt
+
+
+def register_ibc_coin(cli, meta=WEVMOS_META, proposer_addr=ADDRS["validator"]):
+    """
+    submits a register_coin proposal for the provided coin metadata
+    """
+    proposer = eth_to_bech32(proposer_addr)
+        # save the 
+    with tempfile.NamedTemporaryFile("w") as meta_file:
+        json.dump({"metadata": [meta]}, meta_file)
+        meta_file.flush()
+        res = cli.gov_propose(proposer, "register-coin", proposal={"metadata": meta_file.name})
+        print(res)
 
 
 def fill_defaults(w3, tx):

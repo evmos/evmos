@@ -686,6 +686,36 @@ class CosmosCLI:
                     **kwargs,
                 )
             )
+        elif kind == "register-erc20":
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    proposal.get("erc20_address"),
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
+                )
+            )        
+        elif kind == "register-coin":
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    proposal.get("metadata"),
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
+                )
+            )          
         else:
             with tempfile.NamedTemporaryFile("w") as fp:
                 json.dump(proposal, fp)

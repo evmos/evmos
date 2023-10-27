@@ -9,6 +9,13 @@ config {
         'enable': true,
       },
     },
+    genesis+: {
+      consensus_params+: {
+        block+: {
+          max_bytes: '50000',
+        }
+      }
+    }
   },
   'stride-1': {
     cmd: 'strided',

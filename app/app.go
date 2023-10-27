@@ -577,6 +577,7 @@ func NewEvmos(
 		evmkeeper.AvailablePrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
+			app.Erc20Keeper,
 			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
