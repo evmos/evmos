@@ -13,11 +13,9 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 	"golang.org/x/exp/slices"
 
-	// "golang.org/x/exp/slices"
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"github.com/cosmos/btcutil/bech32"
-	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
