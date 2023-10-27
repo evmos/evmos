@@ -4,8 +4,8 @@ package network
 
 import (
 	"encoding/json"
-    "math"
-    "math/big"
+	"math"
+	"math/big"
 
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/types"
