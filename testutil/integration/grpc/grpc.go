@@ -45,11 +45,11 @@ var _ Handler = (*IntegrationHandler)(nil)
 // via gRPC. This is to simulate the behavior of a real user and avoid querying
 // the modules directly.
 type IntegrationHandler struct {
-	network network.Network
+	network network.EvmosNetwork
 }
 
 // NewIntegrationHandler creates a new IntegrationHandler instance.
-func NewIntegrationHandler(network network.Network) Handler {
+func NewIntegrationHandler(network network.EvmosNetwork) Handler {
 	return &IntegrationHandler{
 		network: network,
 	}

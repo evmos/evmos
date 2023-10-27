@@ -32,13 +32,12 @@ type Precompile struct {
 	channelKeeper  channelkeeper.Keeper
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new ICS-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
-	// approvalExpiration time.Duration,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
@@ -67,12 +66,6 @@ func NewPrecompile(
 // address: 0x0000000000000000000000000000000000000802
 func (Precompile) Address() common.Address {
 	return common.HexToAddress("0x0000000000000000000000000000000000000802")
-}
-
-// IsStateful returns true since the precompile contract has access to the
-// chain state.
-func (Precompile) IsStateful() bool {
-	return true
 }
 
 // RequiredGas calculates the precompiled contract's base gas rate.

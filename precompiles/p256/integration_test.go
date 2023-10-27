@@ -25,7 +25,7 @@ import (
 )
 
 type IntegrationTestSuite struct {
-	network           network.Network
+	network           network.EvmosNetwork
 	factory           factory.TxFactory
 	keyring           testkeyring.Keyring
 	precompileAddress common.Address

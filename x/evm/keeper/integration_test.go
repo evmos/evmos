@@ -29,7 +29,7 @@ import (
 )
 
 type IntegrationTestSuite struct {
-	network     network.Network
+	network     network.EvmosNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
