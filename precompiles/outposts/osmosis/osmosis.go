@@ -21,6 +21,10 @@ import (
 )
 
 const (
+	// OsmosisPrefix represents the human readable part of a bech32 address
+	// on the Osmosis chain.
+	OsmosisPrefix = "osmo"
+
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
