@@ -22,7 +22,42 @@ const (
 	EventTypeWithdrawDelegatorRewards = "WithdrawDelegatorRewards"
 	// EventTypeWithdrawValidatorCommission defines the event type for the distribution WithdrawValidatorCommissionMethod transaction.
 	EventTypeWithdrawValidatorCommission = "WithdrawValidatorCommission"
+	// EventTypeClaimRewards defines the event type for the distribution ClaimRewardsMethod transaction.
+	EventTypeClaimRewards = "ClaimRewards"
 )
+
+// EmitClaimRewardsEvent creates a new event emitted on a ClaimRewards transaction.
+func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, delegatorAddress common.Address, totalCoins sdk.Coins) error {
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeClaimRewards]
+	topics := make([]common.Hash, 2)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(delegatorAddress)
+	if err != nil {
+		return err
+	}
+
+	totalAmount := totalCoins.AmountOf(p.stakingKeeper.BondDenom(ctx))
+	// Pack the arguments to be used as the Data field
+	arguments := abi.Arguments{event.Inputs[1]}
+	packed, err := arguments.Pack(totalAmount.BigInt())
+	if err != nil {
+		return err
+	}
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
 
 // EmitSetWithdrawAddressEvent creates a new event emitted on a SetWithdrawAddressMethod transaction.
 func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.StateDB, caller common.Address, withdrawerAddress string) error {
