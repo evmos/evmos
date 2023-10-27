@@ -8,8 +8,6 @@ import (
 	"embed"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"

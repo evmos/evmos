@@ -309,11 +309,12 @@ func TestValidateMemo(t *testing.T) {
 func TestValidateInputOutput(t *testing.T) {
 	t.Parallel()
 
-	inputDenom := "aevmos"
-	stakingDernom := "aevmos"
+	aevmosDenom := "aevmos"
+	stakingDenom := "aevmos"
 	portID := "transfer"
 	channelID := "channel-0"
-	outputDenom := utils.ComputeIBCDenom(portID, channelID, "osmo")
+	uosmosDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
+	validInputs := []string{aevmosDenom, uosmosDenom}
 
 	testCases := []struct {
 		name         string
@@ -327,12 +328,42 @@ func TestValidateInputOutput(t *testing.T) {
 	}{
 		{
 			name:         "pass - correct input and output",
-			inputDenom:   inputDenom,
-			outputDenom:  outputDenom,
-			stakingDenom: stakingDernom,
+			inputDenom:   aevmosDenom,
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      true,
+		},
+		{
+			name:         "fail - input equal to output aevmos",
+			inputDenom:   aevmosDenom,
+			outputDenom:  aevmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+		},
+		{
+			name:         "fail - input equal to output ibc osmo",
+			inputDenom:   uosmosDenom,
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+		},
+		{
+			name:         "fail - invalid input",
+			inputDenom:   "token",
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputTokenNotSupported, validInputs),
 		},
 	}
 
