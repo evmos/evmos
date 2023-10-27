@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
 
@@ -106,6 +107,25 @@ func CreateAccAddressFromBech32(address string, bech32prefix string) (addr sdk.A
 	}
 
 	return sdk.AccAddress(bz), nil
+}
+
+// GetIBCDenomAddress returns the address from the hash of the ICS20's DenomTrace Path.
+func GetIBCDenomAddress(denom string) (common.Address, error) {
+	if !strings.HasPrefix(denom, "ibc/") {
+		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s does not have 'ibc/' prefix", denom)
+	}
+
+	if len(denom) < 5 || strings.TrimSpace(denom[4:]) == "" {
+		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrapf("coin %s does not a valid IBC voucher hash", denom)
+	}
+
+	// Get the address from the hash of the ICS20's DenomTrace Path
+	bz, err := ibctransfertypes.ParseHexHash(denom[4:])
+	if err != nil {
+		return common.Address{}, ibctransfertypes.ErrInvalidDenomForTransfer.Wrap(err.Error())
+	}
+
+	return common.BytesToAddress(bz), nil
 }
 
 // ComputeIBCDenom compute the ibc voucher denom associated to
