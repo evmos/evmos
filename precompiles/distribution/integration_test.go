@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v15/utils"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -268,6 +270,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		//
 		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
 		var defaultClaimRewardsArgs contracts.CallArgs
+		startingBalance := sdk.NewInt(5e18)
+		expectedBalance := sdk.NewInt(8999665039062500000)
 
 		BeforeEach(func() {
 			// set the default call arguments
@@ -288,7 +292,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should claim all rewards from all validators", func() {
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(sdk.NewInt(5e18)))
+			Expect(initialBalance.Amount).To(Equal(startingBalance))
 
 			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(s.address, uint32(2))
 			claimRewardsCheck := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
@@ -298,7 +302,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// check that the rewards were added to the balance
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Equal(sdk.NewInt(8999665039062500000))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
+			Expect(finalBalance.Amount.Equal(expectedBalance)).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
 
@@ -918,8 +922,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			//
 			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
 			defaultClaimRewardsArgs contracts.CallArgs
-			// initialBalance is the initial balance of the delegator
-			initialBalance sdk.Coin
+			// expectedBalance is the total after claiming from both validators
+			expectedBalance sdk.Coin
 		)
 
 		BeforeEach(func() {
@@ -929,10 +933,14 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 					Delegator: contractAddr.Bytes(),
 					Validator: s.validators[0],
 					RewardAmt: rewards,
+				}, {
+					Delegator: contractAddr.Bytes(),
+					Validator: s.validators[1],
+					RewardAmt: rewards,
 				},
 			}...)
 
-			initialBalance = s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e18)}
 
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
@@ -950,7 +958,24 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			// balance should increase
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, contractAddr.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			Expect(finalBalance.Amount.Equal(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+		})
+
+		It("should withdraw rewards successfully to a different address without origin check", func() {
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(6997329929187000000)}
+			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), s.address.Bytes())
+			Expect(err).To(BeNil())
+
+			claimRewardsArgs := defaultClaimRewardsArgs.WithArgs(contractAddr, uint32(2))
+
+			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
+
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, claimRewardsArgs, logCheckArgs)
+			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+
+			// balance should increase
+			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+			Expect(finalBalance.Amount.Equal(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
