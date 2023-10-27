@@ -10,7 +10,7 @@
 let
   version = if dbBackend == "rocksdb" then "latest-rocksdb" else "latest";
   pname = "evmosd";
-  tags = [ "ledger" "netgo" ] ++ (if dbBackend == "rocksdb" then [ "rocksdb" "grocksdb_clean_link" ] else []);
+  tags = [ "ledger" "netgo" ] ++ lib.optionals (dbBackend == "rocksdb") [ "rocksdb" "grocksdb_clean_link" ];
   ldflags = lib.concatStringsSep "\n" ([
     "-X github.com/cosmos/cosmos-sdk/version.Name=evmos"
     "-X github.com/cosmos/cosmos-sdk/version.AppName=${pname}"
@@ -19,7 +19,7 @@ let
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
     "-X github.com/cosmos/cosmos-sdk/types.DBBackend=${dbBackend}"
   ]);
-  buildInputs = if dbBackend == "rocksdb" then [ rocksdb ] else [];
+  buildInputs = lib.optionals (dbBackend == "rocksdb") [ rocksdb ];
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;
