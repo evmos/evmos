@@ -19,8 +19,8 @@ type Balance struct {
 	Amount          *big.Int
 }
 
-// ParseBalances parses the call arguments for the bank Balances query.
-func ParseBalances(args []interface{}) (sdk.AccAddress, error) {
+// ParseBalancesArgs parses the call arguments for the bank Balances query.
+func ParseBalancesArgs(args []interface{}) (sdk.AccAddress, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}

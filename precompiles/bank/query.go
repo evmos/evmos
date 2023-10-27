@@ -27,7 +27,7 @@ func (p Precompile) Balances(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	account, err := ParseBalances(args)
+	account, err := ParseBalancesArgs(args)
 	if err != nil {
 		return nil, err
 	}
