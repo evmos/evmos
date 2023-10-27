@@ -18,7 +18,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v15/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v15/precompiles/ics20"
-	strideoutpost "github.com/evmos/evmos/v15/precompiles/otuposts/stride"
+	strideoutpost "github.com/evmos/evmos/v15/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v15/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
@@ -59,7 +59,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper, erc20Keeper)
+	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
@@ -74,6 +74,7 @@ func AvailablePrecompiles(
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	precompiles[strideOutpost.Address()] = strideOutpost
 	return precompiles
 }
 

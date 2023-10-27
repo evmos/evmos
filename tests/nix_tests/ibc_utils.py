@@ -6,7 +6,7 @@ from typing import Any, Dict, List, NamedTuple
 from pystarport import ports
 
 from .network import CosmosChain, Hermes, setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, wait_for_port
+from .utils import ADDRS, eth_to_bech32, update_evmos_bin, wait_for_port
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
@@ -41,9 +41,36 @@ class IBCNetwork(NamedTuple):
     hermes: Hermes
 
 
-def prepare_network(tmp_path: Path, file: str, other_chains_names: List[str]):
+def prepare_network(
+    tmp_path: Path,
+    file: str,
+    other_chains_names: List[str],
+    allow_wevmos_registration=False,
+):
     file = f"configs/{file}.jsonnet"
-    gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
+    if allow_wevmos_registration:
+        # build the binary modified to allow to register WEVMOS token
+        # (removes a validation check in erc20 gov proposals)
+        cmd = [
+            "nix-build",
+            "--no-out-link",
+            Path(__file__).parent / "configs/wevmos-register.nix",
+        ]
+        print(*cmd)
+        modified_bin = (
+            Path(subprocess.check_output(cmd).strip().decode()) / "bin/evmosd"
+        )
+        print(f"patched bin: {modified_bin}")
+        gen = setup_custom_evmos(
+            tmp_path,
+            26700,
+            Path(__file__).parent / file,
+            post_init=update_evmos_bin(modified_bin),
+            chain_binary=modified_bin,
+        )
+    else:
+        gen = setup_custom_evmos(tmp_path, 26700, Path(__file__).parent / file)
+
     evmos = next(gen)
     chains = {"evmos": evmos}
     # wait for grpc ready

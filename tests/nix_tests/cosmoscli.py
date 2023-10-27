@@ -700,7 +700,7 @@ class CosmosCLI:
                     home=self.data_dir,
                     **kwargs,
                 )
-            )        
+            )
         elif kind == "register-coin":
             return json.loads(
                 self.raw(
@@ -711,11 +711,15 @@ class CosmosCLI:
                     proposal.get("metadata"),
                     "-y",
                     from_=proposer,
+                    # content
+                    title=proposal.get("title"),
+                    description=proposal.get("description"),
+                    deposit=proposal.get("deposit"),
                     # basic
                     home=self.data_dir,
                     **kwargs,
                 )
-            )          
+            )
         else:
             with tempfile.NamedTemporaryFile("w") as fp:
                 json.dump(proposal, fp)
@@ -751,14 +755,14 @@ class CosmosCLI:
             )
         )
 
-    def gov_deposit(self, depositor, proposal_id, amount):
+    def gov_deposit(self, depositor, proposal_id, amount, denom=DEFAULT_DENOM):
         return json.loads(
             self.raw(
                 "tx",
                 "gov",
                 "deposit",
                 proposal_id,
-                amount,
+                f"{amount}{denom}",
                 "-y",
                 from_=depositor,
                 home=self.data_dir,
@@ -1047,6 +1051,38 @@ class CosmosCLI:
                 **kwargs,
             )
         )
+
+    # ==========================
+    #       ERC20 Module
+    # ==========================
+    def convert_coin(self, coin: str, account: str, **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "erc20",
+                "convert-coin",
+                coin,
+                "-y",
+                from_=account,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def get_token_pairs(self, **kwargs):
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "erc20",
+                "token-pairs",
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["token_pairs"]
 
     # ==========================
     #        Tendermint

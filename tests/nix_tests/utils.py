@@ -1,4 +1,5 @@
 import base64
+import configparser
 import json
 import os
 import socket
@@ -8,6 +9,7 @@ import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
+from pystarport.cluster import SUPERVISOR_CONFIG_FILE
 
 import bech32
 from dateutil.parser import isoparse
@@ -40,26 +42,19 @@ TEST_CONTRACTS = {
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "StakingI": "evmos/staking/StakingI.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
+    "IERC20": "evmos/erc20/IERC20.sol",
 }
 WEVMOS_META = {
     "description": "The native staking and governance token of the Evmos chain",
-	"denom_units": [
-	    {
-	        "denom": "aevmos",
-	    	"exponent": 18,
-	    	"aliases": ["aevmos"]
-        },
-	    {
-	    	"denom": "WEVMOS",
-	    	"exponent": 18
-	    }
-	],
-	"base": "aevmos",
-	"display": "WEVMOS",
-	"name": "Wrapped EVMOS",
-	"symbol": "WEVMOS"
+    "denom_units": [
+        {"denom": "aevmos", "exponent": 0, "aliases": ["aevmos"]},
+        {"denom": "WEVMOS", "exponent": 18},
+    ],
+    "base": "aevmos",
+    "display": "WEVMOS",
+    "name": "Wrapped EVMOS",
+    "symbol": "WEVMOS",
 }
-
 
 
 def contract_path(name, filename):
@@ -162,6 +157,27 @@ def wait_for_fn(name, fn, *, timeout=240, interval=1):
         raise TimeoutError(f"wait for {name} timeout")
 
 
+def approve_proposal(n, proposal_id):
+    """
+    helper function to vote 'yes' on the provided proposal id
+    and wait it to pass
+    """
+    cli = n.cosmos_cli()
+
+    for i in range(len(n.config["validators"])):
+        rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes")
+        assert rsp["code"] == 0, rsp["raw_log"]
+    wait_for_new_blocks(cli, 1)
+    assert (
+        int(cli.query_tally(proposal_id)["yes_count"]) == cli.staking_pool()
+    ), "all validators should have voted yes"
+    print("wait for proposal to be activated")
+    proposal = cli.query_proposal(proposal_id)
+    wait_for_block_time(cli, isoparse(proposal["voting_end_time"]))
+    proposal = cli.query_proposal(proposal_id)
+    assert proposal["status"] == "PROPOSAL_STATUS_PASSED", proposal
+
+
 def get_precompile_contract(w3, name):
     jsonfile = CONTRACTS[name]
     info = json.loads(jsonfile.read_text())
@@ -192,17 +208,26 @@ def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     return w3.eth.contract(address=address, abi=info["abi"]), txreceipt
 
 
-def register_ibc_coin(cli, meta_array=[WEVMOS_META], proposer_addr=ADDRS["validator"]):
+def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
     """
     submits a register_coin proposal for the provided coin metadata
     """
     proposer = eth_to_bech32(proposer_addr)
-        # save the coin metadata in a json file
+    # save the coin metadata in a json file
     with tempfile.NamedTemporaryFile("w") as meta_file:
-        json.dump({"metadata": meta_array}, meta_file)
+        json.dump({"metadata": proposal.get("metadata")}, meta_file)
         meta_file.flush()
-        res = cli.gov_propose(proposer, "register-coin", proposal={"metadata": meta_file.name})
-        print(res)
+        proposal["metadata"] = meta_file.name
+        rsp = cli.gov_propose(proposer, "register-coin", proposal, gas=10000000)
+        assert rsp["code"] == 0, rsp["raw_log"]
+        txhash = rsp["txhash"]
+        wait_for_new_blocks(cli, 2)
+        receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+        return get_event_attribute_value(
+            receipt["tx_result"]["events"],
+            "submit_proposal",
+            "proposal_id",
+        )
 
 
 def fill_defaults(w3, tx):
@@ -300,8 +325,115 @@ def compare_fields(a, b, fields):
 # get_fees_from_tx_result returns the fees by unpacking them
 # from the events contained in the tx_result of a cosmos transaction.
 def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
-    for event in tx_result["events"]:
-        if event["type"] == "tx":
-            for attr in event["attributes"]:
-                if attr["key"] == "fee":
-                    return int(attr["value"].split(denom)[0])
+    return int(
+        get_event_attribute_value(
+            tx_result["events"],
+            "tx",
+            "fee",
+        ).split(
+            denom
+        )[0]
+    )
+
+
+def get_event_attribute_value(events, _type, attribute):
+    for event in events:
+        if event["type"] == _type:
+            attrs = event["attributes"]
+            for attr in attrs:
+                if attr["key"] == attribute:
+                    return attr["value"]
+
+
+def update_node_cmd(path, cmd, i):
+    ini_path = path / SUPERVISOR_CONFIG_FILE
+    ini = configparser.RawConfigParser()
+    ini.read(ini_path)
+    for section in ini.sections():
+        if section == f"program:evmos_9000-1-node{i}":
+            ini[section].update(
+                {
+                    "command": f"{cmd} start --home %(here)s/node{i}",
+                    "autorestart": "false",  # don't restart when stopped
+                }
+            )
+    with ini_path.open("w") as fp:
+        ini.write(fp)
+
+
+def update_evmos_bin(modified_bin, nodes=[0, 1]):
+    """
+    updates the evmos binary with a patched binary.
+    Input parameters are the modified binary (modified_bin)
+    and the nodes in which
+    to apply the modified binary (nodes).
+    Usually the setup comprise only 2 nodes (node0 & node1),
+    so nodes should be an array containing only 0 and/or 1
+    """
+
+    def inner(path, base_port, config):
+        chain_id = "evmos_9000-1"
+        # by default, there're 2 nodes
+        # need to update the bin in all these
+        for i in nodes:
+            update_node_cmd(path / chain_id, modified_bin, i)
+
+    return inner
+
+
+def register_wevmos(evmos):
+    """
+    this helper function registers the WEVMOS
+    token in the ERC20 module and returns the contract address.
+    Make sure to patch the evmosd binary with the allow-wevmos-register patch
+    for this to be successful
+    """
+    cli = evmos.cosmos_cli()
+    proposal = {
+        "title": "Register WEVMOS",
+        "description": "EVMOS erc20 representation",
+        "metadata": [WEVMOS_META],
+        "deposit": "1aevmos",
+    }
+    proposal_id = register_ibc_coin(cli, proposal)
+    # vote 'yes' on proposal and wait it to pass
+    approve_proposal(evmos, proposal_id)
+
+    # query token pairs and get WEVMOS address
+    pairs = cli.get_token_pairs()
+    assert len(pairs) == 1
+    assert pairs[0]["denom"] == "aevmos"
+
+    return pairs[0]["erc20_address"]
+
+
+def wrap_evmos(evmos, addr, amt):
+    """
+    Helper function that registers WEVMOS token
+    and wraps the specified amount
+    for the provided Ethereum address
+    Returns the WEVMOS contract address
+    """
+    cli = evmos.cosmos_cli()
+    # submit proposal to register WEVMOS
+    wevmos_addr = register_wevmos(evmos)
+
+    # convert 'aevmos' to WEVMOS (wrap)
+    rsp = cli.convert_coin(f"{amt}aevmos", eth_to_bech32(addr), gas=2000000)
+    assert rsp["code"] == 0, rsp["raw_log"]
+    wait_for_new_blocks(cli, 2)
+    txhash = rsp["txhash"]
+    receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    assert receipt["tx_result"]["code"] == 0
+
+    # check the desired amt was wrapped
+    wevmos_balance = erc20_balance(evmos.w3, wevmos_addr, addr)
+    assert wevmos_balance == amt
+
+    return wevmos_addr
+
+
+def erc20_balance(w3, erc20_contract_addr, addr):
+    info = json.loads(CONTRACTS["IERC20"].read_text())
+    contract = w3.eth.contract(erc20_contract_addr, abi=info["abi"])
+    return contract.functions.balanceOf(addr).call()
