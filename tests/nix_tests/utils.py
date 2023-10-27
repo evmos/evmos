@@ -146,23 +146,30 @@ def get_precompile_contract(w3, name):
     info = json.loads(jsonfile.read_text())
     if name == "StakingI":
         addr = "0x0000000000000000000000000000000000000800"
-    if name == "DistributionI":
+    elif name == "DistributionI":
         addr = "0x0000000000000000000000000000000000000801"
-    if name == "ICS20I":
+    elif name == "ICS20I":
         addr = "0x0000000000000000000000000000000000000802"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
 
 
+def build_deploy_contract_tx(w3, info, args=(), key=KEYS["validator"]):
+    """
+    builds a tx to deploy contract without signature and returns it
+    """
+    acct = Account.from_key(key)
+    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
+    return contract.constructor(*args).build_transaction({"from": acct.address})
+
+
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     """
     deploy contract and return the deployed contract instance
     """
-    acct = Account.from_key(key)
     info = json.loads(jsonfile.read_text())
-    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
-    tx = contract.constructor(*args).build_transaction({"from": acct.address})
+    tx = build_deploy_contract_tx(w3, info, args, key)
     txreceipt = send_transaction(w3, tx, key)
     assert txreceipt.status == 1
     address = txreceipt.contractAddress
