@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 
-	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v15/utils"
 	"github.com/stretchr/testify/require"
