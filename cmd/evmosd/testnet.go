@@ -165,15 +165,16 @@ Example:
 
 			ok := true
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
-			if !ok || !args.baseFee.IsPositive() {
-				return fmt.Errorf("invalid value for --base-fee. expected an uint but got %s", baseFee)
+			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
+				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
 			}
+
 			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
 			if err != nil {
-				return fmt.Errorf("invalid value for --min-gas-price. expected an uint or positive decimal but got %s and err %s", minGasPrice, err.Error())
+				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got %s and err %s", minGasPrice, err.Error())
 			}
-			if !args.minGasPrice.IsPositive() {
-				return fmt.Errorf("invalid value for --min-gas-price. expected an uint or positive decimal but got an negative number %s", minGasPrice)
+			if args.minGasPrice.LT(sdk.ZeroDec()) {
+				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got an negative number %s", minGasPrice)
 			}
 
 			return initTestnetFiles(clientCtx, cmd, serverCtx.Config, mbm, genBalIterator, args)
