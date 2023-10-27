@@ -4,12 +4,8 @@
 package bank
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
@@ -48,7 +44,7 @@ func (p Precompile) Balances(
 			ctx.GasMeter().ConsumeGas(GasBalanceOf, "ERC-20 extension balances method")
 		}
 
-		contractAddress, ok := p.GetCoinAddress(ctx, coin.Denom)
+		contractAddress, ok := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
 		if !ok {
 			return false
 		}
@@ -61,15 +57,10 @@ func (p Precompile) Balances(
 		return false
 	})
 
-	if len(balances) > 1 {
-		cost := uint64((len(balances) - 1)) * GasBalanceOf
-		ctx.GasMeter().ConsumeGas(cost, "erc-20 extension balances method")
-	}
-
 	return method.Outputs.Pack(balances)
 }
 
-// Balances returns the total supply of all the native tokens.
+// TotalSupply returns the total supply of all the native tokens.
 // This method charges the account the corresponding value of a ERC-20 totalSupply
 // call for each token returned.
 func (p Precompile) TotalSupply(
@@ -90,7 +81,7 @@ func (p Precompile) TotalSupply(
 			ctx.GasMeter().ConsumeGas(GasTotalSupply, "ERC-20 extension totalSupply method")
 		}
 
-		contractAddress, ok := p.GetCoinAddress(ctx, coin.Denom)
+		contractAddress, ok := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
 		if !ok {
 			return false
 		}
@@ -104,31 +95,4 @@ func (p Precompile) TotalSupply(
 	})
 
 	return method.Outputs.Pack(totalSupply)
-}
-
-func (p Precompile) GetCoinAddress(ctx sdk.Context, denom string) (contractAddress common.Address, ok bool) {
-	id := p.erc20Keeper.GetDenomMap(ctx, denom)
-	if len(id) != 0 {
-		tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, id)
-		if !found {
-			return common.Address{}, false
-		}
-
-		return tokenPair.GetERC20Contract(), true
-	}
-
-	if !strings.HasPrefix(denom, "ibc/") {
-		return common.Address{}, false
-	}
-
-	if len(denom) < 5 || strings.TrimSpace(denom[4:]) == "" {
-		return common.Address{}, false
-	}
-
-	bz, err := transfertypes.ParseHexHash(denom[4:])
-	if err != nil {
-		return common.Address{}, false
-	}
-
-	return common.BytesToAddress(bz), true
 }

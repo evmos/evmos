@@ -4,10 +4,12 @@
 package keeper
 
 import (
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
@@ -140,4 +142,38 @@ func (k Keeper) IsERC20Registered(ctx sdk.Context, erc20 common.Address) bool {
 func (k Keeper) IsDenomRegistered(ctx sdk.Context, denom string) bool {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixTokenPairByDenom)
 	return store.Has([]byte(denom))
+}
+
+// GetCoinAddress returns the corresponding ERC-20 contract address for the
+// given denom.
+// If the denom is not registered and its an IBC voucher, it returns the address
+// from the hash of the ICS20's DenomTrace Path.
+func (k Keeper) GetCoinAddress(ctx sdk.Context, denom string) (contractAddress common.Address, ok bool) {
+	id := k.GetDenomMap(ctx, denom)
+	if len(id) != 0 {
+		tokenPair, found := k.GetTokenPair(ctx, id)
+		if !found {
+			// safety check, should never happen
+			return common.Address{}, false
+		}
+
+		return tokenPair.GetERC20Contract(), true
+	}
+
+	// if the denom is not registered, check if it is an IBC voucher
+	if !strings.HasPrefix(denom, "ibc/") {
+		return common.Address{}, false
+	}
+
+	if len(denom) < 5 || strings.TrimSpace(denom[4:]) == "" {
+		return common.Address{}, false
+	}
+
+	// Get the address from the hash of the ICS20's DenomTrace Path
+	bz, err := transfertypes.ParseHexHash(denom[4:])
+	if err != nil {
+		return common.Address{}, false
+	}
+
+	return common.BytesToAddress(bz), true
 }
