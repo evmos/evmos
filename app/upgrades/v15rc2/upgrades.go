@@ -36,17 +36,26 @@ func CreateUpgradeHandler(
 // RemoveDistributionAuthorizations removes any outdated distribution authorizations
 // found in the authz keeper.
 func RemoveDistributionAuthorizations(ctx sdk.Context, ak authzkeeper.Keeper) {
+	logger := ctx.Logger().With("upgrade", UpgradeName, "module", "authz")
+
 	ak.IterateGrants(ctx, func(granterAddr, granteeAddr sdk.AccAddress, grant authz.Grant) bool {
 		authorization, err := grant.GetAuthorization()
 		if err != nil {
-			return true
+			return false
 		}
 
 		distAuthz, ok := authorization.(*distributiontypes.DistributionAuthorization)
-		if ok {
-			if err = ak.DeleteGrant(ctx, granteeAddr, granterAddr, distAuthz.MsgTypeURL()); err != nil {
-				return true
-			}
+		if !ok {
+			return false
+		}
+
+		if err = ak.DeleteGrant(ctx, granteeAddr, granterAddr, distAuthz.MsgTypeURL()); err != nil {
+			logger.Error("failed to delete distribution authorization",
+				"grantee", granteeAddr,
+				"granter", granterAddr,
+				"msg_type_url", distAuthz.MsgTypeURL(),
+				"error", err,
+			)
 		}
 
 		return false
