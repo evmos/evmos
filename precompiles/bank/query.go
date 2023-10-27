@@ -44,8 +44,8 @@ func (p Precompile) Balances(
 			ctx.GasMeter().ConsumeGas(GasBalanceOf, "ERC-20 extension balances method")
 		}
 
-		contractAddress, ok := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
-		if !ok {
+		contractAddress, err := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
+		if err != nil {
 			return false
 		}
 
@@ -81,8 +81,8 @@ func (p Precompile) TotalSupply(
 			ctx.GasMeter().ConsumeGas(GasTotalSupply, "ERC-20 extension totalSupply method")
 		}
 
-		contractAddress, ok := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
-		if !ok {
+		contractAddress, err := p.erc20Keeper.GetCoinAddress(ctx, coin.Denom)
+		if err != nil {
 			return false
 		}
 
