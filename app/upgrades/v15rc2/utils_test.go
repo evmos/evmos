@@ -150,9 +150,7 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	valSet := tmtypes.NewValidatorSet(validators)
 
 	// generate genesis account
-	addr, priv := testutiltx.NewAddrKey()
-	s.address = addr
-
+	_, priv := testutiltx.NewAddrKey()
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
 	acc := &evmostypes.EthAccount{
