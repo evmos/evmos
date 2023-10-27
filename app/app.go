@@ -130,7 +130,6 @@ import (
 	v12 "github.com/evmos/evmos/v15/app/upgrades/v12"
 	v13 "github.com/evmos/evmos/v15/app/upgrades/v13"
 	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
-	v15rc1 "github.com/evmos/evmos/v15/app/upgrades/v15rc1"
 	"github.com/evmos/evmos/v15/app/upgrades/v15rc2"
 	v8 "github.com/evmos/evmos/v15/app/upgrades/v8"
 	v81 "github.com/evmos/evmos/v15/app/upgrades/v8_1"
@@ -1312,22 +1311,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
-	// v15rc1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v15rc1.UpgradeName,
-		v15rc1.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.BankKeeper,
-			app.EvmKeeper,
-			app.StakingKeeper,
-		),
-	)
-
 	// v15rc2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v15rc2.UpgradeName,
 		v15rc2.CreateUpgradeHandler(
 			app.mm, app.configurator,
+			app.AuthzKeeper,
 		),
 	)
 
@@ -1384,11 +1373,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 				consensusparamtypes.StoreKey,
 				crisistypes.ModuleName,
 			},
-		}
-	case v15rc1.UpgradeName:
-		// crisis module is deprecated in v15rc1
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{crisistypes.ModuleName},
 		}
 	case v15rc2.UpgradeName:
 		// no store upgrades in v15.0.0-rc2
