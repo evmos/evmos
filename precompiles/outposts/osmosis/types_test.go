@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 
-	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v15/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -301,6 +301,123 @@ func TestValidateMemo(t *testing.T) {
 				require.Error(t, err, "expected error while validating the memo")
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
 			}
+		})
+	}
+}
+
+func TestValidateInputOutput(t *testing.T) {
+	t.Parallel()
+
+	aevmosDenom := "aevmos"
+	stakingDenom := "aevmos"
+	portID := "transfer"
+	channelID := "channel-0"
+	uosmosDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
+	validInputs := []string{aevmosDenom, uosmosDenom}
+
+	testCases := []struct {
+		name         string
+		inputDenom   string
+		outputDenom  string
+		stakingDenom string
+		portID       string
+		channelID    string
+		expPass      bool
+		errContains  string
+	}{
+		{
+			name:         "pass - correct input and output",
+			inputDenom:   aevmosDenom,
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      true,
+		},
+		{
+			name:         "fail - input equal to output aevmos",
+			inputDenom:   aevmosDenom,
+			outputDenom:  aevmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+		},
+		{
+			name:         "fail - input equal to output ibc osmo",
+			inputDenom:   uosmosDenom,
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+		},
+		{
+			name:         "fail - invalid input",
+			inputDenom:   "token",
+			outputDenom:  uosmosDenom,
+			stakingDenom: stakingDenom,
+			portID:       portID,
+			channelID:    channelID,
+			expPass:      false,
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputTokenNotSupported, validInputs),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, tc.portID, tc.channelID)
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
+func TestCreateOnFailedDeliveryField(t *testing.T) {
+	t.Parallel()
+
+	receiver := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
+	testCases := []struct {
+		name     string
+		receiver string
+		expRes   string
+	}{
+		{
+			name:     "pass - receiver osmo bech32",
+			receiver: receiver,
+			expRes:   receiver,
+		},
+		{
+			name:     "pass - receiver osmo bech32",
+			receiver: "receiver",
+			expRes:   osmosisoutpost.DefaultOnFailedDelivery,
+		},
+		{
+			name:     "pass - convert receiver to osmo bech32",
+			receiver: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			expRes:   receiver,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.receiver)
+
+			require.Contains(t, onFailedDelivery, tc.expRes)
 		})
 	}
 }
