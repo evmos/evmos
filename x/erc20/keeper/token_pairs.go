@@ -4,12 +4,9 @@
 package keeper
 
 import (
-<<<<<<< HEAD
 	"strings"
 
-=======
 	errorsmod "cosmossdk.io/errors"
->>>>>>> fc977f908fe0ab4b7939f7713beec57818932cb3
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
