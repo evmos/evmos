@@ -128,6 +128,27 @@ func (s *PrecompileTestSuite) TestRun() {
 			readOnly: false,
 			expPass:  true,
 		},
+		{
+			name: "pass - claim rewards transaction",
+			malleate: func() (common.Address, []byte) {
+				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+
+				input, err := s.precompile.Pack(
+					distribution.ClaimRewardsMethod,
+					s.address,
+					uint32(2),
+				)
+				s.Require().NoError(err, "failed to pack input")
+
+				return s.address, input
+			},
+			readOnly: false,
+			expPass:  true,
+		},
 	}
 
 	for _, tc := range testcases {
