@@ -8,6 +8,8 @@ import (
 	"embed"
 	"fmt"
 
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
@@ -28,12 +30,14 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	distributionKeeper distributionkeeper.Keeper
+	stakingKeeper      stakingkeeper.Keeper
 }
 
 // NewPrecompile creates a new distribution Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	distributionKeeper distributionkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
@@ -54,6 +58,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
+		stakingKeeper:      stakingKeeper,
 		distributionKeeper: distributionKeeper,
 	}, nil
 }
@@ -89,6 +94,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
+	// Custom transactions
+	case ClaimRewardsMethod:
+		bz, err = p.ClaimRewards(ctx, evm.Origin, contract, stateDB, method, args)
 	// Distribution transactions
 	case SetWithdrawAddressMethod:
 		bz, err = p.SetWithdrawAddress(ctx, evm.Origin, contract, stateDB, method, args)
@@ -131,12 +139,14 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given methodID corresponds to a transaction or query.
 //
 // Available distribution transactions are:
+//   - ClaimRewards
 //   - SetWithdrawAddress
 //   - WithdrawDelegatorRewards
 //   - WithdrawValidatorCommission
 func (Precompile) IsTransaction(methodID string) bool {
 	switch methodID {
-	case SetWithdrawAddressMethod,
+	case ClaimRewardsMethod,
+		SetWithdrawAddressMethod,
 		WithdrawDelegatorRewardsMethod,
 		WithdrawValidatorCommissionMethod:
 		return true
