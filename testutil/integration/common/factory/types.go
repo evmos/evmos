@@ -7,7 +7,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
-
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
 	// ChainID is the chain's id in cosmos format, e.g. 'evmos_9000-1'

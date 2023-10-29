@@ -45,6 +45,6 @@ func NewIntegrationHandler(network network.Network) Handler {
 	return &IntegrationHandler{
 		// Is there a better way to do this?
 		IntegrationHandler: commongrpc.NewIntegrationHandler(network),
-		network: network,
+		network:            network,
 	}
 }
