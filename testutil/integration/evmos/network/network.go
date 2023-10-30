@@ -15,6 +15,7 @@ import (
 	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -32,8 +33,6 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
-
-	NextBlock() error
 
 	// Clients
 	GetEvmClient() evmtypes.QueryClient
@@ -56,6 +55,9 @@ type IntegrationNetwork struct {
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
 	app        *app.Evmos
+
+	// This is only needed for IBC chain testing setup
+	valSet *tmtypes.ValidatorSet
 }
 
 // New configures and initializes a new integration Network instance with
@@ -171,6 +173,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
 	n.validators = validators
+	n.valSet = valSet
 	return nil
 }
 
