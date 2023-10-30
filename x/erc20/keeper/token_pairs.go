@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-
+	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
@@ -143,12 +143,41 @@ func (k Keeper) IsDenomRegistered(ctx sdk.Context, denom string) bool {
 	return store.Has([]byte(denom))
 }
 
+// GetCoinAddress returns the corresponding ERC-20 contract address for the
+// given denom.
+// If the denom is not registered and its an IBC voucher, it returns the address
+// from the hash of the ICS20's DenomTrace Path.
+func (k Keeper) GetCoinAddress(ctx sdk.Context, denom string) (common.Address, error) {
+	id := k.GetDenomMap(ctx, denom)
+	if len(id) == 0 {
+		// if the denom is not registered, check if it is an IBC voucher
+		return utils.GetIBCDenomAddress(denom)
+	}
+
+	tokenPair, found := k.GetTokenPair(ctx, id)
+	if !found {
+		// safety check, should never happen
+		return common.Address{}, errorsmod.Wrapf(
+			types.ErrTokenPairNotFound, "coin '%s' not registered", denom,
+		)
+	}
+
+	return tokenPair.GetERC20Contract(), nil
+}
+
 // GetTokenDenom returns the denom associated with the tokenAddress or an error
 // if the TokenPair does not exist.
 func (k Keeper) GetTokenDenom(ctx sdk.Context, tokenAddress common.Address) (string, error) {
 	tokenPairID := k.GetERC20Map(ctx, tokenAddress)
+	if len(tokenPairID) == 0 {
+		return "", errorsmod.Wrapf(
+			types.ErrTokenPairNotFound, "token '%s' not registered", tokenAddress,
+		)
+	}
+
 	tokenPair, found := k.GetTokenPair(ctx, tokenPairID)
 	if !found {
+		// safety check, should never happen
 		return "", errorsmod.Wrapf(
 			types.ErrTokenPairNotFound, "token '%s' not registered", tokenAddress,
 		)
