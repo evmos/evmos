@@ -3,7 +3,6 @@ import re
 import pytest
 
 from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
-from .network import Evmos
 from .utils import ADDRS, get_precompile_contract, wait_for_fn
 
 
@@ -84,7 +83,6 @@ def test_ibc_transfer_invalid_packet(ibc):
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
     exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501
-    w3 = ibc.chains["evmos"].w3
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -95,8 +93,8 @@ def test_ibc_transfer_invalid_packet(ibc):
 
     old_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
 
-    pc = get_precompile_contract(w3, "ICS20I")
-    evmos_gas_price = w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
         pc.functions.transfer(
@@ -128,7 +126,6 @@ def test_ibc_transfer_timeout(ibc):
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
     exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC\)\: packet timeout"  # noqa: E501
-    w3 = ibc.chains["evmos"].w3
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -139,8 +136,8 @@ def test_ibc_transfer_timeout(ibc):
 
     old_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
 
-    pc = get_precompile_contract(w3, "ICS20I")
-    evmos_gas_price = w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
         pc.functions.transfer(
@@ -164,24 +161,22 @@ def test_ibc_transfer_timeout(ibc):
 def test_staking(ibc):
     assert_ready(ibc)
 
-    evmos: Evmos = ibc.chains["evmos"]
-    w3 = evmos.w3
     amt = 1000000
-    cli = evmos.cosmos_cli()
+    cli = ibc.chains["evmos"].cosmos_cli()
     del_addr = cli.address("signer2")
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
 
-    old_src_balance = get_balance(evmos, del_addr, src_denom)
+    old_src_balance = get_balance(ibc.chains["evmos"], del_addr, src_denom)
 
-    pc = get_precompile_contract(w3, "StakingI")
-    evmos_gas_price = w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "StakingI")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     tx_hash = pc.functions.delegate(ADDRS["signer2"], validator_addr, amt).transact(
         {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
     )
 
-    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    receipt = ibc.chains["evmos"].w3.eth.wait_for_transaction_receipt(tx_hash)
 
     assert receipt.status == 1
 
@@ -192,5 +187,5 @@ def test_staking(ibc):
     assert delegations[0]["delegation"]["validator_address"] == validator_addr
     assert int(delegations[0]["balance"]["amount"]) == amt
 
-    new_src_balance = get_balance(evmos, del_addr, src_denom)
+    new_src_balance = get_balance(ibc.chains["evmos"], del_addr, src_denom)
     assert old_src_balance - amt - fee == new_src_balance
