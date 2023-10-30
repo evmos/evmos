@@ -57,6 +57,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
 - (sdk) [#1869](https://github.com/evmos/evmos/pull/1869) Bump Cosmos SDK to v0.47.5.
 - (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
+- (db) [1964](https://github.com/evmos/evmos/pull/1964) Bump versionDB dependecy to fix memory store bug.
 
 ### Improvements
 
