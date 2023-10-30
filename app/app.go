@@ -398,25 +398,6 @@ func NewEvmos(
 
 	keys, memKeys, tkeys := StoreKeys()
 
-	// load state streaming if enabled
-	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
-		fmt.Printf("failed to load state streaming: %s", err)
-		os.Exit(1)
-	}
-
-	// wire up the versiondb's `StreamingService` and `MultiStore`.
-	var (
-		queryMultiStore sdk.MultiStore
-		err             error
-	)
-	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
-	if slices.Contains(streamers, versionDB) {
-		queryMultiStore, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
-		if err != nil {
-			panic(errorsmod.Wrap(err, "error on versionDB setup"))
-		}
-	}
-
 	app := &Evmos{
 		BaseApp:           bApp,
 		cdc:               cdc,
@@ -874,6 +855,23 @@ func NewEvmos(
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
+		fmt.Printf("failed to load state streaming: %s", err)
+		os.Exit(1)
+	}
+
+	// wire up the versiondb's `StreamingService` and `MultiStore`.
+	var queryMultiStore sdk.MultiStore
+
+	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
+	if slices.Contains(streamers, versionDB) {
+		queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		if err != nil {
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
+		}
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
