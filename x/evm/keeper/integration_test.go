@@ -16,11 +16,11 @@ import (
 	"github.com/evmos/evmos/v15/contracts"
 	"github.com/evmos/evmos/v15/precompiles/staking"
 
-	"github.com/evmos/evmos/v15/testutil/integration/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/network"
-	integrationutils "github.com/evmos/evmos/v15/testutil/integration/utils"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"

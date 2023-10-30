@@ -50,6 +50,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
 - (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
 - (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
+- (db) [1964](https://github.com/evmos/evmos/pull/1964) Bump versionDB dependecy to fix memory store bug.
 
 
 ### Features
