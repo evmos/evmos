@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/crypto-org-chain/cronos/versiondb"
@@ -28,9 +27,8 @@ const versionDB = "versiondb"
 // NOTE: this code is only included in a build with rocksdb.
 // Otherwise, the setupVersionDB code on 'app/db_placeholder.go' will be included
 // in the compiled binary
-func setupVersionDB(
+func (app *Evmos) setupVersionDB(
 	homePath string,
-	app *baseapp.BaseApp,
 	keys map[string]*storetypes.KVStoreKey,
 	tkeys map[string]*storetypes.TransientStoreKey,
 	memKeys map[string]*storetypes.MemoryStoreKey,
@@ -53,7 +51,7 @@ func setupVersionDB(
 	service := versiondb.NewStreamingService(store, exposeStoreKeys)
 	app.SetStreamingService(service)
 
-	verDB := versiondb.NewMultiStore(store, exposeStoreKeys)
+	verDB := versiondb.NewMultiStore(app.CommitMultiStore(), store, exposeStoreKeys)
 	verDB.MountTransientStores(tkeys)
 	verDB.MountMemoryStores(memKeys)
 
