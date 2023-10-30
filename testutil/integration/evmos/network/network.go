@@ -12,11 +12,11 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
+
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
@@ -29,30 +29,23 @@ import (
 // It was designed to avoid users to access module's keepers directly and force integration tests
 // to be closer to the real user's behavior.
 type Network interface {
-	GetContext() sdktypes.Context
-	GetChainID() string
+	commonnetwork.Network
+
 	GetEIP155ChainID() *big.Int
-	GetDenom() string
-	GetValidators() []stakingtypes.Validator
 
 	NextBlock() error
 
+	// Clients
 	GetEvmClient() evmtypes.QueryClient
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
-	GetBankClient() banktypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-	GetAuthClient() authtypes.QueryClient
-	GetStakingClient() stakingtypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params
 	UpdateRevenueParams(params revtypes.Params) error
 	UpdateInflationParams(params infltypes.Params) error
 	UpdateEvmParams(params evmtypes.Params) error
-
-	BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error)
-	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -61,8 +54,8 @@ var _ Network = (*IntegrationNetwork)(nil)
 type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
-	app        *app.Evmos
 	validators []stakingtypes.Validator
+	app        *app.Evmos
 }
 
 // New configures and initializes a new integration Network instance with
