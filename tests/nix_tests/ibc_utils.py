@@ -45,16 +45,17 @@ def prepare_network(
     tmp_path: Path,
     file: str,
     other_chains_names: List[str],
-    allow_wevmos_registration=False,
+    custom_scenario=None,
 ):
     file = f"configs/{file}.jsonnet"
-    if allow_wevmos_registration:
-        # build the binary modified to allow to register WEVMOS token
+    if custom_scenario is not None:
+        # build the binary modified to for a custom scenario
+        # e.g. allow to register WEVMOS token
         # (removes a validation check in erc20 gov proposals)
         cmd = [
             "nix-build",
             "--no-out-link",
-            Path(__file__).parent / "configs/wevmos-register.nix",
+            Path(__file__).parent / f"configs/{custom_scenario}.nix",
         ]
         print(*cmd)
         modified_bin = (

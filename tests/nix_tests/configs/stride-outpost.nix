@@ -4,5 +4,6 @@ in
 evmosd.overrideAttrs (oldAttrs: {
   patches = oldAttrs.patches or [ ] ++ [
     ./allow-wevmos-register.patch
+    ./stride-outpost-channel.patch
   ];
 })

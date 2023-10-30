@@ -18,7 +18,10 @@ def ibc(tmp_path_factory):
     "prepare-network"
     name = "stride-outpost"
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, ["stride"], True)
+    # specify the custom_scenario
+    # to patch evmos to use channel-0 for Stride outpost
+    # and allow to register WEVMOS token
+    network = prepare_network(path, name, ["stride"], custom_scenario=name)
     yield from network
 
 
