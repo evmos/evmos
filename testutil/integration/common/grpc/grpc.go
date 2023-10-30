@@ -7,36 +7,20 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/testutil/integration/network"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v15/testutil/integration/common/network"
 )
 
-// Handler is an interface that defines the methods that are used to query
+// Handler is an interface that defines the common methods that are used to query
 // the network's modules via gRPC.
 type Handler interface {
-	// EVM methods
-	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)
-	EstimateGas(args []byte, GasCap uint64) (*evmtypes.EstimateGasResponse, error)
-	GetEvmParams() (*evmtypes.QueryParamsResponse, error)
-
 	// Bank methods
 	GetBalance(address sdktypes.AccAddress, denom string) (*banktypes.QueryBalanceResponse, error)
 
 	// Account methods
 	GetAccount(address string) (authtypes.AccountI, error)
 
-	// FeeMarket methods
-	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
-
 	// Staking methods
 	GetDelegation(delegatorAddress string, validatorAddress string) (*stakingtypes.QueryDelegationResponse, error)
-
-	// Revenue methods
-	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
-	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
 }
 
 var _ Handler = (*IntegrationHandler)(nil)
@@ -49,7 +33,7 @@ type IntegrationHandler struct {
 }
 
 // NewIntegrationHandler creates a new IntegrationHandler instance.
-func NewIntegrationHandler(network network.Network) Handler {
+func NewIntegrationHandler(network network.Network) *IntegrationHandler {
 	return &IntegrationHandler{
 		network: network,
 	}
