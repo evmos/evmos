@@ -1146,7 +1146,7 @@ class CosmosCLI:
                 channel_id,
                 unbonding_frequency,
                 "--generate-only",
-                from_="stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl",  # gov mod acc - is the account allowed to execute this message
+                from_="stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl",  # gov mod acc - is the account allowed to execute this message # noqa: E501
                 chain_id="stride-1",
                 **kwargs,
             )

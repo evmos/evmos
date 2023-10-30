@@ -9,13 +9,13 @@ import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
-from pystarport.cluster import SUPERVISOR_CONFIG_FILE
 
 import bech32
 from dateutil.parser import isoparse
 from dotenv import load_dotenv
 from eth_account import Account
 from hexbytes import HexBytes
+from pystarport.cluster import SUPERVISOR_CONFIG_FILE
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
 

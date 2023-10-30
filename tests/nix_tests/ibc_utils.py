@@ -49,7 +49,7 @@ def prepare_network(
 ):
     file = f"configs/{file}.jsonnet"
     if custom_scenario is not None:
-        # build the binary modified to for a custom scenario
+        # build the binary modified for a custom scenario
         # e.g. allow to register WEVMOS token
         # (removes a validation check in erc20 gov proposals)
         cmd = [
@@ -59,7 +59,10 @@ def prepare_network(
         ]
         print(*cmd)
         modified_bin = (
-            Path(subprocess.check_output(cmd).strip().decode()) / "bin/evmosd"
+            Path(
+                subprocess.check_output(cmd, universal_newlines=True, text=True).strip()
+            )
+            / "bin/evmosd"
         )
         print(f"patched bin: {modified_bin}")
         gen = setup_custom_evmos(
