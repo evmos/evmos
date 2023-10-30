@@ -157,7 +157,7 @@ def wait_for_fn(name, fn, *, timeout=240, interval=1):
         raise TimeoutError(f"wait for {name} timeout")
 
 
-def approve_proposal(n, proposal_id):
+def approve_proposal(n, proposal_id, **kwargs):
     """
     helper function to vote 'yes' on the provided proposal id
     and wait it to pass
@@ -165,7 +165,7 @@ def approve_proposal(n, proposal_id):
     cli = n.cosmos_cli()
 
     for i in range(len(n.config["validators"])):
-        rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes")
+        rsp = n.cosmos_cli(i).gov_vote("validator", proposal_id, "yes", **kwargs)
         assert rsp["code"] == 0, rsp["raw_log"]
     wait_for_new_blocks(cli, 1)
     assert (
@@ -218,7 +218,7 @@ def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
         json.dump({"metadata": proposal.get("metadata")}, meta_file)
         meta_file.flush()
         proposal["metadata"] = meta_file.name
-        rsp = cli.gov_propose(proposer, "register-coin", proposal, gas=10000000)
+        rsp = cli.gov_legacy_proposal(proposer, "register-coin", proposal, gas=10000000)
         assert rsp["code"] == 0, rsp["raw_log"]
         txhash = rsp["txhash"]
         wait_for_new_blocks(cli, 2)
@@ -228,6 +228,62 @@ def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
             "submit_proposal",
             "proposal_id",
         )
+
+
+def register_host_zone(
+    stride,
+    proposer,
+    connection_id,
+    host_denom,
+    bech32_prefix,
+    ibc_denom,
+    channel_id,
+    unbonding_frequency,
+):
+    """
+    Register a Host Zone in Stride Chain.
+    This helper function submits the corresponding
+    governance proposal, votes it, wait till it passes
+    and checks that the host zone was registered successfully
+    """
+    prev_registered_zones = len(stride.cosmos_cli().get_host_zones())
+
+    msg = stride.cosmos_cli().register_host_zone_msg(
+        connection_id,
+        host_denom,
+        bech32_prefix,
+        ibc_denom,
+        channel_id,
+        unbonding_frequency,
+    )
+    proposal = {
+        "messages": [msg],
+        "deposit": "1ustrd",
+        "title": f"Register {bech32_prefix} zone",
+        "summary": f"Proposal to register {bech32_prefix} zone",
+    }
+    with tempfile.NamedTemporaryFile("w") as proposal_file:
+        json.dump(proposal, proposal_file)
+        proposal_file.flush()
+        rsp = stride.cosmos_cli().gov_proposal(proposer, proposal_file.name)
+        assert rsp["code"] == 0, rsp["raw_log"]
+        txhash = rsp["txhash"]
+
+    wait_for_new_blocks(stride.cosmos_cli(), 2)
+    receipt = stride.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    proposal_id = get_event_attribute_value(
+        receipt["tx_result"]["events"],
+        "submit_proposal",
+        "proposal_id",
+    )
+    assert int(proposal_id) > 0
+    # vote 'yes' on proposal and wait it to pass
+    approve_proposal(stride, proposal_id, gas_prices="2000000ustrd")
+
+    # query token pairs and get WEVMOS address
+    updated_registered_zones = stride.cosmos_cli().get_host_zones()
+    assert len(updated_registered_zones) == prev_registered_zones + 1
+    return updated_registered_zones
 
 
 def fill_defaults(w3, tx):
@@ -396,6 +452,7 @@ def register_wevmos(evmos):
         "deposit": "1aevmos",
     }
     proposal_id = register_ibc_coin(cli, proposal)
+    assert int(proposal_id) > 0
     # vote 'yes' on proposal and wait it to pass
     approve_proposal(evmos, proposal_id)
 
