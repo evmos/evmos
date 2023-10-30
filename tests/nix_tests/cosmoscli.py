@@ -642,8 +642,21 @@ class CosmosCLI:
     # ==========================
     #         GOV module
     # ==========================
+    def gov_proposal(self, proposer, proposal_file_name, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "gov",
+                "submit-proposal",
+                proposal_file_name,
+                "-y",
+                from_=proposer,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
 
-    def gov_propose(self, proposer, kind, proposal, **kwargs):
+    def gov_legacy_proposal(self, proposer, kind, proposal, **kwargs):
         method = "submit-legacy-proposal"
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
         if kind == "software-upgrade":
@@ -1103,3 +1116,52 @@ class CosmosCLI:
 
     def unsaferesetall(self):
         return self.raw("unsafe-reset-all")
+
+    #   TODO: create different classes for each chains CLI
+    # ==========================
+    #       Stride specific
+    # ==========================
+    def register_host_zone_msg(
+        self,
+        connection_id,
+        host_denom,
+        bech32_prefix,
+        ibc_denom,
+        channel_id,
+        unbonding_frequency,
+        **kwargs,
+    ):
+        """
+        Generates a MsgRegisterHostZone
+        """
+        generated = json.loads(
+            self.raw(
+                "tx",
+                "stakeibc",
+                "register-host-zone",
+                connection_id,
+                host_denom,
+                bech32_prefix,
+                ibc_denom,
+                channel_id,
+                unbonding_frequency,
+                "--generate-only",
+                from_="stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl",  # gov mod acc - is the account allowed to execute this message
+                chain_id="stride-1",
+                **kwargs,
+            )
+        )["body"]
+        assert len(generated["messages"]) == 1
+        return generated["messages"][0]
+
+    def get_host_zones(self, **kwargs):
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "stakeibc",
+                "list-host-zone",
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["host_zone"]
