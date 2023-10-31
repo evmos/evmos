@@ -39,8 +39,8 @@ type EventRedeem struct {
 // StakeIBCPacketMetadata metadata info specific to StakeIBC (e.g. 1-click liquid staking).
 // Used to create the memo field for the ICS20 transfer corresponding to Autopilot LiquidStake.
 type StakeIBCPacketMetadata struct {
-	Action      string
-	IBCReceiver string
+	Action      string `json:"action"`
+	IBCReceiver string `json:"ibcreceiver,omitempty"`
 }
 
 // Autopilot defines the receiver and IBC packet metadata info specific to the
@@ -179,7 +179,7 @@ func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 	}
 
 	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(data, "", "  ")
+	jsonBytes, err := json.Marshal(data)
 	if err != nil {
 		return "", sdkerrors.ErrJSONMarshal.Wrap("autopilot packet")
 	}
