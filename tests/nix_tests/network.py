@@ -196,3 +196,21 @@ def setup_custom_evmos(
     finally:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
         proc.wait()
+
+
+def build_patched_evmosd(patch_nix_file):
+    """
+    build the binary modified for a custom scenario
+    e.g. allow to register WEVMOS token
+    (removes a validation check in erc20 gov proposals)
+    """
+    cmd = [
+        "nix-build",
+        "--no-out-link",
+        str(Path(__file__).parent / f"configs/{patch_nix_file}.nix"),
+    ]
+    print(*cmd)
+    return (
+        Path(subprocess.check_output(cmd, universal_newlines=True, text=True).strip())
+        / "bin/evmosd"
+    )

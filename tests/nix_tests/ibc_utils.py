@@ -5,8 +5,14 @@ from typing import Any, Dict, List, NamedTuple
 
 from pystarport import ports
 
-from .network import CosmosChain, Hermes, create_snapshots_dir, setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_port
+from .network import (
+    CosmosChain,
+    Hermes,
+    build_patched_evmosd,
+    create_snapshots_dir,
+    setup_custom_evmos,
+)
+from .utils import ADDRS, eth_to_bech32, memiavl_config, update_evmos_bin, wait_for_port
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
@@ -52,7 +58,9 @@ class IBCNetwork(NamedTuple):
     hermes: Hermes
 
 
-def get_evmos_generator(tmp_path: Path, file: str, is_rocksdb: bool = False):
+def get_evmos_generator(
+    tmp_path: Path, file: str, is_rocksdb: bool = False, custom_scenario: str = None
+):
     """
     setup evmos with custom config
     depending on the build
@@ -68,12 +76,28 @@ def get_evmos_generator(tmp_path: Path, file: str, is_rocksdb: bool = False):
         )
     else:
         file = f"configs/{file}.jsonnet"
-        gen = setup_custom_evmos(tmp_path, 28700, Path(__file__).parent / file)
+        if custom_scenario is not None:
+            # build the binary modified for a custom scenario
+            modified_bin = build_patched_evmosd(custom_scenario)
+            gen = setup_custom_evmos(
+                tmp_path,
+                26700,
+                Path(__file__).parent / file,
+                post_init=update_evmos_bin(modified_bin),
+                chain_binary=modified_bin,
+            )
+        else:
+            gen = setup_custom_evmos(tmp_path, 28700, Path(__file__).parent / file)
 
     return gen
 
 
-def prepare_network(tmp_path: Path, file: str, chain_names: List[str]):
+def prepare_network(
+    tmp_path: Path,
+    file: str,
+    chain_names: List[str],
+    custom_scenario=None,
+):
     chains_to_connect = []
 
     # set up the chains
@@ -87,7 +111,9 @@ def prepare_network(tmp_path: Path, file: str, chain_names: List[str]):
         if "evmos" in chain_name:
             # setup evmos with the custom config
             # depending on the build
-            gen = get_evmos_generator(tmp_path, file, "-rocksdb" in chain)
+            gen = get_evmos_generator(
+                tmp_path, file, "-rocksdb" in chain, custom_scenario
+            )
             evmos = next(gen)
             # wait for grpc ready
             wait_for_port(ports.grpc_port(evmos.base_port(0)))  # evmos grpc

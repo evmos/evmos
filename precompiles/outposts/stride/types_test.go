@@ -17,6 +17,7 @@ func TestCreateMemo(t *testing.T) {
 		evmosReceiver string
 		expPass       bool
 		errContains   string
+		expMemo       string
 	}{
 		{
 			name:          "success - liquid stake",
@@ -24,6 +25,7 @@ func TestCreateMemo(t *testing.T) {
 			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
 			evmosReceiver: strideoutpost.NoReceiver,
 			expPass:       true,
+			expMemo:       "{\"autopilot\":{\"receiver\":\"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\",\"stakeibc\":{\"action\":\"LiquidStake\"}}}",
 		},
 		{
 			name:          "success - redeem stake",
@@ -31,6 +33,7 @@ func TestCreateMemo(t *testing.T) {
 			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
 			evmosReceiver: "evmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
 			expPass:       true,
+			expMemo:       "{\"autopilot\":{\"receiver\":\"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\",\"stakeibc\":{\"action\":\"RedeemStake\",\"ibcreceiver\":\"evmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\"}}}",
 		},
 	}
 
@@ -44,6 +47,7 @@ func TestCreateMemo(t *testing.T) {
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 				require.NotEmpty(t, memo, "expected memo not to be empty")
+				require.Equal(t, tc.expMemo, memo)
 			} else {
 				require.Error(t, err, "expected error while creating memo")
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
