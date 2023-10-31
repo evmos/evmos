@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
-import "../../distribution/Distribution.sol" as distribution;
+import "../../distribution/DistributionI.sol" as distribution;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {

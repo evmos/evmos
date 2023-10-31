@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package v15rc2_test
+package v15_test
 
 import (
 	"encoding/json"
@@ -151,6 +151,7 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 
 	// generate genesis account
 	_, priv := testutiltx.NewAddrKey()
+
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
 	acc := &evmostypes.EthAccount{

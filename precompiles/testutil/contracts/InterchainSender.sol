@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-v3
 pragma solidity >=0.8.17;
 
-import "./../../ics20/ICS20.sol";
+import "./../../ics20/ICS20I.sol";
 import "./../../common/Types.sol";
 
 contract InterchainSender {
@@ -114,6 +114,7 @@ contract InterchainSender {
         PageRequest calldata pageRequest
     )
         public
+        view
         returns (
             DenomTrace[] memory denomTraces,
             PageResponse memory pageResponse
@@ -124,13 +125,13 @@ contract InterchainSender {
 
     function testDenomTrace(
         string memory hash
-    ) public returns (DenomTrace memory denomTrace) {
+    ) public view returns (DenomTrace memory denomTrace) {
         return ICS20_CONTRACT.denomTrace(hash);
     }
 
     function testDenomHash(
         string memory trace
-    ) public returns (string memory hash) {
+    ) public view returns (string memory hash) {
         return ICS20_CONTRACT.denomHash(trace);
     }
 

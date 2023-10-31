@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.8.17;
 
-import "../Staking.sol" as staking;
+import "../StakingI.sol" as staking;
 
 /// @title StakingCaller
 /// @author Evmos Core Team
