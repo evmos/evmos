@@ -55,7 +55,7 @@ def prepare_network(
         cmd = [
             "nix-build",
             "--no-out-link",
-            Path(__file__).parent / f"configs/{custom_scenario}.nix",
+            str(Path(__file__).parent / f"configs/{custom_scenario}.nix"),
         ]
         print(*cmd)
         modified_bin = (
