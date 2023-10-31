@@ -1375,7 +1375,10 @@ func (app *Evmos) setupUpgradeHandlers() {
 			},
 		}
 	case v15.UpgradeName:
-		// no store upgrades in v15.0.0
+		// crisis module is deprecated in v15
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{crisistypes.ModuleName},
+		}
 	}
 
 	if storeUpgrades != nil {
