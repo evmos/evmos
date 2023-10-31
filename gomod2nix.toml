@@ -214,8 +214,8 @@ schema = 3
     version = "v20.10.24+incompatible"
     hash = "sha256-5bvtx8SXoCnSN/M/Eb8TE0ctW8o0jH7mB2zF1JRx3Eg="
   [mod."github.com/docker/docker"]
-    version = "v20.10.24+incompatible"
-    hash = "sha256-jYtP4+fnWPPjC+3vQd+v9B41GkT63+W5C5CAA9uPfa0="
+    version = "v24.0.7+incompatible"
+    hash = "sha256-fgLsKDI2q2KNu40T/iFMHa6A0JWt2clExwDW3WHPNYI="
   [mod."github.com/docker/go-connections"]
     version = "v0.4.0"
     hash = "sha256-GHNIjOuuNp5lFQ308+nDNwQPGESCVV7bCUxSW5ZxZlc="
