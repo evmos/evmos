@@ -35,19 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
-
-### Bug Fixes
-
-- (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
-
-## [v15.0.0-rc2] - 2023-10-30
-
-### State Machine Breaking
-
-- (authz) [#1957](https://github.com/evmos/evmos/pull/1957) Remove outdated distribution authorizations from testnet.
-
-## [v15.0.0-rc1] - 2023-10-18
+## [v15.0.0] - 2023-10-31
 
 ### API Breaking
 
@@ -87,6 +75,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
 - (testnet) [#1857](https://github.com/evmos/evmos/pull/1857) Remove the crisis module causing an error when using the `evmosd testnet init-files` command.
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
+- (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
 
 ## [v14.1.0] - 2023-09-25
 
