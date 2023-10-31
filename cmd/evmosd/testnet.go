@@ -163,7 +163,7 @@ Example:
 			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
-			ok := true
+			var ok bool
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
 			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
 				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
