@@ -4,7 +4,6 @@
 package stride
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
@@ -48,19 +47,14 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	abi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  newAbi,
+			ABI:                  abi,
 			AuthzKeeper:          authzKeeper,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
@@ -73,6 +67,12 @@ func NewPrecompile(
 		erc20Keeper:    erc20Keeper,
 		stakingKeeper:  stakingKeeper,
 	}, nil
+}
+
+// LoadABI loads the Stride outpost ABI from the embedded abi.json file
+// for the Stride outpost precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
 }
 
 // Address defines the address of the Stride Outpost precompile contract.
