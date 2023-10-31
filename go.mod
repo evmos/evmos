@@ -18,9 +18,9 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.3.1
-	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231009123906-58ea507932a3
-	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231009123906-58ea507932a3
-	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231009123906-58ea507932a3
+	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e
+	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e
+	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.3
@@ -46,10 +46,10 @@ require (
 	github.com/zondax/hid v0.9.1
 	go.opencensus.io v0.24.0
 	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	golang.org/x/net v0.14.0
-	golang.org/x/text v0.12.0
+	golang.org/x/net v0.17.0
+	golang.org/x/text v0.13.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529
-	google.golang.org/grpc v1.56.2
+	google.golang.org/grpc v1.56.3
 	google.golang.org/protobuf v1.31.0
 	sigs.k8s.io/yaml v1.3.0
 )
@@ -223,12 +223,12 @@ require (
 	github.com/zbiljic/go-filelock v0.0.0-20170914061330-1dbf7103ab7d // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/term v0.11.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.126.0 // indirect
