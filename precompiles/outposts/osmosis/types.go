@@ -212,6 +212,7 @@ func ValidateInputOutput(
 	return nil
 }
 
+// TODO: use struct as return
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
 	sender, input, output common.Address,

@@ -69,6 +69,7 @@ func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
+	// TODO add LoadABI
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
 		return nil, err
