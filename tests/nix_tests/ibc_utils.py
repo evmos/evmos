@@ -59,7 +59,10 @@ class IBCNetwork(NamedTuple):
 
 
 def get_evmos_generator(
-    tmp_path: Path, file: str, is_rocksdb: bool = False, custom_scenario: str = None
+    tmp_path: Path,
+    file: str,
+    is_rocksdb: bool = False,
+    custom_scenario: str | None = None,
 ):
     """
     setup evmos with custom config
