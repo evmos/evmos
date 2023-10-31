@@ -1,8 +1,8 @@
 diff --git a/x/erc20/types/proposal.go b/x/erc20/types/proposal.go
-index 87d4e4b9..9fc67e7a 100644
+index 87d4e4b9..ce8ad49f 100644
 --- a/x/erc20/types/proposal.go
 +++ b/x/erc20/types/proposal.go
-@@ -73,13 +73,6 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
+@@ -73,12 +73,9 @@ func (rtbp *RegisterCoinProposal) ValidateBasic() error {
  			return err
  		}
  
@@ -12,7 +12,9 @@ index 87d4e4b9..9fc67e7a 100644
 -				ErrEVMDenom, "cannot register the EVM denomination %s", metadata.Base,
 -			)
 -		}
--
++		// EVM denomination check is removed in this patch
++		// to allow the registration of the WEVMOS token
++		// (erc20 representation of the 'aevmos' coin)
+ 
  		if err := ibctransfertypes.ValidateIBCDenom(metadata.Base); err != nil {
  			return err
- 		}

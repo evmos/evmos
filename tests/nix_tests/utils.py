@@ -400,7 +400,10 @@ def get_event_attribute_value(events, _type, attribute):
                 if attr["key"] == attribute:
                     return attr["value"]
 
-    raise AttributeError(f"could not find attribute {attribute} in event logs: {events}")
+    raise AttributeError(
+        f"could not find attribute {attribute} in event logs: {events}"
+    )
+
 
 def update_node_cmd(path, cmd, i):
     ini_path = path / SUPERVISOR_CONFIG_FILE
@@ -453,7 +456,9 @@ def register_wevmos(evmos):
         "deposit": "1aevmos",
     }
     proposal_id = register_ibc_coin(cli, proposal)
-    assert int(proposal_id) > 0, "expected a non-zero proposal ID for the registration of the WEVMOS token."
+    assert (
+        int(proposal_id) > 0
+    ), "expected a non-zero proposal ID for the registration of the WEVMOS token."
     # vote 'yes' on proposal and wait it to pass
     approve_proposal(evmos, proposal_id)
 
