@@ -69,8 +69,8 @@ func NewPrecompile(
 	}, nil
 }
 
-// LoadABI loads the Osmosis outpost ABI from the embedded abi.json file
-// for the Osmosis outpost precompile.
+// LoadABI loads the Stride outpost ABI from the embedded abi.json file
+// for the Stride outpost precompile.
 func LoadABI() (abi.ABI, error) {
 	return cmn.LoadABI(f, "abi.json")
 }
