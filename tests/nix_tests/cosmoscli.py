@@ -1155,6 +1155,9 @@ class CosmosCLI:
         return generated["messages"][0]
 
     def get_host_zones(self, **kwargs):
+        """
+        Queries the host zones on the Stride chain.
+        """
         default_kwargs = {"output": "json", "home": self.data_dir}
         res = json.loads(
             self.raw(
