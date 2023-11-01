@@ -75,7 +75,7 @@ func ParseApproveArgs(args []interface{}) (
 
 	amount, ok = args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1]")
+		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
 	}
 
 	return spender, amount, nil
