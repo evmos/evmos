@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	// FallbackMethod is the name of the fallback method
+	// FallbackMethod is the name of the fallback method.
 	FallbackMethod = "fallback"
-	// ReceiveMethod is the name of the receive method
+	// ReceiveMethod is the name of the receive method.
 	ReceiveMethod = "receive"
 )
 

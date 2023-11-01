@@ -63,7 +63,7 @@ func (p Precompile) Address() common.Address {
 	return p.Precompile.Address()
 }
 
-// RequiredGas calculates the contract gas use
+// RequiredGas calculates the contract gas use.
 func (p Precompile) RequiredGas(input []byte) uint64 {
 	methodID := input[:4]
 	method, err := p.MethodById(methodID)
