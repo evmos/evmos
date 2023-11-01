@@ -153,8 +153,6 @@ def setup_custom_evmos(
         str(base_port),
         "--no_remove",
     ]
-    if chain_binary is not None:
-        cmd = cmd[:1] + ["--cmd", chain_binary] + cmd[1:]
     print(*cmd)
     subprocess.run(cmd, check=True)
     if post_init is not None:

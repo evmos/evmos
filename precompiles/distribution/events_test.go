@@ -205,3 +205,40 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 		}
 	}
 }
+
+func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
+	testCases := []struct {
+		name      string
+		coins     sdk.Coins
+		postCheck func()
+	}{
+		{
+			"success",
+			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18))),
+			func() {
+				log := s.stateDB.Logs()[0]
+				s.Require().Equal(log.Address, s.precompile.Address())
+				// Check event signature matches the one emitted
+				event := s.precompile.ABI.Events[distribution.EventTypeClaimRewards]
+				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
+				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+
+				var claimRewardsEvent distribution.EventClaimRewards
+				err := cmn.UnpackLog(s.precompile.ABI, &claimRewardsEvent, distribution.EventTypeClaimRewards, *log)
+				s.Require().NoError(err)
+				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), claimRewardsEvent.DelegatorAddress)
+				s.Require().Equal(big.NewInt(1e18), claimRewardsEvent.Amount)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			err := s.precompile.EmitClaimRewardsEvent(s.ctx, s.stateDB, s.address, tc.coins)
+			s.Require().NoError(err)
+			tc.postCheck()
+		})
+	}
+}

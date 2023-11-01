@@ -8,11 +8,14 @@ import (
 	"fmt"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
-	// "golang.org/x/exp/slices"
+	"github.com/evmos/evmos/v15/utils"
+	"golang.org/x/exp/slices"
+
+	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
 	"github.com/cosmos/btcutil/bech32"
-	// transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
@@ -24,6 +27,12 @@ const (
 	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
 	/// definition of the slippage for the swap.
 	MaxWindowSeconds uint64 = 60
+)
+
+const (
+	// DefaultOnFailedDelivery is the default value used in the XCSV2 contract
+	// for the on_failed_delivery field.
+	DefaultOnFailedDelivery = "do_nothing"
 )
 
 const (
@@ -154,23 +163,44 @@ func (m Memo) Validate() error {
 	return nil
 }
 
-// func tmpValidate() {
-// 	if osmosisSwap.OutputDenom == input {
-// 		return fmt.Errorf(ErrInputEqualOutput, input)
-// 	}
-//
-// 	osmoIBCDenom := transfertypes.DenomTrace{
-// 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-// 		BaseDenom: OsmosisDenom,
-// 	}.IBCDenom()
-//
-// 	// Check that the input token is evmos or osmo.
-// 	// This constraint will be removed in future
-// 	validInput := []string{stakingDenom, osmoIBCDenom}
-// 	if !slices.Contains(validInput, input) {
-// 		return fmt.Errorf(ErrInputTokenNotSupported, validInput)
-// 	}
-// }
+// CreateOnFailedDeliveryField is an utility function to create the memo field
+// onFailedDelivery. The reurned is string is the bech32 of the receiver input
+// or "do_nothing".
+func CreateOnFailedDeliveryField(receiver string) string {
+	onFailedDelivery := receiver
+	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
+	if err != nil {
+		return DefaultOnFailedDelivery
+	}
+	if bech32Prefix != OsmosisPrefix {
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, address)
+		if err != nil {
+			return DefaultOnFailedDelivery
+		}
+	}
+
+	return onFailedDelivery
+}
+
+// ValidateInputOutput validate the input and output tokens used in the Osmosis
+// swap.
+func ValidateInputOutput(
+	inputDenom, outputDenom, stakingDenom, portID, channelID string,
+) error {
+	if outputDenom == inputDenom {
+		return fmt.Errorf(ErrInputEqualOutput, inputDenom)
+	}
+
+	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, OsmosisDenom)
+
+	// Check that the input token is evmos or osmo.
+	// This constraint will be removed in future
+	validInputs := []string{stakingDenom, osmoIBCDenom}
+	if !slices.Contains(validInputs, inputDenom) {
+		return fmt.Errorf(ErrInputTokenNotSupported, validInputs)
+	}
+	return nil
+}
 
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (

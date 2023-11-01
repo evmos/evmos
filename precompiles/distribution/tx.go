@@ -28,7 +28,55 @@ const (
 	// WithdrawValidatorCommissionMethod defines the ABI method name for the distribution
 	// WithdrawValidatorCommission transaction.
 	WithdrawValidatorCommissionMethod = "withdrawValidatorCommission"
+	// ClaimRewardsMethod defines the ABI method name for the custom ClaimRewards transaction
+	ClaimRewardsMethod = "claimRewards"
 )
+
+// ClaimRewards claims the rewards accumulated by a delegator from multiple or all validators.
+func (p Precompile) ClaimRewards(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	delegatorAddr, maxRetrieve, err := parseClaimRewardsArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// If the contract is the delegator, we don't need an origin check
+	// Otherwise check if the origin matches the delegator address
+	isContractDelegator := contract.CallerAddress == delegatorAddr
+	if !isContractDelegator && origin != delegatorAddr {
+		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), delegatorAddr.String())
+	}
+
+	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	totalCoins := sdk.Coins{}
+	for _, validator := range validators {
+		// Convert the validator operator address into an ValAddress
+		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
+		if err != nil {
+			return nil, err
+		}
+
+		// Withdraw the rewards for each validator address
+		coins, err := p.distributionKeeper.WithdrawDelegationRewards(ctx, delegatorAddr.Bytes(), valAddr)
+		if err != nil {
+			return nil, err
+		}
+
+		totalCoins = totalCoins.Add(coins...)
+	}
+
+	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
 
 // SetWithdrawAddress sets the withdrawal address for a delegator (or validator self-delegation).
 func (p Precompile) SetWithdrawAddress(

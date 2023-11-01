@@ -305,3 +305,113 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestClaimRewards() {
+	method := s.precompile.Methods[distribution.ClaimRewardsMethod]
+
+	testCases := []struct {
+		name        string
+		malleate    func() []interface{}
+		postCheck   func(data []byte)
+		gas         uint64
+		expError    bool
+		errContains string
+	}{
+		{
+			"fail - empty input args",
+			func() []interface{} {
+				return []interface{}{}
+			},
+			func(data []byte) {},
+			200000,
+			true,
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 2, 0),
+		},
+		{
+			"fail - invalid delegator address",
+			func() []interface{} {
+				return []interface{}{
+					nil,
+					10,
+				}
+			},
+			func(data []byte) {},
+			200000,
+			true,
+			"invalid delegator address",
+		},
+		{
+			"fail - invalid type for maxRetrieve: expected uint32",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					big.NewInt(100000000000000000),
+				}
+			},
+			func(data []byte) {},
+			200000,
+			true,
+			"invalid type for maxRetrieve: expected uint32",
+		},
+		{
+			"success - withdraw from all validators - 2",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(2),
+				}
+			},
+			func(data []byte) {
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
+			},
+			20000,
+			false,
+			"",
+		},
+		{
+			"success - withdraw from only 1 validator",
+			func() []interface{} {
+				return []interface{}{
+					s.address,
+					uint32(1),
+				}
+			},
+			func(data []byte) {
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6e18))
+			},
+			20000,
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			var contract *vm.Contract
+			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+
+			// Sanity check to make sure the starting balance is always 5 EVMOS
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
+
+			// Distribute rewards to the 2 validators, 1 EVMOS each
+			for _, val := range s.validators {
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
+			}
+
+			bz, err := s.precompile.ClaimRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
+
+			if tc.expError {
+				s.Require().ErrorContains(err, tc.errContains)
+			} else {
+				s.Require().NoError(err)
+				tc.postCheck(bz)
+			}
+		})
+	}
+}

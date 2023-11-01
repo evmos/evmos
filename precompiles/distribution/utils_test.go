@@ -182,7 +182,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
 
-	precompile, err := distribution.NewPrecompile(s.app.DistrKeeper, s.app.AuthzKeeper)
+	precompile, err := distribution.NewPrecompile(s.app.DistrKeeper, s.app.StakingKeeper, s.app.AuthzKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 

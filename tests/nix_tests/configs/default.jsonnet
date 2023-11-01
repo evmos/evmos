@@ -93,6 +93,8 @@
                 amount: '1',
               },
             ],
+            max_deposit_period: '10s',
+            voting_period: '10s',            
           },
         },
         transfer: {

@@ -4,7 +4,6 @@
 package osmosis
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
@@ -21,6 +20,10 @@ import (
 )
 
 const (
+	// OsmosisPrefix represents the human readable part of a bech32 address
+	// on the Osmosis chain.
+	OsmosisPrefix = "osmo"
+
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
@@ -59,19 +62,14 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	abi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  newAbi,
+			ABI:                  abi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
@@ -84,6 +82,12 @@ func NewPrecompile(
 		bankKeeper:         bankKeeper,
 		erc20Keeper:        erc20Keeper,
 	}, nil
+}
+
+// LoadABI loads the Osmosis outpost ABI from the embedded abi.json file
+// for the Osmosis outpost precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
 }
 
 // Address defines the address of the Osmosis outpost precompile contract.

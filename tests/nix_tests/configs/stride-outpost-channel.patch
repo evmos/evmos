@@ -1,0 +1,16 @@
+diff --git a/x/evm/keeper/precompiles.go b/x/evm/keeper/precompiles.go
+index 4a9f1ac9..8a2830e8 100644
+--- a/x/evm/keeper/precompiles.go
++++ b/x/evm/keeper/precompiles.go
+@@ -64,7 +64,10 @@ func AvailablePrecompiles(
+ 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
+ 	}
+ 
+-	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
++	// Update the stride outpost channel to channel-0
++	// This patch is useful for e2e tests that setup
++	// a connection with Stride chain on channel-0
++	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-0", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
+ 	if err != nil {
+ 		panic(fmt.Errorf("failed to load stride outpost: %w", err))
+ 	}
