@@ -60,5 +60,5 @@ def test_block_cmd(evmos_cluster):
     supervisorctl(
         evmos_cluster.base_dir / "../tasks.ini", "start", "evmos_9000-1-node1"
     )
-    # check is chain continues alright
+    # check if chain continues alright
     wait_for_block(node1, last_block + 3)

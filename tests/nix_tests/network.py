@@ -111,19 +111,18 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
 
 # for memiavl need to create the data/snapshots dir
 # for the nodes
-def create_snapshots_dir(path, base_port, config):
-    data_snapshots_dir = path / "evmos_9000-1" / "node0" / "data" / "snapshots"
-    os.makedirs(data_snapshots_dir, exist_ok=True)
-    data_snapshots_dir = path / "evmos_9000-1" / "node1" / "data" / "snapshots"
-    os.makedirs(data_snapshots_dir, exist_ok=True)
+def create_snapshots_dir(path, base_port, config, n_nodes=2):
+    for idx in range(n_nodes):
+        data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
+        os.makedirs(data_snapshots_dir, exist_ok=True)
 
 
-# setup_evmos_rocksdb is evmos chain compiled with rocksdb
-# and configured to use memIAVL + versionBD
 def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
-    config = memiavl_config(path, "default")
-    if long_timeout_commit is True:
-        config = memiavl_config(path, "long_timeout_commit")
+    """
+    setup_evmos_rocksdb returns an Evmos chain compiled with RocksDB
+    and configured to use memIAVL + versionDB.
+    """
+    config = memiavl_config(path, "default" if long_timeout_commit is False else "long_timeout_commit")
     cfg = Path(__file__).parent / config
     yield from setup_custom_evmos(
         path,

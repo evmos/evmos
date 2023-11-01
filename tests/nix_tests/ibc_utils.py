@@ -79,7 +79,7 @@ def get_evmos_generator(
         )
     else:
         file = f"configs/{file}.jsonnet"
-        if custom_scenario is not None:
+        if custom_scenario:
             # build the binary modified for a custom scenario
             modified_bin = build_patched_evmosd(custom_scenario)
             gen = setup_custom_evmos(
