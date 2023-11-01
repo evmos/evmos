@@ -68,7 +68,7 @@ var (
 	NewTeamStrategicReserveAcc  = sdk.AccAddress(newTeamStrategicReserveAddr.Bytes())
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v13
+// CreateUpgradeHandler creates an SDK upgrade handler for v14
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
