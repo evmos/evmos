@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v15
 
 import (
@@ -32,20 +33,24 @@ func CreateUpgradeHandler(
 				// NOTE: log error instead of aborting the upgrade
 				logger.Error("error while migrating native multisigs", "error", err)
 			}
-		}
 
-		// Add EIP contained in Shanghai hard fork to the extra EIPs
-		// in the EVM parameters. This enables using the PUSH0 opcode and
-		// thus supports Solidity v0.8.20.
-		logger.Info("adding EIP 3855 to EVM parameters")
-		err := EnableEIPs(ctx, ek, 3855)
-		if err != nil {
-			logger.Error("error while enabling EIPs", "error", err)
-		}
+			// Add EIP contained in Shanghai hard fork to the extra EIPs
+			// in the EVM parameters. This enables using the PUSH0 opcode and
+			// thus supports Solidity v0.8.20.
+			//
+			// NOTE: this was already enabled on testnet
+			logger.Info("adding EIP 3855 to EVM parameters")
+			err := EnableEIPs(ctx, ek, 3855)
+			if err != nil {
+				logger.Error("error while enabling EIPs", "error", err)
+			}
 
-		// we are deprecating the crisis module since it is not being used
-		logger.Debug("deleting crisis module from version map...")
-		delete(vm, "crisis")
+			// we are deprecating the crisis module since it is not being used
+			//
+			// NOTE: this was already removed on testnet
+			logger.Debug("deleting crisis module from version map...")
+			delete(vm, "crisis")
+		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")

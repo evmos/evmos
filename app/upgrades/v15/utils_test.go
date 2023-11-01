@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v15_test
 
 import (
@@ -9,7 +10,6 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,15 +18,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evmosapp "github.com/evmos/evmos/v15/app"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/vesting"
 	evmosutil "github.com/evmos/evmos/v15/testutil"
 	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 )
@@ -153,8 +150,7 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	valSet := tmtypes.NewValidatorSet(validators)
 
 	// generate genesis account
-	addr, priv := testutiltx.NewAddrKey()
-	s.address = addr
+	_, priv := testutiltx.NewAddrKey()
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
@@ -172,9 +168,6 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
 
-	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
-
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
@@ -183,22 +176,12 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err, "failed to set params")
 
-	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
-
-	precompile, err := vesting.NewPrecompile(s.app.VestingKeeper, s.app.AuthzKeeper)
-	s.Require().NoError(err)
-	s.precompile = precompile
-
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(5000000000000000000)))
 	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
 	s.Require().NoError(err)
-
-	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
-	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
 	s.NextBlock()
 }

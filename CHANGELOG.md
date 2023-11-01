@@ -37,37 +37,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-### API Breaking
-
-- (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
-- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
-
-### State Machine Breaking
-
-- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
-- (upgrade) [#1845](https://github.com/evmos/evmos/pull/1845) Include remaining strategic reserve migrations.
-- (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
-- (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
-- (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
-- (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
-- (db) [1964](https://github.com/evmos/evmos/pull/1964) Bump versionDB dependecy to fix memory store bug.
-
-
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
 
 ### Improvements
 
-- (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods. 
-- (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
-- (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
-- (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
-- (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
-- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
-- (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
-- (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
-- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
 - (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABI.
 - (stride-outpost) [#1913](https://github.com/evmos/evmos/pull/1913) Add Run function, Precompile struct and tx definitions.
 - (stride-outpost) [#1914](https://github.com/evmos/evmos/pull/1914) Add types, events and common util function.
@@ -81,26 +56,68 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 - (distribution) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (distribution) [#1954](https://github.com/evmos/evmos/pull/1954) Add `ClaimRewards` unit and event tests.
-- (osmosis-outpost) [#1944](https://github.com/evmos/evmos/pull/1921) Add more validation to Osmosis outpost.
-- (precompiles) [[#1973](https://github.com/evmos/evmos/pull/1973) Use `LoadABI` from precompiles common package in outposts.
+- (osmosis-outpost) [#1944](https://github.com/evmos/evmos/pull/1944) Add more validation to Osmosis outpost.
+- (precompiles) [#1973](https://github.com/evmos/evmos/pull/1973) Use `LoadABI` from precompiles common package in outposts.
+
+### Bug Fixes
+
+- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account.
+
+## [v15.0.0] - 2023-10-31
+
+### API Breaking
+
+- (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
+- (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
+
+### State Machine Breaking
+
+- (staking)[#1734](https://github.com/evmos/evmos/pull/1734) Return single struct from staking precompile queries.
+- (deps) [#1780](https://github.com/evmos/evmos/pull/1780) Bump ibc-go version to `v7.3.0`.
+- (upgrade) [#1845](https://github.com/evmos/evmos/pull/1845) Include remaining strategic reserve migrations.
+- (imp) [#1847](https://github.com/evmos/evmos/pull/1847) Remove crisis module in v15 upgrade handler.
+- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade.
+- (sdk) [#1869](https://github.com/evmos/evmos/pull/1869) Bump Cosmos SDK to v0.47.5.
+- (evm) [#1900](https://github.com/evmos/evmos/pull/1900) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) by default.
+- (db) [1964](https://github.com/evmos/evmos/pull/1964) Bump versionDB dependecy to fix memory store bug.
+
+### Improvements
+
+- (ics20) [#1850](https://github.com/evmos/evmos/pull/1850) Extract common Grant checking and accepting methods.
+- (ics20) [#1849](https://github.com/evmos/evmos/pull/1849) Extract common approval methods for ICS20 Authorizations.
+- (test) [#1728](https://github.com/evmos/evmos/pull/1728) Add integration test suite using network methods.
+- (ci) [#1725](https://github.com/evmos/evmos/pull/1725) Add nix integration test setup to CI flow
+- (evm) [#1737](https://github.com/evmos/evmos/pull/1737) Update EVM extensions file name to match interface naming convention.
+- (app) [#1842](https://github.com/evmos/evmos/pull/1842) Add support for [MemIAVL](https://github.com/crypto-org-chain/cronos/wiki/MemIAVL) and [versionDB](https://github.com/crypto-org-chain/cronos/blob/main/versiondb/README.md).
+- (upgrade) [#1834](https://github.com/evmos/evmos/pull/1834) Improve v14 migration tests and utilities.
+- (app) [#1835](https://github.com/evmos/evmos/pull/1835) Remove migration logic from the app's `BeginBlocker`.
+- (tests) [#1805](https://github.com/evmos/evmos/pull/1805) Improve local node script by using predefined keys and adding configuration flags.
+- (docker) [#1743](https://github.com/evmos/evmos/pull/1743) Add rclone binary to Docker image.
+- (config) [#1893](https://github.com/evmos/evmos/pull/1893) Add default config for MemIAVL.
 
 ### Bug Fixes
 
 - (consensus) [#1740](https://github.com/evmos/evmos/pull/1740) Enable setting block gas limit to max by specifying it as -1 in the genesis file.
 - (ante) [#1753](https://github.com/evmos/evmos/pull/1753) Handle zero fee case on evm transactions.
 - (rpc) [#1829](https://github.com/evmos/evmos/pull/1829) Bump IAVL to v0.20.1 to fix concurrency issue
-- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account
 - (testnet) [#1857](https://github.com/evmos/evmos/pull/1857) Remove the crisis module causing an error when using the `evmosd testnet init-files` command.
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
+- (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
+
+## [v14.1.0] - 2023-09-25
+
+### Bug Fixes
+
+- (upgrade) [#1803](https://github.com/evmos/evmos/pull/1803) Fix the upgrade procedure on v14.0.0.
 
 ## [v14.0.0] - 2023-09-19
 
 ### State Machine Breaking
 
 - (vesting) [#1754](https://github.com/evmos/evmos/pull/1754) Implement further vesting module refactors.
-- (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1732](https://github.com/evmos/evmos/pull/1732) Bump ibc-go version with error message fix.
 - (vesting) [#1730](https://github.com/evmos/evmos/pull/1730) Remove smart contract conversion to `ClawbackVestingAccount`
+- (evm) [#1727](https://github.com/evmos/evmos/pull/1727) Return an error when calling inactive EVM extensions
 - (deps) [#1662](https://github.com/evmos/evmos/pull/1662) Bump Cosmos-SDK to v0.47.4 and ibc-go to v7.2.0.
 
 ### Improvements
@@ -108,35 +125,35 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (gov) [#1791](https://github.com/evmos/evmos/pull/1791) Extend maximum proposal metadata length.
 - (cli) [#1786](https://github.com/evmos/evmos/pull/1786) Add `block` CLI command to query a block from local db.
 - (cli) [#1714](https://github.com/evmos/evmos/pull/1714) Use empty string as default value in `chain-id` flag to use the chain id from the genesis file when not specified.
-- (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
-- (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
-- (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
-- (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
-- (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
-- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate [evmos-ledger-go](https://github.com/evmos/evmos-ledger-go) logic to this repository
-- (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
 - (vesting) [#1709](https://github.com/evmos/evmos/pull/1709) Add clawed back coins to `MsgClawbackResponse`
+- (vesting) [#1708](https://github.com/evmos/evmos/pull/1708) Minor improvements to `vesting` module
 - (cli) [#1706](https://github.com/evmos/evmos/pull/1706) Update `DefaultGasAdjustment` factor used in transactions.
+- (staking) [#1702](https://github.com/evmos/evmos/pull/1702) Change authorization names to `grantee` / `granter` in the `staking` precompile
+- (ics20) [#1688](https://github.com/evmos/evmos/pull/1688) Change authorization names to `grantee` / `granter` in the `ICS20` precompile
+- (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
+- (proto) [#1684](https://github.com/evmos/evmos/pull/1684) Update proto files to use `evmos/v14`
+- (deps) [#1682](https://github.com/evmos/evmos/pull/1682) Migrate `evmos-ledger-go` logic to this repository.
+- (cli) [#1677](https://github.com/evmos/evmos/pull/1677) Update docs for `vesting` cli
+- (mod) [#1674](https://github.com/evmos/evmos/pull/1674) Update `evmos` module name to `evmos/v14`
 - (vesting)[#1672](https://github.com/evmos/evmos/pull/1672) Port `vesting` precompile code and refactor integration tests
 - (vesting)[#1667](https://github.com/evmos/evmos/pull/1667) Add support for vesting precompile in the `evm` module
-- (vesting) Refactor vesting flow
 - (cli) [#1647](https://github.com/evmos/evmos/pull/1647) Update defaults on `evmosd start` flags.
-- (mod) [#1687](https://github.com/evmos/evmos/pull/1687) Bump Evmos version to v14.
+- (vesting) Refactor vesting flow
 
 ### Bug Fixes
 
-- (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
 - (deps) [#1718](https://github.com/evmos/evmos/pull/1718) Update rosetta types import.
-- (e2e) [#1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
+- (proto) [#1713](https://github.com/evmos/evmos/pull/1713) Add proto file for v1 vesting module account
 - (evm) [#1703](https://github.com/evmos/evmos/pull/1703) Prevent panic on uint64 conversion in EVM keeper `ApplyMessageWithConfig` function.
-- (vesting) Fix vesting bug.
-- (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
-- (rpc) [#1655](https://github.com/evmos/evmos/pull/1655) Avoid channel get changed when concurrent subscribe happens.
-- (revenue) [#1659](https://github.com/evmos/evmos/pull/1659) Check if DevelopersShares are set to 0
-- (rpc) [#1663](https://github.com/evmos/evmos/pull/1663) Fix block number returned in opcode for debug trace related api.
-- (rpc) [#1676](https://github.com/evmos/evmos/pull/1676) Fix gas meter stacking gas from predecessors in `TraceTx` & `TraceBlock` functions.
-- (cli) [#1681](https://github.com/evmos/evmos/pull/1681) Add `bootstrap-state` command.
 - (ante) [#1693](https://github.com/evmos/evmos/pull/1693) Prevent panic on int64 conversion in EVM fees antehandler.
+- (cli) [#1681](https://github.com/evmos/evmos/pull/1681) Add `bootstrap-state` command.
+- (e2e) [#1678](https://github.com/evmos/evmos/pull/1678) Fix e2e tests after recent changes to `evmosd start` default flags
+- (rpc) [#1676](https://github.com/evmos/evmos/pull/1676) Fix gas meter stacking gas from predecessors in `TraceTx` & `TraceBlock` functions.
+- (rpc) [#1663](https://github.com/evmos/evmos/pull/1663) Fix block number returned in opcode for debug trace related api.
+- (revenue) [#1659](https://github.com/evmos/evmos/pull/1659) Check if DevelopersShares are set to 0
+- (rpc) [#1655](https://github.com/evmos/evmos/pull/1655) Avoid channel get changed when concurrent subscribe happens.
+- (rpc) [#1650](https://github.com/evmos/evmos/pull/1650) Fix racing conditions on RPC PubSub logic
+- (vesting) Fix vesting bug.
 
 ## [v13.0.2] - 2023-07-05
 

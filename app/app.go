@@ -1303,10 +1303,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.BankKeeper,
 			app.EvmKeeper,
-			app.StakingKeeper,
-			app.VestingKeeper,
 			app.ConsensusParamsKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,
@@ -1391,7 +1388,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v15.UpgradeName:
 		// crisis module is deprecated in v15
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"crisis"},
+			Deleted: []string{crisistypes.ModuleName},
 		}
 	}
 

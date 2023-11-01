@@ -100,7 +100,7 @@ to be licensed under LGPLv3:
 - `x/erc20/types/utils.go`
 
 LGPLv3 will continue to apply to older versions ([<v13.0.0](https://github.com/evmos/evmos/releases/tag/v12.1.5))
-of the Evmos repository. For more information see [LICENSE]((./LICENSE)).
+of the Evmos repository. For more information see [LICENSE](./LICENSE).
 
 > [!WARNING]
 >
@@ -127,7 +127,7 @@ Exempted files contain the following SPDX ID:
 ### License FAQ
 
 Find below an overview of the Permissions and Limitations of the Evmos Non-Commercial License 1.0.
-For more information, check out the full ENCL-1.0 FAQ [here](/LICENSE_FAQ.md).
+For more information, check out the full ENCL-1.0 FAQ [here](./LICENSE_FAQ.md).
 
 | Permissions                                                                                                                                                                  | Prohibited                                                                 |
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
