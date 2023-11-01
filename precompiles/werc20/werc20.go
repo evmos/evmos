@@ -4,12 +4,8 @@
 package werc20
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
+	"embed"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -21,17 +17,22 @@ import (
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
-// abiPath defines the path to the staking precompile ABI JSON file.
+// abiPath defines the path to the WERC-20 precompile ABI JSON file.
 const abiPath = "./abi.json"
+
+// Embed abi json file to the executable binary. Needed when importing as dependency.
+//
+//go:embed abi.json
+var f embed.FS
 
 var _ vm.PrecompiledContract = &Precompile{}
 
-// Precompile defines the precompiled contract for staking.
+// Precompile defines the precompiled contract for WERC20.
 type Precompile struct {
 	*erc20.Precompile
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new WERC20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
@@ -39,14 +40,9 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
+	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open newAbi.json file: %w", err)
-	}
-
-	newAbi, err := abi.JSON(strings.NewReader(string(abiJSON)))
-	if err != nil {
-		return nil, fmt.Errorf("invalid newAbi.json file: %w", err)
+		return nil, err
 	}
 
 	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
@@ -55,7 +51,7 @@ func NewPrecompile(
 	}
 
 	// use the IWERC20 ABI
-	erc20Precompile.Precompile.ABI = newAbi
+	erc20Precompile.Precompile.ABI = newABI
 
 	return &Precompile{
 		Precompile: erc20Precompile,
@@ -88,7 +84,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	return p.Precompile.RequiredGas(input)
 }
 
-// Run executes the precompiled contract staking methods defined in the ABI.
+// Run executes the precompiled contract WERC20 methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.Precompile.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
