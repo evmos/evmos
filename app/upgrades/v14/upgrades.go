@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
@@ -20,7 +19,6 @@ import (
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -31,7 +29,6 @@ import (
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
 
 const (
@@ -43,8 +40,8 @@ const (
 	OldFunder1 = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
 	// OldFunder2 is the other old vesting funder to be replaced
 	OldFunder2 = "evmos1xp38jqcjf2s7wyuyh3fwrjukuj4ny54k2yaq97"
-	// oldTeamPremintWallet is the old team premint wallet
-	oldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
+	// OldTeamPremintWallet is the old team premint wallet
+	OldTeamPremintWallet = "evmos1sgjgup7wz3qyfcqqpr66jlm9qpk3j63ajupc9l"
 	// VestingAddrByFunder1 is the vesting account funded by OldFunder1
 	VestingAddrByFunder1 = "evmos1pxjncpsu2rd3hjxgswkqaenrpu3v5yxurzm7jp"
 )
@@ -71,14 +68,11 @@ var (
 	NewTeamStrategicReserveAcc  = sdk.AccAddress(newTeamStrategicReserveAddr.Bytes())
 )
 
-// CreateUpgradeHandler creates an SDK upgrade handler for v13
+// CreateUpgradeHandler creates an SDK upgrade handler for v14
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	bk bankkeeper.Keeper,
 	ek *evmkeeper.Keeper,
-	sk stakingkeeper.Keeper,
-	vk vestingkeeper.Keeper,
 	ck consensuskeeper.Keeper,
 	clientKeeper ibctmmigrations.ClientKeeper,
 	pk paramskeeper.Keeper,
@@ -86,6 +80,14 @@ func CreateUpgradeHandler(
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		if utils.IsMainnet(ctx.ChainID()) {
+			logger.Debug("adding vesting EVM extension to active precompiles")
+			if err := EnableVestingExtension(ctx, ek); err != nil {
+				// log error instead of aborting the upgrade
+				logger.Error("error while enabling vesting extension", "error", err)
+			}
+		}
 
 		// !! ATTENTION !!
 		// v14 upgrade handler
@@ -141,29 +143,6 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 		// !! ATTENTION !!
-
-		if utils.IsMainnet(ctx.ChainID()) {
-			logger.Debug("adding vesting EVM extension to active precompiles")
-			if err := EnableVestingExtension(ctx, ek); err != nil {
-				// log error instead of aborting the upgrade
-				logger.Error("error while enabling vesting extension", "error", err)
-			}
-
-			logger.Debug("updating vesting funders to new team multisig")
-			if err := UpdateVestingFunders(ctx, vk, NewTeamPremintWalletAcc); err != nil {
-				logger.Error("error while updating vesting funders", "error", err)
-			}
-
-			logger.Debug("migrating strategic reserves")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamStrategicReserveAcc, OldStrategicReserves...); err != nil {
-				logger.Error("error while migrating native multisigs", "error", err)
-			}
-
-			logger.Debug("migrating team premint wallet")
-			if err := MigrateNativeMultisigs(ctx, bk, sk, NewTeamPremintWalletAcc, oldTeamPremintWallet); err != nil {
-				logger.Error("error while migrating team premint wallet", "error", err)
-			}
-		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
