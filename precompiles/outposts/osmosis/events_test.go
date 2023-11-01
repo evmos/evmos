@@ -88,7 +88,6 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 					swapEvent.Receiver,
 					"expected a different receiver value in the event",
 				)
-
 			},
 		},
 	}

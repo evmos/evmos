@@ -407,7 +407,7 @@ func (s *PrecompileTestSuite) registerERC20Coins() {
 	osmoMetadata := banktypes.Metadata{
 		Name:        "Evmos Osmo Token",
 		Symbol:      "OSMO",
-		Description: "The IBC representaiton of OSMO on Evmos chain",
+		Description: "The IBC representation of OSMO on Evmos chain",
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
