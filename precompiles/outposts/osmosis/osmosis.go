@@ -62,14 +62,14 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	abi, err := LoadABI()
+	newAbi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  abi,
+			ABI:                  newAbi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.

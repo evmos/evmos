@@ -89,7 +89,7 @@ type Msg struct {
 	OsmosisSwap *OsmosisSwap `json:"osmosis_swap"`
 }
 
-// Memo wraps the message details for the IBC packet relyaed to the Osmosis chain. This include the
+// Memo wraps the message details for the IBC packet relayed to the Osmosis chain. This include the
 // address of the smart contract that will receive the Msg.
 type Memo struct {
 	// Contract represents the address or identifier of the contract to be called.
@@ -173,7 +173,7 @@ func (m Memo) Validate() error {
 }
 
 // CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The reurned is string is the bech32 of the receiver input
+// onFailedDelivery. The returned string is the bech32 of the receiver input
 // or "do_nothing".
 func CreateOnFailedDeliveryField(receiver string) string {
 	onFailedDelivery := receiver
