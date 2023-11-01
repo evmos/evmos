@@ -40,6 +40,15 @@ const (
 	OsmosisDenom = "uosmo"
 )
 
+// EventSwap is the event type emitted on a Swap transaction
+type EventSwap struct {
+	Sender   common.Address
+	Input    common.Address
+	Output   common.Address
+	Amount   *big.Int
+	Receiver string
+}
+
 // Twap represents a Time-Weighted Average Price configuration.
 type Twap struct {
 	// SlippagePercentage specifies the acceptable slippage percentage for a transaction.
