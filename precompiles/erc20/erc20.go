@@ -24,12 +24,12 @@ import (
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
-// abiPath defines the path to the staking precompile ABI JSON file.
+// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 const abiPath = "./abi.json"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
-// Precompile defines the precompiled contract for staking.
+// Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
 	tokenPair      erc20types.TokenPair
@@ -37,7 +37,7 @@ type Precompile struct {
 	transferKeeper transferkeeper.Keeper
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new ERC-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
@@ -75,7 +75,7 @@ func (p Precompile) Address() common.Address {
 }
 
 // IsStateful returns true since the precompile contract has access to the
-// staking state.
+// bank state.
 func (Precompile) IsStateful() bool {
 	return true
 }
@@ -126,7 +126,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 }
 
-// Run executes the precompiled contract staking methods defined in the ABI.
+// Run executes the precompiled contract ERC-20 methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {

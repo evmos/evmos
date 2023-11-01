@@ -4,19 +4,19 @@
 package erc20
 
 const (
-	// NameMethod defines the ABI method name for the ERC20 Name
+	// NameMethod defines the ABI method name for the ERC-20 Name
 	// query.
 	NameMethod = "name"
-	// SymbolMethod defines the ABI method name for the ERC20 Symbol
+	// SymbolMethod defines the ABI method name for the ERC-20 Symbol
 	// query.
 	SymbolMethod = "symbol"
-	// DecimalsMethod defines the ABI method name for the ERC20 Decimals
+	// DecimalsMethod defines the ABI method name for the ERC-20 Decimals
 	// query.
 	DecimalsMethod = "decimals"
-	// TotalSupplyMethod defines the ABI method name for the ERC20 TotalSupply
+	// TotalSupplyMethod defines the ABI method name for the ERC-20 TotalSupply
 	// query.
 	TotalSupplyMethod = "totalSupply"
-	// BalanceOfMethod defines the ABI method name for the ERC20 BalanceOf
+	// BalanceOfMethod defines the ABI method name for the ERC-20 BalanceOf
 	// query.
 	BalanceOfMethod = "balanceOf"
 )

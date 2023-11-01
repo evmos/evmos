@@ -3,10 +3,10 @@
 package erc20
 
 const (
-	// TransferMethod defines the ABI method name for the IERC20 transfer
+	// TransferMethod defines the ABI method name for the ERC-20 transfer
 	// transaction.
 	TransferMethod = "transfer"
-	// TransferFromMethod defines the ABI method name for the IERC20 transferFrom
+	// TransferFromMethod defines the ABI method name for the ERC-20 transferFrom
 	// transaction.
 	TransferFromMethod = "transferFrom"
 )
