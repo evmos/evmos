@@ -92,6 +92,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account
 - (testnet) [#1857](https://github.com/evmos/evmos/pull/1857) Remove the crisis module causing an error when using the `evmosd testnet init-files` command.
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
+- (gov) [#1981](https://github.com/evmos/evmos/pull/1981) Remove deprecated `cosmos.params.v1beta1/ParameterChangeProposal` handler
 
 ## [v14.0.0] - 2023-09-19
 
