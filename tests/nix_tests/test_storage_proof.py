@@ -1,6 +1,6 @@
 import pytest
 
-from .network import setup_evmos
+from .network import setup_evmos, setup_evmos_rocksdb
 from .utils import CONTRACTS, deploy_contract, w3_wait_for_new_blocks
 
 
@@ -10,14 +10,23 @@ def custom_evmos(tmp_path_factory):
     yield from setup_evmos(path, 26800)
 
 
-@pytest.fixture(scope="module", params=["evmos", "geth"])
-def cluster(request, custom_evmos, geth):
+@pytest.fixture(scope="module")
+def custom_evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("storage-proof-rocksdb")
+    yield from setup_evmos_rocksdb(path, 26810)
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb", "geth"])
+def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
     """
-    run on both evmos and geth
+    run on both evmos (default build and rocksdb)
+    and geth
     """
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-rocksdb":
+        yield custom_evmos_rocksdb
     elif provider == "geth":
         yield geth
     else:

@@ -1,6 +1,6 @@
-def test_single_request_netversion(evmos):
-    evmos.use_websocket()
-    eth_ws = evmos.w3.provider
+def test_single_request_netversion(evmos_cluster):
+    evmos_cluster.use_websocket()
+    eth_ws = evmos_cluster.w3.provider
 
     response = eth_ws.make_request("net_version", [])
 

@@ -20,13 +20,13 @@ from .utils import (
 )
 
 
-def test_block(evmos, geth):
+def test_block(evmos_cluster, geth):
     # Perform block queries (eth_getBlockByNumber & eth_getBlockByHash)
     # on evmos and geth nodes, and compare the responses
     # Case 1: block without transactions
-    get_blocks(evmos, geth, False)
+    get_blocks(evmos_cluster, geth, False)
     # Case 2: block with transactions
-    get_blocks(evmos, geth, True)
+    get_blocks(evmos_cluster, geth, True)
 
 
 def get_blocks(evmos_rpc_ws, geth, with_transactions):
@@ -72,50 +72,50 @@ def get_blocks(evmos_rpc_ws, geth, with_transactions):
     )
 
 
-def test_accounts(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_accounts(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_accounts", [])
 
 
-def test_syncing(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_syncing(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_syncing", [])
 
 
-def test_coinbase(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_coinbase(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_coinbase", [])
 
 
-def test_max_priority_fee(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_max_priority_fee(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_maxPriorityFeePerGas", [])
 
 
-def test_gas_price(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_gas_price(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_gasPrice", [])
 
 
-def test_block_number(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_block_number(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_blockNumber", [])
 
 
-def test_balance(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_balance(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -169,8 +169,8 @@ def deploy_and_wait(w3, number=1):
     return contract
 
 
-def test_get_storage_at(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_get_storage_at(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -196,10 +196,10 @@ def send_and_get_hash(w3, tx_value=10):
     return send_tnx(w3, tx_value)["transactionHash"].hex()
 
 
-def test_get_proof(evmos_rpc_ws, geth):
+def test_get_proof(evmos_cluster, geth):
     # on evmos the proof query will fail for block numbers <= 2
     # so we must wait for several blocks
-    w3: Web3 = evmos_rpc_ws.w3
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     w3_wait_for_block(w3, 3)
     geth_rpc = geth.w3.provider
@@ -226,8 +226,8 @@ def test_get_proof(evmos_rpc_ws, geth):
     compare_types(proof, EXPECTED_GET_PROOF)
 
 
-def test_get_code(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_get_code(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -244,8 +244,8 @@ def test_get_code(evmos_rpc_ws, geth):
     compare_types(code, expected)
 
 
-def test_get_block_transaction_count(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_get_block_transaction_count(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -279,8 +279,8 @@ def test_get_block_transaction_count(evmos_rpc_ws, geth):
     compare_types(block_res, expected)
 
 
-def test_get_transaction(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_get_transaction(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -297,8 +297,8 @@ def test_get_transaction(evmos_rpc_ws, geth):
     compare_types(EXPECTED_GET_TRANSACTION, tx_res)
 
 
-def test_get_transaction_receipt(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_get_transaction_receipt(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(
@@ -314,8 +314,8 @@ def test_get_transaction_receipt(evmos_rpc_ws, geth):
     compare_types(tx_res, EXPECTED_GET_TRANSACTION_RECEIPT)
 
 
-def test_fee_history(evmos_rpc_ws, geth):
-    w3: Web3 = evmos_rpc_ws.w3
+def test_fee_history(evmos_cluster, geth):
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_feeHistory", [4, "latest", [10, 90]])
@@ -328,10 +328,10 @@ def test_fee_history(evmos_rpc_ws, geth):
     compare_types(fee_history, EXPECTED_FEE_HISTORY)
 
 
-def test_estimate_gas(evmos_rpc_ws, geth):
+def test_estimate_gas(evmos_cluster, geth):
     tx = {"to": ADDRS["community"], "from": ADDRS["validator"]}
 
-    w3: Web3 = evmos_rpc_ws.w3
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     make_same_rpc_calls(eth_rpc, geth_rpc, "eth_estimateGas", [tx])
@@ -355,9 +355,9 @@ def make_same_rpc_calls(rpc1, rpc2, method, params):
     compare_types(res1, res2)
 
 
-def test_incomplete_send_transaction(evmos_rpc_ws, geth):
+def test_incomplete_send_transaction(evmos_cluster, geth):
     # Send ethereum tx with nothing in from field
-    w3: Web3 = evmos_rpc_ws.w3
+    w3: Web3 = evmos_cluster.w3
     eth_rpc = w3.provider
     geth_rpc = geth.w3.provider
     gas_price = w3.eth.gas_price

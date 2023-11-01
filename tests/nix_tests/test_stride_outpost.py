@@ -13,15 +13,16 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module")
-def ibc(tmp_path_factory):
+@pytest.fixture(scope="module", params=["evmos"])
+def ibc(request, tmp_path_factory):
     "prepare-network"
     name = "stride-outpost"
+    evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # specify the custom_scenario
     # to patch evmos to use channel-0 for Stride outpost
     # and allow to register WEVMOS token
-    network = prepare_network(path, name, ["stride"], custom_scenario=name)
+    network = prepare_network(path, name, [evmos_build, "stride"], custom_scenario=name)
     yield from network
 
 
