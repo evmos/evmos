@@ -57,11 +57,11 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	inputDenom, err := p.GetTokenDenom(ctx, input)
+	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
 	if err != nil {
 		return nil, err
 	}
-	outputDenom, err := p.GetTokenDenom(ctx, output)
+	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +76,12 @@ func (p Precompile) Swap(
 	}
 
 	// If the receiver has not the prefix "osmo", we should compute its address
-	// in the Osmosis chain as a recovery address for the contract. This address
-	// is computed on the outpost for the alpha version just to be sure that it
-	// is provided in the payload.
+	// in the Osmosis chain as a recovery address for the contract.
 	onFailedDelivery := CreateOnFailedDeliveryField(receiver)
 	packet := CreatePacketWithMemo(
 		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
+
 	err = packet.Memo.Validate()
 	if err != nil {
 		return nil, err

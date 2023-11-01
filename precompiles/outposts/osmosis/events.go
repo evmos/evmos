@@ -30,7 +30,7 @@ func (p Precompile) EmitSwapEvent(
 ) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeSwap]
-	topics := make([]common.Hash, 3)
+	topics := make([]common.Hash, 4)
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID

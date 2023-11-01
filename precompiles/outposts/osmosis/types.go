@@ -212,7 +212,8 @@ func ValidateInputOutput(
 	return nil
 }
 
-// TODO: use struct as return
+// TODO: use struct as return. We can data cast into the struct but how can we
+//
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
 	sender, input, output common.Address,
