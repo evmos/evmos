@@ -122,7 +122,9 @@ def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
     setup_evmos_rocksdb returns an Evmos chain compiled with RocksDB
     and configured to use memIAVL + versionDB.
     """
-    config = memiavl_config(path, "default" if long_timeout_commit is False else "long_timeout_commit")
+    config = memiavl_config(
+        path, "default" if long_timeout_commit is False else "long_timeout_commit"
+    )
     cfg = Path(__file__).parent / config
     yield from setup_custom_evmos(
         path,
