@@ -1,7 +1,7 @@
-from .utils import supervisorctl, wait_for_block
+from .utils import get_current_height, supervisorctl, wait_for_block
 
 
-def test_block_cmd(evmos):
+def test_block_cmd(evmos_cluster):
     """
     - start 2 evmos nodes
     - wait for a certain height
@@ -10,19 +10,22 @@ def test_block_cmd(evmos):
     - restart evmos node1
     """
 
-    # wait for height 10
-    node1 = evmos.cosmos_cli(1)
-    wait_for_block(node1, 10)
+    # wait for specific height
+    node1 = evmos_cluster.cosmos_cli(1)
+    current_height = get_current_height(node1)
+
+    last_block = current_height + 2
+    wait_for_block(node1, last_block)
 
     # stop node1
-    supervisorctl(evmos.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
+    supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
 
     # use 'block' CLI cmd in node1
     test_cases = [
         {
             "name": "success - get latest block",
             "flags": [],
-            "exp_out": '"last_commit":{"height":9',
+            "exp_out": f'"last_commit":{{"height":{last_block-1}',
             "exp_err": False,
             "err_msg": None,
         },
@@ -35,10 +38,10 @@ def test_block_cmd(evmos):
         },
         {
             "name": "fail - get inexistent block",
-            "flags": ["--height", 20],
+            "flags": ["--height", last_block + 10],
             "exp_out": None,
             "exp_err": True,
-            "err_msg": "invalid height, the latest height found in the db is 10, and you asked for 20",
+            "err_msg": f"invalid height, the latest height found in the db is {last_block}, and you asked for {last_block+10}",  # noqa: E501 - ignore line too long linter
         },
     ]
     for tc in test_cases:
@@ -54,6 +57,8 @@ def test_block_cmd(evmos):
                 raise
 
     # start node1 again
-    supervisorctl(evmos.base_dir / "../tasks.ini", "start", "evmos_9000-1-node1")
-    # check is chain continues alright
-    wait_for_block(node1, 12)
+    supervisorctl(
+        evmos_cluster.base_dir / "../tasks.ini", "start", "evmos_9000-1-node1"
+    )
+    # check if chain continues alright
+    wait_for_block(node1, last_block + 3)

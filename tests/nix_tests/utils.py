@@ -107,18 +107,23 @@ def wait_for_new_blocks(cli, n, sleep=0.5):
 
 def wait_for_block(cli, height, timeout=240):
     for _ in range(timeout * 2):
-        try:
-            status = cli.status()
-        except AssertionError as e:
-            print(f"get sync status failed: {e}", file=sys.stderr)
-        else:
-            current_height = int(status["SyncInfo"]["latest_block_height"])
-            if current_height >= height:
-                break
-            print("current block height", current_height)
+        current_height = get_current_height(cli)
+        if current_height >= height:
+            break
+        print("current block height", current_height)
         time.sleep(0.5)
     else:
         raise TimeoutError(f"wait for block {height} timeout")
+
+
+def get_current_height(cli):
+    try:
+        status = cli.status()
+    except AssertionError as e:
+        print(f"get sync status failed: {e}", file=sys.stderr)
+    else:
+        current_height = int(status["SyncInfo"]["latest_block_height"])
+    return current_height
 
 
 def w3_wait_for_block(w3, height, timeout=240):
@@ -390,6 +395,45 @@ def get_fees_from_tx_result(tx_result, denom=DEFAULT_DENOM):
             denom
         )[0]
     )
+
+
+def memiavl_config(tmp_path: Path, file_name):
+    """
+    Creates a new JSONnet file with memIAVL + versionDB configuration.
+    It takes as base the provided JSONnet file
+    """
+    tests_dir = str(Path(__file__).parent)
+    root_dir = os.path.join(tests_dir, "..", "..")
+    jsonnet_content = f"""
+local default = import '{tests_dir}/configs/{file_name}.jsonnet';
+
+default {{
+  dotenv: '{root_dir}/scripts/.env',
+  'evmos_9000-1'+: {{
+    cmd: 'evmosd-rocksdb',
+    'app-config'+: {{
+      'app-db-backend': 'rocksdb',
+      memiavl: {{
+        enable: true,
+      }},
+      store: {{
+        streamers: ['versiondb'],
+      }},
+    }},
+    config+: {{
+       'db_backend': 'rocksdb',
+    }},
+  }},
+}}
+    """
+
+    # Write the JSONnet content to the file
+    file_path = tmp_path / "configs" / f"{file_name}-memiavl.jsonnet"
+    os.makedirs(file_path.parent, exist_ok=True)
+    with open(file_path, "w") as f:
+        f.write(jsonnet_content)
+
+    return file_path
 
 
 def get_event_attribute_value(events, _type, attribute):

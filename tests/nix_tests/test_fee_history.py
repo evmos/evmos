@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pytest
 from web3 import Web3
 
-from .network import setup_evmos
+from .network import setup_evmos, setup_evmos_rocksdb
 from .utils import ADDRS, send_transaction
 
 
@@ -13,14 +13,22 @@ def custom_evmos(tmp_path_factory):
     yield from setup_evmos(path, 26500)
 
 
-@pytest.fixture(scope="module", params=["evmos", "geth"])
-def cluster(request, custom_evmos, geth):
+@pytest.fixture(scope="module")
+def custom_evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("fee-history-rocksdb")
+    yield from setup_evmos_rocksdb(path, 26510)
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb", "geth"])
+def cluster(request, custom_evmos, custom_evmos_rocksdb, geth):
     """
-    run on both evmos and geth
+    run on evmos, evmos built with rocksdb and geth
     """
     provider = request.param
     if provider == "evmos":
         yield custom_evmos
+    elif provider == "evmos-rocksdb":
+        yield custom_evmos_rocksdb
     elif provider == "geth":
         yield geth
     else:

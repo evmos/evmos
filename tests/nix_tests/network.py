@@ -10,7 +10,7 @@ from pystarport import ports
 from web3.middleware import geth_poa_middleware
 
 from .cosmoscli import CosmosCLI
-from .utils import supervisorctl, wait_for_port
+from .utils import memiavl_config, supervisorctl, wait_for_port
 
 DEFAULT_CHAIN_BINARY = "evmosd"
 
@@ -109,6 +109,32 @@ def setup_evmos(path, base_port, long_timeout_commit=False):
     yield from setup_custom_evmos(path, base_port, cfg)
 
 
+# for memiavl need to create the data/snapshots dir
+# for the nodes
+def create_snapshots_dir(path, base_port, config, n_nodes=2):
+    for idx in range(n_nodes):
+        data_snapshots_dir = path / "evmos_9000-1" / f"node{idx}" / "data" / "snapshots"
+        os.makedirs(data_snapshots_dir, exist_ok=True)
+
+
+def setup_evmos_rocksdb(path, base_port, long_timeout_commit=False):
+    """
+    setup_evmos_rocksdb returns an Evmos chain compiled with RocksDB
+    and configured to use memIAVL + versionDB.
+    """
+    config = memiavl_config(
+        path, "default" if long_timeout_commit is False else "long_timeout_commit"
+    )
+    cfg = Path(__file__).parent / config
+    yield from setup_custom_evmos(
+        path,
+        base_port,
+        cfg,
+        chain_binary="evmosd-rocksdb",
+        post_init=create_snapshots_dir,
+    )
+
+
 def setup_geth(path, base_port):
     with (path / "geth.log").open("w") as logfile:
         cmd = [
@@ -171,3 +197,21 @@ def setup_custom_evmos(
     finally:
         os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
         proc.wait()
+
+
+def build_patched_evmosd(patch_nix_file):
+    """
+    build the binary modified for a custom scenario
+    e.g. allow to register WEVMOS token
+    (removes a validation check in erc20 gov proposals)
+    """
+    cmd = [
+        "nix-build",
+        "--no-out-link",
+        str(Path(__file__).parent / f"configs/{patch_nix_file}.nix"),
+    ]
+    print(*cmd)
+    return (
+        Path(subprocess.check_output(cmd, universal_newlines=True, text=True).strip())
+        / "bin/evmosd"
+    )

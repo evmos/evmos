@@ -8,11 +8,12 @@ import pytest
 import requests
 from pystarport import ports
 
-from .network import setup_custom_evmos
+from .network import Evmos, create_snapshots_dir, setup_custom_evmos
 from .utils import (
     CONTRACTS,
     decode_bech32,
     deploy_contract,
+    memiavl_config,
     supervisorctl,
     wait_for_block,
     wait_for_port,
@@ -21,14 +22,39 @@ from .utils import (
 
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
-    path = tmp_path_factory.mktemp("grpc-only")
-
     # reuse rollback-test config because it has an extra fullnode
     yield from setup_custom_evmos(
-        path,
+        tmp_path_factory.mktemp("grpc-only"),
         26400,
         Path(__file__).parent / "configs/rollback-test.jsonnet",
     )
+
+
+@pytest.fixture(scope="module")
+def custom_evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("grpc-only-rocksdb")
+    yield from setup_custom_evmos(
+        path,
+        26810,
+        memiavl_config(path, "rollback-test"),
+        post_init=create_snapshots_dir,
+        chain_binary="evmosd-rocksdb",
+    )
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+    """
+    run on evmos and
+    evmos built with rocksdb (memIAVL + versionDB)
+    """
+    provider = request.param
+    if provider == "evmos":
+        yield custom_evmos
+    elif provider == "evmos-rocksdb":
+        yield custom_evmos_rocksdb
+    else:
+        raise NotImplementedError
 
 
 def grpc_eth_call(port: int, args: dict, chain_id=None, proposer_address=None):
@@ -45,12 +71,12 @@ def grpc_eth_call(port: int, args: dict, chain_id=None, proposer_address=None):
     return requests.get(f"http://localhost:{port}/evmos/evm/v1/eth_call", params).json()
 
 
-def test_grpc_mode(custom_evmos):
+def test_grpc_mode(evmos_cluster: Evmos):
     """
     - restart a fullnode in grpc-only mode
     - test the grpc queries all works
     """
-    w3 = custom_evmos.w3
+    w3 = evmos_cluster.w3
     contract, _ = deploy_contract(w3, CONTRACTS["TestChainID"])
     assert 9000 == contract.caller.currentChainID()
 
@@ -58,7 +84,7 @@ def test_grpc_mode(custom_evmos):
         "to": contract.address,
         "data": contract.encodeABI(fn_name="currentChainID"),
     }
-    api_port = ports.api_port(custom_evmos.base_port(1))
+    api_port = ports.api_port(evmos_cluster.base_port(1))
     # in normal mode, grpc query works even if we don't pass chain_id explicitly
     success = False
     max_retry = 3
@@ -74,25 +100,25 @@ def test_grpc_mode(custom_evmos):
     assert success
     # wait 1 more block for both nodes to avoid node stopped before tnx get included
     for i in range(2):
-        wait_for_block(custom_evmos.cosmos_cli(i), 1)
-    supervisorctl(custom_evmos.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
+        wait_for_block(evmos_cluster.cosmos_cli(i), 1)
+    supervisorctl(evmos_cluster.base_dir / "../tasks.ini", "stop", "evmos_9000-1-node1")
 
     # run grpc-only mode directly with existing chain state
-    with (custom_evmos.base_dir / "node1.log").open("a") as logfile:
+    with (evmos_cluster.base_dir / "node1.log").open("a") as logfile:
         proc = subprocess.Popen(
             [
-                "evmosd",
+                evmos_cluster.chain_binary,
                 "start",
                 "--grpc-only",
                 "--home",
-                custom_evmos.base_dir / "node1",
+                evmos_cluster.base_dir / "node1",
             ],
             stdout=logfile,
             stderr=subprocess.STDOUT,
         )
         try:
             # wait for grpc and rest api ports
-            grpc_port = ports.grpc_port(custom_evmos.base_port(1))
+            grpc_port = ports.grpc_port(evmos_cluster.base_port(1))
             wait_for_port(grpc_port)
             wait_for_port(api_port)
 
@@ -111,7 +137,7 @@ def test_grpc_mode(custom_evmos):
             assert "validator does not exist" in rsp["message"]
 
             # pass the first validator's consensus address to grpc query
-            addr = custom_evmos.cosmos_cli(0).consensus_address()
+            addr = evmos_cluster.cosmos_cli(0).consensus_address()
             cons_addr = decode_bech32(addr)
             proposer_addr = base64.b64encode(cons_addr).decode()
 
