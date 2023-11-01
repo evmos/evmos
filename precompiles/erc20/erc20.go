@@ -4,11 +4,7 @@
 package erc20
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
+	"embed"
 
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 
@@ -26,6 +22,11 @@ import (
 
 // abiPath defines the path to the ERC-20 precompile ABI JSON file.
 const abiPath = "./abi.json"
+
+// Embed abi json file to the executable binary. Needed when importing as dependency.
+//
+//go:embed abi.json
+var f embed.FS
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -45,21 +46,16 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
+	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open newAbi.json file: %w", err)
-	}
-
-	newABI, err := abi.JSON(strings.NewReader(string(abiJSON)))
-	if err != nil {
-		return nil, fmt.Errorf("invalid newAbi.json file: %w", err)
+		return nil, err
 	}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
-			ApprovalExpiration:   time.Hour * 24 * 365,
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			KvGasConfig:          sdk.GasConfig{},
 			TransientKVGasConfig: sdk.GasConfig{},
 		},
@@ -72,12 +68,6 @@ func NewPrecompile(
 // Address defines the address of the ERC-20 precompile contract.
 func (p Precompile) Address() common.Address {
 	return p.tokenPair.GetERC20Contract()
-}
-
-// IsStateful returns true since the precompile contract has access to the
-// bank state.
-func (Precompile) IsStateful() bool {
-	return true
 }
 
 // RequiredGas calculates the contract gas used for the
