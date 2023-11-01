@@ -100,7 +100,7 @@ to be licensed under LGPLv3:
 - `x/erc20/types/utils.go`
 
 LGPLv3 will continue to apply to older versions ([<v13.0.0](https://github.com/evmos/evmos/releases/tag/v12.1.5))
-of the Evmos repository. For more information see [LICENSE]((./LICENSE)).
+of the Evmos repository. For more information see [LICENSE](./LICENSE).
 
 > [!WARNING]
 >
