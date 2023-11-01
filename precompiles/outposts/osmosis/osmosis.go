@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -40,9 +41,10 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	// IBC
-	portID        string
-	channelID     string
-	timeoutHeight clienttypes.Height
+	portID           string
+	channelID        string
+	timeoutHeight    clienttypes.Height
+	timeoutTimestamp uint64
 
 	// Osmosis
 	osmosisXCSContract string
@@ -50,6 +52,7 @@ type Precompile struct {
 	// Keepers
 	bankKeeper     erc20types.BankKeeper
 	transferKeeper transferkeeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 }
 
@@ -60,6 +63,7 @@ func NewPrecompile(
 	osmosisXCSContract string,
 	bankKeeper erc20types.BankKeeper,
 	transferKeeper transferkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := LoadABI()
@@ -77,9 +81,11 @@ func NewPrecompile(
 		portID:             portID,
 		channelID:          channelID,
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
+		stakingKeeper:      stakingKeeper,
 		erc20Keeper:        erc20Keeper,
 	}, nil
 }
