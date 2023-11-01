@@ -69,7 +69,7 @@ func NewPrecompile(
 	}, nil
 }
 
-// Address defines the address of the ERC20 precompile contract.
+// Address defines the address of the ERC-20 precompile contract.
 func (p Precompile) Address() common.Address {
 	return p.tokenPair.GetERC20Contract()
 }
@@ -97,7 +97,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Evmos testnet
 	// to ensure parity in the values.
 	switch method.Name {
-	// ERC20 transactions
+	// ERC-20 transactions
 	case TransferMethod:
 		return 3_000_000
 	case TransferFromMethod:
@@ -108,7 +108,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 34_605
 	case auth.DecreaseAllowanceMethod:
 		return 34_519
-	// ERC20 queries
+	// ERC-20 queries
 	case NameMethod:
 		return 3_421
 	case SymbolMethod:
@@ -174,7 +174,7 @@ func (p Precompile) HandleMethod(
 	_ []interface{},
 ) (bz []byte, err error) {
 	switch method.Name {
-	// ERC20 transactions
+	// ERC-20 transactions
 	case TransferMethod:
 		// bz, err = p.Transfer(ctx, contract, stateDB, method, args)
 	case TransferFromMethod:
@@ -185,7 +185,7 @@ func (p Precompile) HandleMethod(
 		// bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
 		// bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
-	// ERC20 queries
+	// ERC-20 queries
 	case NameMethod:
 		// bz, err = p.Name(ctx, contract, stateDB, method, args)
 	case SymbolMethod:
