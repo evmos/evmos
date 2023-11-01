@@ -26,7 +26,7 @@ func ParseTransferArgs(args []interface{}) (
 
 	amount, ok = args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount")
+		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1])
 	}
 
 	return to, amount, nil
@@ -35,7 +35,7 @@ func ParseTransferArgs(args []interface{}) (
 // ParseTransferFromArgs parses the arguments from the transferFrom method and returns
 // the sender address (from), destination address (to) and amount.
 func ParseTransferFromArgs(args []interface{}) (
-	from common.Address, to common.Address, amount *big.Int, err error,
+	from, to common.Address, amount *big.Int, err error,
 ) {
 	if len(args) != 3 {
 		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid number of arguments; expected 3; got: %d", len(args))
@@ -48,12 +48,12 @@ func ParseTransferFromArgs(args []interface{}) (
 
 	to, ok = args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid to address: %v", args[0])
+		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid to address: %v", args[1])
 	}
 
 	amount, ok = args[2].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid amount")
+		return common.Address{}, common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[2])
 	}
 
 	return from, to, amount, nil
@@ -75,7 +75,7 @@ func ParseApproveArgs(args []interface{}) (
 
 	amount, ok = args[1].(*big.Int)
 	if !ok {
-		return common.Address{}, nil, fmt.Errorf("invalid amount")
+		return common.Address{}, nil, fmt.Errorf("invalid amount: %v", args[1]")
 	}
 
 	return spender, amount, nil
@@ -97,7 +97,7 @@ func ParseAllowanceArgs(args []interface{}) (
 
 	spender, ok = args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, fmt.Errorf("invalid spender address: %v", args[0])
+		return common.Address{}, common.Address{}, fmt.Errorf("invalid spender address: %v", args[1])
 	}
 
 	return owner, spender, nil
