@@ -18,6 +18,7 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	erc20 "github.com/evmos/evmos/v15/precompiles/erc20"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
 // abiPath defines the path to the staking precompile ABI JSON file.
@@ -27,7 +28,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 
 // Precompile defines the precompiled contract for staking.
 type Precompile struct {
-	// *erc20.Precompile
+	*erc20.Precompile
 }
 
 // NewPrecompile creates a new staking Precompile instance as a
@@ -36,6 +37,7 @@ func NewPrecompile(
 	tokenPair erc20types.TokenPair,
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
 	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
 	if err != nil {
@@ -47,7 +49,7 @@ func NewPrecompile(
 		return nil, fmt.Errorf("invalid newAbi.json file: %w", err)
 	}
 
-	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper)
+	erc20Precompile, err := erc20.NewPrecompile(tokenPair, bankKeeper, authzKeeper, transferKeeper)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +101,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	// WERC20 transactions
-	case cmn.FallbackMethod, DepositMethod:
+	case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
 		// bz, err = p.Deposit(ctx, contract, stateDB, method, args)
 	case WithdrawMethod:
 		// bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
@@ -126,6 +128,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 func (p Precompile) IsTransaction(methodID string) bool {
 	switch methodID {
 	case cmn.FallbackMethod,
+		cmn.ReceiveMethod,
 		DepositMethod,
 		WithdrawMethod:
 		return true
