@@ -43,7 +43,7 @@ import (
 )
 
 const (
-	portID    = "transfer"
+	portId    = "transfer"
 	channelID = "channel-0"
 )
 
@@ -263,7 +263,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(
 	s.app.FeeMarketKeeper.SetTransientBlockGasWanted(s.ctx, 0)
 
 	precompile, err := osmosis.NewPrecompile(
-		portID,
+		portId,
 		channelID,
 		osmosis.XCSContract,
 		s.app.BankKeeper,
@@ -400,7 +400,7 @@ func (s *PrecompileTestSuite) registerERC20Coins() {
 
 	// Register IBC OSMO Token Pair
 	denomTrace := transfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		Path:      fmt.Sprintf("%s/%s", portId, channelID),
 		BaseDenom: osmosis.OsmosisDenom,
 	}
 	s.app.TransferKeeper.SetDenomTrace(s.ctx, denomTrace)

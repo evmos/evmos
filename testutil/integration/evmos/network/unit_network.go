@@ -2,7 +2,9 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package network
 
-import "github.com/evmos/evmos/v15/app"
+import (
+	"github.com/evmos/evmos/v15/app"
+)
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
 // It embeds the IntegrationNetwork struct to reuse its methods and

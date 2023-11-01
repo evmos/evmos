@@ -14,16 +14,17 @@ const (
 	transferAmount = 10
 )
 
-func (s *PrecompileTestSuite) TestSwapEvent() {
-	// Retrieve Evmos token information useful for the testing
-	evmosDenomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, utils.BaseDenom)
-	evmosTokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, evmosDenomID)
+func (s *PrecompileTestSuiteV2) TestSwapEvent() {
+	s.SetupTest()
+
+	evmosDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), utils.BaseDenom)
+	evmosTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
 	s.Require().True(ok, "expected evmos token pair to be found")
 
 	// Retrieve Osmo token information useful for the testing
-	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosis.OsmosisDenom)
-	osmoDenomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, osmoIBCDenom)
-	osmoTokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, osmoDenomID)
+	osmoIBCDenom := utils.ComputeIBCDenom(portId, channelID, osmosis.OsmosisDenom)
+	osmoDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), osmoIBCDenom)
+	osmoTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
 	s.Require().True(ok, "expected osmo token pair to be found")
 
 	testCases := []struct {
@@ -55,7 +56,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 				)
 				s.Require().Equal(
 					swapLog.BlockNumber,
-					uint64(s.ctx.BlockHeight()),
+					uint64(s.network.GetContext().BlockHeight()),
 					"require event block height equal to context block height",
 				)
 
@@ -63,8 +64,9 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 				var swapEvent osmosis.EventSwap
 				err := cmn.UnpackLog(s.precompile.ABI, &swapEvent, osmosis.EventTypeSwap, *swapLog)
 				s.Require().NoError(err)
+				sender := s.keyring.GetAddr(0)
 				s.Require().Equal(
-					s.address,
+					sender,
 					swapEvent.Sender,
 					"expected a different sender in the event log",
 				)
@@ -94,12 +96,14 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.SetupTest()
+			err := s.network.NextBlock()
+			s.Require().NoError(err)
 
-			err := s.precompile.EmitSwapEvent(
-				s.ctx,
+			sender := s.keyring.GetAddr(0)
+			err = s.precompile.EmitSwapEvent(
+				s.network.GetContext(),
 				s.stateDB,
-				s.address,
+				sender,
 				tc.input,
 				tc.output,
 				tc.amount,
