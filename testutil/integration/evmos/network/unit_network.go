@@ -2,7 +2,11 @@
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package network
 
-import "github.com/evmos/evmos/v15/app"
+import (
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
+)
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
 // It embeds the IntegrationNetwork struct to reuse its methods and
@@ -26,4 +30,14 @@ func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
 		IntegrationNetwork: *network,
 		App:                network.app,
 	}
+}
+
+// GetStateDB returns the state database for the current block.
+func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
+	headerHash := n.GetContext().HeaderHash()
+	return statedb.New(
+		n.GetContext(),
+		n.App.EvmKeeper,
+		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
+	)
 }
