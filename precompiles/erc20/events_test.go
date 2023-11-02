@@ -31,13 +31,14 @@ func (s *PrecompileTestSuite) TestEmitTransferEvent() {
 		tc := tc
 		s.Run(tc.name, func() {
 			s.SetupTest()
+			stateDB := s.network.GetStateDB()
 
 			err := s.precompile.EmitTransferEvent(
-				s.network.GetContext(), s.stateDB, tc.from, tc.to, tc.amount,
+				s.network.GetContext(), stateDB, tc.from, tc.to, tc.amount,
 			)
 			s.Require().NoError(err, "expected transfer event to be emitted successfully")
 
-			log := s.stateDB.Logs()[0]
+			log := stateDB.Logs()[0]
 			s.Require().Equal(log.Address, s.precompile.Address())
 
 			// Check event signature matches the one emitted
@@ -78,12 +79,14 @@ func (s *PrecompileTestSuite) TestEmitApprovalEvent() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
+			stateDB := s.network.GetStateDB()
+
 			err := s.precompile.EmitApprovalEvent(
-				s.network.GetContext(), s.stateDB, tc.owner, tc.spender, tc.amount,
+				s.network.GetContext(), stateDB, tc.owner, tc.spender, tc.amount,
 			)
 			s.Require().NoError(err, "expected approval event to be emitted successfully")
 
-			log := s.stateDB.Logs()[0]
+			log := stateDB.Logs()[0]
 			s.Require().Equal(log.Address, s.precompile.Address())
 
 			// Check event signature matches the one emitted

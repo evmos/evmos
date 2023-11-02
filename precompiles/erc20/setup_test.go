@@ -3,7 +3,6 @@ package erc20_test
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
 	erc20precompile "github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
@@ -11,7 +10,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,12 +20,10 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	network     network.Network
+	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
-
-	stateDB *statedb.StateDB
 
 	precompile *erc20precompile.Precompile
 }
@@ -45,13 +41,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
 
-	headerHash := integrationNetwork.GetContext().HeaderHash()
-	stateDB := statedb.New(
-		integrationNetwork.GetContext(),
-		integrationNetwork.App.EvmKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
-	)
-
 	// Create dummy token pair to instantiate the precompile
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), "xmpl", erc20types.OWNER_MODULE)
 
@@ -68,5 +57,4 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.precompile = precompile
 	s.network = integrationNetwork
-	s.stateDB = stateDB
 }
