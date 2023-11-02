@@ -372,8 +372,11 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 				return true, nil, err
 			}
 			// resetting the gasMeter after increasing the sequence to have an accurate gas estimation on EVM extensions transactions
-			tmpCtx = tmpCtx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).WithKVGasConfig(storetypes.GasConfig{}).
-				WithTransientKVGasConfig(storetypes.GasConfig{})
+			gasMeter := evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())
+			tmpCtx =
+				tmpCtx.WithGasMeter(gasMeter).
+					WithKVGasConfig(storetypes.GasConfig{}).
+					WithTransientKVGasConfig(storetypes.GasConfig{})
 		}
 		// pass false to not commit StateDB
 		rsp, err = k.ApplyMessageWithConfig(tmpCtx, msg, nil, false, cfg, txConfig)
