@@ -365,7 +365,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 				k.accountKeeper.SetAccount(tmpCtx, acc)
 				acct = statedb.NewEmptyAccount()
 			}
-			// in really processing msg, before apply message, nonce will incr.
+			// When submitting a transaction, the `EthIncrementSenderSequence` ante handler increases the account nonce
 			acct.Nonce = nonce + 1
 			err = k.SetAccount(tmpCtx, from, *acct)
 			if err != nil {
