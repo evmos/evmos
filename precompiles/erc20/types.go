@@ -102,3 +102,17 @@ func ParseAllowanceArgs(args []interface{}) (
 
 	return owner, spender, nil
 }
+
+// ParseBalanceOfArgs parses the balanceOf arguments and returns the account address.
+func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
+	if len(args) != 1 {
+		return common.Address{}, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
+	}
+
+	account, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, fmt.Errorf("invalid account address: %v", args[0])
+	}
+
+	return account, nil
+}
