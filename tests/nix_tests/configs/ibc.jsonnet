@@ -8,7 +8,7 @@ config {
     }],
     'app-config'+: {
       'index-events': super['index-events'] + ['message.action'],
-     grpc: {
+     'grpc'+: {
         'enable': true,
       },
     },

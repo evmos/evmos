@@ -6,7 +6,7 @@ from eth_utils import abi, big_endian_to_int
 from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
-from .network import setup_custom_evmos
+from .network import create_snapshots_dir, setup_custom_evmos
 from .utils import (
     ADDRS,
     CONTRACTS,
@@ -18,9 +18,9 @@ from .utils import (
 
 
 @pytest.fixture(scope="module")
-def pruned(request, tmp_path_factory):
-    """start-evmos
-    params: enable_auto_deployment
+def pruned(tmp_path_factory):
+    """
+    setup evmos with 'pruning = everything'
     """
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("pruned"),
@@ -29,11 +29,41 @@ def pruned(request, tmp_path_factory):
     )
 
 
-def test_pruned_node(pruned):
+@pytest.fixture(scope="module")
+def pruned_rocksdb(tmp_path_factory):
+    """
+    setup evmos with memIAVL + versionDB
+    and 'pruning = everything'
+    """
+    yield from setup_custom_evmos(
+        tmp_path_factory.mktemp("pruned-rocksdb"),
+        26700,
+        Path(__file__).parent / "configs/memiavl-pruned_node.jsonnet",
+        chain_binary="evmosd-rocksdb",
+        post_init=create_snapshots_dir,
+    )
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def pruned_cluster(request, pruned, pruned_rocksdb):
+    """
+    run on evmos and
+    evmos built with rocksdb (memIAVL + versionDB)
+    """
+    provider = request.param
+    if provider == "evmos":
+        yield pruned
+    elif provider == "evmos-rocksdb":
+        yield pruned_rocksdb
+    else:
+        raise NotImplementedError
+
+
+def test_pruned_node(pruned_cluster):
     """
     test basic json-rpc apis works in pruned node
     """
-    w3 = pruned.w3
+    w3 = pruned_cluster.w3
     erc20, _ = deploy_contract(
         w3,
         CONTRACTS["TestERC20A"],
@@ -73,12 +103,14 @@ def test_pruned_node(pruned):
     res = w3.eth.get_balance(ADDRS["validator"], "latest")
     assert res > 0
 
-    pruned_res = pruned.w3.provider.make_request(
+    pruned_res = pruned_cluster.w3.provider.make_request(
         "eth_getBalance", [ADDRS["validator"], hex(tx_receipt.blockNumber)]
     )
     assert "error" in pruned_res
     assert (
         "Version has either been pruned, or is for a future block height"
+        in pruned_res["error"]["message"]
+        or "fail to seek snapshot: target version is pruned"
         in pruned_res["error"]["message"]
     )
 

@@ -3,12 +3,12 @@ from pathlib import Path
 import pytest
 from web3 import Web3
 
-from .network import setup_custom_evmos
-from .utils import ADDRS, eth_to_bech32, wait_for_fn
+from .network import create_snapshots_dir, setup_custom_evmos
+from .utils import ADDRS, eth_to_bech32, memiavl_config, wait_for_fn
 
 
 @pytest.fixture(scope="module")
-def evmos(request, tmp_path_factory):
+def custom_evmos(tmp_path_factory):
     yield from setup_custom_evmos(
         tmp_path_factory.mktemp("zero-fee"),
         26900,
@@ -16,12 +16,39 @@ def evmos(request, tmp_path_factory):
     )
 
 
-def test_cosmos_tx(evmos):
+@pytest.fixture(scope="module")
+def custom_evmos_rocksdb(tmp_path_factory):
+    path = tmp_path_factory.mktemp("zero-fee-rocksdb")
+    yield from setup_custom_evmos(
+        path,
+        26810,
+        memiavl_config(path, "zero-fee"),
+        post_init=create_snapshots_dir,
+        chain_binary="evmosd-rocksdb",
+    )
+
+
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def evmos_cluster(request, custom_evmos, custom_evmos_rocksdb):
+    """
+    run on evmos and
+    evmos built with rocksdb (memIAVL + versionDB)
+    """
+    provider = request.param
+    if provider == "evmos":
+        yield custom_evmos
+    elif provider == "evmos-rocksdb":
+        yield custom_evmos_rocksdb
+    else:
+        raise NotImplementedError
+
+
+def test_cosmos_tx(evmos_cluster):
     """
     test basic cosmos transaction works with zero fees
     """
     denom = "aevmos"
-    cli = evmos.cosmos_cli()
+    cli = evmos_cluster.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
     receiver = eth_to_bech32(ADDRS["signer2"])
     amt = 1000
@@ -57,11 +84,11 @@ def test_cosmos_tx(evmos):
     assert old_src_balance - amt == new_src_balance
 
 
-def test_eth_tx(evmos):
+def test_eth_tx(evmos_cluster):
     """
     test basic Ethereum transaction works with zero fees
     """
-    w3: Web3 = evmos.w3
+    w3: Web3 = evmos_cluster.w3
 
     sender = ADDRS["signer1"]
     receiver = ADDRS["signer2"]

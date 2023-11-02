@@ -68,6 +68,7 @@ func (p Precompile) Revoke(
 	); err != nil {
 		return nil, err
 	}
+
 	return method.Outputs.Pack(true)
 }
 
