@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"time"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+
 	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/eth/tracers/logger"
 
@@ -256,6 +258,16 @@ func (k Keeper) EthCall(c context.Context, req *types.EthCallRequest) (*types.Ms
 
 // EstimateGas implements eth_estimateGas rpc api.
 func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*types.EstimateGasResponse, error) {
+	return k.EstimateGasInternal(c, req, types.RPC)
+}
+
+// EstimateGasInternal returns the gas estimation for the corresponding request.
+// This function is called from the RPC client (eth_estimateGas) and internally
+// by the CallEVMWithData function in the x/erc20 module keeper.
+// When called from the RPC client, we need to reset the gas meter before
+// simulating the transaction to have
+// an accurate gas estimation for EVM extensions transactions.
+func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest, fromType types.CallType) (*types.EstimateGasResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
@@ -267,7 +279,7 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 	}
 
 	if req.GasCap < ethparams.TxGas {
-		return nil, status.Error(codes.InvalidArgument, "gas cap cannot be lower than 21,000")
+		return nil, status.Errorf(codes.InvalidArgument, "gas cap cannot be lower than %d", ethparams.TxGas)
 	}
 
 	var args types.TransactionArgs
@@ -341,8 +353,32 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 			msg.IsFake(),
 		)
 
+		tmpCtx := ctx
+		if fromType == types.RPC {
+			tmpCtx, _ = ctx.CacheContext()
+
+			acct := k.GetAccount(tmpCtx, msg.From())
+
+			from := msg.From()
+			if acct == nil {
+				acc := k.accountKeeper.NewAccountWithAddress(tmpCtx, from[:])
+				k.accountKeeper.SetAccount(tmpCtx, acc)
+				acct = statedb.NewEmptyAccount()
+			}
+			// When submitting a transaction, the `EthIncrementSenderSequence` ante handler increases the account nonce
+			acct.Nonce = nonce + 1
+			err = k.SetAccount(tmpCtx, from, *acct)
+			if err != nil {
+				return true, nil, err
+			}
+			// resetting the gasMeter after increasing the sequence to have an accurate gas estimation on EVM extensions transactions
+			gasMeter := evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())
+			tmpCtx = tmpCtx.WithGasMeter(gasMeter).
+				WithKVGasConfig(storetypes.GasConfig{}).
+				WithTransientKVGasConfig(storetypes.GasConfig{})
+		}
 		// pass false to not commit StateDB
-		rsp, err = k.ApplyMessageWithConfig(ctx, msg, nil, false, cfg, txConfig)
+		rsp, err = k.ApplyMessageWithConfig(tmpCtx, msg, nil, false, cfg, txConfig)
 		if err != nil {
 			if errors.Is(err, core.ErrIntrinsicGas) {
 				return true, nil, nil // Special case, raise gas limit
