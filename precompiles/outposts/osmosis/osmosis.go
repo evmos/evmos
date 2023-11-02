@@ -4,11 +4,11 @@
 package osmosis
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -21,6 +21,10 @@ import (
 )
 
 const (
+	// OsmosisPrefix represents the human readable part of a bech32 address
+	// on the Osmosis chain.
+	OsmosisPrefix = "osmo"
+
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 )
@@ -37,9 +41,10 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	// IBC
-	portID        string
-	channelID     string
-	timeoutHeight clienttypes.Height
+	portID           string
+	channelID        string
+	timeoutHeight    clienttypes.Height
+	timeoutTimestamp uint64
 
 	// Osmosis
 	osmosisXCSContract string
@@ -47,6 +52,7 @@ type Precompile struct {
 	// Keepers
 	bankKeeper     erc20types.BankKeeper
 	transferKeeper transferkeeper.Keeper
+	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 }
 
@@ -57,14 +63,10 @@ func NewPrecompile(
 	osmosisXCSContract string,
 	bankKeeper erc20types.BankKeeper,
 	transferKeeper transferkeeper.Keeper,
+	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	newAbi, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +81,19 @@ func NewPrecompile(
 		portID:             portID,
 		channelID:          channelID,
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
 		osmosisXCSContract: osmosisXCSContract,
 		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
+		stakingKeeper:      stakingKeeper,
 		erc20Keeper:        erc20Keeper,
 	}, nil
+}
+
+// LoadABI loads the Osmosis outpost ABI from the embedded abi.json file
+// for the Osmosis outpost precompile.
+func LoadABI() (abi.ABI, error) {
+	return cmn.LoadABI(f, "abi.json")
 }
 
 // Address defines the address of the Osmosis outpost precompile contract.

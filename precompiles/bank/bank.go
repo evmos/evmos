@@ -8,6 +8,7 @@ import (
 	"embed"
 	"fmt"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -16,8 +17,16 @@ import (
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
 )
 
-// PrecompileAddress defines the bank precompile address in Hex format
-const PrecompileAddress = "0x0000000000000000000000000000000000000804"
+const (
+	// PrecompileAddress defines the bank precompile address in Hex format
+	PrecompileAddress string = "0x0000000000000000000000000000000000000804"
+
+	// GasBalanceOf defines the gas cost for a single ERC-20 balanceOf query
+	GasBalanceOf uint64 = 100 // TODO: get actual estimated gas cost
+
+	// GasTotalSupply defines the gas cost for a single ERC-20 totalSupply query
+	GasTotalSupply uint64 = 100 // TODO: get actual estimated gas cost
+)
 
 var _ vm.PrecompiledContract = &Precompile{}
 
@@ -26,6 +35,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
+// Precompile defines the bank precompile
 type Precompile struct {
 	cmn.Precompile
 	bankKeeper  bankkeeper.Keeper
@@ -48,8 +58,14 @@ func NewPrecompile(
 		return nil, err
 	}
 
+	// NOTE: we set an empty gas configuration to avoid extra gas costs
+	// during the run execution
 	return &Precompile{
-		Precompile:  cmn.Precompile{ABI: newAbi},
+		Precompile: cmn.Precompile{
+			ABI:                  newAbi,
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
+		},
 		bankKeeper:  bankKeeper,
 		erc20Keeper: erc20Keeper,
 	}, nil
@@ -71,13 +87,13 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	// NOTE: This charges the amount of gas required for a single ERC20 balanceOf or totalSupplt=y
-	// If more than one item is returned in the query, the total gas will be: n*len(response)
+	// NOTE: Charge the amount of gas required for a single ERC-20
+	// balanceOf or totalSupply query
 	switch method.Name {
 	case BalancesMethod:
-		return 1 // TODO: define gas cost for ERC-20 balanceOf
+		return GasBalanceOf
 	case TotalSupplyMethod:
-		return 1 // TODO: define gas cost for ERC-20 totalSupply
+		return GasTotalSupply
 	}
 
 	return 0
@@ -85,36 +101,36 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 
 // Run executes the precompiled contract bank query methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
-	ctx, _, method, initialGas, _, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
+	ctx, _, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
 		return nil, err
 	}
 
-	// This handles any out of gas errors that may occur during the execution of a precompile tx or query.
+	// This handles any out of gas errors that may occur during the execution of a precompile query.
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	switch method.Name { //nolint: gocritic
+	switch method.Name {
 	// Bank queries
-	// case BalancesMethod:
-	// 	bz, err = p.Balances(ctx, contract, method, args)
-	// case TotalSupplyMethod:
-	// 	bz, err = p.TotalSupply(ctx, contract, method, args)
+	case BalancesMethod:
+		bz, err = p.Balances(ctx, contract, method, args)
+	case TotalSupplyMethod:
+		bz, err = p.TotalSupply(ctx, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
 
-	// if err != nil {
-	// 	return nil, err
-	// }
+	if err != nil {
+		return nil, err
+	}
 
-	// cost := ctx.GasMeter().GasConsumed() - initialGas
+	cost := ctx.GasMeter().GasConsumed() - initialGas
 
-	// if !contract.UseGas(cost) {
-	// 	return nil, vm.ErrOutOfGas
-	// }
+	if !contract.UseGas(cost) {
+		return nil, vm.ErrOutOfGas
+	}
 
-	// return bz, nil
+	return bz, nil
 }
 
 // IsTransaction checks if the given method name corresponds to a transaction or query.

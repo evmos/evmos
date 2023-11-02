@@ -57,14 +57,15 @@ config {
         },
         gov: {
           voting_params: {
-            voting_period: '1814400s',
+            voting_period: '10s',
           },
           params: {
-            max_deposit_period: '1814400s',
+            max_deposit_period: '10s',
+            voting_period: '10s',
             min_deposit: [
               {
                 denom: 'ustrd',
-                amount: '10000000',
+                amount: '1',
               },
             ],
           },

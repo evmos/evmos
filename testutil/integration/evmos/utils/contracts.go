@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/evmos/evmos/v15/testutil/integration/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"

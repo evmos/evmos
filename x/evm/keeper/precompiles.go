@@ -14,12 +14,15 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	distprecompile "github.com/evmos/evmos/v15/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v15/precompiles/ics20"
+	strideoutpost "github.com/evmos/evmos/v15/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v15/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
+	erc20Keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
@@ -29,6 +32,7 @@ import (
 func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
+	erc20Keeper erc20Keeper.Keeper,
 	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -60,11 +64,17 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
 
+	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load stride outpost: %w", err))
+	}
+
 	precompiles[p256Precompile.Address()] = p256Precompile
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	precompiles[strideOutpost.Address()] = strideOutpost
 	return precompiles
 }
 

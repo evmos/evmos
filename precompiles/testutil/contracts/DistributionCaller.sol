@@ -57,6 +57,17 @@ contract DistributionCaller {
         );
     }
 
+    function testClaimRewards(
+        address _delAddr,
+        uint32 _maxRetrieve
+    ) public returns (bool success) {
+        return
+        distribution.DISTRIBUTION_CONTRACT.claimRewards(
+            _delAddr,
+            _maxRetrieve
+        );
+    }
+
     function getValidatorDistributionInfo(
         string memory _valAddr
     ) public view returns (distribution.ValidatorDistributionInfo memory) {

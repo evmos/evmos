@@ -15,14 +15,15 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module")
-def ibc(tmp_path_factory):
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def ibc(request, tmp_path_factory):
     """
     Prepares the network.
     """
     name = "ibc-precompile"
+    evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, ["chainmain"])
+    network = prepare_network(path, name, [evmos_build, "chainmain"])
     yield from network
 
 
@@ -99,7 +100,6 @@ def test_ibc_transfer_invalid_packet(ibc):
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
     exp_err = "constructed packet failed basic validation: packet timeout height and packet timeout timestamp cannot both be 0: invalid packet"  # noqa: E501
-    w3 = ibc.chains["evmos"].w3
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -110,8 +110,8 @@ def test_ibc_transfer_invalid_packet(ibc):
 
     old_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
 
-    pc = get_precompile_contract(w3, "ICS20I")
-    evmos_gas_price = w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
         pc.functions.transfer(
@@ -143,7 +143,6 @@ def test_ibc_transfer_timeout(ibc):
 
     # IMPORTANT: THIS ERROR MSG SHOULD NEVER CHANGE OR WILL BE A STATE BREAKING CHANGE ON MAINNET
     exp_err = r"rpc error\: code = Unknown desc = receiving chain block timestamp \>\= packet timeout timestamp \(\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC \>\= \d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2}\.\d{5,9} \+0000 UTC\)\: packet timeout"  # noqa: E501
-    w3 = ibc.chains["evmos"].w3
 
     dst_addr = ibc.chains["chainmain"].cosmos_cli().address("signer2")
     amt = 1000000
@@ -154,8 +153,8 @@ def test_ibc_transfer_timeout(ibc):
 
     old_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
 
-    pc = get_precompile_contract(w3, "ICS20I")
-    evmos_gas_price = w3.eth.gas_price
+    pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
+    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
     try:
         pc.functions.transfer(
