@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
@@ -22,7 +22,7 @@ const (
 	EventTypeTransfer = "Transfer"
 )
 
-// EmitTransferEvent creates a new Transfer event emitted on an transfer and transferFrom transactions.
+// EmitTransferEvent creates a new Transfer event emitted on transfer and transferFrom transactions.
 func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from, to common.Address, value *big.Int) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeTransfer]
@@ -58,7 +58,7 @@ func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from,
 	return nil
 }
 
-// EmitApprovalEvent creates a new approval event emitted on an Approve, IncreaseAllowance
+// EmitApprovalEvent creates a new approval event emitted on Approve, IncreaseAllowance
 // and DecreaseAllowance transactions.
 func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner, spender common.Address, value *big.Int) error {
 	// Prepare the event topics
