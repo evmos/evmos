@@ -36,7 +36,8 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 			big.NewInt(transferAmount),
 			receiver,
 			func(input common.Address, output common.Address, amount *big.Int, receiver string) {
-				swapLog := s.stateDB.Logs()[0]
+				stateDB := s.network.GetStateDB()
+				swapLog := stateDB.Logs()[0]
 				s.Require().Equal(
 					swapLog.Address,
 					s.precompile.Address(),
@@ -94,7 +95,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 
 			err = s.precompile.EmitSwapEvent(
 				s.network.GetContext(),
-				s.stateDB,
+				s.network.GetStateDB(),
 				sender,
 				tc.input,
 				tc.output,

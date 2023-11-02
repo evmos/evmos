@@ -8,12 +8,10 @@ import (
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -31,8 +29,6 @@ type PrecompileTestSuite struct {
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	stateDB *statedb.StateDB
-
 	precompile *osmosis.Precompile
 }
 
@@ -43,13 +39,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
-
-	headerHash := integrationNetwork.GetContext().HeaderHash()
-	stateDB := statedb.New(
-		integrationNetwork.GetContext(),
-		integrationNetwork.App.EvmKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
-	)
 
 	precompile, err := osmosis.NewPrecompile(
 		portID,
@@ -62,7 +51,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err)
 
-	s.stateDB = stateDB
 	s.network = integrationNetwork
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler

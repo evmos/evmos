@@ -3,7 +3,9 @@
 package network
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
@@ -28,4 +30,14 @@ func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
 		IntegrationNetwork: *network,
 		App:                network.app,
 	}
+}
+
+// GetStateDB returns the state database for the current block.
+func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
+	headerHash := n.GetContext().HeaderHash()
+	return statedb.New(
+		n.GetContext(),
+		n.App.EvmKeeper,
+		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
+	)
 }
