@@ -16,12 +16,12 @@ from .utils import (
 )
 
 
-def test_send_funds_to_distr_mod(evmos):
+def test_send_funds_to_distr_mod(evmos_cluster):
     """
     This tests the transfer of funds to the distribution module account,
     which should be forbidden, since this is a blocked address.
     """
-    cli = evmos.cosmos_cli()
+    cli = evmos_cluster.cosmos_cli()
     sender = eth_to_bech32(ADDRS["signer1"])
     amt = 1000
 
@@ -65,14 +65,14 @@ def test_send_funds_to_distr_mod(evmos):
     assert old_src_balance - fees == new_src_balance
 
 
-def test_send_funds_to_distr_mod_eth_tx(evmos):
+def test_send_funds_to_distr_mod_eth_tx(evmos_cluster):
     """
     This tests the transfer of funds to the distribution module account,
     via ethereum tx
     which should be forbidden, since this is a blocked address.
     """
-    cli = evmos.cosmos_cli()
-    w3 = evmos.w3
+    cli = evmos_cluster.cosmos_cli()
+    w3 = evmos_cluster.w3
 
     sender = ADDRS["signer1"]
     mod_accs = cli.query_module_accounts()
@@ -104,12 +104,12 @@ def test_send_funds_to_distr_mod_eth_tx(evmos):
     assert old_src_balance - fees == new_src_balance
 
 
-def test_authz_nested_msg(evmos):
+def test_authz_nested_msg(evmos_cluster):
     """
     test sending MsgEthereumTx nested in a MsgExec should be forbidden
     """
-    w3: Web3 = evmos.w3
-    cli = evmos.cosmos_cli()
+    w3: Web3 = evmos_cluster.w3
+    cli = evmos_cluster.cosmos_cli()
 
     sender_acc = ACCOUNTS["signer1"]
     sender_bech32_addr = eth_to_bech32(sender_acc.address)
@@ -144,11 +144,11 @@ def test_authz_nested_msg(evmos):
         )
 
 
-def test_create_invalid_vesting_acc(evmos):
+def test_create_invalid_vesting_acc(evmos_cluster):
     """
     test create vesting account with account address != signer address
     """
-    cli = evmos.cosmos_cli()
+    cli = evmos_cluster.cosmos_cli()
     # create the vesting account
     tx = cli.create_vesting_acc(
         eth_to_bech32(ADDRS["validator"]),
@@ -161,7 +161,7 @@ def test_create_invalid_vesting_acc(evmos):
         assert "tx intended signer does not match the given signer" in error.args[0]
 
 
-def test_vesting_acc_schedule(evmos):
+def test_vesting_acc_schedule(evmos_cluster):
     """
     test vesting account with negative/zero amounts should be forbidden
     """
@@ -224,7 +224,7 @@ def test_vesting_acc_schedule(evmos):
         },
     ]
 
-    cli = evmos.cosmos_cli()
+    cli = evmos_cluster.cosmos_cli()
     for tc in test_cases:
         print("\nCase: {}".format(tc["name"]))
         # create the vesting account
@@ -264,11 +264,11 @@ def test_vesting_acc_schedule(evmos):
                     assert tc["exp_err"] in error.args[0]
 
 
-def test_unvested_token_delegation(evmos):
+def test_unvested_token_delegation(evmos_cluster):
     """
     test vesting account cannot delegate unvested tokens
     """
-    cli = evmos.cosmos_cli()
+    cli = evmos_cluster.cosmos_cli()
     funder = eth_to_bech32(ADDRS["signer1"])
     # add a new key that will be the vesting account
     acc = cli.create_account("vesting_acc")

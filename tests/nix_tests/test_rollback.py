@@ -1,10 +1,9 @@
-import subprocess
 from pathlib import Path
 
 import pytest
 from pystarport import ports
 
-from .network import setup_custom_evmos
+from .network import build_patched_evmosd, setup_custom_evmos
 from .utils import (
     supervisorctl,
     update_evmos_bin,
@@ -17,14 +16,7 @@ from .utils import (
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("rollback")
-
-    cmd = [
-        "nix-build",
-        "--no-out-link",
-        Path(__file__).parent / "configs/broken-evmosd.nix",
-    ]
-    print(*cmd)
-    broken_binary = Path(subprocess.check_output(cmd).strip().decode()) / "bin/evmosd"
+    broken_binary = build_patched_evmosd("broken-evmosd")
     print(broken_binary)
 
     # init with genesis binary
