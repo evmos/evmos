@@ -6,26 +6,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v15/utils"
+	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
 )
 
-const (
-	receiver       = "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2"
-	transferAmount = 10
-)
-
-func (s *PrecompileTestSuiteV2) TestSwapEvent() {
+func (s *PrecompileTestSuite) TestSwapEvent() {
 	s.SetupTest()
 
-	evmosDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), utils.BaseDenom)
-	evmosTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
-	s.Require().True(ok, "expected evmos token pair to be found")
+	// random common.Address that represents the evmos ERC20 token address and
+	// the IBC OSMO ERC20 token address.
+	evmosAddress := evmosutiltx.GenerateAddress()
+	osmoAddress := evmosutiltx.GenerateAddress()
 
-	// Retrieve Osmo token information useful for the testing
-	osmoIBCDenom := utils.ComputeIBCDenom(portId, channelID, osmosis.OsmosisDenom)
-	osmoDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), osmoIBCDenom)
-	osmoTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
-	s.Require().True(ok, "expected osmo token pair to be found")
+	sender := s.keyring.GetAddr(0)
+	receiver := "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2"
+	transferAmount := int64(10)
 
 	testCases := []struct {
 		name      string
@@ -37,8 +31,8 @@ func (s *PrecompileTestSuiteV2) TestSwapEvent() {
 	}{
 		{
 			"pass - correct event emitted",
-			evmosTokenPair.GetERC20Contract(),
-			osmoTokenPair.GetERC20Contract(),
+			evmosAddress,
+			osmoAddress,
 			big.NewInt(transferAmount),
 			receiver,
 			func(input common.Address, output common.Address, amount *big.Int, receiver string) {
@@ -64,7 +58,6 @@ func (s *PrecompileTestSuiteV2) TestSwapEvent() {
 				var swapEvent osmosis.EventSwap
 				err := cmn.UnpackLog(s.precompile.ABI, &swapEvent, osmosis.EventTypeSwap, *swapLog)
 				s.Require().NoError(err)
-				sender := s.keyring.GetAddr(0)
 				s.Require().Equal(
 					sender,
 					swapEvent.Sender,
@@ -99,7 +92,6 @@ func (s *PrecompileTestSuiteV2) TestSwapEvent() {
 			err := s.network.NextBlock()
 			s.Require().NoError(err)
 
-			sender := s.keyring.GetAddr(0)
 			err = s.precompile.EmitSwapEvent(
 				s.network.GetContext(),
 				s.stateDB,
