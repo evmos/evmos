@@ -1,7 +1,8 @@
 name: Changelog Diff
 
 on:
-  pull_request
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
