@@ -19,6 +19,16 @@ const (
 	SwapAction = "Swap"
 )
 
+const (
+	// NextMemo is the memo to use after the swap of the token in the IBC packet
+	// built on the Osmosis chain. In the alpha version of the outpost this is
+	// an empty string that will not be included in the XCS V2 contract payload.
+	NextMemo = ""
+
+	// TODO: XCSContract is the swap contract on the Osmosis chain
+	XCSContract = "placeholder"
+)
+
 // Swap is a transaction that swap tokens on the Osmosis chain using
 // an ICS20 transfer with a custom memo field to trigger the XCS V2 contract.
 func (p Precompile) Swap(
