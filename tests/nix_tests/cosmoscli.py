@@ -642,8 +642,21 @@ class CosmosCLI:
     # ==========================
     #         GOV module
     # ==========================
+    def gov_proposal(self, proposer, proposal_file_name, **kwargs):
+        return json.loads(
+            self.raw(
+                "tx",
+                "gov",
+                "submit-proposal",
+                proposal_file_name,
+                "-y",
+                from_=proposer,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
 
-    def gov_propose(self, proposer, kind, proposal, **kwargs):
+    def gov_legacy_proposal(self, proposer, kind, proposal, **kwargs):
         method = "submit-legacy-proposal"
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
         if kind == "software-upgrade":
@@ -675,6 +688,40 @@ class CosmosCLI:
                     "gov",
                     method,
                     kind,
+                    "-y",
+                    from_=proposer,
+                    # content
+                    title=proposal.get("title"),
+                    description=proposal.get("description"),
+                    deposit=proposal.get("deposit"),
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
+                )
+            )
+        elif kind == "register-erc20":
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    proposal.get("erc20_address"),
+                    "-y",
+                    from_=proposer,
+                    # basic
+                    home=self.data_dir,
+                    **kwargs,
+                )
+            )
+        elif kind == "register-coin":
+            return json.loads(
+                self.raw(
+                    "tx",
+                    "gov",
+                    method,
+                    kind,
+                    proposal.get("metadata"),
                     "-y",
                     from_=proposer,
                     # content
@@ -721,14 +768,14 @@ class CosmosCLI:
             )
         )
 
-    def gov_deposit(self, depositor, proposal_id, amount):
+    def gov_deposit(self, depositor, proposal_id, amount, denom=DEFAULT_DENOM):
         return json.loads(
             self.raw(
                 "tx",
                 "gov",
                 "deposit",
                 proposal_id,
-                amount,
+                f"{amount}{denom}",
                 "-y",
                 from_=depositor,
                 home=self.data_dir,
@@ -1019,6 +1066,38 @@ class CosmosCLI:
         )
 
     # ==========================
+    #       ERC20 Module
+    # ==========================
+    def convert_coin(self, coin: str, account: str, **kwargs):
+        kwargs.setdefault(
+            "gas_prices", f"{self.query_base_fee() + 100000}{DEFAULT_DENOM}"
+        )
+        return json.loads(
+            self.raw(
+                "tx",
+                "erc20",
+                "convert-coin",
+                coin,
+                "-y",
+                from_=account,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
+    def get_token_pairs(self, **kwargs):
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "erc20",
+                "token-pairs",
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["token_pairs"]
+
+    # ==========================
     #        Tendermint
     # ==========================
 
@@ -1037,3 +1116,55 @@ class CosmosCLI:
 
     def unsaferesetall(self):
         return self.raw("unsafe-reset-all")
+
+    #   TODO: create different classes for each chains CLI
+    # ==========================
+    #       Stride specific
+    # ==========================
+    def register_host_zone_msg(
+        self,
+        connection_id,
+        host_denom,
+        bech32_prefix,
+        ibc_denom,
+        channel_id,
+        unbonding_frequency,
+        **kwargs,
+    ):
+        """
+        Generates a MsgRegisterHostZone
+        """
+        generated = json.loads(
+            self.raw(
+                "tx",
+                "stakeibc",
+                "register-host-zone",
+                connection_id,
+                host_denom,
+                bech32_prefix,
+                ibc_denom,
+                channel_id,
+                unbonding_frequency,
+                "--generate-only",
+                from_="stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl",  # gov mod acc - is the account allowed to execute this message # noqa: E501
+                chain_id="stride-1",
+                **kwargs,
+            )
+        )["body"]
+        assert len(generated["messages"]) == 1
+        return generated["messages"][0]
+
+    def get_host_zones(self, **kwargs):
+        """
+        Queries the host zones on the Stride chain.
+        """
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "stakeibc",
+                "list-host-zone",
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["host_zone"]

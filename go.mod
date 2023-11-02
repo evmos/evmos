@@ -19,9 +19,9 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/ibc-go/v7 v7.3.1
-	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231009123906-58ea507932a3
-	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231009123906-58ea507932a3
-	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231009123906-58ea507932a3
+	github.com/crypto-org-chain/cronos/memiavl v0.0.5-0.20231027074119-c05c9c61c90e
+	github.com/crypto-org-chain/cronos/store v0.0.5-0.20231027074119-c05c9c61c90e
+	github.com/crypto-org-chain/cronos/versiondb v0.0.0-20231027074119-c05c9c61c90e
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.3
@@ -107,7 +107,7 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/docker/cli v20.10.24+incompatible // indirect
-	github.com/docker/docker v20.10.24+incompatible // indirect
+	github.com/docker/docker v24.0.7+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dop251/goja v0.0.0-20220405120441-9037c2b61cbf // indirect

@@ -85,7 +85,6 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	paramproposal "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -398,25 +397,6 @@ func NewEvmos(
 
 	keys, memKeys, tkeys := StoreKeys()
 
-	// load state streaming if enabled
-	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
-		fmt.Printf("failed to load state streaming: %s", err)
-		os.Exit(1)
-	}
-
-	// wire up the versiondb's `StreamingService` and `MultiStore`.
-	var (
-		queryMultiStore sdk.MultiStore
-		err             error
-	)
-	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
-	if slices.Contains(streamers, versionDB) {
-		queryMultiStore, err = setupVersionDB(homePath, bApp, keys, tkeys, memKeys)
-		if err != nil {
-			panic(errorsmod.Wrap(err, "error on versionDB setup"))
-		}
-	}
-
 	app := &Evmos{
 		BaseApp:           bApp,
 		cdc:               cdc,
@@ -500,7 +480,6 @@ func NewEvmos(
 	// register the proposal types
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
-		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
@@ -577,6 +556,7 @@ func NewEvmos(
 		evmkeeper.AvailablePrecompiles(
 			*stakingKeeper,
 			app.DistrKeeper,
+			app.Erc20Keeper,
 			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,
@@ -874,6 +854,23 @@ func NewEvmos(
 	app.MountKVStores(keys)
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
+
+	// load state streaming if enabled
+	if _, _, err := streaming.LoadStreamingServices(bApp, appOpts, appCodec, logger, keys); err != nil {
+		fmt.Printf("failed to load state streaming: %s", err)
+		os.Exit(1)
+	}
+
+	// wire up the versiondb's `StreamingService` and `MultiStore`.
+	var queryMultiStore sdk.MultiStore
+
+	streamers := cast.ToStringSlice(appOpts.Get(streaming.OptStoreStreamers))
+	if slices.Contains(streamers, versionDB) {
+		queryMultiStore, err = app.setupVersionDB(homePath, keys, tkeys, memKeys)
+		if err != nil {
+			panic(errorsmod.Wrap(err, "error on versionDB setup"))
+		}
+	}
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
@@ -1304,10 +1301,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v14.UpgradeName,
 		v14.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.BankKeeper,
 			app.EvmKeeper,
-			app.StakingKeeper,
-			app.VestingKeeper,
 			app.ConsensusParamsKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.ParamsKeeper,
@@ -1392,7 +1386,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 	case v15.UpgradeName:
 		// crisis module is deprecated in v15
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"crisis"},
+			Deleted: []string{crisistypes.ModuleName},
 		}
 	}
 

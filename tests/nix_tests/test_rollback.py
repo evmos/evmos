@@ -1,50 +1,22 @@
-import configparser
-import subprocess
 from pathlib import Path
 
 import pytest
 from pystarport import ports
-from pystarport.cluster import SUPERVISOR_CONFIG_FILE
 
-from .network import setup_custom_evmos
-from .utils import supervisorctl, wait_for_block, wait_for_port
-
-
-def update_node_cmd(path, cmd, i):
-    ini_path = path / SUPERVISOR_CONFIG_FILE
-    ini = configparser.RawConfigParser()
-    ini.read(ini_path)
-    for section in ini.sections():
-        if section == f"program:evmos_9000-1-node{i}":
-            ini[section].update(
-                {
-                    "command": f"{cmd} start --home %(here)s/node{i}",
-                    "autorestart": "false",  # don't restart when stopped
-                }
-            )
-    with ini_path.open("w") as fp:
-        ini.write(fp)
-
-
-def post_init(broken_binary):
-    def inner(path, base_port, config):
-        chain_id = "evmos_9000-1"
-        update_node_cmd(path / chain_id, broken_binary, 1)
-
-    return inner
+from .network import build_patched_evmosd, setup_custom_evmos
+from .utils import (
+    supervisorctl,
+    update_evmos_bin,
+    update_node_cmd,
+    wait_for_block,
+    wait_for_port,
+)
 
 
 @pytest.fixture(scope="module")
 def custom_evmos(tmp_path_factory):
     path = tmp_path_factory.mktemp("rollback")
-
-    cmd = [
-        "nix-build",
-        "--no-out-link",
-        Path(__file__).parent / "configs/broken-evmosd.nix",
-    ]
-    print(*cmd)
-    broken_binary = Path(subprocess.check_output(cmd).strip().decode()) / "bin/evmosd"
+    broken_binary = build_patched_evmosd("broken-evmosd")
     print(broken_binary)
 
     # init with genesis binary
@@ -52,7 +24,7 @@ def custom_evmos(tmp_path_factory):
         path,
         26300,
         Path(__file__).parent / "configs/rollback-test.jsonnet",
-        post_init=post_init(broken_binary),
+        post_init=update_evmos_bin(broken_binary, [1]),
         wait_port=False,
     )
 
