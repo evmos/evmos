@@ -55,7 +55,7 @@ func (p Precompile) Name(
 	// Infer the denomination name from the coin denomination base denom
 	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 	if err != nil {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		// FIXME: return 'not supported' (same error as when you call the method on an ERC20.sol)
 		return nil, err
 	}
 
@@ -217,7 +217,7 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-		return transfertypes.DenomTrace{}, errors.New("denom trace not found")
+		return transfertypes.DenomTrace{}, fmt.Errorf("denom is not an IBC voucher: %s", denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
