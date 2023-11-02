@@ -47,8 +47,7 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	denom := p.tokenPair.Denom
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, denom)
+	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
 	}
