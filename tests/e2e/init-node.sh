@@ -17,6 +17,9 @@ TMP_GENESIS="$CHAINDIR/config/tmp_genesis.json"
 APP_TOML="$CHAINDIR/config/app.toml"
 CONFIG_TOML="$CHAINDIR/config/config.toml"
 
+# feemarket params basefee
+BASEFEE=1000000000
+
 # myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="mykey"
 VAL_MNEMONIC="gesture inject test cycle original hollow east ridge hen combine junk child bacon zero hope comfort vacuum milk pitch cage oppose unhappy lunar seat"
@@ -102,6 +105,9 @@ jq '.app_state.claims.params.duration_until_decay="100000s"' "$GENESIS" >"$TMP_G
 # 0xA61808Fe40fEb8B3433778BBC2ecECCAA47c8c47 || evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz
 jq -r --arg amount_to_claim "$amount_to_claim" '.app_state.bank.balances += [{"address":"evmos15cvq3ljql6utxseh0zau9m8ve2j8erz89m5wkz","coins":[{"denom":"aevmos", "amount":$amount_to_claim}]}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
+# Set base fee in genesis
+jq '.app_state["feemarket"]["params"]["base_fee"]="'${BASEFEE}'"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+
 # disable produce empty block
 sed -i.bak 's/create_empty_blocks = true/create_empty_blocks = false/g' "$CONFIG_TOML"
 
@@ -133,7 +139,7 @@ sed -i.bak 's/127.0.0.1/0.0.0.0/g' "$APP_TOML"
 sed -i.bak 's/timeout_commit = "3s"/timeout_commit = "1s"/g' "$CONFIG_TOML"
 
 # Sign genesis transaction
-evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
+evmosd gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID"
 ## In case you want to create multiple validators at genesis
 ## 1. Back to `evmosd keys add` step, init more keys
 ## 2. Back to `evmosd add-genesis-account` step, add balance for those
