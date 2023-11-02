@@ -266,7 +266,7 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 // by the CallEVMWithData function in the x/erc20 module keeper.
 // When called from the RPC client, we need to reset the gas meter before
 // simulating the transaction to have
-// an accurate gas estimation for EVM extensions transactions
+// an accurate gas estimation for EVM extensions transactions.
 func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest, fromType types.CallType) (*types.EstimateGasResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
