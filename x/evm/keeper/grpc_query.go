@@ -261,8 +261,8 @@ func (k Keeper) EstimateGas(c context.Context, req *types.EthCallRequest) (*type
 	return k.EstimateGasInternal(c, req, types.RPC)
 }
 
-// EstimateGasInternal returns the gas estimation for the corresponding request. 
-// This function is called from the RPC client (eth_estimateGas) and internally 
+// EstimateGasInternal returns the gas estimation for the corresponding request.
+// This function is called from the RPC client (eth_estimateGas) and internally
 // by the CallEVMWithData function in the x/erc20 module keeper.
 // When called from the RPC client, we need to reset the gas meter before
 // simulating the transaction to have
