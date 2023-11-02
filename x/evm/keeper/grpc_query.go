@@ -371,7 +371,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 			if err != nil {
 				return true, nil, err
 			}
-			// resetting the gasMeter after increasing the sequence fixes error: "no delegation distribution info"
+			// resetting the gasMeter after increasing the sequence to have an accurate gas estimation on EVM extensions transactions
 			tmpCtx = tmpCtx.WithGasMeter(evmostypes.NewInfiniteGasMeterWithLimit(msg.Gas())).WithKVGasConfig(storetypes.GasConfig{}).
 				WithTransientKVGasConfig(storetypes.GasConfig{})
 		}
