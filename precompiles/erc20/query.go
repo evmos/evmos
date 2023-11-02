@@ -69,7 +69,9 @@ func (p Precompile) Name(
 	return method.Outputs.Pack(name)
 }
 
-// Symbol returns the symbol of the token.
+// Symbol returns the symbol of the token. If the token metadata is registered in the
+// bank module, it returns its symbol. Otherwise it returns the base denomination of
+// the token in uppercase (eg. uatom -> ATOM).
 func (p Precompile) Symbol(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -98,7 +100,9 @@ func (p Precompile) Symbol(
 	return method.Outputs.Pack(symbol)
 }
 
-// Decimals returns the decimals places of the token.
+// Decimals returns the decimals places of the token. If the token metadata is registered in the
+// bank module, it returns its the display denomination exponent. Otherwise it infers the decimal
+// value from the first character of the base denomination (eg. uatom -> 6).
 func (p Precompile) Decimals(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -140,7 +144,8 @@ func (p Precompile) Decimals(
 	return method.Outputs.Pack(uint8(decimals))
 }
 
-// TotalSupply returns the amount of tokens in existence.
+// TotalSupply returns the amount of tokens in existence. It fetches the supply
+// of the coin from the bank keeper and returns zero if not found.
 func (p Precompile) TotalSupply(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -153,7 +158,8 @@ func (p Precompile) TotalSupply(
 	return method.Outputs.Pack(supply.Amount.BigInt())
 }
 
-// BalanceOf returns the amount of tokens owned by account. It ge
+// BalanceOf returns the amount of tokens owned by account. It fetches the balance
+// of the coin from the bank keeper and returns zero if not found.
 func (p Precompile) BalanceOf(
 	ctx sdk.Context,
 	_ *vm.Contract,
