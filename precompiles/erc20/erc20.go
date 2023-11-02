@@ -4,11 +4,7 @@
 package erc20
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
+	"embed"
 
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 
@@ -24,23 +20,25 @@ import (
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
-// abiPath defines the path to the staking precompile ABI JSON file.
+// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 const abiPath = "./abi.json"
+
+// Embed abi json file to the executable binary. Needed when importing as dependency.
+//
+//go:embed abi.json
+var f embed.FS
 
 var _ vm.PrecompiledContract = &Precompile{}
 
-// Precompile defines the precompiled contract for staking.
+// Precompile defines the precompiled contract for ERC-20.
 type Precompile struct {
 	cmn.Precompile
-	abi.ABI
-	tokenPair          erc20types.TokenPair
-	bankKeeper         bankkeeper.Keeper
-	authzKeeper        authzkeeper.Keeper
-	transferKeeper     transferkeeper.Keeper
-	approvalExpiration time.Duration
+	tokenPair      erc20types.TokenPair
+	bankKeeper     bankkeeper.Keeper
+	transferKeeper transferkeeper.Keeper
 }
 
-// NewPrecompile creates a new staking Precompile instance as a
+// NewPrecompile creates a new ERC-20 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
 	tokenPair erc20types.TokenPair,
@@ -48,35 +46,28 @@ func NewPrecompile(
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 ) (*Precompile, error) {
-	abiJSON, err := os.ReadFile(filepath.Clean(abiPath))
+	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open newAbi.json file: %w", err)
-	}
-
-	newAbi, err := abi.JSON(strings.NewReader(string(abiJSON)))
-	if err != nil {
-		return nil, fmt.Errorf("invalid newAbi.json file: %w", err)
+		return nil, err
 	}
 
 	return &Precompile{
-		ABI:                newAbi,
-		tokenPair:          tokenPair,
-		bankKeeper:         bankKeeper,
-		authzKeeper:        authzKeeper,
-		transferKeeper:     transferKeeper,
-		approvalExpiration: time.Hour * 24 * 365,
+		Precompile: cmn.Precompile{
+			ABI:                  newABI,
+			AuthzKeeper:          authzKeeper,
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
+			KvGasConfig:          sdk.GasConfig{},
+			TransientKVGasConfig: sdk.GasConfig{},
+		},
+		tokenPair:      tokenPair,
+		bankKeeper:     bankKeeper,
+		transferKeeper: transferKeeper,
 	}, nil
 }
 
-// Address defines the address of the ERC20 precompile contract.
+// Address defines the address of the ERC-20 precompile contract.
 func (p Precompile) Address() common.Address {
 	return p.tokenPair.GetERC20Contract()
-}
-
-// IsStateful returns true since the precompile contract has access to the
-// staking state.
-func (Precompile) IsStateful() bool {
-	return true
 }
 
 // RequiredGas calculates the contract gas used for the
@@ -96,7 +87,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	// We should execute the transactions using the ERC20MinterBurnerDecimals.sol from Evmos testnet
 	// to ensure parity in the values.
 	switch method.Name {
-	// ERC20 transactions
+	// ERC-20 transactions
 	case TransferMethod:
 		return 3_000_000
 	case TransferFromMethod:
@@ -107,7 +98,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 34_605
 	case auth.DecreaseAllowanceMethod:
 		return 34_519
-	// ERC20 queries
+	// ERC-20 queries
 	case NameMethod:
 		return 3_421
 	case SymbolMethod:
@@ -125,7 +116,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 }
 
-// Run executes the precompiled contract staking methods defined in the ABI.
+// Run executes the precompiled contract ERC-20 methods defined in the ABI.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
@@ -164,6 +155,7 @@ func (Precompile) IsTransaction(methodID string) bool {
 	}
 }
 
+// HandleMethod handles the execution of each of the ERC-20 methods.
 func (p Precompile) HandleMethod(
 	ctx sdk.Context,
 	contract *vm.Contract,

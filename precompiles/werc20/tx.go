@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	// DepositMethod defines the ABI method name for the WIERC20 deposit
+	// DepositMethod defines the ABI method name for the IWERC20 deposit
 	// transaction.
 	DepositMethod = "deposit"
-	// WithdrawMethod defines the ABI method name for the WIERC20 withdraw
+	// WithdrawMethod defines the ABI method name for the IWERC20 withdraw
 	// transaction.
 	WithdrawMethod = "withdraw"
 )

@@ -10,12 +10,17 @@ from .ibc_utils import (
 from .utils import parse_events_rpc, wait_for_fn
 
 
-@pytest.fixture(scope="module")
-def ibc(tmp_path_factory):
-    "prepare-network"
+@pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
+def ibc(request, tmp_path_factory):
+    """
+    prepare IBC network with an evmos chain
+    (default build or with memIAVL + versionDB)
+    and a chainmain (crypto.org) chain
+    """
     name = "ibc"
+    evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
-    network = prepare_network(path, name, ["chainmain"])
+    network = prepare_network(path, name, [evmos_build, "chainmain"])
     yield from network
 
 
