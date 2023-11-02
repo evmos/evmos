@@ -141,7 +141,7 @@ func (p Precompile) Decimals(
 		return nil, errors.New("uint8 overflow: invalid decimals")
 	}
 
-	return method.Outputs.Pack(uint8(decimals))
+	return method.Outputs.Pack(uint8(decimals)) //#nosec G701
 }
 
 // TotalSupply returns the amount of tokens in existence. It fetches the supply
