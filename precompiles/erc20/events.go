@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// EventTypeApproval defines the event type for the ERC-20 Approval, IncreaseAllowance and DecreaseAllowance transactions.
+	EventTypeApproval = "Approval"
 	// EventTypeTransfer defines the event type for the ERC-20 Transfer and TransferFrom transactions.
 	EventTypeTransfer = "Transfer"
 )
