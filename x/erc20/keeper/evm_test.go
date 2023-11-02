@@ -251,7 +251,7 @@ func (suite *KeeperTestSuite) TestForceFail() {
 		{
 			"Force estimate gas error",
 			func() {
-				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced EstimateGas error"))
+				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced EstimateGas error"))
 			},
 			true,
 			false,
@@ -259,7 +259,7 @@ func (suite *KeeperTestSuite) TestForceFail() {
 		{
 			"Force ApplyMessage error",
 			func() {
-				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
+				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, fmt.Errorf("forced ApplyMessage error"))
 			},
 			true,
@@ -268,7 +268,7 @@ func (suite *KeeperTestSuite) TestForceFail() {
 		{
 			"Force ApplyMessage failed",
 			func() {
-				mockEVMKeeper.On("EstimateGas", mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
+				mockEVMKeeper.On("EstimateGasInternal", mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.EstimateGasResponse{Gas: uint64(200)}, nil)
 				mockEVMKeeper.On("ApplyMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&evmtypes.MsgEthereumTxResponse{VmError: "SomeError"}, nil)
 			},
 			true,

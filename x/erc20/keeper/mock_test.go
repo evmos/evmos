@@ -33,8 +33,8 @@ func (m *MockEVMKeeper) GetAccountWithoutBalance(_ sdk.Context, _ common.Address
 	return args.Get(0).(*statedb.Account)
 }
 
-func (m *MockEVMKeeper) EstimateGas(_ context.Context, _ *evm.EthCallRequest) (*evm.EstimateGasResponse, error) {
-	args := m.Called(mock.Anything, mock.Anything)
+func (m *MockEVMKeeper) EstimateGasInternal(_ context.Context, _ *evm.EthCallRequest, _ evm.CallType) (*evm.EstimateGasResponse, error) {
+	args := m.Called(mock.Anything, mock.Anything, mock.Anything)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
