@@ -9,9 +9,9 @@ from .utils import CONTRACTS, deploy_contract
 slot0 = "0x" + "0" * 64
 
 
-def test_override_code(ethermint):
+def test_override_code(evmos_cluster):
     int_value = 100
-    w3: Web3 = ethermint.w3
+    w3: Web3 = evmos_cluster.w3
     info = json.loads(CONTRACTS["Greeter"].read_text())
     data = encode_transaction_data(w3, "intValue", info["abi"])
     # call an arbitrary address
@@ -37,8 +37,8 @@ def test_override_code(ethermint):
     assert (int_value,) == w3.codec.decode(("uint256",), result)
 
 
-def test_override_state(ethermint):
-    w3: Web3 = ethermint.w3
+def test_override_state(evmos_cluster):
+    w3: Web3 = evmos_cluster.w3
     contract, _ = deploy_contract(w3, CONTRACTS["Greeter"])
 
     assert "Hello" == contract.functions.greet().call()
