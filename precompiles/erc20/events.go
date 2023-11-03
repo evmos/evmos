@@ -10,20 +10,19 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 const (
-
-	// EventTypeTransfer defines the event type for the ERC20 Transfer and TransferFrom transactions.
+	// EventTypeTransfer defines the event type for the ERC-20 Transfer and TransferFrom transactions.
 	EventTypeTransfer = "Transfer"
 )
 
-// EmitTransferEvent creates a new Transfer event emitted on an transfer and transferFrom transactions.
+// EmitTransferEvent creates a new Transfer event emitted on transfer and transferFrom transactions.
 func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from, to common.Address, value *big.Int) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeTransfer]
@@ -43,27 +42,8 @@ func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from,
 		return err
 	}
 
-	bigIntType, err := abi.NewType("uint256", "", nil)
-	if err != nil {
-		return err
-	}
-
-	// Create the ABI arguments
-	valueArg := abi.Argument{
-		Name:    "value",
-		Type:    bigIntType,
-		Indexed: false,
-	}
-
-	// Check if the coin is set to infinite
-	amount := abi.MaxUint256
-	if value != nil {
-		amount = new(big.Int).Set(value)
-	}
-
-	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{valueArg}
-	packed, err := arguments.Pack(amount)
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(value)
 	if err != nil {
 		return err
 	}
@@ -78,7 +58,8 @@ func (p Precompile) EmitTransferEvent(ctx sdk.Context, stateDB vm.StateDB, from,
 	return nil
 }
 
-// EmitApprovalEvent creates a new approval event emitted on an Approve, IncreaseAllowance and DecreaseAllowance transactions.
+// EmitApprovalEvent creates a new approval event emitted on Approve, IncreaseAllowance
+// and DecreaseAllowance transactions.
 func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner, spender common.Address, value *big.Int) error {
 	// Prepare the event topics
 	event := p.ABI.Events[auth.EventTypeApproval]
@@ -98,27 +79,8 @@ func (p Precompile) EmitApprovalEvent(ctx sdk.Context, stateDB vm.StateDB, owner
 		return err
 	}
 
-	bigIntType, err := abi.NewType("uint256", "", nil)
-	if err != nil {
-		return err
-	}
-
-	// Create the ABI arguments
-	valueArg := abi.Argument{
-		Name:    "value",
-		Type:    bigIntType,
-		Indexed: false,
-	}
-
-	// Check if the coin is set to infinite
-	amount := abi.MaxUint256
-	if value != nil {
-		amount = new(big.Int).Set(value)
-	}
-
-	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{valueArg}
-	packed, err := arguments.Pack(amount)
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(value)
 	if err != nil {
 		return err
 	}

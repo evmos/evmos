@@ -13,6 +13,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
+	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -37,7 +38,9 @@ const (
 	BalanceOfMethod = "balanceOf"
 )
 
-// Name returns the name of the token.
+// Name returns the name of the token. If the token metadata is registered in the
+// bank module, it returns its name. Otherwise it returns the base denomination of
+// the token capitalized (eg. uatom -> Atom).
 func (p Precompile) Name(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -45,23 +48,31 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	denom := p.tokenPair.Denom
-	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, denom)
+	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
 	}
 
-	denomTrace := p.getDenomTrace(ctx)
-	if denomTrace == nil {
+	// Infer the denomination name from the coin denomination base denom
+	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
+	if err != nil {
+		// FIXME: return 'not supported' (same error as when you call the method on an ERC20.sol)
+		return nil, err
+	}
+
+	// safety check
+	if len(denomTrace.BaseDenom) < 3 {
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return method.Outputs.Pack("")
+		return nil, nil
 	}
 
 	name := strings.ToUpper(string(denomTrace.BaseDenom[1])) + denomTrace.BaseDenom[2:]
 	return method.Outputs.Pack(name)
 }
 
-// Symbol returns the symbol of the token.
+// Symbol returns the symbol of the token. If the token metadata is registered in the
+// bank module, it returns its symbol. Otherwise it returns the base denomination of
+// the token in uppercase (eg. uatom -> ATOM).
 func (p Precompile) Symbol(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -74,17 +85,25 @@ func (p Precompile) Symbol(
 		return method.Outputs.Pack(metadata.Symbol)
 	}
 
-	denomTrace := p.getDenomTrace(ctx)
-	if denomTrace == nil {
+	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
+	if err != nil {
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return method.Outputs.Pack("")
+		return nil, err
+	}
+
+	// safety check
+	if len(denomTrace.BaseDenom) < 3 {
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return nil, nil
 	}
 
 	symbol := strings.ToUpper(denomTrace.BaseDenom[1:])
 	return method.Outputs.Pack(symbol)
 }
 
-// Decimals returns the decimals places of the token.
+// Decimals returns the decimals places of the token. If the token metadata is registered in the
+// bank module, it returns its the display denomination exponent. Otherwise it infers the decimal
+// value from the first character of the base denomination (eg. uatom -> 6).
 func (p Precompile) Decimals(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -94,17 +113,17 @@ func (p Precompile) Decimals(
 ) ([]byte, error) {
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if !found {
-		denomTrace := p.getDenomTrace(ctx)
-		if denomTrace == nil {
+		denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
+		if err != nil {
 			// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-			return nil, nil
+			return nil, err
 		}
 
 		// we assume the decimal from the first character of the denomination
-		switch string(p.tokenPair.Denom[0]) { // FIXME: use denomTrace.BaseDenom[0]
-		case "u":
+		switch string(denomTrace.BaseDenom[0]) {
+		case "u": // micro (u) -> 6 decimals
 			return method.Outputs.Pack(uint8(6))
-		case "a":
+		case "a": // atto (a) -> 18 decimals
 			return method.Outputs.Pack(uint8(18))
 		}
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
@@ -123,10 +142,11 @@ func (p Precompile) Decimals(
 		return nil, errors.New("uint8 overflow: invalid decimals")
 	}
 
-	return method.Outputs.Pack(uint8(decimals))
+	return method.Outputs.Pack(uint8(decimals)) //#nosec G701
 }
 
-// TotalSupply returns the amount of tokens in existence.
+// TotalSupply returns the amount of tokens in existence. It fetches the supply
+// of the coin from the bank keeper and returns zero if not found.
 func (p Precompile) TotalSupply(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -139,7 +159,8 @@ func (p Precompile) TotalSupply(
 	return method.Outputs.Pack(supply.Amount.BigInt())
 }
 
-// BalanceOf returns the amount of tokens owned by account.
+// BalanceOf returns the amount of tokens owned by account. It fetches the balance
+// of the coin from the bank keeper and returns zero if not found.
 func (p Precompile) BalanceOf(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -147,21 +168,18 @@ func (p Precompile) BalanceOf(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
+	account, err := ParseBalanceOfArgs(args)
+	if err != nil {
+		return nil, err
 	}
 
-	account, ok := args[0].(common.Address)
-	if !ok {
-		return nil, fmt.Errorf("invalid account address: %v", args[0])
-	}
-
-	balance := p.bankKeeper.GetBalance(ctx, sdk.AccAddress(account.Bytes()), p.tokenPair.Denom)
+	balance := p.bankKeeper.GetBalance(ctx, account.Bytes(), p.tokenPair.Denom)
 
 	return method.Outputs.Pack(balance.Amount.BigInt())
 }
 
-// Allowance returns the remaining allowance of a spender to the contract
+// Allowance returns the remaining allowance of a spender to the contract by
+// checking the existence of a bank SendAuthorization.
 func (p Precompile) Allowance(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -177,7 +195,7 @@ func (p Precompile) Allowance(
 	granter := owner
 	grantee := spender
 
-	authorization, _, err := authorization.CheckAuthzExists(ctx, p.authzKeeper, grantee, granter, SendMsgURL)
+	authorization, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
 	// TODO: return error if doesn't exist?
 	if err != nil {
 		return method.Outputs.Pack(common.Big0)
@@ -192,20 +210,26 @@ func (p Precompile) Allowance(
 	return method.Outputs.Pack(sendAuth.SpendLimit[0].Amount.BigInt())
 }
 
-func (p Precompile) getDenomTrace(ctx sdk.Context) *transfertypes.DenomTrace {
-	if !strings.HasPrefix(p.tokenPair.Denom, "ibc/") {
-		return nil
+// GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
+// denomination is is not an IBC voucher or the trace is not found, it returns an error.
+func GetDenomTrace(
+	transferKeeper transferkeeper.Keeper,
+	ctx sdk.Context,
+	denom string,
+) (transfertypes.DenomTrace, error) {
+	if !strings.HasPrefix(denom, "ibc/") {
+		return transfertypes.DenomTrace{}, fmt.Errorf("denom is not an IBC voucher: %s", denom)
 	}
 
-	hash, err := transfertypes.ParseHexHash(p.tokenPair.Denom[4:])
+	hash, err := transfertypes.ParseHexHash(denom[4:])
 	if err != nil {
-		return nil
+		return transfertypes.DenomTrace{}, err
 	}
 
-	denomTrace, found := p.transferKeeper.GetDenomTrace(ctx, hash)
+	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return nil
+		return transfertypes.DenomTrace{}, errors.New("denom trace not found")
 	}
 
-	return &denomTrace
+	return denomTrace, nil
 }

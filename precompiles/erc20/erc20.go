@@ -21,7 +21,7 @@ import (
 )
 
 // abiPath defines the path to the ERC-20 precompile ABI JSON file.
-const abiPath = "./abi.json"
+const abiPath = "abi.json"
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //

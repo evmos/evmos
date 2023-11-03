@@ -75,7 +75,7 @@ func (p Precompile) transfer(
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
-		_, err = p.authzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
+		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
 
 	if err != nil {
