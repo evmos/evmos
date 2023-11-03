@@ -95,9 +95,9 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	chainA := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
-	chainB := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
+	chainB := coordinator.GetChain(ibctesting.GetChainID(3)).(*ibctesting.TestChain)
 
-	ibctesting.NewPath(chainA, chainB)
+	path := ibctesting.NewPath(chainA, chainB)
 
 	s.registerERC20Coins()
 }
