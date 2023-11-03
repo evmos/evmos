@@ -10,6 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
@@ -17,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v15/testutil/integration/ibc/chain"
 	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
 	"github.com/evmos/evmos/v15/utils"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
@@ -45,6 +49,10 @@ type PrecompileTestSuite struct {
 	stateDB *statedb.StateDB
 
 	precompile *osmosis.Precompile
+
+	coordinator *coordinator.IntegrationCoordinator
+	chainA      chain.Chain
+	chainB      chain.Chain
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
@@ -80,10 +88,17 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.precompile = precompile
 
+	network := network.New()
 	coordinator := coordinator.NewIntegrationCoordinator(
 		s.T(),
-		[]commonnetwork.Network{integrationNetwork},
+		[]commonnetwork.Network{network},
 	)
+
+	chainA := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
+	chainB := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
+
+	ibctesting.NewPath(chainA, chainB)
+
 	s.registerERC20Coins()
 }
 
