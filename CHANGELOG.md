@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
+- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
 - (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 
 ### Improvements
@@ -64,6 +65,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
 - (erc20) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
+- (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
+- (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
 - (distribution) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
 - (erc20) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
 
