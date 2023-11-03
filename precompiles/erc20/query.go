@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"math/big"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
@@ -195,19 +197,12 @@ func (p Precompile) Allowance(
 	granter := owner
 	grantee := spender
 
-	authorization, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
-	// TODO: return error if doesn't exist?
+	allowance, err := GetAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 	if err != nil {
-		return method.Outputs.Pack(common.Big0)
+		return nil, err
 	}
 
-	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
-	if !ok {
-		// TODO: return error if invalid authorization?
-		return method.Outputs.Pack(common.Big0)
-	}
-
-	return method.Outputs.Pack(sendAuth.SpendLimit[0].Amount.BigInt())
+	return method.Outputs.Pack(allowance)
 }
 
 // GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
@@ -232,4 +227,27 @@ func GetDenomTrace(
 	}
 
 	return denomTrace, nil
+}
+
+// GetAllowance returns the amount of denom that the grantee is allowed to spend on behalf of the granteer.
+func GetAllowance(
+	authzKeeper authzkeeper.Keeper,
+	ctx sdk.Context,
+	grantee, granter common.Address,
+	denom string,
+) (*big.Int, error) {
+	authorization, _, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
+	// TODO: return error if doesn't exist?
+	if err != nil {
+		return common.Big0, err
+	}
+
+	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
+	if !ok {
+		// TODO: return error if invalid authorization?
+		return common.Big0, nil
+	}
+
+	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)
+	return allowance.BigInt(), nil
 }
