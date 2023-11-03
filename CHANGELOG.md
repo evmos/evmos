@@ -57,6 +57,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
 - (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 - (distribution) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
+- (rpc) [#1952](https://github.com/evmos/evmos/pull/1952) Add tests for EVM extensions transactions gas estimation (related to changes in [#1943](https://github.com/evmos/evmos/pull/1943)).
 - (distribution) [#1954](https://github.com/evmos/evmos/pull/1954) Add `ClaimRewards` unit and event tests.
 - (osmosis-outpost) [#1944](https://github.com/evmos/evmos/pull/1944) Add more validation to Osmosis outpost.
 - (precompiles) [#1973](https://github.com/evmos/evmos/pull/1973) Use `LoadABI` from precompiles common package in outposts.

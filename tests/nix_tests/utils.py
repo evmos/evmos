@@ -41,6 +41,7 @@ TEST_CONTRACTS = {
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "StakingI": "evmos/staking/StakingI.sol",
+    "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
     "IERC20": "evmos/erc20/IERC20.sol",
 }
@@ -199,14 +200,21 @@ def get_precompile_contract(w3, name):
     return w3.eth.contract(addr, abi=info["abi"])
 
 
+def build_deploy_contract_tx(w3, info, args=(), key=KEYS["validator"]):
+    """
+    builds a tx to deploy contract without signature and returns it
+    """
+    acct = Account.from_key(key)
+    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
+    return contract.constructor(*args).build_transaction({"from": acct.address})
+
+
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     """
     deploy contract and return the deployed contract instance
     """
-    acct = Account.from_key(key)
     info = json.loads(jsonfile.read_text())
-    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
-    tx = contract.constructor(*args).build_transaction({"from": acct.address})
+    tx = build_deploy_contract_tx(w3, info, args, key)
     txreceipt = send_transaction(w3, tx, key)
     assert txreceipt.status == 1
     address = txreceipt.contractAddress
