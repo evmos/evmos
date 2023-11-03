@@ -124,3 +124,55 @@ func (s *PrecompileTestSuite) TestParseTransferFromArgs() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestParseApproveArgs() {
+	spender := utiltx.GenerateAddress()
+	amount := big.NewInt(100)
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				spender,
+				amount,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid spender address",
+			args: []interface{}{
+				"invalid address",
+				amount,
+			},
+			errContains: "invalid spender address",
+		},
+		{
+			name: "fail - invalid amount",
+			args: []interface{}{
+				spender,
+				"invalid amount",
+			},
+			errContains: "invalid amount",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			spender, amount, err := erc20.ParseApproveArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the approve arguments")
+				s.Require().Equal(spender, tc.args[0], "expected different spender address")
+				s.Require().Equal(amount, tc.args[1], "expected different amount")
+			} else {
+				s.Require().Error(err, "expected an error parsing the approve arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
