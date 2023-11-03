@@ -23,10 +23,12 @@ type Coordinator interface {
 	UpdateTimeForChain(chainID string)
 	// GetChain returns the TestChain for a given chainID.
 	GetChain(chainID string) ibcchain.Chain
+	// GetAllChainsID returns the chainIDs for all the chains within the IBC network.
+	GetAllChainsID() []string
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will
 	// fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 	// for both chains. The channels created are connected to the ibc-transfer application.
-	Setup(path *ibctesting.Path)
+	Setup(src, dst string) IBCConnection
 	// CommitNBlocks commits n blocks on the chain with the given chainID.
 	CommitNBlocks(chainID string, n uint64) error
 }
@@ -60,36 +62,18 @@ func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Netwo
 	}
 }
 
-// getIBCChains returns a map of TestChain's for the given network interface.
-func getIBCChains(t *testing.T, coord *ibctesting.Coordinator, chains []network.Network) map[string]*ibctesting.TestChain {
-	ibcChains := make(map[string]*ibctesting.TestChain)
-	for _, chain := range chains {
-		ibcChains[chain.GetChainID()] = chain.GetIBCChain(t, coord)
-	}
-	return ibcChains
-}
-
-// generateDummyChains returns a map of dummy chains to complement IBC connections for integration tests.
-func generateDummyChains(t *testing.T, coord *ibctesting.Coordinator, numberOfChains int) map[string]*ibctesting.TestChain {
-	ibcChains := make(map[string]*ibctesting.TestChain)
-	for i := 1; i <= numberOfChains; i++ {
-		chainID := ibctesting.GetChainID(i)
-		ibcChains[chainID] = ibctesting.NewTestChain(t, coord, chainID)
-	}
-	return ibcChains
-}
-
-// mergeMaps merges two maps of TestChain's.
-func mergeMaps(m1, m2 map[string]*ibctesting.TestChain) map[string]*ibctesting.TestChain {
-	for k, v := range m2 {
-		m1[k] = v
-	}
-	return m1
-}
-
 // GetChain returns the TestChain for a given chainID.
 func (c *IntegrationCoordinator) GetChain(chainID string) ibcchain.Chain {
 	return c.coord.Chains[chainID]
+}
+
+// GetAllChainsID returns the chainIDs for all the chains within the IBC network.
+func (c *IntegrationCoordinator) GetAllChainsID() []string {
+	chainIDs := make([]string, 0, len(c.coord.Chains))
+	for _, chain := range c.coord.Chains {
+		chainIDs = append(chainIDs, chain.ChainID)
+	}
+	return chainIDs
 }
 
 // IncrementTime iterates through all the TestChain's and increments their current header time
@@ -112,8 +96,27 @@ func (c *IntegrationCoordinator) UpdateTimeForChain(chainID string) {
 // Setup constructs a TM client, connection, and channel on both chains provided. It will
 // fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 // for both chains. The channels created are connected to the ibc-transfer application.
-func (c *IntegrationCoordinator) Setup(path *ibctesting.Path) {
+func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
+	chainA := c.coord.GetChain(a)
+	chainB := c.coord.GetChain(b)
+	path := newTransferPath(chainA, chainB)
 	c.coord.Setup(path)
+	return IBCConnection{
+		EndpointA: Endpoint{
+			ChainID:      a,
+			ClientID:     path.EndpointA.ClientID,
+			ConnectionID: path.EndpointA.ConnectionID,
+			ChannelID:    path.EndpointA.ChannelID,
+			PortID:       path.EndpointA.ChannelConfig.PortID,
+		},
+		EndpointB: Endpoint{
+			ChainID:      b,
+			ClientID:     path.EndpointB.ClientID,
+			ConnectionID: path.EndpointB.ConnectionID,
+			ChannelID:    path.EndpointB.ChannelID,
+			PortID:       path.EndpointB.ChannelConfig.PortID,
+		},
+	}
 }
 
 // CommitNBlocks commits n blocks on the chain with the given chainID.
