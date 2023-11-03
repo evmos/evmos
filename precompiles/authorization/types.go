@@ -107,45 +107,6 @@ func CheckRevokeArgs(args []interface{}) (common.Address, []string, error) {
 	return granteeAddr, typeURLs, nil
 }
 
-// CheckDistributionApprovalArgs checks the arguments passed to the distribution Approve function.
-func CheckDistributionApprovalArgs(args []interface{}, origin common.Address) (common.Address, []string, []string, error) {
-	if len(args) != 3 {
-		return common.Address{}, nil, nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 3, len(args))
-	}
-
-	spenderAddr, ok := args[0].(common.Address)
-	if !ok || spenderAddr == (common.Address{}) {
-		return common.Address{}, nil, nil, fmt.Errorf(ErrInvalidGranter, args[0])
-	}
-
-	typeURLs, err := validateMsgTypes(args[1])
-	if err != nil {
-		return common.Address{}, nil, nil, err
-	}
-
-	allowedList, ok := args[2].([]string)
-	if !ok {
-		return common.Address{}, nil, nil, fmt.Errorf(ErrInvalidMethods, args[2])
-	}
-
-	for i, addr := range allowedList {
-		// If the address is hex, convert it to bech32
-		if common.IsHexAddress(addr) {
-			allowedList[i], err = sdk.Bech32ifyAddressBytes("evmos", common.HexToAddress(addr).Bytes())
-			if err != nil {
-				return common.Address{}, nil, nil, fmt.Errorf("failed to convert hex address to bech32: %w", err)
-			}
-		}
-	}
-
-	// If the origin is not present in the allowedList add it by default
-	if !slices.Contains(allowedList, origin.String()) {
-		allowedList = append(allowedList, sdk.AccAddress(origin.Bytes()).String())
-	}
-
-	return spenderAddr, typeURLs, allowedList, nil
-}
-
 // CheckAllowanceArgs checks the arguments for the Allowance function.
 func CheckAllowanceArgs(args []interface{}) (common.Address, common.Address, string, error) {
 	if len(args) != 3 {
