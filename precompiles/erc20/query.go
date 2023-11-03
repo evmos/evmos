@@ -195,7 +195,7 @@ func (p Precompile) Allowance(
 	granter := owner
 	grantee := spender
 
-	authorization, _, err := authorization.CheckAuthzExists(ctx, p.Precompile.AuthzKeeper, grantee, granter, SendMsgURL)
+	authorization, _, err := authorization.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
 	// TODO: return error if doesn't exist?
 	if err != nil {
 		return method.Outputs.Pack(common.Big0)
