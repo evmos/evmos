@@ -62,6 +62,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
 - (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
+- (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
 
 ### Bug Fixes
 
