@@ -15,5 +15,5 @@ type EventDepositWithdraw struct {
 	// source or destination address
 	Address common.Address
 	// amount deposited or withdrawn
-	Wad *big.Int
+	Amount *big.Int
 }
