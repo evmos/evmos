@@ -10,6 +10,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// EventTransfer defines the event data for the ERC20 Transfer events.
+type EventTransfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+}
+
+// EventApproval defines the event data for the ERC20 Approval events.
+type EventApproval struct {
+	Owner   common.Address
+	Spender common.Address
+	Value   *big.Int
+}
+
 // ParseTransferArgs parses the arguments from the transfer method and returns
 // the destination address (to) and amount.
 func ParseTransferArgs(args []interface{}) (
