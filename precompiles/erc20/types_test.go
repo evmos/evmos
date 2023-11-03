@@ -176,3 +176,55 @@ func (s *PrecompileTestSuite) TestParseApproveArgs() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestParseAllowanceArgs() {
+	owner := utiltx.GenerateAddress()
+	spender := utiltx.GenerateAddress()
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				owner,
+				spender,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid owner address",
+			args: []interface{}{
+				"invalid address",
+				spender,
+			},
+			errContains: "invalid owner address",
+		},
+		{
+			name: "fail - invalid spender address",
+			args: []interface{}{
+				owner,
+				"invalid address",
+			},
+			errContains: "invalid spender address",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			owner, spender, err := erc20.ParseAllowanceArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the allowance arguments")
+				s.Require().Equal(owner, tc.args[0], "expected different owner address")
+				s.Require().Equal(spender, tc.args[1], "expected different spender address")
+			} else {
+				s.Require().Error(err, "expected an error parsing the allowance arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
