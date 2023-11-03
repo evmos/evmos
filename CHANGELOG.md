@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
+- (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 
 ### Improvements
 
@@ -70,6 +71,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account.
 - (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
+- (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 
 ## [v15.0.0] - 2023-10-31
 
