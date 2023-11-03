@@ -42,6 +42,13 @@ func (s *PrecompileTestSuite) TestParseTransferArgs() {
 			},
 			errContains: "invalid amount",
 		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
 	}
 
 	for _, tc := range testcases {
@@ -107,6 +114,13 @@ func (s *PrecompileTestSuite) TestParseTransferFromArgs() {
 			},
 			errContains: "invalid amount",
 		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3, 4,
+			},
+			errContains: "invalid number of arguments",
+		},
 	}
 
 	for _, tc := range testcases {
@@ -161,6 +175,13 @@ func (s *PrecompileTestSuite) TestParseApproveArgs() {
 			},
 			errContains: "invalid amount",
 		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
 	}
 
 	for _, tc := range testcases {
@@ -213,6 +234,13 @@ func (s *PrecompileTestSuite) TestParseAllowanceArgs() {
 			},
 			errContains: "invalid spender address",
 		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
+		},
 	}
 
 	for _, tc := range testcases {
@@ -253,6 +281,13 @@ func (s *PrecompileTestSuite) TestParseBalanceOfArgs() {
 				"invalid address",
 			},
 			errContains: "invalid account address",
+		},
+		{
+			name: "fail - invalid number of arguments",
+			args: []interface{}{
+				1, 2, 3,
+			},
+			errContains: "invalid number of arguments",
 		},
 	}
 
