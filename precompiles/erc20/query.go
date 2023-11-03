@@ -229,7 +229,7 @@ func GetDenomTrace(
 	return denomTrace, nil
 }
 
-// GetAllowance returns
+// GetAllowance returns the amount of denom that the grantee is allowed to spend on behalf of the granteer.
 func GetAllowance(
 	authzKeeper authzkeeper.Keeper,
 	ctx sdk.Context,
