@@ -7,6 +7,7 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v15/x/evm/statedb"
 )
 
 func (s *PrecompileTestSuite) TestSwapEvent() {
@@ -27,7 +28,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 		output    common.Address
 		amount    *big.Int
 		receiver  string
-		postCheck func(input common.Address, output common.Address, amount *big.Int, receiver string)
+		postCheck func(input common.Address, output common.Address, amount *big.Int, receiver string, stateDB *statedb.StateDB)
 	}{
 		{
 			"pass - correct event emitted",
@@ -35,8 +36,9 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 			osmoAddress,
 			big.NewInt(transferAmount),
 			receiver,
-			func(input common.Address, output common.Address, amount *big.Int, receiver string) {
-				stateDB := s.network.GetStateDB()
+			func(input common.Address, output common.Address, amount *big.Int, receiver string, stateDB *statedb.StateDB) {
+				s.Require().Len(stateDB.Logs(), 1, "expected one log in the stateDB")
+
 				swapLog := stateDB.Logs()[0]
 				s.Require().Equal(
 					swapLog.Address,
@@ -93,9 +95,11 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 			err := s.network.NextBlock()
 			s.Require().NoError(err)
 
+			stateDB := s.network.GetStateDB()
+
 			err = s.precompile.EmitSwapEvent(
 				s.network.GetContext(),
-				s.network.GetStateDB(),
+				stateDB,
 				sender,
 				tc.input,
 				tc.output,
@@ -103,7 +107,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 				tc.receiver,
 			)
 			s.Require().NoError(err)
-			tc.postCheck(tc.input, tc.output, tc.amount, tc.receiver)
+			tc.postCheck(tc.input, tc.output, tc.amount, tc.receiver, stateDB)
 		})
 	}
 }

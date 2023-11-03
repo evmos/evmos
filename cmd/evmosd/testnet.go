@@ -12,8 +12,10 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
 
 	tmconfig "github.com/cometbft/cometbft/config"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
@@ -21,6 +23,7 @@ import (
 	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -39,16 +42,15 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	cmdcfg "github.com/evmos/evmos/v15/cmd/config"
 	"github.com/evmos/evmos/v15/crypto/hd"
+	evmoskr "github.com/evmos/evmos/v15/crypto/keyring"
 	"github.com/evmos/evmos/v15/server/config"
 	srvflags "github.com/evmos/evmos/v15/server/flags"
-
+	"github.com/evmos/evmos/v15/testutil/network"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-
-	cmdcfg "github.com/evmos/evmos/v15/cmd/config"
-	evmoskr "github.com/evmos/evmos/v15/crypto/keyring"
-	"github.com/evmos/evmos/v15/testutil/network"
+	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 )
 
 var (
@@ -61,6 +63,8 @@ var (
 	flagRPCAddress        = "rpc.address"
 	flagAPIAddress        = "api.address"
 	flagPrintMnemonic     = "print-mnemonic"
+	flagBaseFee           = "base-fee"
+	flagMinGasPrice       = "min-gas-price"
 )
 
 type initArgs struct {
@@ -73,6 +77,8 @@ type initArgs struct {
 	numValidators     int
 	outputDir         string
 	startingIPAddress string
+	baseFee           sdkmath.Int
+	minGasPrice       sdkmath.LegacyDec
 }
 
 type startArgs struct {
@@ -89,12 +95,18 @@ type startArgs struct {
 	printMnemonic  bool
 }
 
+// createValidatorMsgGasLimit is the gas limit used in the MsgCreateValidator included in genesis transactions.
+// This transaction consumes approximately 220,000 gas when executed in the genesis block.
+const createValidatorMsgGasLimit = 250_000
+
 func addTestnetFlagsToCmd(cmd *cobra.Command) {
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
 	cmd.Flags().StringP(flagOutputDir, "o", "./.testnets", "Directory to store initialization data for the testnet")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(sdkserver.FlagMinGasPrices, fmt.Sprintf("0.000006%s", cmdcfg.BaseDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyType, string(hd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
+	cmd.Flags().String(flagBaseFee, strconv.Itoa(params.InitialBaseFee), "The params base_fee in the feemarket module in geneis")
+	cmd.Flags().String(flagMinGasPrice, "0", "The params min_gas_price in the feemarket module in geneis")
 }
 
 // NewTestnetCmd creates a root testnet command with subcommands to run an in-process testnet or initialize
@@ -148,6 +160,22 @@ Example:
 			args.startingIPAddress, _ = cmd.Flags().GetString(flagStartingIPAddress)
 			args.numValidators, _ = cmd.Flags().GetInt(flagNumValidators)
 			args.algo, _ = cmd.Flags().GetString(flags.FlagKeyType)
+			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
+			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
+
+			var ok bool
+			args.baseFee, ok = sdk.NewIntFromString(baseFee)
+			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
+				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
+			}
+
+			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
+			if err != nil {
+				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got %s and err %s", minGasPrice, err.Error())
+			}
+			if args.minGasPrice.LT(sdk.ZeroDec()) {
+				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got an negative number %s", minGasPrice)
+			}
 
 			return initTestnetFiles(clientCtx, cmd, serverCtx.Config, mbm, genBalIterator, args)
 		},
@@ -324,7 +352,14 @@ func initTestnetFiles(
 			return err
 		}
 
+		minGasPrice := args.minGasPrice
+		if sdkmath.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
+			minGasPrice = sdkmath.LegacyNewDecFromInt(args.baseFee)
+		}
+
 		txBuilder.SetMemo(memo)
+		txBuilder.SetGasLimit(createValidatorMsgGasLimit)
+		txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(cmdcfg.BaseDenom, minGasPrice.MulInt64(createValidatorMsgGasLimit).Ceil().TruncateInt())))
 
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
@@ -357,7 +392,7 @@ func initTestnetFiles(
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), appConfig)
 	}
 
-	if err := initGenFiles(clientCtx, mbm, args.chainID, cmdcfg.BaseDenom, genAccounts, genBalances, genFiles, args.numValidators); err != nil {
+	if err := initGenFiles(clientCtx, mbm, args.chainID, cmdcfg.BaseDenom, genAccounts, genBalances, genFiles, args.numValidators, args.baseFee, args.minGasPrice); err != nil {
 		return err
 	}
 
@@ -382,6 +417,8 @@ func initGenFiles(
 	genBalances []banktypes.Balance,
 	genFiles []string,
 	numValidators int,
+	baseFee sdkmath.Int,
+	minGasPrice sdkmath.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
 	// set the accounts in the genesis state
@@ -420,6 +457,13 @@ func initGenFiles(
 
 	evmGenState.Params.EvmDenom = coinDenom
 	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
+
+	var feemarketGenState feemarkettypes.GenesisState
+	clientCtx.Codec.MustUnmarshalJSON(appGenState[feemarkettypes.ModuleName], &feemarketGenState)
+
+	feemarketGenState.Params.BaseFee = baseFee
+	feemarketGenState.Params.MinGasPrice = minGasPrice
+	appGenState[feemarkettypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&feemarketGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {
