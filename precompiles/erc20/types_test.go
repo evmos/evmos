@@ -230,3 +230,43 @@ func (s *PrecompileTestSuite) TestParseAllowanceArgs() {
 		})
 	}
 }
+
+func (s *PrecompileTestSuite) TestParseBalanceOfArgs() {
+	account := utiltx.GenerateAddress()
+
+	testcases := []struct {
+		name        string
+		args        []interface{}
+		expPass     bool
+		errContains string
+	}{
+		{
+			name: "pass - correct arguments",
+			args: []interface{}{
+				account,
+			},
+			expPass: true,
+		},
+		{
+			name: "fail - invalid account address",
+			args: []interface{}{
+				"invalid address",
+			},
+			errContains: "invalid account address",
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+		s.Run(tc.name, func() {
+			account, err := erc20.ParseBalanceOfArgs(tc.args)
+			if tc.expPass {
+				s.Require().NoError(err, "unexpected error parsing the balanceOf arguments")
+				s.Require().Equal(account, tc.args[0], "expected different account address")
+			} else {
+				s.Require().Error(err, "expected an error parsing the balanceOf arguments")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error message")
+			}
+		})
+	}
+}
