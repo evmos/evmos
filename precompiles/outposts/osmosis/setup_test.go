@@ -12,6 +12,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
+	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
@@ -81,9 +82,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	coordinator := coordinator.NewIntegrationCoordinator(
 		s.T(),
-		[]network.Network{integrationNetwork},
+		[]commonnetwork.Network{integrationNetwork},
 	)
-	coordinator.Setup(path * ibctesting.Path)
 	s.registerERC20Coins()
 }
 
