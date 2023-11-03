@@ -28,7 +28,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 
 	sender := s.keyring.GetAddr(0)
 	receiverOsmo := "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2"
-	//receiverAtom := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
+	// receiverAtom := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
 	transferAmount := big.NewInt(3)
 
 	gas := uint64(0)
@@ -85,4 +85,3 @@ func (s *PrecompileTestSuite) TestSwap() {
 		})
 	}
 }
-
