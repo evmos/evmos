@@ -59,6 +59,9 @@ type stateObject struct {
 	// state storage
 	originStorage Storage
 	dirtyStorage  Storage
+	// support the stateOverrides in eth_call,
+	// when not nil, replaces the whole committed state.
+	fakeStorage Storage
 
 	address common.Address
 
@@ -199,6 +202,13 @@ func (s *stateObject) Nonce() uint64 {
 
 // GetCommittedState query the committed state
 func (s *stateObject) GetCommittedState(key common.Hash) common.Hash {
+	if s.fakeStorage != nil {
+		if value, ok := s.fakeStorage[key]; ok {
+			return value
+		}
+		return common.Hash{}
+	}
+
 	if value, cached := s.originStorage[key]; cached {
 		return value
 	}
@@ -214,6 +224,12 @@ func (s *stateObject) GetState(key common.Hash) common.Hash {
 		return value
 	}
 	return s.GetCommittedState(key)
+}
+
+func (s *stateObject) SetStorage(storage Storage) {
+	s.fakeStorage = storage
+	s.originStorage = make(Storage)
+	s.dirtyStorage = make(Storage)
 }
 
 // SetState sets the contract state

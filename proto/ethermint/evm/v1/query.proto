@@ -227,6 +227,8 @@ message EthCallRequest {
   bytes proposer_address = 3 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.ConsAddress"];
   // chain_id is the eip155 chain id parsed from the requested block header
   int64 chain_id = 4;
+  // state overrides encoded as json
+  bytes overrides = 5;
 }
 
 // EstimateGasResponse defines EstimateGas response

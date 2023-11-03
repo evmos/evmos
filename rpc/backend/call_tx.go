@@ -330,6 +330,7 @@ func (b *Backend) EstimateGas(args evmtypes.TransactionArgs, blockNrOptional *rp
 // estimated gas used on the operation or an error if fails.
 func (b *Backend) DoCall(
 	args evmtypes.TransactionArgs, blockNr rpctypes.BlockNumber,
+	overrides *rpctypes.StateOverride,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
 	bz, err := json.Marshal(&args)
 	if err != nil {
@@ -341,11 +342,20 @@ func (b *Backend) DoCall(
 		return nil, errors.New("header not found")
 	}
 
+	var overridesJSON []byte
+	if overrides != nil {
+		overridesJSON, err = json.Marshal(overrides)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	req := evmtypes.EthCallRequest{
 		Args:            bz,
 		GasCap:          b.RPCGasCap(),
 		ProposerAddress: sdk.ConsAddress(header.Block.ProposerAddress),
 		ChainId:         b.chainID.Int64(),
+		Overrides:       overridesJSON,
 	}
 
 	// From ContextWithHeight: if the provided height is 0,
