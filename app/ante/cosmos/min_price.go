@@ -3,12 +3,16 @@
 package cosmos
 
 import (
+	"fmt"
 	"math/big"
 
+	evmante "github.com/evmos/evmos/v15/app/ante/evm"
+	"github.com/evmos/evmos/v15/cmd/config"
+
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmante "github.com/evmos/evmos/v15/app/ante/evm"
 )
 
 // MinGasPriceDecorator will check if the transaction's fee is at least as large
@@ -35,10 +39,19 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
 
+	feeCoins := feeTx.GetFee()
+
+	// only allow user to pass in aevmos native token as transaction fees
+	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && feeCoins.GetDenomByIndex(0) == config.BaseDenom)
+	if !validFees && !simulate {
+		return ctx, fmt.Errorf("expected only use native token %s for fee, but got %s", config.BaseDenom, feeCoins.String())
+	}
+
 	// Short-circuit if min gas price is 0 or if simulating
 	if minGasPrice.IsZero() || simulate {
 		return next(ctx, tx, simulate)
 	}
+
 	evmParams := mpd.evmKeeper.GetParams(ctx)
 	evmDenom := evmParams.GetEvmDenom()
 	minGasPrices := sdk.DecCoins{
@@ -48,7 +61,6 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		},
 	}
 
-	feeCoins := feeTx.GetFee()
 	gas := feeTx.GetGas()
 
 	requiredFees := make(sdk.Coins, 0)

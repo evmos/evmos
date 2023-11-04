@@ -1,7 +1,10 @@
 package cosmos_test
 
 import (
+	"fmt"
+
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v15/app/ante/cosmos"
@@ -115,7 +118,68 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				return txBuilder.GetTx()
 			},
 			false,
-			"provided fee < minimum global fee",
+			fmt.Sprintf("expected only use native token %s for fee", denom),
+			true,
+		},
+		{
+			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, valid fee",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.ZeroDec()
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}}, &testMsg)
+				return txBuilder.GetTx()
+			},
+			true,
+			"",
+			true,
+		},
+		{
+			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, nil fees, means len(fees) == 0",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.ZeroDec()
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(nil, &testMsg)
+				return txBuilder.GetTx()
+			},
+			true,
+			"",
+			true,
+		},
+		{
+			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, empty fees, means len(fees) == 0",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.ZeroDec()
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{}, &testMsg)
+				return txBuilder.GetTx()
+			},
+			true,
+			"",
+			true,
+		},
+		{
+			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, invalid fees",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.ZeroDec()
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				fees := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}, sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "no_exit_coin"}}
+				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(fees, &testMsg)
+				return txBuilder.GetTx()
+			},
+			false,
+			fmt.Sprintf("expected only use native token %s for fee", denom),
 			true,
 		},
 	}
