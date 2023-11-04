@@ -5,6 +5,7 @@ package erc20
 
 import (
 	"embed"
+	"fmt"
 
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 
@@ -175,7 +176,7 @@ func (p Precompile) HandleMethod(
 		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
-	// ERC20 queries
+	// ERC-20 queries
 	case NameMethod:
 		bz, err = p.Name(ctx, contract, stateDB, method, args)
 	case SymbolMethod:
@@ -188,6 +189,8 @@ func (p Precompile) HandleMethod(
 		bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
 	case auth.AllowanceMethod:
 		bz, err = p.Allowance(ctx, contract, stateDB, method, args)
+	default:
+		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
 
 	return bz, err

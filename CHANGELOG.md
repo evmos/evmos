@@ -40,6 +40,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
+- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
+- (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
+- (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
 
 ### Improvements
 
@@ -56,17 +59,23 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
 - (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
 - (distribution) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
+- (rpc) [#1952](https://github.com/evmos/evmos/pull/1952) Add tests for EVM extensions transactions gas estimation (related to changes in [#1943](https://github.com/evmos/evmos/pull/1943)).
 - (distribution) [#1954](https://github.com/evmos/evmos/pull/1954) Add `ClaimRewards` unit and event tests.
 - (osmosis-outpost) [#1944](https://github.com/evmos/evmos/pull/1944) Add more validation to Osmosis outpost.
 - (precompiles) [#1973](https://github.com/evmos/evmos/pull/1973) Use `LoadABI` from precompiles common package in outposts.
+- (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
 - (erc20) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
 - (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
+- (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
+- (distribution) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
+- (erc20) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
 
 ### Bug Fixes
 
 - (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using evm type tx to transfer token to module account.
 - (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
+- (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 
 ## [v15.0.0] - 2023-10-31
 

@@ -10,9 +10,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
@@ -25,13 +24,13 @@ const (
 
 // EmitDepositEvent creates a new Deposit event emitted on a Deposit transaction.
 func (p Precompile) EmitDepositEvent(ctx sdk.Context, stateDB vm.StateDB, dst common.Address, amount *big.Int) error {
-	event := p.Precompile.ABI.Events[EventTypeDeposit]
+	event := p.ABI.Events[EventTypeDeposit]
 	return p.createWERC20Event(ctx, stateDB, event, dst, amount)
 }
 
 // EmitDepositEvent creates a new Withdraw event emitted on Withdraw transaction.
 func (p Precompile) EmitWithdrawEvent(ctx sdk.Context, stateDB vm.StateDB, src common.Address, amount *big.Int) error {
-	event := p.Precompile.ABI.Events[EventTypeWithdraw]
+	event := p.ABI.Events[EventTypeWithdraw]
 	return p.createWERC20Event(ctx, stateDB, event, src, amount)
 }
 
@@ -54,27 +53,8 @@ func (p Precompile) createWERC20Event(
 		return err
 	}
 
-	bigIntType, err := abi.NewType("uint256", "", nil)
-	if err != nil {
-		return err
-	}
-
-	// Create the ABI arguments
-	wadArg := abi.Argument{
-		Name:    "wad",
-		Type:    bigIntType,
-		Indexed: false,
-	}
-
-	// Check if the coin is set to infinite
-	wad := abi.MaxUint256
-	if amount != nil {
-		wad = new(big.Int).Set(amount)
-	}
-
-	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{wadArg}
-	packed, err := arguments.Pack(wad)
+	arguments := abi.Arguments{event.Inputs[2]}
+	packed, err := arguments.Pack(amount)
 	if err != nil {
 		return err
 	}

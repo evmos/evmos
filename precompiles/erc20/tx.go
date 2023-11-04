@@ -22,6 +22,11 @@ const (
 	TransferFromMethod = "transferFrom"
 )
 
+// SendMsgURL defines the authorization type for MsgSend
+var SendMsgURL = sdk.MsgTypeURL(&banktypes.MsgSend{})
+
+// Transfer executes a direct transfer from the caller address to the
+// destination address.
 func (p Precompile) Transfer(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -38,6 +43,8 @@ func (p Precompile) Transfer(
 	return p.transfer(ctx, contract, stateDB, method, from, to, amount)
 }
 
+// TransferFrom executes a transfer on behalf of the specified from address in
+// the call data to the destination address.
 func (p Precompile) TransferFrom(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -53,6 +60,9 @@ func (p Precompile) TransferFrom(
 	return p.transfer(ctx, contract, stateDB, method, from, to, amount)
 }
 
+// transfer is a common function that handles transfers for the ERC-20 Transfer
+// and TransferFrom methods. It executes a bank Send message if the spender is
+// the sender of the transfer, otherwise it executes an authorization.
 func (p Precompile) transfer(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -69,9 +79,10 @@ func (p Precompile) transfer(
 		return nil, err
 	}
 
+	sender := sdk.AccAddress(from.Bytes())
 	spender := sdk.AccAddress(contract.CallerAddress.Bytes()) // aka. grantee
 
-	if sdk.AccAddress(from.Bytes()).Equals(spender) {
+	if sender.Equals(spender) {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
@@ -79,9 +90,8 @@ func (p Precompile) transfer(
 	}
 
 	if err != nil {
-		// TODO: pack failure bool?
-		bz, _ := method.Outputs.Pack(false)
-		return bz, err
+		// TODO: check if we need to return an error here
+		return method.Outputs.Pack(false)
 	}
 
 	if err := p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
