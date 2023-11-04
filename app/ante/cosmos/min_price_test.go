@@ -174,7 +174,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				fees := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}, sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "no_exit_coin"}}
+				fees := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}, sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "stake"}}
 				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(fees, &testMsg)
 				return txBuilder.GetTx()
 			},
