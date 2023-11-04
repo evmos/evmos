@@ -5,12 +5,14 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
 
 	"golang.org/x/exp/maps"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -23,6 +25,7 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	"github.com/evmos/evmos/v15/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
@@ -109,4 +112,42 @@ func (k Keeper) Precompiles(
 	}
 
 	return activePrecompileMap
+}
+
+// AddEVMExtension adds the given precompiles to the list of active precompiles in the EVM parameters
+// and to the available precompiles map in the Keeper. This function returns an error if
+// the precompiles are invalid or duplicated.
+func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
+	params := k.GetParams(ctx)
+
+	addresses := make([]string, len(precompiles))
+	precompilesMap := maps.Clone(k.precompiles)
+
+	for i, precompile := range precompiles {
+		// add to active precompiles
+		address := precompile.Address()
+		addresses[i] = address.String()
+		// add to available precompiles
+		precompilesMap[address] = precompile
+	}
+
+	params.ActivePrecompiles = append(params.ActivePrecompiles, addresses...)
+
+	// sort precompile addresses prior to validation
+	sort.Slice(params.ActivePrecompiles, func(i, j int) bool {
+		return params.ActivePrecompiles[i] < params.ActivePrecompiles[j]
+	})
+
+	// error if the precompiled address is already registered
+	if err := types.ValidatePrecompiles(params.ActivePrecompiles); err != nil {
+		return err
+	}
+
+	if err := k.SetParams(ctx, params); err != nil {
+		return err
+	}
+
+	// update the pointer to the map with the newly added EVM Extensions
+	k.precompiles = precompilesMap
+	return nil
 }

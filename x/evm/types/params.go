@@ -5,6 +5,8 @@ package types
 import (
 	"fmt"
 	"math/big"
+	"sort"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -101,7 +103,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return validatePrecompiles(p.ActivePrecompiles)
+	return ValidatePrecompiles(p.ActivePrecompiles)
 }
 
 // EIPs returns the ExtraEIPS as a int slice
@@ -126,6 +128,16 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 		precompiles[i] = common.HexToAddress(precompile)
 	}
 	return precompiles
+}
+
+// IsPrecompileRegistered returns true if the given precompile address is
+// registered as an active precompile.
+func (p Params) IsPrecompileRegistered(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
+	})
+
+	return found
 }
 
 func validateEVMDenom(i interface{}) error {
@@ -176,15 +188,16 @@ func validateChainConfig(i interface{}) error {
 	return cfg.Validate()
 }
 
-func validatePrecompiles(i interface{}) error {
+// ValidatePrecompiles checks if the precompile addresses are valid and unique.
+func ValidatePrecompiles(i interface{}) error {
 	precompiles, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid precompile slice type: %T", i)
 	}
 
-	seenPrecompiles := make(map[string]bool)
+	seenPrecompiles := make(map[string]struct{})
 	for _, precompile := range precompiles {
-		if seenPrecompiles[precompile] {
+		if _, ok := seenPrecompiles[precompile]; !ok {
 			return fmt.Errorf("duplicate precompile %s", precompile)
 		}
 
@@ -192,7 +205,7 @@ func validatePrecompiles(i interface{}) error {
 			return fmt.Errorf("invalid precompile %s", precompile)
 		}
 
-		seenPrecompiles[precompile] = true
+		seenPrecompiles[precompile] = struct{}{}
 	}
 
 	return nil
