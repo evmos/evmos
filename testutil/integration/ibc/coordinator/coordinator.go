@@ -6,7 +6,10 @@ import (
 	"testing"
 	"time"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
 	ibcchain "github.com/evmos/evmos/v15/testutil/integration/ibc/chain"
 )
@@ -23,8 +26,10 @@ type Coordinator interface {
 	UpdateTimeForChain(chainID string)
 	// GetChain returns the TestChain for a given chainID.
 	GetChain(chainID string) ibcchain.Chain
-	// GetAllChainsID returns the chainIDs for all the chains within the IBC network.
-	GetAllChainsID() []string
+	// GetDummyChainsIds returns the chainIDs for all dummy chains.
+	GetDummyChainsIds() []string
+	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
+	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc authtypes.AccountI)
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will
 	// fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 	// for both chains. The channels created are connected to the ibc-transfer application.
@@ -43,8 +48,12 @@ var _ Coordinator = (*IntegrationCoordinator)(nil)
 
 // IntegrationCoordinator is a testing struct which contains N TestChain's. It handles keeping all chains
 // in sync with regards to time.
+// NOTE: When using the coordinator, it is important to commit blocks through the coordinator and not
+// throught he network interface directly. This is becuse the coordinator does not keep the context in
+// sync with the network interface.
 type IntegrationCoordinator struct {
-	coord *ibctesting.Coordinator
+	coord          *ibctesting.Coordinator
+	dummyChainsIds []string
 }
 
 // NewIntegrationCoordinator returns a new IntegrationCoordinator with N TestChain's.
@@ -54,11 +63,12 @@ func NewIntegrationCoordinator(t *testing.T, preConfiguredChains []network.Netwo
 		CurrentTime: GlobalTime,
 	}
 	ibcChains := getIBCChains(t, coord, preConfiguredChains)
-	dummyChains := generateDummyChains(t, coord, AmountOfDummyChains)
+	dummyChains, dummyChainsIds := generateDummyChains(t, coord, AmountOfDummyChains)
 	totalChains := mergeMaps(ibcChains, dummyChains)
 	coord.Chains = totalChains
 	return &IntegrationCoordinator{
-		coord: coord,
+		coord:          coord,
+		dummyChainsIds: dummyChainsIds,
 	}
 }
 
@@ -67,13 +77,9 @@ func (c *IntegrationCoordinator) GetChain(chainID string) ibcchain.Chain {
 	return c.coord.Chains[chainID]
 }
 
-// GetAllChainsID returns the chainIDs for all the chains within the IBC network.
-func (c *IntegrationCoordinator) GetAllChainsID() []string {
-	chainIDs := make([]string, 0, len(c.coord.Chains))
-	for _, chain := range c.coord.Chains {
-		chainIDs = append(chainIDs, chain.ChainID)
-	}
-	return chainIDs
+// GetDummyChainsIds returns the chainIDs for all dummy chains.
+func (c *IntegrationCoordinator) GetDummyChainsIds() []string {
+	return c.dummyChainsIds
 }
 
 // IncrementTime iterates through all the TestChain's and increments their current header time
@@ -93,14 +99,24 @@ func (c *IntegrationCoordinator) UpdateTimeForChain(chainID string) {
 	c.coord.UpdateTimeForChain(chain)
 }
 
+// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
+func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc authtypes.AccountI) {
+	chain := c.coord.GetChain(chainID)
+	chain.SenderPrivKey = priv
+	chain.SenderAccount = acc
+	chain.SenderAccounts = []ibctesting.SenderAccount{{SenderPrivKey: priv, SenderAccount: acc}}
+}
+
 // Setup constructs a TM client, connection, and channel on both chains provided. It will
 // fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 // for both chains. The channels created are connected to the ibc-transfer application.
 func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 	chainA := c.coord.GetChain(a)
 	chainB := c.coord.GetChain(b)
-	path := newTransferPath(chainA, chainB)
-	c.coord.Setup(path)
+
+	path := evmosibc.NewTransferPath(chainA, chainB)
+	evmosibc.SetupPath(c.coord, path)
+
 	return IBCConnection{
 		EndpointA: Endpoint{
 			ChainID:      a,

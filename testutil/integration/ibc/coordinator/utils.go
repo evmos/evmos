@@ -1,7 +1,10 @@
 package coordinator
 
 import (
+	"strconv"
+
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
 
@@ -13,9 +16,12 @@ func newTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = transfertypes.PortID
 	path.EndpointB.ChannelConfig.PortID = transfertypes.PortID
+
 	path.EndpointA.ChannelConfig.Version = transfertypes.Version
 	path.EndpointB.ChannelConfig.Version = transfertypes.Version
 
+	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
+	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
 	return path
 }
 
@@ -29,13 +35,15 @@ func getIBCChains(t *testing.T, coord *ibctesting.Coordinator, chains []network.
 }
 
 // generateDummyChains returns a map of dummy chains to complement IBC connections for integration tests.
-func generateDummyChains(t *testing.T, coord *ibctesting.Coordinator, numberOfChains int) map[string]*ibctesting.TestChain {
+func generateDummyChains(t *testing.T, coord *ibctesting.Coordinator, numberOfChains int) (map[string]*ibctesting.TestChain, []string) {
 	ibcChains := make(map[string]*ibctesting.TestChain)
+	ids := make([]string, numberOfChains)
 	for i := 1; i <= numberOfChains; i++ {
-		chainID := ibctesting.GetChainID(i)
+		chainID := "dummychain-" + strconv.Itoa(i)
+		ids[i-1] = chainID
 		ibcChains[chainID] = ibctesting.NewTestChain(t, coord, chainID)
 	}
-	return ibcChains
+	return ibcChains, ids
 }
 
 // mergeMaps merges two maps of TestChain's.
@@ -45,3 +53,5 @@ func mergeMaps(m1, m2 map[string]*ibctesting.TestChain) map[string]*ibctesting.T
 	}
 	return m1
 }
+
+// get

@@ -28,8 +28,11 @@ type IntegrationTestSuite struct {
 	coordinator coordinator.Coordinator
 }
 
+var globalT *testing.T
+
 func TestIntegrationOutpost(t *testing.T) {
 	RegisterFailHandler(Fail)
+	globalT = t
 	RunSpecs(t, "Outpost Integration Suite")
 }
 
@@ -37,7 +40,6 @@ var _ = Describe("Handling an Osmosis Outpost", Label("Osmosis"), Ordered, func(
 	var s *IntegrationTestSuite
 
 	BeforeAll(func() {
-		fmt.Println("BeforeAll")
 		keyring := testkeyring.New(3)
 		integrationNetwork := network.New(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -45,7 +47,7 @@ var _ = Describe("Handling an Osmosis Outpost", Label("Osmosis"), Ordered, func(
 		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 		txFactory := factory.New(integrationNetwork, grpcHandler)
 
-		coordinator := coordinator.NewIntegrationCoordinator(&testing.T{}, []commonnetwork.Network{integrationNetwork})
+		coordinator := coordinator.NewIntegrationCoordinator(globalT, []commonnetwork.Network{integrationNetwork})
 		s = &IntegrationTestSuite{
 			network:     integrationNetwork,
 			factory:     txFactory,
@@ -53,18 +55,31 @@ var _ = Describe("Handling an Osmosis Outpost", Label("Osmosis"), Ordered, func(
 			keyring:     keyring,
 			coordinator: coordinator,
 		}
+
+		// Start each test with a fresh block
+		err := s.coordinator.CommitNBlocks(s.network.GetChainID(), 1)
+		Expect(err).To(BeNil())
 	})
 
 	AfterEach(func() {
-		// Start each test with a fresh block
-		err := s.network.NextBlock()
+		// // Start each test with a fresh block
+		err := s.coordinator.CommitNBlocks(s.network.GetChainID(), 1)
 		Expect(err).To(BeNil())
 	})
 
 	When("a user sends a transaction to create a pool", func() {
 		It("should create a pool", func() {
 			// TODO
-			Expect(false).To(Equal(true))
+			acc, err := s.grpcHandler.GetAccount(s.keyring.GetAccAddr(0).String())
+			Expect(err).To(BeNil())
+
+			s.coordinator.SetDefaultSignerForChain(s.network.GetChainID(), s.keyring.GetPrivKey(0), acc)
+
+			dummyChains := s.coordinator.GetDummyChainsIds()
+			fmt.Println(dummyChains)
+
+			_ = s.coordinator.Setup(s.network.GetChainID(), dummyChains[0])
+			Expect(true).To(Equal(true))
 		})
 	})
 })
