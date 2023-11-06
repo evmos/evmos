@@ -27,19 +27,22 @@ import (
 	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
 )
 
-// createValidatorSet creates validator set with the amount of validators specified
+// createValidatorSetAndSigners creates validator set with the amount of validators specified
 // with the default power of 1.
-func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
+func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
 	// Create validator set
 	tmValidators := make([]*tmtypes.Validator, 0, numberOfValidators)
+	signers := make(map[string]tmtypes.PrivValidator, numberOfValidators)
+
 	for i := 0; i < numberOfValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, _ := privVal.GetPubKey()
 		validator := tmtypes.NewValidator(pubKey, 1)
 		tmValidators = append(tmValidators, validator)
+		signers[pubKey.Address().String()] = privVal
 	}
 
-	return tmtypes.NewValidatorSet(tmValidators)
+	return tmtypes.NewValidatorSet(tmValidators), signers
 }
 
 // createGenesisAccounts returns a slice of genesis accounts from the given
