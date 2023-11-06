@@ -23,5 +23,6 @@ func (n *IntegrationNetwork) GetIBCChain(t *testing.T, coord *ibctesting.Coordin
 		Codec:         n.app.AppCodec(),
 		Vals:          n.valSet,
 		NextVals:      n.valSet,
+		Signers:       n.valSigners,
 	}
 }
