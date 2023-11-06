@@ -68,13 +68,13 @@ func (s *PrecompileTestSuite) TestSwap() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			err := s.network.NextBlock()
+			err := s.coordinator.CommitAll()
 			s.Require().NoError(err)
 
 			contract := vm.NewContract(vm.AccountRef(tc.sender), s.precompile, big.NewInt(0), gas)
 
 			_, err = s.precompile.Swap(
-				s.chainA.GetContext(),
+				s.network.GetContext(),
 				sender,
 				s.stateDB,
 				contract,

@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
@@ -18,7 +17,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v15/testutil/integration/ibc/chain"
 	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
@@ -47,8 +45,6 @@ type PrecompileTestSuite struct {
 	precompile *osmosis.Precompile
 
 	coordinator *coordinator.IntegrationCoordinator
-	chainA      chain.Chain
-	chainB      chain.Chain
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
@@ -84,21 +80,22 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.precompile = precompile
 
+	s.registerEvmosERC20Coins()
+	s.registerOsmoERC20Coins()
+
 	coordinator := coordinator.NewIntegrationCoordinator(
 		s.T(),
 		[]commonnetwork.Network{unitNetwork},
 	)
+	// Account to sign IBC txs
+	acc, err := s.grpcHandler.GetAccount(s.keyring.GetAccAddr(0).String())
+	coordinator.SetDefaultSignerForChain(s.network.GetChainID(), s.keyring.GetPrivKey(0), acc)
 
-	chainA := coordinator.GetChain(unitNetwork.GetChainID()).(*ibctesting.TestChain)
-	chainB := coordinator.GetChain(ibctesting.GetChainID(2)).(*ibctesting.TestChain)
-	path := coordinator.NewTransferPath(chainA, chainB)
-	coordinator.Setup(path)
+	dummyChains := coordinator.GetDummyChainsIds()
+	fmt.Println(dummyChains)
 
-	s.chainA = chainA
-	s.chainB = chainB
-
-	s.registerEvmosERC20Coins()
-	s.registerOsmoERC20Coins()
+	_ = coordinator.Setup(s.network.GetChainID(), dummyChains[0])
+	s.coordinator = coordinator
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
