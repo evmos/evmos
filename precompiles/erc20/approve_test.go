@@ -1,6 +1,9 @@
 package erc20_test
 
 import (
+	"math/big"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -10,8 +13,6 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
-	"math/big"
-	"time"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -128,7 +129,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				var authz banktypes.SendAuthorization
 				// FIXME: how to unpack types.Any here?
 				err = encodingCfg.Codec.UnpackAny(res.Grants[0].Authorization, &authz)
-				//err = encodingCfg.InterfaceRegistry.UnpackAny(res.Grants[0].Authorization, &authz)
+				// err = encodingCfg.InterfaceRegistry.UnpackAny(res.Grants[0].Authorization, &authz)
 				s.Require().NoError(err, "expected no error unpacking the authorization")
 
 				// Check that the authorization has the correct amount
