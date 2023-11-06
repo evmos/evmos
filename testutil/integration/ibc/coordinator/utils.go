@@ -1,29 +1,14 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package coordinator
 
 import (
 	"strconv"
+	"testing"
 
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
-
-	"testing"
 )
-
-// NewTransferPath creates a new path between two chains with the specified portIds and version.
-func newTransferPath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
-	path := ibctesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = transfertypes.PortID
-	path.EndpointB.ChannelConfig.PortID = transfertypes.PortID
-
-	path.EndpointA.ChannelConfig.Version = transfertypes.Version
-	path.EndpointB.ChannelConfig.Version = transfertypes.Version
-
-	path.EndpointA.ChannelConfig.Order = channeltypes.UNORDERED
-	path.EndpointB.ChannelConfig.Order = channeltypes.UNORDERED
-	return path
-}
 
 // getIBCChains returns a map of TestChain's for the given network interface.
 func getIBCChains(t *testing.T, coord *ibctesting.Coordinator, chains []network.Network) map[string]*ibctesting.TestChain {
@@ -53,5 +38,3 @@ func mergeMaps(m1, m2 map[string]*ibctesting.TestChain) map[string]*ibctesting.T
 	}
 	return m1
 }
-
-// get
