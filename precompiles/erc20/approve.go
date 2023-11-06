@@ -4,16 +4,16 @@
 package erc20
 
 import (
+	sdkerrors "cosmossdk.io/errors"
 	"errors"
 	"fmt"
 	"math/big"
-
-	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 )
@@ -104,10 +104,7 @@ func (p Precompile) IncreaseAllowance(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, err := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
-	if err != nil {
-		return nil, err
-	}
+	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
 
 	var amount *big.Int
 	switch {
@@ -147,7 +144,7 @@ func (p Precompile) IncreaseAllowance(
 //  2. no authorization -> return error
 //  3. authorization exists, subtractedValue positive and subtractedValue less than allowance -> update authorization
 //  4. authorization exists, subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-//  5. authorization exists, subtractedValue positive than higher than allowance -> return error
+//  5. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
 func (p Precompile) DecreaseAllowance(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -164,13 +161,10 @@ func (p Precompile) DecreaseAllowance(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, err := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
-	if err != nil {
-		return nil, err
-	}
 
-	// get allowance and ignore the error as it will be checked in the switch statement below
-	allowance, _ := GetAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	// get authorization & allowance and ignore the error as
+	// it will be checked in the switch statement below.
+	authorization, allowance, err := GetAuthzAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 
 	// TODO: (@fedekunze) check if this is correct by comparing behavior with
 	// regular ERC-20
@@ -179,9 +173,9 @@ func (p Precompile) DecreaseAllowance(
 	case subtractedValue != nil && subtractedValue.Cmp(common.Big0) <= 0:
 		// case 1. subtractedValue 0 or negative -> return error
 		err = errors.New("cannot decrease allowance with non-positive values")
-	case authorization == nil:
+	case err != nil:
 		// case 2. no authorization -> return error
-		err = errors.New("allowance does not exist")
+		err = sdkerrors.Wrapf(err, "allowance does not exist")
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) < 0:
 		// case 3. subtractedValue positive and subtractedValue less than allowance -> update authorization
 		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
