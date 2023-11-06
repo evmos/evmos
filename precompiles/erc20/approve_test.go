@@ -1,11 +1,17 @@
 package erc20_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/x/bank/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/encoding"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
+	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"math/big"
+	"time"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -61,7 +67,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			errContains: "cannot approve non-positive values",
 		},
 		{
-			name: "pass - approve",
+			name: "pass - approve without existing authorization",
 			malleate: func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(1), big.NewInt(amount),
@@ -77,8 +83,57 @@ func (s *PrecompileTestSuite) TestApprove() {
 				)
 				s.Require().NoError(err, "expected no error")
 				s.Require().Len(approvals, 1, "expected one approval")
-				_, ok := approvals[0].(*types.SendAuthorization)
+				_, ok := approvals[0].(*banktypes.SendAuthorization)
 				s.Require().True(ok, "expected send authorization")
+			},
+		},
+		{
+			name: "pass - approve with existing authorization",
+			malleate: func() []interface{} {
+				// TODO: refactor into integration test suite
+				sendAuthz := banktypes.NewSendAuthorization(
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 1)),
+					[]sdk.AccAddress{},
+				)
+
+				expiration := s.network.GetContext().BlockHeader().Time.Add(time.Hour)
+
+				msgGrant, err := authz.NewMsgGrant(
+					s.keyring.GetAccAddr(0),
+					s.keyring.GetAccAddr(1),
+					sendAuthz,
+					&expiration,
+				)
+				s.Require().NoError(err, "expected no error creating the MsgGrant")
+
+				// Create an authorization
+				txArgs := commonfactory.CosmosTxArgs{Msgs: []sdk.Msg{msgGrant}}
+				_, err = s.factory.ExecuteCosmosTx(s.keyring.GetPrivKey(0), txArgs)
+				s.Require().NoError(err, "expected no error executing the MsgGrant tx")
+
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(2 * amount),
+				}
+			},
+			expPass: true,
+			postCheck: func() {
+				// Get approvals from Authz client
+				authzClient := s.network.GetAuthzClient()
+				req := &authz.QueryGranteeGrantsRequest{Grantee: s.keyring.GetAccAddr(1).String()}
+				res, err := authzClient.GranteeGrants(s.network.GetContext(), req)
+				s.Require().NoError(err, "expected no error querying the grants")
+				s.Require().Len(res.Grants, 1, "expected one grant")
+
+				encodingCfg := encoding.MakeConfig(app.ModuleBasics)
+				var authz banktypes.SendAuthorization
+				// FIXME: how to unpack types.Any here?
+				err = encodingCfg.Codec.UnpackAny(res.Grants[0].Authorization, &authz)
+				//err = encodingCfg.InterfaceRegistry.UnpackAny(res.Grants[0].Authorization, &authz)
+				s.Require().NoError(err, "expected no error unpacking the authorization")
+
+				// Check that the authorization has the correct amount
+				s.Require().Len(authz.SpendLimit, 1, "expected spend limit in one denomination")
+				s.Require().Equal(2*amount, authz.SpendLimit[0].Amount.Int64(), "expected correct amount")
 			},
 		},
 	}
@@ -98,7 +153,10 @@ func (s *PrecompileTestSuite) TestApprove() {
 				200_000,
 			)
 
-			args := tc.malleate()
+			var args []interface{}
+			if tc.malleate != nil {
+				args = tc.malleate()
+			}
 
 			bz, err := s.precompile.Approve(
 				ctx,
