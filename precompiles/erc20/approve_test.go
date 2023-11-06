@@ -1,12 +1,13 @@
 package erc20_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
