@@ -43,11 +43,7 @@ func (p Precompile) Approve(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, err := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
-	if err != nil {
-		return nil, err
-	}
-	// case 1: authorization doesn't exist
+	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL)
 
 	switch {
 	case authorization == nil && amount != nil && amount.Cmp(common.Big0) <= 0:
