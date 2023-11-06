@@ -20,7 +20,10 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom   string
+	bondDenom string
+	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
+	// This denomination is used to instantiate the precompile.
+	tokenDenom  string
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -43,7 +46,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 	txFactory := factory.New(integrationNetwork, grpcHandler)
 
 	// Create dummy token pair to instantiate the precompile
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), "xmpl", erc20types.OWNER_MODULE)
+	tokenDenom := "xmpl"
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), tokenDenom, erc20types.OWNER_MODULE)
 
 	precompile, err := erc20precompile.NewPrecompile(
 		tokenPair,
@@ -64,4 +68,5 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.precompile = precompile
 	s.network = integrationNetwork
+	s.tokenDenom = tokenDenom
 }

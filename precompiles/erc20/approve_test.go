@@ -1,16 +1,12 @@
 package erc20_test
 
 import (
-	"math/big"
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
-	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
+	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -74,49 +70,45 @@ func (s *PrecompileTestSuite) TestApprove() {
 			},
 			expPass: true,
 			postCheck: func() {
-				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
-				s.Require().NoError(err, "expected no error querying the grants")
-				s.Require().Len(grants, 1, "expected one grant")
-				s.Require().Equal(s.keyring.GetAccAddr(0).String(), grants[0].Granter, "expected different granter")
-				s.Require().Equal(s.keyring.GetAccAddr(1).String(), grants[0].Grantee, "expected different granter")
-
-				authzs, err := s.grpcHandler.GetAuthorizationsByGrantee(s.keyring.GetAccAddr(1).String())
-				s.Require().NoError(err, "expected no error unpacking the authorization")
-				s.Require().Len(authzs, 1, "expected one authorization")
-
-				sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
-				s.Require().True(ok, "expected send authorization")
-
-				spendLimits := sendAuthz.SpendLimit
-				s.Require().Len(spendLimits, 1, "expected spend limit in one denomination")
-				s.Require().Equal(amount, spendLimits[0].Amount.Int64(), "expected different amount")
-				// TODO: fill allow list to test that?
-				s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+					[]string{},
+				)
 			},
 		},
 		{
 			name: "pass - approve with existing authorization",
 			malleate: func() []interface{} {
-				// TODO: refactor into integration test suite
-				sendAuthz := banktypes.NewSendAuthorization(
-					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 1)),
-					[]sdk.AccAddress{},
-				)
-
-				expiration := s.network.GetContext().BlockHeader().Time.Add(time.Hour)
-
-				msgGrant, err := authz.NewMsgGrant(
-					s.keyring.GetAccAddr(0),
+				s.setupSendAuthz(
 					s.keyring.GetAccAddr(1),
-					sendAuthz,
-					&expiration,
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 1)),
 				)
-				s.Require().NoError(err, "expected no error creating the MsgGrant")
 
-				// Create an authorization
-				txArgs := commonfactory.CosmosTxArgs{Msgs: []sdk.Msg{msgGrant}}
-				_, err = s.factory.ExecuteCosmosTx(s.keyring.GetPrivKey(0), txArgs)
-				s.Require().NoError(err, "expected no error executing the MsgGrant tx")
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(amount),
+				}
+			},
+			expPass: true,
+			postCheck: func() {
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 1)),
+					[]string{s.tokenDenom},
+				)
+			},
+		},
+		{
+			name: "pass - approve with existing authorization in different denomination",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 1)),
+				)
 
 				return []interface{}{
 					s.keyring.GetAddr(1), big.NewInt(2 * amount),
@@ -124,24 +116,37 @@ func (s *PrecompileTestSuite) TestApprove() {
 			},
 			expPass: true,
 			postCheck: func() {
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					// NOTE: The approval in the different denomination is overwritten by the
+					// approval for the passed token denomination.
+					//
+					// TODO: check if this behaviour is the same for ERC20s? Or can there be separate
+					// approvals for different denominations?
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 2*amount)),
+					[]string{},
+				)
+			},
+		},
+		{
+			name: "pass - delete existing authorization",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 1)),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), common.Big0,
+				}
+			},
+			expPass: true,
+			postCheck: func() {
 				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
 				s.Require().NoError(err, "expected no error querying the grants")
-				s.Require().Len(grants, 1, "expected one grant")
-				s.Require().Equal(s.keyring.GetAccAddr(0).String(), grants[0].Granter, "expected different granter")
-				s.Require().Equal(s.keyring.GetAccAddr(1).String(), grants[0].Grantee, "expected different granter")
-
-				authzs, err := s.grpcHandler.GetAuthorizationsByGrantee(s.keyring.GetAccAddr(1).String())
-				s.Require().NoError(err, "expected no error unpacking the authorization")
-				s.Require().Len(authzs, 1, "expected one authorization")
-
-				sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
-				s.Require().True(ok, "expected send authorization")
-
-				spendLimits := sendAuthz.SpendLimit
-				s.Require().Len(spendLimits, 1, "expected spend limit in one denomination")
-				s.Require().Equal(2*amount, spendLimits[0].Amount.Int64(), "expected different amount")
-				// TODO: fill allow list to test that?
-				s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
+				s.Require().Len(grants, 0, "expected grant to be deleted")
 			},
 		},
 	}
