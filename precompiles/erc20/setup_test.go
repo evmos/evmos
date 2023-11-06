@@ -20,6 +20,7 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
+	bondDenom   string
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -52,6 +53,12 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err, "failed to create erc20 precompile")
 
+	ctx := integrationNetwork.GetContext()
+	sk := integrationNetwork.App.StakingKeeper
+	bondDenom := sk.BondDenom(ctx)
+	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+
+	s.bondDenom = bondDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
