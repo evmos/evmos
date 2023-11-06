@@ -5,6 +5,7 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/encoding"

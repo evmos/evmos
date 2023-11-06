@@ -1,8 +1,9 @@
 package erc20_test
 
 import (
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"time"
+
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
