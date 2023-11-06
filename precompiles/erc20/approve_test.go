@@ -126,15 +126,16 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.Require().Len(res.Grants, 1, "expected one grant")
 
 				encodingCfg := encoding.MakeConfig(app.ModuleBasics)
-				var authz banktypes.SendAuthorization
-				// FIXME: how to unpack types.Any here?
+				var authz authz.Authorization
 				err = encodingCfg.Codec.UnpackAny(res.Grants[0].Authorization, &authz)
-				// err = encodingCfg.InterfaceRegistry.UnpackAny(res.Grants[0].Authorization, &authz)
 				s.Require().NoError(err, "expected no error unpacking the authorization")
+				sendAuthz, ok := authz.(*banktypes.SendAuthorization)
+				s.Require().True(ok, "expected send authorization")
 
 				// Check that the authorization has the correct amount
-				s.Require().Len(authz.SpendLimit, 1, "expected spend limit in one denomination")
-				s.Require().Equal(2*amount, authz.SpendLimit[0].Amount.Int64(), "expected correct amount")
+				spendLimits := sendAuthz.SpendLimit
+				s.Require().Len(spendLimits, 1, "expected spend limit in one denomination")
+				s.Require().Equal(2*amount, spendLimits[0].Amount.Int64(), "expected correct amount")
 			},
 		},
 	}
