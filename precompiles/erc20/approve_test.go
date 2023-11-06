@@ -10,6 +10,7 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 )
 
+//nolint:dupl // tests are not duplicate between the functions
 func (s *PrecompileTestSuite) TestApprove() {
 	method := s.precompile.Methods[authorization.ApproveMethod]
 	amount := int64(100)
@@ -123,7 +124,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					// NOTE: The approval in the different denomination is overwritten by the
 					// approval for the passed token denomination.
 					//
-					// TODO: check if this behaviour is the same for ERC20s? Or can there be separate
+					// TODO: check if this behavior is the same for ERC20s? Or can there be separate
 					// approvals for different denominations?
 					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 2*amount)),
 					[]string{},
@@ -196,6 +197,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 	}
 }
 
+//nolint:dupl // tests are not duplicate between the functions
 func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 	method := s.precompile.Methods[authorization.IncreaseAllowanceMethod]
 	amount := int64(100)
@@ -361,6 +363,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 	}
 }
 
+//nolint:dupl // tests are not duplicate between the functions
 func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 	method := s.precompile.Methods[authorization.DecreaseAllowanceMethod]
 	amount := int64(100)
