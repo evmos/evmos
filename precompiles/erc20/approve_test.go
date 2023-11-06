@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/encoding"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
@@ -76,16 +74,24 @@ func (s *PrecompileTestSuite) TestApprove() {
 			},
 			expPass: true,
 			postCheck: func() {
-				// Get approvals from AuthzKeeper
-				approvals, err := s.network.App.AuthzKeeper.GetAuthorizations(
-					s.network.GetContext(),
-					s.keyring.GetAccAddr(1),
-					s.keyring.GetAccAddr(0),
-				)
-				s.Require().NoError(err, "expected no error")
-				s.Require().Len(approvals, 1, "expected one approval")
-				_, ok := approvals[0].(*banktypes.SendAuthorization)
+				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
+				s.Require().NoError(err, "expected no error querying the grants")
+				s.Require().Len(grants, 1, "expected one grant")
+				s.Require().Equal(s.keyring.GetAccAddr(0).String(), grants[0].Granter, "expected different granter")
+				s.Require().Equal(s.keyring.GetAccAddr(1).String(), grants[0].Grantee, "expected different granter")
+
+				authzs, err := s.grpcHandler.GetAuthorizationsByGrantee(s.keyring.GetAccAddr(1).String())
+				s.Require().NoError(err, "expected no error unpacking the authorization")
+				s.Require().Len(authzs, 1, "expected one authorization")
+
+				sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
 				s.Require().True(ok, "expected send authorization")
+
+				spendLimits := sendAuthz.SpendLimit
+				s.Require().Len(spendLimits, 1, "expected spend limit in one denomination")
+				s.Require().Equal(amount, spendLimits[0].Amount.Int64(), "expected different amount")
+				// TODO: fill allow list to test that?
+				s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
 			},
 		},
 		{
@@ -118,24 +124,24 @@ func (s *PrecompileTestSuite) TestApprove() {
 			},
 			expPass: true,
 			postCheck: func() {
-				// Get approvals from Authz client
-				authzClient := s.network.GetAuthzClient()
-				req := &authz.QueryGranteeGrantsRequest{Grantee: s.keyring.GetAccAddr(1).String()}
-				res, err := authzClient.GranteeGrants(s.network.GetContext(), req)
+				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
 				s.Require().NoError(err, "expected no error querying the grants")
-				s.Require().Len(res.Grants, 1, "expected one grant")
+				s.Require().Len(grants, 1, "expected one grant")
+				s.Require().Equal(s.keyring.GetAccAddr(0).String(), grants[0].Granter, "expected different granter")
+				s.Require().Equal(s.keyring.GetAccAddr(1).String(), grants[0].Grantee, "expected different granter")
 
-				encodingCfg := encoding.MakeConfig(app.ModuleBasics)
-				var authz authz.Authorization
-				err = encodingCfg.Codec.UnpackAny(res.Grants[0].Authorization, &authz)
+				authzs, err := s.grpcHandler.GetAuthorizationsByGrantee(s.keyring.GetAccAddr(1).String())
 				s.Require().NoError(err, "expected no error unpacking the authorization")
-				sendAuthz, ok := authz.(*banktypes.SendAuthorization)
+				s.Require().Len(authzs, 1, "expected one authorization")
+
+				sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
 				s.Require().True(ok, "expected send authorization")
 
-				// Check that the authorization has the correct amount
 				spendLimits := sendAuthz.SpendLimit
 				s.Require().Len(spendLimits, 1, "expected spend limit in one denomination")
-				s.Require().Equal(2*amount, spendLimits[0].Amount.Int64(), "expected correct amount")
+				s.Require().Equal(2*amount, spendLimits[0].Amount.Int64(), "expected different amount")
+				// TODO: fill allow list to test that?
+				s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
 			},
 		},
 	}
