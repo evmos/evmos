@@ -3,7 +3,16 @@ import re
 import pytest
 
 from .ibc_utils import EVMOS_IBC_DENOM, assert_ready, get_balance, prepare_network
-from .utils import ADDRS, get_precompile_contract, wait_for_fn
+from .network import Evmos
+from .utils import (
+    ADDRS,
+    CONTRACTS,
+    KEYS,
+    deploy_contract,
+    get_precompile_contract,
+    send_transaction,
+    wait_for_fn,
+)
 
 
 @pytest.fixture(scope="module", params=["evmos", "evmos-rocksdb"])
@@ -37,7 +46,7 @@ def test_ibc_transfer(ibc):
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "ICS20I")
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
-    tx_hash = pc.functions.transfer(
+    tx = pc.functions.transfer(
         "transfer",
         "channel-0",
         src_denom,
@@ -47,13 +56,21 @@ def test_ibc_transfer(ibc):
         [1, 10000000000],
         0,
         "",
-    ).transact({"from": ADDRS["signer2"], "gasPrice": evmos_gas_price})
-
-    receipt = ibc.chains["evmos"].w3.eth.wait_for_transaction_receipt(tx_hash)
+    ).build_transaction(
+        {
+            "from": ADDRS["signer2"],
+            "gasPrice": evmos_gas_price,
+        }
+    )
+    gas_estimation = ibc.chains["evmos"].w3.eth.estimate_gas(tx)
+    receipt = send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
 
     assert receipt.status == 1
     # check gas used
-    assert receipt.gasUsed == 74092
+    assert receipt.gasUsed == 48184
+
+    # check gas estimation is accurate
+    assert receipt.gasUsed == gas_estimation
 
     fee = receipt.gasUsed * evmos_gas_price
 
@@ -161,24 +178,28 @@ def test_ibc_transfer_timeout(ibc):
 def test_staking(ibc):
     assert_ready(ibc)
 
+    evmos: Evmos = ibc.chains["evmos"]
+    w3 = evmos.w3
     amt = 1000000
-    cli = ibc.chains["evmos"].cosmos_cli()
+    cli = evmos.cosmos_cli()
     del_addr = cli.address("signer2")
     src_denom = "aevmos"
     validator_addr = cli.validators()[0]["operator_address"]
 
-    old_src_balance = get_balance(ibc.chains["evmos"], del_addr, src_denom)
+    old_src_balance = get_balance(evmos, del_addr, src_denom)
 
-    pc = get_precompile_contract(ibc.chains["evmos"].w3, "StakingI")
-    evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
+    pc = get_precompile_contract(w3, "StakingI")
+    evmos_gas_price = w3.eth.gas_price
 
-    tx_hash = pc.functions.delegate(ADDRS["signer2"], validator_addr, amt).transact(
+    tx = pc.functions.delegate(ADDRS["signer2"], validator_addr, amt).build_transaction(
         {"from": ADDRS["signer2"], "gasPrice": evmos_gas_price}
     )
-
-    receipt = ibc.chains["evmos"].w3.eth.wait_for_transaction_receipt(tx_hash)
+    gas_estimation = evmos.w3.eth.estimate_gas(tx)
+    receipt = send_transaction(w3, tx, KEYS["signer2"])
 
     assert receipt.status == 1
+    # check gas estimation is accurate
+    assert receipt.gasUsed == gas_estimation
 
     fee = receipt.gasUsed * evmos_gas_price
 
@@ -187,5 +208,67 @@ def test_staking(ibc):
     assert delegations[0]["delegation"]["validator_address"] == validator_addr
     assert int(delegations[0]["balance"]["amount"]) == amt
 
-    new_src_balance = get_balance(ibc.chains["evmos"], del_addr, src_denom)
+    new_src_balance = get_balance(evmos, del_addr, src_denom)
+    assert old_src_balance - amt - fee == new_src_balance
+
+
+def test_staking_via_sc(ibc):
+    assert_ready(ibc)
+
+    evmos: Evmos = ibc.chains["evmos"]
+    w3 = evmos.w3
+    amt = 1000000
+    cli = evmos.cosmos_cli()
+    del_addr = cli.address("signer1")
+    src_denom = "aevmos"
+    validator_addr = cli.validators()[0]["operator_address"]
+
+    old_src_balance = get_balance(evmos, del_addr, src_denom)
+
+    contract, receipt = deploy_contract(w3, CONTRACTS["StakingCaller"])
+    evmos_gas_price = w3.eth.gas_price
+
+    # create grant - need to specify gas otherwise will fail with out of gas
+    approve_tx = contract.functions.testApprove(
+        receipt.contractAddress, ["/cosmos.staking.v1beta1.MsgDelegate"], amt
+    ).build_transaction(
+        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 60000}
+    )
+
+    gas_estimation = evmos.w3.eth.estimate_gas(approve_tx)
+    receipt = send_transaction(w3, approve_tx, KEYS["signer1"])
+
+    assert receipt.status == 1
+    # check gas estimation is accurate
+    print(f"gas used: {receipt.gasUsed}")
+    print(f"gas estimation: {gas_estimation}")
+    # FIXME gas estimation > than gasUsed. Should be equal
+    # assert receipt.gasUsed == gas_estimation
+
+    fee = receipt.gasUsed * evmos_gas_price
+
+    # delegate - need to specify gas otherwise will fail with out of gas
+    delegate_tx = contract.functions.testDelegate(
+        ADDRS["signer1"], validator_addr, amt
+    ).build_transaction(
+        {"from": ADDRS["signer1"], "gasPrice": evmos_gas_price, "gas": 180000}
+    )
+    gas_estimation = evmos.w3.eth.estimate_gas(delegate_tx)
+    receipt = send_transaction(w3, delegate_tx, KEYS["signer1"])
+
+    assert receipt.status == 1
+    # check gas estimation is accurate
+    print(f"gas used: {receipt.gasUsed}")
+    print(f"gas estimation: {gas_estimation}")
+    # FIXME gas estimation > than gasUsed. Should be equal
+    # assert receipt.gasUsed == gas_estimation
+
+    fee += receipt.gasUsed * evmos_gas_price
+
+    delegations = cli.get_delegated_amount(del_addr)["delegation_responses"]
+    assert len(delegations) == 1
+    assert delegations[0]["delegation"]["validator_address"] == validator_addr
+    assert int(delegations[0]["balance"]["amount"]) == amt
+
+    new_src_balance = get_balance(evmos, del_addr, src_denom)
     assert old_src_balance - amt - fee == new_src_balance

@@ -98,9 +98,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	switch method.Name {
 	// WERC20 transactions
 	case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
-		// bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
 	case WithdrawMethod:
-		// bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
 
 	default:
 		// ERC20 transactions and queries

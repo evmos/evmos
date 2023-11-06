@@ -5,6 +5,7 @@ package erc20
 
 import (
 	"embed"
+	"fmt"
 
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 
@@ -157,37 +158,39 @@ func (Precompile) IsTransaction(methodID string) bool {
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
 func (p Precompile) HandleMethod(
-	_ sdk.Context,
-	_ *vm.Contract,
-	_ vm.StateDB,
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
 	method *abi.Method,
-	_ []interface{},
+	args []interface{},
 ) (bz []byte, err error) {
 	switch method.Name {
 	// ERC-20 transactions
 	case TransferMethod:
-		// bz, err = p.Transfer(ctx, contract, stateDB, method, args)
+		bz, err = p.Transfer(ctx, contract, stateDB, method, args)
 	case TransferFromMethod:
-		// bz, err = p.TransferFrom(ctx, contract, stateDB, method, args)
+		bz, err = p.TransferFrom(ctx, contract, stateDB, method, args)
 	case auth.ApproveMethod:
-		// bz, err = p.Approve(ctx, contract, stateDB, method, args)
+		bz, err = p.Approve(ctx, contract, stateDB, method, args)
 	case auth.IncreaseAllowanceMethod:
-		// bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
-		// bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
-		// bz, err = p.Name(ctx, contract, stateDB, method, args)
+		bz, err = p.Name(ctx, contract, stateDB, method, args)
 	case SymbolMethod:
-		// bz, err = p.Symbol(ctx, contract, stateDB, method, args)
+		bz, err = p.Symbol(ctx, contract, stateDB, method, args)
 	case DecimalsMethod:
-		// bz, err = p.Decimals(ctx, contract, stateDB, method, args)
+		bz, err = p.Decimals(ctx, contract, stateDB, method, args)
 	case TotalSupplyMethod:
-		// bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
+		bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
 	case BalanceOfMethod:
-		// bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
+		bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
 	case auth.AllowanceMethod:
-		// bz, err = p.Allowance(ctx, contract, stateDB, method, args)
+		bz, err = p.Allowance(ctx, contract, stateDB, method, args)
+	default:
+		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
 
 	return bz, err

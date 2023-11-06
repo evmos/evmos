@@ -10,6 +10,20 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// EventTransfer defines the event data for the ERC20 Transfer events.
+type EventTransfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+}
+
+// EventApproval defines the event data for the ERC20 Approval events.
+type EventApproval struct {
+	Owner   common.Address
+	Spender common.Address
+	Value   *big.Int
+}
+
 // ParseTransferArgs parses the arguments from the transfer method and returns
 // the destination address (to) and amount.
 func ParseTransferArgs(args []interface{}) (
@@ -103,16 +117,16 @@ func ParseAllowanceArgs(args []interface{}) (
 	return owner, spender, nil
 }
 
-// EventTransfer defines the event data for the ERC20 Transfer events.
-type EventTransfer struct {
-	From  common.Address
-	To    common.Address
-	Value *big.Int
-}
+// ParseBalanceOfArgs parses the balanceOf arguments and returns the account address.
+func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
+	if len(args) != 1 {
+		return common.Address{}, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
+	}
 
-// EventApproval defines the event data for the ERC20 Approval events.
-type EventApproval struct {
-	Owner   common.Address
-	Spender common.Address
-	Value   *big.Int
+	account, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, fmt.Errorf("invalid account address: %v", args[0])
+	}
+
+	return account, nil
 }
