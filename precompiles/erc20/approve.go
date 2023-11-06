@@ -4,10 +4,11 @@
 package erc20
 
 import (
-	sdkerrors "cosmossdk.io/errors"
 	"errors"
 	"fmt"
 	"math/big"
+
+	sdkerrors "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
