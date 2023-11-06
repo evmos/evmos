@@ -128,7 +128,6 @@ func (c *IntegrationCoordinator) CommitNBlocks(chainID string, n uint64) error {
 func (c *IntegrationCoordinator) NewTransferPath(
 	chainA, chainB *ibctesting.TestChain,
 ) *ibctesting.Path {
-
 	path := ibctesting.NewPath(chainA, chainB)
 	path.EndpointA.ChannelConfig.PortID = transfertypes.PortID
 	path.EndpointB.ChannelConfig.PortID = transfertypes.PortID
