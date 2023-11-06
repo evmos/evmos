@@ -11,20 +11,20 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSwap() {
-	// s.SetupTest()
-
 	method := s.precompile.Methods[osmosis.SwapMethod]
 
 	bondDenom := s.network.App.StakingKeeper.BondDenom(s.network.GetContext())
 
 	// Retrieve Evmos token information useful for the testing
 	evmosDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), bondDenom)
-	evmosTokenPair, _ := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
+	evmosTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
+	s.Require().True(ok, "expected token pair to be found")
 
 	// Retrieve Osmo token information useful for the testing
 	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosis.OsmosisDenom)
 	osmoDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), osmoIBCDenom)
-	osmoTokenPair, _ := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
+	osmoTokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
+	s.Require().True(ok, "expected token pair to be found")
 
 	sender := s.keyring.GetAddr(0)
 	receiverOsmo := "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2"

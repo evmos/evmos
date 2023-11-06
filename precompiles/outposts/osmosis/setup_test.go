@@ -84,21 +84,21 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.precompile = precompile
 
-	s.registerEvmosERC20Coins()
-	s.registerOsmoERC20Coins()
-
 	coordinator := coordinator.NewIntegrationCoordinator(
 		s.T(),
 		[]commonnetwork.Network{unitNetwork},
 	)
 
-	chainA := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
+	chainA := coordinator.GetChain(unitNetwork.GetChainID()).(*ibctesting.TestChain)
 	chainB := coordinator.GetChain(ibctesting.GetChainID(2)).(*ibctesting.TestChain)
 	path := coordinator.NewTransferPath(chainA, chainB)
 	coordinator.Setup(path)
 
 	s.chainA = chainA
 	s.chainB = chainB
+
+	s.registerEvmosERC20Coins()
+	s.registerOsmoERC20Coins()
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
