@@ -61,7 +61,7 @@ type StateOverride map[common.Address]OverrideAccount
 
 // Apply overrides the fields of specified accounts into the given state.
 func (diff *StateOverride) Apply(db *statedb.StateDB) error {
-	if diff == nil {
+	if db == nil || diff == nil{
 		return nil
 	}
 	for addr, account := range *diff {
