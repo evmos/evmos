@@ -36,6 +36,8 @@ type Coordinator interface {
 	Setup(src, dst string) IBCConnection
 	// CommitNBlocks commits n blocks on the chain with the given chainID.
 	CommitNBlocks(chainID string, n uint64) error
+	// CommitAll commits 1 blocks on all chains within the coordinator.
+	CommitAll() error
 }
 
 // TODO: Replace for a config
@@ -139,5 +141,13 @@ func (c *IntegrationCoordinator) Setup(a, b string) IBCConnection {
 func (c *IntegrationCoordinator) CommitNBlocks(chainID string, n uint64) error {
 	chain := c.coord.GetChain(chainID)
 	c.coord.CommitNBlocks(chain, n)
+	return nil
+}
+
+// CommitAll commits n blocks on the chain with the given chainID.
+func (c *IntegrationCoordinator) CommitAll() error {
+	for _, chain := range c.coord.Chains {
+		c.coord.CommitNBlocks(chain, 1)
+	}
 	return nil
 }
