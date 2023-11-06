@@ -49,7 +49,7 @@ var _ Coordinator = (*IntegrationCoordinator)(nil)
 // IntegrationCoordinator is a testing struct which contains N TestChain's. It handles keeping all chains
 // in sync with regards to time.
 // NOTE: When using the coordinator, it is important to commit blocks through the coordinator and not
-// through he network interface directly. This is becuse the coordinator does not keep the context in
+// through the network interface directly. This is because the coordinator does not keep the context in
 // sync with the network interface.
 type IntegrationCoordinator struct {
 	coord          *ibctesting.Coordinator
