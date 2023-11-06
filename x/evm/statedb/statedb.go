@@ -310,6 +310,7 @@ func (s *StateDB) SubBalance(addr common.Address, amount *big.Int) {
 	}
 }
 
+// SetBalance sets the balance of account associated with addr to amount.
 func (s *StateDB) SetBalance(addr common.Address, amount *big.Int) {
 	stateObject := s.getOrNewStateObject(addr)
 	if stateObject != nil {

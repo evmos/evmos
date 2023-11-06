@@ -323,10 +323,8 @@ func (k *Keeper) ApplyMessageWithConfig(ctx sdk.Context,
 	}
 
 	stateDB := statedb.New(ctx, k, txConfig)
-	if overrides != nil {
-		if err := overrides.Apply(stateDB); err != nil {
-			return nil, errorsmod.Wrap(err, "failed to apply state override")
-		}
+	if err := overrides.Apply(stateDB); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to apply state override")
 	}
 
 	evm := k.NewEVM(ctx, msg, cfg, tracer, stateDB)

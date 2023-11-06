@@ -346,7 +346,7 @@ func (b *Backend) DoCall(
 	if overrides != nil {
 		overridesJSON, err = json.Marshal(overrides)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to marshal state overrides: %w", err)
 		}
 	}
 
