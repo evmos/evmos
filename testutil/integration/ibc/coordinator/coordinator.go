@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
 	ibcchain "github.com/evmos/evmos/v15/testutil/integration/ibc/chain"
@@ -121,4 +122,18 @@ func (c *IntegrationCoordinator) CommitNBlocks(chainID string, n uint64) error {
 	chain := c.coord.GetChain(chainID)
 	c.coord.CommitNBlocks(chain, n)
 	return nil
+}
+
+// NewTransferPath creates a new path between two chains for the transfer app.
+func (c *IntegrationCoordinator) NewTransferPath(
+	chainA, chainB *ibctesting.TestChain,
+) *ibctesting.Path {
+
+	path := ibctesting.NewPath(chainA, chainB)
+	path.EndpointA.ChannelConfig.PortID = transfertypes.PortID
+	path.EndpointB.ChannelConfig.PortID = transfertypes.PortID
+	path.EndpointA.ChannelConfig.Version = transfertypes.Version
+	path.EndpointB.ChannelConfig.Version = transfertypes.Version
+
+	return path
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSwap() {
-	s.SetupTest()
+	// s.SetupTest()
 
 	method := s.precompile.Methods[osmosis.SwapMethod]
 
@@ -74,7 +74,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			contract := vm.NewContract(vm.AccountRef(tc.sender), s.precompile, big.NewInt(0), gas)
 
 			_, err = s.precompile.Swap(
-				s.network.GetContext(),
+				s.chainA.GetContext(),
 				sender,
 				s.stateDB,
 				contract,

@@ -10,8 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
@@ -22,8 +20,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v15/testutil/integration/ibc/chain"
 	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
-	"github.com/evmos/evmos/v15/utils"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 	"github.com/stretchr/testify/suite"
@@ -57,16 +53,16 @@ type PrecompileTestSuite struct {
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(1)
-	integrationNetwork := network.NewUnitTestNetwork(
+	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
 
-	headerHash := integrationNetwork.GetContext().HeaderHash()
+	headerHash := unitNetwork.GetContext().HeaderHash()
 	stateDB := statedb.New(
-		integrationNetwork.GetContext(),
-		integrationNetwork.App.EvmKeeper,
+		unitNetwork.GetContext(),
+		unitNetwork.App.EvmKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
 	)
 
@@ -74,41 +70,42 @@ func (s *PrecompileTestSuite) SetupTest() {
 		portID,
 		channelID,
 		osmosis.XCSContract,
-		integrationNetwork.App.BankKeeper,
-		integrationNetwork.App.TransferKeeper,
-		integrationNetwork.App.StakingKeeper,
-		integrationNetwork.App.Erc20Keeper,
+		unitNetwork.App.BankKeeper,
+		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.StakingKeeper,
+		unitNetwork.App.Erc20Keeper,
 	)
 	s.Require().NoError(err)
 
 	s.stateDB = stateDB
-	s.network = integrationNetwork
+	s.network = unitNetwork
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.precompile = precompile
 
-	network := network.New()
+	s.registerEvmosERC20Coins()
+	s.registerOsmoERC20Coins()
+
 	coordinator := coordinator.NewIntegrationCoordinator(
 		s.T(),
-		[]commonnetwork.Network{network},
+		[]commonnetwork.Network{unitNetwork},
 	)
 
 	chainA := coordinator.GetChain(ibctesting.GetChainID(1)).(*ibctesting.TestChain)
-	chainB := coordinator.GetChain(ibctesting.GetChainID(3)).(*ibctesting.TestChain)
+	chainB := coordinator.GetChain(ibctesting.GetChainID(2)).(*ibctesting.TestChain)
+	path := coordinator.NewTransferPath(chainA, chainB)
+	coordinator.Setup(path)
 
-	path := ibctesting.NewPath(chainA, chainB)
-
-	s.registerERC20Coins()
+	s.chainA = chainA
+	s.chainB = chainB
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
 	suite.Run(t, new(PrecompileTestSuite))
 }
 
-// registerERC20Coins registers Evmos and IBC OSMO coin as an ERC20 token
-func (s *PrecompileTestSuite) registerERC20Coins() {
-	// Register EVMOS ERC20 equivalent
+func (s *PrecompileTestSuite) registerEvmosERC20Coins() {
 	bondDenom := s.network.App.StakingKeeper.BondDenom(s.network.GetContext())
 	evmosMetadata := banktypes.Metadata{
 		Name:        "Evmos token",
@@ -129,15 +126,37 @@ func (s *PrecompileTestSuite) registerERC20Coins() {
 		Display: "evmos",
 	}
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(TokenToMint))
+	s.T().Log("Before minting evmos...")
+	amount := sdk.NewInt(TokenToMint)
+	coin := sdk.NewCoin(evmosMetadata.Base, amount)
 	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
-	// Register Evmos Token Pair
+	s.T().Log("Before registering evmos...")
+	// Register Evmos Token Pair.
 	_, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
 	s.Require().NoError(err)
 
-	// Register IBC OSMO Token Pair
+	s.T().Log("Before sending evmos...")
+	sender := s.keyring.GetAccAddr(0)
+	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(
+		s.network.GetContext(),
+		inflationtypes.ModuleName,
+		sender,
+		sdk.NewCoins(coin),
+	)
+	s.Require().NoError(err)
+
+	s.T().Log("Before getting denom evmos...")
+	// Check that token has been registered correctly.
+	evmosDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), bondDenom)
+	_, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
+	s.Require().True(ok, "expected evmos token pair to be found")
+}
+
+// registerERC20Coins registers Evmos and IBC OSMO coin as an ERC20 token
+func (s *PrecompileTestSuite) registerOsmoERC20Coins() {
+	// Register EVMOS ERC20 equivalent Register IBC OSMO Token Pair
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: osmosis.OsmosisDenom,
@@ -162,37 +181,33 @@ func (s *PrecompileTestSuite) registerERC20Coins() {
 		Base:    denomTrace.IBCDenom(),
 	}
 
-	osmo := sdk.NewCoin(osmoMetadata.Base, sdk.NewInt(TokenToMint))
-	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.NewCoins(osmo))
-	s.Require().NoError(err)
-	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(
-		s.network.GetContext(),
-		inflationtypes.ModuleName,
-		s.keyring.GetAddr(0).Bytes(),
-		sdk.NewCoins(osmo),
-	)
+	s.T().Log("Before minting osmo...")
+	amount := sdk.NewInt(TokenToMint)
+	coin := sdk.NewCoin(osmoMetadata.Base, amount)
+	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
+	s.T().Log("Before registering osmo...")
+	// Register Evmos Token Pair.
 	_, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), osmoMetadata)
 	s.Require().NoError(err)
 
-	convertCoin := erc20types.NewMsgConvertCoin(
-		osmo,
-		s.keyring.GetAddr(0),
-		s.keyring.GetAddr(0).Bytes(),
+	s.T().Log("Before sending osmo...")
+	sender := s.keyring.GetAccAddr(0)
+	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(
+		s.network.GetContext(),
+		inflationtypes.ModuleName,
+		sender,
+		sdk.NewCoins(coin),
 	)
-
-	_, err = s.network.App.Erc20Keeper.ConvertCoin(s.network.GetContext(), convertCoin)
 	s.Require().NoError(err)
 
-	// Retrieve Evmos token information useful for the testing
-	evmosDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), bondDenom)
-	_, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), evmosDenomID)
-	s.Require().True(ok, "expected evmos token pair to be found")
-
+	s.T().Log("Before getting denom osmo...")
 	// Retrieve Osmo token information useful for the testing
-	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosis.OsmosisDenom)
-	osmoDenomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), osmoIBCDenom)
-	_, ok = s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
+	osmoDenomID := s.network.App.Erc20Keeper.GetDenomMap(
+		s.network.GetContext(),
+		denomTrace.IBCDenom(),
+	)
+	_, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), osmoDenomID)
 	s.Require().True(ok, "expected osmo token pair to be found")
 }
