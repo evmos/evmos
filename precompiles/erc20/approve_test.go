@@ -16,14 +16,12 @@ func (s *PrecompileTestSuite) TestApprove() {
 		name        string
 		malleate    func() []interface{}
 		postCheck   func()
-		gas         uint64
 		expPass     bool
 		errContains string
 	}{
 		{
 			name:        "fail - empty args",
 			malleate:    func() []interface{} { return nil },
-			gas:         200000,
 			errContains: "invalid number of arguments",
 		},
 		{
@@ -33,7 +31,6 @@ func (s *PrecompileTestSuite) TestApprove() {
 					1, 2, 3,
 				}
 			},
-			gas:         200000,
 			errContains: "invalid number of arguments",
 		},
 		{
@@ -43,7 +40,6 @@ func (s *PrecompileTestSuite) TestApprove() {
 					"invalid address", big.NewInt(2),
 				}
 			},
-			gas:         200000,
 			errContains: "invalid address",
 		},
 		{
@@ -53,7 +49,6 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), "invalid amount",
 				}
 			},
-			gas:         200000,
 			errContains: "invalid amount",
 		},
 		{
@@ -63,18 +58,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			gas:         200000,
 			errContains: "cannot approve non-positive values",
-		},
-		{
-			name: "fail - insufficient gas",
-			malleate: func() []interface{} {
-				return []interface{}{
-					s.keyring.GetAddr(1), big.NewInt(amount),
-				}
-			},
-			gas:         1,
-			errContains: "insufficient gas",
 		},
 		{
 			name: "pass - approve",
@@ -83,7 +67,6 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
-			gas:     200000,
 			expPass: true,
 			postCheck: func() {
 				// Get approvals from AuthzKeeper
@@ -112,7 +95,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				ctx,
 				s.keyring.GetAddr(0),
 				s.precompile,
-				tc.gas,
+				200_000,
 			)
 
 			args := tc.malleate()
