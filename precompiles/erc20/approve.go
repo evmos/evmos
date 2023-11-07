@@ -212,7 +212,12 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 }
 
 func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization) error {
-	authorization.SpendLimit = sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
+	found, denomAmount := authorization.SpendLimit.Find(p.tokenPair.Denom)
+	if found {
+		// NOTE: we are first removing the existing amount and then adding the new one
+		authorization.SpendLimit = authorization.SpendLimit.Sub(denomAmount)
+	}
+	authorization.SpendLimit = authorization.SpendLimit.Add(sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
 		return err
 	}
