@@ -148,10 +148,5 @@ func ComputeIBCDenom(
 	portID, channelID,
 	denom string,
 ) string {
-	denomTrace := ibctransfertypes.DenomTrace{
-		Path:      fmt.Sprintf("%s/%s", portID, channelID),
-		BaseDenom: denom,
-	}
-
-	return denomTrace.IBCDenom()
+	return ComputeIBCDenomTrace(portID, channelID, denom).IBCDenom()
 }
