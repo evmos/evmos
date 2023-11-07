@@ -128,6 +128,20 @@ func GetIBCDenomAddress(denom string) (common.Address, error) {
 	return common.BytesToAddress(bz), nil
 }
 
+// ComputeIBCDenomTrace compute the ibc voucher denom trace associated with
+// the portID, channelID, and the given a token denomination.
+func ComputeIBCDenomTrace(
+	portID, channelID,
+	denom string,
+) ibctransfertypes.DenomTrace {
+	denomTrace := ibctransfertypes.DenomTrace{
+		Path:      fmt.Sprintf("%s/%s", portID, channelID),
+		BaseDenom: denom,
+	}
+
+	return denomTrace
+}
+
 // ComputeIBCDenom compute the ibc voucher denom associated to
 // the portID, channelID, and the given a token denomination.
 func ComputeIBCDenom(
