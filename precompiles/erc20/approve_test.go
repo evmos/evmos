@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -573,14 +574,38 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			// TODO: have more verbose error message here like "authorization for different denomination found"?
-			errContains: "subtracted value cannot be greater than existing allowance",
+			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization for the other denom was not deleted
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
 					s.keyring.GetAccAddr(0),
 					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount)),
+					[]string{},
+				)
+			},
+		},
+		{
+			name: "fail - decrease allowance with existing authorization in different denomination but decreased amount too high",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount), sdk.NewInt64Coin(s.tokenDenom, 1)),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
+				}
+			},
+			// TODO: have more verbose error message here like "authorization for different denomination found"?
+			errContains: "subtracted value cannot be greater than existing allowance",
+			postCheck: func() {
+				// NOTE: Here we check that the authorization was not adjusted
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount), sdk.NewInt64Coin(s.tokenDenom, 1)),
 					[]string{},
 				)
 			},

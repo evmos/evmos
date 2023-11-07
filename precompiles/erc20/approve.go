@@ -185,7 +185,11 @@ func (p Precompile) DecreaseAllowance(
 		amount = common.Big0
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
 		// case 5. subtractedValue positive and subtractedValue higher than allowance -> return error
-		err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
+		if allowance.Cmp(common.Big0) == 0 {
+			err = fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
+		} else {
+			err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
+		}
 	}
 
 	if err != nil {
