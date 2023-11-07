@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	sdkerrors "cosmossdk.io/errors"
 
@@ -44,7 +45,7 @@ func (p Precompile) Approve(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
+	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	switch {
 	case authorization == nil && amount != nil && amount.Cmp(common.Big0) <= 0:
@@ -56,8 +57,8 @@ func (p Precompile) Approve(
 		// case 2: no authorization, amount positive -> create a new authorization
 		err = p.createAuthorization(ctx, grantee, granter, amount)
 	case authorization != nil && amount != nil && amount.Cmp(common.Big0) <= 0:
-		// case 3: authorization exists, amount 0 or negative -> delete authorization
-		err = p.deleteAuthorization(ctx, grantee, granter)
+		// case 3: authorization exists, amount 0 or negative -> remove from spend limit and delete authorization if no spend limit left
+		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
 	case authorization != nil && amount != nil && amount.Cmp(common.Big0) > 0:
 		// case 4: authorization exists, amount positive -> update authorization
 		sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
@@ -65,7 +66,7 @@ func (p Precompile) Approve(
 			return nil, authz.ErrUnknownAuthorizationType
 		}
 
-		err = p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz)
+		err = p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration)
 	}
 
 	if err != nil {
@@ -105,7 +106,7 @@ func (p Precompile) IncreaseAllowance(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
+	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
 
 	var amount *big.Int
 	switch {
@@ -120,7 +121,7 @@ func (p Precompile) IncreaseAllowance(
 		err = p.createAuthorization(ctx, grantee, granter, addedValue)
 	case authorization != nil && addedValue != nil && addedValue.Cmp(common.Big0) > 0:
 		// case 3: authorization exists, amount positive -> update authorization
-		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization)
+		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization, expiration)
 	}
 
 	if err != nil {
@@ -163,7 +164,7 @@ func (p Precompile) DecreaseAllowance(
 
 	// TODO: owner should be the owner of the contract
 
-	authorization, allowance, err := GetAuthzAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	authorization, expiration, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 
 	// TODO: (@fedekunze) check if this is correct by comparing behavior with
 	// regular ERC-20
@@ -177,12 +178,12 @@ func (p Precompile) DecreaseAllowance(
 		err = sdkerrors.Wrapf(err, "allowance does not exist")
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) < 0:
 		// case 3. subtractedValue positive and subtractedValue less than allowance -> update authorization
-		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
+		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization, expiration)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) == 0:
 		// case 4. subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
+		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization, expiration)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
-		// case 5. subtractedValue positive than higher than allowance -> return error
+		// case 5. subtractedValue positive and subtractedValue higher than allowance -> return error
 		err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
 	}
 
@@ -211,7 +212,7 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, &expiration)
 }
 
-func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization) error {
+func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
 	found, denomAmount := authorization.SpendLimit.Find(p.tokenPair.Denom)
 	if found {
 		// NOTE: we are first removing the existing amount and then adding the new one
@@ -222,13 +223,30 @@ func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common
 		return err
 	}
 
-	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
-
-	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, &expiration)
+	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, expiration)
 }
 
-func (p Precompile) deleteAuthorization(ctx sdk.Context, grantee, granter common.Address) error {
-	return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
+// removeSpendLimitOrdeleteAuthorization removes the spend limit for the given
+// token and updates the grant or deletes the authorization if no spend limit in another
+// denomination is set.
+func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grantee, granter common.Address, authorization authz.Authorization, expiration *time.Time) error {
+	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
+	if !ok {
+		return authz.ErrUnknownAuthorizationType
+	}
+
+	found, denomCoins := sendAuthz.SpendLimit.Find(p.tokenPair.Denom)
+	if !found {
+		return fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
+	}
+
+	newSpendLimit := sendAuthz.SpendLimit.Sub(denomCoins)
+	if newSpendLimit.IsZero() {
+		return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
+	} else {
+		sendAuthz.SpendLimit = newSpendLimit
+		return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), sendAuthz, expiration)
+	}
 }
 
 func (p Precompile) increaseAllowance(
@@ -236,6 +254,7 @@ func (p Precompile) increaseAllowance(
 	grantee, granter common.Address,
 	addedValue *big.Int,
 	authorization authz.Authorization,
+	expiration *time.Time,
 ) (amount *big.Int, err error) {
 	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
@@ -245,7 +264,7 @@ func (p Precompile) increaseAllowance(
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
 	amount = new(big.Int).Add(allowance.BigInt(), addedValue)
 
-	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz); err != nil {
+	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
 	}
 
@@ -257,6 +276,7 @@ func (p Precompile) decreaseAllowance(
 	grantee, granter common.Address,
 	subtractedValue *big.Int,
 	authorization authz.Authorization,
+	expiration *time.Time,
 ) (amount *big.Int, err error) {
 	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
@@ -270,7 +290,7 @@ func (p Precompile) decreaseAllowance(
 
 	amount = new(big.Int).Sub(allowance.Amount.BigInt(), subtractedValue)
 
-	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz); err != nil {
+	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
 	}
 
