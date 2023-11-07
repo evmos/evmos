@@ -113,7 +113,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				)
 
 				return []interface{}{
-					s.keyring.GetAddr(1), big.NewInt(2 * amount),
+					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
 			expPass: true,
@@ -121,12 +121,8 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
 					s.keyring.GetAccAddr(0),
-					// NOTE: The approval in the different denomination is overwritten by the
-					// approval for the passed token denomination.
-					//
-					// TODO: check if this behavior is the same for ERC20s? Or can there be separate
-					// approvals for different denominations?
-					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, 2*amount)),
+					// Check that the approval is extended with the new denomination instead of overwritten
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 1), sdk.NewInt64Coin(s.tokenDenom, amount)),
 					[]string{},
 				)
 			},
@@ -149,6 +145,34 @@ func (s *PrecompileTestSuite) TestApprove() {
 				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
 				s.Require().NoError(err, "expected no error querying the grants")
 				s.Require().Len(grants, 0, "expected grant to be deleted")
+			},
+		},
+		{
+			name: "pass - delete denomination from spend limit but leave other denoms",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.tokenDenom, 1),
+						sdk.NewInt64Coin(s.bondDenom, 1),
+					),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), common.Big0,
+				}
+			},
+			expPass: true,
+			postCheck: func() {
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					// Check that the approval does not have a spend limit for the deleted denomination
+					// but still contains the other denom
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 1)),
+					[]string{},
+				)
 			},
 		},
 	}
