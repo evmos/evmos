@@ -333,9 +333,9 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
 					s.keyring.GetAccAddr(0),
-					// NOTE: The approval in the different denomination is overwritten by the
-					// approval for the passed token denomination.
-					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, increaseAmount)),
+					// NOTE: The approval in the precompile denomination is added to the existing
+					// approval for the different denomination.
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount), sdk.NewInt64Coin(s.tokenDenom, increaseAmount)),
 					[]string{},
 				)
 			},
