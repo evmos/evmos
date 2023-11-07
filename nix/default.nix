@@ -21,31 +21,40 @@ import sources.nixpkgs {
       evmosd-rocksdb = pkgs.callPackage ../default.nix { dbBackend = "rocksdb"; };
       # other chains to use in IBC tests
       chain-maind = pkgs.callPackage sources.chain-main { rocksdb = null; };
-      strided = pkgs.callPackage ./cosmos-chain.nix { 
-        src = sources.stride; 
+      strided = pkgs.callPackage ./cosmos-chain.nix {
+        src = sources.stride;
         name = "stride";
         appName = "strided";
         version = "v11.0.0";
         rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
         vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
       };
-      # In case of osmosis & gaia, they provide the compiled binary. We'll use this
-      # cause it is faster than building from source
-      osmosisd = pkgs.callPackage ./bin.nix {
+
+      osmosisd = pkgs.callPackage ./cosmos-chain.nix {
+        src = sources.osmosis;
+        name = "osmosis";
         appName = "osmosisd";
-        version = "v19.2.0";
-        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
-        sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
+        version = "v20.1.2";
+        rev = "v20.1.2";
+        vendorSha256 = "sha256-j6H6w8BclgvO1/qd1ZVjzsSsOgePdVbi+nHTRPpQjjk=";
       };
+      # # In case of osmosis & gaia, they provide the compiled binary. We'll use this
+      # # cause it is faster than building from source
+      # osmosisd = pkgs.callPackage ./bin.nix {
+      #   appName = "osmosisd";
+      #   version = "v19.2.0";
+      #   binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-20.1.2-linux-amd64";
+      #   sha256 = "sha256-8RWHUSI4ZJYlSQWh3gwMtF8bcxU2KBWG93pBvlVFhQU=";
+      # };
       # Using gaia v11 (includes the PFM) cause after this version the '--min-self-delegation' flag is removed
-      # from the 'gentx' cmd. 
-      # This is needed cause pystarport has this hardcoded when spinning up the 
+      # from the 'gentx' cmd.
+      # This is needed cause pystarport has this hardcoded when spinning up the
       # the environment
       gaiad = pkgs.callPackage ./bin.nix {
         appName = "gaiad";
         version = "v11.0.0";
-        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-linux-amd64";
-        sha256 = "sha256-JY3y7sWyL4uq3JiOGE+/0q5vn4iOn0RhoRDMNl/oYwA=";
+        binUrl = "https://github.com/cosmos/gaia/releases/download/v11.0.0/gaiad-v11.0.0-darwin-amd64";
+        sha256 = "sha256-8RWHUSI4ZJYlSQWh3gwMtF8bcxU2KBWG93pBvlVFhQU=";
       };
     }) # update to a version that supports eip-1559
     # https://github.com/NixOS/nixpkgs/pull/179622

@@ -1,4 +1,15 @@
 {
+    "osmosis": {
+        "branch": "v20.1.2",
+        "description": "Osmosis: Zone",
+        "homepage": "https://osmosis.zone/",
+        "owner": "Osmosis-Labs",
+        "repo": "osmosis",
+        "rev": "v20.1.2",
+        "sha256": "073cig40527k2c33kc5rcsyw0c8m676z1wkiddsn28s3ax78zjh9",
+        "type": "tarball",
+        "url": "https://github.com/osmosis-labs/osmosis/archive/v20.1.2.tar.gz"
+    },
     "stride": {
         "branch": "v11.0.0",
         "description": "Stride Chain⛓: Multichain Liquid Staking",

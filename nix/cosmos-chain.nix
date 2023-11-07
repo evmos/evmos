@@ -1,5 +1,6 @@
 { lib
-, buildGo119Module
+, buildGoModule
+, buildPackages
 , src
 , version
 , name
@@ -7,7 +8,8 @@
 , rev
 , vendorSha256
 }:
-buildGo119Module rec {
+buildGoModule rec {
+  go = buildPackages.go_1_20;
   # Use this nix file to build any cosmos chain you need,
   # e.g. Stride, Osmosis, etc.
   inherit src version name appName rev vendorSha256;
@@ -19,6 +21,9 @@ buildGo119Module rec {
     "-X github.com/cosmos/cosmos-sdk/version.BuildTags=${lib.concatStringsSep "," tags}"
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
   ]);
+
+  CGO_ENABLED = "1";
+  GOWORK = "off";
 
   doCheck = false;
   subPackages = [ "cmd/${appName}" ];
