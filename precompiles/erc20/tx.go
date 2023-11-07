@@ -90,7 +90,7 @@ func (p Precompile) transfer(
 	}
 
 	if err != nil {
-		// This should return an error to avoid the contract from being executed
+		// This should return an error to avoid the contract from being executed and an event being emitted
 		return nil, err
 	}
 
