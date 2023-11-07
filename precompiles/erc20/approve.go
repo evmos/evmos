@@ -106,7 +106,7 @@ func (p Precompile) IncreaseAllowance(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
+	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	var amount *big.Int
 	switch {
