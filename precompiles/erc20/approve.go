@@ -163,8 +163,6 @@ func (p Precompile) DecreaseAllowance(
 
 	// TODO: owner should be the owner of the contract
 
-	// get authorization & allowance and ignore the error as
-	// it will be checked in the switch statement below.
 	authorization, allowance, err := GetAuthzAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 
 	// TODO: (@fedekunze) check if this is correct by comparing behavior with
