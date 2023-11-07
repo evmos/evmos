@@ -248,10 +248,10 @@ func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grant
 	newSpendLimit := sendAuthz.SpendLimit.Sub(denomCoins)
 	if newSpendLimit.IsZero() {
 		return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
-	} else {
-		sendAuthz.SpendLimit = newSpendLimit
-		return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), sendAuthz, expiration)
 	}
+
+	sendAuthz.SpendLimit = newSpendLimit
+	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), sendAuthz, expiration)
 }
 
 func (p Precompile) increaseAllowance(
