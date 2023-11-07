@@ -474,8 +474,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			},
 		},
 		{
-			// TODO: do we want this to fail or should it delete the authorization? currently fails
-			name: "fail - decrease to zero and delete existing authorization",
+			name: "pass - decrease to zero and delete existing authorization",
 			malleate: func() []interface{} {
 				s.setupSendAuthz(
 					s.keyring.GetAccAddr(1),
@@ -487,13 +486,61 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
-			errContains: "spend limit must be positive",
+			expPass: true,
 			postCheck: func() {
-				// NOTE: since the authorization is not deleted, we check that it still exists
+				// Check that the authorization was deleted
+				grants, err := s.grpcHandler.GetGrantsByGrantee(s.keyring.GetAccAddr(1).String())
+				s.Require().NoError(err, "expected no error querying the grants")
+				s.Require().Len(grants, 0, "expected grant to be deleted")
+			},
+		},
+		{
+			name: "pass - decrease allowance with existing authorization in different denomination",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount), sdk.NewInt64Coin(s.tokenDenom, amount)),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
+				}
+			},
+			expPass: true,
+			postCheck: func() {
+				// NOTE: Here we check that the authorization for the other denom was not deleted
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
 					s.keyring.GetAccAddr(0),
-					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount), sdk.NewInt64Coin(s.tokenDenom, amount-decreaseAmount)),
+					[]string{},
+				)
+			},
+		},
+		{
+			name: "pass - decrease allowance to zero for denom with existing authorization in other denominations",
+			malleate: func() []interface{} {
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.bondDenom, amount),
+						sdk.NewInt64Coin(s.tokenDenom, amount),
+					),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(amount),
+				}
+			},
+			expPass: true,
+			postCheck: func() {
+				// NOTE: Here we check that the authorization for the other denom was not deleted
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, amount)),
 					[]string{},
 				)
 			},

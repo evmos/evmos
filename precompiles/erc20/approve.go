@@ -180,8 +180,9 @@ func (p Precompile) DecreaseAllowance(
 		// case 3. subtractedValue positive and subtractedValue less than allowance -> update authorization
 		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization, expiration)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) == 0:
-		// case 4. subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization, expiration)
+		// case 4. subtractedValue positive and subtractedValue equal to allowance -> remove spend limit for token and delete authorization if no other denoms are approved for
+		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
+		amount = common.Big0
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
 		// case 5. subtractedValue positive and subtractedValue higher than allowance -> return error
 		err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
