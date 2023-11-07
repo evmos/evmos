@@ -90,8 +90,8 @@ func (p Precompile) transfer(
 	}
 
 	if err != nil {
-		// TODO: check if we need to return an error here
-		return method.Outputs.Pack(false)
+		// This should return an error to avoid the contract from being executed and an event being emitted
+		return nil, err
 	}
 
 	if err := p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
