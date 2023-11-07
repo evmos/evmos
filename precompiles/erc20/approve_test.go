@@ -510,7 +510,8 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			},
 			expPass: true,
 			postCheck: func() {
-				// NOTE: Here we check that the authorization for the other denom was not deleted
+				// NOTE: Here we check that the authorization for the other denom was not deleted and the spend limit
+				// for token denom was adjusted as expected
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
 					s.keyring.GetAccAddr(0),
