@@ -73,6 +73,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC20 precompile approvals.
 - (erc20) [#2009](https://github.com/evmos/evmos/pull/2009) Add ERC20 precompile transaction unit tests.
 - (osmosis-outpost) [#2011](https://github.com/evmos/evmos/pull/2011) Update outpost swap ABI to return IBC next sequence.
+- (erc20) [#2012](https://github.com/evmos/evmos/pull/2012) Adjust ERC20 extension approvals to handle multiple denominations.
 
 ### Bug Fixes
 
