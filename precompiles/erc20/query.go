@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -197,7 +198,7 @@ func (p Precompile) Allowance(
 	granter := owner
 	grantee := spender
 
-	allowance, err := GetAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	_, allowance, err := GetAuthzAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 	if err != nil {
 		return nil, err
 	}
@@ -229,25 +230,26 @@ func GetDenomTrace(
 	return denomTrace, nil
 }
 
-// GetAllowance returns the amount of denom that the grantee is allowed to spend on behalf of the granteer.
-func GetAllowance(
+// GetAuthzAndAllowance returns the authorization as well as the amount of denom
+// that the grantee is allowed to spend on behalf of the granter.
+func GetAuthzAndAllowance(
 	authzKeeper authzkeeper.Keeper,
 	ctx sdk.Context,
 	grantee, granter common.Address,
 	denom string,
-) (*big.Int, error) {
+) (authz.Authorization, *big.Int, error) {
 	authorization, _, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
 	// TODO: return error if doesn't exist?
 	if err != nil {
-		return common.Big0, err
+		return nil, common.Big0, err
 	}
 
 	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
 		// TODO: return error if invalid authorization?
-		return common.Big0, nil
+		return nil, common.Big0, nil
 	}
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)
-	return allowance.BigInt(), nil
+	return authorization, allowance.BigInt(), nil
 }
