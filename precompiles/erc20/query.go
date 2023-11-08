@@ -51,26 +51,42 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
+	// TODO: is this actually necessary here? It won't be possible to register a token
+	// with an empty denomination right? So calling this with an empty denom also won't happen..
+	if p.tokenPair.Denom == "" {
+		return nil, errors.New("denom cannot be empty")
+	}
+
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
 	}
 
+	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
+	if err != nil {
+		return nil, err
+	}
+
+	name := strings.ToUpper(string(baseDenom[1])) + baseDenom[2:]
+	return method.Outputs.Pack(name)
+}
+
+// getBaseDenom returns the base denomination from the given IBC voucher denomination.
+func (p Precompile) getBaseDenomFromIBCVoucher(ctx sdk.Context, denom string) (string, error) {
 	// Infer the denomination name from the coin denomination base denom
-	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
+	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, denom)
 	if err != nil {
 		// FIXME: return 'not supported' (same error as when you call the method on an ERC20.sol)
-		return nil, err
+		return "", err
 	}
 
 	// safety check
 	if len(denomTrace.BaseDenom) < 3 {
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, nil
+		return "", fmt.Errorf("invalid base denomination; should be at least length 3; got: %q", denomTrace.BaseDenom)
 	}
 
-	name := strings.ToUpper(string(denomTrace.BaseDenom[1])) + denomTrace.BaseDenom[2:]
-	return method.Outputs.Pack(name)
+	return denomTrace.BaseDenom, nil
 }
 
 // Symbol returns the symbol of the token. If the token metadata is registered in the
@@ -97,7 +113,7 @@ func (p Precompile) Symbol(
 	// safety check
 	if len(denomTrace.BaseDenom) < 3 {
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, nil
+		return nil, fmt.Errorf("invalid base denomination; should be at least length 3; got: %q", denomTrace.BaseDenom)
 	}
 
 	symbol := strings.ToUpper(denomTrace.BaseDenom[1:])
