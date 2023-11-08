@@ -4,11 +4,13 @@ import (
 	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 // setupSendAuthz is a helper function to set up a SendAuthorization for
@@ -64,4 +66,20 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 	} else {
 		s.Require().Equal(allowList, sendAuthz.AllowList, "expected different allow list")
 	}
+}
+
+// setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
+// a given token denomination.
+func (s *PrecompileTestSuite) setupERC20Precompile(denom string) (*erc20.Precompile, erc20types.TokenPair) {
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+
+	precompile, err := erc20.NewPrecompile(
+		tokenPair,
+		s.network.App.BankKeeper,
+		s.network.App.AuthzKeeper,
+		s.network.App.TransferKeeper,
+	)
+	s.Require().NoError(err, "failed to create erc20 precompile")
+
+	return precompile, tokenPair
 }
