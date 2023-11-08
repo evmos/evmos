@@ -17,7 +17,7 @@ import (
 
 	"github.com/evmos/evmos/v15/x/erc20/keeper"
 	"github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 const (

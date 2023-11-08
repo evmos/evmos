@@ -34,7 +34,7 @@ import (
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evm "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
