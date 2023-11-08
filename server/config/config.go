@@ -15,8 +15,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/crypto-org-chain/cronos/memiavl"
-	memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
+	// NOT SUPPORTED IN SDK v0.50
+	// "github.com/crypto-org-chain/cronos/memiavl"
+	// memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
 const (
@@ -128,7 +129,8 @@ type Config struct {
 	JSONRPC JSONRPCConfig `mapstructure:"json-rpc"`
 	TLS     TLSConfig     `mapstructure:"tls"`
 
-	MemIAVL MemIAVLConfig `mapstructure:"memiavl"`
+	// NOT SUPPORTED IN SDK v0.50
+	// MemIAVL MemIAVLConfig `mapstructure:"memiavl"`
 }
 
 // EVMConfig defines the application configuration values for the EVM.
@@ -190,10 +192,11 @@ type TLSConfig struct {
 	KeyPath string `mapstructure:"key-path"`
 }
 
-// MemIAVLConfig defines the configuration for memIAVL.
-type MemIAVLConfig struct {
-	memiavlcfg.MemIAVLConfig
-}
+// NOT SUPPORTED IN SDK v0.50
+// // MemIAVLConfig defines the configuration for memIAVL.
+// type MemIAVLConfig struct {
+// 	memiavlcfg.MemIAVLConfig
+// }
 
 // AppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
@@ -368,31 +371,32 @@ func (c TLSConfig) Validate() error {
 	return nil
 }
 
-// DefaultMemIAVLConfig returns the default MemIAVL configuration
-func DefaultMemIAVLConfig() *MemIAVLConfig {
-	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
-		Enable:             DefaultMemIAVLEnable,
-		ZeroCopy:           DefaultZeroCopy,
-		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
-		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
-		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
-		CacheSize:          memiavlcfg.DefaultCacheSize,
-	}}
-}
+// NOT SUPPORTED IN SDK v0.50
+// // DefaultMemIAVLConfig returns the default MemIAVL configuration
+// func DefaultMemIAVLConfig() *MemIAVLConfig {
+// 	return &MemIAVLConfig{memiavlcfg.MemIAVLConfig{
+// 		Enable:             DefaultMemIAVLEnable,
+// 		ZeroCopy:           DefaultZeroCopy,
+// 		AsyncCommitBuffer:  DefaultAsyncCommitBuffer,
+// 		SnapshotKeepRecent: DefaultSnapshotKeepRecent,
+// 		SnapshotInterval:   memiavl.DefaultSnapshotInterval,
+// 		CacheSize:          memiavlcfg.DefaultCacheSize,
+// 	}}
+// }
 
-// Validate returns an error if the MemIAVL configuration fields are invalid.
-func (c MemIAVLConfig) Validate() error {
-	// AsyncCommitBuffer can be -1, which means synchronous commit
-	if c.AsyncCommitBuffer < -1 {
-		return errors.New("AsyncCommitBuffer cannot be negative")
-	}
+// // Validate returns an error if the MemIAVL configuration fields are invalid.
+// func (c MemIAVLConfig) Validate() error {
+// 	// AsyncCommitBuffer can be -1, which means synchronous commit
+// 	if c.AsyncCommitBuffer < -1 {
+// 		return errors.New("AsyncCommitBuffer cannot be negative")
+// 	}
 
-	if c.CacheSize < 0 {
-		return errors.New("CacheSize cannot be negative")
-	}
+// 	if c.CacheSize < 0 {
+// 		return errors.New("CacheSize cannot be negative")
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // GetConfig returns a fully parsed Config object.
 func GetConfig(v *viper.Viper) (Config, error) {

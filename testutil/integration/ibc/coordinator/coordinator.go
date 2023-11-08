@@ -8,7 +8,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
 	ibcchain "github.com/evmos/evmos/v15/testutil/integration/ibc/chain"

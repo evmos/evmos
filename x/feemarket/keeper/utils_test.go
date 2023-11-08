@@ -32,9 +32,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/log"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 )
 
 func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {

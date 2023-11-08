@@ -10,10 +10,11 @@ import (
 	"os"
 	"path/filepath"
 
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/crypto-org-chain/cronos/versiondb"
-	"github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
+	// NOT SUPPORTED IN SDK v0.50
+	// "github.com/crypto-org-chain/cronos/versiondb"
+	// "github.com/crypto-org-chain/cronos/versiondb/tsrocksdb"
 )
 
 // versionDB constant for 'versiondb'
@@ -48,13 +49,14 @@ func (app *Evmos) setupVersionDB(
 		exposeStoreKeys = append(exposeStoreKeys, storeKey)
 	}
 
-	service := versiondb.NewStreamingService(store, exposeStoreKeys)
-	app.SetStreamingService(service)
+	// service := versiondb.NewStreamingService(store, exposeStoreKeys)
+	// app.SetStreamingService(service)
 
-	verDB := versiondb.NewMultiStore(app.CommitMultiStore(), store, exposeStoreKeys)
-	verDB.MountTransientStores(tkeys)
-	verDB.MountMemoryStores(memKeys)
+	// verDB := versiondb.NewMultiStore(app.CommitMultiStore(), store, exposeStoreKeys)
+	// verDB.MountTransientStores(tkeys)
+	// verDB.MountMemoryStores(memKeys)
 
-	app.SetQueryMultiStore(verDB)
-	return verDB, nil
+	// app.SetQueryMultiStore(verDB)
+	// return verDB, nil
+	return nil, nil
 }

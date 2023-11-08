@@ -4,11 +4,11 @@
 package v15
 
 import (
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
 	"github.com/evmos/evmos/v15/utils"
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"

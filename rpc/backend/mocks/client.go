@@ -10,7 +10,7 @@ import (
 
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	log "github.com/cometbft/cometbft/libs/log"
+	log "cosmossdk.io/log"
 
 	mock "github.com/stretchr/testify/mock"
 
