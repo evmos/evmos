@@ -175,6 +175,7 @@ build-pebbledb:
 	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
 
 build-rocksdb:
+	# Make sure to run this command with root permission
 	./scripts/install_librocksdb.sh
 	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/include" \
 	CGO_LDFLAGS="-L/usr/lib -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
