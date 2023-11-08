@@ -1,21 +1,13 @@
 #!/bin/bash
 
-ROCKSDB_VERSION=v8.5.3
+ROCKSDB_VERSION="8.5.3"
 
-INCLUDE_DIR="/usr/rocksdb/include"
-ROCKSDB_DIR="/usr/local/rocksdb"
-
-# installation paths
-ROCKSDB_LIB_DIR="$ROCKSDB_DIR/lib"
-
-# Function to prompt the user for reinstallation
-prompt_reinstall() {
-    read -r -p "Previous RocksDB installation detected. Do you want to reinstall? (yes/no): " choice
+# Check if RocksDB is already installed
+if [[ $(find /usr/lib -name "librocksdb.so.${ROCKSDB_VERSION}" -print -quit) ]]; then
+    read -r -p "RocksDB version ${ROCKSDB_VERSION} is already installed. Do you want to reinstall it? (yes/no): " choice
     case "$choice" in
     y | yes | Yes | YES)
         echo "Reinstalling RocksDB..."
-        # Remove existing installation directories
-        rm -rf "$ROCKSDB_LIB_DIR" "$INCLUDE_DIR"
         ;;
     n | no | No | NO)
         echo "Skipping RocksDB installation."
@@ -23,20 +15,16 @@ prompt_reinstall() {
         ;;
     *)
         echo "Invalid choice. Please enter 'yes' or 'no'."
-        prompt_reinstall
+        exit 1
         ;;
     esac
-}
-
-# Check if previous installation directories exist
-if [[ -d "$ROCKSDB_LIB_DIR" ]]; then
-    prompt_reinstall
+else
+    # RocksDB is not installed, proceed with installation
+    echo "RocksDB is not installed. Proceeding with installation..."
 fi
 
 # Check the OS type and perform different actions
 if [[ $(uname) == "Linux" ]]; then
-    mkdir -p "$ROCKSDB_LIB_DIR" && mkdir -p "$INCLUDE_DIR"
-
     # Check Linux distribution
     if [[ -f /etc/os-release ]]; then
         source /etc/os-release
@@ -69,14 +57,12 @@ if [[ $(uname) == "Linux" ]]; then
 
         # 3. Install Rocksdb (same for any linux distribution)
         cd /tmp &&
-            git clone -b ${ROCKSDB_VERSION} --single-branch https://github.com/facebook/rocksdb.git &&
+            git clone -b v${ROCKSDB_VERSION} --single-branch https://github.com/facebook/rocksdb.git &&
             cd rocksdb &&
             PORTABLE=1 WITH_JNI=0 WITH_BENCHMARK_TOOLS=0 WITH_TESTS=1 WITH_TOOLS=0 WITH_CORE_TOOLS=1 WITH_BZ2=1 WITH_LZ4=1 WITH_SNAPPY=1 WITH_ZLIB=1 WITH_ZSTD=1 WITH_GFLAGS=0 USE_RTTI=1 \
                 make shared_lib &&
-            cp librocksdb.so* "$ROCKSDB_LIB_DIR" &&
-            cp "$ROCKSDB_LIB_DIR"/librocksdb.so* /usr/lib/ &&
-            cp -r include "$ROCKSDB_DIR"/ &&
-            cp -r include/* "$INCLUDE_DIR"/ &&
+            cp librocksdb.so* /usr/lib/ &&
+            cp -r include/* /usr/include/ &&
             rm -rf /tmp/rocksdb
     else
         echo "Cannot determine Linux distribution."

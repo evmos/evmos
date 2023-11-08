@@ -176,8 +176,8 @@ build-pebbledb:
 
 build-rocksdb:
 	./scripts/install_librocksdb.sh
-	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/rocksdb/include" \
-	CGO_LDFLAGS="-L/usr/local/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
+	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/include" \
+	CGO_LDFLAGS="-L/usr/lib -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
 	COSMOS_BUILD_OPTIONS=rocksdb $(MAKE) build
 
 push-docker: build-docker

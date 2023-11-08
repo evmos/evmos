@@ -34,9 +34,7 @@ COPY --from=build-env /go/bin/toml-cli /usr/bin/toml-cli
 
 # These are required for rocksdb build
 COPY --from=build-env /usr/lib /usr/lib
-COPY --from=build-env /usr/local/lib /usr/local/lib
-COPY --from=build-env /usr/rocksdb/include /usr/rocksdb/include
-COPY --from=build-env /usr/local/rocksdb /usr/local/rocksdb
+COPY --from=build-env /usr/include /usr/include
 
 RUN apk add --no-cache ca-certificates=20230506-r0 jq=1.6-r3 curl=8.4.0-r0 bash=5.2.15-r5 vim=9.0.1568-r0 lz4=1.9.4-r4 rclone=1.62.2-r5 \
     && addgroup -g 1000 evmos \
