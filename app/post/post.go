@@ -12,16 +12,16 @@ import (
 
 // HandlerOptions are the options required for constructing a PostHandler.
 type HandlerOptions struct {
-	feeCollectorName string
-	bankKeeper       bankkeeper.Keeper
+	FeeCollectorName string
+	BankKeeper       bankkeeper.Keeper
 }
 
 func (h HandlerOptions) Validate() error {
-	if h.feeCollectorName == "" {
+	if h.FeeCollectorName == "" {
 		return errors.New("fee collector name cannot be empty")
 	}
 
-	if h.bankKeeper == nil {
+	if h.BankKeeper == nil {
 		return errors.New("bank keeper cannot be nil")
 	}
 
@@ -31,7 +31,7 @@ func (h HandlerOptions) Validate() error {
 // NewPostHandler returns an empty PostHandler chain.
 func NewPostHandler(ho HandlerOptions) sdk.PostHandler {
 	postDecorators := []sdk.PostDecorator{
-		NewBurnDecorator(ho.feeCollectorName, ho.bankKeeper),
+		NewBurnDecorator(ho.FeeCollectorName, ho.BankKeeper),
 	}
 
 	return sdk.ChainPostDecorators(postDecorators...)

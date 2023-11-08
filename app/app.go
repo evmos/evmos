@@ -943,7 +943,10 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 }
 
 func (app *Evmos) setPostHandler() {
-	options := post.HandlerOptions{}
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+	}
 
 	if err := options.Validate(); err != nil {
 		panic(err)
