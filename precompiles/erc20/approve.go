@@ -220,8 +220,14 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
 	found, denomAmount := authorization.SpendLimit.Find(p.tokenPair.Denom)
 	if found {
-		// NOTE: we are first removing the existing amount and then adding the new one
-		authorization.SpendLimit = authorization.SpendLimit.Sub(denomAmount)
+		var hasNeg bool
+
+		// NOTE: since the token denomination is found in the existing authorization,
+		// we are updating the amount by removing the existing amount and then adding the new one.
+		authorization.SpendLimit, hasNeg = authorization.SpendLimit.SafeSub(denomAmount)
+		if hasNeg {
+			return fmt.Errorf("removing spend limit for: %s resulted in negative coin amount: %v", denomAmount, authorization.SpendLimit)
+		}
 	}
 	authorization.SpendLimit = authorization.SpendLimit.Add(sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
@@ -231,7 +237,7 @@ func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common
 	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, expiration)
 }
 
-// removeSpendLimitOrdeleteAuthorization removes the spend limit for the given
+// removeSpendLimitOrDeleteAuthorization removes the spend limit for the given
 // token and updates the grant or deletes the authorization if no spend limit in another
 // denomination is set.
 func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grantee, granter common.Address, authorization authz.Authorization, expiration *time.Time) error {
@@ -245,7 +251,11 @@ func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grant
 		return fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
 	}
 
-	newSpendLimit := sendAuthz.SpendLimit.Sub(denomCoins)
+	newSpendLimit, hasNeg := sendAuthz.SpendLimit.SafeSub(denomCoins)
+	if hasNeg {
+		return fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", denomCoins, sendAuthz.SpendLimit)
+	}
+
 	if newSpendLimit.IsZero() {
 		return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
 	}
@@ -294,6 +304,9 @@ func (p Precompile) decreaseAllowance(
 	}
 
 	amount = new(big.Int).Sub(allowance.Amount.BigInt(), subtractedValue)
+	if amount.Sign() < 0 {
+		return nil, fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance.Amount)
+	}
 
 	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
