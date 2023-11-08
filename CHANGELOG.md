@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
+- (deps) [#2016](https://github.com/evmos/evmos/pull/2016) Bump cosmos-sdk version to `v0.50` and ibc-go version to `v8.0.0`.
+
 ### API Breaking
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
