@@ -10,7 +10,6 @@ import (
 	"time"
 
 	sdkerrors "cosmossdk.io/errors"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -18,6 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 // Approve sets the given amount as the allowance of the spender address over
@@ -286,7 +286,11 @@ func (p Precompile) increaseAllowance(
 	}
 
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
-	amount = new(big.Int).Add(allowance.BigInt(), addedValue)
+	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
+	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
+	if overflow {
+		return nil, errors.New(cmn.ErrIntegerOverflow)
+	}
 
 	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
