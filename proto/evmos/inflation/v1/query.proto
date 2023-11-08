@@ -8,7 +8,7 @@ import "evmos/inflation/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v15/x/inflation/types";
+option go_package = "github.com/evmos/evmos/v15/x/inflation/v1/types";
 
 // Query provides defines the gRPC querier service.
 service Query {
