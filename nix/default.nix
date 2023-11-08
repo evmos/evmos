@@ -37,6 +37,7 @@ import sources.nixpkgs {
         version = "v20.1.2";
         rev = "v20.1.2";
         vendorSha256 = "sha256-j6H6w8BclgvO1/qd1ZVjzsSsOgePdVbi+nHTRPpQjjk=";
+        wasmEnabled = true;
       };
       # # In case of osmosis & gaia, they provide the compiled binary. We'll use this
       # # cause it is faster than building from source
