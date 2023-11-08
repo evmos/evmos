@@ -9,6 +9,7 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -65,6 +66,7 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := LoadABI()
 	if err != nil {
@@ -77,6 +79,7 @@ func NewPrecompile(
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
+			AuthzKeeper:          authzKeeper,
 		},
 		portID:             portID,
 		channelID:          channelID,

@@ -33,7 +33,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -46,6 +46,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
+        unitNetwork.App.AuthzKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 
