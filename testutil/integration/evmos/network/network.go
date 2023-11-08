@@ -57,7 +57,8 @@ type IntegrationNetwork struct {
 	app        *app.Evmos
 
 	// This is only needed for IBC chain testing setup
-	valSet *tmtypes.ValidatorSet
+	valSet     *tmtypes.ValidatorSet
+	valSigners map[string]tmtypes.PrivValidator
 }
 
 // New configures and initializes a new integration Network instance with
@@ -104,7 +105,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
-	valSet := createValidatorSet(n.cfg.amountOfValidators)
+	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
 	totalBonded := bondedAmt.Mul(sdktypes.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
@@ -174,6 +175,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
 	n.validators = validators
 	n.valSet = valSet
+	n.valSigners = valSigners
 	return nil
 }
 
