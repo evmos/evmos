@@ -8,6 +8,7 @@ if [[ $(find /usr/lib -name "librocksdb.so.${ROCKSDB_VERSION}" -print -quit) ]];
     case "$choice" in
     y | yes | Yes | YES)
         echo "Reinstalling RocksDB..."
+        rm -rf /usr/lib/librocksdb*
         ;;
     n | no | No | NO)
         echo "Skipping RocksDB installation."
