@@ -10,6 +10,7 @@ import (
 	"time"
 
 	sdkerrors "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -205,6 +206,10 @@ func (p Precompile) DecreaseAllowance(
 }
 
 func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int) error {
+	if amount.BitLen() > sdkmath.MaxBitLen {
+		return fmt.Errorf("amount %s causes integer overflow", amount)
+	}
+
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
 	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
 

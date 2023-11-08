@@ -66,6 +66,15 @@ func (s *PrecompileTestSuite) TestApprove() {
 			errContains: "cannot approve non-positive values",
 		},
 		{
+			name: "fail - approve uint256 overflow",
+			malleate: func() []interface{} {
+				return []interface{}{
+					s.keyring.GetAddr(1), new(big.Int).Add(abi.MaxUint256, common.Big1),
+				}
+			},
+			errContains: "causes integer overflow",
+		},
+		{
 			name: "pass - approve without existing authorization",
 			malleate: func() []interface{} {
 				return []interface{}{
