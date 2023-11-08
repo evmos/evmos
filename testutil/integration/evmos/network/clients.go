@@ -14,7 +14,7 @@ import (
 	"github.com/evmos/evmos/v15/encoding"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 

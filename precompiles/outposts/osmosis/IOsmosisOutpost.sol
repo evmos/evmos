@@ -59,6 +59,7 @@ interface IOsmosisOutpost {
     /// tokens. It can be any chain connected to Osmosis e.g. evmos1..., cosmos1..., etc.
     /// @param slippage_percentage The percentage of slippage accepted for the swap.
     /// @param window_seconds The amount of seconds considered to compute TWAP price
+    /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success The boolean value indicating whether the operation succeeded
     function swap(
         address sender,
@@ -68,5 +69,5 @@ interface IOsmosisOutpost {
         uint8 slippage_percentage,
         uint64 window_seconds,
         string calldata receiver
-    ) external returns (bool success);
+    ) external returns (uint64 nextSequence, bool success);
 }

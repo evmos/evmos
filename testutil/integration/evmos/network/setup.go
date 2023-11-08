@@ -24,7 +24,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
