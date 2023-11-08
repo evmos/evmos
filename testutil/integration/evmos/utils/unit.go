@@ -48,26 +48,26 @@ func RegisterEvmosERC20Coins(
 		Display: "evmos",
 	}
 
-	// coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(TokenToMint))
-	// err := network.App.BankKeeper.MintCoins(
-	// 	network.GetContext(),
-	// 	inflationtypes.ModuleName,
-	// 	sdk.NewCoins(coin),
-	// )
-	// if err != nil {
-	// 	return erc20types.TokenPair{}, err
-	// }
-	// err = network.App.BankKeeper.SendCoinsFromModuleToAccount(
-	//     network.GetContext(),
-	//     inflationtypes.ModuleName,
-	//     tokenReceiver,
-	//     sdk.NewCoins(coin),
-	//     )
-	// if err != nil {
-	//     return erc20types.TokenPair{}, err
-	// }
+	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(TokenToMint))
+	err := network.App.BankKeeper.MintCoins(
+		network.GetContext(),
+		inflationtypes.ModuleName,
+		sdk.NewCoins(coin),
+	)
+	if err != nil {
+		return erc20types.TokenPair{}, err
+	}
+	err = network.App.BankKeeper.SendCoinsFromModuleToAccount(
+		network.GetContext(),
+		inflationtypes.ModuleName,
+		tokenReceiver,
+		sdk.NewCoins(coin),
+	)
+	if err != nil {
+		return erc20types.TokenPair{}, err
+	}
 
-	_, err := network.App.Erc20Keeper.RegisterCoin(network.GetContext(), evmosMetadata)
+	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), evmosMetadata)
 	if err != nil {
 		return erc20types.TokenPair{}, err
 	}
