@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### State Machine Breaking
+
+- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler`` to burn cosmos transaction fees.
+
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
