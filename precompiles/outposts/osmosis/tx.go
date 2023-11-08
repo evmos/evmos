@@ -3,7 +3,7 @@
 //
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
-// chain, targeting the XCSV
+// chain, targeting the Cross-Chain Swap Contract V2 (XCS V2).
 package osmosis
 
 import (
