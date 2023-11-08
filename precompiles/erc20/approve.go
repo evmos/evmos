@@ -218,16 +218,30 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 }
 
 func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
-	for idx, coin := range authorization.SpendLimit {
-		if coin.Denom == p.tokenPair.Denom {
-			authorization.SpendLimit[idx] = sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
-		}
-	}
+	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
 		return err
 	}
 
 	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, expiration)
+}
+
+// updateOrAddCoin replaces the coin of the given denomination in the coins slice or adds it if it
+// does not exist yet.
+//
+// CONTRACT: Requires the coins struct to contain at most one coin of the given
+// denom.
+func updateOrAddCoin(coins sdk.Coins, coin sdk.Coin) sdk.Coins {
+	for idx, c := range coins {
+		if c.Denom == coin.Denom {
+			coins[idx] = coin
+			return coins
+		}
+	}
+
+	// NOTE: if no coin with the correct denomination is in the coins slice, we
+	// add it here.
+	return coins.Add(coin)
 }
 
 // removeSpendLimitOrDeleteAuthorization removes the spend limit for the given
