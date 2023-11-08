@@ -223,36 +223,9 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			errContains: "invalid separator",
 		}, {
-<<<<<<< HEAD
-			// 	//  THIS PANICS INSIDE CheckAuthzExists
-			// 	name:   "fail - origin different from address caller",
-			// 	sender: senderAddress,
-			// 	origin: s.keyring.GetAddr(1),
-			// 	malleate: func() []interface{} {
-			// 		evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
-			// 		s.Require().NoError(err, "expected no error during evmos erc20 registration")
-			//
-			// 		osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(portID, channelID, osmosis.OsmosisDenom)
-			// 		osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
-			// 		s.Require().NoError(err, "expected no error during ibc erc20 registration")
-			//
-			// 		return []interface{}{
-			// 			senderAddress,
-			// 			osmoTokenPair.GetERC20Contract(),
-			// 			evmosTokenPair.GetERC20Contract(),
-			// 			transferAmount,
-			// 			slippagePercentage,
-			// 			windowSeconds,
-			// 			osmoAddress,
-			// 		}
-			// 	},
-			// 	expError:    true,
-			// 	errContains: "invalid separator",
-			// }, {
-=======
 			//  THIS PANICS INSIDE CheckAuthzExists
 			name:   "fail - origin different from address caller",
-			sender: senderAddr,
+			sender: senderAddress,
 			origin: s.keyring.GetAddr(1),
 			malleate: func() []interface{} {
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
@@ -263,19 +236,18 @@ func (s *PrecompileTestSuite) TestSwap() {
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				return []interface{}{
-					senderAddr,
+					senderAddress,
 					osmoTokenPair.GetERC20Contract(),
 					evmosTokenPair.GetERC20Contract(),
 					transferAmount,
-					validSlippagePercentage,
-					validWindowSeconds,
+					slippagePercentage,
+					windowSeconds,
 					osmoAddress,
 				}
 			},
 			expError:    true,
 			errContains: "invalid separator",
-			}, {
->>>>>>> 14b00e6a (fix authz keeper nil)
+		}, {
 			name:   "fail - ibc channel not open",
 			sender: senderAddress,
 			origin: senderAddress,
