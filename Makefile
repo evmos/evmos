@@ -175,13 +175,9 @@ build-pebbledb:
 	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
 
 build-rocksdb:
-	# define paths where to install librocksdb
-	# TODO use /usr dir
-	export INCLUDE_DIR=""$$HOME"/include"
-	export ROCKSDB_DIR=""$$HOME"/local/rocksdb"
 	./scripts/install_librocksdb.sh
-	CGO_ENABLED=1 CGO_CFLAGS="-I"$$INCLUDE_DIR"" \
-	CGO_LDFLAGS="-L"$$ROCKSDB_DIR" -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
+	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/rocksdb/include" \
+	CGO_LDFLAGS="-L/usr/local/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
 	COSMOS_BUILD_OPTIONS=rocksdb $(MAKE) build
 
 push-docker: build-docker
