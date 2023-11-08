@@ -146,7 +146,8 @@ func (p Precompile) IncreaseAllowance(
 //  2. no authorization -> return error
 //  3. authorization exists, subtractedValue positive and subtractedValue less than allowance -> update authorization
 //  4. authorization exists, subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-//  5. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
+//  5. authorization exists, subtractedValue positive but no allowance for given denomination -> return error
+//  6. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
 func (p Precompile) DecreaseAllowance(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -183,13 +184,12 @@ func (p Precompile) DecreaseAllowance(
 		// case 4. subtractedValue positive and subtractedValue equal to allowance -> remove spend limit for token and delete authorization if no other denoms are approved for
 		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
 		amount = common.Big0
+	case subtractedValue != nil && allowance.Sign() == 0:
+		// case 5. subtractedValue positive but no allowance for given denomination -> return error
+		err = fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
-		// case 5. subtractedValue positive and subtractedValue higher than allowance -> return error
-		if allowance.Cmp(common.Big0) == 0 {
-			err = fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
-		} else {
-			err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
-		}
+		// case 6. subtractedValue positive and subtractedValue higher than allowance -> return error
+		err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
 	}
 
 	if err != nil {
