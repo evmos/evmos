@@ -36,7 +36,7 @@ fi
 # Check the OS type and perform different actions
 if [[ $(uname) == "Linux" ]]; then
     mkdir -p "$ROCKSDB_LIB_DIR" && mkdir -p "$INCLUDE_DIR"
-    
+
     # Check Linux distribution
     if [[ -f /etc/os-release ]]; then
         source /etc/os-release
@@ -86,7 +86,8 @@ if [[ $(uname) == "Linux" ]]; then
 elif [[ $(uname) == "Darwin" ]]; then
     # macOS-specific actions
     xcode-select --install
-    brew tap homebrew/versions; brew install gcc7 --use-llvm
+    brew tap homebrew/versions
+    brew install gcc7 --use-llvm
     brew install rocksdb
 else
     echo "Unsupported OS."
