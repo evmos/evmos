@@ -17,11 +17,9 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSwap() {
-	sender, senderAddr, senderPrivKey := s.keyring.GetAccAddr(0), s.keyring.GetAddr(0), s.keyring.GetPrivKey(0)
-	// Account to sign IBC txs
-	acc, err := s.grpcHandler.GetAccount(sender.String())
-	s.Require().NoError(err)
+	sender, senderAddr := s.keyring.GetAccAddr(0), s.keyring.GetAddr(0)
 
+	// Default variables used during tests.
 	validSlippagePercentage := uint8(10)
 	validWindowSeconds := uint64(20)
 	transferAmount := big.NewInt(1e18)
@@ -224,30 +222,30 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			errContains: "invalid separator",
 		}, {
-			//  THIS PANICS INSIDE CheckAuthzExists
-			// 	name:   "fail - origin different from address caller",
-			// 	sender: senderAddr,
-			// 	origin: s.keyring.GetAddr(1),
-			// 	malleate: func() []interface{} {
-			// 		evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
-			// 		s.Require().NoError(err, "expected no error during evmos erc20 registration")
+			// //  THIS PANICS INSIDE CheckAuthzExists
+			// name:   "fail - origin different from address caller",
+			// sender: senderAddr,
+			// origin: s.keyring.GetAddr(1),
+			// malleate: func() []interface{} {
+			// 	evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
+			// 	s.Require().NoError(err, "expected no error during evmos erc20 registration")
 			//
-			// 		osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(portID, channelID, osmosis.OsmosisDenom)
-			// 		osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
-			// 		s.Require().NoError(err, "expected no error during ibc erc20 registration")
+			// 	osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(portID, channelID, osmosis.OsmosisDenom)
+			// 	osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+			// 	s.Require().NoError(err, "expected no error during ibc erc20 registration")
 			//
-			// 		return []interface{}{
-			// 			senderAddr,
-			// 			osmoTokenPair.GetERC20Contract(),
-			// 			evmosTokenPair.GetERC20Contract(),
-			// 			transferAmount,
-			// 			validSlippagePercentage,
-			// 			validWindowSeconds,
-			// 			osmoAddress,
-			// 		}
-			// 	},
-			// 	expError:    true,
-			// 	errContains: "invalid separator",
+			// 	return []interface{}{
+			// 		senderAddr,
+			// 		osmoTokenPair.GetERC20Contract(),
+			// 		evmosTokenPair.GetERC20Contract(),
+			// 		transferAmount,
+			// 		validSlippagePercentage,
+			// 		validWindowSeconds,
+			// 		osmoAddress,
+			// 	}
+			// },
+			// expError:    true,
+			// errContains: "invalid separator",
 			// }, {
 			name:   "fail - ibc channel not open",
 			sender: senderAddr,
@@ -308,12 +306,17 @@ func (s *PrecompileTestSuite) TestSwap() {
 			stateDB := s.unitNetwork.GetStateDB()
 
 			if tc.ibcSetup {
+				ibcSender, ibcSenderPrivKey := s.keyring.GetAccAddr(0), s.keyring.GetPrivKey(0)
+				// Account to sign IBC txs
+				ibcAcc, err := s.grpcHandler.GetAccount(ibcSender.String())
+				s.Require().NoError(err)
+
 				coordinator := coordinator.NewIntegrationCoordinator(
 					s.T(),
 					[]commonnetwork.Network{s.unitNetwork},
 				)
 
-				coordinator.SetDefaultSignerForChain(s.unitNetwork.GetChainID(), senderPrivKey, acc)
+				coordinator.SetDefaultSignerForChain(s.unitNetwork.GetChainID(), ibcSenderPrivKey, ibcAcc)
 				dummyChainsIDs := coordinator.GetDummyChainsIds()
 				coordinator.Setup(s.unitNetwork.GetChainID(), dummyChainsIDs[0])
 
@@ -333,7 +336,6 @@ func (s *PrecompileTestSuite) TestSwap() {
 				s.Require().ErrorContains(err, tc.errContains)
 			} else {
 				s.Require().NoError(err)
-				// tc.postCheck()
 			}
 		})
 	}

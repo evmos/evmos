@@ -7,8 +7,6 @@
 package osmosis
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -117,7 +115,6 @@ func (p Precompile) Swap(
 	if err != nil {
 		return nil, err
 	}
-	return nil, fmt.Errorf("superato il check")
 
 	// Update grant only if is needed
 	if err := ics20.UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, accept); err != nil {
