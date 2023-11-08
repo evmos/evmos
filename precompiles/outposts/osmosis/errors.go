@@ -7,7 +7,7 @@ import "fmt"
 var (
 	// ErrEmptyReceiver is raised when the receiver used in the memo is an
 	// empty string.
-	ErrEmptyReceiver = "receiver address cannot be an empty"
+	ErrEmptyReceiver = "receiver address cannot be empty"
 	// ErrEmptyOnFailedDelivery is raised when the onFailedDeliver field of the
 	// IBC memo is an empty string.
 	ErrEmptyOnFailedDelivery = "onFailedDelivery cannot be empty"
@@ -22,7 +22,7 @@ var (
 	// ErrTokenPairNotFound is raised when a token pair for a certain address
 	// is not found and it is required by the executing function.
 	ErrTokenPairNotFound = "token pair for address %s not found"
-	// ErrInputTokenNotSupported is raised when a the osmosis outpost receive a non supported
+	// ErrInputTokenNotSupported is raised when the osmosis outpost receive a non supported
 	// input token for the swap.
 	ErrInputTokenNotSupported = "input not supported, supported tokens: %v" //#nosec G101 -- no hardcoded credentials here
 )
