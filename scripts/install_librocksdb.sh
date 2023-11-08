@@ -10,7 +10,7 @@ ROCKSDB_LIB_DIR="$ROCKSDB_DIR/lib"
 
 # Function to prompt the user for reinstallation
 prompt_reinstall() {
-    read -p "Previous RocksDB installation detected. Do you want to reinstall? (yes/no): " choice
+    read -r -p "Previous RocksDB installation detected. Do you want to reinstall? (yes/no): " choice
     case "$choice" in
     y | yes | Yes | YES)
         echo "Reinstalling RocksDB..."
