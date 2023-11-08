@@ -75,7 +75,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// If the receiver has not the prefix "osmo", we should compute its address
+	// If the receiver doesn't have the prefix "osmo", we should compute its address
 	// in the Osmosis chain as a recovery address for the contract.
 	onFailedDelivery := CreateOnFailedDeliveryField(receiver)
 	packet := CreatePacketWithMemo(
