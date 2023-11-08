@@ -20,6 +20,10 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
+	bondDenom string
+	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
+	// This denomination is used to instantiate the precompile.
+	tokenDenom  string
 	network     *network.UnitTestNetwork
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
@@ -34,7 +38,7 @@ func TestPrecompileTestSuite(t *testing.T) {
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -42,7 +46,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 	txFactory := factory.New(integrationNetwork, grpcHandler)
 
 	// Create dummy token pair to instantiate the precompile
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), "xmpl", erc20types.OWNER_MODULE)
+	tokenDenom := "xmpl"
+	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), tokenDenom, erc20types.OWNER_MODULE)
 
 	precompile, err := erc20precompile.NewPrecompile(
 		tokenPair,
@@ -52,9 +57,16 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err, "failed to create erc20 precompile")
 
+	ctx := integrationNetwork.GetContext()
+	sk := integrationNetwork.App.StakingKeeper
+	bondDenom := sk.BondDenom(ctx)
+	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+
+	s.bondDenom = bondDenom
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.precompile = precompile
 	s.network = integrationNetwork
+	s.tokenDenom = tokenDenom
 }
