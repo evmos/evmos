@@ -46,7 +46,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
-        unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.AuthzKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 

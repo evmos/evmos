@@ -8,8 +8,8 @@ import (
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
