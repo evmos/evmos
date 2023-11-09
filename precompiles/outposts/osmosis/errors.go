@@ -7,7 +7,7 @@ import "fmt"
 var (
 	// ErrEmptyReceiver is raised when the receiver used in the memo is an
 	// empty string.
-	ErrEmptyReceiver = "receiver address cannot be an empty"
+	ErrEmptyReceiver = "receiver address cannot be empty"
 	// ErrEmptyOnFailedDelivery is raised when the onFailedDeliver field of the
 	// IBC memo is an empty string.
 	ErrEmptyOnFailedDelivery = "onFailedDelivery cannot be empty"
