@@ -13,7 +13,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 const (
