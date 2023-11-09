@@ -173,7 +173,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput),
+			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput, "aevmos"),
 		}, {
 			name:   "fail - invalid input",
 			sender: senderAddress,

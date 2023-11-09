@@ -21,11 +21,11 @@ import (
 )
 
 const (
-	/// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
-	/// definition of the slippage for the swap.
+	// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
+	// definition of the slippage for the swap.
 	MaxSlippagePercentage uint8 = 20
-	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
-	/// definition of the slippage for the swap.
+	// MaxWindowSeconds is the maximum number of seconds that can be used in the
+	// definition of the slippage for the swap.
 	MaxWindowSeconds uint64 = 60
 )
 
@@ -49,8 +49,8 @@ type EventSwap struct {
 	Receiver string
 }
 
-// Twap represents a Time-Weighted Average Price configuration.
-type Twap struct {
+// TWAP represents a Time-Weighted Average Price configuration.
+type TWAP struct {
 	// SlippagePercentage specifies the acceptable slippage percentage for a transaction.
 	SlippagePercentage uint8 `json:"slippage_percentage"`
 	// WindowSeconds defines the duration for which the TWAP is calculated.
@@ -60,7 +60,7 @@ type Twap struct {
 // Slippage specify how to compute the slippage of the swap. For this version of the outpost
 // only the TWAP is allowed.
 type Slippage struct {
-	Twap *Twap `json:"twap"`
+	TWAP *TWAP `json:"twap"`
 }
 
 // OsmosisSwap represents the details for a swap transaction on the Osmosis chain
@@ -71,7 +71,7 @@ type Slippage struct {
 type OsmosisSwap struct {
 	// OutputDenom specifies the desired output denomination for the swap.
 	OutputDenom string `json:"output_denom"`
-	// Twap represents the TWAP configuration for the swap.
+	// Slippage represents the TWAP configuration for the swap.
 	Slippage *Slippage `json:"slippage"`
 	// Receiver is the address of the entity receiving the swapped amount.
 	Receiver string `json:"receiver"`
@@ -119,7 +119,7 @@ func CreatePacketWithMemo(
 				OsmosisSwap: &OsmosisSwap{
 					OutputDenom: outputDenom,
 					Slippage: &Slippage{
-						&Twap{
+						&TWAP{
 							SlippagePercentage: slippagePercentage,
 							WindowSeconds:      windowSeconds,
 						},
@@ -161,11 +161,11 @@ func (m Memo) Validate() error {
 		return err
 	}
 
-	if osmosisSwap.Slippage.Twap.SlippagePercentage == 0 || osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
+	if osmosisSwap.Slippage.TWAP.SlippagePercentage == 0 || osmosisSwap.Slippage.TWAP.SlippagePercentage > MaxSlippagePercentage {
 		return fmt.Errorf(ErrSlippagePercentage)
 	}
 
-	if osmosisSwap.Slippage.Twap.WindowSeconds == 0 || osmosisSwap.Slippage.Twap.WindowSeconds > MaxWindowSeconds {
+	if osmosisSwap.Slippage.TWAP.WindowSeconds == 0 || osmosisSwap.Slippage.TWAP.WindowSeconds > MaxWindowSeconds {
 		return fmt.Errorf(ErrWindowSeconds)
 	}
 
@@ -173,15 +173,14 @@ func (m Memo) Validate() error {
 }
 
 // CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The returned string is the bech32 of the input or "do_nothing".
 func CreateOnFailedDeliveryField(recoveryAddress string) string {
 	onFailedDelivery := recoveryAddress
-	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(recoveryAddress)
+	bech32Prefix, addressBytes, err := cosmosbech32.DecodeAndConvert(recoveryAddress)
 	if err != nil {
 		return DefaultOnFailedDelivery
 	}
 	if bech32Prefix != OsmosisPrefix {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, address)
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, addressBytes)
 		if err != nil {
 			return DefaultOnFailedDelivery
 		}
@@ -207,6 +206,7 @@ func ValidateInputOutput(
 	if !slices.Contains(validInputs, inputDenom) {
 		return fmt.Errorf(ErrInputTokenNotSupported, validInputs)
 	}
+
 	return nil
 }
 
@@ -231,6 +231,7 @@ func ParseSwapPacketData(args []interface{}) (
 		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
+	var ok bool
 	sender, ok := args[0].(common.Address)
 	if !ok {
 		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
