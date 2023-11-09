@@ -7,6 +7,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"

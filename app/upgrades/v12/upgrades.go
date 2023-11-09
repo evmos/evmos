@@ -4,6 +4,7 @@
 package v12
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -21,7 +22,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	dk distrKeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if utils.IsMainnet(ctx.ChainID()) {

@@ -66,7 +66,7 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), val.Address.String(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -170,11 +170,12 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
+	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)
+	s.Require().NoError(err, "failed to get params")
 	stakingParams.BondDenom = utils.BaseDenom
 	stakingParams.MinCommissionRate = math.LegacyZeroDec()
 	s.bondDenom = stakingParams.BondDenom
-	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err, "failed to set params")
 
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))

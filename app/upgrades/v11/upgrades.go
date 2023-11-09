@@ -4,6 +4,7 @@
 package v11
 
 import (
+	"context"
 	"fmt"
 
 	"cosmossdk.io/log"
@@ -44,7 +45,7 @@ func CreateUpgradeHandler(
 	sk stakingkeeper.Keeper,
 	dk distributionkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if utils.IsMainnet(ctx.ChainID()) {
@@ -197,9 +198,9 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 			return err
 		}
 
-		validator, found := sk.GetValidator(ctx, validatorAddress)
-		if !found {
-			return errorsmod.Wrap(stakingtypes.ErrNoValidatorFound, allocation[2])
+		validator, err := sk.GetValidator(ctx, validatorAddress)
+		if err != nil {
+			return err
 		}
 
 		_, err = sk.Delegate(ctx, receiver, amount, stakingtypes.Unbonded, validator, true)

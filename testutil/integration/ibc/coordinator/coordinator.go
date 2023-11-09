@@ -7,6 +7,7 @@ import (
 	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"

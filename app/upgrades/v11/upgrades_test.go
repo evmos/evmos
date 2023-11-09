@@ -104,18 +104,19 @@ func (suite *UpgradeTestSuite) setValidators(validatorsAddr []string) {
 		valAddr, err := sdk.ValAddressFromBech32(valAddrStr)
 		suite.Require().NoError(err)
 
-		validator, err := stakingtypes.NewValidator(valAddr, suite.consKey, stakingtypes.Description{})
+		validator, err := stakingtypes.NewValidator(valAddr.String(), suite.consKey, stakingtypes.Description{})
 		suite.Require().NoError(err)
 
 		validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
 
-		err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+		err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, sdk.ValAddress(validator.GetOperator()))
 		suite.Require().NoError(err)
 		err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 		suite.Require().NoError(err)
 	}
 
-	validators := suite.app.StakingKeeper.GetValidators(suite.ctx, 1000)
+	validators, err := suite.app.StakingKeeper.GetValidators(suite.ctx, 1000)
+	suite.Require().NoError(err)
 	suite.Require().Equal(len(validatorsAddr)+1, len(validators))
 }
 
@@ -262,7 +263,8 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			suite.Require().Equal(math.ZeroInt(), balance.Amount)
 
 			// get staked (delegated) tokens - no delegations expected
-			delegated := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
+			delegated, err := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, noRewardAddr)
+			suite.Require().NoError(err)
 			suite.Require().Empty(delegated)
 
 			commPoolFinalBalance := suite.app.BankKeeper.GetBalance(suite.ctx, communityPool, utils.BaseDenom)
@@ -277,7 +279,8 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 				suite.Require().Equal(math.ZeroInt(), balance.Amount)
 
 				// get staked (delegated) tokens
-				delegated := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
+				delegated, err := suite.app.StakingKeeper.GetAllDelegatorDelegations(suite.ctx, addr)
+				suite.Require().NoError(err)
 				if tc.expectedSuccess {
 					// sum of all delegations should be equal to rewards
 					delegatedAmt := suite.sumDelegatorDelegations(delegated...)
@@ -324,8 +327,8 @@ func (suite *UpgradeTestSuite) sumDelegatorDelegations(ds ...stakingtypes.Delega
 	sumDec := math.LegacyNewDec(0)
 
 	for _, d := range ds {
-		validator, ok := suite.app.StakingKeeper.GetValidator(suite.ctx, d.GetValidatorAddr())
-		suite.Require().True(ok)
+		validator, err := suite.app.StakingKeeper.GetValidator(suite.ctx, sdk.ValAddress(d.GetValidatorAddr()))
+		suite.Require().NoError(err)
 
 		amt := validator.TokensFromShares(d.GetShares())
 		sumDec = sumDec.Add(amt)
@@ -352,11 +355,12 @@ func (suite *UpgradeTestSuite) getDelegatedTokens(valAddrs ...string) math.Int {
 		valAddr, err := sdk.ValAddressFromBech32(valAddrStr)
 		suite.Require().NoError(err)
 
-		val, ok := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
-		suite.Require().True(ok)
+		val, err := suite.app.StakingKeeper.GetValidator(suite.ctx, valAddr)
+		suite.Require().NoError(err)
 
 		// get staked (delegated) tokens
-		delegations := suite.app.StakingKeeper.GetValidatorDelegations(suite.ctx, valAddr)
+		delegations, err := suite.app.StakingKeeper.GetValidatorDelegations(suite.ctx, valAddr)
+		suite.Require().NoError(err)
 
 		delegatedAmt := suite.sumValidatorDelegations(val, delegations...)
 		delTokens = delTokens.Add(delegatedAmt)

@@ -159,8 +159,8 @@ func (s *UpgradesTestSuite) TestInstantUnbonding() {
 	balancePre := s.app.BankKeeper.GetAllBalances(s.ctx, s.address.Bytes())
 	notBondedPool := s.app.AccountKeeper.GetModuleAccount(s.ctx, stakingtypes.NotBondedPoolName)
 	poolBalancePre := s.app.BankKeeper.GetAllBalances(s.ctx, notBondedPool.GetAddress())
-	delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-	s.Require().True(found, "delegation not found")
+	delegation, err := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+	s.Require().NoError(err, "delegation not found")
 
 	unbondAmount, err := v14.InstantUnbonding(s.ctx, s.app.BankKeeper, s.app.StakingKeeper, delegation, s.bondDenom)
 	s.Require().NoError(err, "failed to unbond")
@@ -171,8 +171,9 @@ func (s *UpgradesTestSuite) TestInstantUnbonding() {
 	diff := balancePost.Sub(balancePre...)
 	s.Require().Equal(expectedDiff, diff, "expected different balance diff")
 
-	_, found = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-	s.Require().False(found, "delegation should not be found")
+	_, err = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+	s.Require().Error(err, "delegation should not be found")
+	s.Require().Contains(err.Error(), "delegation not found")
 
 	poolBalancePost := s.app.BankKeeper.GetAllBalances(s.ctx, notBondedPool.GetAddress())
 	s.Require().Equal(poolBalancePre, poolBalancePost, "expected no change in pool balance")
@@ -195,7 +196,8 @@ func (s *UpgradesTestSuite) TestCreateDelegationWithZeroTokens() {
 	s.Require().NotEqual(math.LegacyZeroDec(), delegation.Shares, "delegation shares should not be zero")
 
 	// Check that the validators tokenFromShares method returns zero tokens when truncated to an int
-	valAfterSlashing := s.app.StakingKeeper.Validator(s.ctx, targetValidator.GetOperator())
+	valAfterSlashing, err := s.app.StakingKeeper.Validator(s.ctx, sdk.ValAddress(targetValidator.GetOperator()))
+	s.Require().NoError(err)
 	tokens := valAfterSlashing.TokensFromShares(delegation.Shares).TruncateInt()
 	s.Require().Equal(int64(0), tokens.Int64(), "expected zero tokens to be returned")
 }

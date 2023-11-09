@@ -34,12 +34,37 @@ func CreateUpgradeHandler(
 // setMinCommissionRate sets the minimum commission rate for validators
 // to 5%.
 func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) error {
+	unbondingTime, err := sk.UnbondingTime(ctx)
+	if err != nil {
+		return err
+	}
+
+	maxValidators, err := sk.MaxValidators(ctx)
+	if err != nil {
+		return err
+	}
+
+	maxEntries, err := sk.MaxEntries(ctx)
+	if err != nil {
+		return err
+	}
+
+	historicalEntries, err := sk.HistoricalEntries(ctx)
+	if err != nil {
+		return err
+	}
+
+	bondDenom, err := sk.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
+
 	stakingParams := stakingtypes.Params{
-		UnbondingTime:     sk.UnbondingTime(ctx),
-		MaxValidators:     sk.MaxValidators(ctx),
-		MaxEntries:        sk.MaxEntries(ctx),
-		HistoricalEntries: sk.HistoricalEntries(ctx),
-		BondDenom:         sk.BondDenom(ctx),
+		UnbondingTime:     unbondingTime,
+		MaxValidators:     maxValidators,
+		MaxEntries:        maxEntries,
+		HistoricalEntries: historicalEntries,
+		BondDenom:         bondDenom,
 		MinCommissionRate: math.LegacyNewDecWithPrec(5, 2), // 5%
 	}
 

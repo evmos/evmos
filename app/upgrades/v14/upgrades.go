@@ -4,6 +4,8 @@
 package v14
 
 import (
+	"context"
+
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -78,7 +80,7 @@ func CreateUpgradeHandler(
 	pk paramskeeper.Keeper,
 	cdc codec.BinaryCodec,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if utils.IsMainnet(ctx.ChainID()) {

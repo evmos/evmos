@@ -71,7 +71,7 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), val.Address.String(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -169,14 +169,15 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash())))
 
 	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
+	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)
+	s.Require().NoError(err, "failed to get params")
 	stakingParams.BondDenom = utils.BaseDenom
 	stakingParams.MinCommissionRate = math.LegacyZeroDec()
 	s.bondDenom = stakingParams.BondDenom
-	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
+	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err, "failed to set params")
 
 	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -233,12 +234,14 @@ func GenerateMigrationTestAccount() MigrationTestAccount {
 // after the migration.
 func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount) {
 	// Check the new delegations
-	delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, account.Addr)
+	delegations, err := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, account.Addr)
+	s.Require().NoError(err)
 	s.Require().Len(delegations, len(account.DelegationsPost), "expected different number of delegations after migration of account %s", account.Addr.String())
 	s.Require().ElementsMatch(delegations, account.DelegationsPost, "expected different delegations after migration of account %s", account.Addr.String())
 
 	// There should not be any unbonding delegations
-	unbondingDelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, account.Addr)
+	unbondingDelegations, err := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, account.Addr)
+	s.Require().NoError(err)
 	s.Require().Len(unbondingDelegations, 0, "expected no unbonding delegations after migration for account %s", account.Addr.String())
 
 	// Check balances
@@ -254,7 +257,8 @@ func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount)
 // getDelegationSharesMap returns a map of validator operator addresses to the
 // total shares delegated to them.
 func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]math.LegacyDec {
-	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
+	allValidators, err := s.app.StakingKeeper.GetAllValidators(s.ctx)
+	s.Require().NoError(err)
 	sharesMap := make(map[string]math.LegacyDec, len(allValidators))
 	for _, validator := range allValidators {
 		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
@@ -301,17 +305,18 @@ func Delegate(
 	validator stakingtypes.Validator,
 	amount int64,
 ) (stakingtypes.Delegation, error) {
-	stakingDenom := app.StakingKeeper.BondDenom(ctx)
+	stakingDenom, err := app.StakingKeeper.BondDenom(ctx)
+	s.Require().NoError(err)
 
-	msgDelegate := stakingtypes.NewMsgDelegate(delegator, validator.GetOperator(), sdk.NewInt64Coin(stakingDenom, amount))
-	_, err := evmosutil.DeliverTx(ctx, app, priv, nil, msgDelegate)
+	msgDelegate := stakingtypes.NewMsgDelegate(delegator.String(), validator.GetOperator(), sdk.NewInt64Coin(stakingDenom, amount))
+	_, err = evmosutil.DeliverTx(ctx, app, priv, nil, msgDelegate)
 	if err != nil {
 		return stakingtypes.Delegation{}, fmt.Errorf("failed to delegate: %w", err)
 	}
 
-	delegation, found := app.StakingKeeper.GetDelegation(s.ctx, delegator, validator.GetOperator())
-	if !found {
-		return stakingtypes.Delegation{}, fmt.Errorf("delegation not found")
+	delegation, err := app.StakingKeeper.GetDelegation(s.ctx, delegator, sdk.ValAddress(validator.GetOperator()))
+	if err != nil {
+		return stakingtypes.Delegation{}, fmt.Errorf("getting delegation: %w", err)
 	}
 
 	return delegation, nil

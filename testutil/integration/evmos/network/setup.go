@@ -111,19 +111,19 @@ func createStakingValidator(val *tmtypes.Validator, bondedAmt sdkmath.Int) (stak
 		return stakingtypes.Validator{}, err
 	}
 
-	commission := stakingtypes.NewCommission(sdktypes.ZeroDec(), sdktypes.ZeroDec(), sdktypes.ZeroDec())
+	commission := stakingtypes.NewCommission(sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec(), sdkmath.LegacyZeroDec())
 	validator := stakingtypes.Validator{
 		OperatorAddress:   sdktypes.ValAddress(val.Address).String(),
 		ConsensusPubkey:   pkAny,
 		Jailed:            false,
 		Status:            stakingtypes.Bonded,
 		Tokens:            bondedAmt,
-		DelegatorShares:   sdktypes.OneDec(),
+		DelegatorShares:   sdkmath.LegacyOneDec(),
 		Description:       stakingtypes.Description{},
 		UnbondingHeight:   int64(0),
 		UnbondingTime:     time.Unix(0, 0).UTC(),
 		Commission:        commission,
-		MinSelfDelegation: sdktypes.ZeroInt(),
+		MinSelfDelegation: sdkmath.ZeroInt(),
 	}
 	return validator, nil
 }
@@ -148,7 +148,7 @@ func createDelegations(tmValidators []*tmtypes.Validator, fromAccount sdktypes.A
 	amountOfValidators := len(tmValidators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
 	for _, val := range tmValidators {
-		delegation := stakingtypes.NewDelegation(fromAccount, val.Address.Bytes(), sdktypes.OneDec())
+		delegation := stakingtypes.NewDelegation(fromAccount.String(), val.Address.String(), sdkmath.LegacyOneDec())
 		delegations = append(delegations, delegation)
 	}
 	return delegations

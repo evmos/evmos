@@ -24,13 +24,13 @@ type MigratedDelegation struct {
 // MigrateNativeMultisigs migrates the native multisigs to the new team multisig including all
 // staking delegations.
 func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.Keeper, newMultisig sdk.AccAddress, oldMultisigs ...string) error {
-	var (
-		// bondDenom is the staking bond denomination used
-		bondDenom = sk.BondDenom(ctx)
-		// migratedDelegations stores all delegations that must be migrated
-		migratedDelegations []MigratedDelegation
-	)
-
+	// migratedDelegations stores all delegations that must be migrated
+	var migratedDelegations []MigratedDelegation
+	// bondDenom is the staking bond denomination used
+	bondDenom, err := sk.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	// NOTE: We are checking the bond denomination here because this is what caused the panic
 	// during the v14.0.0 upgrade.
 	if bondDenom == "" {
@@ -41,8 +41,10 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 	for _, oldMultisig := range oldMultisigs {
 		oldMultisigAcc := sdk.MustAccAddressFromBech32(oldMultisig)
-		delegations := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
-
+		delegations, err := sk.GetAllDelegatorDelegations(ctx, oldMultisigAcc)
+		if err != nil {
+			return err
+		}
 		for _, delegation := range delegations {
 			unbondAmount, err := InstantUnbonding(ctx, bk, sk, delegation, bondDenom)
 			if err != nil {
@@ -58,14 +60,14 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 			}
 
 			migratedDelegations = append(migratedDelegations, MigratedDelegation{
-				validator: delegation.GetValidatorAddr(),
+				validator: sdk.ValAddress(delegation.GetValidatorAddr()),
 				amount:    unbondAmount,
 			})
 		}
 
 		// Send coins to new team multisig
 		balances := bk.GetAllBalances(ctx, oldMultisigAcc)
-		err := bk.SendCoins(ctx, oldMultisigAcc, newMultisig, balances)
+		err = bk.SendCoins(ctx, oldMultisigAcc, newMultisig, balances)
 		if err != nil {
 			// NOTE: log error instead of aborting the whole migration
 			logger.Error(fmt.Sprintf("failed to send coins from %s to %s: %s", oldMultisig, newMultisig.String(), err.Error()))
@@ -75,10 +77,10 @@ func MigrateNativeMultisigs(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkee
 
 	// Delegate from multisig to same validators
 	for _, migration := range migratedDelegations {
-		val, ok := sk.GetValidator(ctx, migration.validator)
-		if !ok {
+		val, err := sk.GetValidator(ctx, migration.validator)
+		if err != nil {
 			// NOTE: log error instead of aborting the whole migration
-			logger.Error(fmt.Sprintf("validator %s not found", migration.validator.String()))
+			logger.Error(fmt.Sprintf("error while getting validator %s. %w", migration.validator.String(), err))
 			continue
 		}
 		if _, err := sk.Delegate(ctx, newMultisig, migration.amount, stakingtypes.Unbonded, val, true); err != nil {
@@ -109,11 +111,15 @@ func InstantUnbonding(
 
 	// Check if there are any outstanding redelegations for delegator - validator pair
 	// - this would require additional handling
-	if sk.HasReceivingRedelegation(ctx, delAddr, valAddr) {
+	hasRecvRedel, err := sk.HasReceivingRedelegation(ctx, sdk.AccAddress(delAddr), sdk.ValAddress(valAddr))
+	if err != nil {
+		return math.Int{}, err
+	}
+	if hasRecvRedel {
 		return math.Int{}, fmt.Errorf("redelegation(s) found for delegator %s and validator %s", delAddr, valAddr)
 	}
 
-	unbondAmount, err = sk.Unbond(ctx, delAddr, valAddr, del.GetShares())
+	unbondAmount, err = sk.Unbond(ctx, sdk.AccAddress(delAddr), sdk.ValAddress(valAddr), del.GetShares())
 	if err != nil {
 		return math.Int{}, err
 	}
@@ -132,9 +138,9 @@ func InstantUnbonding(
 	}
 
 	// transfer the validator tokens to the not bonded pool if necessary
-	validator, found := sk.GetValidator(ctx, valAddr)
-	if !found {
-		return math.Int{}, fmt.Errorf("validator %s not found", valAddr)
+	validator, err := sk.GetValidator(ctx, sdk.ValAddress(valAddr))
+	if err != nil {
+		return math.Int{}, fmt.Errorf("error getting validator %s. %w", valAddr, err)
 	}
 	if validator.IsBonded() {
 		if err := bk.SendCoinsFromModuleToModule(
@@ -146,7 +152,7 @@ func InstantUnbonding(
 
 	// Transfer the tokens from the not bonded pool to the delegator
 	if err := bk.UndelegateCoinsFromModuleToAccount(
-		ctx, stakingtypes.NotBondedPoolName, delAddr, unbondCoins,
+		ctx, stakingtypes.NotBondedPoolName, sdk.AccAddress(delAddr), unbondCoins,
 	); err != nil {
 		return math.Int{}, err
 	}

@@ -296,7 +296,7 @@ func (suite *ScheduleTestSuite) TestDisjunctPeriods() {
 				for i, gotPeriod := range got {
 					wantPeriod := tc.expPeriods[i]
 					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length)
-					suite.Require().True(gotPeriod.Amount.IsEqual(wantPeriod.Amount),
+					suite.Require().True(gotPeriod.Amount.Equal(wantPeriod.Amount),
 						"period %d amount: got %v, expPeriods %v", i, gotPeriod.Amount, wantPeriod.Amount,
 					)
 				}
@@ -406,7 +406,7 @@ func (suite *ScheduleTestSuite) TestConjunctPeriods() {
 				for i, gotPeriod := range got {
 					wantPeriod := tc.expPeriods[i]
 					suite.Require().Equal(wantPeriod.Length, gotPeriod.Length)
-					suite.Require().True(gotPeriod.Amount.IsEqual(wantPeriod.Amount),
+					suite.Require().True(gotPeriod.Amount.Equal(wantPeriod.Amount),
 						"period %d amount: got %v, expPeriods %v", i, gotPeriod.Amount, wantPeriod.Amount,
 					)
 				}
