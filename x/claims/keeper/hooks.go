@@ -4,6 +4,8 @@
 package keeper
 
 import (
+	"context"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -40,19 +42,19 @@ func (k Keeper) Hooks() Hooks {
 
 // AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on
 // the module keeper
-func (h Hooks) AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress) {
-	h.k.AfterProposalVote(ctx, proposalID, voterAddr)
+func (h Hooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
+	return h.k.AfterProposalVote(ctx, proposalID, voterAddr)
 }
 
 // AfterProposalVote is called after a vote on a proposal is cast. Once the vote
 // is successfully included, the claimable amount for the user's claims record
 // vote action is claimed and the transferred to the user address.
-func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, voterAddr sdk.AccAddress) {
+func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, voterAddr sdk.AccAddress) error {
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, voterAddr)
 	if !found {
-		return
+		return nil
 	}
 
 	_, err := k.ClaimCoinsForAction(ctx, voterAddr, claimsRecord, types.ActionVote, params)
@@ -62,12 +64,14 @@ func (k Keeper) AfterProposalVote(ctx sdk.Context, _ uint64, voterAddr sdk.AccAd
 			"address", voterAddr.String(),
 			"error", err.Error(),
 		)
+		return err
 	}
+	return nil
 }
 
 // AfterDelegationModified is a wrapper for calling the Staking AfterDelegationModified
 // hook on the module keeper
-func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	err := h.k.AfterDelegationModified(ctx, delAddr, valAddr)
 	return err
 }
@@ -76,7 +80,7 @@ func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, 
 // delegates their EVMOS tokens to a validator, the claimable amount for the
 // user's claims record delegation action is claimed and transferred to the user
 // address.
-func (k Keeper) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
+func (k Keeper) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, delAddr)
@@ -130,59 +134,64 @@ func (k Keeper) PostTxProcessing(ctx sdk.Context, msg core.Message, _ *ethtypes.
 // ________________________________________________________________________________________
 
 // governance hooks
-func (h Hooks) AfterProposalFailedMinDeposit(_ sdk.Context, _ uint64) {
+func (h Hooks) AfterProposalFailedMinDeposit(_ context.Context, _ uint64) error {
+	return nil
 }
 
-func (h Hooks) AfterProposalVotingPeriodEnded(_ sdk.Context, _ uint64) {
+func (h Hooks) AfterProposalVotingPeriodEnded(_ context.Context, _ uint64) error {
+	return nil
 }
 
-func (h Hooks) AfterProposalSubmission(_ sdk.Context, _ uint64) {}
-
-func (h Hooks) AfterProposalDeposit(_ sdk.Context, _ uint64, _ sdk.AccAddress) {
+func (h Hooks) AfterProposalSubmission(_ context.Context, _ uint64) error {
+	return nil
 }
 
-func (h Hooks) AfterProposalInactive(_ sdk.Context, _ uint64) {}
+func (h Hooks) AfterProposalDeposit(_ context.Context, _ uint64, _ sdk.AccAddress) error {
+	return nil
+}
 
-func (h Hooks) AfterProposalActive(_ sdk.Context, _ uint64) {}
+func (h Hooks) AfterProposalInactive(_ context.Context, _ uint64) {}
+
+func (h Hooks) AfterProposalActive(_ context.Context, _ uint64) {}
 
 // staking hooks
-func (h Hooks) AfterValidatorCreated(_ sdk.Context, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorCreated(_ context.Context, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeValidatorModified(_ sdk.Context, _ sdk.ValAddress) error {
+func (h Hooks) BeforeValidatorModified(_ context.Context, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) AfterValidatorRemoved(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorRemoved(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) AfterValidatorBonded(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorBonded(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
+func (h Hooks) AfterValidatorBeginUnbonding(_ context.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationCreated(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationCreated(_ context.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationSharesModified(_ context.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationRemoved(_ context.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
 	return nil
 }
 
-func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ math.LegacyDec) error {
+func (h Hooks) BeforeValidatorSlashed(_ context.Context, _ sdk.ValAddress, _ math.LegacyDec) error {
 	return nil
 }
 
-func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
+func (h Hooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {
 	return nil
 }
 

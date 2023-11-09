@@ -4,6 +4,7 @@
 package types
 
 import (
+	context "context"
 	"time"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -24,31 +25,31 @@ import (
 // AccountKeeper defines the expected interface needed to retrieve account info.
 type AccountKeeper interface {
 	GetModuleAddress(moduleName string) sdk.AccAddress
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
+	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
-	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-	BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
-	IsSendEnabledCoin(ctx sdk.Context, coin sdk.Coin) bool
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	HasSupply(ctx sdk.Context, denom string) bool
-	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(sdk.Coin) bool)
+	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
+	BurnCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
+	IsSendEnabledCoin(ctx context.Context, coin sdk.Coin) bool
+	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	HasSupply(ctx context.Context, denom string) bool
+	IterateAccountBalances(ctx context.Context, addr sdk.AccAddress, cb func(sdk.Coin) bool)
 }
 
 // GovKeeper defines the expected governance keeper interface used on incentives
 type GovKeeper interface {
-	Logger(sdk.Context) log.Logger
-	GetVotingParams(ctx sdk.Context) govv1beta1.VotingParams
-	GetProposal(ctx sdk.Context, proposalID uint64) (govv1beta1.Proposal, bool)
-	InsertActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
-	RemoveFromActiveProposalQueue(ctx sdk.Context, proposalID uint64, timestamp time.Time)
-	SetProposal(ctx sdk.Context, proposal govv1beta1.Proposal)
+	Logger(context.Context) log.Logger
+	GetVotingParams(ctx context.Context) govv1beta1.VotingParams
+	GetProposal(ctx context.Context, proposalID uint64) (govv1beta1.Proposal, bool)
+	InsertActiveProposalQueue(ctx context.Context, proposalID uint64, timestamp time.Time)
+	RemoveFromActiveProposalQueue(ctx context.Context, proposalID uint64, timestamp time.Time)
+	SetProposal(ctx context.Context, proposal govv1beta1.Proposal)
 }
 
 // InflationKeeper defines the expected mint keeper interface used on incentives

@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -223,7 +224,7 @@ func (k Keeper) AllocationMeters(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var allocationMeters []math.LegacyDecCoin
+	var allocationMeters []sdk.DecCoin
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 
 	pageRes, err := query.Paginate(
@@ -236,7 +237,7 @@ func (k Keeper) AllocationMeters(
 				return err
 			}
 
-			allocationMeters = append(allocationMeters, math.LegacyDecCoin{Denom: denom, Amount: amount})
+			allocationMeters = append(allocationMeters, sdk.DecCoin{Denom: denom, Amount: amount})
 
 			return nil
 		},

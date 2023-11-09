@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -52,7 +53,7 @@ func InitGenesis(
 	sort.Strings(denoms)
 
 	for _, denom := range denoms {
-		am := math.LegacyDecCoin{
+		am := sdk.DecCoin{
 			Denom:  denom,
 			Amount: allocationMeters[denom],
 		}

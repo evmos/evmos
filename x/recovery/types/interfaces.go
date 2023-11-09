@@ -20,13 +20,13 @@ import (
 // BankKeeper defines the banking keeper that must be fulfilled when
 // creating a x/recovery keeper.
 type BankKeeper interface {
-	IterateAccountBalances(ctx sdk.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
+	IterateAccountBalances(ctx context.Context, addr sdk.AccAddress, cb func(coin sdk.Coin) (stop bool))
 	BlockedAddr(addr sdk.AccAddress) bool
 }
 
 // AccountKeeper defines the expected account keeper
 type AccountKeeper interface {
-	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI
 }
 
 // TransferKeeper defines the expected IBC transfer keeper.
