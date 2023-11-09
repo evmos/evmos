@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -71,7 +72,7 @@ type Dec struct {
 
 // ToSDKType converts the Coin to the Cosmos SDK representation.
 func (c Coin) ToSDKType() sdk.Coin {
-	return sdk.NewCoin(c.Denom, sdk.NewIntFromBigInt(c.Amount))
+	return sdk.NewCoin(c.Denom, math.NewIntFromBigInt(c.Amount))
 }
 
 // NewCoinsResponse converts a response to an array of Coin.

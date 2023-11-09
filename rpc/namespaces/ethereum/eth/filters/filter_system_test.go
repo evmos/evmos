@@ -2,7 +2,6 @@ package filters
 
 import (
 	"context"
-	"os"
 	"sync"
 	"testing"
 	"time"
@@ -37,7 +36,7 @@ func TestFilterSystem(t *testing.T) {
 		index[i] = make(map[rpc.ID]*Subscription)
 	}
 	es := &EventSystem{
-		logger:     log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger:     log.NewTestLogger(t),
 		ctx:        context.Background(),
 		lightMode:  false,
 		index:      index,

@@ -79,7 +79,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				switch {
 				case balance.Amount.Equal(math.NewInt(2e14)):
 					suite.Require().Equal(
-						sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e14)}},
+						sdk.DecCoins{math.LegacyDecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e14)}},
 						rewards,
 						"expected total rewards with an amount of 1e14 yet to be withdrawn",
 					)
@@ -112,7 +112,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 				suite.Require().Equal(
-					sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e18)}},
+					sdk.DecCoins{math.LegacyDecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e18)}},
 					rewards,
 					"expected total rewards with an amount of 1e18 yet to be withdrawn",
 				)

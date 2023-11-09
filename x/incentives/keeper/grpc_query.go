@@ -223,7 +223,7 @@ func (k Keeper) AllocationMeters(
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	var allocationMeters []sdk.DecCoin
+	var allocationMeters []math.LegacyDecCoin
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 
 	pageRes, err := query.Paginate(
@@ -231,12 +231,12 @@ func (k Keeper) AllocationMeters(
 		req.Pagination,
 		func(key, value []byte) error {
 			denom := string(key)
-			var amount sdk.Dec
+			var amount math.LegacyDec
 			if err := amount.Unmarshal(value); err != nil {
 				return err
 			}
 
-			allocationMeters = append(allocationMeters, sdk.DecCoin{Denom: denom, Amount: amount})
+			allocationMeters = append(allocationMeters, math.LegacyDecCoin{Denom: denom, Amount: amount})
 
 			return nil
 		},

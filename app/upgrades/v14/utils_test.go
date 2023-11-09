@@ -253,9 +253,9 @@ func (s *UpgradesTestSuite) requireMigratedAccount(account MigrationTestAccount)
 
 // getDelegationSharesMap returns a map of validator operator addresses to the
 // total shares delegated to them.
-func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]sdk.Dec {
+func (s *UpgradesTestSuite) getDelegationSharesMap() map[string]math.LegacyDec {
 	allValidators := s.app.StakingKeeper.GetAllValidators(s.ctx)
-	sharesMap := make(map[string]sdk.Dec, len(allValidators))
+	sharesMap := make(map[string]math.LegacyDec, len(allValidators))
 	for _, validator := range allValidators {
 		sharesMap[validator.OperatorAddress] = validator.DelegatorShares
 	}

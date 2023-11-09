@@ -67,7 +67,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.Require().NoError(err)
 	sender := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	res, ok := sdk.NewIntFromString(v12.MaxRecover)
+	res, ok := math.NewIntFromString(v12.MaxRecover)
 	suite.Require().True(ok)
 
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, res))
@@ -94,7 +94,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 		suite.Require().False(found, "found account %s duplicated", v12.Accounts[i][0])
 		uniqueAddrs[v12.Accounts[i][0]] = true
 
-		res, ok := sdk.NewIntFromString(v12.Accounts[i][1])
+		res, ok := math.NewIntFromString(v12.Accounts[i][1])
 		suite.Require().True(ok)
 		suite.Require().True(res.IsPositive())
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)

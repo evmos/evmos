@@ -150,7 +150,7 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 	// Use instance to prevent errors on denom or amount
 	token := sdk.Coin{
 		Denom:  denom,
-		Amount: sdk.NewIntFromBigInt(amount),
+		Amount: math.NewIntFromBigInt(amount),
 	}
 
 	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)

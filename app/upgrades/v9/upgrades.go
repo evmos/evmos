@@ -4,8 +4,10 @@
 package v9
 
 import (
+	"context"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -20,7 +22,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	dk distrKeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if utils.IsMainnet(ctx.ChainID()) {
@@ -39,12 +41,12 @@ func CreateUpgradeHandler(
 
 // ReturnFundsFromCommunityPool handles the return of funds from the community pool to accounts affected during the claims clawback
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
-	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
+	availableCoins, ok := math.NewIntFromString(MaxRecover)
 	if !ok || availableCoins.IsNegative() {
 		return fmt.Errorf("failed to read maximum amount to recover from community funds")
 	}
 	for i := range Accounts {
-		refund, _ := sdk.NewIntFromString(Accounts[i][1])
+		refund, _ := math.NewIntFromString(Accounts[i][1])
 		if availableCoins.LT(refund) {
 			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}

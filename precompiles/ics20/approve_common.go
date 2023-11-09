@@ -12,6 +12,7 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -128,7 +129,7 @@ func IncreaseAllowance(
 		return err
 	}
 
-	allowance := sdk.NewIntFromBigInt(amount)
+	allowance := math.NewIntFromBigInt(amount)
 	if _, overflow := cmn.SafeAdd(spendLimit.Amount, allowance); overflow {
 		return errors.New(cmn.ErrIntegerOverflow)
 	}
@@ -181,7 +182,7 @@ func DecreaseAllowance(
 		return err
 	}
 
-	expense := sdk.NewIntFromBigInt(amount)
+	expense := math.NewIntFromBigInt(amount)
 	if spendLimit.Amount.LT(expense) {
 		return fmt.Errorf(cmn.ErrNegativeAmount)
 	}

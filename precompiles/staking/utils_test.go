@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) ApproveAndCheckAuthz(method abi.Method, msgType st
 	auth, _ := s.CheckAuthorization(staking.DelegateAuthz, s.address, s.address)
 	s.Require().NotNil(auth)
 	s.Require().Equal(auth.AuthorizationType, staking.DelegateAuthz)
-	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewIntFromBigInt(amount)})
+	s.Require().Equal(auth.MaxTokens, &sdk.Coin{Denom: s.bondDenom, Amount: math.NewIntFromBigInt(amount)})
 }
 
 // CheckAuthorization is a helper function to check if the authorization is set and if it is the correct type.
@@ -487,7 +487,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 		DelegatorAddress:    sdk.AccAddress(s.address.Bytes()).String(),
 		ValidatorSrcAddress: s.validators[0].OperatorAddress,
 		ValidatorDstAddress: s.validators[1].OperatorAddress,
-		Amount:              sdk.NewCoin(s.bondDenom, sdk.NewIntFromBigInt(redelAmt)),
+		Amount:              sdk.NewCoin(s.bondDenom, math.NewIntFromBigInt(redelAmt)),
 	}
 
 	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)

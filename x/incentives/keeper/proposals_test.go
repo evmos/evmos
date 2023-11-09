@@ -14,7 +14,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 	testCases := []struct {
 		name                string
 		malleate            func()
-		expAllocationMeters []sdk.DecCoin
+		expAllocationMeters []math.LegacyDecCoin
 		expPass             bool
 	}{
 		{
@@ -24,7 +24,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
@@ -32,7 +32,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 			func() {
 				contract = utiltx.GenerateAddress()
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
@@ -42,14 +42,14 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 				suite.app.IncentivesKeeper.SetIncentive(suite.ctx, regIn)
 				suite.Commit()
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
 			"coin doesn't have supply",
 			func() {
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
@@ -68,7 +68,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 				params.AllocationLimit = math.LegacyNewDecWithPrec(1, 2)
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
@@ -100,7 +100,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 				suite.Require().NoError(err)
 				suite.Commit()
 			},
-			[]sdk.DecCoin{sdk.NewDecCoinFromDec(denomCoin, math.LegacyNewDecWithPrec(100, 2))},
+			[]math.LegacyDecCoin{sdk.NewDecCoinFromDec(denomCoin, math.LegacyNewDecWithPrec(100, 2))},
 			false,
 		},
 		{
@@ -114,7 +114,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 				)
 				suite.Require().NoError(err)
 			},
-			[]sdk.DecCoin{allocations[1], allocations[0]},
+			[]math.LegacyDecCoin{allocations[1], allocations[0]},
 			true,
 		},
 	}
@@ -157,7 +157,7 @@ func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can co
 	testCases := []struct {
 		name                string
 		malleate            func()
-		expAllocationMeters []sdk.DecCoin
+		expAllocationMeters []math.LegacyDecCoin
 		expPass             bool
 	}{
 		{
@@ -167,14 +167,14 @@ func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can co
 				params.EnableIncentives = false
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
 			"inventive not registered",
 			func() {
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			false,
 		},
 		{
@@ -192,7 +192,7 @@ func (suite KeeperTestSuite) TestCancelIncentive() { //nolint:govet // we can co
 				gm := types.NewGasMeter(contract, participant, uint64(100))
 				suite.app.IncentivesKeeper.SetGasMeter(suite.ctx, gm)
 			},
-			[]sdk.DecCoin{},
+			[]math.LegacyDecCoin{},
 			true,
 		},
 	}

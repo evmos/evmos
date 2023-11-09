@@ -7,6 +7,7 @@ import (
 
 	"github.com/evmos/evmos/v15/utils"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -109,7 +110,7 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 // given a local (validator config) and a global (feemarket param) minGasPrice
 //
 //nolint:unparam
-func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice sdk.Dec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
+func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice math.LegacyDec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	privKey, msg := setupTest(valMinGasPrice+s.denom, chainID)
 	params := types.DefaultParams()
 	params.MinGasPrice = minGasPrice

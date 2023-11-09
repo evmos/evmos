@@ -85,7 +85,7 @@ func (k Keeper) DeleteIncentiveAndUpdateAllocationMeters(ctx sdk.Context, incent
 		// NOTE: existence of incentive is already checked
 		am, _ := k.GetAllocationMeter(ctx, al.Denom)
 		amount := am.Amount.Sub(al.Amount)
-		am = sdk.DecCoin{
+		am = math.LegacyDecCoin{
 			Denom:  al.Denom,
 			Amount: amount,
 		}

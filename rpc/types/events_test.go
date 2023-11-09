@@ -17,12 +17,12 @@ func TestParseTxResult(t *testing.T) {
 
 	testCases := []struct {
 		name     string
-		response abci.ResponseDeliverTx
+		response abci.ExecTxResult
 		expTxs   []*ParsedTx // expected parse result, nil means expect error.
 	}{
 		{
 			"format 1 events",
-			abci.ResponseDeliverTx{
+			abci.ExecTxResult{
 				GasUsed: 21000,
 				Events: []abci.Event{
 					{Type: "coin_received", Attributes: []abci.EventAttribute{
@@ -78,7 +78,7 @@ func TestParseTxResult(t *testing.T) {
 		},
 		{
 			"format 2 events",
-			abci.ResponseDeliverTx{
+			abci.ExecTxResult{
 				GasUsed: 21000,
 				Events: []abci.Event{
 					{Type: "coin_received", Attributes: []abci.EventAttribute{
@@ -121,7 +121,7 @@ func TestParseTxResult(t *testing.T) {
 		},
 		{
 			"format 1 events, failed",
-			abci.ResponseDeliverTx{
+			abci.ExecTxResult{
 				GasUsed: 21000,
 				Events: []abci.Event{
 					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{
@@ -148,7 +148,7 @@ func TestParseTxResult(t *testing.T) {
 		},
 		{
 			"format 2 events failed",
-			abci.ResponseDeliverTx{
+			abci.ExecTxResult{
 				GasUsed: 21000,
 				Events: []abci.Event{
 					{Type: evmtypes.EventTypeEthereumTx, Attributes: []abci.EventAttribute{

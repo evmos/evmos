@@ -12,7 +12,7 @@ import (
 type EVMTxIndexer interface {
 	// LastIndexedBlock returns -1 if indexer db is empty
 	LastIndexedBlock() (int64, error)
-	IndexBlock(*tmtypes.Block, []*abci.ResponseDeliverTx) error
+	IndexBlock(*tmtypes.Block, []*abci.ExecTxResult) error
 
 	// GetByTxHash returns nil if tx not found.
 	GetByTxHash(common.Hash) (*TxResult, error)

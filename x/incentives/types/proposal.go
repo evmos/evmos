@@ -90,7 +90,7 @@ func validateAllocations(allocations sdk.DecCoins) error {
 	return allocations.Validate()
 }
 
-func validateAmount(amount sdk.Dec) error {
+func validateAmount(amount math.LegacyDec) error {
 	if amount.GT(math.LegacyOneDec()) || amount.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}

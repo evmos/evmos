@@ -287,7 +287,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
-			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
+			Expect(res).To(Equal(abcitypes.ExecTxResult{}))
 		})
 	})
 

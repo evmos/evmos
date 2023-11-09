@@ -364,7 +364,7 @@ func (suite *KeeperTestSuite) TestAllocationMeters() {
 
 				expRes = &types.QueryAllocationMetersResponse{
 					Pagination:       &query.PageResponse{Total: 1},
-					AllocationMeters: []sdk.DecCoin{am},
+					AllocationMeters: []math.LegacyDecCoin{am},
 				}
 			},
 			true,
@@ -381,7 +381,7 @@ func (suite *KeeperTestSuite) TestAllocationMeters() {
 
 				expRes = &types.QueryAllocationMetersResponse{
 					Pagination:       &query.PageResponse{Total: 2},
-					AllocationMeters: []sdk.DecCoin{am, am2},
+					AllocationMeters: []math.LegacyDecCoin{am, am2},
 				}
 			},
 			true,

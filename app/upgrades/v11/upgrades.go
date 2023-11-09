@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -167,7 +168,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		// send reward to receiver
 		receiver := sdk.MustAccAddressFromBech32(allocation[0])
 
-		amount, ok := sdk.NewIntFromString(allocation[1])
+		amount, ok := math.NewIntFromString(allocation[1])
 		if !ok {
 			return errorsmod.Wrapf(
 				errortypes.ErrInvalidType,

@@ -20,7 +20,7 @@ const (
 // within cosmos chains
 type TxFactory interface {
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
-	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -47,15 +47,15 @@ func New(
 }
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
-func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error) {
 	txBuilder, err := tf.buildTx(privKey, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build tx")
 	}
 
 	txBytes, err := tf.encodeTx(txBuilder)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
 
 	return tf.network.BroadcastTxSync(txBytes)

@@ -33,7 +33,7 @@ type Network interface {
 	GetBankClient() banktypes.QueryClient
 	GetStakingClient() stakingtypes.QueryClient
 
-	BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error)
+	BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error)
 	Simulate(txBytes []byte) (*txtypes.SimulateResponse, error)
 
 	// GetIBCChain returns the IBC test chain.

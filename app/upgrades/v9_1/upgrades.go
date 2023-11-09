@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
 	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -52,7 +53,7 @@ func HandleMainnetUpgrade(ctx sdk.Context, dk distrKeeper.Keeper, logger log.Log
 
 // ReturnFundsFromCommunityPool handles the return of funds from the community pool to accounts affected during the claims clawback
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
-	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
+	availableCoins, ok := math.NewIntFromString(MaxRecover)
 	if !ok || availableCoins.IsNegative() {
 		return fmt.Errorf("failed to read maximum amount to recover from community funds")
 	}
@@ -60,7 +61,7 @@ func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error 
 		address := Accounts[i][0]
 		amt := Accounts[i][1]
 
-		refund, _ := sdk.NewIntFromString(amt)
+		refund, _ := math.NewIntFromString(amt)
 		if availableCoins.LT(refund) {
 			return fmt.Errorf(
 				"refund to address %s exceeds the total available coins: %s > %s",

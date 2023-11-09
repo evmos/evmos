@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Parameter store key
@@ -29,7 +28,7 @@ var (
 // NewParams creates a new Params object
 func NewParams(
 	enableRevenue bool,
-	developerShares sdk.Dec,
+	developerShares math.LegacyDec,
 	addrDerivationCostCreate uint64,
 ) Params {
 	return Params{
@@ -66,7 +65,7 @@ func validateBool(i interface{}) error {
 }
 
 func validateShares(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

@@ -109,7 +109,7 @@ func (k Keeper) AllocateExponentialInflation(
 func (k Keeper) GetProportions(
 	_ sdk.Context,
 	coin sdk.Coin,
-	distribution sdk.Dec,
+	distribution math.LegacyDec,
 ) sdk.Coin {
 	return sdk.Coin{
 		Denom:  coin.Denom,
@@ -119,7 +119,7 @@ func (k Keeper) GetProportions(
 
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
-func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
+func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
 
 	isMainnet := utils.IsMainnet(ctx.ChainID())
@@ -138,7 +138,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
 // team allocation in the first year
-func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec {
+func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) math.LegacyDec {
 	circulatingSupply := math.LegacyNewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
 	teamAllocation := math.LegacyNewDecFromInt(teamAlloc)
 
@@ -151,7 +151,7 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec 
 }
 
 // GetInflationRate returns the inflation rate for the current period.
-func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) sdk.Dec {
+func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) math.LegacyDec {
 	epp := k.GetEpochsPerPeriod(ctx)
 	if epp == 0 {
 		return math.LegacyZeroDec()
@@ -175,7 +175,7 @@ func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) sdk.Dec {
 
 // GetEpochMintProvision retrieves necessary params KV storage
 // and calculate EpochMintProvision
-func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
+func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),

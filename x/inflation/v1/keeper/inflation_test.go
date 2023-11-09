@@ -94,7 +94,7 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 		name             string
 		bankSupply       sdkmath.Int
 		malleate         func()
-		expInflationRate sdk.Dec
+		expInflationRate math.LegacyDec
 	}{
 		{
 			"no epochs per period",
@@ -159,7 +159,7 @@ func (suite *KeeperTestSuite) TestBondedRatio() {
 		name         string
 		isMainnet    bool
 		malleate     func()
-		expBondRatio sdk.Dec
+		expBondRatio math.LegacyDec
 	}{
 		{
 			"is mainnet",

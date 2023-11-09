@@ -32,7 +32,7 @@ func InitGenesis(
 		panic("the incentives module account has not been set")
 	}
 
-	allocationMeters := make(map[string]sdk.Dec)
+	allocationMeters := make(map[string]math.LegacyDec)
 
 	for _, incentive := range data.Incentives {
 		// Set Incentives
@@ -52,7 +52,7 @@ func InitGenesis(
 	sort.Strings(denoms)
 
 	for _, denom := range denoms {
-		am := sdk.DecCoin{
+		am := math.LegacyDecCoin{
 			Denom:  denom,
 			Amount: allocationMeters[denom],
 		}

@@ -35,10 +35,10 @@ type TxFactory interface {
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
-	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
 	// If the txArgs are not provided, they will be populated with default values or gas estimations.
-	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ExecTxResult, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 }
@@ -101,11 +101,11 @@ func (tf *IntegrationTxFactory) DeployContract(
 }
 
 // ExecuteContractCall executes a contract call with the provided private key
-func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
+func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error) {
 	// Create MsgEthereumTx that calls the contract
 	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to pack contract arguments")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to pack contract arguments")
 	}
 	txArgs.Input = input
 
@@ -117,25 +117,25 @@ func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey,
 func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
-) (abcitypes.ResponseDeliverTx, error) {
+) (abcitypes.ExecTxResult, error) {
 	msgEthereumTx, err := tf.createMsgEthereumTx(priv, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
 
 	signedMsg, err := signMsgEthereumTx(msgEthereumTx, priv, tf.network.GetChainID())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to sign ethereum tx")
 	}
 
 	txBytes, err := tf.buildAndEncodeEthTx(signedMsg)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build and encode ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build and encode ethereum tx")
 	}
 
 	res, err := tf.network.BroadcastTxSync(txBytes)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
 	}
 
 	if err := tf.checkEthTxResponse(&res); err != nil {
@@ -247,7 +247,7 @@ func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) 
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse
-func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDeliverTx) error {
+func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ExecTxResult) error {
 	var txData sdktypes.TxMsgData
 	if !res.IsOK() {
 		return fmt.Errorf("tx failed. Code: %d, Logs: %s", res.Code, res.Log)

@@ -85,7 +85,7 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 
 var _ = Describe("ERC20:", Ordered, func() {
 	amt := math.NewInt(100)
-	fundsAmt, _ := sdk.NewIntFromString("100000000000000000000000")
+	fundsAmt, _ := math.NewIntFromString("100000000000000000000000")
 
 	privKey, _ := ethsecp256k1.GenerateKey()
 	addrBz := privKey.PubKey().Address().Bytes()

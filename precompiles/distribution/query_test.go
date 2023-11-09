@@ -154,7 +154,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				}
 			},
 			func(bz []byte) {
-				var out []sdk.DecCoin
+				var out []math.LegacyDecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorOutstandingRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(0, len(out))
@@ -171,7 +171,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				}
 			},
 			func(bz []byte) {
-				var out []sdk.DecCoin
+				var out []math.LegacyDecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorOutstandingRewardsMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(0, len(out))
@@ -240,7 +240,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 				}
 			},
 			func(bz []byte) {
-				var out []sdk.DecCoin
+				var out []math.LegacyDecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorCommissionMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(0, len(out))
@@ -257,7 +257,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 				}
 			},
 			func(bz []byte) {
-				var out []sdk.DecCoin
+				var out []math.LegacyDecCoin
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorCommissionMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(0, len(out))

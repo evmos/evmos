@@ -5,7 +5,6 @@ package types
 
 import (
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmostypes "github.com/evmos/evmos/v15/types"
 )
@@ -15,8 +14,8 @@ func CalculateEpochMintProvision(
 	params Params,
 	period uint64,
 	epochsPerPeriod int64,
-	bondedRatio sdk.Dec,
-) sdk.Dec {
+	bondedRatio math.LegacyDec,
+) math.LegacyDec {
 	x := period                                              // period
 	a := params.ExponentialCalculation.A                     // initial value
 	r := params.ExponentialCalculation.R                     // reduction factor

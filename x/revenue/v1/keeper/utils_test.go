@@ -108,10 +108,10 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 func calculateFees(
 	denom string,
 	params types.Params,
-	res abci.ResponseDeliverTx,
+	res abci.ExecTxResult,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
-	feeDistribution := math.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
+	feeDistribution := math.NewInt(res.GasUsed).Mul(math.NewIntFromBigInt(gasPrice))
 	developerFee := math.LegacyNewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
 	validatorShares := math.LegacyOneDec().Sub(params.DeveloperShares)
@@ -132,7 +132,7 @@ func registerFee(
 	contractAddress *common.Address,
 	withdrawerAddress sdk.AccAddress,
 	nonces []uint64,
-) abci.ResponseDeliverTx {
+) abci.ExecTxResult {
 	deployerAddress := sdk.AccAddress(priv.PubKey().Address())
 	msg := types.NewMsgRegisterRevenue(*contractAddress, deployerAddress, withdrawerAddress, nonces)
 
@@ -158,7 +158,7 @@ func contractInteract(
 	gasTipCap *big.Int,
 	data []byte,
 	accesses *ethtypes.AccessList,
-) abci.ResponseDeliverTx {
+) abci.ExecTxResult {
 	msgEthereumTx := buildEthTx(priv, contractAddr, gasPrice, gasFeeCap, gasTipCap, data, accesses)
 	res, err := testutil.DeliverEthTx(s.app, priv, msgEthereumTx)
 	Expect(err).To(BeNil())

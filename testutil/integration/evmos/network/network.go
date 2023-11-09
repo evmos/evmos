@@ -4,6 +4,7 @@ package network
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"math/big"
 
@@ -206,9 +207,16 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
 // TODO - this should be change to gRPC
-func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error) {
-	req := abcitypes.RequestDeliverTx{Tx: txBytes}
-	return n.app.BaseApp.DeliverTx(req), nil
+func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
+	req := abcitypes.RequestFinalizeBlock{Txs: [][]byte{txBytes}}
+	blockRes, err := n.app.BaseApp.FinalizeBlock(&req)
+	if err != nil {
+		return abcitypes.ExecTxResult{}, err
+	}
+	if len(blockRes.TxResults) != 1 {
+		return abcitypes.ExecTxResult{}, fmt.Errorf("Unexpected number of tx results. Expected 1, got: %d", len(blockRes.TxResults))
+	}
+	return *blockRes.TxResults[0], nil
 }
 
 // Simulate simulates the given txBytes to the network and returns the simulated response.

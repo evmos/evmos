@@ -6,7 +6,6 @@ import (
 
 	"cosmossdk.io/math"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (suite *KeeperTestSuite) TestCalculateBaseFee() {
@@ -15,7 +14,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 		NoBaseFee            bool
 		blockHeight          int64
 		parentBlockGasWanted uint64
-		minGasPrice          sdk.Dec
+		minGasPrice          math.LegacyDec
 		expFee               *big.Int
 	}{
 		{

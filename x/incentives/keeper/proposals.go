@@ -67,7 +67,7 @@ func (k Keeper) RegisterIncentive(
 	}
 
 	// Iterate over allocations to update allocation meters
-	allocationMeters := []sdk.DecCoin{}
+	allocationMeters := []math.LegacyDecCoin{}
 	for _, al := range allocations {
 		allocationMeter, _ := k.GetAllocationMeter(ctx, al.Denom)
 		// Check if the sum of all allocations (current + proposed) exceeds 100%
@@ -81,7 +81,7 @@ func (k Keeper) RegisterIncentive(
 		}
 
 		// build new allocation meter
-		newAllocationMeter := sdk.DecCoin{
+		newAllocationMeter := math.LegacyDecCoin{
 			Denom:  al.Denom,
 			Amount: allocationSum,
 		}

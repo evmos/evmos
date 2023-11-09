@@ -14,8 +14,8 @@ import (
 )
 
 // GetAllAllocationMeters - get all registered AllocationMeters
-func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
-	allocationMeters := []sdk.DecCoin{}
+func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []math.LegacyDecCoin {
+	allocationMeters := []math.LegacyDecCoin{}
 
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixAllocationMeter)
@@ -38,30 +38,30 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
 func (k Keeper) GetAllocationMeter(
 	ctx sdk.Context,
 	denom string,
-) (sdk.DecCoin, bool) {
+) (math.LegacyDecCoin, bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixAllocationMeter)
 
 	bz := store.Get([]byte(denom))
 	if bz == nil {
-		return sdk.DecCoin{
+		return math.LegacyDecCoin{
 			Denom:  denom,
 			Amount: math.LegacyZeroDec(),
 		}, false
 	}
 
-	var amount sdk.Dec
+	var amount math.LegacyDec
 	err := amount.Unmarshal(bz)
 	if err != nil {
 		panic(fmt.Errorf("unable to unmarshal amount value %v", err))
 	}
-	return sdk.DecCoin{
+	return math.LegacyDecCoin{
 		Denom:  denom,
 		Amount: amount,
 	}, true
 }
 
 // SetAllocationMeter stores an allocationMeter
-func (k Keeper) SetAllocationMeter(ctx sdk.Context, am sdk.DecCoin) {
+func (k Keeper) SetAllocationMeter(ctx sdk.Context, am math.LegacyDecCoin) {
 	bz, err := am.Amount.Marshal()
 	if err != nil {
 		panic(fmt.Errorf("unable to marshal amount value %v", err))

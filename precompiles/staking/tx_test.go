@@ -216,7 +216,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 				s.Require().NotNil(delegation, "expected delegation not to be nil")
 				tc.postCheck(bz)
 
-				expDelegationAmt := sdk.NewIntFromBigInt(tc.expDelegationShares)
+				expDelegationAmt := math.NewIntFromBigInt(tc.expDelegationShares)
 				delegationAmt := delegation.GetShares().TruncateInt()
 
 				s.Require().Equal(expDelegationAmt, delegationAmt, "expected delegation amount to be %d; got %d", expDelegationAmt, delegationAmt)
@@ -348,7 +348,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().NoError(err)
 				s.Require().Equal(undelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(undelegations[0].ValidatorAddress, s.validators[0].OperatorAddress)
-				s.Require().Equal(undelegations[0].Entries[0].Balance, sdk.NewIntFromBigInt(tc.expUndelegationShares))
+				s.Require().Equal(undelegations[0].Entries[0].Balance, math.NewIntFromBigInt(tc.expUndelegationShares))
 			}
 		})
 	}

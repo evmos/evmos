@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -19,7 +18,7 @@ import (
 var (
 	epochNumber int64
 	skipped     uint64
-	provision   sdk.Dec
+	provision   math.LegacyDec
 )
 
 var _ = Describe("Inflation", Ordered, func() {

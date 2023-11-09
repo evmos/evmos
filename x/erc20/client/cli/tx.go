@@ -6,6 +6,7 @@ package cli
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -104,7 +105,7 @@ func NewConvertERC20Cmd() *cobra.Command {
 				return fmt.Errorf("invalid ERC20 contract address %w", err)
 			}
 
-			amount, ok := sdk.NewIntFromString(args[1])
+			amount, ok := math.NewIntFromString(args[1])
 			if !ok {
 				return fmt.Errorf("invalid amount %s", args[1])
 			}
