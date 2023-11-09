@@ -7,6 +7,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
@@ -246,7 +247,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: "invalid separator",
+			errContains: fmt.Sprintf(authorization.ErrAuthzDoesNotExistOrExpired, senderAddress, s.keyring.GetAddr(1)),
 		}, {
 			name:   "fail - ibc channel not open",
 			sender: senderAddress,
