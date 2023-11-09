@@ -195,6 +195,8 @@ def get_precompile_contract(w3, name):
         addr = "0x0000000000000000000000000000000000000802"
     elif name == "IStrideOutpost":
         addr = "0x0000000000000000000000000000000000000900"
+    elif name == "OsmosisOutpostAddress":
+        addr = "0x0000000000000000000000000000000000000901"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])

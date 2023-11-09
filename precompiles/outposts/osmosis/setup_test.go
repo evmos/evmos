@@ -92,8 +92,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	coordinator.SetDefaultSignerForChain(s.network.GetChainID(), s.keyring.GetPrivKey(0), acc)
 
 	dummyChains := coordinator.GetDummyChainsIds()
-	fmt.Println(dummyChains)
-
 	_ = coordinator.Setup(s.network.GetChainID(), dummyChains[0])
 	s.coordinator = coordinator
 }
