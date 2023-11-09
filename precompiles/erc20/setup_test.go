@@ -58,5 +58,5 @@ func (s *PrecompileTestSuite) SetupTest() {
 	//
 	// NOTE: This has to be done AFTER assigning the suite fields.
 	s.tokenDenom = "xmpl"
-	s.precompile, _ = s.setupERC20Precompile(s.tokenDenom)
+	s.precompile = s.setupERC20Precompile(s.tokenDenom)
 }

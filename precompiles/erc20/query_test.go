@@ -223,7 +223,7 @@ func (s *PrecompileTestSuite) TestNameSymbolDecimals() {
 				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
-			precompile, _ := s.setupERC20Precompile(tc.denom)
+			precompile := s.setupERC20Precompile(tc.denom)
 
 			s.Run("name"+testNameSymbolPostfix, func() {
 				bz, err := precompile.Name(

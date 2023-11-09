@@ -70,7 +70,7 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination.
-func (s *PrecompileTestSuite) setupERC20Precompile(denom string) (*erc20.Precompile, erc20types.TokenPair) {
+func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 
 	precompile, err := erc20.NewPrecompile(
@@ -81,5 +81,5 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) (*erc20.Precomp
 	)
 	s.Require().NoError(err, "failed to create erc20 precompile")
 
-	return precompile, tokenPair
+	return precompile
 }
