@@ -152,7 +152,10 @@ func (p Precompile) Decimals(
 			return method.Outputs.Pack(uint8(18))
 		}
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, nil
+		return nil, fmt.Errorf(
+			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
+			denomTrace.BaseDenom,
+		)
 	}
 
 	var decimals uint32
@@ -167,7 +170,7 @@ func (p Precompile) Decimals(
 		return nil, errors.New("uint8 overflow: invalid decimals")
 	}
 
-	return method.Outputs.Pack(uint8(decimals)) //#nosec G701
+	return method.Outputs.Pack(uint8(decimals)) //#nosec G701 // we are checking for overflow above
 }
 
 // TotalSupply returns the amount of tokens in existence. It fetches the supply
