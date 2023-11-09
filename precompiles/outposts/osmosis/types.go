@@ -173,8 +173,7 @@ func (m Memo) Validate() error {
 }
 
 // CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The returned string is the bech32 of the receiver input
-// or "do_nothing".
+// onFailedDelivery. The returned string is the bech32 of the input or "do_nothing".
 func CreateOnFailedDeliveryField(recoveryAddress string) string {
 	onFailedDelivery := recoveryAddress
 	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(recoveryAddress)

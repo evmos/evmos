@@ -42,7 +42,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, input, output, amount, slippagePercentage, windowSeconds, receiver, err := ParseSwapPacketData(args)
+	sender, input, output, amount, slippagePercentage, windowSeconds, swapReceiver, err := ParseSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (p Precompile) Swap(
 	// in the Osmosis chain as a recovery address for the contract.
 	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
-		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
+		outputDenom, swapReceiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
 
 	err = packet.Memo.Validate()
@@ -138,7 +138,7 @@ func (p Precompile) Swap(
 	}
 
 	// Emit the custom Swap Event
-	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, receiver); err != nil {
+	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, swapReceiver); err != nil {
 		return nil, err
 	}
 
