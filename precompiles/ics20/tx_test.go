@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -168,7 +169,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 
 				// the balance on other user's account should remain unchanged
 				balance := s.app.BankKeeper.GetBalance(s.ctx, differentAddress.Bytes(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(amt))
+				s.Require().Equal(balance.Amount, math.NewInt(amt))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -200,7 +201,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.Require().Nil(authz)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -234,7 +235,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -268,7 +269,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -315,7 +316,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
-				s.Require().Equal(balance.Amount, sdk.NewInt(4e18))
+				s.Require().Equal(balance.Amount, math.NewInt(4e18))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
 			200000,
@@ -333,7 +334,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 
 			contract := vm.NewContract(vm.AccountRef(common.BytesToAddress(sender)), s.precompile, big.NewInt(0), tc.gas)
 
-			s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+			s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 			initialGas := s.ctx.GasMeter().GasConsumed()
 			s.Require().Zero(initialGas)
 

@@ -3,6 +3,8 @@ package distribution_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -57,7 +59,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 		s.SetupTest()
 
 		contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
@@ -89,7 +91,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -123,7 +125,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 		s.SetupTest()
 
 		contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
@@ -154,7 +156,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -188,9 +190,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	for _, tc := range testCases {
 		s.SetupTest()
 
-		validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+		validatorAddress := common.BytesToAddress([]byte(s.validators[0].GetOperator()))
 		contract := vm.NewContract(vm.AccountRef(validatorAddress), s.precompile, big.NewInt(0), tc.gas)
-		s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
@@ -214,7 +216,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}{
 		{
 			"success",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())

@@ -6,6 +6,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -44,7 +45,7 @@ func (k Keeper) GetAllocationMeter(
 	if bz == nil {
 		return sdk.DecCoin{
 			Denom:  denom,
-			Amount: sdk.ZeroDec(),
+			Amount: math.LegacyZeroDec(),
 		}, false
 	}
 

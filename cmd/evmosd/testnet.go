@@ -23,6 +23,7 @@ import (
 	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -165,15 +166,15 @@ Example:
 
 			var ok bool
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
-			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
+			if !ok || args.baseFee.LT(math.ZeroInt()) {
 				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
 			}
 
-			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
+			args.minGasPrice, err = math.LegacyNewDecFromStr(minGasPrice)
 			if err != nil {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got %s and err %s", minGasPrice, err.Error())
 			}
-			if args.minGasPrice.LT(sdk.ZeroDec()) {
+			if args.minGasPrice.LT(math.LegacyZeroDec()) {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got an negative number %s", minGasPrice)
 			}
 

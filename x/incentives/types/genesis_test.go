@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -51,7 +52,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						Allocations: sdk.DecCoins{
-							sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2)),
+							sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2)),
 						},
 						Epochs:    10,
 						StartTime: time.Now(),
@@ -68,7 +69,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						Allocations: sdk.DecCoins{
-							sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2)),
+							sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2)),
 						},
 						Epochs:    10,
 						StartTime: time.Now(),
@@ -76,7 +77,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Contract: "0xdac17f958d2ee523a2206206994597c13d831ec7",
 						Allocations: sdk.DecCoins{
-							sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2)),
+							sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2)),
 						},
 						Epochs:    10,
 						StartTime: time.Now(),
@@ -93,7 +94,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					{
 						Contract: "0xinvalidaddress",
 						Allocations: sdk.DecCoins{
-							sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2)),
+							sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2)),
 						},
 						Epochs:    10,
 						StartTime: time.Now(),

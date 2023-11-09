@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -20,9 +21,9 @@ import (
 )
 
 var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
-	coinEvmos := sdk.NewCoin("aevmos", sdk.NewInt(10000))
-	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
-	coinAtom := sdk.NewCoin("uatom", sdk.NewInt(10))
+	coinEvmos := sdk.NewCoin("aevmos", math.NewInt(10000))
+	coinOsmo := sdk.NewCoin("uosmo", math.NewInt(10))
+	coinAtom := sdk.NewCoin("uatom", math.NewInt(10))
 
 	var (
 		sender, receiver       string
@@ -103,7 +104,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 			Context("with a sender's claims record", func() {
 				Context("without completed actions", func() {
 					BeforeEach(func() {
-						amt := sdk.NewInt(int64(100))
+						amt := math.NewInt(int64(100))
 						coins := sdk.NewCoins(sdk.NewCoin("aevmos", amt))
 						claim = claimstypes.NewClaimsRecord(amt)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
@@ -126,8 +127,8 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 				Context("with completed actions", func() {
 					// Already has stuck funds
 					BeforeEach(func() {
-						amt := sdk.NewInt(int64(100))
-						coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(int64(75))))
+						amt := math.NewInt(int64(100))
+						coins := sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(int64(75))))
 						claim = claimstypes.NewClaimsRecord(amt)
 						claim.MarkClaimed(claimstypes.ActionIBCTransfer)
 						s.EvmosChain.App.(*app.Evmos).ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claim)
@@ -286,7 +287,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						s.SendAndReceiveMessage(s.pathOsmosisCosmos, s.IBCCosmosChain, coinAtom.Denom, coinAtom.Amount.Int64(), s.IBCCosmosChain.SenderAccount.GetAddress().String(), receiver, 1)
 
 						// Send IBC transaction of 10 ibc/uatom
-						transferMsg := transfertypes.NewMsgTransfer(s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(10)), sender, receiver, timeoutHeight, 0, "")
+						transferMsg := transfertypes.NewMsgTransfer(s.pathOsmosisEvmos.EndpointA.ChannelConfig.PortID, s.pathOsmosisEvmos.EndpointA.ChannelID, sdk.NewCoin(teststypes.UatomIbcdenom, math.NewInt(10)), sender, receiver, timeoutHeight, 0, "")
 						_, err = ibctesting.SendMsgs(s.IBCOsmosisChain, ibctesting.DefaultFeeAmt, transferMsg)
 						s.Require().NoError(err) // message committed
 						transfer := transfertypes.NewFungibleTokenPacketData("transfer/channel-1/uatom", "10", sender, receiver, "")
@@ -330,7 +331,7 @@ var _ = Describe("Recovery: Performing an IBC Transfer", Ordered, func() {
 						osmoIBCAtom := s.EvmosChain.App.(*app.Evmos).BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UatomOsmoIbcdenom)
 						Expect(osmoIBCAtom.IsZero()).To(BeTrue())
 						ibcAtom := s.IBCOsmosisChain.GetSimApp().BankKeeper.GetBalance(s.IBCOsmosisChain.GetContext(), senderAcc, teststypes.UatomIbcdenom)
-						Expect(ibcAtom).To(Equal(sdk.NewCoin(teststypes.UatomIbcdenom, sdk.NewInt(10))))
+						Expect(ibcAtom).To(Equal(sdk.NewCoin(teststypes.UatomIbcdenom, math.NewInt(10))))
 					})
 				})
 			})

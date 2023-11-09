@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -105,7 +106,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			func() {
 				bAcc := authtypes.NewBaseAccount(addr, nil, 0, 0)
 				funder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust)))
 
 				vestingAcc := vestingtypes.NewClawbackVestingAccount(bAcc, funder, coins, time.Now().UTC(), nil, nil)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, vestingAcc)
@@ -121,7 +122,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -134,7 +135,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				ba := authtypes.NewBaseAccount(addr, nil, 0, 0)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewModuleAccount(ba, "testmodule"))
 
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -151,7 +152,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				}
 				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount)
 
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -163,7 +164,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin("testcoin", sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin("testcoin", math.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -175,7 +176,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 			func() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust+100000)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust+100000)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.ClaimsRecord{})
@@ -188,10 +189,10 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				ethAccount := newEthAccount(authtypes.NewBaseAccount(addr, nil, 0, 0))
 				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount)
 
-				coin1 := sdk.NewCoin("testcoin", sdk.NewInt(types.GenesisDust))
-				coin2 := sdk.NewCoin("testcoin1", sdk.NewInt(types.GenesisDust))
-				coin3 := sdk.NewCoin("testcoin2", sdk.NewInt(types.GenesisDust))
-				coin4 := sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust))
+				coin1 := sdk.NewCoin("testcoin", math.NewInt(types.GenesisDust))
+				coin2 := sdk.NewCoin("testcoin1", math.NewInt(types.GenesisDust))
+				coin3 := sdk.NewCoin("testcoin2", math.NewInt(types.GenesisDust))
+				coin4 := sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust))
 
 				coins := sdk.NewCoins(coin1, coin2, coin3, coin4)
 
@@ -211,7 +212,7 @@ func (suite *KeeperTestSuite) TestClawbackEmptyAccounts() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount2)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, &ethAccount3)
 
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(types.GenesisDust)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(types.GenesisDust)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr, coins)
 				suite.Require().NoError(err)
 				err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr2, coins)
@@ -262,7 +263,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 			"balance on module account",
 			amount,
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, sdk.NewInt(amount)))
+				coins := sdk.NewCoins(sdk.NewCoin(types.DefaultClaimsDenom, math.NewInt(amount)))
 				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
@@ -279,7 +280,7 @@ func (suite *KeeperTestSuite) TestClawbackEscrowedTokensABCI() {
 
 			acc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, distrtypes.ModuleName)
 			balance := suite.app.BankKeeper.GetBalance(suite.ctx, acc.GetAddress(), types.DefaultClaimsDenom)
-			suite.Require().Equal(balance.Amount, sdk.NewInt(tc.funds))
+			suite.Require().Equal(balance.Amount, math.NewInt(tc.funds))
 		})
 	}
 }

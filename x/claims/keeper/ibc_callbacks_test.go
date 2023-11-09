@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -78,7 +79,7 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 					},
 				)
 
-				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				cr := types.NewClaimsRecord(math.NewInt(100))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
 				suite.Require().Error(err)
@@ -121,14 +122,14 @@ func (suite *KeeperTestSuite) TestAckknowledgementPacket() {
 					},
 				)
 
-				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				cr := types.NewClaimsRecord(math.NewInt(100))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, cr)
 
 				err = suite.app.ClaimsKeeper.OnAcknowledgementPacket(suite.ctx, mockpacket, ack.Acknowledgement())
 				suite.Require().NoError(err)
 
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{false, false, false, true},
 				}
 				cr, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, addr)
@@ -208,7 +209,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{false, false, false, true},
 				}
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, expCR)
@@ -274,7 +275,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
@@ -298,8 +299,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
@@ -315,8 +316,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(10000000000)))
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(10000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(10000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(math.NewInt(10000000000)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success())
@@ -332,15 +333,15 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
 				// check that the record is merged to the recipient
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(200),
+					InitialClaimableAmount: math.NewInt(200),
 					ActionsCompleted:       []bool{false, false, false, true},
 				}
 
@@ -358,7 +359,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
@@ -375,7 +376,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(9000000000000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(9000000000000000000)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().False(resAck.Success(), ack.String())
@@ -392,7 +393,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, sender, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
@@ -402,7 +403,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, receiver))
 
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{false, false, false, true},
 				}
 
@@ -417,7 +418,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				transfer := transfertypes.NewFungibleTokenPacketData("aevmos", "100", secpAddrCosmos, receiverStr, "")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(1000000000000000)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(math.NewInt(1000000000000000)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 
@@ -436,7 +437,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, receiver, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
@@ -459,13 +460,13 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
 
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(sdk.NewInt(100)))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, types.NewClaimsRecord(math.NewInt(100)))
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
 				suite.Require().True(resAck.Success())
 
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{false, false, false, true},
 				}
 
@@ -490,7 +491,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, types.DefaultEVMChannels[0], timeoutHeight, 0)
 
-				cr := types.NewClaimsRecord(sdk.NewInt(100))
+				cr := types.NewClaimsRecord(math.NewInt(100))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, secpAddr, cr)
 
 				resAck := suite.app.ClaimsKeeper.OnRecvPacket(suite.ctx, packet, ack)
@@ -510,7 +511,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				packet := channeltypes.NewPacket(bz, 1, transfertypes.PortID, "channel-0", transfertypes.PortID, "channel-0", timeoutHeight, 0)
 
 				cr := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{true, true, true, false},
 				}
 
@@ -520,7 +521,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.Require().True(resAck.Success())
 
 				expCR := types.ClaimsRecord{
-					InitialClaimableAmount: sdk.NewInt(100),
+					InitialClaimableAmount: math.NewInt(100),
 					ActionsCompleted:       []bool{true, true, true, true},
 				}
 

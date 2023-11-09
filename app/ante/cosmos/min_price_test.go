@@ -1,6 +1,7 @@
 package cosmos_test
 
 import (
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -47,7 +48,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -62,7 +63,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice > 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -77,7 +78,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 10, gasPrice = 10",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -92,7 +93,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"invalid cosmos tx with MinGasPrices = 10, gasPrice = 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -107,7 +108,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"invalid cosmos tx with wrong denom",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 

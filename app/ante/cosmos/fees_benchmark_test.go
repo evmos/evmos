@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/testutil"
 	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
 )
@@ -23,20 +23,20 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 	testCases := []deductFeeDecoratorTestCase{
 		{
 			name:     "sufficient balance to pay fees",
-			balance:  sdk.NewInt(1e18),
-			rewards:  []sdkmath.Int{sdk.ZeroInt()},
+			balance:  math.NewInt(1e18),
+			rewards:  []sdkmath.Int{math.ZeroInt()},
 			simulate: true,
 		},
 		{
 			name:    "insufficient funds but sufficient staking rewards",
-			balance: sdk.ZeroInt(),
-			rewards: []sdkmath.Int{sdk.NewInt(1e18)},
+			balance: math.ZeroInt(),
+			rewards: []sdkmath.Int{math.NewInt(1e18)},
 			gas:     10_000_000,
 		},
 		{
 			name:     "sufficient balance to pay fees with 10.000 users staking",
-			balance:  sdk.NewInt(1e18),
-			rewards:  []sdkmath.Int{sdk.ZeroInt()},
+			balance:  math.NewInt(1e18),
+			rewards:  []sdkmath.Int{math.ZeroInt()},
 			simulate: true,
 			setup: func() {
 				var err error
@@ -44,7 +44,7 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 				// setup other users rewards
 				for i := 0; i < usersCount; i++ {
 					userAddr, _ := testutiltx.NewAccAddressAndKey()
-					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
+					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, math.ZeroInt(), math.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
 				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
@@ -53,8 +53,8 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		},
 		{
 			name:    "insufficient funds but sufficient staking rewards with 10.000 users staking",
-			balance: sdk.ZeroInt(),
-			rewards: []sdkmath.Int{sdk.NewInt(1e18)},
+			balance: math.ZeroInt(),
+			rewards: []sdkmath.Int{math.NewInt(1e18)},
 			gas:     10_000_000,
 			setup: func() {
 				var err error
@@ -62,7 +62,7 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 				// setup other users rewards
 				for i := 0; i < usersCount; i++ {
 					userAddr, _ := testutiltx.NewAccAddressAndKey()
-					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, sdk.ZeroInt(), sdk.NewInt(1e18))
+					s.ctx, err = testutil.PrepareAccountsForDelegationRewards(s.T(), s.ctx, s.app, userAddr, math.ZeroInt(), math.NewInt(1e18))
 					s.Require().NoError(err, "failed to prepare accounts for delegation rewards")
 				}
 				s.ctx, err = testutil.Commit(s.ctx, s.app, time.Second*0, nil)
@@ -71,8 +71,8 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		},
 		{
 			name:    "insufficient funds but sufficient staking rewards - 110 delegations",
-			balance: sdk.ZeroInt(),
-			rewards: intSlice(110, sdk.NewInt(1e14)),
+			balance: math.ZeroInt(),
+			rewards: intSlice(110, math.NewInt(1e14)),
 			gas:     10_000_000,
 		},
 	}

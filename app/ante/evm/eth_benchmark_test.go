@@ -5,8 +5,8 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v15/app/ante/evm"
 	"github.com/evmos/evmos/v15/server/config"
@@ -40,13 +40,13 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	}{
 		{
 			"legacy tx - enough funds to pay for fees",
-			sdk.NewInt(1e16),
-			sdk.ZeroInt(),
+			math.NewInt(1e16),
+			math.ZeroInt(),
 		},
 		{
 			"legacy tx - insufficient funds but enough staking rewards to pay for fees",
-			sdk.ZeroInt(),
-			sdk.NewInt(1e16),
+			math.ZeroInt(),
+			math.NewInt(1e16),
 		},
 	}
 	b.ResetTimer()
@@ -69,7 +69,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				// Benchmark only the ante handler logic - start the timer
 				b.StartTimer()
-				_, err := dec.AnteHandle(cacheCtx.WithIsCheckTx(true).WithGasMeter(sdk.NewInfiniteGasMeter()), tx, false, testutil.NextFn)
+				_, err := dec.AnteHandle(cacheCtx.WithIsCheckTx(true).WithGasMeter(storetypes.NewInfiniteGasMeter()), tx, false, testutil.NextFn)
 				s.Require().NoError(err)
 			}
 		})

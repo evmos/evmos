@@ -6,6 +6,7 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/x/revenue/v1/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +18,7 @@ var _ types.LegacyParams = &V2Params{}
 // Parameter store key
 var (
 	DefaultEnableRevenue   = true
-	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultDeveloperShares = math.LegacyNewDecWithPrec(50, 2) // 50%
 	// DefaultAddrDerivationCostCreate Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
 	// contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate = uint64(50)

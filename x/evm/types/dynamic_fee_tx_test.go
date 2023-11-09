@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -42,7 +42,7 @@ func (suite *TxDataTestSuite) SetupTest() {
 	suite.bigInt = big.NewInt(1)
 	suite.hexBigInt = hexutil.Big(*big.NewInt(1))
 	suite.overflowBigInt = big.NewInt(0).Exp(big.NewInt(10), big.NewInt(256), nil)
-	suite.sdkZeroInt = sdk.ZeroInt()
+	suite.sdkZeroInt = math.ZeroInt()
 	suite.sdkMinusOneInt = sdkmath.NewInt(-1)
 	suite.invalidAddr = "123456"
 	suite.addr = utiltx.GenerateAddress()

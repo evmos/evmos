@@ -172,7 +172,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Set networks global parameters
 	n.app = evmosApp
 	// TODO - this might not be the best way to initilize the context
-	n.ctx = evmosApp.BaseApp.NewContext(false, header)
+	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners

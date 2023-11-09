@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -64,7 +65,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 
 				// decrease allocation limit
 				params := types.DefaultParams()
-				params.AllocationLimit = sdk.NewDecWithPrec(1, 2)
+				params.AllocationLimit = math.LegacyNewDecWithPrec(1, 2)
 				suite.app.IncentivesKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 			},
 			[]sdk.DecCoin{},
@@ -83,7 +84,7 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 
 				// increase allocation limit
 				params := types.DefaultParams()
-				params.AllocationLimit = sdk.NewDecWithPrec(100, 2)
+				params.AllocationLimit = math.LegacyNewDecWithPrec(100, 2)
 				err = suite.app.IncentivesKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -92,14 +93,14 @@ func (suite KeeperTestSuite) TestRegisterIncentive() { //nolint:govet // we can 
 					suite.ctx,
 					contract2,
 					sdk.DecCoins{
-						sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2)),
+						sdk.NewDecCoinFromDec(denomCoin, math.LegacyNewDecWithPrec(100, 2)),
 					},
 					epochs,
 				)
 				suite.Require().NoError(err)
 				suite.Commit()
 			},
-			[]sdk.DecCoin{sdk.NewDecCoinFromDec(denomCoin, sdk.NewDecWithPrec(100, 2))},
+			[]sdk.DecCoin{sdk.NewDecCoinFromDec(denomCoin, math.LegacyNewDecWithPrec(100, 2))},
 			false,
 		},
 		{

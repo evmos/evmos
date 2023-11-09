@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/x/claims/types"
@@ -12,8 +13,8 @@ func (suite *KeeperTestSuite) TestsClaimsRecords() {
 	addr2, err := sdk.AccAddressFromBech32("evmos1sv9m0g7ycejwr3s369km58h5qe7xj77hvcxrms")
 	suite.Require().NoError(err)
 
-	cr1 := types.NewClaimsRecord(sdk.NewInt(1000))
-	cr2 := types.NewClaimsRecord(sdk.NewInt(200))
+	cr1 := types.NewClaimsRecord(math.NewInt(1000))
+	cr2 := types.NewClaimsRecord(math.NewInt(200))
 	cr2.MarkClaimed(types.ActionDelegate)
 
 	expRecords := []types.ClaimsRecordAddress{

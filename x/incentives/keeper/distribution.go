@@ -121,7 +121,7 @@ func (k Keeper) rewardAllocations(
 				}
 
 				// allocation for the contract is the amount escrowed * the allocation %
-				coinAllocated := sdk.NewDecFromInt(denomBalances[al.Denom]).Mul(al.Amount).TruncateInt()
+				coinAllocated := math.LegacyNewDecFromInt(denomBalances[al.Denom]).Mul(al.Amount).TruncateInt()
 				amount := coinAllocated
 
 				// NOTE: safety check, shouldn't occur since the allocation and balance
@@ -188,7 +188,7 @@ func (k Keeper) rewardParticipants(
 		return sdk.Coins{}, 0
 	}
 
-	totalGasDec := sdk.NewDecFromBigInt(new(big.Int).SetUint64(totalGas))
+	totalGasDec := math.LegacyNewDecFromBigInt(new(big.Int).SetUint64(totalGas))
 	mintDenom := k.evmKeeper.GetParams(ctx).EvmDenom
 	rewardScaler := k.GetParams(ctx).RewardScaler
 
@@ -198,7 +198,7 @@ func (k Keeper) rewardParticipants(
 		contract,
 		func(gm types.GasMeter) (stop bool) {
 			// Get participant's ratio of `gas spent / total gas spent`
-			cumulativeGas := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gm.CumulativeGas))
+			cumulativeGas := math.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gm.CumulativeGas))
 			gasRatio := cumulativeGas.Quo(totalGasDec)
 			coins := sdk.Coins{}
 

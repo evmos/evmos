@@ -89,7 +89,7 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	// init app
 	chainID := utils.MainnetChainID + "-1"
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),
@@ -135,7 +135,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithLedgerHasProtobuf(true).
 		WithUseLedger(true).
 		WithKeyring(kr).
-		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
+		WithClient(mocks.MockCometRPC{Client: rpcclientmock.Client{}}).
 		WithChainID(utils.TestnetChainID + "-13")
 
 	srvCtx := server.NewDefaultContext()

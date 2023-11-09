@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
 )
 
@@ -16,17 +16,17 @@ var ParamsKey = []byte("Params")
 
 var (
 	DefaultEnableIncentives          = true
-	DefaultAllocationLimit           = sdk.NewDecWithPrec(5, 2)
+	DefaultAllocationLimit           = math.LegacyNewDecWithPrec(5, 2)
 	DefaultIncentivesEpochIdentifier = epochstypes.WeekEpochID
-	DefaultRewardScalar              = sdk.NewDecWithPrec(12, 1)
+	DefaultRewardScalar              = math.LegacyNewDecWithPrec(12, 1)
 )
 
 // NewParams creates a new Params object
 func NewParams(
 	enableIncentives bool,
-	allocationLimit sdk.Dec,
+	allocationLimit math.LegacyDec,
 	epochIdentifier string,
-	rewardScaler sdk.Dec,
+	rewardScaler math.LegacyDec,
 ) Params {
 	return Params{
 		EnableIncentives:          enableIncentives,
@@ -55,7 +55,7 @@ func validateBool(i interface{}) error {
 }
 
 func validatePercentage(i interface{}) error {
-	dec, ok := i.(sdk.Dec)
+	dec, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -65,7 +65,7 @@ func validatePercentage(i interface{}) error {
 	if dec.IsNegative() {
 		return fmt.Errorf("allocation limit must be positive: %s", dec)
 	}
-	if dec.GT(sdk.OneDec()) {
+	if dec.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("allocation limit must <= 100: %s", dec)
 	}
 
@@ -73,7 +73,7 @@ func validatePercentage(i interface{}) error {
 }
 
 func validateUncappedPercentage(i interface{}) error {
-	dec, ok := i.(sdk.Dec)
+	dec, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}

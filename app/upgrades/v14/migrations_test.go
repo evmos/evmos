@@ -192,7 +192,7 @@ func (s *UpgradesTestSuite) TestCreateDelegationWithZeroTokens() {
 
 	delegation, err := CreateDelegationWithZeroTokens(s.ctx, s.app, priv, addr, targetValidator, 1)
 	s.Require().NoError(err, "failed to create delegation with zero tokens")
-	s.Require().NotEqual(sdk.ZeroDec(), delegation.Shares, "delegation shares should not be zero")
+	s.Require().NotEqual(math.LegacyZeroDec(), delegation.Shares, "delegation shares should not be zero")
 
 	// Check that the validators tokenFromShares method returns zero tokens when truncated to an int
 	valAfterSlashing := s.app.StakingKeeper.Validator(s.ctx, targetValidator.GetOperator())

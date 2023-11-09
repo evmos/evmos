@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
+	storetypes "cosmossdk.io/store/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -501,7 +502,7 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 			suite.SetupTest() // reset
 
 			panicF := func() {
-				gm := sdk.NewGasMeter(10)
+				gm := storetypes.NewGasMeter(10)
 				gm.ConsumeGas(tc.gasConsumed, "")
 				ctx := suite.ctx.WithGasMeter(gm)
 				suite.app.EvmKeeper.ResetGasMeterAndConsumeGas(ctx, tc.gasUsed)
@@ -647,7 +648,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				)
 				suite.Require().NoError(err)
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasMultiplier = sdk.NewDec(math.MaxInt64).MulInt64(100)
+				params.MinGasMultiplier = math.LegacyNewDec(math.MaxInt64).MulInt64(100)
 				err = suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},

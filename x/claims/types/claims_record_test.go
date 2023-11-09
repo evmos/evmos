@@ -23,7 +23,7 @@ func TestClaimsRecordValidate(t *testing.T) {
 		},
 		{
 			"fail - non positive claimable amount",
-			types.ClaimsRecord{InitialClaimableAmount: sdk.NewInt(-1)},
+			types.ClaimsRecord{InitialClaimableAmount: math.NewInt(-1)},
 			true,
 		},
 		{
@@ -236,7 +236,7 @@ func TestClaimsRecordAddressValidate(t *testing.T) {
 		},
 		{
 			"fail - invalid address",
-			types.NewClaimsRecordAddress(sdk.AccAddress{}, sdk.NewInt(-1)),
+			types.NewClaimsRecordAddress(sdk.AccAddress{}, math.NewInt(-1)),
 			true,
 		},
 		{
@@ -246,7 +246,7 @@ func TestClaimsRecordAddressValidate(t *testing.T) {
 		},
 		{
 			"fail - non positive claimable amount",
-			types.NewClaimsRecordAddress(addr, sdk.NewInt(-1)),
+			types.NewClaimsRecordAddress(addr, math.NewInt(-1)),
 			true,
 		},
 		{

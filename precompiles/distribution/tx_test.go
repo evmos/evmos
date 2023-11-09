@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 
@@ -74,7 +75,8 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 				}
 			},
 			func() {
-				withdrawerAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				withdrawerAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				s.Require().NoError(err)
 				s.Require().Equal(withdrawerAddr.Bytes(), s.address.Bytes())
 			},
 			20000,
@@ -90,7 +92,8 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 				}
 			},
 			func() {
-				withdrawerAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				withdrawerAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+				s.Require().NoError(err)
 				s.Require().Equal(withdrawerAddr.Bytes(), newWithdrawerAddr.Bytes())
 			},
 			20000,
@@ -171,7 +174,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -255,7 +258,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -271,7 +274,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
 				s.Require().Equal(coins[0].Amount, big.NewInt(100000000000000000))
 				// Check bank balance after the withdrawal of commission
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, []byte(s.validators[0].GetOperator()), utils.BaseDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(100000000000000000))
 				s.Require().Equal(balance.Denom, utils.BaseDenom)
 			},
@@ -286,11 +289,11 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			s.SetupTest()
 
 			// Sanity check to make sure the starting balance is always 0
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, []byte(s.validators[0].GetOperator()), utils.BaseDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(0))
 			s.Require().Equal(balance.Denom, utils.BaseDenom)
 
-			validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+			validatorAddress := common.BytesToAddress([]byte(s.validators[0].GetOperator()))
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
 
@@ -400,7 +403,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 
 			// Distribute rewards to the 2 validators, 1 EVMOS each
 			for _, val := range s.validators {
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 			}
 

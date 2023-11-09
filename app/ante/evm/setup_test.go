@@ -10,6 +10,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/simapp"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -73,9 +74,9 @@ func (suite *AnteTestSuite) SetupTest() {
 		return genesis
 	})
 
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(checkTx, tmproto.Header{Height: 2, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
-	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
+	suite.ctx = suite.ctx.WithBlockGasMeter(storetypes.NewGasMeter(1000000000000000000))
 
 	// set staking denomination to Evmos denom
 	params := suite.app.StakingKeeper.GetParams(suite.ctx)
@@ -83,7 +84,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	err := suite.app.StakingKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 
-	infCtx := suite.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	infCtx := suite.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	err = suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 	suite.Require().NoError(err)
 

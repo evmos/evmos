@@ -4,6 +4,7 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmostypes "github.com/evmos/evmos/v15/types"
@@ -40,11 +41,11 @@ func CalculateEpochMintProvision(
 	periodProvision := exponentialDecay.Mul(bondingIncentive)
 
 	// epochProvision = periodProvision / epochsPerPeriod
-	epochProvision := periodProvision.Quo(sdk.NewDec(epochsPerPeriod))
+	epochProvision := periodProvision.Quo(math.LegacyNewDec(epochsPerPeriod))
 
 	// Multiply epochMintProvision with power reduction (10^18 for evmos) as the
 	// calculation is based on `evmos` and the issued tokens need to be given in
 	// `aevmos`
-	epochProvision = epochProvision.Mul(sdk.NewDecFromInt(evmostypes.PowerReduction))
+	epochProvision = epochProvision.Mul(math.LegacyNewDecFromInt(evmostypes.PowerReduction))
 	return epochProvision
 }

@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 
 	// Setup query helpers
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
@@ -89,7 +89,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	// fund signer acc to pay for tx fees
-	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	amt := math.NewInt(int64(math.Pow10(18) * 2))
 	err = testutil.FundAccount(
 		suite.ctx,
 		suite.app.BankKeeper,
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set correct denom in govKeeper
 	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
-	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e6)))
+	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e6)))
 	votingPeriod := time.Second
 	govParams.VotingPeriod = &votingPeriod
 	err = suite.app.GovKeeper.SetParams(suite.ctx, govParams)

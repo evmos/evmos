@@ -20,7 +20,7 @@ func (k *Keeper) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 // an empty slice.
 func (k *Keeper) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	// Gas costs are handled within msg handler so costs should be ignored
-	infCtx := ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	infCtx := ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 
 	bloom := ethtypes.BytesToBloom(k.GetBlockBloomTransient(infCtx).Bytes())
 	k.EmitBlockBloomEvent(infCtx, bloom)

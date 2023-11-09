@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -17,9 +18,9 @@ import (
 // InitGenesis initializes the claim module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
-	totalEscrowed := sdk.ZeroInt()
-	sumUnclaimed := sdk.ZeroInt()
-	numActions := sdk.NewInt(4)
+	totalEscrowed := math.ZeroInt()
+	sumUnclaimed := math.ZeroInt()
+	numActions := math.NewInt(4)
 
 	// ensure claim module account is set on genesis
 	if acc := k.GetModuleAccount(ctx); acc == nil {

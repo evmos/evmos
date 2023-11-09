@@ -6,6 +6,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/x/claims/types"
@@ -20,8 +21,8 @@ func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 // claims records is equal to the escrowed balance held in the claims module account
 func (k Keeper) ClaimsInvariant() sdk.Invariant {
 	return func(ctx sdk.Context) (msg string, broken bool) {
-		expectedUnclaimed := sdk.ZeroDec()
-		numActions := sdk.NewDec(4)
+		expectedUnclaimed := math.LegacyZeroDec()
+		numActions := math.LegacyNewDec(4)
 		params := k.GetParams(ctx)
 
 		if !params.IsClaimsActive(ctx.BlockTime()) {
@@ -31,7 +32,7 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 		// iterate over all the claim records and sum the unclaimed amounts
 		k.IterateClaimsRecords(ctx, func(_ sdk.AccAddress, cr types.ClaimsRecord) bool {
 			// IMPORTANT: use Dec to prevent truncation errors
-			initialClaimablePerAction := sdk.NewDecFromInt(cr.InitialClaimableAmount).Quo(numActions)
+			initialClaimablePerAction := math.LegacyNewDecFromInt(cr.InitialClaimableAmount).Quo(numActions)
 			for _, actionCompleted := range cr.ActionsCompleted {
 				if !actionCompleted {
 					// NOTE: only add the initial claimable amount per action for the ones that haven't been claimed
@@ -44,14 +45,14 @@ func (k Keeper) ClaimsInvariant() sdk.Invariant {
 		moduleAccAddr := k.GetModuleAccountAddress()
 		balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, params.ClaimsDenom)
 
-		isInvariantBroken := !expectedUnclaimed.Equal(sdk.NewDecFromInt(balance.Amount))
+		isInvariantBroken := !expectedUnclaimed.Equal(math.LegacyNewDecFromInt(balance.Amount))
 		msg = sdk.FormatInvariant(
 			types.ModuleName,
 			"claims",
 			fmt.Sprintf(
 				"\tsum of unclaimed amount: %s\n"+
 					"\tescrowed balance amount: %s\n",
-				expectedUnclaimed, sdk.NewDecFromInt(balance.Amount),
+				expectedUnclaimed, math.LegacyNewDecFromInt(balance.Amount),
 			),
 		)
 

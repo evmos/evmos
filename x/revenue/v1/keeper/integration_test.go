@@ -40,7 +40,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 	denom := s.denom
 
 	// account initial balances
-	initAmount := sdk.NewInt(int64(math.Pow10(18) * 4))
+	initAmount := math.NewInt(int64(math.Pow10(18) * 4))
 	initBalance := sdk.NewCoins(sdk.NewCoin(denom, initAmount))
 
 	var (
@@ -371,7 +371,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Context("with a 50/50 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
-					params.DeveloperShares = sdk.NewDecWithPrec(50, 2)
+					params.DeveloperShares = math.LegacyNewDecWithPrec(50, 2)
 					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
@@ -421,7 +421,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Context("with a 100/0 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
-					params.DeveloperShares = sdk.NewDec(0)
+					params.DeveloperShares = math.LegacyNewDec(0)
 					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
@@ -453,7 +453,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 			Context("with a 0/100 validators-developers revenue", func() {
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
-					params.DeveloperShares = sdk.NewDec(1)
+					params.DeveloperShares = math.LegacyNewDec(1)
 					s.app.RevenueKeeper.SetParams(s.ctx, params) //nolint:errcheck
 				})
 
@@ -489,7 +489,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 
 				BeforeEach(func() {
 					params = s.app.RevenueKeeper.GetParams(s.ctx)
-					params.DeveloperShares = sdk.NewDec(1)
+					params.DeveloperShares = math.LegacyNewDec(1)
 					err := s.app.RevenueKeeper.SetParams(s.ctx, params)
 					if err != nil {
 						fmt.Println(err)

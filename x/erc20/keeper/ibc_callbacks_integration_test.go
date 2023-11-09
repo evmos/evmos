@@ -288,8 +288,8 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 		})
 		It("it should perform the claim and convert the received tokens", func() {
 			// Register claims record
-			initialClaimAmount := sdk.NewInt(100)
-			claimableAmount := sdk.NewInt(25)
+			initialClaimAmount := math.NewInt(100)
+			claimableAmount := math.NewInt(25)
 			s.app.ClaimsKeeper.SetClaimsRecord(s.EvmosChain.GetContext(), senderAcc, claimstypes.ClaimsRecord{
 				InitialClaimableAmount: initialClaimAmount,
 				ActionsCompleted:       []bool{true, true, true, false},
@@ -364,7 +364,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// Convert half of the available tokens
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(amount),
+				math.NewInt(amount),
 				senderAcc,
 				pair.GetERC20Contract(),
 				common.BytesToAddress(senderAcc.Bytes()),
@@ -409,7 +409,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			// Convert half of the available tokens
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(amount),
+				math.NewInt(amount),
 				senderAcc,
 				pair.GetERC20Contract(),
 				common.BytesToAddress(senderAcc.Bytes()),
@@ -554,7 +554,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			originChain := s.EvmosChain
 			coin := pair.Denom
 			transfer := transfertypes.NewFungibleTokenPacketData(pair.Denom, strconv.Itoa(int(amount*2)), sender, receiver, "")
-			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
+			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, math.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 			denom := originChain.App.(*app.Evmos).StakingKeeper.BondDenom(originChain.GetContext())
@@ -625,7 +625,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			// Convert half of the available tokens
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(amount),
+				math.NewInt(amount),
 				senderAcc,
 				pair.GetERC20Contract(),
 				common.BytesToAddress(senderAcc.Bytes()),
@@ -693,7 +693,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			originEndpoint := path.EndpointB
 			originChain := s.EvmosChain
 			coin := pair.Denom
-			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
+			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID, sdk.NewCoin(coin, math.NewInt(amount*2)), sender, receiver, timeoutHeight, 0, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
@@ -743,7 +743,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			currentTime := s.EvmosChain.Coordinator.CurrentTime
 			timeout := uint64(currentTime.Unix() * 1000000000)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
-				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
+				sdk.NewCoin(coin, math.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
@@ -826,7 +826,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			// Convert ibc vouchers to erc20 tokens
 			msgConvertCoin := types.NewMsgConvertCoin(
-				sdk.NewCoin(pair.Denom, sdk.NewInt(amount)),
+				sdk.NewCoin(pair.Denom, math.NewInt(amount)),
 				common.BytesToAddress(senderAcc.Bytes()),
 				senderAcc,
 			)
@@ -866,7 +866,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			// Convert ibc vouchers to erc20 tokens
 			msgConvertCoin := types.NewMsgConvertCoin(
-				sdk.NewCoin(pair.Denom, sdk.NewInt(amount)),
+				sdk.NewCoin(pair.Denom, math.NewInt(amount)),
 				common.BytesToAddress(senderAcc.Bytes()),
 				senderAcc,
 			)
@@ -888,7 +888,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			currentTime := s.EvmosChain.Coordinator.CurrentTime
 			timeout := uint64(currentTime.Unix() * 1000000000)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
-				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
+				sdk.NewCoin(coin, math.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
 
 			originChain.Coordinator.UpdateTimeForChain(originChain)
 
@@ -952,7 +952,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 
 			// Convert ibc vouchers to erc20 tokens
 			msgConvertCoin := types.NewMsgConvertCoin(
-				sdk.NewCoin(pair.Denom, sdk.NewInt(amount)),
+				sdk.NewCoin(pair.Denom, math.NewInt(amount)),
 				common.BytesToAddress(senderAcc.Bytes()),
 				senderAcc,
 			)
@@ -973,7 +973,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			coin := pair.Denom
 			timeout := uint64(0)
 			transferMsg := transfertypes.NewMsgTransfer(originEndpoint.ChannelConfig.PortID, originEndpoint.ChannelID,
-				sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
+				sdk.NewCoin(coin, math.NewInt(amount)), sender, receiver, timeoutHeight, timeout, "")
 
 			_, err = ibctesting.SendMsgs(originChain, ibctesting.DefaultFeeAmt, transferMsg)
 			s.Require().NoError(err) // message committed

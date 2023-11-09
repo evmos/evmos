@@ -5,6 +5,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -178,7 +179,7 @@ func (k Keeper) OnRecvPacket(
 		// case 2: only the sender has a claims record
 		// -> migrate the sender record to the recipient address and claim IBC action
 
-		claimedAmt := sdk.ZeroInt() //nolint
+		claimedAmt := math.ZeroInt() //nolint
 		claimedAmt, err = k.ClaimCoinsForAction(ctx, recipient, senderClaimsRecord, types.ActionIBCTransfer, params)
 
 		// if the transfer fails or the claimable amount is 0 (eg: action already

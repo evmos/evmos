@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -34,11 +35,11 @@ var _ = Describe("Inflation", Ordered, func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
 				params.ExponentialCalculation = types.ExponentialCalculation{
-					A:             sdk.NewDec(int64(300_000_000)),
-					R:             sdk.NewDecWithPrec(60, 2), // 60%
-					C:             sdk.NewDec(int64(6_375_000)),
-					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
-					MaxVariance:   sdk.ZeroDec(),             // 0%
+					A:             math.LegacyNewDec(int64(300_000_000)),
+					R:             math.LegacyNewDecWithPrec(60, 2), // 60%
+					C:             math.LegacyNewDec(int64(6_375_000)),
+					BondingTarget: math.LegacyNewDecWithPrec(66, 2), // 66%
+					MaxVariance:   math.LegacyZeroDec(),             // 0%
 				}
 				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
 			})
@@ -96,9 +97,9 @@ var _ = Describe("Inflation", Ordered, func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
 				params.InflationDistribution = types.InflationDistribution{
-					UsageIncentives: sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
-					StakingRewards:  sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
-					CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
+					UsageIncentives: math.LegacyNewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
+					StakingRewards:  math.LegacyNewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
+					CommunityPool:   math.LegacyNewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 				}
 				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
 			})
@@ -296,7 +297,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						It("should recalculate the EpochMintProvision", func() {
 							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							Expect(provisionAfter).ToNot(Equal(provision))
-							Expect(provisionAfter).To(Equal(sdk.MustNewDecFromStr("159375000000000000000000000")))
+							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("159375000000000000000000000")))
 						})
 					})
 				})

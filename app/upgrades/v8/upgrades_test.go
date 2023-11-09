@@ -37,7 +37,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 
 	// NOTE: this is the new binary, not the old one.
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState(), chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),

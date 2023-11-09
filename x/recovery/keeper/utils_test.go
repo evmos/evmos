@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"strconv"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -58,7 +59,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.SendCoinsFromModuleToAccount(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, suite.EvmosChain.SenderAccount.GetAddress(), coins)
 	suite.Require().NoError(err)
 
-	coinEvmos = sdk.NewCoin(utils.BaseDenom, sdk.NewInt(10000))
+	coinEvmos = sdk.NewCoin(utils.BaseDenom, math.NewInt(10000))
 	coins = sdk.NewCoins(coinEvmos)
 	err = suite.EvmosChain.App.(*app.Evmos).BankKeeper.MintCoins(suite.EvmosChain.GetContext(), inflationtypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -66,7 +67,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	// Mint coins on the osmosis side which we'll use to unlock our aevmos
-	coinOsmo := sdk.NewCoin("uosmo", sdk.NewInt(10))
+	coinOsmo := sdk.NewCoin("uosmo", math.NewInt(10))
 	coins = sdk.NewCoins(coinOsmo)
 	err = suite.IBCOsmosisChain.GetSimApp().BankKeeper.MintCoins(suite.IBCOsmosisChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -74,7 +75,7 @@ func (suite *IBCTestingSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	// Mint coins on the cosmos side which we'll use to unlock our aevmos
-	coinAtom := sdk.NewCoin("uatom", sdk.NewInt(10))
+	coinAtom := sdk.NewCoin("uatom", math.NewInt(10))
 	coins = sdk.NewCoins(coinAtom)
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.MintCoins(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, coins)
 	suite.Require().NoError(err)
@@ -125,7 +126,7 @@ var timeoutHeight = clienttypes.NewHeight(1000, 1000)
 
 func (suite *IBCTestingSuite) SendAndReceiveMessage(path *ibctesting.Path, origin *ibcgotesting.TestChain, coin string, amount int64, sender string, receiver string, seq uint64) {
 	// Send coin from A to B
-	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, sdk.NewInt(amount)), sender, receiver, timeoutHeight, 0, "")
+	transferMsg := transfertypes.NewMsgTransfer(path.EndpointA.ChannelConfig.PortID, path.EndpointA.ChannelID, sdk.NewCoin(coin, math.NewInt(amount)), sender, receiver, timeoutHeight, 0, "")
 	_, err := ibctesting.SendMsgs(origin, ibctesting.DefaultFeeAmt, transferMsg)
 	suite.Require().NoError(err) // message committed
 	// Recreate the packet that was sent

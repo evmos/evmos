@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -47,7 +48,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
 
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionVote)
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -74,14 +75,14 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, math.NewInt(250))}
 				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
@@ -91,7 +92,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 				suite.Require().True(found)
 				suite.Require().True(newClaimRec.HasClaimedAction(types.ActionVote))
 
-				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250)))
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, math.NewInt(250)))
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 				suite.Require().Equal(expBalance, balance)
 			},
@@ -106,7 +107,7 @@ func (suite *KeeperTestSuite) TestAfterProposalVote() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -158,7 +159,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -177,7 +178,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
 
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionDelegate)
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
@@ -200,12 +201,12 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, math.NewInt(250))}
 				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
@@ -216,7 +217,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 				suite.Require().True(found)
 				suite.Require().True(newClaimRec.HasClaimedAction(types.ActionDelegate))
 
-				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250)))
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, math.NewInt(250)))
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, types.DefaultClaimsDenom)
 
 				suite.Require().Equal(expBalance, balance)
@@ -232,7 +233,7 @@ func (suite *KeeperTestSuite) TestAfterDelegation() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				suite.app.ClaimsKeeper.SetParams(suite.ctx, params) //nolint:errcheck
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
@@ -290,7 +291,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
@@ -311,7 +312,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
 
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 				claimRecord.MarkClaimed(types.ActionEVM)
 
 				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
@@ -336,12 +337,12 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, claimRecord)
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, params.ClaimsDenom)
 
-				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250))}
+				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, math.NewInt(250))}
 				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
@@ -352,7 +353,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 				suite.Require().True(found)
 				suite.Require().True(newClaimRec.HasClaimedAction(types.ActionEVM))
 
-				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(250)))
+				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, math.NewInt(250)))
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, types.DefaultClaimsDenom)
 
 				suite.Require().Equal(expBalance, balance)
@@ -368,7 +369,7 @@ func (suite *KeeperTestSuite) TestAfterEVMStateTransition() {
 					DurationOfDecay:    time.Hour,
 					ClaimsDenom:        types.DefaultClaimsDenom,
 				}
-				claimRecord := types.NewClaimsRecord(sdk.NewInt(1000))
+				claimRecord := types.NewClaimsRecord(math.NewInt(1000))
 
 				err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)

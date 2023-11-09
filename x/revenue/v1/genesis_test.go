@@ -35,7 +35,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 	chainID := utils.TestnetChainID + "-1"
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),

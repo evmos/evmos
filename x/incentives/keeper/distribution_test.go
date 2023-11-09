@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/x/incentives/types"
@@ -109,8 +110,8 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				sdkParticipant := sdk.AccAddress(participant.Bytes())
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, sdkParticipant, tc.denom)
 
-				gasRatio := sdk.NewDec(int64(gasUsed)).QuoInt64(int64(totalGasUsed))
-				coinAllocated := sdk.NewDec(tc.mintAmount).MulInt64(allocationRate).QuoInt64(100)
+				gasRatio := math.LegacyNewDec(int64(gasUsed)).QuoInt64(int64(totalGasUsed))
+				coinAllocated := math.LegacyNewDec(tc.mintAmount).MulInt64(allocationRate).QuoInt64(100)
 				expBalance := coinAllocated.Mul(gasRatio)
 				params := suite.app.IncentivesKeeper.GetParams(suite.ctx)
 				expBalance = sdk.MinDec(expBalance, params.RewardScaler.MulInt64(int64(gasUsed)))

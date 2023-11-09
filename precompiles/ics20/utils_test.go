@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -59,13 +60,13 @@ type erc20Meta struct {
 var (
 	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewIntFromBigInt(abi.MaxUint256)}}
 	maxUint256CmnCoins = []cmn.Coin{{Denom: utils.BaseDenom, Amount: abi.MaxUint256}}
-	defaultCoins       = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}}
+	defaultCoins       = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}}
 	baseDenomCmnCoin   = cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
-	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
+	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
 	atomComnCoins      = []cmn.Coin{atomCmnCoin}
-	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
+	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
 		Name:     "TestCoin",
@@ -107,8 +108,8 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
@@ -122,7 +123,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	totalBondAmt := bondAmt.Mul(sdk.NewInt(int64(len(validators))))
+	totalBondAmt := bondAmt.Mul(math.NewInt(int64(len(validators))))
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
@@ -171,7 +172,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	// create Contexts
-	s.ctx = app.BaseApp.NewContext(false, header)
+	s.ctx = app.BaseApp.NewContextLegacy(false, header)
 	s.app = app
 }
 
@@ -307,7 +308,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 func (s *PrecompileTestSuite) NewPrecompileContract(gas uint64) *vm.Contract {
 	contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), gas)
 
-	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	initialGas := s.ctx.GasMeter().GasConsumed()
 	s.Require().Zero(initialGas)
 

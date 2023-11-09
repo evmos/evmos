@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -44,7 +45,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.ClaimsKeeper)
@@ -59,21 +60,23 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	err = suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 	require.NoError(t, err)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, err := suite.app.StakingKeeper.GetParams(suite.ctx)
+	require.NoError(t, err)
 	stakingParams.BondDenom = params.GetClaimsDenom()
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
 
 	// Set Validator
 	valAddr := sdk.ValAddress(suite.address.Bytes())
-	validator, err := stakingtypes.NewValidator(valAddr, privCons.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(valAddr.String(), privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, valAddr)
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	validators, err := s.app.StakingKeeper.GetValidators(s.ctx, 1)
+	require.NoError(t, err)
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
@@ -83,7 +86,7 @@ func (suite *KeeperTestSuite) SetupTestWithEscrow() {
 	suite.SetupTest()
 	params := suite.app.ClaimsKeeper.GetParams(suite.ctx)
 
-	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, sdk.NewInt(10000000)))
+	coins := sdk.NewCoins(sdk.NewCoin(params.ClaimsDenom, math.NewInt(10000000)))
 	err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 }
@@ -136,7 +139,7 @@ func govProposal(priv *ethsecp256k1.PrivKey) (uint64, error) {
 		"test",
 		"description",
 		contractAddress.String(),
-		sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(5, 2))},
+		sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(5, 2))},
 		1000,
 	)
 	return testutil.SubmitProposal(s.ctx, s.app, priv, content, 8)

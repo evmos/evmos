@@ -27,7 +27,8 @@ import (
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/config"
+	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -92,7 +93,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 				return err
 			}
 
-			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
+			initClientCtx, err = clientcfg.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
 			}
@@ -125,7 +126,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		tmcli.NewCompletionCmd(rootCmd, true),
 		NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
-		config.Cmd(),
+		confixcmd.ConfigCommand(),
 		pruning.PruningCmd(a.newApp),
 		snapshot.Cmd(a.newApp),
 		block.Cmd(),
@@ -285,7 +286,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		if err := v.ReadInConfig(); err != nil {
 			panic(err)
 		}
-		conf := new(config.ClientConfig)
+		conf := new(clientcfg.ClientConfig)
 		if err := v.Unmarshal(conf); err != nil {
 			panic(err)
 		}

@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -50,7 +51,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
-						InitialClaimableAmount: sdk.NewInt(1),
+						InitialClaimableAmount: math.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 				},
@@ -64,12 +65,12 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
-						InitialClaimableAmount: sdk.NewInt(1),
+						InitialClaimableAmount: math.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 					{
 						Address:                addr.String(),
-						InitialClaimableAmount: sdk.NewInt(1),
+						InitialClaimableAmount: math.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 				},
@@ -84,7 +85,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                "badaddress",
-						InitialClaimableAmount: sdk.NewInt(1),
+						InitialClaimableAmount: math.NewInt(1),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 				},
@@ -98,7 +99,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                addr.String(),
-						InitialClaimableAmount: sdk.NewInt(-100),
+						InitialClaimableAmount: math.NewInt(-100),
 						ActionsCompleted:       []bool{true, true, false, false},
 					},
 				},

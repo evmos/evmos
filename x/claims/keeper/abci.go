@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestexported "github.com/cosmos/cosmos-sdk/x/auth/vesting/exported"
 	evmostypes "github.com/evmos/evmos/v15/types"
@@ -150,7 +151,7 @@ func (k Keeper) ClawbackEmptyAccounts(ctx sdk.Context, claimsDenom string) {
 
 		// dust amount sent on genesis
 		dustCoin := sdk.Coin{
-			Amount: sdk.NewInt(types.GenesisDust),
+			Amount: math.NewInt(types.GenesisDust),
 			Denom:  claimsDenom,
 		}
 

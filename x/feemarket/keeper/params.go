@@ -5,6 +5,7 @@ package keeper
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/x/feemarket/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,11 +23,11 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 
 	// zero the nil params for legacy blocks
 	if params.MinGasPrice.IsNil() {
-		params.MinGasPrice = sdk.ZeroDec()
+		params.MinGasPrice = math.LegacyZeroDec()
 	}
 
 	if params.MinGasMultiplier.IsNil() {
-		params.MinGasMultiplier = sdk.ZeroDec()
+		params.MinGasMultiplier = math.LegacyZeroDec()
 	}
 
 	return

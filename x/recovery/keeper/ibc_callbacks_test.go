@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -53,10 +54,10 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	expAck := ibcmock.MockAcknowledgement
 
 	coins := sdk.NewCoins(
-		sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-		sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
-		sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
-		sdk.NewCoin(erc20Denom, sdk.NewInt(1000)),
+		sdk.NewCoin("aevmos", math.NewInt(1000)),
+		sdk.NewCoin(ibcAtomDenom, math.NewInt(1000)),
+		sdk.NewCoin(ibcOsmoDenom, math.NewInt(1000)),
+		sdk.NewCoin(erc20Denom, math.NewInt(1000)),
 	)
 
 	testCases := []struct {
@@ -222,16 +223,16 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				packet = channeltypes.NewPacket(bz, 100, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)
 
 				invalidDenom := "ibc/1"
-				coins := sdk.NewCoins(sdk.NewCoin(invalidDenom, sdk.NewInt(1000)))
+				coins := sdk.NewCoins(sdk.NewCoin(invalidDenom, math.NewInt(1000)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 				suite.Require().NoError(err)
 			},
 			false,
 			false,
 			sdk.NewCoins(
-				sdk.NewCoin("ibc/1", sdk.NewInt(1000)),
-				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
-				sdk.NewCoin(ibcOsmoDenom, sdk.NewInt(1000)),
+				sdk.NewCoin("ibc/1", math.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, math.NewInt(1000)),
+				sdk.NewCoin(ibcOsmoDenom, math.NewInt(1000)),
 			),
 		},
 		{
@@ -585,8 +586,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacketFailTransfer() {
 
 			// Fund receiver account with EVMOS
 			coins := sdk.NewCoins(
-				sdk.NewCoin("aevmos", sdk.NewInt(1000)),
-				sdk.NewCoin(ibcAtomDenom, sdk.NewInt(1000)),
+				sdk.NewCoin("aevmos", math.NewInt(1000)),
+				sdk.NewCoin(ibcAtomDenom, math.NewInt(1000)),
 			)
 			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, secpAddr, coins)
 			suite.Require().NoError(err)

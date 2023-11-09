@@ -22,7 +22,7 @@ func (n *IntegrationNetwork) NextBlock() error {
 	})
 
 	// Update context header
-	newCtx := n.app.BaseApp.NewContext(false, header)
+	newCtx := n.app.BaseApp.NewContextLegacy(false, header)
 	newCtx = newCtx.WithMinGasPrices(n.ctx.MinGasPrices())
 	newCtx = newCtx.WithEventManager(n.ctx.EventManager())
 	newCtx = newCtx.WithKVGasConfig(n.ctx.KVGasConfig())

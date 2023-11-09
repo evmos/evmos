@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
@@ -36,7 +37,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 	chainID := utils.TestnetChainID + "-1"
 	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),
@@ -104,18 +105,18 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                acc1.String(),
-						InitialClaimableAmount: sdk.NewInt(10_000),
+						InitialClaimableAmount: math.NewInt(10_000),
 						ActionsCompleted:       []bool{true, false, true, true},
 					},
 					{
 						Address:                acc2.String(),
-						InitialClaimableAmount: sdk.NewInt(400),
+						InitialClaimableAmount: math.NewInt(400),
 						ActionsCompleted:       []bool{false, false, true, false},
 					},
 				},
 			},
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(2_800)))
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(2_800)))
 				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
@@ -128,18 +129,18 @@ func (suite *GenesisTestSuite) TestClaimInitGenesis() {
 				ClaimsRecords: []types.ClaimsRecordAddress{
 					{
 						Address:                acc1.String(),
-						InitialClaimableAmount: sdk.NewInt(10_000),
+						InitialClaimableAmount: math.NewInt(10_000),
 						ActionsCompleted:       []bool{true, true, true, true},
 					},
 					{
 						Address:                acc2.String(),
-						InitialClaimableAmount: sdk.NewInt(400),
+						InitialClaimableAmount: math.NewInt(400),
 						ActionsCompleted:       []bool{false, false, false, false},
 					},
 				},
 			},
 			func() {
-				coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
+				coins := sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(400)))
 				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 			},
@@ -176,17 +177,17 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	suite.genesis.ClaimsRecords = []types.ClaimsRecordAddress{
 		{
 			Address:                acc1.String(),
-			InitialClaimableAmount: sdk.NewInt(10_000),
+			InitialClaimableAmount: math.NewInt(10_000),
 			ActionsCompleted:       []bool{true, true, true, true},
 		},
 		{
 			Address:                acc2.String(),
-			InitialClaimableAmount: sdk.NewInt(400),
+			InitialClaimableAmount: math.NewInt(400),
 			ActionsCompleted:       []bool{false, false, false, false},
 		},
 	}
 
-	coins := sdk.NewCoins(sdk.NewCoin("aevmos", sdk.NewInt(400)))
+	coins := sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(400)))
 	err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 	suite.Require().NoError(err)
 
@@ -195,13 +196,13 @@ func (suite *GenesisTestSuite) TestClaimExportGenesis() {
 	claimsRecord, found := suite.app.ClaimsKeeper.GetClaimsRecord(suite.ctx, acc2)
 	suite.Require().True(found)
 	suite.Require().Equal(claimsRecord, types.ClaimsRecord{
-		InitialClaimableAmount: sdk.NewInt(400),
+		InitialClaimableAmount: math.NewInt(400),
 		ActionsCompleted:       []bool{false, false, false, false},
 	})
 
 	claimableAmount, remainder := suite.app.ClaimsKeeper.GetClaimableAmountForAction(suite.ctx, claimsRecord, types.ActionIBCTransfer, suite.genesis.Params)
-	suite.Require().Equal(sdk.NewInt(100), claimableAmount)
-	suite.Require().Equal(sdk.ZeroInt(), remainder)
+	suite.Require().Equal(math.NewInt(100), claimableAmount)
+	suite.Require().Equal(math.ZeroInt(), remainder)
 
 	genesisExported := claims.ExportGenesis(suite.ctx, *suite.app.ClaimsKeeper)
 	suite.Require().Equal(genesisExported.Params, suite.genesis.Params)

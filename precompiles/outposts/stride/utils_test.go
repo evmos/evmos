@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
@@ -80,8 +81,8 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
 		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
@@ -95,7 +96,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	totalBondAmt := bondAmt.Mul(sdk.NewInt(int64(len(validators))))
+	totalBondAmt := bondAmt.Mul(math.NewInt(int64(len(validators))))
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
@@ -144,7 +145,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	// create Contexts
-	s.ctx = app.BaseApp.NewContext(false, header)
+	s.ctx = app.BaseApp.NewContextLegacy(false, header)
 	s.app = app
 }
 
@@ -282,7 +283,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 func (s *PrecompileTestSuite) NewPrecompileContract(gas uint64) *vm.Contract {
 	contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), gas)
 
-	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	s.ctx = s.ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
 	initialGas := s.ctx.GasMeter().GasConsumed()
 	s.Require().Zero(initialGas)
 
@@ -365,7 +366,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 		Display: "evmos",
 	}
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(2e18))
+	coin := sdk.NewCoin(evmosMetadata.Base, math.NewInt(2e18))
 	err := s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
@@ -399,7 +400,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 		Display: "stEvmos",
 	}
 
-	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, sdk.NewInt(9e18))
+	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, math.NewInt(9e18))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(stEvmos))
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.ctx, inflationtypes.ModuleName, s.address.Bytes(), sdk.NewCoins(stEvmos))

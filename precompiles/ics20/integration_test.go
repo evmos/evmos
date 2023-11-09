@@ -278,7 +278,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(1), "expected one authorization")
 			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)})))
+			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})))
 		})
 	})
 

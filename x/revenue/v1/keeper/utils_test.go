@@ -5,6 +5,7 @@ import (
 	"time"
 
 	//nolint:revive // dot imports are fine for Ginkgo
+	"cosmossdk.io/math"
 	. "github.com/onsi/gomega"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -40,7 +41,7 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)
-	suite.ctx = suite.app.BaseApp.NewContext(false, header)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, header)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.RevenueKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
@@ -110,11 +111,11 @@ func calculateFees(
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
-	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
+	feeDistribution := math.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
+	developerFee := math.LegacyNewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
 	validatorShares := sdk.OneDec().Sub(params.DeveloperShares)
-	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(validatorShares)
+	validatorFee := math.LegacyNewDecFromInt(feeDistribution).Mul(validatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
 }

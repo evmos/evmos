@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -22,7 +23,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			true,
 			0,
 			0,
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			nil,
 		},
 		{
@@ -30,7 +31,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			0,
 			0,
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			suite.app.FeeMarketKeeper.GetParams(suite.ctx).BaseFee.BigInt(),
 		},
 		{
@@ -38,7 +39,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			50,
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			suite.app.FeeMarketKeeper.GetParams(suite.ctx).BaseFee.BigInt(),
 		},
 		{
@@ -46,7 +47,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			50,
-			sdk.NewDec(1500000000),
+			math.LegacyNewDec(1500000000),
 			suite.app.FeeMarketKeeper.GetParams(suite.ctx).BaseFee.BigInt(),
 		},
 		{
@@ -54,7 +55,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			100,
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			big.NewInt(1125000000),
 		},
 		{
@@ -62,7 +63,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			100,
-			sdk.NewDec(1500000000),
+			math.LegacyNewDec(1500000000),
 			big.NewInt(1125000000),
 		},
 		{
@@ -70,7 +71,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			25,
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			big.NewInt(937500000),
 		},
 		{
@@ -78,7 +79,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 			false,
 			1,
 			25,
-			sdk.NewDec(1500000000),
+			math.LegacyNewDec(1500000000),
 			big.NewInt(1500000000),
 		},
 	}

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
@@ -31,7 +32,7 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 		{
 			"Register incentive - pass",
 			utiltx.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 			10,
 			true,
 		},
@@ -45,28 +46,28 @@ func (suite *IncentiveTestSuite) TestIncentiveNew() {
 		{
 			"Register incentive - invalid allocation denom",
 			utiltx.GenerateAddress(),
-			sdk.DecCoins{{Denom: "(evmos", Amount: sdk.OneDec()}},
+			sdk.DecCoins{{Denom: "(evmos", Amount: math.LegacyOneDec()}},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation amount (0)",
 			utiltx.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(0, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(0, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - invalid allocation amount (> 1)",
 			utiltx.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(101, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(101, 2))},
 			10,
 			false,
 		},
 		{
 			"Register incentive - zero epochs",
 			utiltx.GenerateAddress(),
-			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+			sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 			0,
 			false,
 		},
@@ -94,7 +95,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (no hex)",
 			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -105,7 +106,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (invalid length 1)",
 			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb19",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -116,7 +117,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"Register incentive - invalid address (invalid length 2)",
 			types.Incentive{
 				"0x5dCA2483280D9727c80b5518faC4556617fb194FFF",
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -127,7 +128,7 @@ func (suite *IncentiveTestSuite) TestIncentive() {
 			"pass",
 			types.Incentive{
 				utiltx.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -157,7 +158,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 			"pass",
 			types.Incentive{
 				utiltx.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				10,
 				time.Now(),
 				0,
@@ -168,7 +169,7 @@ func (suite *IncentiveTestSuite) TestIsActive() {
 			"epoch is zero",
 			types.Incentive{
 				utiltx.GenerateAddress().String(),
-				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+				sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", math.LegacyNewDecWithPrec(5, 2))},
 				0,
 				time.Now(),
 				0,

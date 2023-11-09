@@ -76,7 +76,7 @@ func (p Precompile) RunSetup(
 
 	// set the default SDK gas configuration to track gas usage
 	// we are changing the gas meter type, so it panics gracefully when out of gas
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(contract.Gas)).
+	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(contract.Gas)).
 		WithKVGasConfig(p.KvGasConfig).
 		WithTransientKVGasConfig(p.TransientKVGasConfig)
 	// we need to consume the gas that was already used by the EVM

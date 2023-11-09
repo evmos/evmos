@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
@@ -41,7 +42,7 @@ func (suite *UpgradeTestSuite) SetupTest(chainID string) {
 
 	// NOTE: this is the new binary, not the old one.
 	suite.app = app.Setup(checkTx, feemarkettypes.DefaultGenesisState(), chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(checkTx, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Date(2022, 5, 9, 8, 0, 0, 0, time.UTC),
@@ -93,7 +94,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.Require().NoError(err)
 
 	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+	suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 
 	// return funds to accounts affected
 	err = v9.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)

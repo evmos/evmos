@@ -7,6 +7,7 @@ import (
 	"errors"
 	fmt "fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -90,7 +91,7 @@ func validateAllocations(allocations sdk.DecCoins) error {
 }
 
 func validateAmount(amount sdk.Dec) error {
-	if amount.GT(sdk.OneDec()) || amount.LTE(sdk.ZeroDec()) {
+	if amount.GT(sdk.OneDec()) || amount.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}
 	return nil

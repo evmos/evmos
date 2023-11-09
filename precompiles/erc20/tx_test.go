@@ -3,6 +3,7 @@ package erc20_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
@@ -13,7 +14,7 @@ import (
 
 var (
 	// XMPLCoin is a dummy coin used for testing purposes.
-	XMPLCoin = sdk.NewCoins(sdk.NewCoin("xmpl", sdk.NewInt(1e18)))
+	XMPLCoin = sdk.NewCoins(sdk.NewCoin("xmpl", math.NewInt(1e18)))
 	// toAddr is a dummy address used for testing purposes.
 	toAddr = utiltx.GenerateAddress()
 )

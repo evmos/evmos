@@ -28,21 +28,21 @@ var _ = Describe("Claiming", Ordered, func() {
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	accountCount := 4
 
-	actionValue := sdk.NewInt(int64(math.Pow10(5) * 10))
+	actionValue := math.NewInt(int64(math.Pow10(5) * 10))
 	claimValue := actionValue.MulRaw(4)
 	totalClaimsAmount := sdk.NewCoin(utils.BaseDenom, claimValue.MulRaw(int64(accountCount)))
 
 	// account initial balances
-	initClaimsAmount := sdk.NewInt(types.GenesisDust)
-	initBalanceAmount := sdk.NewInt(int64(math.Pow10(18) * 2))
-	initStakeAmount := sdk.NewInt(int64(math.Pow10(10) * 2))
-	delegateAmount := sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1))
+	initClaimsAmount := math.NewInt(types.GenesisDust)
+	initBalanceAmount := math.NewInt(int64(math.Pow10(18) * 2))
+	initStakeAmount := math.NewInt(int64(math.Pow10(10) * 2))
+	delegateAmount := sdk.NewCoin(utils.BaseDenom, math.NewInt(1))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(utils.BaseDenom, initClaimsAmount.Add(initBalanceAmount)), // claimsDenom == evmDenom
 	)
 
 	// account for creating the governance proposals
-	initClaimsAmount0 := sdk.NewInt(int64(math.Pow10(18) * 2))
+	initClaimsAmount0 := math.NewInt(int64(math.Pow10(18) * 2))
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(utils.BaseDenom, initBalanceAmount.Add(initClaimsAmount0)), // claimsDenom == evmDenom
