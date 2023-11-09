@@ -26,9 +26,9 @@ type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
 	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
 	SetModuleAccount(ctx sdk.Context, macc authtypes.ModuleAccountI)
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
+	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
 	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	RemoveAccount(ctx sdk.Context, account authtypes.AccountI)
+	RemoveAccount(ctx sdk.Context, account sdk.AccountI)
 }
 
 // ChannelKeeper is the keeper that controls access to IBC channels

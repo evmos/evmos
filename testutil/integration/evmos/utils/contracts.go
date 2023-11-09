@@ -10,7 +10,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
@@ -38,7 +37,7 @@ func CheckTxTopics(res abcitypes.ExecTxResult, expectedTopics []string) error {
 }
 
 // IsContractAccount checks if the given account is a contract account
-func IsContractAccount(acc authtypes.AccountI) error {
+func IsContractAccount(acc sdk.AccountI) error {
 	contractETHAccount, ok := acc.(evmostypes.EthAccountI)
 	if !ok {
 		return fmt.Errorf("account is not an eth account")

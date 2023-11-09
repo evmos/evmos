@@ -87,7 +87,7 @@ func EqualStringSlice(aliasesA, aliasesB []string) bool {
 }
 
 // IsModuleAccount returns true if the given account is a module account
-func IsModuleAccount(acc authtypes.AccountI) bool {
+func IsModuleAccount(acc sdk.AccountI) bool {
 	_, isModuleAccount := acc.(authtypes.ModuleAccountI)
 	return isModuleAccount
 }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/testutil/integration/common/network"
@@ -29,7 +28,7 @@ type Coordinator interface {
 	// GetDummyChainsIds returns the chainIDs for all dummy chains.
 	GetDummyChainsIds() []string
 	// SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
-	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc authtypes.AccountI)
+	SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc sdk.AccountI)
 	// Setup constructs a TM client, connection, and channel on both chains provided. It will
 	// fail if any error occurs. The clientID's, TestConnections, and TestChannels are returned
 	// for both chains. The channels created are connected to the ibc-transfer application.
@@ -102,7 +101,7 @@ func (c *IntegrationCoordinator) UpdateTimeForChain(chainID string) {
 }
 
 // SetDefaultSignerForChain sets the default signer for the chain with the given chainID.
-func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc authtypes.AccountI) {
+func (c *IntegrationCoordinator) SetDefaultSignerForChain(chainID string, priv cryptotypes.PrivKey, acc sdk.AccountI) {
 	chain := c.coord.GetChain(chainID)
 	chain.SenderPrivKey = priv
 	chain.SenderAccount = acc

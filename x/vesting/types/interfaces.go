@@ -8,7 +8,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -17,12 +16,12 @@ import (
 // requires for storing accounts.
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
-	GetAccount(sdk.Context, sdk.AccAddress) authtypes.AccountI
-	SetAccount(sdk.Context, authtypes.AccountI)
-	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
-	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
-	IterateAccounts(ctx sdk.Context, process func(authtypes.AccountI) bool)
-	RemoveAccount(ctx sdk.Context, acc authtypes.AccountI)
+	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
+	SetAccount(sdk.Context, sdk.AccountI)
+	NewAccount(ctx sdk.Context, acc sdk.AccountI) sdk.AccountI
+	NewAccountWithAddress(ctx sdk.Context, addr sdk.AccAddress) sdk.AccountI
+	IterateAccounts(ctx sdk.Context, process func(sdk.AccountI) bool)
+	RemoveAccount(ctx sdk.Context, acc sdk.AccountI)
 }
 
 // BankKeeper defines the expected interface contract the vesting module requires

@@ -25,7 +25,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// EthAccount implements the authtypes.AccountI interface and embeds an
+// EthAccount implements the sdk.AccountI interface and embeds an
 // authtypes.BaseAccount type. It is compatible with the auth AccountKeeper.
 type EthAccount struct {
 	// base_account is an authtypes.BaseAccount

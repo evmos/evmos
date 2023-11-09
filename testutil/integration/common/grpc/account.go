@@ -11,7 +11,7 @@ import (
 )
 
 // GetAccount returns the account for the given address.
-func (gqh *IntegrationHandler) GetAccount(address string) (authtypes.AccountI, error) {
+func (gqh *IntegrationHandler) GetAccount(address string) (sdk.AccountI, error) {
 	authClient := gqh.network.GetAuthClient()
 	res, err := authClient.Account(context.Background(), &authtypes.QueryAccountRequest{
 		Address: address,
@@ -21,7 +21,7 @@ func (gqh *IntegrationHandler) GetAccount(address string) (authtypes.AccountI, e
 	}
 
 	encodingCgf := encoding.MakeConfig(app.ModuleBasics)
-	var acc authtypes.AccountI
+	var acc sdk.AccountI
 	if err = encodingCgf.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return nil, err
 	}

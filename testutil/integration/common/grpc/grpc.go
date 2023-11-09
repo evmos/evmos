@@ -5,7 +5,6 @@ package grpc
 
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -16,7 +15,7 @@ import (
 // the network's modules via gRPC.
 type Handler interface {
 	// Account methods
-	GetAccount(address string) (authtypes.AccountI, error)
+	GetAccount(address string) (sdk.AccountI, error)
 
 	// Authz methods
 	GetAuthorizations(grantee, granter string) ([]authz.Authorization, error)

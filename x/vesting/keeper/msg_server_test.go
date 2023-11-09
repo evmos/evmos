@@ -638,12 +638,12 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 	startTime := s.ctx.BlockTime().Add(-5 * time.Second)
 	testCases := []struct {
 		name     string
-		malleate func() authtypes.AccountI
+		malleate func() sdk.AccountI
 		expPass  bool
 	}{
 		{
 			"fail - no account found",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				return baseAcc
@@ -652,7 +652,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		},
 		{
 			"fail - not a vesting account",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				suite.app.AccountKeeper.SetAccount(suite.ctx, baseAcc)
@@ -662,7 +662,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		},
 		{
 			"fail - unlocked & unvested",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				lockupPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
@@ -680,7 +680,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		},
 		{
 			"fail - locked & vested",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
@@ -692,7 +692,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		},
 		{
 			"fail - locked & unvested",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingAcc := types.NewClawbackVestingAccount(baseAcc, from, balances, suite.ctx.BlockTime(), lockupPeriods, vestingPeriods)
@@ -703,7 +703,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 		},
 		{
 			"success - unlocked & vested convert to base account",
-			func() authtypes.AccountI {
+			func() sdk.AccountI {
 				from, priv := utiltx.NewAccAddressAndKey()
 				baseAcc := authtypes.NewBaseAccount(from, priv.PubKey(), 1, 5)
 				vestingPeriods := sdkvesting.Periods{{Length: 0, Amount: balances}}

@@ -4,8 +4,6 @@ import (
 	_ "embed"
 	"math/big"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/x/evm/keeper"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
@@ -123,7 +121,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 			suite.SetupTest()
 			tc.malleate()
 			i := 0
-			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account authtypes.AccountI) bool {
+			suite.app.AccountKeeper.IterateAccounts(suite.ctx, func(account sdk.AccountI) bool {
 				ethAccount, ok := account.(evmostypes.EthAccountI)
 				if !ok {
 					// ignore non EthAccounts
