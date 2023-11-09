@@ -19,7 +19,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 var _ = Describe("Claiming", Ordered, func() {

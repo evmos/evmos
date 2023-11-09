@@ -4,7 +4,7 @@ package network
 
 import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 
