@@ -14,21 +14,6 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSwapEvent() {
-	keyring := testkeyring.New(1)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
-
-	precompile, err := osmosis.NewPrecompile(
-		portID,
-		channelID,
-		osmosis.XCSContract,
-		unitNetwork.App.BankKeeper,
-		unitNetwork.App.TransferKeeper,
-		unitNetwork.App.StakingKeeper,
-		unitNetwork.App.Erc20Keeper,
-	)
-	s.Require().NoError(err)
 	// random common.Address that represents the evmos ERC20 token address and
 	// the IBC OSMO ERC20 token address.
 	evmosAddress := evmosutiltx.GenerateAddress()
@@ -69,7 +54,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 				)
 				s.Require().Equal(
 					swapLog.BlockNumber,
-					uint64(unitNetwork.GetContext().BlockHeight()),
+					uint64(s.unitNetwork.GetContext().BlockHeight()),
 					"require event block height equal to context block height",
 				)
 
@@ -108,13 +93,13 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			err := unitNetwork.NextBlock()
+			err := s.unitNetwork.NextBlock()
 			s.Require().NoError(err)
 
-			stateDB := unitNetwork.GetStateDB()
+			stateDB := s.unitNetwork.GetStateDB()
 
-			err = precompile.EmitSwapEvent(
-				unitNetwork.GetContext(),
+			err = s.precompile.EmitSwapEvent(
+				s.unitNetwork.GetContext(),
 				stateDB,
 				sender,
 				tc.input,

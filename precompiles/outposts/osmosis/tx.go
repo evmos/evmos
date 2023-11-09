@@ -3,7 +3,7 @@
 //
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
-// chain, targeting the XCSV
+// chain, targeting the Cross-Chain Swap Contract V2 (XCS V2).
 package osmosis
 
 import (
@@ -27,9 +27,6 @@ const (
 	// built on the Osmosis chain. In the alpha version of the outpost this is
 	// an empty string that will not be included in the XCS V2 contract payload.
 	NextMemo = ""
-
-	// TODO: XCSContract is the swap contract on the Osmosis chain
-	XCSContract = "placeholder"
 )
 
 // Swap is a transaction that swap tokens on the Osmosis chain using
@@ -42,7 +39,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, input, output, amount, slippagePercentage, windowSeconds, receiver, err := ParseSwapPacketData(args)
+	sender, input, output, amount, slippagePercentage, windowSeconds, swapReceiver, err := ParseSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
@@ -75,11 +72,11 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// If the receiver has not the prefix "osmo", we should compute its address
+	// If the receiver doesn't have the prefix "osmo", we should compute its address
 	// in the Osmosis chain as a recovery address for the contract.
-	onFailedDelivery := CreateOnFailedDeliveryField(receiver)
+	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
-		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
+		outputDenom, swapReceiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
 
 	err = packet.Memo.Validate()
@@ -94,7 +91,7 @@ func (p Precompile) Swap(
 		p.channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
+		XCSContract,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,
@@ -138,7 +135,7 @@ func (p Precompile) Swap(
 	}
 
 	// Emit the custom Swap Event
-	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, receiver); err != nil {
+	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, swapReceiver); err != nil {
 		return nil, err
 	}
 

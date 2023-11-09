@@ -25,7 +25,7 @@ import (
 	teststypes "github.com/evmos/evmos/v15/types/tests"
 	"github.com/evmos/evmos/v15/utils"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
