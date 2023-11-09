@@ -29,7 +29,7 @@ func TestClaimsRecordValidate(t *testing.T) {
 		{
 			"fail - empty actions",
 			types.ClaimsRecord{
-				InitialClaimableAmount: sdk.OneInt(),
+				InitialClaimableAmount: math.OneInt(),
 				ActionsCompleted:       []bool{},
 			},
 			true,
@@ -37,14 +37,14 @@ func TestClaimsRecordValidate(t *testing.T) {
 		{
 			"success - valid instance",
 			types.ClaimsRecord{
-				InitialClaimableAmount: sdk.OneInt(),
+				InitialClaimableAmount: math.OneInt(),
 				ActionsCompleted:       []bool{true, true, true, true},
 			},
 			false,
 		},
 		{
 			"success - valid instance with constructor",
-			types.NewClaimsRecord(sdk.OneInt()),
+			types.NewClaimsRecord(math.OneInt()),
 			false,
 		},
 	}
@@ -74,19 +74,19 @@ func TestClaimAction(t *testing.T) {
 		},
 		{
 			"fail - unspecified action",
-			types.NewClaimsRecord(sdk.OneInt()),
+			types.NewClaimsRecord(math.OneInt()),
 			types.ActionUnspecified,
 			false,
 		},
 		{
 			"fail - invalid action",
-			types.NewClaimsRecord(sdk.OneInt()),
+			types.NewClaimsRecord(math.OneInt()),
 			types.Action(10),
 			false,
 		},
 		{
 			"success - valid instance with constructor",
-			types.NewClaimsRecord(sdk.OneInt()),
+			types.NewClaimsRecord(math.OneInt()),
 			types.ActionEVM,
 			true,
 		},
@@ -253,14 +253,14 @@ func TestClaimsRecordAddressValidate(t *testing.T) {
 			"fail - empty actions",
 			types.ClaimsRecordAddress{
 				Address:                addr.String(),
-				InitialClaimableAmount: sdk.OneInt(),
+				InitialClaimableAmount: math.OneInt(),
 				ActionsCompleted:       []bool{},
 			},
 			true,
 		},
 		{
 			"success - valid instance",
-			types.NewClaimsRecordAddress(addr, sdk.OneInt()),
+			types.NewClaimsRecordAddress(addr, math.OneInt()),
 			false,
 		},
 	}

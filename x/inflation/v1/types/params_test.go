@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -199,7 +198,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				MintDenom:              "aevmos",
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
-					StakingRewards:  sdk.OneDec().Neg(),
+					StakingRewards:  math.LegacyOneDec().Neg(),
 					UsageIncentives: math.LegacyNewDecWithPrec(333333, 6),
 					CommunityPool:   math.LegacyNewDecWithPrec(133333, 6),
 				},
@@ -214,7 +213,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				ExponentialCalculation: validExponentialCalculation,
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(533334, 6),
-					UsageIncentives: sdk.OneDec().Neg(),
+					UsageIncentives: math.LegacyOneDec().Neg(),
 					CommunityPool:   math.LegacyNewDecWithPrec(133333, 6),
 				},
 				EnableInflation: true,
@@ -229,7 +228,7 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 				InflationDistribution: InflationDistribution{
 					StakingRewards:  math.LegacyNewDecWithPrec(533334, 6),
 					UsageIncentives: math.LegacyNewDecWithPrec(333333, 6),
-					CommunityPool:   sdk.OneDec().Neg(),
+					CommunityPool:   math.LegacyOneDec().Neg(),
 				},
 				EnableInflation: true,
 			},

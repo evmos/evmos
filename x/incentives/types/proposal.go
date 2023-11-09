@@ -91,7 +91,7 @@ func validateAllocations(allocations sdk.DecCoins) error {
 }
 
 func validateAmount(amount sdk.Dec) error {
-	if amount.GT(sdk.OneDec()) || amount.LTE(math.LegacyZeroDec()) {
+	if amount.GT(math.LegacyOneDec()) || amount.LTE(math.LegacyZeroDec()) {
 		return fmt.Errorf("invalid amount for allocation: %s", amount)
 	}
 	return nil

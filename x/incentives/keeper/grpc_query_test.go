@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
@@ -358,7 +359,7 @@ func (suite *KeeperTestSuite) TestAllocationMeters() {
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true},
 				}
 
-				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
+				am := sdk.NewDecCoin(denomMint, math.OneInt())
 				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
 
 				expRes = &types.QueryAllocationMetersResponse{
@@ -373,8 +374,8 @@ func (suite *KeeperTestSuite) TestAllocationMeters() {
 			func() {
 				req = &types.QueryAllocationMetersRequest{}
 
-				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
-				am2 := sdk.NewDecCoin(denomCoin, sdk.OneInt())
+				am := sdk.NewDecCoin(denomMint, math.OneInt())
+				am2 := sdk.NewDecCoin(denomCoin, math.OneInt())
 				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
 				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am2)
 
@@ -437,7 +438,7 @@ func (suite *KeeperTestSuite) TestAllocationMeter() {
 		{
 			"allocation meter found",
 			func() {
-				am := sdk.NewDecCoin(denomMint, sdk.OneInt())
+				am := sdk.NewDecCoin(denomMint, math.OneInt())
 				suite.app.IncentivesKeeper.SetAllocationMeter(suite.ctx, am)
 
 				req = &types.QueryAllocationMeterRequest{

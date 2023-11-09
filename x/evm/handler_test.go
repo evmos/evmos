@@ -120,7 +120,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 		ConsensusParams: app.DefaultConsensusParams,
 		AppStateBytes:   stateBytes,
 	}
-	suite.app.InitChain(req)
+	suite.app.InitChain(&req)
 
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(checkTx, tmproto.Header{
 		Height:          1,

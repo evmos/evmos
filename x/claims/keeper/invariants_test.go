@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestClaimsInvariant() {
 			"invariant broken - single claim record (nothing completed), low value",
 			func() {
 				addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.NewClaimsRecord(sdk.OneInt()))
+				suite.app.ClaimsKeeper.SetClaimsRecord(suite.ctx, addr, types.NewClaimsRecord(math.OneInt()))
 				suite.Require().True(suite.app.ClaimsKeeper.HasClaimsRecord(suite.ctx, addr))
 
 				coins := sdk.Coins{sdk.NewCoin("aevmos", math.NewInt(2))}

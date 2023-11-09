@@ -45,8 +45,10 @@ func TestEvmosExport(t *testing.T) {
 
 	db := dbm.NewMemDB()
 	chainID := utils.MainnetChainID + "-1"
+	logger := log.NewTestLogger(t)
+
 	app := NewEvmos(
-		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger.With("instance", "first"),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),
@@ -61,7 +63,7 @@ func TestEvmosExport(t *testing.T) {
 
 	// Initialize the chain
 	app.InitChain(
-		abci.RequestInitChain{
+		&abci.RequestInitChain{
 			ChainId:       chainID,
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
@@ -71,7 +73,7 @@ func TestEvmosExport(t *testing.T) {
 
 	// Making a new app object with the db, so that initchain hasn't been called
 	app2 := NewEvmos(
-		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		logger.With("instance", "second"),
 		db, nil, true, map[int64]bool{},
 		DefaultNodeHome, 0,
 		encoding.MakeConfig(ModuleBasics),

@@ -80,7 +80,7 @@ func validateShares(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %T", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 

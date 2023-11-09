@@ -25,7 +25,7 @@ func CalculateEpochMintProvision(
 	maxVariance := params.ExponentialCalculation.MaxVariance // max percentage that inflation can be increased by
 
 	// exponentialDecay := a * (1 - r) ^ x + c
-	decay := sdk.OneDec().Sub(r)
+	decay := math.LegacyOneDec().Sub(r)
 	exponentialDecay := a.Mul(decay.Power(x)).Add(c)
 
 	// bondingIncentive doesn't increase beyond bonding target (0 < b < bonding_target)
@@ -35,7 +35,7 @@ func CalculateEpochMintProvision(
 
 	// bondingIncentive = 1 + max_variance - bondingRatio * (max_variance / bonding_target)
 	sub := bondedRatio.Mul(maxVariance.Quo(bTarget))
-	bondingIncentive := sdk.OneDec().Add(maxVariance).Sub(sub)
+	bondingIncentive := math.LegacyOneDec().Add(maxVariance).Sub(sub)
 
 	// periodProvision = exponentialDecay * bondingIncentive
 	periodProvision := exponentialDecay.Mul(bondingIncentive)

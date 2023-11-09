@@ -72,7 +72,7 @@ func ClaimSufficientStakingRewards(
 		cacheCtx,
 		addr,
 		func(_ int64, delegation stakingtypes.DelegationI) (stop bool) {
-			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, delegation.GetValidatorAddr())
+			reward, err = distributionKeeper.WithdrawDelegationRewards(cacheCtx, addr, []byte(delegation.GetValidatorAddr()))
 			if err != nil {
 				return true
 			}

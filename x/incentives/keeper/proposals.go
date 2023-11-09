@@ -5,6 +5,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -71,7 +72,7 @@ func (k Keeper) RegisterIncentive(
 		allocationMeter, _ := k.GetAllocationMeter(ctx, al.Denom)
 		// Check if the sum of all allocations (current + proposed) exceeds 100%
 		allocationSum := allocationMeter.Amount.Add(al.Amount)
-		if allocationSum.GT(sdk.OneDec()) {
+		if allocationSum.GT(math.LegacyOneDec()) {
 			return nil, errorsmod.Wrapf(
 				types.ErrInternalIncentive,
 				"allocation for denom %s is larger than 100 percent: %v",

@@ -223,7 +223,7 @@ func (k Keeper) ClaimableAmountForAction(
 	// Claimable percent = (1 - elapsed decay) x 100
 	elapsedDecay := ctx.BlockTime().Sub(decayStartTime)
 	elapsedDecayRatio := math.LegacyNewDec(elapsedDecay.Nanoseconds()).QuoInt64(params.DurationOfDecay.Nanoseconds())
-	claimableRatio := sdk.OneDec().Sub(elapsedDecayRatio)
+	claimableRatio := math.LegacyOneDec().Sub(elapsedDecayRatio)
 
 	// calculate the claimable coins, while rounding the decimals
 	claimableCoins = claimableRatio.MulInt(initialClaimablePerAction).RoundInt()

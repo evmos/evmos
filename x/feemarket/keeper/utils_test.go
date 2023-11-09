@@ -172,7 +172,7 @@ func setupChain(localMinGasPricesStr string, chainID string) {
 
 	// Initialize the chain
 	newapp.InitChain(
-		abci.RequestInitChain{
+		&abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,

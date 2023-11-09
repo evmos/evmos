@@ -149,7 +149,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	evmosApp.InitChain(
-		abcitypes.RequestInitChain{
+		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: app.DefaultConsensusParams,

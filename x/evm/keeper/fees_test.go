@@ -16,7 +16,7 @@ import (
 func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 	hundredInt := sdkmath.NewInt(100)
 	zeroInt := math.ZeroInt()
-	oneInt := sdk.OneInt()
+	oneInt := math.OneInt()
 	fiveInt := sdkmath.NewInt(5)
 	fiftyInt := sdkmath.NewInt(50)
 	negInt := sdkmath.NewInt(-10)

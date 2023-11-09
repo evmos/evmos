@@ -1244,7 +1244,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdk.OneInt().BigInt()
+				baseFee := math.OneInt().BigInt()
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
 				aux = sdkmath.NewIntFromBigInt(baseFee)
@@ -1255,7 +1255,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - nil Base Fee when london hardfork not activated",
 			func() {
-				baseFee := sdk.OneInt().BigInt()
+				baseFee := math.OneInt().BigInt()
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
 				expRes = &types.QueryBaseFeeResponse{}

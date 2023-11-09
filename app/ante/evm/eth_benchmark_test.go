@@ -7,6 +7,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethante "github.com/evmos/evmos/v15/app/ante/evm"
 	"github.com/evmos/evmos/v15/server/config"

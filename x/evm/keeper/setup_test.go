@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 
 		// Initialize the chain
 		suite.app.InitChain(
-			abci.RequestInitChain{
+			&abci.RequestInitChain{
 				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: app.DefaultConsensusParams,

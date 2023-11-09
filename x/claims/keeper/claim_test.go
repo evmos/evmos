@@ -38,14 +38,14 @@ func (suite *KeeperTestSuite) TestGetClaimableAmountForAction() {
 		},
 		{
 			"claims not active",
-			types.ClaimsRecord{InitialClaimableAmount: sdk.OneInt()},
+			types.ClaimsRecord{InitialClaimableAmount: math.OneInt()},
 			types.Params{},
 			math.ZeroInt(),
 			math.ZeroInt(),
 		},
 		{
 			"action already claimed",
-			types.ClaimsRecord{InitialClaimableAmount: sdk.OneInt(), ActionsCompleted: []bool{true, true, true, true}},
+			types.ClaimsRecord{InitialClaimableAmount: math.OneInt(), ActionsCompleted: []bool{true, true, true, true}},
 			types.Params{
 				EnableClaims:     true,
 				AirdropStartTime: suite.ctx.BlockTime(),
@@ -933,7 +933,7 @@ func (suite *KeeperTestSuite) TestClaimOfDecayed() {
 				elapsedAirdropTime := blockTime.Sub(airdropStartTime)
 				decayTime := elapsedAirdropTime - durationUntilDecay
 				decayPercent := math.LegacyNewDec(decayTime.Nanoseconds()).QuoInt64(durationOfDecay.Nanoseconds())
-				claimablePercent := sdk.OneDec().Sub(decayPercent)
+				claimablePercent := math.LegacyOneDec().Sub(decayPercent)
 
 				ctx := suite.ctx.WithBlockTime(blockTime)
 

@@ -204,7 +204,7 @@ func (suite *AnteTestSuite) CreateTestEIP712TxBuilderMsgDelegate(from sdk.AccAdd
 	// Build MsgSend
 	valEthAddr := utiltx.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
-	msgSend := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
+	msgSend := stakingtypes.NewMsgDelegate(from.String(), valAddr.String(), sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgSend)
 }
 
@@ -213,12 +213,12 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
-		valAddr,
+		valAddr.String(),
 		privEd.PubKey(),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
 		stakingtypes.NewDescription("moniker", "indentity", "website", "security_contract", "details"),
-		stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-		sdk.OneInt(),
+		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
+		math.OneInt(),
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)
@@ -229,13 +229,13 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator2(from sdk.AccAddr
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
-		valAddr,
+		valAddr.String(),
 		privEd.PubKey(),
 		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
 		// Ensure optional fields can be left blank
 		stakingtypes.NewDescription("moniker", "indentity", "", "", ""),
-		stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-		sdk.OneInt(),
+		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
+		sdkmath.OneInt(),
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)
@@ -266,7 +266,7 @@ func (suite *AnteTestSuite) CreateTestEIP712GrantAllowance(from sdk.AccAddress, 
 func (suite *AnteTestSuite) CreateTestEIP712MsgEditValidator(from sdk.AccAddress, priv cryptotypes.PrivKey, chainID string, gas uint64, gasAmount sdk.Coins) (client.TxBuilder, error) {
 	valAddr := sdk.ValAddress(from.Bytes())
 	msgEdit := stakingtypes.NewMsgEditValidator(
-		valAddr,
+		valAddr.String(),
 		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		nil,
 		nil,
@@ -352,7 +352,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MultipleDifferentMsgs(from sdk.AccAd
 
 	valEthAddr := utiltx.GenerateAddress()
 	valAddr := sdk.ValAddress(valEthAddr.Bytes())
-	msgDelegate := stakingtypes.NewMsgDelegate(from, valAddr, sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
+	msgDelegate := stakingtypes.NewMsgDelegate(from.String(), valAddr.String(), sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
 
 	return suite.CreateTestEIP712CosmosTxBuilder(priv, chainID, gas, gasAmount, []sdk.Msg{msgSend, msgVote, msgDelegate})
 }
