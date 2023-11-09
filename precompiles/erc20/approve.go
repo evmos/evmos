@@ -231,24 +231,6 @@ func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common
 	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, expiration)
 }
 
-// updateOrAddCoin replaces the coin of the given denomination in the coins slice or adds it if it
-// does not exist yet.
-//
-// CONTRACT: Requires the coins struct to contain at most one coin of the given
-// denom.
-func updateOrAddCoin(coins sdk.Coins, coin sdk.Coin) sdk.Coins {
-	for idx, c := range coins {
-		if c.Denom == coin.Denom {
-			coins[idx] = coin
-			return coins
-		}
-	}
-
-	// NOTE: if no coin with the correct denomination is in the coins slice, we
-	// add it here.
-	return coins.Add(coin)
-}
-
 // removeSpendLimitOrDeleteAuthorization removes the spend limit for the given
 // token and updates the grant or deletes the authorization if no spend limit in another
 // denomination is set.
