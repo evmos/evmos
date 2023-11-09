@@ -11,6 +11,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/app"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/testutil"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
@@ -484,6 +485,120 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				s.Require().Equal(tc.expBalance, bigOut.Int64(), "expected different balance")
 			} else {
 				s.Require().Error(err, "expected error getting balance")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestAllowance() {
+	method := s.precompile.Methods[auth.AllowanceMethod]
+
+	testcases := []struct {
+		name        string
+		malleate    func(sdk.Context, *app.Evmos, int64) []interface{}
+		expPass     bool
+		errContains string
+		expAllow    int64
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{1}
+			},
+			errContains: "invalid number of arguments; expected 2; got: 1",
+		},
+		{
+			name: "fail - invalid owner address",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{"invalid address", s.keyring.GetAddr(1)}
+			},
+			errContains: "invalid owner address: invalid address",
+		},
+		{
+			name: "fail - invalid spender address",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{s.keyring.GetAddr(0), "invalid address"}
+			},
+			errContains: "invalid spender address: invalid address",
+		},
+		{
+			name: "fail - no allowance exists",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{s.keyring.GetAddr(0), s.keyring.GetAddr(1)}
+			},
+			errContains: "does not exist or is expired",
+		},
+		{
+			name: "pass - allowance exists but not for precompile token pair denom",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				granterIdx := 0
+				granteeIdx := 1
+
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(granteeIdx),
+					s.keyring.GetPrivKey(granterIdx),
+					sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 100)),
+				)
+
+				return []interface{}{s.keyring.GetAddr(granterIdx), s.keyring.GetAddr(granteeIdx)}
+			},
+			expPass:  true,
+			expAllow: 0,
+		},
+		{
+			name: "pass - allowance exists for precompile token pair denom",
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) []interface{} {
+				granterIdx := 0
+				granteeIdx := 1
+
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(granteeIdx),
+					s.keyring.GetPrivKey(granterIdx),
+					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+				)
+
+				return []interface{}{s.keyring.GetAddr(granterIdx), s.keyring.GetAddr(granteeIdx)}
+			},
+			expPass:  true,
+			expAllow: 100,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			var allowanceArgs []interface{}
+			if tc.malleate != nil {
+				allowanceArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expAllow)
+			}
+
+			precompile := s.setupERC20Precompile(s.tokenDenom)
+
+			bz, err := precompile.Allowance(
+				s.network.GetContext(),
+				nil,
+				nil,
+				&method,
+				allowanceArgs,
+			)
+
+			if tc.expPass {
+				s.Require().NoError(err, "expected no error getting allowance")
+				s.Require().NotEmpty(bz, "expected allowance bytes not to be empty")
+
+				// Unpack the name into a string
+				allowanceOut, err := method.Outputs.Unpack(bz)
+				s.Require().NoError(err, "expected no error unpacking allowance")
+
+				bigOut, ok := allowanceOut[0].(*big.Int)
+				s.Require().True(ok, "expected allowance to be a big.Int")
+				s.Require().Equal(tc.expAllow, bigOut.Int64(), "expected different allowance")
+			} else {
+				s.Require().Error(err, "expected error getting allowance")
 				s.Require().ErrorContains(err, tc.errContains, "expected different error")
 			}
 		})
