@@ -118,10 +118,11 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				// NOTE: we set the denom metadata for the coin
 				s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), validMetadata)
 			},
-			expPass:     true,
-			expName:     "Atom",
-			expSymbol:   "ATOM",
-			expDecimals: 6,
+			expPass:         true,
+			expDecimalsPass: true,
+			expName:         "Atom",
+			expSymbol:       "ATOM",
+			expDecimals:     6,
 		},
 		{
 			name:  "pass - valid ibc denom without metadata",
@@ -129,10 +130,11 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenom)
 			},
-			expPass:     true,
-			expName:     "Osmo",
-			expSymbol:   "OSMO",
-			expDecimals: 6,
+			expPass:         true,
+			expDecimalsPass: true,
+			expName:         "Osmo",
+			expSymbol:       "OSMO",
+			expDecimals:     6,
 		},
 		{
 			name:  "pass - valid ibc denom with metadata and 18 decimals",
@@ -140,10 +142,11 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				app.TransferKeeper.SetDenomTrace(ctx, validAttoTraceDenom)
 			},
-			expPass:     true,
-			expName:     "Evmos",
-			expSymbol:   "EVMOS",
-			expDecimals: 18,
+			expPass:         true,
+			expDecimalsPass: true,
+			expName:         "Evmos",
+			expSymbol:       "EVMOS",
+			expDecimals:     18,
 		},
 	}
 
