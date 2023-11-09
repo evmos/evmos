@@ -264,6 +264,7 @@ func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grant
 	}
 
 	newSpendLimit, hasNeg := sendAuthz.SpendLimit.SafeSub(denomCoins)
+	// NOTE: safety check only, this should never happen since we only subtract what was found in the slice.
 	if hasNeg {
 		return fmt.Errorf("subtracted value cannot be greater than existing allowance for denom %s: %s > %s",
 			p.tokenPair.Denom, denomCoins, sendAuthz.SpendLimit,
