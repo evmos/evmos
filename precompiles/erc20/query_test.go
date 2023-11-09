@@ -11,6 +11,7 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	"math"
+	"math/big"
 )
 
 var (
@@ -325,6 +326,70 @@ func (s *PrecompileTestSuite) TestNameSymbolDecimals() {
 					s.Require().Contains(err.Error(), tc.errDecimalsContains, "expected different error getting decimals")
 				}
 			})
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestTotalSupply() {
+	method := s.precompile.Methods[erc20.TotalSupplyMethod]
+
+	testcases := []struct {
+		name     string
+		malleate func(sdk.Context, *app.Evmos, int64)
+		expPass  bool
+		expTotal int64
+	}{
+		{
+			name:     "pass - no coins",
+			expPass:  true,
+			expTotal: 0,
+		},
+		{
+			name: "pass - some coins",
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) {
+				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, amount)})
+				s.Require().NoError(err)
+			},
+			expPass:  true,
+			expTotal: 100,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			if tc.malleate != nil {
+				tc.malleate(s.network.GetContext(), s.network.App, tc.expTotal)
+			}
+
+			precompile := s.setupERC20Precompile(validMetadataDenom)
+
+			bz, err := precompile.TotalSupply(
+				s.network.GetContext(),
+				nil,
+				nil,
+				&method,
+				[]interface{}{},
+			)
+
+			if tc.expPass {
+				s.Require().NoError(err, "expected no error getting total supply")
+				s.Require().NotEmpty(bz, "expected total supply bytes not to be empty")
+
+				// Unpack the name into a string
+				totalSupplyOut, err := method.Outputs.Unpack(bz)
+				s.Require().NoError(err, "expected no error unpacking total supply")
+
+				bigOut, ok := totalSupplyOut[0].(*big.Int)
+				s.Require().True(ok, "expected total supply to be a big.Int")
+				s.Require().Equal(tc.expTotal, bigOut.Int64(), "expected different total supply")
+			} else {
+				s.Require().Error(err, "expected error getting total supply")
+			}
 		})
 	}
 }
