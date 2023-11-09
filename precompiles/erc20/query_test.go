@@ -10,6 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/app"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
@@ -17,6 +19,7 @@ import (
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
+// Define useful variables for tests here.
 var (
 	// tooShortTrace is a denomination trace with a name that will raise the "denom too short" error
 	tooShortTrace = types.DenomTrace{Path: "channel-0", BaseDenom: "ab"}
@@ -337,25 +340,26 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 	method := s.precompile.Methods[erc20.TotalSupplyMethod]
 
 	testcases := []struct {
-		name     string
-		malleate func(sdk.Context, *app.Evmos, int64)
-		expPass  bool
-		expTotal int64
+		name        string
+		malleate    func(sdk.Context, *app.Evmos, *big.Int)
+		expPass     bool
+		errContains string
+		expTotal    *big.Int
 	}{
 		{
 			name:     "pass - no coins",
 			expPass:  true,
-			expTotal: 0,
+			expTotal: common.Big0,
 		},
 		{
 			name: "pass - some coins",
-			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) {
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
-				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, amount)})
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewCoin(validMetadata.Base, sdk.NewIntFromBigInt(amount))})
 				s.Require().NoError(err)
 			},
 			expPass:  true,
-			expTotal: 100,
+			expTotal: big.NewInt(100),
 		},
 	}
 
@@ -379,20 +383,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 				[]interface{}{},
 			)
 
-			if tc.expPass {
-				s.Require().NoError(err, "expected no error getting total supply")
-				s.Require().NotEmpty(bz, "expected total supply bytes not to be empty")
-
-				// Unpack the name into a string
-				totalSupplyOut, err := method.Outputs.Unpack(bz)
-				s.Require().NoError(err, "expected no error unpacking total supply")
-
-				bigOut, ok := totalSupplyOut[0].(*big.Int)
-				s.Require().True(ok, "expected total supply to be a big.Int")
-				s.Require().Equal(tc.expTotal, bigOut.Int64(), "expected different total supply")
-			} else {
-				s.Require().Error(err, "expected error getting total supply")
-			}
+			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expTotal)
 		})
 	}
 }
@@ -402,28 +393,28 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, int64) []interface{}
+		malleate    func(sdk.Context, *app.Evmos, *big.Int) []interface{}
 		expPass     bool
 		errContains string
-		expBalance  int64
+		expBalance  *big.Int
 	}{
 		{
 			name: "fail - invalid number of arguments",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{}
 			},
 			errContains: "invalid number of arguments; expected 1; got: 0",
 		},
 		{
 			name: "fail - invalid address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{"invalid address"}
 			},
 			errContains: "invalid account address: invalid address",
 		},
 		{
 			name: "pass - no coins in token denomination of precompile token pair",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				// NOTE: we fund the account with some coins in a different denomination from what was used in the precompile.
 				err := testutil.FundAccount(
 					s.network.GetContext(), s.network.App.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 100)),
@@ -433,21 +424,21 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				return []interface{}{s.keyring.GetAddr(0)}
 			},
 			expPass:    true,
-			expBalance: 0,
+			expBalance: common.Big0,
 		},
 		{
 			name: "pass - some coins",
-			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) []interface{} {
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) []interface{} {
 				// NOTE: we fund the account with some coins of the token denomination that was used for the precompile
 				err := testutil.FundAccount(
-					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(amount))),
 				)
 				s.Require().NoError(err, "expected no error funding account")
 
 				return []interface{}{s.keyring.GetAddr(0)}
 			},
 			expPass:    true,
-			expBalance: 100,
+			expBalance: big.NewInt(100),
 		},
 	}
 
@@ -472,21 +463,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				balanceOfArgs,
 			)
 
-			if tc.expPass {
-				s.Require().NoError(err, "expected no error getting balance")
-				s.Require().NotEmpty(bz, "expected balance bytes not to be empty")
-
-				// Unpack the name into a string
-				balanceOut, err := method.Outputs.Unpack(bz)
-				s.Require().NoError(err, "expected no error unpacking balance")
-
-				bigOut, ok := balanceOut[0].(*big.Int)
-				s.Require().True(ok, "expected balance to be a big.Int")
-				s.Require().Equal(tc.expBalance, bigOut.Int64(), "expected different balance")
-			} else {
-				s.Require().Error(err, "expected error getting balance")
-				s.Require().ErrorContains(err, tc.errContains, "expected different error")
-			}
+			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expBalance)
 		})
 	}
 }
@@ -496,42 +473,42 @@ func (s *PrecompileTestSuite) TestAllowance() {
 
 	testcases := []struct {
 		name        string
-		malleate    func(sdk.Context, *app.Evmos, int64) []interface{}
+		malleate    func(sdk.Context, *app.Evmos, *big.Int) []interface{}
 		expPass     bool
 		errContains string
-		expAllow    int64
+		expAllow    *big.Int
 	}{
 		{
 			name: "fail - invalid number of arguments",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{1}
 			},
 			errContains: "invalid number of arguments; expected 2; got: 1",
 		},
 		{
 			name: "fail - invalid owner address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{"invalid address", s.keyring.GetAddr(1)}
 			},
 			errContains: "invalid owner address: invalid address",
 		},
 		{
 			name: "fail - invalid spender address",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), "invalid address"}
 			},
 			errContains: "invalid spender address: invalid address",
 		},
 		{
 			name: "fail - no allowance exists",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), s.keyring.GetAddr(1)}
 			},
 			errContains: "does not exist or is expired",
 		},
 		{
 			name: "pass - allowance exists but not for precompile token pair denom",
-			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				granterIdx := 0
 				granteeIdx := 1
 
@@ -544,24 +521,24 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				return []interface{}{s.keyring.GetAddr(granterIdx), s.keyring.GetAddr(granteeIdx)}
 			},
 			expPass:  true,
-			expAllow: 0,
+			expAllow: common.Big0,
 		},
 		{
 			name: "pass - allowance exists for precompile token pair denom",
-			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) []interface{} {
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) []interface{} {
 				granterIdx := 0
 				granteeIdx := 1
 
 				s.setupSendAuthz(
 					s.keyring.GetAccAddr(granteeIdx),
 					s.keyring.GetPrivKey(granterIdx),
-					sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+					sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(amount))),
 				)
 
 				return []interface{}{s.keyring.GetAddr(granterIdx), s.keyring.GetAddr(granteeIdx)}
 			},
 			expPass:  true,
-			expAllow: 100,
+			expAllow: big.NewInt(100),
 		},
 	}
 
@@ -586,21 +563,46 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				allowanceArgs,
 			)
 
-			if tc.expPass {
-				s.Require().NoError(err, "expected no error getting allowance")
-				s.Require().NotEmpty(bz, "expected allowance bytes not to be empty")
-
-				// Unpack the name into a string
-				allowanceOut, err := method.Outputs.Unpack(bz)
-				s.Require().NoError(err, "expected no error unpacking allowance")
-
-				bigOut, ok := allowanceOut[0].(*big.Int)
-				s.Require().True(ok, "expected allowance to be a big.Int")
-				s.Require().Equal(tc.expAllow, bigOut.Int64(), "expected different allowance")
-			} else {
-				s.Require().Error(err, "expected error getting allowance")
-				s.Require().ErrorContains(err, tc.errContains, "expected different error")
-			}
+			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expAllow)
 		})
+	}
+}
+
+// requireOut is a helper utility to reduce the amount of boilerplate code in the tests.
+//
+// It requires the output bytes and error to match the expected values. Additionally, the method outputs
+// are unpacked and the first value is compared to the expected value.
+//
+// NOTE: It's sufficient to only check the first value because all methods in the ERC20 precompile only
+// return a single value.
+func (s *PrecompileTestSuite) requireOut(
+	bz []byte,
+	err error,
+	method abi.Method,
+	expPass bool,
+	errContains string,
+	expValue interface{},
+) {
+	if expPass {
+		s.Require().NoError(err, "expected no error")
+		s.Require().NotEmpty(bz, "expected bytes not to be empty")
+
+		// Unpack the name into a string
+		out, err := method.Outputs.Unpack(bz)
+		s.Require().NoError(err, "expected no error unpacking")
+
+		// Check if expValue is a big.Int. Because of a difference in uninitialized/empty values for big.Ints,
+		// this comparison is often not working as expected, so we convert to Int64 here and compare those values.
+		bigExp, ok := expValue.(*big.Int)
+		if ok {
+			bigOut, ok := out[0].(*big.Int)
+			s.Require().True(ok, "expected output to be a big.Int")
+			s.Require().Equal(bigExp.Int64(), bigOut.Int64(), "expected different value")
+		} else {
+			s.Require().Equal(expValue, out[0], "expected different value")
+		}
+	} else {
+		s.Require().Error(err, "expected error")
+		s.Require().Contains(err.Error(), errContains, "expected different error")
 	}
 }
