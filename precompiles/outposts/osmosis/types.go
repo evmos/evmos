@@ -234,7 +234,7 @@ func ParseSwapPacketData(args []interface{}) (
 	}
 
 	var ok bool
-	sender, ok = args[0].(common.Address)
+	sender, ok := args[0].(common.Address)
 	if !ok {
 		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
