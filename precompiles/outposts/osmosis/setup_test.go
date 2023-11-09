@@ -19,6 +19,8 @@ import (
 const (
 	portID    = "transfer"
 	channelID = "channel-0"
+	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+	XCSContract = "placeholder"
 )
 
 type PrecompileTestSuite struct {
@@ -43,7 +45,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	precompile, err := osmosis.NewPrecompile(
 		portID,
 		channelID,
-		osmosis.XCSContract,
 		integrationNetwork.App.BankKeeper,
 		integrationNetwork.App.TransferKeeper,
 		integrationNetwork.App.StakingKeeper,

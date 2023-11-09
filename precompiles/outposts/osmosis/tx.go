@@ -24,9 +24,6 @@ const (
 	// built on the Osmosis chain. In the alpha version of the outpost this is
 	// an empty string that will not be included in the XCS V2 contract payload.
 	NextMemo = ""
-
-	// TODO: XCSContract is the swap contract on the Osmosis chain
-	XCSContract = "placeholder"
 )
 
 // Swap is a transaction that swap tokens on the Osmosis chain using
