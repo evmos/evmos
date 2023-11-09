@@ -15,7 +15,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -99,6 +99,12 @@ func (p Precompile) Symbol(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
+	// TODO: added this check here, do we want that? It won't be possible to register a token
+	// with an empty denomination right? So calling this with an empty denom also won't happen..
+	if p.tokenPair.Denom == "" {
+		return nil, errors.New("denom cannot be empty")
+	}
+
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Symbol)
@@ -254,7 +260,7 @@ func GetAuthzAndAllowance(
 	grantee, granter common.Address,
 	denom string,
 ) (authz.Authorization, *big.Int, error) {
-	authorization, _, err := authorization.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
+	authorization, _, err := auth.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
 	// TODO: return error if doesn't exist?
 	if err != nil {
 		return nil, common.Big0, err
