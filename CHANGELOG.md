@@ -81,6 +81,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (utils) [#2010](https://github.com/evmos/evmos/pull/2010) Add utils function to create ibc denom trace.
 - (erc20) [#2012](https://github.com/evmos/evmos/pull/2012) Adjust ERC20 extension approvals to handle multiple denominations.
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
+- (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
 
 ### Bug Fixes
