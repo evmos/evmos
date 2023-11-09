@@ -4,8 +4,9 @@
 package types
 
 import (
+	context "context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 )
@@ -13,22 +14,22 @@ import (
 // BankKeeper defines the banking contract that must be fulfilled when
 // creating a x/claims keeper.
 type BankKeeper interface {
-	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderPool, recipientPool string, amt sdk.Coins) error
-	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
-	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error
+	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromModuleToModule(ctx context.Context, senderPool, recipientPool string, amt sdk.Coins) error
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
+	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
 	BlockedAddr(address sdk.AccAddress) bool
 }
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
-	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
-	SetModuleAccount(ctx sdk.Context, macc authtypes.ModuleAccountI)
-	GetAccount(sdk.Context, sdk.AccAddress) sdk.AccountI
-	GetSequence(sdk.Context, sdk.AccAddress) (uint64, error)
-	RemoveAccount(ctx sdk.Context, account sdk.AccountI)
+	GetModuleAccount(ctx context.Context, name string) sdk.ModuleAccountI
+	SetModuleAccount(ctx context.Context, macc sdk.ModuleAccountI)
+	GetAccount(context.Context, sdk.AccAddress) sdk.AccountI
+	GetSequence(context.Context, sdk.AccAddress) (uint64, error)
+	RemoveAccount(ctx context.Context, account sdk.AccountI)
 }
 
 // ChannelKeeper is the keeper that controls access to IBC channels
