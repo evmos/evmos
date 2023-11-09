@@ -266,7 +266,6 @@ func GetAuthzExpirationAndAllowance(
 	denom string,
 ) (authz.Authorization, *time.Time, *big.Int, error) {
 	authorization, expiration, err := auth.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
-  
 	// TODO: return error if doesn't exist?
 	if err != nil {
 		return nil, nil, common.Big0, err
