@@ -127,7 +127,6 @@ func (p Precompile) Decimals(
 		displayFound bool
 	)
 	for i := len(metadata.DenomUnits) - 1; i >= 0; i-- {
-		// TODO: return error here if display denom is not found?
 		if metadata.DenomUnits[i].Denom == metadata.Display {
 			decimals = metadata.DenomUnits[i].Exponent
 			displayFound = true
