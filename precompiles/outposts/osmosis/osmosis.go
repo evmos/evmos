@@ -27,6 +27,9 @@ const (
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
+
+	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+	XCSContract = "placeholder"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
