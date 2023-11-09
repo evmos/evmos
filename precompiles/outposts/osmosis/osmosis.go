@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -27,6 +28,9 @@ const (
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
+
+	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+	XCSContract = "placeholder"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -65,6 +69,7 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := LoadABI()
 	if err != nil {
@@ -77,6 +82,7 @@ func NewPrecompile(
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
+			AuthzKeeper:          authzKeeper,
 		},
 		portID:             portID,
 		channelID:          channelID,

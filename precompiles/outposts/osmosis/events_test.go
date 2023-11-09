@@ -11,8 +11,6 @@ import (
 )
 
 func (s *PrecompileTestSuite) TestSwapEvent() {
-	s.SetupTest()
-
 	// random common.Address that represents the evmos ERC20 token address and
 	// the IBC OSMO ERC20 token address.
 	evmosAddress := evmosutiltx.GenerateAddress()
@@ -53,7 +51,7 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 				)
 				s.Require().Equal(
 					swapLog.BlockNumber,
-					uint64(s.network.GetContext().BlockHeight()),
+					uint64(s.unitNetwork.GetContext().BlockHeight()),
 					"require event block height equal to context block height",
 				)
 
@@ -92,13 +90,13 @@ func (s *PrecompileTestSuite) TestSwapEvent() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			err := s.network.NextBlock()
+			err := s.unitNetwork.NextBlock()
 			s.Require().NoError(err)
 
-			stateDB := s.network.GetStateDB()
+			stateDB := s.unitNetwork.GetStateDB()
 
 			err = s.precompile.EmitSwapEvent(
-				s.network.GetContext(),
+				s.unitNetwork.GetContext(),
 				stateDB,
 				sender,
 				tc.input,

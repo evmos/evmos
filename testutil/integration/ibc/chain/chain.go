@@ -16,12 +16,12 @@ import (
 	"github.com/cosmos/ibc-go/v7/testing/simapp"
 )
 
-// IBCChain defines the required methods needed for a testing IBC chain that complies
+// Chain defines the required methods needed for a testing IBC chain that complies
 // with the ibctesting chain struct.
 type Chain interface {
 	// GetContext returns the current context for the application.
 	GetContext() sdktypes.Context
-	// GetSimApp returns the SimApp to allow usage ofnon-interface fields.
+	// GetSimApp returns the SimApp to allow usage of non-interface fields.
 	GetSimApp() *simapp.SimApp
 	// QueryProof performs an abci query with the given key and returns the proto encoded merkle proof
 	// for the query and the height at which the proof will succeed on a tendermint verifier.
