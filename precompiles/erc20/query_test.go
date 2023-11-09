@@ -4,14 +4,16 @@
 package erc20_test
 
 import (
+	"math"
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/testutil"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	"math"
-	"math/big"
 )
 
 var (
@@ -389,6 +391,100 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 				s.Require().Equal(tc.expTotal, bigOut.Int64(), "expected different total supply")
 			} else {
 				s.Require().Error(err, "expected error getting total supply")
+			}
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestBalanceOf() {
+	method := s.precompile.Methods[erc20.BalanceOfMethod]
+
+	testcases := []struct {
+		name        string
+		malleate    func(sdk.Context, *app.Evmos, int64) []interface{}
+		expPass     bool
+		errContains string
+		expBalance  int64
+	}{
+		{
+			name: "fail - invalid number of arguments",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{}
+			},
+			errContains: "invalid number of arguments; expected 1; got: 0",
+		},
+		{
+			name: "fail - invalid address",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				return []interface{}{"invalid address"}
+			},
+			errContains: "invalid account address: invalid address",
+		},
+		{
+			name: "pass - no coins in token denomination of precompile token pair",
+			malleate: func(_ sdk.Context, _ *app.Evmos, _ int64) []interface{} {
+				// NOTE: we fund the account with some coins in a different denomination from what was used in the precompile.
+				err := testutil.FundAccount(
+					s.network.GetContext(), s.network.App.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewInt64Coin(s.bondDenom, 100)),
+				)
+				s.Require().NoError(err, "expected no error funding account")
+
+				return []interface{}{s.keyring.GetAddr(0)}
+			},
+			expPass:    true,
+			expBalance: 0,
+		},
+		{
+			name: "pass - some coins",
+			malleate: func(ctx sdk.Context, app *app.Evmos, amount int64) []interface{} {
+				// NOTE: we fund the account with some coins of the token denomination that was used for the precompile
+				err := testutil.FundAccount(
+					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewInt64Coin(s.tokenDenom, amount)),
+				)
+				s.Require().NoError(err, "expected no error funding account")
+
+				return []interface{}{s.keyring.GetAddr(0)}
+			},
+			expPass:    true,
+			expBalance: 100,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			var balanceOfArgs []interface{}
+			if tc.malleate != nil {
+				balanceOfArgs = tc.malleate(s.network.GetContext(), s.network.App, tc.expBalance)
+			}
+
+			precompile := s.setupERC20Precompile(s.tokenDenom)
+
+			bz, err := precompile.BalanceOf(
+				s.network.GetContext(),
+				nil,
+				nil,
+				&method,
+				balanceOfArgs,
+			)
+
+			if tc.expPass {
+				s.Require().NoError(err, "expected no error getting balance")
+				s.Require().NotEmpty(bz, "expected balance bytes not to be empty")
+
+				// Unpack the name into a string
+				balanceOut, err := method.Outputs.Unpack(bz)
+				s.Require().NoError(err, "expected no error unpacking balance")
+
+				bigOut, ok := balanceOut[0].(*big.Int)
+				s.Require().True(ok, "expected balance to be a big.Int")
+				s.Require().Equal(tc.expBalance, bigOut.Int64(), "expected different balance")
+			} else {
+				s.Require().Error(err, "expected error getting balance")
+				s.Require().ErrorContains(err, tc.errContains, "expected different error")
 			}
 		})
 	}
