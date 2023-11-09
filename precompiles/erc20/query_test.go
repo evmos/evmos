@@ -193,7 +193,7 @@ func (s *PrecompileTestSuite) TestNameSymbolDecimals() {
 			expDecimals:     6,
 		},
 		{
-			name:  "valid ibc denom with metadata and 18 decimals",
+			name:  "valid ibc denom without metadata and 18 decimals",
 			denom: validAttoTraceDenom.IBCDenom(),
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				app.TransferKeeper.SetDenomTrace(ctx, validAttoTraceDenom)
