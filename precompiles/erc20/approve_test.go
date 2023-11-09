@@ -75,6 +75,36 @@ func (s *PrecompileTestSuite) TestApprove() {
 			errContains: "causes integer overflow",
 		},
 		{
+			name: "fail - approve to zero with existing authorization only for other denominations",
+			malleate: func() []interface{} {
+				// NOTE: We are setting up a grant with a spend limit for a different denomination
+				// and then trying to approve an amount of zero for the token denomination
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.bondDenom, 1),
+					),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), common.Big0,
+				}
+			},
+			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			postCheck: func() {
+				// NOTE: Here we check that the authorization was not adjusted
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.bondDenom, 1),
+					),
+					[]string{},
+				)
+			},
+		},
+		{
 			name: "pass - approve without existing authorization",
 			malleate: func() []interface{} {
 				return []interface{}{
@@ -492,6 +522,36 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				}
 			},
 			errContains: "does not exist or is expired",
+		},
+		{
+			name: "fail - decrease allowance with existing authorization only for other denominations",
+			malleate: func() []interface{} {
+				// NOTE: We are setting up a grant with a spend limit for a different denomination
+				// and then trying to decrease the allowance for the token denomination
+				s.setupSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetPrivKey(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.bondDenom, 1),
+					),
+				)
+
+				return []interface{}{
+					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
+				}
+			},
+			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			postCheck: func() {
+				// NOTE: Here we check that the authorization was not adjusted
+				s.requireSendAuthz(
+					s.keyring.GetAccAddr(1),
+					s.keyring.GetAccAddr(0),
+					sdk.NewCoins(
+						sdk.NewInt64Coin(s.bondDenom, 1),
+					),
+					[]string{},
+				)
+			},
 		},
 		{
 			name: "pass - decrease allowance with existing authorization",

@@ -323,6 +323,7 @@ func (p Precompile) decreaseAllowance(
 	}
 
 	amount = new(big.Int).Sub(allowance.Amount.BigInt(), subtractedValue)
+	// NOTE: Safety check only since this is checked in the DecreaseAllowance method already.
 	if amount.Sign() < 0 {
 		return nil, fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance.Amount)
 	}
