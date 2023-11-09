@@ -4,6 +4,8 @@
 package erc20_test
 
 import (
+	"math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -19,6 +21,8 @@ var (
 	validTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "uosmo"}
 	// validAttoTraceDenom is a denomination trace with a valid IBC voucher name and 18 decimals
 	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "aevmos"}
+	// validTraceDenomNoMicroAtto is a denomination trace with a valid IBC voucher name but no micro or atto prefix
+	validTraceDenomNoMicroAtto = types.DenomTrace{Path: "channel-0", BaseDenom: "mevmos"}
 
 	// --------------------
 	// Variables for coin with valid metadata
@@ -52,6 +56,26 @@ var (
 		Symbol:  validMetadataSymbol,
 		Display: validMetadataDisplay,
 	}
+
+	// overflowMetadata contains a metadata with an exponent that overflows uint8
+	overflowMetadata = banktypes.Metadata{
+		Description: "description",
+		Base:        validMetadataDenom,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    validMetadataDenom,
+				Exponent: 0,
+			},
+			{
+				Denom:    validMetadataDisplay,
+				Exponent: uint32(math.MaxUint8 + 1),
+			},
+		},
+		Name:    validMetadataName,
+		Symbol:  validMetadataSymbol,
+		Display: validMetadataDisplay,
+	}
 )
 
 // TestNameSymbol tests the Name and Symbol methods of the ERC20 precompile.
@@ -79,7 +103,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			name:                "fail - empty denom",
 			denom:               "",
 			errContains:         "denom cannot be empty",
-			errDecimalsContains: "denom is not an IBC voucher",
+			errDecimalsContains: "denom is not an IBC voucher", // TODO: do we want to check for empty denom here too?
 		},
 		{
 			name:                "fail - invalid denom trace",
@@ -88,9 +112,10 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			errDecimalsContains: "odd length hex string",
 		},
 		{
-			name:        "fail - denom not found",
-			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: "denom trace not found",
+			name:                "fail - denom not found",
+			denom:               types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
+			errContains:         "denom trace not found",
+			errDecimalsContains: "denom trace not found",
 		},
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
@@ -103,9 +128,21 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			expDecimals:     18,   // expect 18 decimals here because of "a" prefix
 		},
 		{
-			name:        "fail - denom without metadata and not an IBC voucher",
-			denom:       "noIBCvoucher",
-			errContains: "denom is not an IBC voucher",
+			name:                "fail - denom without metadata and not an IBC voucher",
+			denom:               "noIBCvoucher",
+			errContains:         "denom is not an IBC voucher",
+			errDecimalsContains: "denom is not an IBC voucher",
+		},
+		{
+			name:  "fail - valid ibc denom without metadata and neither atto nor micro prefix",
+			denom: validTraceDenomNoMicroAtto.IBCDenom(),
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
+			},
+			expPass:             true,
+			expName:             "Evmos",
+			expSymbol:           "EVMOS",
+			errDecimalsContains: "invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: \"mevmos\"",
 		},
 		{
 			name:  "pass - valid denom with metadata",
@@ -116,7 +153,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				s.Require().NoError(err)
 
 				// NOTE: we set the denom metadata for the coin
-				s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), validMetadata)
+				app.BankKeeper.SetDenomMetaData(ctx, validMetadata)
 			},
 			expPass:         true,
 			expDecimalsPass: true,
@@ -147,6 +184,23 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			expName:         "Evmos",
 			expSymbol:       "EVMOS",
 			expDecimals:     18,
+		},
+		{
+			name:  "fail - valid ibc denom with metadata but decimals overflow",
+			denom: validMetadataDenom,
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+				s.Require().NoError(err)
+
+				// NOTE: we set the denom metadata for the coin
+				app.BankKeeper.SetDenomMetaData(s.network.GetContext(), overflowMetadata)
+			},
+			expPass:             true,
+			expDecimalsPass:     false,
+			expName:             "Atom",
+			expSymbol:           "ATOM",
+			errDecimalsContains: "uint8 overflow: invalid decimals",
 		},
 	}
 
