@@ -49,18 +49,18 @@ func (p Precompile) Approve(
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	switch {
-	case authorization == nil && amount != nil && amount.Cmp(common.Big0) <= 0:
+	case authorization == nil && amount != nil && amount.Sign() <= 0:
 		// case 1: no authorization, amount 0 or negative -> error
 		// TODO: (@fedekunze) check if this is correct by comparing behavior with
 		// regular ERC20
 		err = errors.New("cannot approve non-positive values")
-	case authorization == nil && amount != nil && amount.Cmp(common.Big0) > 0:
+	case authorization == nil && amount != nil && amount.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		err = p.createAuthorization(ctx, grantee, granter, amount)
-	case authorization != nil && amount != nil && amount.Cmp(common.Big0) <= 0:
+	case authorization != nil && amount != nil && amount.Sign() <= 0:
 		// case 3: authorization exists, amount 0 or negative -> remove from spend limit and delete authorization if no spend limit left
 		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
-	case authorization != nil && amount != nil && amount.Cmp(common.Big0) > 0:
+	case authorization != nil && amount != nil && amount.Sign() > 0:
 		// case 4: authorization exists, amount positive -> update authorization
 		sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 		if !ok {
@@ -111,16 +111,16 @@ func (p Precompile) IncreaseAllowance(
 
 	var amount *big.Int
 	switch {
-	case addedValue != nil && addedValue.Cmp(common.Big0) <= 0:
+	case addedValue != nil && addedValue.Sign() <= 0:
 		// case 1: addedValue 0 or negative -> error
 		// TODO: (@fedekunze) check if this is correct by comparing behavior with
 		// regular ERC20
 		err = errors.New("cannot increase allowance with non-positive values")
-	case authorization == nil && addedValue != nil && addedValue.Cmp(common.Big0) > 0:
+	case authorization == nil && addedValue != nil && addedValue.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		amount = addedValue
 		err = p.createAuthorization(ctx, grantee, granter, addedValue)
-	case authorization != nil && addedValue != nil && addedValue.Cmp(common.Big0) > 0:
+	case authorization != nil && addedValue != nil && addedValue.Sign() > 0:
 		// case 3: authorization exists, amount positive -> update authorization
 		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization, expiration)
 	}
@@ -172,7 +172,7 @@ func (p Precompile) DecreaseAllowance(
 	// regular ERC-20
 	var amount *big.Int
 	switch {
-	case subtractedValue != nil && subtractedValue.Cmp(common.Big0) <= 0:
+	case subtractedValue != nil && subtractedValue.Sign() <= 0:
 		// case 1. subtractedValue 0 or negative -> return error
 		err = errors.New("cannot decrease allowance with non-positive values")
 	case err != nil:
