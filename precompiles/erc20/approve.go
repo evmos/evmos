@@ -7,9 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	sdkerrors "cosmossdk.io/errors"
-
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -17,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 // Approve sets the given amount as the allowance of the spender address over
@@ -44,28 +46,28 @@ func (p Precompile) Approve(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
+	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	switch {
-	case authorization == nil && amount != nil && amount.Cmp(common.Big0) <= 0:
+	case authorization == nil && amount != nil && amount.Sign() <= 0:
 		// case 1: no authorization, amount 0 or negative -> error
 		// TODO: (@fedekunze) check if this is correct by comparing behavior with
 		// regular ERC20
 		err = errors.New("cannot approve non-positive values")
-	case authorization == nil && amount != nil && amount.Cmp(common.Big0) > 0:
+	case authorization == nil && amount != nil && amount.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		err = p.createAuthorization(ctx, grantee, granter, amount)
-	case authorization != nil && amount != nil && amount.Cmp(common.Big0) <= 0:
-		// case 3: authorization exists, amount 0 or negative -> delete authorization
-		err = p.deleteAuthorization(ctx, grantee, granter)
-	case authorization != nil && amount != nil && amount.Cmp(common.Big0) > 0:
+	case authorization != nil && amount != nil && amount.Sign() <= 0:
+		// case 3: authorization exists, amount 0 or negative -> remove from spend limit and delete authorization if no spend limit left
+		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
+	case authorization != nil && amount != nil && amount.Sign() > 0:
 		// case 4: authorization exists, amount positive -> update authorization
 		sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 		if !ok {
 			return nil, authz.ErrUnknownAuthorizationType
 		}
 
-		err = p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz)
+		err = p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration)
 	}
 
 	if err != nil {
@@ -105,22 +107,22 @@ func (p Precompile) IncreaseAllowance(
 	granter := contract.CallerAddress
 
 	// TODO: owner should be the owner of the contract
-	authorization, _, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error in the switch statement below
+	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	var amount *big.Int
 	switch {
-	case addedValue != nil && addedValue.Cmp(common.Big0) <= 0:
+	case addedValue != nil && addedValue.Sign() <= 0:
 		// case 1: addedValue 0 or negative -> error
 		// TODO: (@fedekunze) check if this is correct by comparing behavior with
 		// regular ERC20
 		err = errors.New("cannot increase allowance with non-positive values")
-	case authorization == nil && addedValue != nil && addedValue.Cmp(common.Big0) > 0:
+	case authorization == nil && addedValue != nil && addedValue.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		amount = addedValue
 		err = p.createAuthorization(ctx, grantee, granter, addedValue)
-	case authorization != nil && addedValue != nil && addedValue.Cmp(common.Big0) > 0:
+	case authorization != nil && addedValue != nil && addedValue.Sign() > 0:
 		// case 3: authorization exists, amount positive -> update authorization
-		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization)
+		amount, err = p.increaseAllowance(ctx, grantee, granter, addedValue, authorization, expiration)
 	}
 
 	if err != nil {
@@ -145,7 +147,8 @@ func (p Precompile) IncreaseAllowance(
 //  2. no authorization -> return error
 //  3. authorization exists, subtractedValue positive and subtractedValue less than allowance -> update authorization
 //  4. authorization exists, subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-//  5. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
+//  5. authorization exists, subtractedValue positive but no allowance for given denomination -> return error
+//  6. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
 func (p Precompile) DecreaseAllowance(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -163,13 +166,13 @@ func (p Precompile) DecreaseAllowance(
 
 	// TODO: owner should be the owner of the contract
 
-	authorization, allowance, err := GetAuthzAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	authorization, expiration, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 
 	// TODO: (@fedekunze) check if this is correct by comparing behavior with
 	// regular ERC-20
 	var amount *big.Int
 	switch {
-	case subtractedValue != nil && subtractedValue.Cmp(common.Big0) <= 0:
+	case subtractedValue != nil && subtractedValue.Sign() <= 0:
 		// case 1. subtractedValue 0 or negative -> return error
 		err = errors.New("cannot decrease allowance with non-positive values")
 	case err != nil:
@@ -177,12 +180,16 @@ func (p Precompile) DecreaseAllowance(
 		err = sdkerrors.Wrapf(err, "allowance does not exist")
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) < 0:
 		// case 3. subtractedValue positive and subtractedValue less than allowance -> update authorization
-		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
+		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization, expiration)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) == 0:
-		// case 4. subtractedValue positive and subtractedValue equal to allowance -> delete authorization
-		amount, err = p.decreaseAllowance(ctx, grantee, granter, subtractedValue, authorization)
+		// case 4. subtractedValue positive and subtractedValue equal to allowance -> remove spend limit for token and delete authorization if no other denoms are approved for
+		err = p.removeSpendLimitOrDeleteAuthorization(ctx, grantee, granter, authorization, expiration)
+		amount = common.Big0
+	case subtractedValue != nil && allowance.Sign() == 0:
+		// case 5. subtractedValue positive but no allowance for given denomination -> return error
+		err = fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
-		// case 5. subtractedValue positive than higher than allowance -> return error
+		// case 6. subtractedValue positive and subtractedValue higher than allowance -> return error
 		err = fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance)
 	}
 
@@ -199,6 +206,10 @@ func (p Precompile) DecreaseAllowance(
 }
 
 func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int) error {
+	if amount.BitLen() > sdkmath.MaxBitLen {
+		return fmt.Errorf("amount %s causes integer overflow", amount)
+	}
+
 	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
 	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
 
@@ -211,19 +222,43 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, &expiration)
 }
 
-func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization) error {
-	authorization.SpendLimit = sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
+func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
+	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
 		return err
 	}
 
-	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
-
-	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, &expiration)
+	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), authorization, expiration)
 }
 
-func (p Precompile) deleteAuthorization(ctx sdk.Context, grantee, granter common.Address) error {
-	return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
+// removeSpendLimitOrDeleteAuthorization removes the spend limit for the given
+// token and updates the grant or deletes the authorization if no spend limit in another
+// denomination is set.
+func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grantee, granter common.Address, authorization authz.Authorization, expiration *time.Time) error {
+	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
+	if !ok {
+		return authz.ErrUnknownAuthorizationType
+	}
+
+	found, denomCoins := sendAuthz.SpendLimit.Find(p.tokenPair.Denom)
+	if !found {
+		return fmt.Errorf("allowance for token %s does not exist", p.tokenPair.Denom)
+	}
+
+	newSpendLimit, hasNeg := sendAuthz.SpendLimit.SafeSub(denomCoins)
+	// NOTE: safety check only, this should never happen since we only subtract what was found in the slice.
+	if hasNeg {
+		return fmt.Errorf("subtracted value cannot be greater than existing allowance for denom %s: %s > %s",
+			p.tokenPair.Denom, denomCoins, sendAuthz.SpendLimit,
+		)
+	}
+
+	if newSpendLimit.IsZero() {
+		return p.AuthzKeeper.DeleteGrant(ctx, grantee.Bytes(), granter.Bytes(), SendMsgURL)
+	}
+
+	sendAuthz.SpendLimit = newSpendLimit
+	return p.AuthzKeeper.SaveGrant(ctx, grantee.Bytes(), granter.Bytes(), sendAuthz, expiration)
 }
 
 func (p Precompile) increaseAllowance(
@@ -231,6 +266,7 @@ func (p Precompile) increaseAllowance(
 	grantee, granter common.Address,
 	addedValue *big.Int,
 	authorization authz.Authorization,
+	expiration *time.Time,
 ) (amount *big.Int, err error) {
 	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
@@ -238,9 +274,13 @@ func (p Precompile) increaseAllowance(
 	}
 
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
-	amount = new(big.Int).Add(allowance.BigInt(), addedValue)
+	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
+	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
+	if overflow {
+		return nil, errors.New(cmn.ErrIntegerOverflow)
+	}
 
-	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz); err != nil {
+	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
 	}
 
@@ -252,6 +292,7 @@ func (p Precompile) decreaseAllowance(
 	grantee, granter common.Address,
 	subtractedValue *big.Int,
 	authorization authz.Authorization,
+	expiration *time.Time,
 ) (amount *big.Int, err error) {
 	sendAuthz, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
@@ -264,8 +305,12 @@ func (p Precompile) decreaseAllowance(
 	}
 
 	amount = new(big.Int).Sub(allowance.Amount.BigInt(), subtractedValue)
+	// NOTE: Safety check only since this is checked in the DecreaseAllowance method already.
+	if amount.Sign() < 0 {
+		return nil, fmt.Errorf("subtracted value cannot be greater than existing allowance: %s > %s", subtractedValue, allowance.Amount)
+	}
 
-	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz); err != nil {
+	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
 		return nil, err
 	}
 
