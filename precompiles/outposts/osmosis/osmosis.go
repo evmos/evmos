@@ -27,6 +27,9 @@ const (
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
+
+	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+	XCSContract = "placeholder"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -46,6 +49,9 @@ type Precompile struct {
 	timeoutHeight    clienttypes.Height
 	timeoutTimestamp uint64
 
+	// Osmosis
+	osmosisXCSContract string
+
 	// Keepers
 	bankKeeper     erc20types.BankKeeper
 	transferKeeper transferkeeper.Keeper
@@ -57,6 +63,7 @@ type Precompile struct {
 // PrecompiledContract interface.
 func NewPrecompile(
 	portID, channelID string,
+	osmosisXCSContract string,
 	bankKeeper erc20types.BankKeeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
@@ -74,14 +81,15 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		portID:           portID,
-		channelID:        channelID,
-		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
-		transferKeeper:   transferKeeper,
-		bankKeeper:       bankKeeper,
-		stakingKeeper:    stakingKeeper,
-		erc20Keeper:      erc20Keeper,
+		portID:             portID,
+		channelID:          channelID,
+		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
+		osmosisXCSContract: osmosisXCSContract,
+		transferKeeper:     transferKeeper,
+		bankKeeper:         bankKeeper,
+		stakingKeeper:      stakingKeeper,
+		erc20Keeper:        erc20Keeper,
 	}, nil
 }
 
