@@ -77,7 +77,7 @@ func (p Precompile) Swap(
 
 	// If the receiver doesn't have the prefix "osmo", we should compute its address
 	// in the Osmosis chain as a recovery address for the contract.
-	onFailedDelivery := CreateOnFailedDeliveryField(receiver)
+	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
 		outputDenom, receiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
 	)
@@ -94,7 +94,7 @@ func (p Precompile) Swap(
 		p.channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
+		XCSContract,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,
