@@ -39,13 +39,13 @@ type ChannelKeeper interface {
 
 // DistrKeeper is the keeper of the distribution store
 type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 // StakingKeeper expected staking keeper (noalias)
 type StakingKeeper interface {
 	// BondDenom - Bondable coin denomination
-	BondDenom(sdk.Context) string
+	BondDenom(context.Context) (string, error)
 }
 
 type (

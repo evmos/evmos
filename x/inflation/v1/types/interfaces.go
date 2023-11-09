@@ -34,15 +34,15 @@ type BankKeeper interface {
 
 // DistrKeeper defines the contract needed to be fulfilled for distribution keeper
 type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 // StakingKeeper expected staking keeper
 type StakingKeeper interface {
 	// BondedRatio the fraction of the staking tokens which are currently bonded
-	BondedRatio(ctx sdk.Context) math.LegacyDec
-	StakingTokenSupply(ctx sdk.Context) math.Int
-	TotalBondedTokens(ctx sdk.Context) math.Int
+	BondedRatio(ctx context.Context) (math.LegacyDec, error)
+	StakingTokenSupply(ctx context.Context) (math.Int, error)
+	TotalBondedTokens(ctx context.Context) (math.Int, error)
 }
 
 type (

@@ -43,8 +43,8 @@ func (h Hooks) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, deposito
 
 // AfterProposalDeposit is called after a deposit is made on a governance clawback proposal.
 func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.AccAddress) {
-	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
-	if !found {
+	proposal, err := k.govKeeper.Proposals.Get(ctx, proposalID)
+	if err != nil {
 		k.Logger(ctx).Error("proposal not found",
 			"proposalID", proposalID,
 			"hook", "AfterProposalSubmission",
@@ -66,7 +66,15 @@ func (k Keeper) AfterProposalDeposit(ctx sdk.Context, proposalID uint64, _ sdk.A
 		return
 	}
 
-	govParams := k.govKeeper.GetParams(ctx)
+	govParams, err := k.govKeeper.Params.Get(ctx)
+	if err != nil {
+		k.Logger(ctx).Error("failed to get gov params",
+			"proposalID", proposalID,
+			"hook", "AfterProposalSubmission",
+			"error", err,
+		)
+		return
+	}
 	minDeposit := sdk.NewCoins(govParams.MinDeposit...)
 	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
 	if totalDeposit.IsAllLT(minDeposit) {
@@ -107,8 +115,8 @@ func (h Hooks) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64
 // AfterProposalVotingPeriodEnded is called after the voting period of a governance clawback proposal
 // has ended.
 func (k Keeper) AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64) {
-	proposal, found := k.govKeeper.GetProposal(ctx, proposalID)
-	if !found {
+	proposal, err := k.govKeeper.Proposals.Get(ctx, proposalID)
+	if err != nil {
 		k.Logger(ctx).Error("proposal not found",
 			"proposalID", proposalID,
 			"hook", "AfterProposalVotingPeriodEnded",

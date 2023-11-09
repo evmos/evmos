@@ -346,7 +346,8 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 			malleate: func() {
 				// create a base vesting account instead of a clawback vesting account at the vesting address
 				baseAccount := authtypes.NewBaseAccountWithAddress(vestingAddr)
-				acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+				acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+				suite.Require().NoError(err)
 				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
 			},
 			funder:       funder,
@@ -510,7 +511,8 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 			name: "fail - wrong account type",
 			malleate: func() {
 				baseAccount := authtypes.NewBaseAccountWithAddress(addr4)
-				acc := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+				acc, err := sdkvesting.NewBaseVestingAccount(baseAccount, balances, 500000)
+				suite.Require().NoError(err)
 				s.app.AccountKeeper.SetAccount(suite.ctx, acc)
 			},
 			funder:       funder,

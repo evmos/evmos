@@ -12,6 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/x/vesting/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+
 )
 
 // Keeper of this module maintains collections of vesting.
@@ -23,7 +25,7 @@ type Keeper struct {
 	bankKeeper         types.BankKeeper
 	stakingKeeper      types.StakingKeeper
 	distributionKeeper types.DistributionKeeper
-	govKeeper          types.GovKeeper
+	govKeeper          govkeeper.Keeper
 
 	// The x/gov module account used for executing transaction by governance.
 	authority sdk.AccAddress
@@ -38,7 +40,7 @@ func NewKeeper(
 	bk types.BankKeeper,
 	dk types.DistributionKeeper,
 	sk types.StakingKeeper,
-	gk types.GovKeeper,
+	gk govkeeper.Keeper,
 ) Keeper {
 	// ensure gov module account is set and is not nil
 	if err := sdk.VerifyAddressFormat(authority); err != nil {
