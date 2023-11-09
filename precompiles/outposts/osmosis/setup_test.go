@@ -7,12 +7,9 @@ import (
 	"testing"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-
 	"github.com/stretchr/testify/suite"
 )
 
@@ -24,40 +21,39 @@ const (
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	network     *network.UnitTestNetwork
-	factory     factory.TxFactory
+	unitNetwork *network.UnitTestNetwork
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
 	precompile *osmosis.Precompile
 }
 
+func TestPrecompileTestSuite(t *testing.T) {
+	suite.Run(t, new(PrecompileTestSuite))
+}
+
 func (s *PrecompileTestSuite) SetupTest() {
-	keyring := testkeyring.New(1)
-	integrationNetwork := network.NewUnitTestNetwork(
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
 
 	precompile, err := osmosis.NewPrecompile(
 		portID,
 		channelID,
 		osmosis.XCSContract,
-		integrationNetwork.App.BankKeeper,
-		integrationNetwork.App.TransferKeeper,
-		integrationNetwork.App.StakingKeeper,
-		integrationNetwork.App.Erc20Keeper,
+		unitNetwork.App.BankKeeper,
+		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.StakingKeeper,
+		unitNetwork.App.Erc20Keeper,
+		unitNetwork.App.AuthzKeeper,
 	)
-	s.Require().NoError(err)
+	s.Require().NoError(err, "expected no error during precompile creation")
 
-	s.network = integrationNetwork
-	s.factory = txFactory
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+
+	s.unitNetwork = unitNetwork
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.precompile = precompile
-}
-
-func TestPrecompileTestSuite(t *testing.T) {
-	suite.Run(t, new(PrecompileTestSuite))
 }
