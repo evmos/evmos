@@ -449,7 +449,7 @@ func (suite *BackendTestSuite) TestDoCall() {
 			suite.SetupTest() // reset test and queries
 			tc.registerMock()
 
-			msgEthTx, err := suite.backend.DoCall(tc.callArgs, tc.blockNum)
+			msgEthTx, err := suite.backend.DoCall(tc.callArgs, tc.blockNum, nil)
 
 			if tc.expPass {
 				suite.Require().Equal(tc.expEthTx, msgEthTx)

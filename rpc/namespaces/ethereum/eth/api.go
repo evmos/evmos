@@ -267,7 +267,7 @@ func (e *PublicAPI) GetProof(address common.Address,
 // Call performs a raw contract call.
 func (e *PublicAPI) Call(args evmtypes.TransactionArgs,
 	blockNrOrHash rpctypes.BlockNumberOrHash,
-	_ *rpctypes.StateOverride,
+	overrides *rpctypes.StateOverride,
 ) (hexutil.Bytes, error) {
 	e.logger.Debug("eth_call", "args", args.String(), "block number or hash", blockNrOrHash)
 
@@ -275,7 +275,7 @@ func (e *PublicAPI) Call(args evmtypes.TransactionArgs,
 	if err != nil {
 		return nil, err
 	}
-	data, err := e.backend.DoCall(args, blockNum)
+	data, err := e.backend.DoCall(args, blockNum, overrides)
 	if err != nil {
 		return []byte{}, err
 	}

@@ -567,6 +567,44 @@ func (suite *StateDBTestSuite) TestIterateStorage() {
 	suite.Require().Equal(1, len(storage))
 }
 
+func (suite *StateDBTestSuite) TestSetStorage() {
+	contract := common.BigToAddress(big.NewInt(101))
+
+	testCases := []struct {
+		name     string
+		prestate map[common.Hash]common.Hash
+		assert   func(*statedb.StateDB)
+	}{
+		{
+			"set storage",
+			map[common.Hash]common.Hash{
+				common.BigToHash(big.NewInt(0)): common.BigToHash(big.NewInt(0)),
+				common.BigToHash(big.NewInt(1)): common.BigToHash(big.NewInt(1)),
+				common.BigToHash(big.NewInt(2)): common.BigToHash(big.NewInt(2)),
+			},
+			func(db *statedb.StateDB) {
+				db.SetStorage(contract, map[common.Hash]common.Hash{
+					common.BigToHash(big.NewInt(1)): common.BigToHash(big.NewInt(3)),
+				})
+
+				suite.Require().Equal(common.Hash{}, db.GetState(contract, common.BigToHash(big.NewInt(0))))
+				suite.Require().Equal(common.BigToHash(big.NewInt(3)), db.GetState(contract, common.BigToHash(big.NewInt(1))))
+				suite.Require().Equal(common.Hash{}, db.GetState(contract, common.BigToHash(big.NewInt(2))))
+			}},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			keeper := NewMockKeeper()
+			db := statedb.New(sdk.Context{}, keeper, emptyTxConfig)
+			for k, v := range tc.prestate {
+				db.SetState(contract, k, v)
+			}
+			tc.assert(db)
+		})
+	}
+}
+
 func CollectContractStorage(db vm.StateDB) statedb.Storage {
 	storage := make(statedb.Storage)
 	err := db.ForEachStorage(address, func(k, v common.Hash) bool {

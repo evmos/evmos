@@ -47,6 +47,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
 - (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 - (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
+- (rpc) [#1988](https://github.com/evmos/evmos/pull/1988) Support state overrides in eth_call.
 
 ### Improvements
 

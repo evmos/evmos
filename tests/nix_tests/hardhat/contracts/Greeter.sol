@@ -2,6 +2,7 @@
 pragma solidity >0.8.0;
 
 contract Greeter {
+    uint public n; // test state override
     string public greeting;
 
     event ChangeGreeting(address from, string value);
@@ -17,5 +18,9 @@ contract Greeter {
 
     function greet() public view returns (string memory) {
         return greeting;
+    }
+
+    function intValue() public view returns (uint) {
+        return n;
     }
 }
