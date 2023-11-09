@@ -78,6 +78,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2009](https://github.com/evmos/evmos/pull/2009) Add ERC20 precompile transaction unit tests.
 - (osmosis-outpost) [#2011](https://github.com/evmos/evmos/pull/2011) Update outpost swap ABI to return IBC next sequence.
 - (utils) [#2010](https://github.com/evmos/evmos/pull/2010) Add utils function to create ibc denom trace.
+- (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 
 ### Bug Fixes
 
