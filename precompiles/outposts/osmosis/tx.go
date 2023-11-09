@@ -39,17 +39,22 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, input, output, amount, slippagePercentage, windowSeconds, swapReceiver, err := ParseSwapPacketData(args)
+	swapPacketData, err := ParseSwapPacketData(args)
 	if err != nil {
 		return nil, err
 	}
+
+	input := swapPacketData.Input
+	output := swapPacketData.Output
+	amount := swapPacketData.Amount
+	swapReceiver := swapPacketData.SwapReceiver
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
 	// update the sender address to be equal to the origin address.
 	// Otherwise, if the provided sender address is different from the origin address,
 	// return an error because is a forbidden operation
-	sender, err = ics20.CheckOriginAndSender(contract, origin, sender)
+	sender, err := ics20.CheckOriginAndSender(contract, origin, swapPacketData.Sender)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +81,13 @@ func (p Precompile) Swap(
 	// in the Osmosis chain as a recovery address for the contract.
 	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
-		outputDenom, swapReceiver, XCSContract, slippagePercentage, windowSeconds, onFailedDelivery, NextMemo,
+		outputDenom,
+		swapPacketData.SwapReceiver,
+		XCSContract,
+		swapPacketData.SlippagePercentage,
+		swapPacketData.WindowSeconds,
+		onFailedDelivery,
+		NextMemo,
 	)
 
 	err = packet.Memo.Validate()
@@ -102,7 +113,13 @@ func (p Precompile) Swap(
 
 	// No need to have authorization when the contract caller is the same as
 	// origin (owner of funds) and the sender is the origin
-	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(ctx, contract, origin, p.AuthzKeeper, msg)
+	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(
+		ctx,
+		contract,
+		origin,
+		p.AuthzKeeper,
+		msg,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +139,7 @@ func (p Precompile) Swap(
 	if err := ics20.EmitIBCTransferEvent(
 		ctx,
 		stateDB,
-		p.ABI.Events[ics20.EventTypeIBCTransfer],
+		p.Events[ics20.EventTypeIBCTransfer],
 		p.Address(),
 		sender,
 		msg.Receiver,
