@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/app"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
@@ -383,6 +382,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 				[]interface{}{},
 			)
 
+			// NOTE: all output and error checking happens in here
 			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expTotal)
 		})
 	}
@@ -463,6 +463,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 				balanceOfArgs,
 			)
 
+			// NOTE: all output and error checking happens in here
 			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expBalance)
 		})
 	}
@@ -563,46 +564,8 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				allowanceArgs,
 			)
 
+			// NOTE: all output and error checking happens in here
 			s.requireOut(bz, err, method, tc.expPass, tc.errContains, tc.expAllow)
 		})
-	}
-}
-
-// requireOut is a helper utility to reduce the amount of boilerplate code in the tests.
-//
-// It requires the output bytes and error to match the expected values. Additionally, the method outputs
-// are unpacked and the first value is compared to the expected value.
-//
-// NOTE: It's sufficient to only check the first value because all methods in the ERC20 precompile only
-// return a single value.
-func (s *PrecompileTestSuite) requireOut(
-	bz []byte,
-	err error,
-	method abi.Method,
-	expPass bool,
-	errContains string,
-	expValue interface{},
-) {
-	if expPass {
-		s.Require().NoError(err, "expected no error")
-		s.Require().NotEmpty(bz, "expected bytes not to be empty")
-
-		// Unpack the name into a string
-		out, err := method.Outputs.Unpack(bz)
-		s.Require().NoError(err, "expected no error unpacking")
-
-		// Check if expValue is a big.Int. Because of a difference in uninitialized/empty values for big.Ints,
-		// this comparison is often not working as expected, so we convert to Int64 here and compare those values.
-		bigExp, ok := expValue.(*big.Int)
-		if ok {
-			bigOut, ok := out[0].(*big.Int)
-			s.Require().True(ok, "expected output to be a big.Int")
-			s.Require().Equal(bigExp.Int64(), bigOut.Int64(), "expected different value")
-		} else {
-			s.Require().Equal(expValue, out[0], "expected different value")
-		}
-	} else {
-		s.Require().Error(err, "expected error")
-		s.Require().Contains(err.Error(), errContains, "expected different error")
 	}
 }
