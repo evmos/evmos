@@ -66,24 +66,6 @@ func (p Precompile) Name(
 	return method.Outputs.Pack(name)
 }
 
-// getBaseDenom returns the base denomination from the given IBC voucher denomination.
-func (p Precompile) getBaseDenomFromIBCVoucher(ctx sdk.Context, denom string) (string, error) {
-	// Infer the denomination name from the coin denomination base denom
-	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, denom)
-	if err != nil {
-		// FIXME: return 'not supported' (same error as when you call the method on an ERC20.sol)
-		return "", err
-	}
-
-	// safety check
-	if len(denomTrace.BaseDenom) < 3 {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return "", fmt.Errorf("invalid base denomination; should be at least length 3; got: %q", denomTrace.BaseDenom)
-	}
-
-	return denomTrace.BaseDenom, nil
-}
-
 // Symbol returns the symbol of the token. If the token metadata is registered in the
 // bank module, it returns its symbol. Otherwise it returns the base denomination of
 // the token in uppercase (eg. uatom -> ATOM).
@@ -99,20 +81,12 @@ func (p Precompile) Symbol(
 		return method.Outputs.Pack(metadata.Symbol)
 	}
 
-	// TODO: use util
-	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
+	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
 		return nil, err
 	}
 
-	// safety check
-	if len(denomTrace.BaseDenom) < 3 {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, fmt.Errorf("invalid base denomination; should be at least length 3; got: %q", denomTrace.BaseDenom)
-	}
-
-	symbol := strings.ToUpper(denomTrace.BaseDenom[1:])
+	symbol := strings.ToUpper(baseDenom[1:])
 	return method.Outputs.Pack(symbol)
 }
 
@@ -148,17 +122,26 @@ func (p Precompile) Decimals(
 		)
 	}
 
-	var decimals uint32
+	var (
+		decimals     uint32
+		displayFound bool
+	)
 	for i := len(metadata.DenomUnits) - 1; i >= 0; i-- {
 		// TODO: return error here if display denom is not found?
 		if metadata.DenomUnits[i].Denom == metadata.Display {
 			decimals = metadata.DenomUnits[i].Exponent
+			displayFound = true
 			break
 		}
 	}
 
+	if !displayFound {
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return nil, fmt.Errorf("display denomination not found for denom: %q", p.tokenPair.Denom)
+	}
+
 	if decimals > math.MaxUint8 {
-		return nil, errors.New("uint8 overflow: invalid decimals")
+		return nil, fmt.Errorf("uint8 overflow: invalid decimals: %d", decimals)
 	}
 
 	return method.Outputs.Pack(uint8(decimals)) //#nosec G701 // we are checking for overflow above
@@ -223,7 +206,7 @@ func (p Precompile) Allowance(
 }
 
 // GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
-// denomination is is not an IBC voucher or the trace is not found, it returns an error.
+// denomination is not an IBC voucher or the trace is not found, it returns an error.
 func GetDenomTrace(
 	transferKeeper transferkeeper.Keeper,
 	ctx sdk.Context,
@@ -268,4 +251,22 @@ func GetAuthzExpirationAndAllowance(
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)
 	return authorization, expiration, allowance.BigInt(), nil
+}
+
+// getBaseDenom returns the base denomination from the given IBC voucher denomination.
+func (p Precompile) getBaseDenomFromIBCVoucher(ctx sdk.Context, denom string) (string, error) {
+	// Infer the denomination name from the coin denomination base denom
+	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, denom)
+	if err != nil {
+		// FIXME: return 'not supported' (same error as when you call the method on an ERC20.sol)
+		return "", err
+	}
+
+	// safety check
+	if len(denomTrace.BaseDenom) < 3 {
+		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
+		return "", fmt.Errorf("invalid base denomination; should be at least length 3; got: %q", denomTrace.BaseDenom)
+	}
+
+	return denomTrace.BaseDenom, nil
 }

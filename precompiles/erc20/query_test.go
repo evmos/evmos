@@ -4,14 +4,13 @@
 package erc20_test
 
 import (
-	"math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"math"
 )
 
 var (
@@ -75,6 +74,22 @@ var (
 		Name:    validMetadataName,
 		Symbol:  validMetadataSymbol,
 		Display: validMetadataDisplay,
+	}
+
+	// noDisplayMetadata contains a metadata where the denom units do not contain with no display denom
+	noDisplayMetadata = banktypes.Metadata{
+		Description: "description",
+		Base:        validMetadataDenom,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    validMetadataDenom,
+				Exponent: 0,
+			},
+		},
+		Name:    validMetadataName,
+		Symbol:  validMetadataSymbol,
+		Display: "",
 	}
 )
 
@@ -201,6 +216,23 @@ func (s *PrecompileTestSuite) TestNameSymbolDecimals() {
 			expName:             "Atom",
 			expSymbol:           "ATOM",
 			errDecimalsContains: "uint8 overflow: invalid decimals",
+		},
+		{
+			name:  "valid ibc denom with metadata but no display denom",
+			denom: validMetadataDenom,
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+				s.Require().NoError(err)
+
+				// NOTE: we set the denom metadata for the coin
+				app.BankKeeper.SetDenomMetaData(ctx, noDisplayMetadata)
+			},
+			expPass:             true,
+			expDecimalsPass:     false,
+			expName:             "Atom",
+			expSymbol:           "ATOM",
+			errDecimalsContains: "display denomination not found for denom: \"uatom\"",
 		},
 	}
 
