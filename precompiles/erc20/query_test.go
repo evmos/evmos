@@ -51,8 +51,13 @@ var (
 	}
 )
 
-func (s *PrecompileTestSuite) TestName() {
-	method := s.precompile.Methods[erc20.NameMethod]
+// TestNameSymbol tests the Name and Symbol methods of the ERC20 precompile.
+//
+// NOTE: we test both methods in the same test because they are need the same testcases and
+// the same setup.
+func (s *PrecompileTestSuite) TestNameSymbol() {
+	nameMethod := s.precompile.Methods[erc20.NameMethod]
+	symbolMethod := s.precompile.Methods[erc20.SymbolMethod]
 
 	testcases := []struct {
 		name        string
@@ -61,6 +66,7 @@ func (s *PrecompileTestSuite) TestName() {
 		expPass     bool
 		errContains string
 		expName     string
+		expSymbol   string
 	}{
 		{
 			name:        "fail - empty denom",
@@ -102,8 +108,9 @@ func (s *PrecompileTestSuite) TestName() {
 				// NOTE: we set the denom metadata for the coin
 				s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), validMetadata)
 			},
-			expPass: true,
-			expName: "Atom",
+			expPass:   true,
+			expName:   "Atom",
+			expSymbol: "ATOM",
 		},
 		{
 			name:  "pass - valid ibc denom without metadata",
@@ -111,8 +118,9 @@ func (s *PrecompileTestSuite) TestName() {
 			malleate: func() {
 				s.network.App.TransferKeeper.SetDenomTrace(s.network.GetContext(), validTraceDenom)
 			},
-			expPass: true,
-			expName: "Osmo",
+			expPass:   true,
+			expName:   "Osmo",
+			expSymbol: "OSMO",
 		},
 	}
 
@@ -128,26 +136,51 @@ func (s *PrecompileTestSuite) TestName() {
 
 			precompile, _ := s.setupERC20Precompile(tc.denom)
 
-			bz, err := precompile.Name(
-				s.network.GetContext(),
-				nil,
-				nil,
-				&method,
-				[]interface{}{},
-			)
+			s.Run("name", func() {
+				bz, err := precompile.Name(
+					s.network.GetContext(),
+					nil,
+					nil,
+					&nameMethod,
+					[]interface{}{},
+				)
 
-			if tc.expPass {
-				s.Require().NoError(err, "expected no error getting name")
-				s.Require().NotEmpty(bz, "expected bytes not to be empty")
+				if tc.expPass {
+					s.Require().NoError(err, "expected no error getting name")
+					s.Require().NotEmpty(bz, "expected name bytes not to be empty")
 
-				// Unpack the name into a string
-				out, err := method.Outputs.Unpack(bz)
-				s.Require().NoError(err, "expected no error unpacking name")
-				s.Require().Equal(tc.expName, out[0], "expected different name")
-			} else {
-				s.Require().Error(err, "expected error getting name")
-				s.Require().Contains(err.Error(), tc.errContains, "expected different error")
-			}
+					// Unpack the name into a string
+					nameOut, err := nameMethod.Outputs.Unpack(bz)
+					s.Require().NoError(err, "expected no error unpacking name")
+					s.Require().Equal(tc.expName, nameOut[0], "expected different name")
+				} else {
+					s.Require().Error(err, "expected error getting name")
+					s.Require().Contains(err.Error(), tc.errContains, "expected different error getting name")
+				}
+			})
+
+			s.Run("symbol", func() {
+				bz, err := precompile.Symbol(
+					s.network.GetContext(),
+					nil,
+					nil,
+					&symbolMethod,
+					[]interface{}{},
+				)
+
+				if tc.expPass {
+					s.Require().NoError(err, "expected no error getting symbol")
+					s.Require().NotEmpty(bz, "expected symbol bytes not to be empty")
+
+					// Unpack the name into a string
+					symbolOut, err := symbolMethod.Outputs.Unpack(bz)
+					s.Require().NoError(err, "expected no error unpacking symbol")
+					s.Require().Equal(tc.expSymbol, symbolOut[0], "expected different symbol")
+				} else {
+					s.Require().Error(err, "expected error getting symbol")
+					s.Require().Contains(err.Error(), tc.errContains, "expected different error getting symbol")
+				}
+			})
 		})
 	}
 }
