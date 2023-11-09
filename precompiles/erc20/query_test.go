@@ -102,8 +102,8 @@ func (s *PrecompileTestSuite) TestNameSymbolDecimals() {
 		{
 			name:                "empty denom",
 			denom:               "",
-			errContains:         "denom cannot be empty",
-			errDecimalsContains: "denom is not an IBC voucher", // TODO: do we want to check for empty denom here too?
+			errContains:         "denom is not an IBC voucher",
+			errDecimalsContains: "denom is not an IBC voucher",
 		},
 		{
 			name:                "invalid denom trace",

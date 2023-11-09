@@ -52,12 +52,6 @@ func (p Precompile) Name(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	// TODO: is this actually necessary here? It won't be possible to register a token
-	// with an empty denomination right? So calling this with an empty denom also won't happen..
-	if p.tokenPair.Denom == "" {
-		return nil, errors.New("denom cannot be empty")
-	}
-
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Name)
@@ -100,17 +94,12 @@ func (p Precompile) Symbol(
 	method *abi.Method,
 	_ []interface{},
 ) ([]byte, error) {
-	// TODO: added this check here, do we want that? It won't be possible to register a token
-	// with an empty denomination right? So calling this with an empty denom also won't happen..
-	if p.tokenPair.Denom == "" {
-		return nil, errors.New("denom cannot be empty")
-	}
-
 	metadata, found := p.bankKeeper.GetDenomMetaData(ctx, p.tokenPair.Denom)
 	if found {
 		return method.Outputs.Pack(metadata.Symbol)
 	}
 
+	// TODO: use util
 	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 	if err != nil {
 		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
