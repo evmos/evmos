@@ -252,7 +252,7 @@ func GetAuthzExpirationAndAllowance(
 	return authorization, expiration, allowance.BigInt(), nil
 }
 
-// getBaseDenom returns the base denomination from the given IBC voucher denomination.
+// getBaseDenomFromIBCVoucher returns the base denomination from the given IBC voucher denomination.
 func (p Precompile) getBaseDenomFromIBCVoucher(ctx sdk.Context, denom string) (string, error) {
 	// Infer the denomination name from the coin denomination base denom
 	denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, denom)

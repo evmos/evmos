@@ -303,7 +303,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 			expDecimals: 18,
 		},
 		{
-			name:  "pass - valid ibc denom with metadata but decimals overflow",
+			name:  "pass - valid denom with metadata but decimals overflow",
 			denom: validMetadataDenom,
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
