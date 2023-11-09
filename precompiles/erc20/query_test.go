@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
 )
@@ -16,6 +17,8 @@ var (
 	tooShortTrace = types.DenomTrace{Path: "channel-0", BaseDenom: "ab"}
 	// validTraceDenom is a denomination trace with a valid IBC voucher name
 	validTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "uosmo"}
+	// validAttoTraceDenom is a denomination trace with a valid IBC voucher name and 18 decimals
+	validAttoTraceDenom = types.DenomTrace{Path: "channel-0", BaseDenom: "aevmos"}
 
 	// --------------------
 	// Variables for coin with valid metadata
@@ -58,25 +61,31 @@ var (
 func (s *PrecompileTestSuite) TestNameSymbol() {
 	nameMethod := s.precompile.Methods[erc20.NameMethod]
 	symbolMethod := s.precompile.Methods[erc20.SymbolMethod]
+	DecimalsMethod := s.precompile.Methods[erc20.DecimalsMethod]
 
 	testcases := []struct {
-		name        string
-		denom       string
-		malleate    func()
-		expPass     bool
-		errContains string
-		expName     string
-		expSymbol   string
+		name                string
+		denom               string
+		malleate            func(sdk.Context, *app.Evmos)
+		expPass             bool
+		errContains         string
+		expDecimalsPass     bool
+		errDecimalsContains string
+		expName             string
+		expSymbol           string
+		expDecimals         uint8
 	}{
 		{
-			name:        "fail - empty denom",
-			denom:       "",
-			errContains: "denom cannot be empty",
+			name:                "fail - empty denom",
+			denom:               "",
+			errContains:         "denom cannot be empty",
+			errDecimalsContains: "denom is not an IBC voucher",
 		},
 		{
-			name:        "fail - invalid denom trace",
-			denom:       tooShortTrace.IBCDenom()[:len(tooShortTrace.IBCDenom())-1],
-			errContains: "odd length hex string",
+			name:                "fail - invalid denom trace",
+			denom:               tooShortTrace.IBCDenom()[:len(tooShortTrace.IBCDenom())-1],
+			errContains:         "odd length hex string",
+			errDecimalsContains: "odd length hex string",
 		},
 		{
 			name:        "fail - denom not found",
@@ -86,41 +95,55 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
 			denom: tooShortTrace.IBCDenom(),
-			malleate: func() {
-				s.network.App.TransferKeeper.SetDenomTrace(s.network.GetContext(), tooShortTrace)
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				app.TransferKeeper.SetDenomTrace(ctx, tooShortTrace)
 			},
-			errContains: "invalid base denomination; should be at least length 3; got: \"ab\"",
+			errContains:     "invalid base denomination; should be at least length 3; got: \"ab\"",
+			expDecimalsPass: true, // TODO: do we want to check in decimals query for the above error?
+			expDecimals:     18,   // expect 18 decimals here because of "a" prefix
 		},
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			malleate:    func() {},
 			errContains: "denom is not an IBC voucher",
 		},
 		{
 			name:  "pass - valid denom with metadata",
 			denom: validMetadataDenom,
-			malleate: func() {
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
-				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewInt64Coin(validMetadata.Base, 1)})
 				s.Require().NoError(err)
 
 				// NOTE: we set the denom metadata for the coin
 				s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), validMetadata)
 			},
-			expPass:   true,
-			expName:   "Atom",
-			expSymbol: "ATOM",
+			expPass:     true,
+			expName:     "Atom",
+			expSymbol:   "ATOM",
+			expDecimals: 6,
 		},
 		{
 			name:  "pass - valid ibc denom without metadata",
 			denom: validTraceDenom.IBCDenom(),
-			malleate: func() {
-				s.network.App.TransferKeeper.SetDenomTrace(s.network.GetContext(), validTraceDenom)
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenom)
 			},
-			expPass:   true,
-			expName:   "Osmo",
-			expSymbol: "OSMO",
+			expPass:     true,
+			expName:     "Osmo",
+			expSymbol:   "OSMO",
+			expDecimals: 6,
+		},
+		{
+			name:  "pass - valid ibc denom with metadata and 18 decimals",
+			denom: validAttoTraceDenom.IBCDenom(),
+			malleate: func(ctx sdk.Context, app *app.Evmos) {
+				app.TransferKeeper.SetDenomTrace(ctx, validAttoTraceDenom)
+			},
+			expPass:     true,
+			expName:     "Evmos",
+			expSymbol:   "EVMOS",
+			expDecimals: 18,
 		},
 	}
 
@@ -131,7 +154,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			s.SetupTest()
 
 			if tc.malleate != nil {
-				tc.malleate()
+				tc.malleate(s.network.GetContext(), s.network.App)
 			}
 
 			precompile, _ := s.setupERC20Precompile(tc.denom)
@@ -179,6 +202,29 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 				} else {
 					s.Require().Error(err, "expected error getting symbol")
 					s.Require().Contains(err.Error(), tc.errContains, "expected different error getting symbol")
+				}
+			})
+
+			s.Run("decimals", func() {
+				bz, err := precompile.Decimals(
+					s.network.GetContext(),
+					nil,
+					nil,
+					&DecimalsMethod,
+					[]interface{}{},
+				)
+
+				if tc.expDecimalsPass {
+					s.Require().NoError(err, "expected no error getting decimals")
+					s.Require().NotEmpty(bz, "expected decimals bytes not to be empty")
+
+					// Unpack the name into a string
+					decimalsOut, err := DecimalsMethod.Outputs.Unpack(bz)
+					s.Require().NoError(err, "expected no error unpacking decimals")
+					s.Require().Equal(tc.expDecimals, decimalsOut[0], "expected different decimals")
+				} else {
+					s.Require().Error(err, "expected error getting decimals")
+					s.Require().Contains(err.Error(), tc.errDecimalsContains, "expected different error getting decimals")
 				}
 			})
 		})
