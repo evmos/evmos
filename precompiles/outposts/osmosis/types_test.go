@@ -191,10 +191,23 @@ func TestParseSwapPacketData(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, _, _, _, _, _, err := osmosisoutpost.ParseSwapPacketData(tc.args)
+			swapPacketData, err := osmosisoutpost.ParseSwapPacketData(tc.args)
 
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
+				require.Equal(
+					t,
+					osmosisoutpost.SwapPacketData{
+						Sender:             testSender,
+						Input:              testInput,
+						Output:             testOutput,
+						Amount:             testAmount,
+						SlippagePercentage: testSlippagePercentage,
+						WindowSeconds:      testWindowSeconds,
+						SwapReceiver:       testReceiver,
+					},
+					swapPacketData,
+				)
 			} else {
 				require.Error(t, err, "expected error while validating the memo")
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
@@ -342,7 +355,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, aevmosDenom),
 		},
 		{
 			name:         "fail - input equal to output ibc osmo",
@@ -352,7 +365,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, uosmosDenom),
 		},
 		{
 			name:         "fail - invalid input",
