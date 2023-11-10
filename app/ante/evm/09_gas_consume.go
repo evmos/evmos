@@ -93,45 +93,25 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, err
 		}
 
-		if ctx.IsCheckTx() && egcd.maxGasWanted != 0 {
-			// We can't trust the tx gas limit, because we'll refund the unused gas.
-			if txData.GetGas() > egcd.maxGasWanted {
-				gasWanted += egcd.maxGasWanted
-			} else {
-				gasWanted += txData.GetGas()
-			}
-		} else {
-			gasWanted += txData.GetGas()
-		}
-
-		fees, err := keeper.VerifyFee(txData, evmDenom, baseFee, homestead, istanbul, ctx.IsCheckTx())
-		if err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
-		}
-
-		if err = DeductFee(
+		gasWanted, minPriority, err = ConsumeGas(
 			ctx,
 			egcd.bankKeeper,
 			egcd.distributionKeeper,
 			egcd.evmKeeper,
 			egcd.stakingKeeper,
-			fees,
 			from,
-		); err != nil {
-			return ctx, err
-		}
-
-		events = append(events,
-			sdk.NewEvent(
-				sdk.EventTypeTx,
-				sdk.NewAttribute(sdk.AttributeKeyFee, fees.String()),
-			),
+			txData,
+			minPriority,
+			gasWanted,
+			egcd.maxGasWanted,
+			evmDenom,
+			baseFee,
+			homestead,
+			istanbul,
 		)
 
-		priority := evmtypes.GetTxPriority(txData, baseFee)
-
-		if priority < minPriority {
-			minPriority = priority
+		if err != nil {
+			return ctx, err
 		}
 	}
 
@@ -165,6 +145,66 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 	// we know that we have enough gas on the pool to cover the intrinsic gas
 	return next(newCtx, tx, simulate)
+}
+
+func ConsumeGas(
+	ctx sdk.Context,
+	bankKeeper anteutils.BankKeeper,
+	distributionKeeper anteutils.DistributionKeeper,
+	evmKeeper EVMKeeper,
+	stakingKeeper anteutils.StakingKeeper,
+	from sdk.AccAddress,
+	txData evmtypes.TxData,
+	minPriority int64,
+	gasWanted, maxGasWanted uint64,
+	evmDenom string,
+	baseFee *big.Int,
+	isHomestead, isIstanbul bool,
+) (uint64, int64, error) {
+	gas := txData.GetGas()
+
+	if ctx.IsCheckTx() && maxGasWanted != 0 {
+		// We can't trust the tx gas limit, because we'll refund the unused gas.
+		if gas > maxGasWanted {
+			gasWanted += maxGasWanted
+		} else {
+			gasWanted += gas
+		}
+	} else {
+		gasWanted += gas
+	}
+
+	fees, err := keeper.VerifyFee(txData, evmDenom, baseFee, isHomestead, isIstanbul, ctx.IsCheckTx())
+	if err != nil {
+		return gasWanted, minPriority, errorsmod.Wrapf(err, "failed to verify the fees")
+	}
+
+	if err = DeductFee(
+		ctx,
+		bankKeeper,
+		distributionKeeper,
+		evmKeeper,
+		stakingKeeper,
+		fees,
+		from,
+	); err != nil {
+		return gasWanted, minPriority, err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeTx,
+			sdk.NewAttribute(sdk.AttributeKeyFee, fees.String()),
+		),
+	)
+
+	priority := evmtypes.GetTxPriority(txData, baseFee)
+
+	if priority < minPriority {
+		minPriority = priority
+	}
+
+	return gasWanted, minPriority, nil
 }
 
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.

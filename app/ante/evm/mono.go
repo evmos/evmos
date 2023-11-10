@@ -4,11 +4,13 @@
 package evm
 
 import (
+	"math"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
@@ -45,11 +47,19 @@ func NewMonoDecorator(
 }
 
 // AnteHandle handles the entire decorator chain using a mono decorator.
-func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 
+	var txFeeInfo *txtypes.Fee
+	if !ctx.IsReCheckTx() {
+		txFeeInfo, err = ValidateTx(tx)
+		if err != nil {
+			return ctx, err
+		}
+	}
+
 	// 1. setup ctx
-	ctx, err := SetupContext(ctx, tx, md.evmKeeper)
+	ctx, err = SetupContext(ctx, tx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
@@ -61,8 +71,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	isLondon := ethCfg.IsLondon(blockHeight)
-	// isHomestead := ethCfg.IsHomestead(blockHeight)
-	// isIstanbul := ethCfg.IsIstanbul(blockHeight)
+	isHomestead := ethCfg.IsHomestead(blockHeight)
+	isIstanbul := ethCfg.IsIstanbul(blockHeight)
 
 	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
 	// skip check as the London hard fork and EIP-1559 are enabled
@@ -78,6 +88,9 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		)
 	}
 
+	txFee := sdk.Coins{}
+	txGasLimit := uint64(0)
+	gasWanted := uint64(0)
 	evmDenom := evmParams.EvmDenom
 	// TODO: use AmountOfNoValidation instead
 	mempoolMinGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
@@ -85,10 +98,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	blockTxIndex := md.evmKeeper.GetTxIndexTransient(ctx)
 
 	// Use the lowest priority of all the messages as the final one.
-	// minPriority := int64(math.MaxInt64)
+	minPriority := int64(math.MaxInt64)
 
 	for i, msg := range tx.GetMsgs() {
-		ethMsg, txData, _, err := evmtypes.UnpackEthMsg(msg)
+		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
 		}
@@ -126,14 +139,30 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 4. validate basic
-		// TODO: add validation
+		txFee, txGasLimit, err = TxFee(
+			txData.GetTo(),
+			from,
+			txGasLimit,
+			gas,
+			evmParams.EnableCreate,
+			evmParams.EnableCall,
+			baseFee,
+			feeAmt,
+			txData.TxType(),
+			evmDenom,
+			txFee,
+		)
+		if err != nil {
+			return ctx, err
+		}
 
 		// 5. signature verification
 		if err := SignatureVerification(ethMsg, signer, allowUnprotectedTxs); err != nil {
 			return ctx, err
 		}
 
-		from := ethMsg.GetFrom()
+		// NOTE: sender address has been verified and cached
+		from = ethMsg.GetFrom()
 
 		// 6. account balance verification
 		fromAddr := common.HexToAddress(ethMsg.From)
@@ -171,16 +200,44 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 9. gas consumption
 
+		gasWanted, minPriority, err = ConsumeGas(
+			ctx,
+			md.bankKeeper,
+			md.distributionKeeper,
+			md.evmKeeper,
+			md.stakingKeeper,
+			from,
+			txData,
+			minPriority,
+			gasWanted,
+			md.maxGasWanted,
+			evmDenom,
+			baseFee,
+			isHomestead,
+			isIstanbul,
+		)
+
+		if err != nil {
+			return ctx, err
+		}
+
 		// 10. increment sequence
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
 			return ctx, err
 		}
 
 		// 11. gas wanted
+		if err := CheckGasWanted(ctx, md.feeMarketKeeper, tx, isLondon); err != nil {
+			return ctx, err
+		}
 
 		// 12. emit events
 		txIdx := uint64(i) // nosec: G701
 		EmitTxHashEvent(ctx, ethMsg, blockTxIndex, txIdx)
+	}
+
+	if err := CheckTxFee(txFeeInfo, txFee, txGasLimit); err != nil {
+		return ctx, err
 	}
 
 	return next(ctx, tx, simulate)
