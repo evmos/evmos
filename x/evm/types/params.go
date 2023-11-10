@@ -12,9 +12,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-
 	"github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -167,7 +167,7 @@ func validateEIPs(i interface{}) error {
 
 	for _, eip := range eips {
 		if !vm.ValidEip(int(eip)) {
-			return fmt.Errorf("EIP %d is not activateable, valid EIPS are: %s", eip, vm.ActivateableEips())
+			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
@@ -206,6 +206,13 @@ func ValidatePrecompiles(i interface{}) error {
 		}
 
 		seenPrecompiles[precompile] = struct{}{}
+	}
+
+	// NOTE: Check that the precompiles are sorted. This is required for the
+	// precompiles to be found correctly when using the IsActivePrecompile method,
+	// because of the use of sort.Find.
+	if !slices.IsSorted(precompiles) {
+		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
 	}
 
 	return nil

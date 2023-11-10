@@ -9,48 +9,79 @@ import (
 )
 
 func TestParamsValidate(t *testing.T) {
+	t.Parallel()
+
 	extraEips := []int64{2929, 1884, 1344}
 	testCases := []struct {
-		name     string
-		params   Params
-		expError bool
+		name        string
+		params      Params
+		expPass     bool
+		errContains string
 	}{
-		{"default", DefaultParams(), false},
 		{
-			"valid",
-			NewParams(DefaultEVMDenom, false, true, true, DefaultChainConfig(), extraEips),
-			false,
+			name:    "default",
+			params:  DefaultParams(),
+			expPass: true,
 		},
 		{
-			"empty",
-			Params{},
-			true,
+			name:    "valid",
+			params:  NewParams(DefaultEVMDenom, false, true, true, DefaultChainConfig(), extraEips),
+			expPass: true,
 		},
 		{
-			"invalid evm denom",
-			Params{
+			name:        "empty",
+			params:      Params{},
+			errContains: "invalid denom: ", // NOTE: this returns the first error that occurs
+		},
+		{
+			name: "invalid evm denom",
+			params: Params{
 				EvmDenom: "@!#!@$!@5^32",
 			},
-			true,
+			errContains: "invalid denom: @!#!@$!@5^32",
 		},
 		{
-			"invalid eip",
-			Params{
+			name: "invalid eip",
+			params: Params{
 				EvmDenom:  DefaultEVMDenom,
 				ExtraEIPs: []int64{1},
 			},
-			true,
+			errContains: "EIP 1 is not activateable, valid EIPs are",
+		},
+		{
+			name: "unsorted precompiles",
+			params: Params{
+				EvmDenom: DefaultEVMDenom,
+				ActivePrecompiles: []string{
+					"0x0000000000000000000000000000000000000801",
+					"0x0000000000000000000000000000000000000800",
+				},
+			},
+			errContains: "precompiles need to be sorted",
 		},
 	}
 
 	for _, tc := range testCases {
-		err := tc.params.Validate()
+		tc := tc
 
-		if tc.expError {
-			require.Error(t, err, tc.name)
-		} else {
-			require.NoError(t, err, tc.name)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			if !tc.expPass {
+				// NOTE: check that the necessary information is provided. Otherwise, a false
+				// error message could be accepted when checking for an empty string.
+				require.NotEmpty(t, tc.errContains, "expected test case to provide expected error message")
+			}
+
+			err := tc.params.Validate()
+
+			if tc.expPass {
+				require.NoError(t, err, "expected parameters to be valid")
+			} else {
+				require.Error(t, err, "expected parameters to be invalid")
+				require.ErrorContains(t, err, tc.errContains, "expected different error message")
+			}
+		})
 	}
 }
 
