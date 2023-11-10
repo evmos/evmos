@@ -4,8 +4,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
@@ -40,7 +38,8 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 		}
 
 		if err != nil {
-			panic(fmt.Errorf("failed to instantiate ERC-20 precompile for denom %s: %w", tokenPair.Denom, err))
+			logger.Error("failed to instantiate ERC-20 precompile for denom %s: %w", tokenPair.Denom, err)
+			return false
 		}
 
 		address := tokenPair.GetERC20Contract()
