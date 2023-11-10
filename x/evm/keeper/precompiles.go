@@ -151,3 +151,10 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 	k.precompiles = precompilesMap
 	return nil
 }
+
+// IsAvailablePrecompile returns true if the given precompile address is contained in the
+// EVM keeper's available precompiles map.
+func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
+	_, ok := k.precompiles[address]
+	return ok
+}

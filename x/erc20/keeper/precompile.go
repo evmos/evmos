@@ -24,7 +24,7 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 		// skip registration if token is native or if it has already been registered
 		// NOTE: this should handle failure during the selfdestruct
 		if tokenPair.ContractOwner != types.OWNER_MODULE ||
-			params.IsPrecompileRegistered(tokenPair.Erc20Address) {
+			params.IsActivePrecompile(tokenPair.Erc20Address) {
 			return false
 		}
 
