@@ -97,10 +97,6 @@ func UnpackEthMsg(msg sdk.Msg) (
 
 	// sender address should be in the tx cache from the previous AnteHandle call
 	from = msgEthTx.GetFrom()
-	if from.Empty() {
-		return nil, nil, nil, errorsmod.Wrap(errortypes.ErrInvalidAddress, "from address cannot be empty")
-	}
-
 	return msgEthTx, txData, from, nil
 }
 

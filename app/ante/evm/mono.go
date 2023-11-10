@@ -88,7 +88,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	// minPriority := int64(math.MaxInt64)
 
 	for i, msg := range tx.GetMsgs() {
-		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
+		ethMsg, txData, _, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
 		}
@@ -133,8 +133,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
+		from := ethMsg.GetFrom()
+
 		// 6. account balance verification
-		fromAddr := common.BytesToAddress(from)
+		fromAddr := common.HexToAddress(ethMsg.From)
 		// // TODO: Use account from AccountKeeper instead
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(ctx, md.accountKeeper, account, fromAddr, txData); err != nil {
