@@ -109,6 +109,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case authorization.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
 	// Staking transactions
+	case CreateValidatorMethod:
+		bz, err = p.CreateValidator(ctx, evm.Origin, contract, stateDB, method, args)
 	case DelegateMethod:
 		bz, err = p.Delegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case UndelegateMethod:

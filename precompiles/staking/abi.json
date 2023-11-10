@@ -311,6 +311,99 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "moniker",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "identity",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "website",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "securityContact",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "details",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct Description",
+        "name": "description",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "rate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxChangeRate",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CommissionRates",
+        "name": "commissionRates",
+        "type": "tuple"
+      },
+      {
+        "internalType": "string",
+        "name": "minSelfDelegation",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "delegatorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "validatorAddress",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "pubkey",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "createValidator",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "grantee",
         "type": "address"

@@ -30,6 +30,8 @@ const (
 	// CancelUnbondingDelegationMethod defines the ABI method name for the staking
 	// CancelUnbondingDelegation transaction.
 	CancelUnbondingDelegationMethod = "cancelUnbondingDelegation"
+	// CreateValidatorMethod defines the ABI method name for the staking create validator transaction
+	CreateValidatorMethod = "createValidator"
 )
 
 const (
@@ -41,7 +43,21 @@ const (
 	RedelegateAuthz = stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_REDELEGATE
 	// CancelUnbondingDelegationAuthz defines the authorization type for the staking
 	CancelUnbondingDelegationAuthz = stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_CANCEL_UNBONDING_DELEGATION
+	// CreateValidatorAuthz defines the authorization type for the create validator
+	CreateValidatorAuthz = 5 // TODO: define cosmos sdk
 )
+
+// CreateValidator performs create validator.
+func (p Precompile) CreateValidator(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	return method.Outputs.Pack(true)
+}
 
 // Delegate performs a delegation of coins from a delegator to a validator.
 func (p Precompile) Delegate(
