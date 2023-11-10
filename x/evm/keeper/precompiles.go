@@ -127,7 +127,11 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 		// add to active precompiles
 		address := precompile.Address()
 		addresses[i] = address.String()
-		// add to available precompiles
+
+		// add to available precompiles, but check for duplicates
+		if _, ok := precompilesMap[address]; ok {
+			return fmt.Errorf("precompile already registered: %s", address)
+		}
 		precompilesMap[address] = precompile
 	}
 
@@ -157,4 +161,14 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 	_, ok := k.precompiles[address]
 	return ok
+}
+
+// GetAvailablePrecompileAddrs returns the list of available precompile addresses.
+func (k Keeper) GetAvailablePrecompileAddrs() []common.Address {
+	addresses := make([]common.Address, 0, len(k.precompiles))
+	for address := range k.precompiles {
+		addresses = append(addresses, address)
+	}
+
+	return addresses
 }

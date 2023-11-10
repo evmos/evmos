@@ -5,7 +5,9 @@ package keeper_test
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
+	"github.com/evmos/evmos/v15/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
@@ -34,6 +36,107 @@ func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
 
 			available := suite.app.EvmKeeper.IsAvailablePrecompile(tc.address)
 			suite.Require().Equal(tc.expAvailable, available)
+		})
+	}
+}
+
+// Check interfaces are correctly implemented
+var (
+	_ vm.PrecompiledContract = DummyPrecompile{}
+	_ vm.PrecompiledContract = DuplicatePrecompile{}
+)
+
+// DummyPrecompile is a dummy precompile implementation for testing purposes.
+type DummyPrecompile struct {
+	vm.PrecompiledContract
+}
+
+func (DummyPrecompile) Address() common.Address {
+	return common.HexToAddress("0x0000000000000000000000000000000000010000")
+}
+
+// DuplicatePrecompile is a dummy precompile implementation for testing purposes.
+// It holds the same address as an already existing precompile in the Go-Ethereum
+// base implementation of the EVM.
+type DuplicatePrecompile struct {
+	vm.PrecompiledContract
+}
+
+func (DuplicatePrecompile) Address() common.Address {
+	return common.HexToAddress("0x0000000000000000000000000000000000000001")
+}
+
+func (suite *KeeperTestSuite) TestAddEVMExtensions() {
+	dummyPrecompile := DummyPrecompile{}
+	duplicatePrecompile := DuplicatePrecompile{}
+
+	testcases := []struct {
+		name           string
+		malleate       func() []vm.PrecompiledContract
+		expPass        bool
+		errContains    string
+		expPrecompiles []string
+	}{
+		{
+			name: "fail - already registered precompile",
+			malleate: func() []vm.PrecompiledContract {
+				return []vm.PrecompiledContract{duplicatePrecompile}
+			},
+			errContains:    "precompile already registered",
+			expPrecompiles: types.AvailableEVMExtensions,
+		},
+		{
+			name: "fail - precompile already in active precompiles",
+			malleate: func() []vm.PrecompiledContract {
+				// NOTE: we adjust the EVM params here because the default active precompiles
+				// are all part of the available precompiles on the keeper and would not trigger
+				// the error on ValidatePrecompiles.
+				//
+				// We add the dummy precompile to the active precompiles to trigger the error.
+				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params.ActivePrecompiles = append(params.ActivePrecompiles, dummyPrecompile.Address().String())
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err, "expected no error setting params")
+
+				return []vm.PrecompiledContract{dummyPrecompile}
+			},
+		},
+		{
+			name: "pass - add precompile",
+			malleate: func() []vm.PrecompiledContract {
+				return []vm.PrecompiledContract{dummyPrecompile}
+			},
+			expPass:        true,
+			expPrecompiles: append(types.AvailableEVMExtensions, dummyPrecompile.Address().String()),
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
+
+			var extensions []vm.PrecompiledContract
+			suite.Require().NotNil(tc.malleate, "malleate must be defined")
+			extensions = tc.malleate()
+
+			err := suite.app.EvmKeeper.AddEVMExtensions(suite.ctx, extensions...)
+			if tc.expPass {
+				suite.Require().NoError(err, "expected no error adding extensions")
+
+				activePrecompiles := suite.app.EvmKeeper.GetParams(suite.ctx).ActivePrecompiles
+				suite.Require().Equal(tc.expPrecompiles, activePrecompiles, "expected different active precompiles")
+
+				availablePrecompiles := suite.app.EvmKeeper.GetAvailablePrecompileAddrs()
+				for _, expPrecompile := range tc.expPrecompiles {
+					expPrecompileAddr := common.HexToAddress(expPrecompile)
+					suite.Require().Contains(availablePrecompiles, expPrecompileAddr, "expected available precompiles to contain: %s", expPrecompile)
+				}
+			} else {
+				suite.Require().Error(err, "expected error adding extensions")
+				suite.Require().ErrorContains(err, tc.errContains, "expected different error")
+			}
 		})
 	}
 }
