@@ -49,6 +49,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	ethCfg := chainCfg.EthereumConfig(md.evmKeeper.ChainID())
 	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
+	isLondon := evmtypes.IsLondon(ethCfg, ctx.BlockHeight())
 
 	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
 	// skip check as the London hard fork and EIP-1559 are enabled
@@ -56,6 +57,14 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// FIXME: skip to the next sub handler
 		return next(ctx, tx, simulate)
 	}
+
+	if isLondon && baseFee == nil {
+		return ctx, errorsmod.Wrap(
+			evmtypes.ErrInvalidBaseFee,
+			"base fee is supported but evm block context value is nil",
+		)
+	}
+
 	evmDenom := evmParams.GetEvmDenom()
 	mempoolMinGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
 	globalMinGasPrice := md.feeMarketKeeper.GetParams(ctx).MinGasPrice
@@ -111,7 +120,17 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 7. can transfer
+		coreMsg, err := ethMsg.AsMessage(signer, baseFee)
+		if err != nil {
+			return ctx, errorsmod.Wrapf(
+				err,
+				"failed to create an ethereum core.Message from signer %T", signer,
+			)
+		}
 
+		if err := CanTransfer(ctx, md.evmKeeper, coreMsg, baseFee, ethCfg, evmParams, isLondon); err != nil {
+			return ctx, err
+		}
 	}
 
 	// 8. vesting
