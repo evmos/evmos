@@ -53,21 +53,10 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 		return next(ctx, tx, simulate)
 	}
 
-	for i, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
-		}
-
-		txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
+	for _, msg := range tx.GetMsgs() {
+		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to unpack tx data any for tx %d", i)
-		}
-
-		// sender address should be in the tx cache from the previous AnteHandle call
-		from := msgEthTx.GetFrom()
-		if from.Empty() {
-			return ctx, errorsmod.Wrap(errortypes.ErrInvalidAddress, "from address cannot be empty")
+			return ctx, err
 		}
 
 		// check whether the sender address is EOA
@@ -164,15 +153,9 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	baseFee := egcd.evmKeeper.GetBaseFee(ctx, ethCfg)
 
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
-		}
-		from := msgEthTx.GetFrom()
-
-		txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
+		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
-			return ctx, errorsmod.Wrap(err, "failed to unpack tx data")
+			return ctx, err
 		}
 
 		if ctx.IsCheckTx() && egcd.maxGasWanted != 0 {
@@ -354,22 +337,17 @@ func NewEthIncrementSenderSequenceDecorator(ak evmtypes.AccountKeeper) EthIncrem
 // this AnteHandler decorator.
 func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
-		}
-
-		txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
+		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
-			return ctx, errorsmod.Wrap(err, "failed to unpack tx data")
+			return ctx, err
 		}
 
 		// increase sequence of sender
-		acc := issd.ak.GetAccount(ctx, msgEthTx.GetFrom())
+		acc := issd.ak.GetAccount(ctx, from)
 		if acc == nil {
 			return ctx, errorsmod.Wrapf(
 				errortypes.ErrUnknownAddress,
-				"account %s is nil", common.BytesToAddress(msgEthTx.GetFrom().Bytes()),
+				"account %s is nil", common.BytesToAddress(from.Bytes()),
 			)
 		}
 		nonce := acc.GetSequence()
