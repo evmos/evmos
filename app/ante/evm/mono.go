@@ -14,6 +14,7 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
@@ -30,6 +31,22 @@ type MonoDecorator struct {
 	distributionKeeper anteutils.DistributionKeeper
 	stakingKeeper      anteutils.StakingKeeper
 	maxGasWanted       uint64
+}
+
+type DecoratorUtils struct {
+	EvmParams          evmtypes.Params
+	EthConfig          *params.ChainConfig
+	Rules              params.Rules
+	Signer             ethtypes.Signer
+	BaseFee            *big.Int
+	EvmDenom           string
+	MempoolMinGasPrice sdkmath.LegacyDec
+	GlobalMinGasPrice  sdkmath.LegacyDec
+	BlockTxIndex       uint64
+	TxGasLimit         uint64
+	GasWanted          uint64
+	MinPriority        int64
+	TxFee              sdk.Coins
 }
 
 // NewMonoDecorator creates a new MonoDecorator
@@ -53,6 +70,39 @@ func NewMonoDecorator(
 	}
 }
 
+func (md MonoDecorator) NewUtils(ctx sdk.Context) (*DecoratorUtils, error) {
+	evmParams := md.evmKeeper.GetParams(ctx)
+	chainCfg := evmParams.GetChainConfig()
+	ethCfg := chainCfg.EthereumConfig(md.evmKeeper.ChainID())
+	blockHeight := big.NewInt(ctx.BlockHeight())
+	rules := ethCfg.Rules(blockHeight, true)
+	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
+	feeMarketParams := md.feeMarketKeeper.GetParams(ctx)
+
+	if rules.IsLondon && baseFee == nil {
+		return nil, errorsmod.Wrap(
+			evmtypes.ErrInvalidBaseFee,
+			"base fee is supported but evm block context value is nil",
+		)
+	}
+
+	return &DecoratorUtils{
+		EvmParams:          evmParams,
+		EthConfig:          ethCfg,
+		Rules:              rules,
+		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
+		BaseFee:            baseFee,
+		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmParams.EvmDenom),
+		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
+		EvmDenom:           evmParams.EvmDenom,
+		BlockTxIndex:       md.evmKeeper.GetTxIndexTransient(ctx),
+		TxGasLimit:         0,
+		GasWanted:          0,
+		MinPriority:        int64(math.MaxInt64),
+		TxFee:              sdk.Coins{},
+	}, nil
+}
+
 // AnteHandle handles the entire decorator chain using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	accountExpenses := make(map[string]*EthVestingExpenseTracker)
@@ -71,36 +121,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		return ctx, err
 	}
 
-	evmParams := md.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(md.evmKeeper.ChainID())
-	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
-	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
-	blockHeight := big.NewInt(ctx.BlockHeight())
-	isLondon := ethCfg.IsLondon(blockHeight)
-	isHomestead := ethCfg.IsHomestead(blockHeight)
-	isIstanbul := ethCfg.IsIstanbul(blockHeight)
-
-	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
-
-	if isLondon && baseFee == nil {
-		return ctx, errorsmod.Wrap(
-			evmtypes.ErrInvalidBaseFee,
-			"base fee is supported but evm block context value is nil",
-		)
+	// 2. get utils
+	decUtils, err := md.NewUtils(ctx)
+	if err != nil {
+		return ctx, err
 	}
 
-	txFee := sdk.Coins{}
-	txGasLimit := uint64(0)
-	gasWanted := uint64(0)
-	evmDenom := evmParams.EvmDenom
-	// TODO: use AmountOfNoValidation instead
-	mempoolMinGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
-	globalMinGasPrice := md.feeMarketKeeper.GetParams(ctx).MinGasPrice
-	blockTxIndex := md.evmKeeper.GetTxIndexTransient(ctx)
-
 	// Use the lowest priority of all the messages as the final one.
-	minPriority := int64(math.MaxInt64)
 
 	for i, msg := range tx.GetMsgs() {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
@@ -115,41 +142,44 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
-			if err := CheckMempoolFee(fee, mempoolMinGasPrice, gasLimit, isLondon); err != nil {
+			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}
 		}
 
 		// 3. min gas price (global min fee)
-		if baseFee != nil && txData.TxType() != ethtypes.LegacyTxType {
-			feeAmt = txData.EffectiveFee(baseFee)
+		if decUtils.BaseFee != nil && txData.TxType() != ethtypes.LegacyTxType {
+			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
 
-		if err := CheckGlobalFee(fee, globalMinGasPrice, gasLimit); err != nil {
+		if err := CheckGlobalFee(fee, decUtils.GlobalMinGasPrice, gasLimit); err != nil {
 			return ctx, err
 		}
 
 		// 4. validate basic
-		txFee, txGasLimit, err = TxFee(
+		txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
 			txData.GetTo(),
 			from,
-			txGasLimit,
+			decUtils.TxGasLimit,
 			gas,
-			evmParams.EnableCreate,
-			evmParams.EnableCall,
-			baseFee,
+			decUtils.EvmParams.EnableCreate,
+			decUtils.EvmParams.EnableCall,
+			decUtils.BaseFee,
 			feeAmt,
 			txData.TxType(),
-			evmDenom,
-			txFee,
+			decUtils.EvmDenom,
+			decUtils.TxFee,
 		)
 		if err != nil {
 			return ctx, err
 		}
 
+		decUtils.TxFee = txFee
+		decUtils.TxGasLimit = txGasLimit
+
 		// 5. signature verification
-		if err := SignatureVerification(ethMsg, signer, allowUnprotectedTxs); err != nil {
+		if err := SignatureVerification(ethMsg, decUtils.Signer, decUtils.EvmParams.AllowUnprotectedTxs); err != nil {
 			return ctx, err
 		}
 
@@ -165,15 +195,15 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 7. can transfer
-		coreMsg, err := ethMsg.AsMessage(signer, baseFee)
+		coreMsg, err := ethMsg.AsMessage(decUtils.Signer, decUtils.BaseFee)
 		if err != nil {
 			return ctx, errorsmod.Wrapf(
 				err,
-				"failed to create an ethereum core.Message from signer %T", signer,
+				"failed to create an ethereum core.Message from signer %T", decUtils.Signer,
 			)
 		}
 
-		if err := CanTransfer(ctx, md.evmKeeper, coreMsg, baseFee, ethCfg, evmParams, isLondon); err != nil {
+		if err := CanTransfer(ctx, md.evmKeeper, coreMsg, decUtils.BaseFee, decUtils.EthConfig, decUtils.EvmParams, decUtils.Rules.IsLondon); err != nil {
 			return ctx, err
 		}
 
@@ -186,13 +216,13 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 				"account %s does not exist", acc)
 		}
 
-		if err := CheckVesting(ctx, md.bankKeeper, acc, accountExpenses, value, evmDenom); err != nil {
+		if err := CheckVesting(ctx, md.bankKeeper, acc, accountExpenses, value, decUtils.EvmDenom); err != nil {
 			return ctx, err
 		}
 
 		// 9. gas consumption
 
-		gasWanted, minPriority, err = ConsumeGas(
+		gasWanted, minPriority, err := ConsumeGas(
 			ctx,
 			md.bankKeeper,
 			md.distributionKeeper,
@@ -200,18 +230,20 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			md.stakingKeeper,
 			from,
 			txData,
-			minPriority,
-			gasWanted,
+			decUtils.MinPriority,
+			decUtils.GasWanted,
 			md.maxGasWanted,
-			evmDenom,
-			baseFee,
-			isHomestead,
-			isIstanbul,
+			decUtils.EvmDenom,
+			decUtils.BaseFee,
+			decUtils.Rules.IsHomestead,
+			decUtils.Rules.IsIstanbul,
 		)
-
 		if err != nil {
 			return ctx, err
 		}
+
+		decUtils.GasWanted = gasWanted
+		decUtils.MinPriority = minPriority
 
 		// 10. increment sequence
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
@@ -219,20 +251,20 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 11. gas wanted
-		if err := CheckGasWanted(ctx, md.feeMarketKeeper, tx, isLondon); err != nil {
+		if err := CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon); err != nil {
 			return ctx, err
 		}
 
 		// 12. emit events
 		txIdx := uint64(i) // nosec: G701
-		EmitTxHashEvent(ctx, ethMsg, blockTxIndex, txIdx)
+		EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
 	}
 
-	if err := CheckTxFee(txFeeInfo, txFee, txGasLimit); err != nil {
+	if err := CheckTxFee(txFeeInfo, decUtils.TxFee, decUtils.TxGasLimit); err != nil {
 		return ctx, err
 	}
 
-	ctx, err = CheckBlockGasLimit(ctx, gasWanted, minPriority)
+	ctx, err = CheckBlockGasLimit(ctx, decUtils.GasWanted, decUtils.MinPriority)
 	if err != nil {
 		return ctx, err
 	}

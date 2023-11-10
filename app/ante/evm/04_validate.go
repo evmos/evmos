@@ -56,7 +56,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 			return ctx, err
 		}
 
-		txFee, txGasLimit, err = TxFee(
+		txFee, txGasLimit, err = CheckDisabledCreateCallAndUpdateTxFee(
 			txData.GetTo(),
 			from,
 			txGasLimit,
@@ -81,7 +81,8 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 	return next(ctx, tx, simulate)
 }
 
-func TxFee(
+// FIXME: split this function into multiple ones
+func CheckDisabledCreateCallAndUpdateTxFee(
 	to *common.Address,
 	from sdk.AccAddress,
 	txGasLimit, gasLimit uint64,
@@ -114,6 +115,7 @@ func TxFee(
 	return txFee, txGasLimit, nil
 }
 
+// FIXME: this shouldn't be required if the tx was an Ethereum transaction type
 func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
 	err := tx.ValidateBasic()
 	// ErrNoSignatures is fine with eth tx
