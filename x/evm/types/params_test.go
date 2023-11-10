@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/params"
+	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/stretchr/testify/require"
 )
@@ -124,7 +124,7 @@ func TestIsLondon(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		ethConfig := params.MainnetChainConfig
+		ethConfig := ethparams.MainnetChainConfig
 		require.Equal(t, IsLondon(ethConfig, tc.height), tc.result)
 	}
 }
