@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestRevenues() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.Revenues(ctx, req)
@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) TestRevenues() {
 // Cases that cannot be tested in TestFees
 func (suite *KeeperTestSuite) TestRevenueKeeper() {
 	suite.SetupTest()
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	res, err := suite.app.RevenueKeeper.Revenues(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
@@ -168,7 +168,7 @@ func (suite *KeeperTestSuite) TestFee() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.Revenue(ctx, req)
@@ -264,7 +264,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.DeployerRevenues(ctx, req)
@@ -282,7 +282,7 @@ func (suite *KeeperTestSuite) TestDeployerFees() {
 // Cases that cannot be tested in TestDeployerFees
 func (suite *KeeperTestSuite) TestDeployerRevenueKeeper() {
 	suite.SetupTest()
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	res, err := suite.app.RevenueKeeper.DeployerRevenues(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
@@ -373,7 +373,7 @@ func (suite *KeeperTestSuite) TestWithdrawerRevenues() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.WithdrawerRevenues(ctx, req)
@@ -391,14 +391,14 @@ func (suite *KeeperTestSuite) TestWithdrawerRevenues() {
 // Cases that cannot be tested in TestWithdrawerFees
 func (suite *KeeperTestSuite) TestWithdrawerRevenueKeeper() {
 	suite.SetupTest()
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	res, err := suite.app.RevenueKeeper.WithdrawerRevenues(ctx, nil)
 	suite.Require().Error(err)
 	suite.Require().Nil(res)
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	expParams := types.DefaultParams()
 	expParams.EnableRevenue = true
 

@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestTotalUnclaimed() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	coins := sdk.NewCoins(sdk.NewCoin("aevmos", math.NewInt(1000)))
 
 	testCases := []struct {
@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestTotalUnclaimed() {
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	expParams := types.DefaultParams()
 	expParams.AirdropStartTime = suite.ctx.BlockTime()
 
@@ -53,7 +53,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 }
 
 func (suite *KeeperTestSuite) TestClaimsRecords() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 
 	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
@@ -132,7 +132,7 @@ func (suite *KeeperTestSuite) TestClaimsRecords() {
 }
 
 func (suite *KeeperTestSuite) TestClaimsRecord() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 
 	req := &types.QueryClaimsRecordRequest{}
 	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())

@@ -11,7 +11,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -89,7 +89,7 @@ func (k *Keeper) EthereumTx(goCtx context.Context, msg *types.MsgEthereumTx) (*t
 
 	if len(ctx.TxBytes()) > 0 {
 		// add event for tendermint transaction hash format
-		hash := tmbytes.HexBytes(tmtypes.Tx(ctx.TxBytes()).Hash())
+		hash := tmbytes.HexBytes(cmttypes.Tx(ctx.TxBytes()).Hash())
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyTxHash, hash.String()))
 	}
 

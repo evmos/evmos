@@ -147,7 +147,7 @@ func (k Keeper) OnRecvPacket(
 			Memo:             "",
 		}
 
-		_, err = k.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), packetTransfer)
+		_, err = k.transferKeeper.Transfer(ctx, packetTransfer)
 
 		if err != nil {
 			return true // stop iteration

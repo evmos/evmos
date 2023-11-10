@@ -18,19 +18,19 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgCreateClawbackVestingAccount:
-			res, err := server.CreateClawbackVestingAccount(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.CreateClawbackVestingAccount(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgClawback:
-			res, err := server.Clawback(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.Clawback(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdateVestingFunder:
-			res, err := server.UpdateVestingFunder(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.UpdateVestingFunder(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgConvertVestingAccount:
-			res, err := server.ConvertVestingAccount(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.ConvertVestingAccount(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgFundVestingAccount:
-			res, err := server.FundVestingAccount(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.FundVestingAccount(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			return nil, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)

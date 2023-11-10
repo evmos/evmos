@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) TestPeriod() { //nolint:dupl
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.Period(ctx, req)
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) TestEpochMintProvision() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.EpochMintProvision(ctx, req)
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.SkippedEpochs(ctx, req)
@@ -159,7 +159,7 @@ func (suite *KeeperTestSuite) TestSkippedEpochs() { //nolint:dupl
 
 func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
 	// Team allocation is only set on mainnet
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 
 	// Mint coins to increase supply
 	mintDenom := suite.app.InflationKeeper.GetParams(suite.ctx).MintDenom
@@ -179,7 +179,7 @@ func (suite *KeeperTestSuite) TestQueryCirculatingSupply() {
 }
 
 func (suite *KeeperTestSuite) TestQueryInflationRate() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 
 	// the total bonded tokens for the 2 accounts initialized on the setup
 	bondedAmt := math.NewInt(1000100000000000000)
@@ -197,7 +197,7 @@ func (suite *KeeperTestSuite) TestQueryInflationRate() {
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	expParams := types.DefaultParams()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})

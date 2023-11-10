@@ -15,7 +15,7 @@ import (
 	tmquery "github.com/cometbft/cometbft/libs/pubsub/query"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -29,13 +29,13 @@ import (
 )
 
 var (
-	txEvents  = tmtypes.QueryForEvent(tmtypes.EventTx).String()
+	txEvents  = cmttypes.QueryForEvent(cmttypes.EventTx).String()
 	evmEvents = tmquery.MustParse(fmt.Sprintf("%s='%s' AND %s.%s='%s'",
-		tmtypes.EventTypeKey,
-		tmtypes.EventTx,
+		cmttypes.EventTypeKey,
+		cmttypes.EventTx,
 		sdk.EventTypeMessage,
 		sdk.AttributeKeyModule, evmtypes.ModuleName)).String()
-	headerEvents = tmtypes.QueryForEvent(tmtypes.EventNewBlockHeader).String()
+	headerEvents = cmttypes.QueryForEvent(cmttypes.EventNewBlockHeader).String()
 )
 
 // EventSystem creates subscriptions, processes events and broadcasts them to the

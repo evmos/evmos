@@ -12,7 +12,7 @@ import (
 	"cosmossdk.io/simapp"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -57,7 +57,7 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 	},
 	Validator: &tmproto.ValidatorParams{
 		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeEd25519,
+			cmttypes.ABCIPubKeyTypeEd25519,
 		},
 	},
 }
@@ -79,8 +79,8 @@ func Setup(
 	pubKey, _ := privVal.GetPubKey()
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	validator := cmttypes.NewValidator(pubKey, 1)
+	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
@@ -133,7 +133,7 @@ func Setup(
 }
 
 func GenesisStateWithValSet(app *Evmos, genesisState simapp.GenesisState,
-	valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
+	valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
 ) simapp.GenesisState {
 	// set genesis accounts

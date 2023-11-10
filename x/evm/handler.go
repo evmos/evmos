@@ -17,10 +17,10 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgEthereumTx:
-			res, err := server.EthereumTx(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.EthereumTx(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdateParams:
-			res, err := server.UpdateParams(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.UpdateParams(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			err := errorsmod.Wrapf(errortypes.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)

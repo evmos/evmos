@@ -238,7 +238,7 @@ func (suite *KeeperTestSuite) sendTx(
 	from common.Address,
 	transferData []byte,
 ) *evm.MsgEthereumTx {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	args, err := json.Marshal(&evm.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})

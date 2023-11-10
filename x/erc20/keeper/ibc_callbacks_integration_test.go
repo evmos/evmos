@@ -373,7 +373,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -418,7 +418,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -634,7 +634,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			err = msgConvertERC20.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertERC20(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertERC20)
+			_, err = s.app.Erc20Keeper.ConvertERC20(s.EvmosChain.GetContext(), msgConvertERC20)
 			s.Require().NoError(err)
 
 			// Check Balance
@@ -834,7 +834,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			err := msgConvertCoin.ValidateBasic()
 			s.Require().NoError(err)
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -874,7 +874,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().NoError(err)
 
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()
@@ -960,7 +960,7 @@ var _ = Describe("Convert outgoing ERC20 to IBC", Ordered, func() {
 			s.Require().NoError(err)
 
 			// Use MsgConvertERC20 to convert the ERC20 to a Cosmos IBC Coin
-			_, err = s.app.Erc20Keeper.ConvertCoin(sdk.WrapSDKContext(s.EvmosChain.GetContext()), msgConvertCoin)
+			_, err = s.app.Erc20Keeper.ConvertCoin(s.EvmosChain.GetContext(), msgConvertCoin)
 			s.Require().NoError(err)
 
 			s.EvmosChain.Coordinator.CommitBlock()

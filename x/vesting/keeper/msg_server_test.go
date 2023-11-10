@@ -98,7 +98,7 @@ func (suite *KeeperTestSuite) TestMsgFundVestingAccount() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // Reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 
 			// fund the recipient account to set the account and then
 			// send funds over to the funder account so balance is empty
@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) TestMsgCreateClawbackVestingAccount() {
 		tc := tc
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // Reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 
 			tc.malleate(tc.funder, tc.vestingAddr)
 
@@ -427,7 +427,7 @@ func (suite *KeeperTestSuite) TestMsgClawback() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 
 			// fund the vesting target address to initialize it as an account and
 			// then send all funds to the funder account
@@ -556,7 +556,7 @@ func (suite *KeeperTestSuite) TestMsgUpdateVestingFunder() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 
 			// fund the account at the vesting address to initialize it and then sund all funds to the funder account
 			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, vestingAddr, balances)
@@ -724,7 +724,7 @@ func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 			acc := tc.malleate()
 
 			msg := types.NewMsgConvertVestingAccount(acc.GetAddress())
-			res, err := suite.app.VestingKeeper.ConvertVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
+			res, err := suite.app.VestingKeeper.ConvertVestingAccount(suite.ctx, msg)
 
 			if tc.expPass {
 				suite.Require().NoError(err)

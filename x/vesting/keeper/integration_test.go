@@ -677,7 +677,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		msg := types.NewMsgCreateClawbackVestingAccount(funder, vestingAddr, true)
 
-		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(s.ctx), msg)
+		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 		Expect(err).ToNot(HaveOccurred(), "expected creating clawback vesting account to succeed")
 
 		acc := s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
@@ -686,7 +686,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// fund the vesting account
 		msgFund := types.NewMsgFundVestingAccount(funder, vestingAddr, vestingStart, lockupPeriods, vestingPeriods)
-		_, err = s.app.VestingKeeper.FundVestingAccount(sdk.WrapSDKContext(s.ctx), msgFund)
+		_, err = s.app.VestingKeeper.FundVestingAccount(s.ctx, msgFund)
 		Expect(err).ToNot(HaveOccurred(), "expected funding vesting account to succeed")
 
 		acc = s.app.AccountKeeper.GetAccount(s.ctx, vestingAddr)
@@ -712,14 +712,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	It("should fail if there is no vesting or lockup schedule set", func() {
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		emptyVestingAddr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 		err := testutil.FundAccount(s.ctx, s.app.BankKeeper, emptyVestingAddr, vestingAmtTotal)
 		Expect(err).ToNot(HaveOccurred(), "failed to fund target account")
 
 		msg := types.NewMsgCreateClawbackVestingAccount(funder, emptyVestingAddr, false)
 
-		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(s.ctx), msg)
+		_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 		Expect(err).ToNot(HaveOccurred(), "expected creating clawback vesting account to succeed")
 
 		clawbackMsg := types.NewMsgClawback(funder, emptyVestingAddr, dest)
@@ -729,7 +729,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	It("should claw back unvested amount before cliff", func() {
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 		balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
@@ -775,7 +775,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
 		Expect(res.Coins).To(Equal(unvested), "expected unvested coins to be clawed back")
@@ -819,7 +819,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil())
 		Expect(res.Coins).To(Equal(unvested), "expected only coins to be clawed back")
@@ -861,7 +861,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		// Perform clawback
 		msg := types.NewMsgClawback(funder, vestingAddr, dest)
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 		Expect(err).To(BeNil(), "expected no error during clawback")
 		Expect(res).ToNot(BeNil(), "expected response not to be nil")
@@ -953,7 +953,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			It("should not allow clawback", func() {
 				// Try to clawback tokens
 				msgClawback := types.NewMsgClawback(funder, vestingAddr, dest)
-				_, err = s.app.VestingKeeper.Clawback(sdk.WrapSDKContext(s.ctx), msgClawback)
+				_, err = s.app.VestingKeeper.Clawback(s.ctx, msgClawback)
 				Expect(err).To(HaveOccurred(), "expected error during clawback while there is an active governance proposal")
 				Expect(err.Error()).To(ContainSubstring("clawback is disabled while there is an active clawback proposal"))
 
@@ -1010,7 +1010,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			It("should not allow changing the vesting funder", func() {
 				msgUpdateFunder := types.NewMsgUpdateVestingFunder(funder, dest, vestingAddr)
-				_, err = s.app.VestingKeeper.UpdateVestingFunder(sdk.WrapSDKContext(s.ctx), msgUpdateFunder)
+				_, err = s.app.VestingKeeper.UpdateVestingFunder(s.ctx, msgUpdateFunder)
 				Expect(err).To(HaveOccurred(), "expected error during update funder while there is an active governance proposal")
 				Expect(err.Error()).To(ContainSubstring("cannot update funder while there is an active clawback proposal"))
 
@@ -1075,7 +1075,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	It("should update vesting funder and claw back unvested amount before cliff", func() {
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -1106,7 +1106,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 	})
 
 	It("should update vesting funder and first funder cannot claw back unvested before cliff", func() {
-		ctx := sdk.WrapSDKContext(s.ctx)
+		ctx := s.ctx
 		newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 		balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -1135,7 +1135,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 	Context("governance clawback to community pool", func() {
 		It("should claw back unvested amount before cliff", func() {
-			ctx := sdk.WrapSDKContext(s.ctx)
+			ctx := s.ctx
 
 			// initial balances
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
@@ -1202,7 +1202,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform clawback
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
-			ctx := sdk.WrapSDKContext(s.ctx)
+			ctx := s.ctx
 			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
 			Expect(res.Coins).To(Equal(unvested), "expected unvested coins to be clawed back")
@@ -1260,7 +1260,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform clawback
 			msg := types.NewMsgClawback(funder, vestingAddr, dest)
-			ctx := sdk.WrapSDKContext(s.ctx)
+			ctx := s.ctx
 			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil())
 			Expect(res.Coins).To(Equal(unvested), "expected only unvested coins to be clawed back")
@@ -1313,7 +1313,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 			// Perform clawback
 			msg := types.NewMsgClawback(authtypes.NewModuleAddress(govtypes.ModuleName), vestingAddr, dest)
-			ctx := sdk.WrapSDKContext(s.ctx)
+			ctx := s.ctx
 			res, err := s.app.VestingKeeper.Clawback(ctx, msg)
 			Expect(err).To(BeNil(), "expected no error during clawback")
 			Expect(res.Coins).To(BeEmpty(), "expected nothing to be clawed back after end of vesting schedules")
@@ -1332,7 +1332,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 		})
 
 		It("should update vesting funder and claw back unvested amount before cliff", func() {
-			ctx := sdk.WrapSDKContext(s.ctx)
+			ctx := s.ctx
 			newFunder := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)

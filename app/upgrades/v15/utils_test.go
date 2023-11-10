@@ -10,7 +10,7 @@ import (
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,7 +33,7 @@ import (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -131,24 +131,23 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 
 	// commit genesis changes
 	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
 
 	s.app = app
 }
 
 func (s *UpgradesTestSuite) DoSetupTest() {
 	nValidators := 3
-	validators := make([]*tmtypes.Validator, 0, nValidators)
+	validators := make([]*cmttypes.Validator, 0, nValidators)
 
 	for i := 0; i < nValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
-		validator := tmtypes.NewValidator(pubKey, 1)
+		validator := cmttypes.NewValidator(pubKey, 1)
 		validators = append(validators, validator)
 	}
 
-	valSet := tmtypes.NewValidatorSet(validators)
+	valSet := cmttypes.NewValidatorSet(validators)
 
 	// generate genesis account
 	_, priv := testutiltx.NewAddrKey()

@@ -17,7 +17,7 @@ import (
 	"github.com/cometbft/cometbft/proxy"
 	"github.com/cometbft/cometbft/rpc/client/local"
 	"github.com/cometbft/cometbft/types"
-	tmtime "github.com/cometbft/cometbft/types/time"
+	cmttime "github.com/cometbft/cometbft/types/time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 
@@ -156,7 +156,7 @@ func startInProcess(cfg Config, val *Validator) error {
 }
 
 func collectGenFiles(cfg Config, vals []*Validator, outputDir string) error {
-	genTime := tmtime.Now()
+	genTime := cmttime.Now()
 
 	for i := 0; i < cfg.NumValidators; i++ {
 		tmCfg := vals[i].Ctx.Config

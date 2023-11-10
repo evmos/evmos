@@ -16,7 +16,7 @@ import (
 	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -58,8 +58,8 @@ type IntegrationNetwork struct {
 	app        *app.Evmos
 
 	// This is only needed for IBC chain testing setup
-	valSet     *tmtypes.ValidatorSet
-	valSigners map[string]tmtypes.PrivValidator
+	valSet     *cmttypes.ValidatorSet
+	valSigners map[string]cmttypes.PrivValidator
 }
 
 // New configures and initializes a new integration Network instance with

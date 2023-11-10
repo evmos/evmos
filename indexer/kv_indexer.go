@@ -8,7 +8,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -47,7 +47,7 @@ func NewKVIndexer(db dbm.DB, logger log.Logger, clientCtx client.Context) *KVInd
 // - Parses eth Tx infos from cosmos-sdk events for every TxResult
 // - Iterates over all the messages of the Tx
 // - Builds and stores a indexer.TxResult based on parsed events for every message
-func (kv *KVIndexer) IndexBlock(block *tmtypes.Block, txResults []*abci.ExecTxResult) error {
+func (kv *KVIndexer) IndexBlock(block *cmttypes.Block, txResults []*abci.ExecTxResult) error {
 	height := block.Header.Height
 
 	batch := kv.db.NewBatch()

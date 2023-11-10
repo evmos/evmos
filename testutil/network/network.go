@@ -22,7 +22,7 @@ import (
 	"cosmossdk.io/math"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmflags "github.com/cometbft/cometbft/libs/cli/flags"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
+	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
 	tmclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
@@ -102,7 +102,7 @@ type Config struct {
 // testing requirements.
 func DefaultConfig() Config {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
-	chainID := fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1)
+	chainID := fmt.Sprintf("evmos_%d-1", cmtrand.Int63n(9999999999999)+1)
 	return Config{
 		Codec:             encCfg.Codec,
 		TxConfig:          encCfg.TxConfig,

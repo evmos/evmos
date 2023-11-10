@@ -123,14 +123,20 @@ func SetupClients(coord *ibctesting.Coordinator, path *Path) {
 }
 
 func SendMsgs(chain *ibctesting.TestChain, feeAmt int64, msgs ...sdk.Msg) (*sdk.Result, error) {
-	var bondDenom string
+	var (
+		bondDenom string
+		err       error
+	)
 	// ensure the chain has the latest time
 	chain.Coordinator.UpdateTimeForChain(chain)
 
 	if evmosChain, ok := chain.App.(*app.Evmos); ok {
-		bondDenom = evmosChain.StakingKeeper.BondDenom(chain.GetContext())
+		bondDenom, err = evmosChain.StakingKeeper.BondDenom(chain.GetContext())
 	} else {
-		bondDenom = chain.GetSimApp().StakingKeeper.BondDenom(chain.GetContext())
+		bondDenom, err = chain.GetSimApp().StakingKeeper.BondDenom(chain.GetContext())
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	fee := sdk.Coins{sdk.NewInt64Coin(bondDenom, feeAmt)}
@@ -173,7 +179,7 @@ func SignAndDeliver(
 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, msgs []sdk.Msg,
 	fee sdk.Coins,
 	chainID string, accNums, accSeqs []uint64, expPass bool, priv ...cryptotypes.PrivKey,
-) (sdk.GasInfo, *sdk.Result, error) {
+) (storetypes.GasInfo, *sdk.Result, error) {
 	tx, err := simtestutil.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())), //nolint:gosec
 		txCfg,

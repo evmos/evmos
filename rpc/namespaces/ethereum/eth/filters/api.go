@@ -15,7 +15,7 @@ import (
 
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -159,7 +159,7 @@ func (api *PublicFilterAPI) NewPendingTransactionFilter() rpc.ID {
 					return
 				}
 
-				data, ok := ev.Data.(tmtypes.EventDataTx)
+				data, ok := ev.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue
@@ -225,7 +225,7 @@ func (api *PublicFilterAPI) NewPendingTransactions(ctx context.Context) (*rpc.Su
 					return
 				}
 
-				data, ok := ev.Data.(tmtypes.EventDataTx)
+				data, ok := ev.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue
@@ -289,7 +289,7 @@ func (api *PublicFilterAPI) NewBlockFilter() rpc.ID {
 					return
 				}
 
-				data, ok := ev.Data.(tmtypes.EventDataNewBlockHeader)
+				data, ok := ev.Data.(cmttypes.EventDataNewBlockHeader)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue
@@ -338,7 +338,7 @@ func (api *PublicFilterAPI) NewHeads(ctx context.Context) (*rpc.Subscription, er
 					return
 				}
 
-				data, ok := ev.Data.(tmtypes.EventDataNewBlockHeader)
+				data, ok := ev.Data.(cmttypes.EventDataNewBlockHeader)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue
@@ -397,7 +397,7 @@ func (api *PublicFilterAPI) Logs(ctx context.Context, crit filters.FilterCriteri
 				}
 
 				// get transaction result data
-				dataTx, ok := ev.Data.(tmtypes.EventDataTx)
+				dataTx, ok := ev.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue
@@ -480,7 +480,7 @@ func (api *PublicFilterAPI) NewFilter(criteria filters.FilterCriteria) (rpc.ID, 
 					api.filtersMu.Unlock()
 					return
 				}
-				dataTx, ok := ev.Data.(tmtypes.EventDataTx)
+				dataTx, ok := ev.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue

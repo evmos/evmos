@@ -14,7 +14,7 @@ import (
 
 	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -29,20 +29,20 @@ import (
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
 // with the default power of 1.
-func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
+func createValidatorSetAndSigners(numberOfValidators int) (*cmttypes.ValidatorSet, map[string]cmttypes.PrivValidator) {
 	// Create validator set
-	tmValidators := make([]*tmtypes.Validator, 0, numberOfValidators)
-	signers := make(map[string]tmtypes.PrivValidator, numberOfValidators)
+	tmValidators := make([]*cmttypes.Validator, 0, numberOfValidators)
+	signers := make(map[string]cmttypes.PrivValidator, numberOfValidators)
 
 	for i := 0; i < numberOfValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, _ := privVal.GetPubKey()
-		validator := tmtypes.NewValidator(pubKey, 1)
+		validator := cmttypes.NewValidator(pubKey, 1)
 		tmValidators = append(tmValidators, validator)
 		signers[pubKey.Address().String()] = privVal
 	}
 
-	return tmtypes.NewValidatorSet(tmValidators), signers
+	return cmttypes.NewValidatorSet(tmValidators), signers
 }
 
 // createGenesisAccounts returns a slice of genesis accounts from the given
@@ -100,7 +100,7 @@ func createEvmosApp(chainID string) *app.Evmos {
 }
 
 // createStakingValidator creates a staking validator from the given tm validator and bonded
-func createStakingValidator(val *tmtypes.Validator, bondedAmt sdkmath.Int) (stakingtypes.Validator, error) {
+func createStakingValidator(val *cmttypes.Validator, bondedAmt sdkmath.Int) (stakingtypes.Validator, error) {
 	pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 	if err != nil {
 		return stakingtypes.Validator{}, err
@@ -130,7 +130,7 @@ func createStakingValidator(val *tmtypes.Validator, bondedAmt sdkmath.Int) (stak
 
 // createStakingValidators creates staking validators from the given tm validators and bonded
 // amounts
-func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
+func createStakingValidators(tmValidators []*cmttypes.Validator, bondedAmt sdkmath.Int) ([]stakingtypes.Validator, error) {
 	amountOfValidators := len(tmValidators)
 	stakingValidators := make([]stakingtypes.Validator, 0, amountOfValidators)
 	for _, val := range tmValidators {
@@ -144,7 +144,7 @@ func createStakingValidators(tmValidators []*tmtypes.Validator, bondedAmt sdkmat
 }
 
 // createDelegations creates delegations for the given validators and account
-func createDelegations(tmValidators []*tmtypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
+func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.AccAddress) []stakingtypes.Delegation {
 	amountOfValidators := len(tmValidators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
 	for _, val := range tmValidators {

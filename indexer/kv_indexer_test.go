@@ -7,7 +7,7 @@ import (
 	tmlog "cosmossdk.io/log"
 	"cosmossdk.io/simapp/params"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/ethereum/go-ethereum/common"
@@ -59,13 +59,13 @@ func TestKVIndexer(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		block       *tmtypes.Block
+		block       *cmttypes.Block
 		blockResult []*abci.ExecTxResult
 		expSuccess  bool
 	}{
 		{
 			"success, format 1",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
 			[]*abci.ExecTxResult{
 				{
 					Code: 0,
@@ -85,7 +85,7 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"success, format 2",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
 			[]*abci.ExecTxResult{
 				{
 					Code: 0,
@@ -107,7 +107,7 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"success, exceed block gas limit",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
 			[]*abci.ExecTxResult{
 				{
 					Code:   11,
@@ -119,7 +119,7 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, failed eth tx",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
 			[]*abci.ExecTxResult{
 				{
 					Code:   15,
@@ -131,7 +131,7 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, invalid events",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz}}},
 			[]*abci.ExecTxResult{
 				{
 					Code:   0,
@@ -142,7 +142,7 @@ func TestKVIndexer(t *testing.T) {
 		},
 		{
 			"fail, not eth tx",
-			&tmtypes.Block{Header: tmtypes.Header{Height: 1}, Data: tmtypes.Data{Txs: []tmtypes.Tx{txBz2}}},
+			&cmttypes.Block{Header: cmttypes.Header{Height: 1}, Data: cmttypes.Data{Txs: []cmttypes.Tx{txBz2}}},
 			[]*abci.ExecTxResult{
 				{
 					Code:   0,

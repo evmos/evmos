@@ -16,9 +16,9 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	dbm "github.com/cosmos/cosmos-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 
 	"github.com/evmos/evmos/v15/encoding"
 	"github.com/evmos/evmos/v15/utils"
@@ -31,8 +31,8 @@ func TestEvmosExport(t *testing.T) {
 	require.NoError(t, err, "public key should be created without error")
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	validator := cmttypes.NewValidator(pubKey, 1)
+	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()

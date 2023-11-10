@@ -8,7 +8,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -37,7 +37,7 @@ import (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -142,10 +142,10 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 
 	// create validator set with two validators
-	validator := tmtypes.NewValidator(pubKey, 1)
-	validator2 := tmtypes.NewValidator(pubKey2, 2)
-	s.valSet = tmtypes.NewValidatorSet([]*tmtypes.Validator{validator, validator2})
-	signers := make(map[string]tmtypes.PrivValidator)
+	validator := cmttypes.NewValidator(pubKey, 1)
+	validator2 := cmttypes.NewValidator(pubKey2, 2)
+	s.valSet = cmttypes.NewValidatorSet([]*cmttypes.Validator{validator, validator2})
+	signers := make(map[string]cmttypes.PrivValidator)
 	signers[pubKey.Address().String()] = privVal
 	signers[pubKey2.Address().String()] = privVal2
 
@@ -175,7 +175,8 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
 
 	// bond denom
-	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
+	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)
+	s.Require().NoError(err)
 	stakingParams.BondDenom = utils.BaseDenom
 	s.bondDenom = stakingParams.BondDenom
 	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)

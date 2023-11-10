@@ -69,7 +69,7 @@ func (suite *KeeperTestSuite) TestIncentives() {
 			suite.SetupTest() // reset
 			suite.deployContracts()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.Incentives(ctx, req)
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestIncentive() {
 			suite.SetupTest() // reset
 			suite.deployContracts()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.Incentive(ctx, req)
@@ -231,7 +231,7 @@ func (suite *KeeperTestSuite) TestGasMeters() {
 			suite.SetupTest() // reset
 			suite.deployContracts()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.GasMeters(ctx, req)
@@ -319,7 +319,7 @@ func (suite *KeeperTestSuite) TestGasMeter() {
 			suite.SetupTest() // reset
 			suite.deployContracts()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.GasMeter(ctx, req)
@@ -391,7 +391,7 @@ func (suite *KeeperTestSuite) TestAllocationMeters() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.AllocationMeters(ctx, req)
@@ -453,7 +453,7 @@ func (suite *KeeperTestSuite) TestAllocationMeter() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.AllocationMeter(ctx, req)
@@ -468,7 +468,7 @@ func (suite *KeeperTestSuite) TestAllocationMeter() {
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	expParams := types.DefaultParams()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})

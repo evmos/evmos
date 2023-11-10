@@ -96,7 +96,7 @@ func NewDecCoinsResponse(amount sdk.DecCoins) []DecCoin {
 		outputs[i] = DecCoin{
 			Denom:     coin.Denom,
 			Amount:    coin.Amount.TruncateInt().BigInt(),
-			Precision: sdk.Precision,
+			Precision: math.LegacyPrecision,
 		}
 	}
 	return outputs

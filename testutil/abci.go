@@ -10,7 +10,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -26,7 +26,7 @@ import (
 //  2. DeliverTx
 //  3. EndBlock
 //  4. Commit
-func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *cmttypes.ValidatorSet) (sdk.Context, error) {
 	header, err := commit(ctx, app, t, vs)
 	if err != nil {
 		return ctx, err
@@ -38,7 +38,7 @@ func Commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.Valida
 // CommitAndCreateNewCtx commits a block at a given time creating a ctx with the current settings
 // This is useful to keep test settings that could be affected by EndBlockers, e.g.
 // setting a baseFee == 0 and expecting this condition to continue after commit
-func CommitAndCreateNewCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (sdk.Context, error) {
+func CommitAndCreateNewCtx(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *cmttypes.ValidatorSet) (sdk.Context, error) {
 	header, err := commit(ctx, app, t, vs)
 	if err != nil {
 		return ctx, err
@@ -203,7 +203,7 @@ func BroadcastTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.
 
 // commit is a private helper function that runs the EndBlocker logic, commits the changes,
 // updates the header, runs the BeginBlocker function and returns the updated header
-func commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *tmtypes.ValidatorSet) (tmproto.Header, error) {
+func commit(ctx sdk.Context, app *app.Evmos, t time.Duration, vs *cmttypes.ValidatorSet) (tmproto.Header, error) {
 	header := ctx.BlockHeader()
 	req := abci.RequestFinalizeBlock{Height: header.Height}
 
@@ -259,10 +259,10 @@ func checkTxBytes(app *app.Evmos, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.Resp
 	return *res, nil
 }
 
-// applyValSetChanges takes in tmtypes.ValidatorSet and []abci.ValidatorUpdate and will return a new tmtypes.ValidatorSet which has the
+// applyValSetChanges takes in cmttypes.ValidatorSet and []abci.ValidatorUpdate and will return a new cmttypes.ValidatorSet which has the
 // provided validator updates applied to the provided validator set.
-func applyValSetChanges(valSet *tmtypes.ValidatorSet, valUpdates []abci.ValidatorUpdate) (*tmtypes.ValidatorSet, error) {
-	updates, err := tmtypes.PB2TM.ValidatorUpdates(valUpdates)
+func applyValSetChanges(valSet *cmttypes.ValidatorSet, valUpdates []abci.ValidatorUpdate) (*cmttypes.ValidatorSet, error) {
+	updates, err := cmttypes.PB2TM.ValidatorUpdates(valUpdates)
 	if err != nil {
 		return nil, err
 	}

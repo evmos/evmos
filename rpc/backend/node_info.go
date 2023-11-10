@@ -9,7 +9,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto"
@@ -160,7 +160,7 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	tmHash := common.BytesToHash(tmtypes.Tx(txBytes).Hash())
+	tmHash := common.BytesToHash(cmttypes.Tx(txBytes).Hash())
 
 	// Broadcast transaction in sync mode (default)
 	// NOTE: If error is encountered on the node, the broadcast will not return an error

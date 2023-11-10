@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 					sdk.AccAddress(deployer.Bytes()),
 					[]uint64{1},
 				)
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				suite.app.RevenueKeeper.RegisterRevenue(ctx, msg) //nolint:errcheck
 			},
 			false,
@@ -197,7 +197,7 @@ func (suite *KeeperTestSuite) TestRegisterRevenue() {
 			suite.SetupTest()
 			tc.malleate()
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			msg := types.NewMsgRegisterRevenue(tc.contract, tc.deployer, tc.withdraw, tc.nonces)
 
 			res, err := suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
@@ -266,7 +266,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// Prepare
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
@@ -290,7 +290,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// Prepare
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
@@ -314,7 +314,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -357,7 +357,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -380,7 +380,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -403,7 +403,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -426,7 +426,7 @@ func (suite *KeeperTestSuite) TestUpdateRevenue() {
 
 			msgUpdate := types.NewMsgUpdateRevenue(tc.contract, tc.deployer, tc.newWithdrawer)
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			res, err := suite.app.RevenueKeeper.UpdateRevenue(ctx, msgUpdate)
 			expRes := &types.MsgUpdateRevenueResponse{}
 			suite.Commit()
@@ -496,7 +496,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 				s.Require().NoError(err)
 
 				// Prepare
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
@@ -518,7 +518,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 				s.Require().NoError(err)
 
 				// Prepare
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, deployerAddr, []uint64{1})
 
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
@@ -540,7 +540,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -579,7 +579,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 				s.Require().NoError(err)
 
 				// register contract
-				ctx := sdk.WrapSDKContext(suite.ctx)
+				ctx := suite.ctx
 				msg := types.NewMsgRegisterRevenue(contract1, deployerAddr, withdrawer, []uint64{1})
 				_, err = suite.app.RevenueKeeper.RegisterRevenue(ctx, msg)
 				suite.Require().NoError(err)
@@ -611,7 +611,7 @@ func (suite *KeeperTestSuite) TestCancelRevenue() {
 
 			msgCancel := types.NewMsgCancelRevenue(tc.contract, tc.deployer)
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			res, err := suite.app.RevenueKeeper.CancelRevenue(ctx, msgCancel)
 			expRes := &types.MsgCancelRevenueResponse{}
 			suite.Commit()

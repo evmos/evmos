@@ -76,16 +76,12 @@ func (p Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, err
-	}
-
 	sender := sdk.AccAddress(from.Bytes())
 	spender := sdk.AccAddress(contract.CallerAddress.Bytes()) // aka. grantee
 
 	if sender.Equals(spender) {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
-		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
+		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}

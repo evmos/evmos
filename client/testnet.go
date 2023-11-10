@@ -15,10 +15,10 @@ import (
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
-	tmconfig "github.com/cometbft/cometbft/config"
-	tmrand "github.com/cometbft/cometbft/libs/rand"
+	cmtconfig "github.com/cometbft/cometbft/config"
+	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/types"
-	tmtime "github.com/cometbft/cometbft/types/time"
+	cmttime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -212,14 +212,14 @@ const nodeDirPerm = 0o755
 func initTestnetFiles(
 	clientCtx client.Context,
 	cmd *cobra.Command,
-	nodeConfig *tmconfig.Config,
+	nodeConfig *cmtconfig.Config,
 	mbm module.BasicManager,
 	genBalIterator banktypes.GenesisBalancesIterator,
 	valAddrCodec runtime.ValidatorAddressCodec,
 	args initArgs,
 ) error {
 	if args.chainID == "" {
-		args.chainID = fmt.Sprintf("ethermint_%d-1", tmrand.Int63n(9999999999999)+1)
+		args.chainID = fmt.Sprintf("ethermint_%d-1", cmtrand.Int63n(9999999999999)+1)
 	}
 
 	nodeIDs := make([]string, args.numValidators)
@@ -353,7 +353,7 @@ func initTestnetFiles(
 
 		customAppTemplate, customAppConfig := config.AppConfig(evmostypes.AttoEvmos)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmconfig.DefaultConfig()); err != nil {
+		if err := sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, cmtconfig.DefaultConfig()); err != nil {
 			return err
 		}
 
@@ -451,12 +451,12 @@ func initGenFiles(
 }
 
 func collectGenFiles(
-	clientCtx client.Context, nodeConfig *tmconfig.Config, chainID string,
+	clientCtx client.Context, nodeConfig *cmtconfig.Config, chainID string,
 	nodeIDs []string, valPubKeys []cryptotypes.PubKey, numValidators int,
 	outputDir, nodeDirPrefix, nodeDaemonHome string, genBalIterator banktypes.GenesisBalancesIterator, valAddrCodec runtime.ValidatorAddressCodec,
 ) error {
 	var appState json.RawMessage
-	genTime := tmtime.Now()
+	genTime := cmttime.Now()
 
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)

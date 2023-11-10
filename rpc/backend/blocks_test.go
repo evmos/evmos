@@ -8,7 +8,7 @@ import (
 
 	"github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -230,7 +230,7 @@ func (suite *BackendTestSuite) TestGetBlockByHash() {
 	)
 	msgEthereumTx, bz := suite.buildEthereumTx()
 
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -371,8 +371,8 @@ func (suite *BackendTestSuite) TestGetBlockByHash() {
 
 func (suite *BackendTestSuite) TestGetBlockTransactionCountByHash() {
 	_, bz := suite.buildEthereumTx()
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -450,8 +450,8 @@ func (suite *BackendTestSuite) TestGetBlockTransactionCountByHash() {
 
 func (suite *BackendTestSuite) TestGetBlockTransactionCountByNumber() {
 	_, bz := suite.buildEthereumTx()
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -689,7 +689,7 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermint() {
 	var resBlock *tmrpctypes.ResultBlock
 
 	_, bz := suite.buildEthereumTx()
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
 	blockNum := ethrpc.NewBlockNumber(big.NewInt(block.Height))
 	blockHash := common.BytesToHash(block.Hash())
 
@@ -766,8 +766,8 @@ func (suite *BackendTestSuite) TestBlockNumberFromTendermintByHash() {
 	var resBlock *tmrpctypes.ResultBlock
 
 	_, bz := suite.buildEthereumTx()
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -888,7 +888,7 @@ func (suite *BackendTestSuite) TestBlockBloom() {
 
 func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 	msgEthereumTx, bz := suite.buildEthereumTx()
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -930,7 +930,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,
@@ -954,7 +954,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(common.Address{}.Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,
@@ -978,7 +978,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,
@@ -1002,7 +1002,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height: 1,
@@ -1032,7 +1032,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,
@@ -1056,7 +1056,7 @@ func (suite *BackendTestSuite) TestGetEthBlockFromTendermint() {
 			sdk.AccAddress(utiltx.GenerateAddress().Bytes()),
 			int64(1),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,
@@ -1143,7 +1143,7 @@ func (suite *BackendTestSuite) TestEthMsgsFromTendermintBlock() {
 		{
 			"tx in not included in block - unsuccessful tx without ExceedBlockGasLimit error",
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				TxsResults: []*types.ExecTxResult{
@@ -1157,7 +1157,7 @@ func (suite *BackendTestSuite) TestEthMsgsFromTendermintBlock() {
 		{
 			"tx included in block - unsuccessful tx with ExceedBlockGasLimit error",
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				TxsResults: []*types.ExecTxResult{
@@ -1172,7 +1172,7 @@ func (suite *BackendTestSuite) TestEthMsgsFromTendermintBlock() {
 		{
 			"pass",
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				TxsResults: []*types.ExecTxResult{
@@ -1311,8 +1311,8 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 	var expResultBlock *tmrpctypes.ResultBlock
 
 	_, bz := suite.buildEthereumTx()
-	block := tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil)
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -1420,7 +1420,7 @@ func (suite *BackendTestSuite) TestHeaderByHash() {
 
 func (suite *BackendTestSuite) TestEthBlockByNumber() {
 	msgEthereumTx, bz := suite.buildEthereumTx()
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -1533,7 +1533,7 @@ func (suite *BackendTestSuite) TestEthBlockByNumber() {
 
 func (suite *BackendTestSuite) TestEthBlockFromTendermintBlock() {
 	msgEthereumTx, bz := suite.buildEthereumTx()
-	emptyBlock := tmtypes.MakeBlock(1, []tmtypes.Tx{}, nil, nil)
+	emptyBlock := cmttypes.MakeBlock(1, []cmttypes.Tx{}, nil, nil)
 
 	testCases := []struct {
 		name         string
@@ -1575,7 +1575,7 @@ func (suite *BackendTestSuite) TestEthBlockFromTendermintBlock() {
 			"pass - block with tx",
 			math.NewInt(1).BigInt(),
 			&tmrpctypes.ResultBlock{
-				Block: tmtypes.MakeBlock(1, []tmtypes.Tx{bz}, nil, nil),
+				Block: cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil),
 			},
 			&tmrpctypes.ResultBlockResults{
 				Height:     1,

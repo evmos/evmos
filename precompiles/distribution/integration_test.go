@@ -95,7 +95,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err.Error()).To(ContainSubstring("out of gas"), "expected out of gas error")
 
 			// withdraw address should remain unchanged
-			withdrawAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawAddr.Bytes()).To(Equal(s.address.Bytes()), "expected withdraw address to remain unchanged")
 		})
 
@@ -111,7 +112,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should set withdraw address", func() {
 			// initially, withdraw address should be same as address
-			withdrawAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawAddr, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawAddr.Bytes()).To(Equal(s.address.Bytes()))
 
 			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(s.address, differentAddr.String())
@@ -119,11 +121,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawAddrSetCheck := passCheck.
 				WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, withdrawAddrSetCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, withdrawAddrSetCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			// withdraw should be updated
-			withdrawAddr = s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawAddr, err = s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawAddr.Bytes()).To(Equal(differentAddr.Bytes()), "expected different withdraw address")
 		})
 	})
@@ -208,7 +211,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// set some validator commission
 			valAddr = s.address.Bytes()
-			val := s.app.StakingKeeper.Validator(s.ctx, valAddr)
+			val, err := s.app.StakingKeeper.Validator(s.ctx, valAddr)
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, commDec)}
 
 			s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, valAddr, distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
@@ -227,7 +231,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should return error if the origin is different than the validator", func() {
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(s.validators[0].OperatorAddress)
-			validatorHexAddr := common.BytesToAddress(s.validators[0].GetOperator())
+			validatorHexAddr := common.BytesToAddress([]byte(s.validators[0].GetOperator()))
 
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), validatorHexAddr.String())
 
@@ -339,7 +343,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() { //nolint:dupl
 			valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 			// set outstanding rewards
-			s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
+			err := s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, sdk.ValAddress(s.validators[0].GetOperator()), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
+			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			valOutRewardsArgs := defaultCallArgs.
 				WithMethodName(distribution.ValidatorOutstandingRewardsMethod).
@@ -360,7 +365,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should get validator commission - validatorCommission query", func() { //nolint:dupl
 			// set commission
 			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-			s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
+			err := s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, sdk.ValAddress(s.validators[0].GetOperator()), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
+			Expect(err).To(BeNil(), "error while calling the precompile")
 
 			valCommArgs := defaultCallArgs.
 				WithMethodName(distribution.ValidatorCommissionMethod).
@@ -382,7 +388,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			It("should get validator slashing events (default pagination)", func() {
 				// set slash event
 				slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)}
-				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, slashEvent)
+				err := s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, sdk.ValAddress(s.validators[0].GetOperator()), 2, 1, slashEvent)
+				Expect(err).To(BeNil(), "error while calling the precompile")
 
 				valSlashArgs := defaultCallArgs.
 					WithMethodName(distribution.ValidatorSlashesMethod).
@@ -407,7 +414,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			It("should get validator slashing events - query w/pagination limit = 1)", func() {
 				// set 2 slashing events for validator[0]
-				slashEvent := s.setupValidatorSlashes(s.validators[0].GetOperator(), 2)
+				slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.validators[0].GetOperator()), 2)
 
 				valSlashArgs := defaultCallArgs.
 					WithMethodName(distribution.ValidatorSlashesMethod).
@@ -487,7 +494,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// only validator[i] has rewards
 			Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 			Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-			Expect(uint8(sdk.Precision)).To(Equal(out.Rewards[i].Reward[0].Precision))
+			Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
 			Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 			Expect(1).To(Equal(len(out.Total)))
@@ -594,7 +601,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		BeforeEach(func() {
 			// withdraw address should be same as address
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))
 
 			// populate default arguments
@@ -613,7 +621,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, setWithdrawCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(newWithdrawer.Bytes()))
 		})
 	})
@@ -630,7 +639,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		BeforeEach(func() {
 			// withdraw address should be same as address
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))
 
 			// populate default arguments
@@ -647,7 +657,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, setWithdrawCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, contractAddr.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, contractAddr.Bytes())
 			Expect(withdrawer.Bytes()).To(Equal(newWithdrawer.Bytes()))
 		})
 	})
@@ -800,12 +810,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			valAddresses = append(
 				valAddresses,
 				valAddr,
-				s.validators[0].GetOperator(),
-				s.validators[1].GetOperator(),
+				sdk.ValAddress(s.validators[0].GetOperator()),
+				sdk.ValAddress(s.validators[1].GetOperator()),
 			)
 
 			for _, addr := range valAddresses {
-				val := s.app.StakingKeeper.Validator(s.ctx, addr)
+				val, err := s.app.StakingKeeper.Validator(s.ctx, addr)
+				Expect(err).To(BeNil(), "error while calling the precompile")
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, commDec)}
 
 				s.app.DistrKeeper.SetValidatorAccumulatedCommission(
@@ -994,7 +1005,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// check withdraw address didn't change
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))
 
 			// check signer address balance should've decreased (fees paid)
@@ -1015,7 +1027,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// check withdraw address didn't change
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))
 		})
 
@@ -1027,7 +1040,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 			// check withdraw address didn't change
-			withdrawer := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			withdrawer, err := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
+			Expect(err).To(BeNil(), "error while calling the precompile")
 			Expect(withdrawer.Bytes()).To(Equal(s.address.Bytes()))
 		})
 	})
@@ -1096,7 +1110,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			It("should get rewards - validator with outstanding rewards", func() {
 				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
-				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
+				err := s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, sdk.ValAddress(s.validators[0].GetOperator()), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
+				Expect(err).To(BeNil(), "error while calling the precompile")
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValOutRewardsArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1136,7 +1151,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			It("should get commission - validator with commission", func() {
 				// set commission
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
-				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
+				err := s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, sdk.ValAddress(s.validators[0].GetOperator()), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
+				Expect(err).To(BeNil(), "error while calling contract")
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValCommArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1179,7 +1195,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			It("should get slashing events - validator with slashes (default pagination)", func() {
 				// set slash event
-				slashEvent := s.setupValidatorSlashes(s.validators[0].GetOperator(), 1)
+				slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.validators[0].GetOperator()), 1)
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValSlashArgs, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -1196,7 +1212,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			It("should get slashing events - validator with slashes w/pagination", func() {
 				// set 2 slashing events
-				slashEvent := s.setupValidatorSlashes(s.validators[0].GetOperator(), 2)
+				slashEvent := s.setupValidatorSlashes(sdk.ValAddress(s.validators[0].GetOperator()), 2)
 
 				// set pagination
 				defaultValSlashArgs.Args = []interface{}{
@@ -1311,7 +1327,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				// only validator[i] has rewards
 				Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 				Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-				Expect(uint8(sdk.Precision)).To(Equal(out.Rewards[i].Reward[0].Precision))
+				Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
 				Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 				Expect(1).To(Equal(len(out.Total)))

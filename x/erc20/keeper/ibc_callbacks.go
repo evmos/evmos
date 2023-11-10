@@ -113,7 +113,7 @@ func (k Keeper) OnRecvPacket(
 	// the ICS20 packet data
 
 	// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = k.ConvertCoin(ctx, msg); err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
@@ -198,7 +198,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	// fields from the packet data
 
 	// convert Coin to ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = k.ConvertCoin(ctx, msg); err != nil {
 		return err
 	}
 

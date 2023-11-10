@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/evmos/evmos/v15/x/epochs/types"
 )
@@ -116,7 +115,7 @@ func (suite *KeeperTestSuite) TestEpochInfo() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.EpochInfos(ctx, req)
@@ -179,7 +178,7 @@ func (suite *KeeperTestSuite) TestCurrentEpoch() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.CurrentEpoch(ctx, req)

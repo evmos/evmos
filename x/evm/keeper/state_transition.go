@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -86,7 +86,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 
 			// only recompute the hash if not set (eg: checkTxState)
 			contextBlockHeader := ctx.BlockHeader()
-			header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
+			header, err := cmttypes.HeaderFromProto(&contextBlockHeader)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
@@ -104,7 +104,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 				return common.Hash{}
 			}
 
-			header, err := tmtypes.HeaderFromProto(&histInfo.Header)
+			header, err := cmttypes.HeaderFromProto(&histInfo.Header)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}

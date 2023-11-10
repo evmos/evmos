@@ -11,7 +11,7 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,7 +32,7 @@ type PrecompileTestSuite struct {
 	app        *evmosapp.Evmos
 	address    common.Address
 	validators []stakingtypes.Validator
-	valSet     *tmtypes.ValidatorSet
+	valSet     *cmttypes.ValidatorSet
 	ethSigner  ethtypes.Signer
 	privKey    cryptotypes.PrivKey
 	signer     keyring.Signer

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -86,10 +87,6 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 		WithdrawAddress:  withdrawerAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -111,10 +108,6 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		ValidatorAddress: validatorAddress,
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 
@@ -128,10 +121,6 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
 		ValidatorAddress: validatorAddress,
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)
@@ -337,7 +326,7 @@ func (vs *ValidatorSlashesOutput) FromResponse(res *distributiontypes.QueryValid
 			ValidatorPeriod: s.ValidatorPeriod,
 			Fraction: cmn.Dec{
 				Value:     s.Fraction.BigInt(),
-				Precision: sdk.Precision,
+				Precision: math.LegacyPrecision,
 			},
 		}
 	}

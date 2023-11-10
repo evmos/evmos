@@ -18,16 +18,16 @@ func NewHandler(server types.MsgServer) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *types.MsgRegisterRevenue:
-			res, err := server.RegisterRevenue(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.RegisterRevenue(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdateRevenue:
-			res, err := server.UpdateRevenue(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.UpdateRevenue(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgCancelRevenue:
-			res, err := server.CancelRevenue(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.CancelRevenue(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdateParams:
-			res, err := server.UpdateParams(sdk.WrapSDKContext(ctx), msg)
+			res, err := server.UpdateParams(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		default:

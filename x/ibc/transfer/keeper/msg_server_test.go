@@ -277,7 +277,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			)
 			msg := tc.malleate()
 
-			_, err = suite.app.TransferKeeper.Transfer(sdk.WrapSDKContext(suite.ctx), msg)
+			_, err = suite.app.TransferKeeper.Transfer(suite.ctx, msg)
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {

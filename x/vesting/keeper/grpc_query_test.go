@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/evmos/v15/testutil"
@@ -89,7 +88,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 					vestingAddr,
 					false,
 				)
-				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(sdk.WrapSDKContext(suite.ctx), msg)
+				_, err = suite.app.VestingKeeper.CreateClawbackVestingAccount(suite.ctx, msg)
 				suite.Require().NoError(err, "error while creating the vesting account")
 
 				msgFund := types.NewMsgFundVestingAccount(
@@ -99,7 +98,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 					lockupPeriods,
 					vestingPeriods,
 				)
-				_, err = suite.app.VestingKeeper.FundVestingAccount(sdk.WrapSDKContext(suite.ctx), msgFund)
+				_, err = suite.app.VestingKeeper.FundVestingAccount(suite.ctx, msgFund)
 				suite.Require().NoError(err, "error while funding the vesting account")
 
 				req = &types.QueryBalancesRequest{
@@ -118,7 +117,7 @@ func (suite *KeeperTestSuite) TestBalances() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 			suite.Commit()
 

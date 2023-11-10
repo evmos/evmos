@@ -4,6 +4,8 @@
 package v10
 
 import (
+	"context"
+
 	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +20,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	stakingKeeper stakingkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if err := setMinCommissionRate(ctx, stakingKeeper); err != nil {

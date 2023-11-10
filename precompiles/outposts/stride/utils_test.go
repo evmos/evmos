@@ -16,7 +16,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
@@ -52,7 +52,7 @@ const (
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
+func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
@@ -155,22 +155,22 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	// generate validators private/public key
 	var (
 		validatorsPerChain = 2
-		validators         []*tmtypes.Validator
-		signersByAddress   = make(map[string]tmtypes.PrivValidator, validatorsPerChain)
+		validators         []*cmttypes.Validator
+		signersByAddress   = make(map[string]cmttypes.PrivValidator, validatorsPerChain)
 	)
 
 	for i := 0; i < validatorsPerChain; i++ {
 		privVal := mock.NewPV()
 		pubKey, err := privVal.GetPubKey()
 		s.Require().NoError(err)
-		validators = append(validators, tmtypes.NewValidator(pubKey, 1))
+		validators = append(validators, cmttypes.NewValidator(pubKey, 1))
 		signersByAddress[pubKey.Address().String()] = privVal
 	}
 
 	// construct validator set;
 	// Note that the validators are sorted by voting power
 	// or, if equal, by address lexical order
-	s.valSet = tmtypes.NewValidatorSet(validators)
+	s.valSet = cmttypes.NewValidatorSet(validators)
 
 	// Create a coordinator and 2 test chains that will be used in the testing suite
 	chains := make(map[string]*ibctesting.TestChain)
@@ -194,7 +194,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	}
 }
 
-func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, valSet *tmtypes.ValidatorSet, signers map[string]tmtypes.PrivValidator) *ibctesting.TestChain {
+func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinator, valSet *cmttypes.ValidatorSet, signers map[string]cmttypes.PrivValidator) *ibctesting.TestChain {
 	// generate genesis account
 	addr, priv := evmosutiltx.NewAddrKey()
 	s.privKey = priv

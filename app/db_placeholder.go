@@ -10,7 +10,6 @@ import (
 	"errors"
 
 	storetypes "cosmossdk.io/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // versionDB constant for 'versiondb'
@@ -29,6 +28,6 @@ func (app *Evmos) setupVersionDB(
 	_ map[string]*storetypes.KVStoreKey,
 	_ map[string]*storetypes.TransientStoreKey,
 	_ map[string]*storetypes.MemoryStoreKey,
-) (sdk.MultiStore, error) {
+) (storetypes.MultiStore, error) {
 	return nil, errors.New("versiondb is not supported in this binary")
 }

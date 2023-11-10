@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -66,7 +65,7 @@ func (suite *KeeperTestSuite) TestTokenPairs() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.TokenPairs(ctx, req)
@@ -146,7 +145,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
 
-			ctx := sdk.WrapSDKContext(suite.ctx)
+			ctx := suite.ctx
 			tc.malleate()
 
 			res, err := suite.queryClient.TokenPair(ctx, req)
@@ -161,7 +160,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	expParams := types.DefaultParams()
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})

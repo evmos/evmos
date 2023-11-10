@@ -21,7 +21,7 @@ import (
 
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,17 +31,17 @@ import (
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in
 // EvmosApp testing.
-var EthDefaultConsensusParams = &tmtypes.ConsensusParams{
-	Block: &tmtypes.BlockParams{
+var EthDefaultConsensusParams = &cmttypes.ConsensusParams{
+	Block: &cmttypes.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   -1, // no limit
 	},
-	Evidence: &tmtypes.EvidenceParams{
+	Evidence: &cmttypes.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
 		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
 		MaxBytes:        10000,
 	},
-	Validator: &tmtypes.ValidatorParams{
+	Validator: &cmttypes.ValidatorParams{
 		PubKeyTypes: []string{
 			cmtypes.ABCIPubKeyTypeEd25519,
 		},

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -19,7 +18,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	rsp, _ := suite.queryClient.Params(ctx, &evmtypes.QueryParamsRequest{})
 	return rsp.Params.EvmDenom
 }
@@ -41,7 +40,7 @@ func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner common.Address, supply *big.Int) common.Address {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	ctorArgs, err := evmtypes.ERC20Contract.ABI.Pack("", owner, supply)
@@ -95,7 +94,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 }
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	transferData, err := evmtypes.ERC20Contract.ABI.Pack("transfer", to, amount)
@@ -146,7 +145,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
-	ctx := sdk.WrapSDKContext(suite.ctx)
+	ctx := suite.ctx
 	chainID := suite.app.EvmKeeper.ChainID()
 
 	data := evmtypes.TestMessageCall.Bin
