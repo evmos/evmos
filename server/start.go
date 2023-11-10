@@ -441,7 +441,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 			WithChainID(genDoc.ChainID)
 	}
 
-	grpcSrv, clientCtx, err := startGrpcServer(ctx, g, config.GRPC, clientCtx, svrCtx, app)
+	grpcSrv, clientCtx, err := startGrpcServer(ctx, svrCtx, clientCtx, g, config.GRPC, app)
 	if err != nil {
 		return err
 	}
@@ -449,7 +449,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		defer grpcSrv.GracefulStop()
 	}
 
-	apiSrv, err := startAPIServer(ctx, clientCtx, svrCtx, g, config.Config, app, grpcSrv, metrics)
+	apiSrv, err := startAPIServer(ctx, svrCtx, clientCtx, g, config.Config, app, grpcSrv, metrics)
 	if err != nil {
 		return err
 	}
@@ -482,46 +482,8 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		return g.Wait()
 	}
 
-	var rosettaSrv crgserver.Server
-	if config.Rosetta.Enable {
-		offlineMode := config.Rosetta.Offline
-
-		// If GRPC is not enabled rosetta cannot work in online mode, so it works in
-		// offline mode.
-		if !config.GRPC.Enable {
-			offlineMode = true
-		}
-
-		minGasPrices, err := sdk.ParseDecCoins(config.MinGasPrices)
-		if err != nil {
-			svrCtx.Logger.Error("failed to parse minimum-gas-prices", "error", err.Error())
-			return err
-		}
-
-		conf := &rosetta.Config{
-			Blockchain:          config.Rosetta.Blockchain,
-			Network:             config.Rosetta.Network,
-			TendermintRPC:       svrCtx.Config.RPC.ListenAddress,
-			GRPCEndpoint:        config.GRPC.Address,
-			Addr:                config.Rosetta.Addr,
-			Retries:             config.Rosetta.Retries,
-			Offline:             offlineMode,
-			GasToSuggest:        config.Rosetta.GasToSuggest,
-			EnableFeeSuggestion: config.Rosetta.EnableFeeSuggestion,
-			GasPrices:           minGasPrices.Sort(),
-			Codec:               clientCtx.Codec.(*codec.ProtoCodec),
-			InterfaceRegistry:   clientCtx.InterfaceRegistry,
-		}
-
-		rosettaSrv, err = rosetta.ServerFromConfig(conf)
-		if err != nil {
-			return err
-		}
-
-		g.Go(func() error {
-			return rosettaSrv.Start()
-		})
-
+	if err := startRosettaServer(svrCtx, clientCtx, g, config); err != nil {
+		return err
 	}
 	// wait for signal capture and gracefully return
 	// we are guaranteed to be waiting for the "ListenForQuitSignals" goroutine.
@@ -564,10 +526,10 @@ func getCtx(svrCtx *server.Context, block bool) (*errgroup.Group, context.Contex
 
 func startGrpcServer(
 	ctx context.Context,
+	svrCtx *server.Context,
+	clientCtx client.Context,
 	g *errgroup.Group,
 	config serverconfig.GRPCConfig,
-	clientCtx client.Context,
-	svrCtx *server.Context,
 	app types.Application,
 ) (*grpc.Server, client.Context, error) {
 	if !config.Enable {
@@ -622,8 +584,8 @@ func startGrpcServer(
 
 func startAPIServer(
 	ctx context.Context,
-	clientCtx client.Context,
 	svrCtx *server.Context,
+	clientCtx client.Context,
 	g *errgroup.Group,
 	svrCfg serverconfig.Config,
 	app types.Application,
@@ -673,4 +635,53 @@ func startJSONRPCServer(
 		return err
 	})
 	return
+}
+
+func startRosettaServer(
+	svrCtx *server.Context,
+	clientCtx client.Context,
+	g *errgroup.Group,
+	config config.Config,
+) error {
+	if !config.Rosetta.Enable {
+		return nil
+	}
+	offlineMode := config.Rosetta.Offline
+
+	// If GRPC is not enabled rosetta cannot work in online mode, so it works in
+	// offline mode.
+	if !config.GRPC.Enable {
+		offlineMode = true
+	}
+
+	minGasPrices, err := sdk.ParseDecCoins(config.MinGasPrices)
+	if err != nil {
+		svrCtx.Logger.Error("failed to parse minimum-gas-prices", "error", err.Error())
+		return err
+	}
+
+	conf := &rosetta.Config{
+		Blockchain:          config.Rosetta.Blockchain,
+		Network:             config.Rosetta.Network,
+		TendermintRPC:       svrCtx.Config.RPC.ListenAddress,
+		GRPCEndpoint:        config.GRPC.Address,
+		Addr:                config.Rosetta.Addr,
+		Retries:             config.Rosetta.Retries,
+		Offline:             offlineMode,
+		GasToSuggest:        config.Rosetta.GasToSuggest,
+		EnableFeeSuggestion: config.Rosetta.EnableFeeSuggestion,
+		GasPrices:           minGasPrices.Sort(),
+		Codec:               clientCtx.Codec.(*codec.ProtoCodec),
+		InterfaceRegistry:   clientCtx.InterfaceRegistry,
+	}
+
+	rosettaSrv, err := rosetta.ServerFromConfig(conf)
+	if err != nil {
+		return err
+	}
+
+	g.Go(func() error {
+		return rosettaSrv.Start()
+	})
+	return nil
 }
