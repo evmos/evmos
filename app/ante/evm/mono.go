@@ -9,7 +9,9 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -18,19 +20,25 @@ var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
 // MonoDecorator is a single decorator that handles all the prechecks for
 // ethereum transactions.
 type MonoDecorator struct {
-	accountKeeper   evmtypes.AccountKeeper
-	feeMarketKeeper FeeMarketKeeper
-	evmKeeper       EVMKeeper
+	accountKeeper      evmtypes.AccountKeeper
+	bankKeeper         evmtypes.BankKeeper
+	feeMarketKeeper    FeeMarketKeeper
+	evmKeeper          EVMKeeper
+	distributionKeeper anteutils.DistributionKeeper
+	stakingKeeper      anteutils.StakingKeeper
+	maxGasWanted       uint64
 }
 
 // NewMonoDecorator creates a new MonoDecorator
 func NewMonoDecorator(
 	accountKeeper evmtypes.AccountKeeper,
+	bankKeeper evmtypes.BankKeeper,
 	feeMarketKeeper FeeMarketKeeper,
 	evmKeeper EVMKeeper,
 ) MonoDecorator {
 	return MonoDecorator{
 		accountKeeper:   accountKeeper,
+		bankKeeper:      bankKeeper,
 		feeMarketKeeper: feeMarketKeeper,
 		evmKeeper:       evmKeeper,
 	}
@@ -38,6 +46,8 @@ func NewMonoDecorator(
 
 // AnteHandle handles the entire decorator chain using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
+	accountExpenses := make(map[string]*EthVestingExpenseTracker)
+
 	// 1. setup ctx
 	ctx, err := SetupContext(ctx, tx, md.evmKeeper)
 	if err != nil {
@@ -49,7 +59,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	ethCfg := chainCfg.EthereumConfig(md.evmKeeper.ChainID())
 	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
-	isLondon := evmtypes.IsLondon(ethCfg, ctx.BlockHeight())
+	blockHeight := big.NewInt(ctx.BlockHeight())
+	isLondon := ethCfg.IsLondon(blockHeight)
+	// isHomestead := ethCfg.IsHomestead(blockHeight)
+	// isIstanbul := ethCfg.IsIstanbul(blockHeight)
 
 	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
 	// skip check as the London hard fork and EIP-1559 are enabled
@@ -65,20 +78,26 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		)
 	}
 
-	evmDenom := evmParams.GetEvmDenom()
+	evmDenom := evmParams.EvmDenom
+	// TODO: use AmountOfNoValidation instead
 	mempoolMinGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
 	globalMinGasPrice := md.feeMarketKeeper.GetParams(ctx).MinGasPrice
+	blockTxIndex := md.evmKeeper.GetTxIndexTransient(ctx)
 
-	for _, msg := range tx.GetMsgs() {
+	// Use the lowest priority of all the messages as the final one.
+	// minPriority := int64(math.MaxInt64)
+
+	for i, msg := range tx.GetMsgs() {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
 			return ctx, err
 		}
 
 		feeAmt := txData.Fee()
+		gas := txData.GetGas()
 
 		fee := sdk.NewDecFromBigInt(feeAmt)
-		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
+		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gas))
 		requiredMempoolFee := mempoolMinGasPrice.Mul(gasLimit)
 		requiredGlobalFee := globalMinGasPrice.Mul(gasLimit)
 
@@ -115,7 +134,10 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 6. account balance verification
-		if err := VerifyAccountBalance(ctx, md.accountKeeper, md.evmKeeper, from, txData); err != nil {
+		fromAddr := common.BytesToAddress(from)
+		// // TODO: Use account from AccountKeeper instead
+		account := md.evmKeeper.GetAccount(ctx, fromAddr)
+		if err := VerifyAccountBalance(ctx, md.accountKeeper, account, fromAddr, txData); err != nil {
 			return ctx, err
 		}
 
@@ -131,17 +153,33 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		if err := CanTransfer(ctx, md.evmKeeper, coreMsg, baseFee, ethCfg, evmParams, isLondon); err != nil {
 			return ctx, err
 		}
+
+		// 8. vesting
+		value := txData.GetValue()
+		acc := md.accountKeeper.GetAccount(ctx, from)
+		if acc == nil {
+			// safety check: shouldn't happen
+			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
+				"account %s does not exist", acc)
+		}
+
+		if err := CheckVesting(ctx, md.bankKeeper, acc, accountExpenses, value, evmDenom); err != nil {
+			return ctx, err
+		}
+
+		// 9. gas consumption
+
+		// 10. increment sequence
+		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
+			return ctx, err
+		}
+
+		// 11. gas wanted
+
+		// 12. emit events
+		txIdx := uint64(i) // nosec: G701
+		EmitTxHashEvent(ctx, ethMsg, blockTxIndex, txIdx)
 	}
-
-	// 8. vesting
-
-	// 9. gas consumption
-
-	// 10. increment sequence
-
-	// 11. gas wanted
-
-	// 12. emit events
 
 	return next(ctx, tx, simulate)
 }

@@ -47,7 +47,9 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 			return ctx, err
 		}
 
-		if err := VerifyAccountBalance(ctx, avd.ak, avd.evmKeeper, from, txData); err != nil {
+		fromAddr := common.BytesToAddress(from)
+		account := avd.evmKeeper.GetAccount(ctx, fromAddr)
+		if err := VerifyAccountBalance(ctx, avd.ak, account, fromAddr, txData); err != nil {
 			return ctx, err
 		}
 	}
@@ -57,24 +59,25 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,
-	evmKeeper EVMKeeper,
-	from sdk.AccAddress,
+	account *statedb.Account,
+	from common.Address,
 	txData evmtypes.TxData,
 ) error {
 	// check whether the sender address is EOA
-	fromAddr := common.BytesToAddress(from)
-	acct := evmKeeper.GetAccount(ctx, fromAddr)
-
-	if acct == nil {
-		acc := accountKeeper.NewAccountWithAddress(ctx, from)
-		accountKeeper.SetAccount(ctx, acc)
-		acct = statedb.NewEmptyAccount()
-	} else if acct.IsContract() {
-		return errorsmod.Wrapf(errortypes.ErrInvalidType,
-			"the sender is not EOA: address %s, codeHash <%s>", fromAddr, acct.CodeHash)
+	if account != nil && account.IsContract() {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidType,
+			"the sender is not EOA: address %s", from,
+		)
 	}
 
-	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(acct.Balance), txData); err != nil {
+	if account == nil {
+		acc := accountKeeper.NewAccountWithAddress(ctx, from.Bytes())
+		accountKeeper.SetAccount(ctx, acc)
+		account = statedb.NewEmptyAccount()
+	}
+
+	if err := keeper.CheckSenderBalance(sdkmath.NewIntFromBigInt(account.Balance), txData); err != nil {
 		return errorsmod.Wrap(err, "failed to check sender balance")
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
@@ -44,23 +45,37 @@ func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx s
 				"account %s is nil", common.BytesToAddress(from.Bytes()),
 			)
 		}
-		nonce := acc.GetSequence()
 
-		// we merged the nonce verification to nonce increment, so when tx includes multiple messages
-		// with same sender, they'll be accepted.
-		if txData.GetNonce() != nonce {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrInvalidSequence,
-				"invalid nonce; got %d, expected %d", txData.GetNonce(), nonce,
-			)
+		if err := IncrementNonce(ctx, issd.ak, acc, txData.GetNonce()); err != nil {
+			return ctx, err
 		}
-
-		if err := acc.SetSequence(nonce + 1); err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to set sequence to %d", acc.GetSequence()+1)
-		}
-
-		issd.ak.SetAccount(ctx, acc)
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+func IncrementNonce(
+	ctx sdk.Context,
+	accountKeeper evmtypes.AccountKeeper,
+	account authtypes.AccountI,
+	txNonce uint64,
+) error {
+	nonce := account.GetSequence()
+	// we merged the nonce verification to nonce increment, so when tx includes multiple messages
+	// with same sender, they'll be accepted.
+	if txNonce != nonce {
+		return errorsmod.Wrapf(
+			errortypes.ErrInvalidSequence,
+			"invalid nonce; got %d, expected %d", txNonce, nonce,
+		)
+	}
+
+	nonce++
+
+	if err := account.SetSequence(nonce); err != nil {
+		return errorsmod.Wrapf(err, "failed to set sequence to %d", nonce)
+	}
+
+	accountKeeper.SetAccount(ctx, account)
+	return nil
 }

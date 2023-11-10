@@ -109,7 +109,15 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 			return ctx, errorsmod.Wrapf(err, "failed to verify the fees")
 		}
 
-		if err = egcd.deductFee(ctx, fees, from); err != nil {
+		if err = DeductFee(
+			ctx,
+			egcd.bankKeeper,
+			egcd.distributionKeeper,
+			egcd.evmKeeper,
+			egcd.stakingKeeper,
+			fees,
+			from,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -161,17 +169,25 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
 // If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
-func (egcd EthGasConsumeDecorator) deductFee(ctx sdk.Context, fees sdk.Coins, feePayer sdk.AccAddress) error {
+func DeductFee(
+	ctx sdk.Context,
+	bankKeeper anteutils.BankKeeper,
+	distributionKeeper anteutils.DistributionKeeper,
+	evmKeeper EVMKeeper,
+	stakingKeeper anteutils.StakingKeeper,
+	fees sdk.Coins,
+	feePayer sdk.AccAddress,
+) error {
 	if fees.IsZero() {
 		return nil
 	}
 
 	// If the account balance is not sufficient, try to withdraw enough staking rewards
-	if err := anteutils.ClaimStakingRewardsIfNecessary(ctx, egcd.bankKeeper, egcd.distributionKeeper, egcd.stakingKeeper, feePayer, fees); err != nil {
+	if err := anteutils.ClaimStakingRewardsIfNecessary(ctx, bankKeeper, distributionKeeper, stakingKeeper, feePayer, fees); err != nil {
 		return err
 	}
 
-	if err := egcd.evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.BytesToAddress(feePayer)); err != nil {
+	if err := evmKeeper.DeductTxCostsFromUserBalance(ctx, fees, common.BytesToAddress(feePayer)); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
 	return nil
