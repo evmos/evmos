@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/x/evm/types"
+	"golang.org/x/exp/slices"
 )
 
 // GetParams returns the total set of evm parameters.
@@ -23,6 +24,10 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 
 // SetParams sets the EVM params each in their individual key for better get performance
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
+	// NOTE: We need to sort the precompiles in order to enable searching with binary search
+	// in params.IsActivePrecompile.
+	slices.Sort(params.ActivePrecompiles)
+
 	if err := params.Validate(); err != nil {
 		return err
 	}
