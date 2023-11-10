@@ -240,7 +240,8 @@ func DefaultConfig() *Config {
 		EVM:     *DefaultEVMConfig(),
 		JSONRPC: *DefaultJSONRPCConfig(),
 		TLS:     *DefaultTLSConfig(),
-		MemIAVL: *DefaultMemIAVLConfig(),
+		// NOT SUPPORTED ON SDK v0.50
+		// MemIAVL: *DefaultMemIAVLConfig(),
 	}
 }
 
@@ -421,9 +422,10 @@ func (c Config) ValidateBasic() error {
 		return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid tls config value: %s", err.Error())
 	}
 
-	if err := c.MemIAVL.Validate(); err != nil {
-		return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid memIAVL config value: %s", err.Error())
-	}
+	// NOT SUPPORTED ON SDK v0.50
+	// if err := c.MemIAVL.Validate(); err != nil {
+	// 	return errorsmod.Wrapf(errortypes.ErrAppConfig, "invalid memIAVL config value: %s", err.Error())
+	// }
 
 	return c.Config.ValidateBasic()
 }
