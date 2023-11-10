@@ -9,6 +9,7 @@ import (
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -17,7 +18,6 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
@@ -54,7 +54,7 @@ type Precompile struct {
 	osmosisXCSContract string
 
 	// Keepers
-	bankKeeper     erc20types.BankKeeper
+	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -65,7 +65,7 @@ type Precompile struct {
 func NewPrecompile(
 	portID, channelID string,
 	osmosisXCSContract string,
-	bankKeeper erc20types.BankKeeper,
+	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
