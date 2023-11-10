@@ -142,13 +142,26 @@ func (_m *EVMKeeper) GetParams(ctx types.Context) evmtypes.Params {
 	return r0
 }
 
+// IsAvailablePrecompile provides a mock function with given fields: addr
+func (_m *EVMKeeper) IsAvailablePrecompile(addr common.Address) bool {
+	ret := _m.Called(addr)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(common.Address) bool); ok {
+		r0 = rf(addr)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // NewEVMKeeper creates a new instance of EVMKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *EVMKeeper {
+}) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 
