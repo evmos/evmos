@@ -3,7 +3,7 @@
 The mocks in this folder have been generated using the [mockery](https://vektra.github.io/mockery/latest/) tool.
 To regenerate the mocks, run the following commands:
 
-- `BankKeeper`:
+- `BankKeeper` (from used version of Cosmos SDK):
 
 ```bash
 git clone https://github.com/evmos/cosmos-sdk.git
