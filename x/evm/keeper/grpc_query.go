@@ -108,9 +108,9 @@ func (k Keeper) ValidatorAccount(c context.Context, req *types.QueryValidatorAcc
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	validator, found := k.stakingKeeper.GetValidatorByConsAddr(ctx, consAddr)
-	if !found {
-		return nil, fmt.Errorf("validator not found for %s", consAddr.String())
+	validator, err := k.stakingKeeper.GetValidatorByConsAddr(ctx, consAddr)
+	if err != nil {
+		return nil, fmt.Errorf("error while getting validator %s. %w", consAddr.String(), err)
 	}
 
 	accAddr := sdk.AccAddress(validator.GetOperator())
@@ -301,7 +301,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	} else {
 		// Query block gas limit
 		params := ctx.ConsensusParams()
-		if params != nil && params.Block != nil && params.Block.MaxGas > 0 {
+		if params.Block != nil && params.Block.MaxGas > 0 {
 			hi = uint64(params.Block.MaxGas)
 		} else {
 			hi = req.GasCap
@@ -325,7 +325,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	nonce := k.GetNonce(ctx, args.GetFrom())
 	args.Nonce = (*hexutil.Uint64)(&nonce)
 
-	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
+	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash()))
 
 	// convert the tx args to an ethereum message
 	msg, err := args.ToMessage(req.GasCap, cfg.BaseFee)
@@ -440,7 +440,7 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
 
 	// to get the base fee we only need the block max gas in the consensus params
-	ctx = ctx.WithConsensusParams(&tmproto.ConsensusParams{
+	ctx = ctx.WithConsensusParams(tmproto.ConsensusParams{
 		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
@@ -461,7 +461,7 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 
 	signer := ethtypes.MakeSigner(cfg.ChainConfig, big.NewInt(ctx.BlockHeight()))
 
-	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
+	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash()))
 
 	// gas used at this point corresponds to GetProposerAddress & CalculateBaseFee
 	// need to reset gas meter per transaction to be consistent with tx execution
@@ -537,7 +537,7 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	ctx = ctx.WithHeaderHash(common.Hex2Bytes(req.BlockHash))
 
 	// to get the base fee we only need the block max gas in the consensus params
-	ctx = ctx.WithConsensusParams(&tmproto.ConsensusParams{
+	ctx = ctx.WithConsensusParams(tmproto.ConsensusParams{
 		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
@@ -561,7 +561,7 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 	txsLength := len(req.Txs)
 	results := make([]*types.TxTraceResult, 0, txsLength)
 
-	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes()))
+	txConfig := statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash()))
 
 	for i, tx := range req.Txs {
 		result := types.TxTraceResult{}

@@ -11,9 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v15/x/vesting/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
-
+	"github.com/evmos/evmos/v15/x/vesting/types"
 )
 
 // Keeper of this module maintains collections of vesting.

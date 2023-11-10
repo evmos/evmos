@@ -77,4 +77,3 @@ type StakingKeeper interface {
 type DistributionKeeper interface {
 	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
-

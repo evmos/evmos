@@ -172,7 +172,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash())))
 
 	// bond denom
 	stakingParams, err := s.app.StakingKeeper.GetParams(s.ctx)

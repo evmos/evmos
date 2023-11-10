@@ -12,7 +12,7 @@ func (suite *KeeperTestSuite) TestNewKeeper() {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
-	storeKey := sdk.NewKVStoreKey(vestingtypes.StoreKey)
+	storeKey := storetypes.NewKVStoreKeys(vestingtypes.StoreKey)
 
 	testcases := []struct {
 		name      string

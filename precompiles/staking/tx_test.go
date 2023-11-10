@@ -310,7 +310,8 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				s.Require().NoError(err)
 				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 				// Check the event emitted
@@ -334,7 +335,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 			bz, err := s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
 			// query the unbonding delegations in the staking keeper
-			undelegations := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
+			undelegations, _ := s.app.StakingKeeper.GetAllUnbondingDelegations(s.ctx, s.address.Bytes())
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -459,7 +460,8 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().Len(args, 1)
 				completionTime, ok := args[0].(int64)
 				s.Require().True(ok, "completion time type %T", args[0])
-				params := s.app.StakingKeeper.GetParams(s.ctx)
+				params, err := s.app.StakingKeeper.GetParams(s.ctx)
+				s.Require().NoError(err)
 				expCompletionTime := s.ctx.BlockTime().Add(params.UnbondingTime).UTC().Unix()
 				s.Require().Equal(expCompletionTime, completionTime)
 			},

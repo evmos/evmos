@@ -725,7 +725,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			vmdb := statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewTxConfig(
-				common.BytesToHash(suite.ctx.HeaderHash().Bytes()),
+				common.BytesToHash(suite.ctx.HeaderHash()),
 				tc.hash,
 				0, 0,
 			))

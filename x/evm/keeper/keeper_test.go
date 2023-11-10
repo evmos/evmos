@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/x/evm/keeper"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
