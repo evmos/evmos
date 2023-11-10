@@ -97,8 +97,8 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			postCheck: func() {
 				// Check that active precompiles contain the already registered precompile
 				// as well as the other token pair
-				expPrecompiles := append(evmtypes.AvailableEVMExtensions, tokenPair.Erc20Address, otherTokenPair.Erc20Address)
-				slices.Sort(expPrecompiles) // NOTE: the precompiles are sorted so we need to sort the expected slice as well
+				expPrecompiles := append(evmtypes.AvailableEVMExtensions, tokenPair.Erc20Address, otherTokenPair.Erc20Address) //nolint:gocritic // Okay not to store to same slice here after appending
+				slices.Sort(expPrecompiles)                                                                                    // NOTE: the precompiles are sorted so we need to sort the expected slice as well
 
 				suite.requireActivePrecompiles(expPrecompiles)
 			},
