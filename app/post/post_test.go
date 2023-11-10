@@ -4,15 +4,14 @@
 package post_test
 
 import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/evmos/evmos/v15/app/post"
 )
 
-func (s *PostTestSuite) TestValidateHandlerOptions() {
-	// t.Parallel()
-
-	validBankKeeper := s.network.App.BankKeeper
-	validFeeCollector := "fee_collector"
+func (s *PostTestSuite) TestBurnDecorator() {
+	validBankKeeper := s.unitNetwork.App.BankKeeper
+	validFeeCollector := authtypes.FeeCollectorName
 
 	testCases := []struct {
 		name         string
@@ -49,7 +48,7 @@ func (s *PostTestSuite) TestValidateHandlerOptions() {
 		s.SetupTest()
 		s.Run(tc.name, func() {
 			// start each test with a fresh new block.
-			err := s.network.NextBlock()
+			err := s.unitNetwork.NextBlock()
 			s.Require().NoError(err)
 
 			handlerOptions := post.HandlerOptions{
