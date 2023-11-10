@@ -25,6 +25,7 @@ import (
 
 	abciserver "github.com/cometbft/cometbft/abci/server"
 	tcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+	cmtcfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/node"
 	"github.com/cometbft/cometbft/p2p"
 	pvm "github.com/cometbft/cometbft/privval"
@@ -145,13 +146,11 @@ which accepts a path for the resulting pprof file.
 			serverCtx.Logger.Info("starting ABCI with Tendermint")
 
 			// amino is needed here for backwards compatibility of REST routes
-			err = startInProcess(serverCtx, clientCtx, opts)
-			errCode, ok := err.(server.ErrorCode)
-			if !ok {
+			if err := startInProcess(serverCtx, clientCtx, opts); err != nil {
 				return err
 			}
 
-			serverCtx.Logger.Debug(fmt.Sprintf("received quit signal: %d", errCode.Code))
+			serverCtx.Logger.Debug(fmt.Sprintf("received quit signal: %w", err))
 			return nil
 		},
 	}
@@ -364,13 +363,14 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	} else {
 		logger.Info("starting node with ABCI Tendermint in-process")
 
+		cmtApp := server.NewCometABCIWrapper(app)
 		tmNode, err = node.NewNode(
 			cfg,
 			pvm.LoadOrGenFilePV(cfg.PrivValidatorKeyFile(), cfg.PrivValidatorStateFile()),
 			nodeKey,
-			proxy.NewLocalClientCreator(app),
+			proxy.NewLocalClientCreator(cmtApp),
 			genDocProvider,
-			node.DefaultDBProvider,
+			cmtcfg.DefaultDBProvider,
 			node.DefaultMetricsProvider(cfg.Instrumentation),
 			servercmtlog.CometLoggerWrapper{Logger: svrCtx.Logger.With("server", "node")},
 		)
@@ -503,7 +503,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 			Network:             config.Rosetta.Network,
 			TendermintRPC:       svrCtx.Config.RPC.ListenAddress,
 			GRPCEndpoint:        config.GRPC.Address,
-			Addr:                config.Rosetta.Address,
+			Addr:                config.Rosetta.Addr,
 			Retries:             config.Rosetta.Retries,
 			Offline:             offlineMode,
 			GasToSuggest:        config.Rosetta.GasToSuggest,

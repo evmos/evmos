@@ -13,7 +13,10 @@ import (
 	"github.com/cometbft/cometbft/libs/strings"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
+	"cosmossdk.io/tools/rosetta"
 	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	// NOT SUPPORTED IN SDK v0.50
 	// "github.com/crypto-org-chain/cronos/memiavl"
@@ -96,6 +99,18 @@ const (
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	DefaultGasAdjustment = 1.2
 
+	// DefaultRosettaBlockchain defines the default blockchain name for the rosetta server
+	DefaultRosettaBlockchain = "evmos"
+
+	// DefaultRosettaNetwork defines the default network name for the rosetta server
+	DefaultRosettaNetwork = "evmos"
+
+	// DefaultRosettaGasToSuggest defines the default gas to suggest for the rosetta server
+	DefaultRosettaGasToSuggest = 300_000
+
+	// DefaultRosettaDenomToSuggest defines the default denom for fee suggestion
+	DefaultRosettaDenomToSuggest = "aevmos"
+
 	// ============================
 	//           MemIAVL
 	// ============================
@@ -118,6 +133,9 @@ const (
 	DefaultSnapshotKeepRecent = 1
 )
 
+// DefaultRosettaGasPrices defines the default list of prices to suggest
+var DefaultRosettaGasPrices = sdk.NewDecCoins(sdk.NewDecCoin(DefaultRosettaDenomToSuggest, math.NewInt(4_000_000)))
+
 var evmTracers = []string{"json", "markdown", "struct", "access_list"}
 
 // Config defines the server's top level configuration. It includes the default app config
@@ -128,6 +146,7 @@ type Config struct {
 	EVM     EVMConfig     `mapstructure:"evm"`
 	JSONRPC JSONRPCConfig `mapstructure:"json-rpc"`
 	TLS     TLSConfig     `mapstructure:"tls"`
+	Rosetta RosettaConfig `mapstructure:"rosetta"`
 
 	// NOT SUPPORTED IN SDK v0.50
 	// MemIAVL MemIAVLConfig `mapstructure:"memiavl"`
@@ -192,6 +211,13 @@ type TLSConfig struct {
 	KeyPath string `mapstructure:"key-path"`
 }
 
+// RosettaConfig defines configuration for the Rosetta server.
+type RosettaConfig struct {
+	rosetta.Config
+	// Enable defines if the Rosetta server should be enabled.
+	Enable bool `mapstructure:"enable"`
+}
+
 // NOT SUPPORTED IN SDK v0.50
 // // MemIAVLConfig defines the configuration for memIAVL.
 // type MemIAVLConfig struct {
@@ -232,7 +258,6 @@ func DefaultConfig() *Config {
 	defaultSDKConfig.API.Enable = DefaultAPIEnable
 	defaultSDKConfig.GRPC.Enable = DefaultGRPCEnable
 	defaultSDKConfig.GRPCWeb.Enable = DefaultGRPCWebEnable
-	defaultSDKConfig.Rosetta.Enable = DefaultRosettaEnable
 	defaultSDKConfig.Telemetry.Enabled = DefaultTelemetryEnable
 
 	return &Config{
@@ -240,6 +265,7 @@ func DefaultConfig() *Config {
 		EVM:     *DefaultEVMConfig(),
 		JSONRPC: *DefaultJSONRPCConfig(),
 		TLS:     *DefaultTLSConfig(),
+		Rosetta: *DefaultRosettaConfig(),
 		// NOT SUPPORTED ON SDK v0.50
 		// MemIAVL: *DefaultMemIAVLConfig(),
 	}
@@ -370,6 +396,26 @@ func (c TLSConfig) Validate() error {
 	}
 
 	return nil
+}
+
+// DefaultEVMConfig returns the default EVM configuration
+func DefaultRosettaConfig() *RosettaConfig {
+	return &RosettaConfig{
+		Config: rosetta.Config{
+			Blockchain:          DefaultRosettaBlockchain,
+			Network:             DefaultRosettaNetwork,
+			TendermintRPC:       rosetta.DefaultTendermintEndpoint,
+			GRPCEndpoint:        rosetta.DefaultGRPCEndpoint,
+			Addr:                rosetta.DefaultAddr,
+			Retries:             rosetta.DefaultRetries,
+			Offline:             rosetta.DefaultOffline,
+			EnableFeeSuggestion: rosetta.DefaultEnableFeeSuggestion,
+			GasToSuggest:        DefaultRosettaGasToSuggest,
+			DenomToSuggest:      DefaultRosettaDenomToSuggest,
+			GasPrices:           DefaultRosettaGasPrices,
+		},
+		Enable: DefaultRosettaEnable,
+	}
 }
 
 // NOT SUPPORTED IN SDK v0.50
