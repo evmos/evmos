@@ -126,6 +126,11 @@
 		"name": "swap",
 		"outputs": [
 			{
+				"internalType": "uint64",
+				"name": "nextSequence",
+				"type": "uint64"
+			},
+			{
 				"internalType": "bool",
 				"name": "success",
 				"type": "bool"

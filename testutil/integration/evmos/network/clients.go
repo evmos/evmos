@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -13,7 +14,7 @@ import (
 	"github.com/evmos/evmos/v15/encoding"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 )
 
@@ -60,6 +61,12 @@ func (n *IntegrationNetwork) GetAuthClient() authtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	authtypes.RegisterQueryServer(queryHelper, n.app.AccountKeeper)
 	return authtypes.NewQueryClient(queryHelper)
+}
+
+func (n *IntegrationNetwork) GetAuthzClient() authz.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	authz.RegisterQueryServer(queryHelper, n.app.AuthzKeeper)
+	return authz.NewQueryClient(queryHelper)
 }
 
 func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
