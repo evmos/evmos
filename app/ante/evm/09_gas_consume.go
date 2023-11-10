@@ -81,7 +81,6 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	homestead := ethCfg.IsHomestead(blockHeight)
 	istanbul := ethCfg.IsIstanbul(blockHeight)
-	var events sdk.Events
 
 	// Use the lowest priority of all the messages as the final one.
 	minPriority := int64(math.MaxInt64)
@@ -115,35 +114,11 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 		}
 	}
 
-	ctx.EventManager().EmitEvents(events)
-
-	blockGasLimit := types.BlockGasLimit(ctx)
-
-	// return error if the tx gas is greater than the block limit (max gas)
-
-	// NOTE: it's important here to use the gas wanted instead of the gas consumed
-	// from the tx gas pool. The latter only has the value so far since the
-	// EthSetupContextDecorator, so it will never exceed the block gas limit.
-	if gasWanted > blockGasLimit {
-		return ctx, errorsmod.Wrapf(
-			errortypes.ErrOutOfGas,
-			"tx gas (%d) exceeds block gas limit (%d)",
-			gasWanted,
-			blockGasLimit,
-		)
+	newCtx, err := CheckBlockGasLimit(ctx, gasWanted, minPriority)
+	if err != nil {
+		return ctx, err
 	}
 
-	// Set tx GasMeter with a limit of GasWanted (i.e. gas limit from the Ethereum tx).
-	// The gas consumed will be then reset to the gas used by the state transition
-	// in the EVM.
-
-	// FIXME: use a custom gas configuration that doesn't add any additional gas and only
-	// takes into account the gas consumed at the end of the EVM transaction.
-	newCtx := ctx.
-		WithGasMeter(types.NewInfiniteGasMeterWithLimit(gasWanted)).
-		WithPriority(minPriority)
-
-	// we know that we have enough gas on the pool to cover the intrinsic gas
 	return next(newCtx, tx, simulate)
 }
 
@@ -231,4 +206,35 @@ func DeductFee(
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
 	return nil
+}
+
+// TODO: (@fedekunze) Why is this necessary? This seems to be a duplicate from the CheckGasWanted function.
+func CheckBlockGasLimit(ctx sdk.Context, gasWanted uint64, minPriority int64) (sdk.Context, error) {
+	blockGasLimit := types.BlockGasLimit(ctx)
+
+	// return error if the tx gas is greater than the block limit (max gas)
+
+	// NOTE: it's important here to use the gas wanted instead of the gas consumed
+	// from the tx gas pool. The latter only has the value so far since the
+	// EthSetupContextDecorator, so it will never exceed the block gas limit.
+	if gasWanted > blockGasLimit {
+		return ctx, errorsmod.Wrapf(
+			errortypes.ErrOutOfGas,
+			"tx gas (%d) exceeds block gas limit (%d)",
+			gasWanted,
+			blockGasLimit,
+		)
+	}
+
+	// Set tx GasMeter with a limit of GasWanted (i.e. gas limit from the Ethereum tx).
+	// The gas consumed will be then reset to the gas used by the state transition
+	// in the EVM.
+
+	// FIXME: use a custom gas configuration that doesn't add any additional gas and only
+	// takes into account the gas consumed at the end of the EVM transaction.
+	ctx = ctx.
+		WithGasMeter(types.NewInfiniteGasMeterWithLimit(gasWanted)).
+		WithPriority(minPriority)
+
+	return ctx, nil
 }

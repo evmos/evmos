@@ -13,6 +13,20 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
+func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
+	return sdk.ChainAnteDecorators(
+		evmante.NewMonoDecorator(
+			options.AccountKeeper,
+			options.BankKeeper,
+			options.FeeMarketKeeper,
+			options.EvmKeeper,
+			options.DistributionKeeper,
+			options.StakingKeeper,
+			options.MaxTxGasWanted,
+		),
+	)
+}
+
 // newEVMAnteHandler creates the default ante handler for Ethereum transactions
 func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(

@@ -8,6 +8,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -37,12 +38,18 @@ func NewMonoDecorator(
 	bankKeeper evmtypes.BankKeeper,
 	feeMarketKeeper FeeMarketKeeper,
 	evmKeeper EVMKeeper,
+	distributionKeeper anteutils.DistributionKeeper,
+	stakingKeeper anteutils.StakingKeeper,
+	maxGasWanted uint64,
 ) MonoDecorator {
 	return MonoDecorator{
-		accountKeeper:   accountKeeper,
-		bankKeeper:      bankKeeper,
-		feeMarketKeeper: feeMarketKeeper,
-		evmKeeper:       evmKeeper,
+		accountKeeper:      accountKeeper,
+		bankKeeper:         bankKeeper,
+		feeMarketKeeper:    feeMarketKeeper,
+		evmKeeper:          evmKeeper,
+		distributionKeeper: distributionKeeper,
+		stakingKeeper:      stakingKeeper,
+		maxGasWanted:       maxGasWanted,
 	}
 }
 
@@ -75,11 +82,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	isIstanbul := ethCfg.IsIstanbul(blockHeight)
 
 	baseFee := md.evmKeeper.GetBaseFee(ctx, ethCfg)
-	// skip check as the London hard fork and EIP-1559 are enabled
-	if baseFee != nil {
-		// FIXME: skip to the next sub handler
-		return next(ctx, tx, simulate)
-	}
 
 	if isLondon && baseFee == nil {
 		return ctx, errorsmod.Wrap(
@@ -108,34 +110,24 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		feeAmt := txData.Fee()
 		gas := txData.GetGas()
-
-		fee := sdk.NewDecFromBigInt(feeAmt)
-		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gas))
-		requiredMempoolFee := mempoolMinGasPrice.Mul(gasLimit)
-		requiredGlobalFee := globalMinGasPrice.Mul(gasLimit)
+		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
+		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
 		// 2. mempool inclusion fee
-		if ctx.IsCheckTx() && !simulate && fee.LT(requiredMempoolFee) {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrInsufficientFee,
-				"insufficient mempool inclusion fee; got: %s required: %s",
-				fee.TruncateInt().String(), requiredMempoolFee.TruncateInt().String(),
-			)
+		if ctx.IsCheckTx() && !simulate {
+			if err := CheckMempoolFee(fee, mempoolMinGasPrice, gasLimit, isLondon); err != nil {
+				return ctx, err
+			}
 		}
 
 		// 3. min gas price (global min fee)
-
-		if txData.TxType() != ethtypes.LegacyTxType {
+		if baseFee != nil && txData.TxType() != ethtypes.LegacyTxType {
 			feeAmt = txData.EffectiveFee(baseFee)
-			fee = sdk.NewDecFromBigInt(feeAmt)
+			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
 
-		if requiredGlobalFee.IsPositive() && fee.LT(requiredGlobalFee) {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrInsufficientFee,
-				"provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", //nolint:lll
-				fee.TruncateInt().String(), requiredGlobalFee.TruncateInt().String(),
-			)
+		if err := CheckGlobalFee(fee, globalMinGasPrice, gasLimit); err != nil {
+			return ctx, err
 		}
 
 		// 4. validate basic
@@ -237,6 +229,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	if err := CheckTxFee(txFeeInfo, txFee, txGasLimit); err != nil {
+		return ctx, err
+	}
+
+	ctx, err = CheckBlockGasLimit(ctx, gasWanted, minPriority)
+	if err != nil {
 		return ctx, err
 	}
 

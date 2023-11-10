@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -50,14 +51,6 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			return ctx, err
 		}
 
-		// For dynamic transactions, GetFee() uses the GasFeeCap value, which
-		// is the maximum gas price that the signer can pay. In practice, the
-		// signer can pay less, if the block's BaseFee is lower. So, in this case,
-		// we use the EffectiveFee. If the feemarket formula results in a BaseFee
-		// that lowers EffectivePrice until it is < MinGasPrices, the users must
-		// increase the GasTipCap (priority fee) until EffectivePrice > MinGasPrices.
-		// Transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee are rejected
-		// by the feemarket AnteHandle
 		feeAmt := txData.Fee()
 
 		if txData.TxType() != ethtypes.LegacyTxType {
@@ -65,18 +58,38 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 		}
 
 		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
+		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
 
-		requiredFee := minGasPrice.Mul(gasLimit)
-		fee := sdk.NewDecFromBigInt(feeAmt)
-
-		if fee.LT(requiredFee) {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrInsufficientFee,
-				"provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", //nolint:lll
-				fee.TruncateInt().String(), requiredFee.TruncateInt().String(),
-			)
+		if err := CheckGlobalFee(fee, minGasPrice, gasLimit); err != nil {
+			return ctx, err
 		}
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// For dynamic transactions, GetFee() uses the GasFeeCap value, which
+// is the maximum gas price that the signer can pay. In practice, the
+// signer can pay less, if the block's BaseFee is lower. So, in this case,
+// we use the EffectiveFee. If the feemarket formula results in a BaseFee
+// that lowers EffectivePrice until it is < MinGasPrices, the users must
+// increase the GasTipCap (priority fee) until EffectivePrice > MinGasPrices.
+// Transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee are rejected
+// by the feemarket AnteHandle
+func CheckGlobalFee(fee, globalMinGasPrice, gasLimit sdkmath.LegacyDec) error {
+	if globalMinGasPrice.IsZero() {
+		return nil
+	}
+
+	requiredFee := globalMinGasPrice.Mul(gasLimit)
+
+	if fee.LT(requiredFee) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInsufficientFee,
+			"provided fee < minimum global fee (%s < %s). Please increase the priority tip (for EIP-1559 txs) or the gas prices (for access list or legacy txs)", //nolint:lll
+			fee.TruncateInt().String(), requiredFee.TruncateInt().String(),
+		)
+	}
+
+	return nil
 }

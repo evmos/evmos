@@ -4,6 +4,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -34,13 +35,14 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	if !ctx.IsCheckTx() || simulate {
 		return next(ctx, tx, simulate)
 	}
+
 	evmParams := mfd.evmKeeper.GetParams(ctx)
 	chainCfg := evmParams.GetChainConfig()
 	ethCfg := chainCfg.EthereumConfig(mfd.evmKeeper.ChainID())
+	isLondon := ethCfg.IsLondon(big.NewInt(ctx.BlockHeight()))
 
-	baseFee := mfd.evmKeeper.GetBaseFee(ctx, ethCfg)
 	// skip check as the London hard fork and EIP-1559 are enabled
-	if baseFee != nil {
+	if isLondon {
 		return next(ctx, tx, simulate)
 	}
 
@@ -48,23 +50,36 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	minGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
 
 	for _, msg := range tx.GetMsgs() {
-		ethMsg, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
+		_, txData, _, err := evmtypes.UnpackEthMsg(msg)
+		if err != nil {
+			return ctx, err
 		}
 
-		fee := sdk.NewDecFromBigInt(ethMsg.GetFee())
-		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(ethMsg.GetGas()))
-		requiredFee := minGasPrice.Mul(gasLimit)
+		gasLimit := sdkmath.LegacyNewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
+		fee := sdkmath.LegacyNewDecFromBigInt(txData.Fee())
 
-		if fee.LT(requiredFee) {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrInsufficientFee,
-				"insufficient fee; got: %s required: %s",
-				fee, requiredFee,
-			)
+		if err := CheckMempoolFee(fee, minGasPrice, gasLimit, isLondon); err != nil {
+			return ctx, err
 		}
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+func CheckMempoolFee(fee, mempoolMinGasPrice, gasLimit sdkmath.LegacyDec, isLondon bool) error {
+	if isLondon {
+		return nil
+	}
+
+	requiredFee := mempoolMinGasPrice.Mul(gasLimit)
+
+	if fee.LT(requiredFee) {
+		return errorsmod.Wrapf(
+			errortypes.ErrInsufficientFee,
+			"insufficient fee; got: %s required: %s",
+			fee, requiredFee,
+		)
+	}
+
+	return nil
 }
