@@ -161,7 +161,8 @@ func (_m *EVMKeeper) IsAvailablePrecompile(addr common.Address) bool {
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMKeeper {
+},
+) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 
