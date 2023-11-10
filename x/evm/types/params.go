@@ -197,7 +197,7 @@ func ValidatePrecompiles(i interface{}) error {
 
 	seenPrecompiles := make(map[string]struct{})
 	for _, precompile := range precompiles {
-		if _, ok := seenPrecompiles[precompile]; !ok {
+		if _, ok := seenPrecompiles[precompile]; ok {
 			return fmt.Errorf("duplicate precompile %s", precompile)
 		}
 
