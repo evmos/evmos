@@ -8,7 +8,7 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 )
 
-func (s *KeeperTestSuite) TestIsAvailablePrecompile() {
+func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
 	testcases := []struct {
 		name         string
 		address      common.Address
@@ -29,11 +29,11 @@ func (s *KeeperTestSuite) TestIsAvailablePrecompile() {
 	for _, tc := range testcases {
 		tc := tc
 
-		s.Run(tc.name, func() {
-			s.SetupTest()
+		suite.Run(tc.name, func() {
+			suite.SetupTest()
 
-			available := s.app.EvmKeeper.IsAvailablePrecompile(tc.address)
-			s.Require().Equal(tc.expAvailable, available)
+			available := suite.app.EvmKeeper.IsAvailablePrecompile(tc.address)
+			suite.Require().Equal(tc.expAvailable, available)
 		})
 	}
 }
