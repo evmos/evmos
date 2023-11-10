@@ -14,7 +14,6 @@ import (
 )
 
 func (s *PostTestSuite) TestPostHandle() {
-
 	// from := s.keyring.GetAddr(1)
 	from := utiltx.GenerateAddress()
 	to := utiltx.GenerateAddress()
@@ -60,7 +59,6 @@ func (s *PostTestSuite) TestPostHandle() {
 		// test but it is still a good practice.
 		s.SetupTest()
 		s.Run(tc.name, func() {
-
 			// start each test with a fresh new block.
 			err := s.unitNetwork.NextBlock()
 			s.Require().NoError(err)
