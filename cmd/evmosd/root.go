@@ -358,7 +358,7 @@ func (a appCreator) appExport(
 }
 
 // initTendermintConfig helps to override default Tendermint Config values.
-// return tmcfg.DefaultConfig if no custom configuration is required for the application.
+// return cmtcfg.DefaultConfig if no custom configuration is required for the application.
 func initTendermintConfig() *cmtcfg.Config {
 	cfg := cmtcfg.DefaultConfig()
 	cfg.Consensus.TimeoutCommit = time.Second * 3

@@ -13,6 +13,7 @@ import (
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 
+	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -259,7 +260,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
-		T:              s.T(),
+		TB:              s.T(),
 		Coordinator:    coord,
 		ChainID:        cmn.DefaultChainID,
 		App:            s.app,
@@ -315,10 +316,11 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().NoError(err)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
-	validators := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	validators, err := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	s.Require().NoError(err)
 	cons, err := validators[0].GetConsAddr()
 	s.Require().NoError(err)
-	s.chainA.CurrentHeader.ProposerAddress = cons.Bytes()
+	s.chainA.CurrentHeader.ProposerAddress = cons
 
 	err = s.app.StakingKeeper.SetValidatorByConsAddr(s.chainA.GetContext(), validators[0])
 	s.Require().NoError(err)
@@ -346,7 +348,9 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 // registerStrideCoinERC20 registers stEvmos and Evmos coin as an ERC20 token
 func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	// Register EVMOS ERC20 equivalent
-	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
+	bondDenom, err := s.app.StakingKeeper.BondDenom(s.ctx)
+	s.Require().NoError(err)
+
 	evmosMetadata := banktypes.Metadata{
 		Description: "The native token of Evmos",
 		Base:        bondDenom,
@@ -368,7 +372,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	}
 
 	coin := sdk.NewCoin(evmosMetadata.Base, math.NewInt(2e18))
-	err := s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
+	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
 	// Register some Token Pairs

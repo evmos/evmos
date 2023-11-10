@@ -20,11 +20,11 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	tmcfg "github.com/cometbft/cometbft/config"
-	tmflags "github.com/cometbft/cometbft/libs/cli/flags"
+	cmtcfg "github.com/cometbft/cometbft/config"
+	cmtflags "github.com/cometbft/cometbft/libs/cli/flags"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
-	tmclient "github.com/cometbft/cometbft/rpc/client"
+	cmtclient "github.com/cometbft/cometbft/rpc/client"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -44,6 +44,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
+	servercmtlog "github.com/cosmos/cosmos-sdk/server/log"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -176,7 +177,7 @@ type (
 		P2PAddress    string
 		Address       sdk.AccAddress
 		ValAddress    sdk.ValAddress
-		RPCClient     tmclient.Client
+		RPCClient     cmtclient.Client
 		JSONRPCClient *ethclient.Client
 
 		tmNode      *node.Node
@@ -308,11 +309,9 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			}
 			appCfg.GRPC.Enable = true
 
-			_, grpcWebPort, err := server.FreeTCPAddr()
 			if err != nil {
 				return nil, err
 			}
-			appCfg.GRPCWeb.Address = fmt.Sprintf("0.0.0.0:%s", grpcWebPort)
 			appCfg.GRPCWeb.Enable = true
 
 			if cfg.JSONRPCAddress != "" {
@@ -331,7 +330,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		logger := log.NewNopLogger()
 		if cfg.EnableTMLogging {
 			logger = log.NewLogger(os.Stdout)
-			logger, _ = tmflags.ParseLogLevel("info", logger, tmcfg.DefaultLogLevel)
+			logger, _ = cmtflags.ParseLogLevel("info", servercmtlog.CometLoggerWrapper{Logger: logger}, cmtcfg.DefaultLogLevel)
 		}
 
 		ctx.Logger = logger

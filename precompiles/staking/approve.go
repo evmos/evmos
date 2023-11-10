@@ -39,7 +39,11 @@ func (p Precompile) Approve(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeURLs, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeURLs, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +127,11 @@ func (p Precompile) DecreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +174,11 @@ func (p Precompile) IncreaseAllowance(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	grantee, coin, typeUrls, err := authorization.CheckApprovalArgs(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +249,7 @@ func (p Precompile) createStakingAuthz(
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, validator.GetOperator())
+			validators = append(validators, sdk.ValAddress(validator.GetOperator()))
 			return
 		},
 	)

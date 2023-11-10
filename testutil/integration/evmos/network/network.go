@@ -8,6 +8,8 @@ import (
 	"math"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/types"
 
@@ -92,7 +94,7 @@ var (
 	// bondedAmt is the amount of tokens that each validator will have initially bonded
 	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance = sdktypes.NewInt(int64(math.Pow10(18) * 4))
+	PrefundedAccountInitialBalance = sdkmath.NewInt(int64(math.Pow10(18) * 4))
 )
 
 // configureAndInitChain initializes the network with the given configuration.
@@ -107,7 +109,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := bondedAmt.Mul(sdktypes.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmt.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
 	validators, err := createStakingValidators(valSet.Validators, bondedAmt)

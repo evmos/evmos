@@ -91,7 +91,7 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(10000000000),
 				)
 				s.Require().NoError(err)
@@ -105,7 +105,7 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err)
@@ -147,7 +147,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -167,7 +167,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -187,7 +187,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -207,8 +207,8 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.RedelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
-					s.validators[1].GetOperator().String(),
+					s.validators[0].GetOperator(),
+					s.validators[1].GetOperator(),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -224,12 +224,14 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() []byte {
 				// add unbonding delegation to staking keeper
 				ubd := stakingtypes.NewUnbondingDelegation(
-					s.address.Bytes(),
-					s.validators[0].GetOperator(),
+					sdk.AccAddress(s.address.Bytes()),
+					sdk.ValAddress(s.validators[0].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					0,
+					s.app.AccountKeeper.AddressCodec(),
+					s.app.AccountKeeper.AddressCodec(),
 				)
 				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
 
@@ -245,7 +247,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.CancelUnbondingDelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1000),
 					big.NewInt(1000),
 				)
@@ -263,7 +265,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -294,13 +296,15 @@ func (s *PrecompileTestSuite) TestRun() {
 				// add redelegation to staking keeper
 				redelegation := stakingtypes.NewRedelegation(
 					s.address.Bytes(),
-					s.validators[0].GetOperator(),
-					s.validators[1].GetOperator(),
+					sdk.ValAddress(s.validators[0].GetOperator()),
+					sdk.ValAddress(s.validators[1].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					math.LegacyNewDec(1),
 					0,
+					s.app.AccountKeeper.AddressCodec(),
+					s.app.AccountKeeper.AddressCodec(),
 				)
 
 				s.app.StakingKeeper.SetRedelegation(s.ctx, redelegation)
@@ -308,8 +312,8 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.RedelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
-					s.validators[1].GetOperator().String(),
+					s.validators[0].GetOperator(),
+					s.validators[1].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -325,7 +329,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -341,11 +345,13 @@ func (s *PrecompileTestSuite) TestRun() {
 				// add unbonding delegation to staking keeper
 				ubd := stakingtypes.NewUnbondingDelegation(
 					s.address.Bytes(),
-					s.validators[0].GetOperator(),
+					sdk.ValAddress(s.validators[0].GetOperator()),
 					1000,
 					time.Now().Add(time.Hour),
 					math.NewInt(1000),
 					0,
+					s.app.AccountKeeper.AddressCodec(),
+					s.app.AccountKeeper.AddressCodec(),
 				)
 				s.app.StakingKeeper.SetUnbondingDelegation(s.ctx, ubd)
 
@@ -358,7 +364,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.UnbondingDelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -374,7 +380,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					s.validators[0].GetOperator(),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
