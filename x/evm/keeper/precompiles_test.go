@@ -66,9 +66,20 @@ func (DuplicatePrecompile) Address() common.Address {
 	return common.HexToAddress("0x0000000000000000000000000000000000000001")
 }
 
+// OtherPrecompile is a dummy precompile implementation for testing purposes.
+// It holds another unused precompile address to check adding multiple extensions at once.
+type OtherPrecompile struct {
+	vm.PrecompiledContract
+}
+
+func (OtherPrecompile) Address() common.Address {
+	return common.HexToAddress("0x0000000000000000000000000000000000010001")
+}
+
 func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 	dummyPrecompile := DummyPrecompile{}
 	duplicatePrecompile := DuplicatePrecompile{}
+	otherPrecompile := OtherPrecompile{}
 
 	testcases := []struct {
 		name           string
@@ -108,6 +119,14 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			},
 			expPass:        true,
 			expPrecompiles: append(types.AvailableEVMExtensions, dummyPrecompile.Address().String()),
+		},
+		{
+			name: "pass - add multiple precompiles",
+			malleate: func() []vm.PrecompiledContract {
+				return []vm.PrecompiledContract{dummyPrecompile, otherPrecompile}
+			},
+			expPass:        true,
+			expPrecompiles: append(types.AvailableEVMExtensions, dummyPrecompile.Address().String(), otherPrecompile.Address().String()),
 		},
 	}
 
