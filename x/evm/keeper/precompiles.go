@@ -114,7 +114,7 @@ func (k Keeper) Precompiles(
 	return activePrecompileMap
 }
 
-// AddEVMExtension adds the given precompiles to the list of active precompiles in the EVM parameters
+// AddEVMExtensions adds the given precompiles to the list of active precompiles in the EVM parameters
 // and to the available precompiles map in the Keeper. This function returns an error if
 // the precompiles are invalid or duplicated.
 func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error {
