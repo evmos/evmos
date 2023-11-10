@@ -164,10 +164,16 @@ func (k Keeper) IsAvailablePrecompile(address common.Address) bool {
 }
 
 // GetAvailablePrecompileAddrs returns the list of available precompile addresses.
+//
+// NOTE: uses index based approach instead of append because it's supposed to be faster.
+// Check https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map.
 func (k Keeper) GetAvailablePrecompileAddrs() []common.Address {
-	addresses := make([]common.Address, 0, len(k.precompiles))
+	addresses := make([]common.Address, len(k.precompiles))
+	i := 0
+
 	for address := range k.precompiles {
-		addresses = append(addresses, address)
+		addresses[i] = address
+		i++
 	}
 
 	return addresses
