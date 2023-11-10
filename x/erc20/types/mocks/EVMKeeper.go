@@ -147,7 +147,8 @@ func (_m *EVMKeeper) GetParams(ctx types.Context) evmtypes.Params {
 func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMKeeper {
+},
+) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 
