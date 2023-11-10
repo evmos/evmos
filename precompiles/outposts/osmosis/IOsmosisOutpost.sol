@@ -11,7 +11,7 @@ IOsmosisOutpost constant OSMOSIS_OUTPOST_CONTRACT = IOsmosisOutpost(
 
 /// @dev The default value used for the slippage_percentage in the swap
 string constant DEFAULT_TWAP_SLIPPAGE_PERCENTAGE = "5";
-/// @dev the default value used for window_seconds in the swap
+/// @dev The default value used for window_seconds in the swap
 uint64 constant DEFAULT_TWAP_WINDOW_SECONDS = 10;
 
 /// @author Evmos Core Team

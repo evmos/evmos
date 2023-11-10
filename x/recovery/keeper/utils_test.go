@@ -13,7 +13,7 @@ import (
 	ibctesting "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/utils"
 	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	"github.com/evmos/evmos/v15/x/recovery/types"
 )
 

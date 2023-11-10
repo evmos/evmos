@@ -19,7 +19,7 @@ import (
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 // AccountKeeper defines the expected interface needed to retrieve account info.
