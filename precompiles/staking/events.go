@@ -20,6 +20,8 @@ import (
 )
 
 const (
+	// EventTypeCreateValidator defines the event type for the staking CreateValidator transaction.
+	EventTypeCreateValidator = "CreateValidator"
 	// EventTypeDelegate defines the event type for the staking Delegate transaction.
 	EventTypeDelegate = "Delegate"
 	// EventTypeUnbond defines the event type for the staking Undelegate transaction.
@@ -116,6 +118,34 @@ func (p Precompile) EmitAllowanceChangeEvent(ctx sdk.Context, stateDB vm.StateDB
 		Address:     p.Address(),
 		Topics:      topics,
 		Data:        packed,
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
+
+// EmitCreateValidatorEvent creates a new ctreate valdator event emitted on a CreateValidator transaction.
+func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgCreateValidator, delegatorAddr common.Address) error {
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeCreateValidator]
+	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, msg.ValidatorAddress)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the event data
+	var b bytes.Buffer
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.Rate.BigInt())))
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxRate.BigInt())))
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxChangeRate.BigInt())))
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.MinSelfDelegation.BigInt())))
+	b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String())))
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        b.Bytes(),
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 

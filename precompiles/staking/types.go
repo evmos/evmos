@@ -4,10 +4,15 @@
 package staking
 
 import (
+	"cosmossdk.io/math"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -47,6 +52,96 @@ type EventCancelUnbonding struct {
 	ValidatorAddress common.Hash
 	Amount           *big.Int
 	CreationHeight   *big.Int
+}
+
+// NewMsgCreateValidator creates a new MsgCreateValidator instance and does sanity checks
+// on the given arguments before populating the message.
+func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgCreateValidator, common.Address, error) {
+	if len(args) != 7 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+	}
+
+	description, ok := args[0].(struct {
+		Moniker         string "json:\"moniker\""
+		Identity        string "json:\"identity\""
+		Website         string "json:\"website\""
+		SecurityContact string "json:\"securityContact\""
+		Details         string "json:\"details\""
+	})
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "description", "tuple", args[0])
+	}
+
+	// since solidity does not support decimals, after passing in the big int, convert the big int into a decimal with a precision of 18
+	commission, ok := args[1].(struct {
+		Rate          *big.Int "json:\"rate\""
+		MaxRate       *big.Int "json:\"maxRate\""
+		MaxChangeRate *big.Int "json:\"maxChangeRate\""
+	})
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commission", "tuple", args[1])
+	}
+
+	minSelfDelegation, ok := args[2].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+	}
+
+	delegatorAddress, ok := args[3].(common.Address)
+	if !ok || delegatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[3])
+	}
+
+	validatorAddress, ok := args[4].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[4])
+	}
+
+	// use cli `evmosd tendermint show-validator` get pubkey
+	pubkeyBase64Str, ok := args[5].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "pubkey", "string", args[5])
+	}
+	pubkeyBytes, err := base64.StdEncoding.DecodeString(pubkeyBase64Str)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
+	pubkey, err := codectypes.NewAnyWithValue(ed25519pk)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	value, ok := args[6].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[6])
+	}
+
+	msg := &stakingtypes.MsgCreateValidator{
+		Description: stakingtypes.Description{
+			Moniker:         description.Moniker,
+			Identity:        description.Identity,
+			Website:         description.Website,
+			SecurityContact: description.SecurityContact,
+			Details:         description.Details,
+		},
+		Commission: stakingtypes.CommissionRates{
+			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
+			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.MaxRate, math.LegacyPrecision),
+			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.MaxChangeRate, math.LegacyPrecision),
+		},
+		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
+		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
+		ValidatorAddress:  validatorAddress,
+		Pubkey:            pubkey,
+		Value:             sdk.NewCoin(denom, sdk.NewIntFromBigInt(value)),
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return msg, delegatorAddress, nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks

@@ -128,16 +128,16 @@ interface StakingI is authorization.AuthorizationI {
     /// @dev Defines a method for creating a new validator.
     /// @param description The initial description
     /// @param commissionRates The initial commissionRates
-    /// @param minSelfDelegation The
-    /// @param delegatorAddress The
-    /// @param validatorAddress The
-    /// @param pubkey The
-    /// @param value The
+    /// @param minSelfDelegation The validator's self declared minimum self delegation
+    /// @param delegatorAddress The delegator address
+    /// @param validatorAddress The validator address
+    /// @param pubkey The consensus public key of the validator
+    /// @param value The amount of the coin to be self delegated to the validator
     /// @return success Whether or not the create validator was successful
     function createValidator(
         Description calldata description,
         CommissionRates calldata commissionRates,
-        string memory minSelfDelegation,
+        uint256 minSelfDelegation,
         address delegatorAddress,
         string memory validatorAddress,
         string memory pubkey,
@@ -267,6 +267,26 @@ interface StakingI is authorization.AuthorizationI {
             RedelegationResponse[] calldata response,
             PageResponse calldata pageResponse
         );
+
+    /// @dev CreateValidator defines an Event emitted when a create a new validator.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param commissionRate The commission rate charged to delegators, as a fraction
+    /// @param commissionMaxRate The commission max rate charged to delegators, as a fraction
+    /// @param commissionMaxChangeRate The commission max change rate charged to delegators, as a fraction
+    /// @param minSelfDelegation The validator's self declared minimum self delegation
+    /// @param pubkey The consensus public key of the validator
+    /// @param value The amount of coin being self delegated
+    event CreateValidator(
+        address indexed delegatorAddress,
+        string indexed validatorAddress,
+        uint256 commissionRate,
+        uint256 commissionMaxRate,
+        uint256 commissionMaxChangeRate,
+        uint256 minSelfDelegation,
+        string pubkey,
+        uint256 value
+    );
 
     /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
     /// delegator address to the validator address.

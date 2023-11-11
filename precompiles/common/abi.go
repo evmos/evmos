@@ -131,6 +131,23 @@ func PackNum(value reflect.Value) []byte {
 	}
 }
 
+// packBytesSlice packs the given bytes as [L, V] as the canonical representation
+// bytes slice.
+func packBytesSlice(bytes []byte, l int) []byte {
+	len := PackNum(reflect.ValueOf(l))
+	return append(len, common.RightPadBytes(bytes, (l+31)/32*32)...)
+}
+
+// PackElement packs the given reflect value according to the abi specification type
+func PackElement(value reflect.Value) []byte {
+	switch kind := value.Kind(); kind {
+	case reflect.String:
+		return packBytesSlice([]byte(value.String()), value.Len())
+	default:
+		panic("abi: fatal error")
+	}
+}
+
 // LoadABI read the ABI file described by the path and parse it as JSON.
 func LoadABI(fs embed.FS, path string) (abi.ABI, error) {
 	abiBz, err := fs.ReadFile(path)
