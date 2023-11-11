@@ -73,7 +73,7 @@ config {
           params: {
             mint_denom: 'uatom',
           },
-        },      
+        },
         transfer: {
           params: {
             receive_enabled: true,
@@ -153,7 +153,7 @@ config {
                 denom: 'uosmo',
                 amount: '50000000',
               },
-            ],            
+            ],
           },
         },
         poolincentives: {
@@ -165,7 +165,7 @@ config {
           params: {
             mint_denom: 'uosmo',
           },
-        },      
+        },
         transfer: {
           params: {
             receive_enabled: true,
@@ -174,7 +174,7 @@ config {
         },
       },
     },
-  },      
+  },
   relayer: {
     mode: {
       clients: {

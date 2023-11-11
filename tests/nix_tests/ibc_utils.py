@@ -16,6 +16,8 @@ from .utils import ADDRS, eth_to_bech32, memiavl_config, update_evmos_bin, wait_
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
+OSMO_IBC_DENOM = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
+
 RATIO = 10**10
 # IBC_CHAINS_META metadata of cosmos chains to setup these for IBC tests
 IBC_CHAINS_META = {
@@ -211,4 +213,10 @@ def hermes_transfer(ibc, other_chain_name="chainmain-1", other_chain_denom="base
 def get_balance(chain, addr, denom):
     balance = chain.cosmos_cli().balance(addr, denom)
     print("balance", balance, addr, denom)
+    return balance
+
+def get_balances(chain, addr):
+    print("Addr: ", addr)
+    balance = chain.cosmos_cli().balances(addr)
+    print("balance", balance, addr)
     return balance

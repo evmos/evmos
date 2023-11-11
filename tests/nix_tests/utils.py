@@ -43,8 +43,20 @@ TEST_CONTRACTS = {
     "StakingI": "evmos/staking/StakingI.sol",
     "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
+    "IOsmosisOutpost": "evmos/outposts/osmosis/IOsmosisOutpost.sol",
     "IERC20": "evmos/erc20/IERC20.sol",
 }
+
+OSMOSIS_POOLS = {
+    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosToOsmos.json",
+}
+
+WASM_BINARIES = {
+    "CrosschainRegistry": "crosschain_registry-aarch64.wasm",
+    "CrosschainSwap": "crosschain_swaps-aarch64.wasm",
+    "Swaprouter": "swaprouter-aarch64.wasm",
+}
+
 WEVMOS_META = {
     "description": "The native staking and governance token of the Evmos chain",
     "denom_units": [
@@ -57,6 +69,12 @@ WEVMOS_META = {
     "symbol": "WEVMOS",
 }
 
+def wasm_binaries_path(filename):
+    return (
+        Path(__file__).parent
+        / "cosmwasm/artifacts/"
+        / filename
+    )
 
 def contract_path(name, filename):
     return (
@@ -65,6 +83,12 @@ def contract_path(name, filename):
         / filename
         / (name + ".json")
     )
+
+WASM_CONTRACTS = {
+    **{
+        name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()
+    },
+}
 
 
 CONTRACTS = {
@@ -195,6 +219,8 @@ def get_precompile_contract(w3, name):
         addr = "0x0000000000000000000000000000000000000802"
     elif name == "IStrideOutpost":
         addr = "0x0000000000000000000000000000000000000900"
+    elif name == "IOsmosisOutpost":
+        addr = "0x0000000000000000000000000000000000000901"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
