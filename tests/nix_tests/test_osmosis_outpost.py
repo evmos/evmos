@@ -103,7 +103,7 @@ def setup_osmos_chains(ibc):
     send_evmos_to_osmos(ibc)
 
     # create evmos <> osmos pool
-    rsp = osmosis_cli.gamm_create_pool(osmosis_addr, OSMOSIS_POOLS["Evmos_Osmos"])
+    rsp = osmosis_cli.gamm_create_pool(osmosis_addr, OSMOSIS_POOLS["Evmos_Osmo"])
 
     contracts_to_store = {
         "CrosschainRegistry": {
