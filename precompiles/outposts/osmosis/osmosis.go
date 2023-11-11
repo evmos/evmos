@@ -31,7 +31,7 @@ const (
 
 	// XCSContractMainnet placeholder until the XCS contract is deployed on the Osmosis test chain
 	XCSContractMainnet = "placeholder"
-    // TODO - change this to the swaprouter address from the e2e tests or patch this file for the desired address
+	// TODO - change this to the swaprouter address from the e2e tests or patch this file for the desired address
 	XCSContractE2E = "osmo13x6lv7px8qz4at54ekpcaxlt2wk8a7muz8km3r4e2g62y4rs6nyqk572ah"
 )
 
