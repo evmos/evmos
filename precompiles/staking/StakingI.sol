@@ -284,7 +284,7 @@ interface StakingI is authorization.AuthorizationI {
         uint256 commissionMaxRate,
         uint256 commissionMaxChangeRate,
         uint256 minSelfDelegation,
-        string pubkey,
+//        string pubkey, // TODO: how to pack string value into events in go code ?
         uint256 value
     );
 

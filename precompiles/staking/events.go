@@ -139,7 +139,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxRate.BigInt())))
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxChangeRate.BigInt())))
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.MinSelfDelegation.BigInt())))
-	b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String())))
+	// b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String()))) // TODO: how to pack string into events?
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{

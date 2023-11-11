@@ -134,8 +134,8 @@ func PackNum(value reflect.Value) []byte {
 // packBytesSlice packs the given bytes as [L, V] as the canonical representation
 // bytes slice.
 func packBytesSlice(bytes []byte, l int) []byte {
-	len := PackNum(reflect.ValueOf(l))
-	return append(len, common.RightPadBytes(bytes, (l+31)/32*32)...)
+	length := PackNum(reflect.ValueOf(l))
+	return append(length, common.RightPadBytes(bytes, (l+31)/32*32)...)
 }
 
 // PackElement packs the given reflect value according to the abi specification type

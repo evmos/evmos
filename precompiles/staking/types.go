@@ -4,11 +4,12 @@
 package staking
 
 import (
-	"cosmossdk.io/math"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
+
+	"cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
