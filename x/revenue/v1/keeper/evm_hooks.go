@@ -81,8 +81,12 @@ func (k Keeper) PostTxProcessing(
 
 	// get available precompiles from evm params and check if contract is in the list
 	if containsPrecompile {
-		if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
-			return err
+		// when baseFee and minGasPrice in freemarker module are both 0
+		// the user may send a transaction with gasPrice of 0 to the precompiled contract
+		if developerFee.IsPositive() {
+			if err := k.distributionKeeper.FundCommunityPool(ctx, fees, k.accountKeeper.GetModuleAddress(k.feeCollectorName)); err != nil {
+				return err
+			}
 		}
 	} else {
 		// distribute the fees to the contract deployer / withdraw address
