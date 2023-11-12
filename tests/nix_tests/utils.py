@@ -48,7 +48,7 @@ TEST_CONTRACTS = {
 }
 
 OSMOSIS_POOLS = {
-    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosToOsmos.json",
+    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
 }
 
 WASM_BINARIES = {
