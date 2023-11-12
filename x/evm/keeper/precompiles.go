@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
 	"sort"
 
@@ -25,7 +26,6 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v15/precompiles/vesting"
 	erc20Keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	"github.com/evmos/evmos/v15/x/evm/types"
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
 )
@@ -137,16 +137,8 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 
 	params.ActivePrecompiles = append(params.ActivePrecompiles, addresses...)
 
-	// sort precompile addresses prior to validation
-	sort.Slice(params.ActivePrecompiles, func(i, j int) bool {
-		return params.ActivePrecompiles[i] < params.ActivePrecompiles[j]
-	})
-
-	// error if the precompiled address is already registered
-	if err := types.ValidatePrecompiles(params.ActivePrecompiles); err != nil {
-		return err
-	}
-
+	// NOTE: the active precompiles are sorted and validated before setting them
+	// in the params
 	if err := k.SetParams(ctx, params); err != nil {
 		return err
 	}
@@ -176,6 +168,10 @@ func (k Keeper) GetAvailablePrecompileAddrs() []common.Address {
 		addresses[i] = address
 		i++
 	}
+
+	sort.Slice(addresses, func(i, j int) bool {
+		return bytes.Compare(addresses[i].Bytes(), addresses[j].Bytes()) == -1
+	})
 
 	return addresses
 }
