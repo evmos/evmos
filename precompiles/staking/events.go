@@ -139,8 +139,10 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxRate.BigInt())))
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxChangeRate.BigInt())))
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.MinSelfDelegation.BigInt())))
-	// b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String()))) // TODO: how to pack string into events?
+	// TODO: I emit the CreateValidator event in the contract by deploy a normal contract. Determine the encoding of Value and Pubkey
+	b.Write(common.Hex2Bytes("00000000000000000000000000000000000000000000000000000000000000c0"))
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
+	b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
