@@ -40,47 +40,33 @@ func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {
 	}
 }
 
-// Check interfaces are correctly implemented
+// Check interface is correctly implemented
 var (
 	_ vm.PrecompiledContract = DummyPrecompile{}
-	_ vm.PrecompiledContract = DuplicatePrecompile{}
 )
 
 // DummyPrecompile is a dummy precompile implementation for testing purposes.
 type DummyPrecompile struct {
 	vm.PrecompiledContract
+
+	address string
 }
 
-func (DummyPrecompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000010000")
+func (d DummyPrecompile) Address() common.Address {
+	return common.HexToAddress(d.address)
 }
 
-// DuplicatePrecompile is a dummy precompile implementation for testing purposes.
-// It holds the same address as an already existing precompile in the Go-Ethereum
-// base implementation of the EVM.
-type DuplicatePrecompile struct {
-	vm.PrecompiledContract
-}
-
-func (DuplicatePrecompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000001")
-}
-
-// OtherPrecompile is a dummy precompile implementation for testing purposes.
-// It holds another unused precompile address to check adding multiple extensions at once.
-type OtherPrecompile struct {
-	vm.PrecompiledContract
-}
-
-func (OtherPrecompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000010001")
-}
+var (
+	// dummyPrecompile holds an unused precompile address to check adding EVM extensions.
+	dummyPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010000"}
+	// duplicatePrecompile holds the same address as an already existing precompile in the Go-Ethereum
+	// base implementation of the EVM.
+	duplicatePrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000000001"}
+	// otherPrecompile holds another unused precompile address to check adding multiple extensions at once.
+	otherPrecompile = DummyPrecompile{address: "0x0000000000000000000000000000000000010001"}
+)
 
 func (suite *KeeperTestSuite) TestAddEVMExtensions() {
-	dummyPrecompile := DummyPrecompile{}
-	duplicatePrecompile := DuplicatePrecompile{}
-	otherPrecompile := OtherPrecompile{}
-
 	testcases := []struct {
 		name           string
 		malleate       func() []vm.PrecompiledContract
