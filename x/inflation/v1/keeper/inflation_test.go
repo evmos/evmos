@@ -186,7 +186,8 @@ func (suite *KeeperTestSuite) TestBondedRatio() {
 			}
 			tc.malleate()
 
-			bondRatio := suite.app.InflationKeeper.BondedRatio(suite.ctx)
+			bondRatio, err := suite.app.InflationKeeper.BondedRatio(suite.ctx)
+			suite.Require().NoError((err))
 			suite.Require().Equal(tc.expBondRatio, bondRatio)
 		})
 	}

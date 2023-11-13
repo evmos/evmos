@@ -176,7 +176,7 @@ func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 }
 
 // RegisterStoreDecoder registers a decoder for fees module's types.
-func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {
 }
 
 // WeightedOperations returns fees module weighted operations

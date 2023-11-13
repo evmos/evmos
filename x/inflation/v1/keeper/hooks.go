@@ -49,7 +49,10 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 	// mint coins, update supply
 	period := k.GetPeriod(ctx)
 	epochsPerPeriod := k.GetEpochsPerPeriod(ctx)
-	bondedRatio := k.BondedRatio(ctx)
+	bondedRatio, err := k.BondedRatio(ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	epochMintProvision := types.CalculateEpochMintProvision(
 		params,

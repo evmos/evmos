@@ -41,18 +41,18 @@ func (k Keeper) AfterProposalSubmission(_ context.Context, _ uint64) error {
 // AfterProposalDeposit is a wrapper for calling the Gov AfterProposalDeposit hook on
 // the module keeper
 func (h Hooks) AfterProposalDeposit(ctx context.Context, proposalID uint64, depositorAddr sdk.AccAddress) error {
-	h.k.AfterProposalDeposit(ctx, proposalID, depositorAddr)
+	return h.k.AfterProposalDeposit(ctx, proposalID, depositorAddr)
 }
 
 // AfterProposalDeposit is called after a deposit is made on a governance clawback proposal.
-func (k Keeper) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) {
+func (k Keeper) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ sdk.AccAddress) error {
 	proposal, err := k.govKeeper.Proposals.Get(ctx, proposalID)
 	if err != nil {
 		k.Logger(ctx).Error("proposal not found",
 			"proposalID", proposalID,
 			"hook", "AfterProposalSubmission",
 		)
-		return
+		return err
 	}
 
 	clawbackProposals, err := getClawbackProposals(proposal)
@@ -62,11 +62,11 @@ func (k Keeper) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ s
 			"hook", "AfterProposalSubmission",
 			"error", err,
 		)
-		return
+		return err
 	}
 	if len(clawbackProposals) == 0 {
 		// no-op when proposal does not contain a clawback proposal
-		return
+		return nil
 	}
 
 	govParams, err := k.govKeeper.Params.Get(ctx)
@@ -76,18 +76,19 @@ func (k Keeper) AfterProposalDeposit(ctx context.Context, proposalID uint64, _ s
 			"hook", "AfterProposalSubmission",
 			"error", err,
 		)
-		return
+		return err
 	}
 	minDeposit := sdk.NewCoins(govParams.MinDeposit...)
 	totalDeposit := sdk.NewCoins(proposal.GetTotalDeposit()...)
 	if totalDeposit.IsAllLT(minDeposit) {
-		return
+		return nil
 	}
 
 	for _, clawbackProposal := range clawbackProposals {
 		vestingAccAddr := sdk.MustAccAddressFromBech32(clawbackProposal.Address)
 		k.SetActiveClawbackProposal(ctx, vestingAccAddr)
 	}
+	return nil
 }
 
 // AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on

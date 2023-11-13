@@ -13,12 +13,12 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"cosmossdk.io/core/appmodule"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/evmos/evmos/v15/x/evm/client/cli"
@@ -30,9 +30,9 @@ import (
 const consensusVersion = 5
 
 var (
-	_ module.AppModule           = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
-	
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
 	_ appmodule.HasEndBlocker   = AppModule{}
 	_ appmodule.HasBeginBlocker = AppModule{}
 )
@@ -173,7 +173,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 }
 
 // RegisterStoreDecoder registers a decoder for evm module's types
-func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {
 }
 
 // GenerateGenesisState creates a randomized GenState of the evm module.

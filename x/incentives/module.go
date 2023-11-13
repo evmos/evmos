@@ -149,7 +149,7 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 func (am AppModule) GenerateGenesisState(_ *module.SimulationState) {
 }
 
-func (am AppModule) RegisterStoreDecoder(_ sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(_ simtypes.StoreDecoderRegistry) {
 }
 
 func (am AppModule) WeightedOperations(_ module.SimulationState) []simtypes.WeightedOperation {
