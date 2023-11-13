@@ -104,7 +104,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			},
 		},
 		{
-			name: "fail - evm denomination", // NOTE: this doesn't raise an error but it doesn't register the precompile
+			name: "pass - evm denomination deploys werc20 contract",
 			malleate: func() {
 				params := suite.app.EvmKeeper.GetParams(suite.ctx)
 				params.EvmDenom = tokenPair.Denom
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20Extensions() {
 			postCheck: func() {
 				// Check that the precompile was not registered
 				available := suite.app.EvmKeeper.IsAvailablePrecompile(tokenPair.GetERC20Contract())
-				suite.Require().False(available, "expected precompile to be registered")
+				suite.Require().True(available, "expected precompile to be registered")
 			},
 		},
 	}
