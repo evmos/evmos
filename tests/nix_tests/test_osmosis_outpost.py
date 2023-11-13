@@ -1,6 +1,12 @@
 import pytest
 
-from .ibc_utils import EVMOS_IBC_DENOM, OSMO_IBC_DENOM, assert_ready, get_balance,  prepare_network
+from .ibc_utils import (
+    EVMOS_IBC_DENOM,
+    OSMO_IBC_DENOM,
+    assert_ready,
+    get_balance,
+    prepare_network,
+)
 from .utils import (
     ADDRS,
     KEYS,
@@ -27,14 +33,11 @@ def ibc(request, tmp_path_factory):
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections
-    # evmos     (channel-0) <> (channel-0)  gaia
-    # evmos     (channel-1) <> (channel-0)  osmosis
-    # osmosis   (channel-1) <> (channel-1)  gaia
-    network = prepare_network(path, name, [evmos_build, "osmosis"], custom_scenario=name)
+    network = prepare_network(
+        path, name, [evmos_build, "osmosis"], custom_scenario=name
+    )
     yield from network
 
-#
-# # TODO remove this test and replace with the outpost test
 
 def test_osmosis_swap(ibc):
     assert_ready(ibc)
@@ -78,9 +81,7 @@ def test_osmosis_swap(ibc):
         testSlippagePercentage,
         testWindowSeconds,
         osmosis_addr,
-    ).build_transaction(
-        {"from": evmos_addr, "gasPrice": evmos_gas_price}
-    )
+    ).build_transaction({"from": evmos_addr, "gasPrice": evmos_gas_price})
     gas_estimation = evmos.w3.eth.estimate_gas(tx)
     receipt = send_transaction(w3, tx, KEYS["signer2"])
 
@@ -94,15 +95,16 @@ def test_osmosis_swap(ibc):
     print(new_src_balance)
     assert new_src_balance == swap_amount
 
+
 def setup_osmos_chains(ibc):
+    # Send Evmos to Osmosis to be able to set up pools
+    send_evmos_to_osmos(ibc)
+
     osmosis = ibc.chains["osmosis"]
     osmosis_cli = osmosis.cosmos_cli()
     osmosis_addr = osmosis_cli.address("signer2")
 
-    # Send Evmos to Osmosis to be able to set up pools
-    send_evmos_to_osmos(ibc)
-
-    # create evmos <> osmos pool
+    # create evmos <> osmo pool
     rsp = osmosis_cli.gamm_create_pool(osmosis_addr, OSMOSIS_POOLS["Evmos_Osmo"])
 
     contracts_to_store = {
@@ -113,17 +115,18 @@ def setup_osmos_chains(ibc):
             "get_instantiate_params": lambda x: f'"{{"owner":"{x}"}}"',
         },
         "CrosschainSwap": {
-            "get_instantiate_params": lambda x,y,z: f'"{{"governor":"{x}", "swap_contract": "{y}", "registry_contract": "{z}"}}"',
+            "get_instantiate_params": lambda x, y, z: f'"{{"governor":"{x}", "swap_contract": "{y}", "registry_contract": "{z}"}}"',
         },
     }
 
-
     contracts_addrs = []
+
     def check_contract_instantiated(code):
         def F():
             contracts = osmosis_cli.get_wasm_contract_by_code(code)
-            print("contracts: " , contracts)
+            print("contracts: ", contracts)
             contracts_addrs.append(contracts[0])
+
         return F
 
     # deploy CrosschainRegistry
@@ -132,9 +135,15 @@ def setup_osmos_chains(ibc):
     print(rsp)
     assert rsp["code"] == 0
     # instantiate contracts
-    rsp = osmosis_cli.wasm_instante2(osmosis_addr, 1, contracts_to_store["CrosschainRegistry"]["get_instantiate_params"](osmosis_addr))
+    rsp = osmosis_cli.wasm_instante2(
+        osmosis_addr,
+        1,
+        contracts_to_store["CrosschainRegistry"]["get_instantiate_params"](
+            osmosis_addr
+        ),
+    )
     assert rsp["code"] == 0
-    #TODO - check why we never get / see that contract
+    # TODO - check why we never get / see that contract
     wait_for_fn("contract instantiate", check_contract_instantiated(1))
     registry_contract_addr = contracts_addrs[0]
 
@@ -143,7 +152,11 @@ def setup_osmos_chains(ibc):
     rsp = osmosis_cli.wasm_store_binary(osmosis_addr, swap_contract)
     print(rsp)
     assert rsp["code"] == 0
-    rsp = osmosis_cli.wasm_instante2(osmosis_addr, 2, contracts_to_store["Swaprouter"]["get_instantiate_params"](osmosis_addr))
+    rsp = osmosis_cli.wasm_instante2(
+        osmosis_addr,
+        2,
+        contracts_to_store["Swaprouter"]["get_instantiate_params"](osmosis_addr),
+    )
     assert rsp["code"] == 0
     wait_for_fn("contract instantiate", check_contract_instantiated(2))
     swap_contract_addr = contracts_addrs[1]
@@ -153,7 +166,13 @@ def setup_osmos_chains(ibc):
     rsp = osmosis_cli.wasm_store_binary(osmosis_addr, cross_swap_contract)
     print(rsp)
     assert rsp["code"] == 0
-    rsp = osmosis_cli.wasm_instante2(osmosis_addr, 3, contracts_to_store["CrosschainSwap"]["get_instantiate_params"](osmosis_addr, swap_contract_addr, registry_contract_addr))
+    rsp = osmosis_cli.wasm_instante2(
+        osmosis_addr,
+        3,
+        contracts_to_store["CrosschainSwap"]["get_instantiate_params"](
+            osmosis_addr, swap_contract_addr, registry_contract_addr
+        ),
+    )
     assert rsp["code"] == 0
     wait_for_fn("contract instantiate", check_contract_instantiated(3))
     cross_swap_contract = contracts_addrs[2]
@@ -162,6 +181,7 @@ def setup_osmos_chains(ibc):
     execute_args = '{"set_route":{"input_denom": "uosmo","output_denom":"aevmos","pool_route":[{"pool_id": "1","token_out_denom":"aevmos"}]}}'
     rsp = osmosis_cli.wasm_execute(swap_contract_addr, execute_args)
     assert rsp["code"] == 0
+
 
 def send_evmos_to_osmos(ibc):
     src_chain = ibc.chains["evmos"]
@@ -212,6 +232,7 @@ def send_evmos_to_osmos(ibc):
     new_src_balance = get_balance(src_chain, src_addr, src_denom)
     assert old_src_balance - amt - fee == new_src_balance
 
+
 def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
     src_chain: CosmosChain = ibc.chains["osmosis"]
     dst_chain: Evmos = ibc.chains["evmos"]
@@ -221,19 +242,17 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
 
     bech_dst = eth_to_bech32(dst_addr)
     old_dst_balance = get_balance(dst_chain, bech_dst, OSMO_IBC_DENOM)
-    rsp = ibc.chains["osmosis"].cosmos_cli().ibc_transfer(
-        src_addr,
-        bech_dst,
-        "200uosmo",
-        "channel-0",
-        1,
-        fees="10000uosmo"
+    rsp = (
+        ibc.chains["osmosis"]
+        .cosmos_cli()
+        .ibc_transfer(src_addr, bech_dst, "200uosmo", "channel-0", 1, fees="10000uosmo")
     )
     assert rsp["code"] == 0
 
     # TODO: This needs to be changed to the osmosis ibc denom
     # old_dst_balance = get_balance(dst_chain, dst_addr, EVMOS_IBC_DENOM)
     new_dst_balance = 0
+
     def check_balance_change():
         nonlocal new_dst_balance
         new_dst_balance = get_balance(dst_chain, bech_dst, OSMO_IBC_DENOM)
@@ -244,6 +263,7 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
     # TODO: This needs to be changed to the osmosis ibc denom
     # new_dst_balance = get_balance(dst_chain, dst_addr, OSMO_IBC_DENOM)
     # assert new_dst_balance == amt
+
 
 def register_osmo_token(evmos):
     evmos_cli = evmos.cosmos_cli()
@@ -261,7 +281,7 @@ def register_osmo_token(evmos):
             {
                 "denom": osmos_ibc_denom,
                 "exponent": 0,
-             },
+            },
         ],
         # TODO - generate the osmos ibc denom
         "base": osmos_ibc_denom,
@@ -280,7 +300,7 @@ def register_osmo_token(evmos):
     assert (
         int(proposal_id) > 0
     ), "expected a non-zero proposal ID for the registration of the OSMO token."
-    print("proposal id: ",proposal_id)
+    print("proposal id: ", proposal_id)
     # vote 'yes' on proposal and wait it to pass
     approve_proposal(evmos, proposal_id)
     # query token pairs and get WEVMOS address

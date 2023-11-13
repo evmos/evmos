@@ -69,12 +69,10 @@ WEVMOS_META = {
     "symbol": "WEVMOS",
 }
 
+
 def wasm_binaries_path(filename):
-    return (
-        Path(__file__).parent
-        / "cosmwasm/artifacts/"
-        / filename
-    )
+    return Path(__file__).parent / "cosmwasm/artifacts/" / filename
+
 
 def contract_path(name, filename):
     return (
@@ -84,10 +82,9 @@ def contract_path(name, filename):
         / (name + ".json")
     )
 
+
 WASM_CONTRACTS = {
-    **{
-        name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()
-    },
+    **{name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()},
 }
 
 

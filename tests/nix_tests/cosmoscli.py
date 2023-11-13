@@ -1170,6 +1170,7 @@ class CosmosCLI:
             )
         )
         return res["host_zone"]
+
     #   TODO: create different classes for each chains CLI
     # ==========================
     #       Osmosis specific
@@ -1287,12 +1288,7 @@ class CosmosCLI:
         )
         return res["contracts"]
 
-    def get_wasm_contract_state(
-            self,
-            contract_addr,
-            query_args,
-            **kwargs
-        ):
+    def get_wasm_contract_state(self, contract_addr, query_args, **kwargs):
         """
         Queries the host zones on the Stride chain.
         """
@@ -1341,5 +1337,3 @@ class CosmosCLI:
         )
         # "osmosisd tx gamm create-pool --pool-file=$1 --from pools --chain-id=$CHAIN_ID --home $OSMOSIS_HOME --keyring-backend=test -b block --fees 5000uosmo --yes" "create two asset pool: successful"
         #
-
-
