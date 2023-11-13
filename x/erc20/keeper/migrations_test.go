@@ -46,7 +46,7 @@ func (suite *KeeperTestSuite) TestMigrations() {
 	legacySubspace.GetParamSetIfExists(ctx, &outputParams)
 
 	// Added dummy keeper in order to use the test store and store key
-	mockKeeper := erc20keeper.NewKeeper(storeKey, nil, authtypes.NewModuleAddress(govtypes.ModuleName), nil, nil, nil, nil, nil)
+	mockKeeper := erc20keeper.NewKeeper(storeKey, nil, authtypes.NewModuleAddress(govtypes.ModuleName), nil, nil, nil, nil, nil, s.app.AuthzKeeper, nil)
 	mockSubspace := newMockSubspace(v3types.DefaultParams(), storeKey, tKey)
 	migrator := erc20keeper.NewMigrator(mockKeeper, mockSubspace)
 
