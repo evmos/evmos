@@ -14,7 +14,6 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
@@ -38,12 +37,6 @@ type Precompile struct {
 	distKeeper    distributionkeeper.Keeper
 }
 
-// LoadABI loads the staking ABI from the embedded abi.json file
-// for the staking precompile.
-func LoadABI() (abi.ABI, error) {
-	return cmn.LoadABI(f, "abi.json")
-}
-
 // NewPrecompile creates a new staking Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
@@ -51,7 +44,7 @@ func NewPrecompile(
 	distKeeper distributionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	ABI, err := LoadABI()
+	ABI, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}
