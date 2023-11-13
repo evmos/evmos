@@ -92,8 +92,8 @@ func (s *PostTestSuite) BuildEthTx() sdk.Tx {
 
 // BuildCosmosTxWithSendMsg is an utils function to create an sdk.Tx containing
 // a single message of type MsgSend from the bank module.
-func (s *PostTestSuite) BuildCosmosTxWithNSendMsg(N int, feeAmount sdk.Coins) sdk.Tx {
-	messages := make([]sdk.Msg, N)
+func (s *PostTestSuite) BuildCosmosTxWithNSendMsg(n int, feeAmount sdk.Coins) sdk.Tx {
+	messages := make([]sdk.Msg, n)
 
 	sendMsg := banktypes.MsgSend{
 		FromAddress: s.from.String(),

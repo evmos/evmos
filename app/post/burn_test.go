@@ -26,9 +26,8 @@ func (s *PostTestSuite) TestPostHandle() {
 			},
 			expPass:    true,
 			postChecks: func() {},
-		},
-		{
-			name: "pass - burn fees of a single token empty end balance",
+		}, {
+			name: "pass - burn fees of a single token with empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"}}
 				amount := feeAmount
@@ -42,9 +41,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		},
-		{
-			name: "pass - burn fees of a single token non-empty end balance",
+		}, {
+			name: "pass - burn fees of a single token with non-empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"}}
 				amount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(20), Denom: "evmos"}}
@@ -58,9 +56,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		},
-		{
-			name: "pass - burn fees of multiple tokens empty end balance",
+		}, {
+			name: "pass - burn fees of multiple tokens with empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
 					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "eth"},
@@ -76,9 +73,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(sdk.Coins{}, balance)
 			},
-		},
-		{
-			name: "pass - burn fees of multiple tokens non-empty end balance",
+		}, { //nolint:dupl
+			name: "pass - burn fees of multiple tokens with non-empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
 					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
@@ -102,9 +98,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		},
-		{
-			name: "pass - burn fees of multiple tokens non-empty end balance and multiple messages",
+		}, { //nolint:dupl
+			name: "pass - burn fees of multiple tokens, non-empty end balance, and multiple messages",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
 					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
