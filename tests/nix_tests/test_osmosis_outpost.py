@@ -334,11 +334,6 @@ def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, l
 
     # check for tx receipt to confirm tx was successful
     receipt = wait_for_cosmos_tx_receipt(osmosis_cli, rsp["txhash"])
-    receipt_file_path = f"/tmp/{label}_receipt.json"
-    # TODO remove
-    with open(receipt_file_path, "w") as receipt_file:
-        json.dump(receipt, receipt_file, indent=2)
-    # TODO remove ^^^^
     assert receipt["tx_result"]["code"] == 0
     
     # get instantiated contract address from events in logs
