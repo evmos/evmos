@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Compiling cosm-wasm contracts"
+echo "Compiling CosmWasm contracts"
 
 OSMOSIS_VERSION=v20.2.1
 # For this script to work properly

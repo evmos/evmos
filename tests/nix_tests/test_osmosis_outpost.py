@@ -117,13 +117,13 @@ def setup_osmos_chains(ibc):
 
     contracts_to_store = {
         "CrosschainRegistry": {
-            "get_instantiate_params": lambda x: f'"{{\\"owner\\":\\"{x}\\"}}"',
+            "get_instantiate_params": lambda x: f"'{{\"owner\":\"{x}\"}}'",
         },
         "Swaprouter": {
-            "get_instantiate_params": lambda x: f'"{{\\"owner\\":\\"{x}\\"}}"',
+            "get_instantiate_params": lambda x: f"'{{\"owner\":\"{x}\"}}'",
         },
         "CrosschainSwap": {
-            "get_instantiate_params": lambda x, y, z: f'"{{\\"governor\\":\\"{x}\\", \\"swap_contract\\": \\"{y}\\", \\"registry_contract\\": \\"{z}\\"}}"',
+            "get_instantiate_params": lambda x, y, z: f"{{\"governor\":\"{x}\", \"swap_contract\": \"{y}\", \"registry_contract\": \"{z}\"}}",
         },
     }
 

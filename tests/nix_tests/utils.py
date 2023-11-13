@@ -51,6 +51,9 @@ OSMOSIS_POOLS = {
     "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
 }
 
+# If need to update these binaries
+# you can use the compile-cosmwasm-contracts.sh
+# script located in the 'scripts' directory
 WASM_BINARIES = {
     "CrosschainRegistry": "crosschain_registry.wasm",
     "CrosschainSwap": "crosschain_swaps.wasm",

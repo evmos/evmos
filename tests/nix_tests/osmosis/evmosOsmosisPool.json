@@ -1,6 +1,6 @@
 {
-    "weights": "5uosmo,5aevmos",
-    "initial-deposit": "499404uosmo,500000aevmos",
+    "weights": "5uosmo,5ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E",
+    "initial-deposit": "499404uosmo,500000ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E",
     "swap-fee": "0.01",
     "exit-fee": "0.00",
     "future-governor": ""

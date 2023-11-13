@@ -1,0 +1,15 @@
+diff --git a/precompiles/outposts/osmosis/osmosis.go b/precompiles/outposts/osmosis/osmosis.go
+index 3fae3853..17161bdb 100644
+--- a/precompiles/outposts/osmosis/osmosis.go
++++ b/precompiles/outposts/osmosis/osmosis.go
+@@ -30,7 +30,9 @@ const (
+ 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
+ 
+ 	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+-	XCSContract = "placeholder"
++	// Patch the CrossChainSwap contract for the corresponding
++	// contract address in the Nix testing setup
++	XCSContract = "osmo1e9afgrrck3sarwhfht54lvv9avm95xt2zqs2dnl9v8rmx35ds5vqlw9eg4"
+ )
+ 
+ var _ vm.PrecompiledContract = &Precompile{}
