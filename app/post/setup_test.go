@@ -8,16 +8,17 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/stretchr/testify/suite"
@@ -35,71 +36,112 @@ type PostTestSuite struct {
 	keyring     testkeyring.Keyring
 
 	txBuilder client.TxBuilder
+
+	from common.Address
+	to   common.Address
 }
 
 func (s *PostTestSuite) SetupTest() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	interfaceRegistry := types.NewInterfaceRegistry()
-	codec := codec.NewProtoCodec(interfaceRegistry)
-	txConfig := tx.NewTxConfig(codec, tx.DefaultSignModes)
 
+	// TxBuilder is used to create Ethereum and Cosmos Tx to test
+	// the fee burner.
+	interfaceRegistry := codectypes.NewInterfaceRegistry()
+	codec := codec.NewProtoCodec(interfaceRegistry)
+	txConfig := authtx.NewTxConfig(codec, authtx.DefaultSignModes)
+	txBuilder := txConfig.NewTxBuilder()
+
+	s.from = keyring.GetAddr(0)
+	s.to = keyring.GetAddr(1)
 	s.unitNetwork = unitNetwork
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.txBuilder = txConfig.NewTxBuilder()
+	s.txBuilder = txBuilder
 }
 
 func TestPostTestSuite(t *testing.T) {
 	suite.Run(t, new(PostTestSuite))
 }
 
-func (s *PostTestSuite) BuildEthTx(from, to common.Address) sdk.Tx {
+func (s *PostTestSuite) BuildEthTx() sdk.Tx {
 	chainID := s.unitNetwork.App.EvmKeeper.ChainID()
 	nonce := s.unitNetwork.App.EvmKeeper.GetNonce(
 		s.unitNetwork.GetContext(),
-		common.BytesToAddress(from.Bytes()),
+		common.BytesToAddress(s.from.Bytes()),
 	)
-
-	amount := big.NewInt(1)
-	input := make([]byte, 0)
-	gasPrice := big.NewInt(1)
-	gasFeeCap := big.NewInt(1)
-	gasTipCap := big.NewInt(1)
-	accesses := &ethtypes.AccessList{}
 
 	ethTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
-		To:        &to,
-		Amount:    amount,
+		To:        &s.to,
 		GasLimit:  gasLimit,
-		GasPrice:  gasPrice,
-		GasFeeCap: gasFeeCap,
-		GasTipCap: gasTipCap,
-		Input:     input,
-		Accesses:  accesses,
+		GasPrice:  big.NewInt(1),
+		GasTipCap: big.NewInt(1),
 	}
 
 	msgEthereumTx := evmtypes.NewTx(ethTxParams)
-	msgEthereumTx.From = from.String()
-	tx, err := msgEthereumTx.BuildTx(s.txBuilder, "aevmos")
+	msgEthereumTx.From = s.from.String()
+	tx, err := msgEthereumTx.BuildTx(s.txBuilder, "evmos")
 	s.Require().NoError(err)
 	return tx
 }
 
-func (s *PostTestSuite) BuildCosmosTx(from, to common.Address, feeAmount sdk.Coins) sdk.Tx {
+// BuildCosmosTxWithSendMsg is an utils function to create an sdk.Tx containing
+// a single message of type MsgSend from the bank module.
+func (s *PostTestSuite) BuildCosmosTxWithNSendMsg(N int, feeAmount sdk.Coins) sdk.Tx {
+	messages := make([]sdk.Msg, N)
+
 	sendMsg := banktypes.MsgSend{
-		FromAddress: from.String(),
-		ToAddress:   to.String(),
+		FromAddress: s.from.String(),
+		ToAddress:   s.to.String(),
 		Amount:      feeAmount,
 	}
+
+	for i := range messages {
+		messages[i] = &sendMsg
+	}
+
 	s.txBuilder.SetGasLimit(gasLimit)
-	// s.txBuilder.SetFeeAmount(feeAmount)
-	err := s.txBuilder.SetMsgs(&sendMsg)
+	s.txBuilder.SetFeeAmount(feeAmount)
+	err := s.txBuilder.SetMsgs(messages...)
 	s.Require().NoError(err)
 	return s.txBuilder.GetTx()
+}
+
+// MintCoinForFeeCollector allows to mint a specific amount of coins from the bank
+// and to transfer them to the FeeCollector.
+func (s *PostTestSuite) MintCoinsForFeeCollector(amount sdk.Coins) {
+	// Minting tokens for the FeeCollector to simulate fee accrued.
+	err := s.unitNetwork.App.BankKeeper.MintCoins(
+		s.unitNetwork.GetContext(),
+		inflationtypes.ModuleName,
+		amount,
+	)
+	s.Require().NoError(err)
+
+	err = s.unitNetwork.App.BankKeeper.SendCoinsFromModuleToModule(
+		s.unitNetwork.GetContext(),
+		inflationtypes.ModuleName,
+		authtypes.FeeCollectorName,
+		amount,
+	)
+	s.Require().NoError(err)
+
+	balance := s.GetFeeCollectorBalance()
+	s.Require().Equal(amount, balance)
+}
+
+// GetFeeCollectorBalance is an utility function to query the balance
+// of the FeeCollector module.
+func (s *PostTestSuite) GetFeeCollectorBalance() sdk.Coins {
+	address := s.unitNetwork.App.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
+	balance := s.unitNetwork.App.BankKeeper.GetAllBalances(
+		s.unitNetwork.GetContext(),
+		address,
+	)
+	return balance
 }

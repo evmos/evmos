@@ -9,48 +9,133 @@ import (
 	"github.com/evmos/evmos/v15/app/post"
 	// "github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 func (s *PostTestSuite) TestPostHandle() {
+<<<<<<< HEAD
 	// from := s.keyring.GetAddr(1)
 	from := utiltx.GenerateAddress()
 	to := utiltx.GenerateAddress()
 	feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "aevmos"}}
+=======
+>>>>>>> 7a3529f0 (add tests with balance check for post burn)
 
 	testCases := []struct {
 		name        string
 		tx          func() sdk.Tx
 		expPass     bool
 		errContains string
+		postChecks  func()
 	}{
 		{
 			name: "pass - noop with Ethereum message",
 			tx: func() sdk.Tx {
-				return s.BuildEthTx(from, to)
+				return s.BuildEthTx()
 			},
-			expPass: true,
+			expPass:    true,
+			postChecks: func() {},
 		},
 		{
-			name: "pass - burn fee with Cosmos message",
+			name: "pass - burn fees of a single token empty end balance",
 			tx: func() sdk.Tx {
-				// Minting tokens for the FeeCollector to simulate fee accrued.
-				s.unitNetwork.App.BankKeeper.MintCoins(
-					s.unitNetwork.GetContext(),
-					inflationtypes.ModuleName,
-					feeAmount,
-				)
-				s.unitNetwork.App.BankKeeper.SendCoinsFromModuleToModule(
-					s.unitNetwork.GetContext(),
-					inflationtypes.ModuleName,
-					authtypes.FeeCollectorName,
-					feeAmount,
-				)
+				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"}}
+				amount := feeAmount
+				s.MintCoinsForFeeCollector(amount)
 
-				return s.BuildCosmosTx(from, to, feeAmount)
+				return s.BuildCosmosTxWithNSendMsg(1, feeAmount)
 			},
 			expPass: true,
+			postChecks: func() {
+				expected := sdk.Coins{}
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(expected, balance)
+			},
+		},
+		{
+			name: "pass - burn fees of a single token non-empty end balance",
+			tx: func() sdk.Tx {
+				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"}}
+				amount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(20), Denom: "evmos"}}
+				s.MintCoinsForFeeCollector(amount)
+
+				return s.BuildCosmosTxWithNSendMsg(1, feeAmount)
+			},
+			expPass: true,
+			postChecks: func() {
+				expected := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"}}
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(expected, balance)
+			},
+		},
+		{
+			name: "pass - burn fees of multiple tokens empty end balance",
+			tx: func() sdk.Tx {
+				feeAmount := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "eth"},
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"},
+				}
+				amount := feeAmount
+				s.MintCoinsForFeeCollector(amount)
+
+				return s.BuildCosmosTxWithNSendMsg(1, feeAmount)
+			},
+			expPass: true,
+			postChecks: func() {
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(sdk.Coins{}, balance)
+			},
+		},
+		{
+			name: "pass - burn fees of multiple tokens non-empty end balance",
+			tx: func() sdk.Tx {
+				feeAmount := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"},
+				}
+				amount := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(20), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"},
+					sdk.Coin{Amount: sdkmath.NewInt(3), Denom: "osmo"},
+				}
+				s.MintCoinsForFeeCollector(amount)
+
+				return s.BuildCosmosTxWithNSendMsg(1, feeAmount)
+			},
+			expPass: true,
+			postChecks: func() {
+				expected := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(3), Denom: "osmo"},
+				}
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(expected, balance)
+			},
+		},
+		{
+			name: "pass - burn fees of multiple tokens non-empty end balance and multiple messages",
+			tx: func() sdk.Tx {
+				feeAmount := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"},
+				}
+				amount := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(20), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"},
+					sdk.Coin{Amount: sdkmath.NewInt(3), Denom: "osmo"},
+				}
+				s.MintCoinsForFeeCollector(amount)
+
+				return s.BuildCosmosTxWithNSendMsg(100, feeAmount)
+			},
+			expPass: true,
+			postChecks: func() {
+				expected := sdk.Coins{
+					sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"},
+					sdk.Coin{Amount: sdkmath.NewInt(3), Denom: "osmo"},
+				}
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(expected, balance)
+			},
 		},
 	}
 
@@ -85,6 +170,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				s.Require().Error(err, "expected error during HandlerOptions validation")
 				s.Require().Contains(err.Error(), tc.errContains, "expected a different error")
 			}
+
+			tc.postChecks()
 		})
 	}
 }
