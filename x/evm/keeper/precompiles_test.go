@@ -79,8 +79,14 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 			malleate: func() []vm.PrecompiledContract {
 				return []vm.PrecompiledContract{duplicatePrecompile}
 			},
-			errContains:    "precompile already registered",
-			expPrecompiles: types.AvailableEVMExtensions,
+			errContains: "precompile already registered",
+		},
+		{
+			name: "fail - add multiple precompiles with duplicates",
+			malleate: func() []vm.PrecompiledContract {
+				return []vm.PrecompiledContract{dummyPrecompile, dummyPrecompile}
+			},
+			errContains: "precompile already registered",
 		},
 		{
 			name: "fail - precompile already in active precompiles",
@@ -97,6 +103,7 @@ func (suite *KeeperTestSuite) TestAddEVMExtensions() {
 
 				return []vm.PrecompiledContract{dummyPrecompile}
 			},
+			errContains: "duplicate precompile",
 		},
 		{
 			name: "pass - add precompile",
