@@ -4,9 +4,10 @@
 package erc20_test
 
 import (
+	"math/big"
+
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"math/big"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
