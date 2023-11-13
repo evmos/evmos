@@ -12,13 +12,6 @@ import (
 )
 
 func (s *PostTestSuite) TestPostHandle() {
-<<<<<<< HEAD
-	// from := s.keyring.GetAddr(1)
-	from := utiltx.GenerateAddress()
-	to := utiltx.GenerateAddress()
-	feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "aevmos"}}
-=======
->>>>>>> 7a3529f0 (add tests with balance check for post burn)
 
 	testCases := []struct {
 		name        string
