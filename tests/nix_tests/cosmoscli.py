@@ -1195,7 +1195,7 @@ class CosmosCLI:
                 home=self.data_dir,
                 node=self.node_rpc,
                 gas_adjustment=1.3,
-                gas=2000000,
+                gas=4000000,
                 gas_prices="0.25uosmo",
                 keyring_backend="test",
                 chain_id=self.chain_id,
@@ -1208,6 +1208,7 @@ class CosmosCLI:
         from_,
         contract_code,
         init_args,
+        label,
         **kwargs,
     ):
         """
@@ -1216,7 +1217,6 @@ class CosmosCLI:
         # This is could be any constant number.
         # Its only meant to guarantee determinism.
         salt = 74657374
-        print(init_args)
         return json.loads(
             self.raw(
                 "tx",
@@ -1225,6 +1225,8 @@ class CosmosCLI:
                 contract_code,
                 init_args,
                 salt,
+                "--label",
+                label,
                 "--no-admin",
                 "-y",
                 "--fix-msg",

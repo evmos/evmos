@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from .ibc_utils import (
     EVMOS_IBC_DENOM,
@@ -12,7 +13,9 @@ from .utils import (
     KEYS,
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
+    assert_successful_cosmos_tx,
     eth_to_bech32,
+    get_event_attribute_value,
     get_precompile_contract,
     send_transaction,
     wait_for_fn,
@@ -20,6 +23,7 @@ from .utils import (
     register_ibc_coin,
     approve_proposal,
     erc20_balance,
+    wait_for_cosmos_tx_receipt,
 )
 from .network import Evmos, CosmosChain
 
@@ -106,81 +110,74 @@ def setup_osmos_chains(ibc):
 
     # create evmos <> osmo pool
     rsp = osmosis_cli.gamm_create_pool(osmosis_addr, OSMOSIS_POOLS["Evmos_Osmo"])
+    assert rsp["code"] == 0
+
+    # check for tx receipt to confirm tx was successful
+    assert_successful_cosmos_tx(osmosis_cli, rsp["txhash"])
 
     contracts_to_store = {
         "CrosschainRegistry": {
-            "get_instantiate_params": lambda x: f'"{{"owner":"{x}"}}"',
+            "get_instantiate_params": lambda x: f'"{{\\"owner\\":\\"{x}\\"}}"',
         },
         "Swaprouter": {
-            "get_instantiate_params": lambda x: f'"{{"owner":"{x}"}}"',
+            "get_instantiate_params": lambda x: f'"{{\\"owner\\":\\"{x}\\"}}"',
         },
         "CrosschainSwap": {
-            "get_instantiate_params": lambda x, y, z: f'"{{"governor":"{x}", "swap_contract": "{y}", "registry_contract": "{z}"}}"',
+            "get_instantiate_params": lambda x, y, z: f'"{{\\"governor\\":\\"{x}\\", \\"swap_contract\\": \\"{y}\\", \\"registry_contract\\": \\"{z}\\"}}"',
         },
     }
 
-    contracts_addrs = []
-
-    def check_contract_instantiated(code):
-        def F():
-            contracts = osmosis_cli.get_wasm_contract_by_code(code)
-            print("contracts: ", contracts)
-            contracts_addrs.append(contracts[0])
-
-        return F
-
-    # deploy CrosschainRegistry
+    # ===== Deploy CrosschainRegistry =====
     registry_contract = WASM_CONTRACTS["CrosschainRegistry"]
-    rsp = osmosis_cli.wasm_store_binary(osmosis_addr, registry_contract)
-    print(rsp)
-    assert rsp["code"] == 0
-    # instantiate contracts
-    rsp = osmosis_cli.wasm_instante2(
+    _, registry_contract_addr = deploy_wasm_contract(
+        osmosis_cli,
         osmosis_addr,
-        1,
+        registry_contract,
         contracts_to_store["CrosschainRegistry"]["get_instantiate_params"](
             osmosis_addr
         ),
+        "xcregistry1.0",
     )
-    assert rsp["code"] == 0
-    # TODO - check why we never get / see that contract
-    wait_for_fn("contract instantiate", check_contract_instantiated(1))
-    registry_contract_addr = contracts_addrs[0]
 
-    # deploy Swaprouter
+    # ===== Deploy Swaprouter =====
     swap_contract = WASM_CONTRACTS["Swaprouter"]
-    rsp = osmosis_cli.wasm_store_binary(osmosis_addr, swap_contract)
-    print(rsp)
-    assert rsp["code"] == 0
-    rsp = osmosis_cli.wasm_instante2(
+    _, swap_contract_addr = deploy_wasm_contract(
+        osmosis_cli,
         osmosis_addr,
-        2,
+        swap_contract,
         contracts_to_store["Swaprouter"]["get_instantiate_params"](osmosis_addr),
+        "swaprouter1.0",
     )
-    assert rsp["code"] == 0
-    wait_for_fn("contract instantiate", check_contract_instantiated(2))
-    swap_contract_addr = contracts_addrs[1]
 
-    # deploy CrosschainSwap
+    # ===== Deploy CrosschainSwap =====
     cross_swap_contract = WASM_CONTRACTS["CrosschainSwap"]
-    rsp = osmosis_cli.wasm_store_binary(osmosis_addr, cross_swap_contract)
-    print(rsp)
-    assert rsp["code"] == 0
-    rsp = osmosis_cli.wasm_instante2(
+    _, cross_swap_contract_addr = deploy_wasm_contract(
+        osmosis_cli,
         osmosis_addr,
-        3,
+        cross_swap_contract,
         contracts_to_store["CrosschainSwap"]["get_instantiate_params"](
             osmosis_addr, swap_contract_addr, registry_contract_addr
         ),
+        "xcswap1.0",
     )
-    assert rsp["code"] == 0
-    wait_for_fn("contract instantiate", check_contract_instantiated(3))
-    cross_swap_contract = contracts_addrs[2]
+    # =================================
 
     # in the router one execute function `set_route` to have a route for evmos within the swap router contract
-    execute_args = '{"set_route":{"input_denom": "uosmo","output_denom":"aevmos","pool_route":[{"pool_id": "1","token_out_denom":"aevmos"}]}}'
+    execute_args = '{{"set_route":{{"input_denom": "uosmo","output_denom":"aevmos","pool_route":[{{"pool_id": "1","token_out_denom":"aevmos"}}]}}'
+    print("**********")
+    print(execute_args)
     rsp = osmosis_cli.wasm_execute(swap_contract_addr, execute_args)
     assert rsp["code"] == 0
+
+    # check for tx receipt to confirm tx was successful
+    receipt = wait_for_cosmos_tx_receipt(osmosis_cli, rsp["txhash"])
+    receipt_file_path = f"/tmp/wasm_exec_receipt.json"
+    # TODO remove
+    with open(receipt_file_path, "w") as receipt_file:
+        json.dump(receipt, receipt_file, indent=2)
+    # TODO remove ^^^^
+
+    assert receipt["tx_result"]["code"] == 0
 
 
 def send_evmos_to_osmos(ibc):
@@ -308,3 +305,47 @@ def register_osmo_token(evmos):
     assert len(pairs) == 2
     assert pairs[1]["denom"] == osmos_ibc_denom
     return pairs[1]["erc20_address"]
+
+
+def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, label):
+    """
+    Stores the contract binary and deploys one instance of it.
+    Returns the contract code id
+    """
+    # 1. Store the binary
+    rsp = osmosis_cli.wasm_store_binary(deployer_addr, contract_file)
+    assert rsp["code"] == 0
+
+    # check for tx receipt to confirm tx was successful
+    receipt = wait_for_cosmos_tx_receipt(osmosis_cli, rsp["txhash"])
+    assert receipt["tx_result"]["code"] == 0
+    # get code_id from the receipt logs
+    logs = json.loads(receipt["tx_result"]["log"])
+    code_id = get_event_attribute_value(logs[0]["events"], "store_code", "code_id")
+
+    # 2. instantiate contract
+    rsp = osmosis_cli.wasm_instante2(
+        deployer_addr,
+        code_id,
+        init_args,
+        label,
+    )
+    assert rsp["code"] == 0
+
+    # check for tx receipt to confirm tx was successful
+    receipt = wait_for_cosmos_tx_receipt(osmosis_cli, rsp["txhash"])
+    receipt_file_path = f"/tmp/{label}_receipt.json"
+    # TODO remove
+    with open(receipt_file_path, "w") as receipt_file:
+        json.dump(receipt, receipt_file, indent=2)
+    # TODO remove ^^^^
+    assert receipt["tx_result"]["code"] == 0
+    
+    # get instantiated contract address from events in logs
+    logs = json.loads(receipt["tx_result"]["log"])
+    contract_addr = get_event_attribute_value(
+        logs[0]["events"], "instantiate", "_contract_address"
+    )
+    print(f"deployed {label} CosmWasm contract @ {contract_addr}")
+
+    return code_id, contract_addr

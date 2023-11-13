@@ -52,9 +52,9 @@ OSMOSIS_POOLS = {
 }
 
 WASM_BINARIES = {
-    "CrosschainRegistry": "crosschain_registry-aarch64.wasm",
-    "CrosschainSwap": "crosschain_swaps-aarch64.wasm",
-    "Swaprouter": "swaprouter-aarch64.wasm",
+    "CrosschainRegistry": "crosschain_registry.wasm",
+    "CrosschainSwap": "crosschain_swaps.wasm",
+    "Swaprouter": "swaprouter.wasm",
 }
 
 WEVMOS_META = {
@@ -266,6 +266,20 @@ def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
         )
 
 
+def wait_for_cosmos_tx_receipt(cli, tx_hash):
+    print(f"waiting receipt for tx_hash: {tx_hash}...")
+    wait_for_new_blocks(cli, 1)
+    res = cli.tx_search_rpc(f"tx.hash='{tx_hash}'")
+    if len(res) == 0:
+        return wait_for_cosmos_tx_receipt(cli, tx_hash)
+    return res[0]
+
+
+def assert_successful_cosmos_tx(cli, tx_hash):
+    receipt = wait_for_cosmos_tx_receipt(cli, tx_hash)
+    assert receipt["tx_result"]["code"] == 0
+
+
 def register_host_zone(
     stride,
     proposer,
@@ -305,8 +319,7 @@ def register_host_zone(
         assert rsp["code"] == 0, rsp["raw_log"]
         txhash = rsp["txhash"]
 
-    wait_for_new_blocks(stride.cosmos_cli(), 2)
-    receipt = stride.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
+    receipt = wait_for_cosmos_tx_receipt(stride.cosmos_cli(), txhash)
     proposal_id = get_event_attribute_value(
         receipt["tx_result"]["events"],
         "submit_proposal",
