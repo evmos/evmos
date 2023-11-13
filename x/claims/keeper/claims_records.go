@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/evmos/evmos/v15/x/claims/types"
 )
 
@@ -49,7 +50,7 @@ func (k Keeper) DeleteClaimsRecord(ctx sdk.Context, addr sdk.AccAddress) {
 // callback.
 func (k Keeper) IterateClaimsRecords(ctx sdk.Context, handlerFn func(addr sdk.AccAddress, cr types.ClaimsRecord) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixClaimsRecords)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixClaimsRecords)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

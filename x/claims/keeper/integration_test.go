@@ -9,6 +9,7 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -28,21 +29,21 @@ var _ = Describe("Claiming", Ordered, func() {
 	stakeDenom := stakingtypes.DefaultParams().BondDenom
 	accountCount := 4
 
-	actionValue := math.NewInt(int64(math.Pow10(5) * 10))
+	actionValue := sdkmath.NewInt(int64(math.Pow10(5) * 10))
 	claimValue := actionValue.MulRaw(4)
 	totalClaimsAmount := sdk.NewCoin(utils.BaseDenom, claimValue.MulRaw(int64(accountCount)))
 
 	// account initial balances
-	initClaimsAmount := math.NewInt(types.GenesisDust)
-	initBalanceAmount := math.NewInt(int64(math.Pow10(18) * 2))
-	initStakeAmount := math.NewInt(int64(math.Pow10(10) * 2))
-	delegateAmount := sdk.NewCoin(utils.BaseDenom, math.NewInt(1))
+	initClaimsAmount := sdkmath.NewInt(types.GenesisDust)
+	initBalanceAmount := sdkmath.NewInt(int64(math.Pow10(18) * 2))
+	initStakeAmount := sdkmath.NewInt(int64(math.Pow10(10) * 2))
+	delegateAmount := sdk.NewCoin(utils.BaseDenom, sdkmath.NewInt(1))
 	initBalance := sdk.NewCoins(
 		sdk.NewCoin(utils.BaseDenom, initClaimsAmount.Add(initBalanceAmount)), // claimsDenom == evmDenom
 	)
 
 	// account for creating the governance proposals
-	initClaimsAmount0 := math.NewInt(int64(math.Pow10(18) * 2))
+	initClaimsAmount0 := sdkmath.NewInt(int64(math.Pow10(18) * 2))
 	initBalance0 := sdk.NewCoins(
 		sdk.NewCoin(stakeDenom, initStakeAmount),
 		sdk.NewCoin(utils.BaseDenom, initBalanceAmount.Add(initClaimsAmount0)), // claimsDenom == evmDenom

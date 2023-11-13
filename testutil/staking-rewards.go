@@ -105,7 +105,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		}
 
 		zeroDec := math.LegacyZeroDec()
-		stakingParams := app.StakingKeeper.GetParams(ctx)
+		stakingParams, err := app.StakingKeeper.GetParams(ctx)
+		if err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to get staking params: %s", err.Error())
+		}
 		stakingParams.BondDenom = utils.BaseDenom
 		stakingParams.MinCommissionRate = zeroDec
 		err = app.StakingKeeper.SetParams(ctx, stakingParams)

@@ -5,6 +5,7 @@ package keeper
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"

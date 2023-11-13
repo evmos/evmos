@@ -8,6 +8,7 @@ import (
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/x/incentives/types"
@@ -18,7 +19,7 @@ func (k Keeper) GetAllAllocationMeters(ctx sdk.Context) []sdk.DecCoin {
 	allocationMeters := []sdk.DecCoin{}
 
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixAllocationMeter)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixAllocationMeter)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

@@ -56,27 +56,27 @@ type MockBankKeeper struct {
 	mock.Mock
 }
 
-func (b *MockBankKeeper) SendCoinsFromModuleToAccount(_ sdk.Context, _ string, _ sdk.AccAddress, _ sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromModuleToAccount(_ context.Context, _ string, _ sdk.AccAddress, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) SendCoinsFromAccountToModule(_ sdk.Context, _ sdk.AccAddress, _ string, _ sdk.Coins) error {
+func (b *MockBankKeeper) SendCoinsFromAccountToModule(_ context.Context, _ sdk.AccAddress, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) MintCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
+func (b *MockBankKeeper) MintCoins(_ context.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) BurnCoins(_ sdk.Context, _ string, _ sdk.Coins) error {
+func (b *MockBankKeeper) BurnCoins(_ context.Context, _ string, _ sdk.Coins) error {
 	args := b.Called(mock.Anything, mock.Anything, mock.Anything)
 	return args.Error(0)
 }
 
-func (b *MockBankKeeper) IsSendEnabledCoin(_ sdk.Context, _ sdk.Coin) bool {
+func (b *MockBankKeeper) IsSendEnabledCoin(_ context.Context, _ sdk.Coin) bool {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Bool(0)
 }
@@ -87,20 +87,20 @@ func (b *MockBankKeeper) BlockedAddr(_ sdk.AccAddress) bool {
 }
 
 //nolint:all
-func (b *MockBankKeeper) GetDenomMetaData(ctx sdk.Context, denom string) (banktypes.Metadata, bool) {
+func (b *MockBankKeeper) GetDenomMetaData(ctx context.Context, denom string) (banktypes.Metadata, bool) {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(banktypes.Metadata), args.Bool(1)
 }
 
-func (b *MockBankKeeper) SetDenomMetaData(_ sdk.Context, _ banktypes.Metadata) {
+func (b *MockBankKeeper) SetDenomMetaData(_ context.Context, _ banktypes.Metadata) {
 }
 
-func (b *MockBankKeeper) HasSupply(_ sdk.Context, _ string) bool {
+func (b *MockBankKeeper) HasSupply(_ context.Context, _ string) bool {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Bool(0)
 }
 
-func (b *MockBankKeeper) GetBalance(_ sdk.Context, _ sdk.AccAddress, _ string) sdk.Coin {
+func (b *MockBankKeeper) GetBalance(_ context.Context, _ sdk.AccAddress, _ string) sdk.Coin {
 	args := b.Called(mock.Anything, mock.Anything)
 	return args.Get(0).(sdk.Coin)
 }

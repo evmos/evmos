@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -16,7 +17,7 @@ func (k Keeper) GetAllIncentives(ctx sdk.Context) []types.Incentive {
 	incentives := []types.Incentive{}
 
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -36,7 +37,7 @@ func (k Keeper) IterateIncentives(
 	handlerFn func(incentive types.Incentive) (stop bool),
 ) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixIncentive)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

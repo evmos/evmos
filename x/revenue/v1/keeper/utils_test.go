@@ -55,7 +55,8 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	err = suite.app.RevenueKeeper.SetParams(suite.ctx, params)
 	require.NoError(t, err)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, err := suite.app.StakingKeeper.GetParams(suite.ctx)
+	require.NoError(t, err)
 	stakingParams.BondDenom = suite.denom
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
@@ -75,11 +76,12 @@ func (suite *KeeperTestSuite) SetupApp(chainID string) {
 	validator, err := stakingtypes.NewValidator(valAddr.String(), privCons.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
 	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, sdk.ValAddress(validator.GetOperator()))
 	require.NoError(t, err)
 	err = suite.app.StakingKeeper.SetValidatorByConsAddr(suite.ctx, validator)
 	require.NoError(t, err)
-	validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+	validators, err := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+	require.NoError(t, err)
 	suite.validator = validators[0]
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())

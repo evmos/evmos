@@ -39,12 +39,14 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	scopedKeeper capabilitykeeper.ScopedKeeper,
 	erc20Keeper types.ERC20Keeper,
+	authority string,
 ) Keeper {
 	// create the original IBC transfer keeper for embedding
 	transferKeeper := keeper.NewKeeper(
 		cdc, storeKey, paramSpace,
 		ics4Wrapper, channelKeeper, portKeeper,
 		accountKeeper, bankKeeper, scopedKeeper,
+		authority,
 	)
 
 	return Keeper{

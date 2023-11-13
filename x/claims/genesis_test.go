@@ -67,7 +67,8 @@ func (suite *GenesisTestSuite) SetupTest() {
 	err := suite.app.ClaimsKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 
-	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
+	stakingParams, err := suite.app.StakingKeeper.GetParams(suite.ctx)
+	suite.Require().NoError(err)
 	stakingParams.BondDenom = utils.BaseDenom
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	suite.Require().NoError(err)

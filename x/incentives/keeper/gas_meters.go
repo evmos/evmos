@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -17,7 +18,7 @@ func (k Keeper) GetIncentivesGasMeters(ctx sdk.Context) []types.GasMeter {
 
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixGasMeter)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixGasMeter)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -63,7 +64,7 @@ func (k Keeper) IterateIncentiveGasMeters(
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefixGasMeter)
 
-	iterator := sdk.KVStorePrefixIterator(store, contract.Bytes())
+	iterator := storetypes.KVStorePrefixIterator(store, contract.Bytes())
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
