@@ -5,6 +5,7 @@ package staking
 
 import (
 	"embed"
+	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -33,6 +34,7 @@ const PrecompileAddress = "0x0000000000000000000000000000000000000800"
 type Precompile struct {
 	cmn.Precompile
 	stakingKeeper stakingkeeper.Keeper
+	distKeeper    distributionkeeper.Keeper
 }
 
 // LoadABI loads the staking ABI from the embedded abi.json file
@@ -45,22 +47,24 @@ func LoadABI() (abi.ABI, error) {
 // PrecompiledContract interface.
 func NewPrecompile(
 	stakingKeeper stakingkeeper.Keeper,
+	distKeeper distributionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 ) (*Precompile, error) {
-	abi, err := LoadABI()
+	ABI, err := LoadABI()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  abi,
+			ABI:                  ABI,
 			AuthzKeeper:          authzKeeper,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		stakingKeeper: stakingKeeper,
+		distKeeper:    distKeeper,
 	}, nil
 }
 
@@ -117,6 +121,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Redelegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case CancelUnbondingDelegationMethod:
 		bz, err = p.CancelUnbondingDelegation(ctx, evm.Origin, contract, stateDB, method, args)
+	case RestakeMethod:
+		bz, err = p.Restake(ctx, evm.Origin, contract, stateDB, method, args)
 	// Staking queries
 	case DelegationMethod:
 		bz, err = p.Delegation(ctx, contract, method, args)
@@ -167,6 +173,7 @@ func (Precompile) IsTransaction(method string) bool {
 		UndelegateMethod,
 		RedelegateMethod,
 		CancelUnbondingDelegationMethod,
+		RestakeMethod,
 		authorization.ApproveMethod,
 		authorization.RevokeMethod,
 		authorization.IncreaseAllowanceMethod,

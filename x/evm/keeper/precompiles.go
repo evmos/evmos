@@ -44,7 +44,7 @@ func AvailablePrecompiles(
 	// secp256r1 precompile as per EIP-7212
 	p256Precompile := &p256.Precompile{}
 
-	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
+	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, distributionKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load staking precompile: %w", err))
 	}

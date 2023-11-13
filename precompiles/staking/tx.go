@@ -30,6 +30,8 @@ const (
 	// CancelUnbondingDelegationMethod defines the ABI method name for the staking
 	// CancelUnbondingDelegation transaction.
 	CancelUnbondingDelegationMethod = "cancelUnbondingDelegation"
+	// RestakeMethod defines the ABI method name for the staking Restake transaction.
+	RestakeMethod = "restake"
 )
 
 const (
@@ -362,6 +364,41 @@ func (p Precompile) CancelUnbondingDelegation(
 	if err = p.EmitCancelUnbondingDelegationEvent(ctx, stateDB, msg, delegatorHexAddr); err != nil {
 		return nil, err
 	}
+
+	return method.Outputs.Pack(true)
+}
+
+// Restake performs a restake of the provided delegation for the combination delegator <-> validator
+func (p Precompile) Restake(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	delegatorAddr, validatorAddr, err := checkRestakeArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	validator, found := p.stakingKeeper.GetValidator(ctx, validatorAddr.Bytes())
+	if !found {
+		return nil, fmt.Errorf("validator %s not found", validatorAddr.String())
+	}
+
+	delegation, found := p.stakingKeeper.GetDelegation(ctx, delegatorAddr.Bytes(), validatorAddr.Bytes())
+	if !found {
+		return nil, fmt.Errorf("delegation %s not found", delegatorAddr.String())
+	}
+
+	pendingRewards, err := p.distKeeper.WithdrawDelegationRewardsWithoutSending(ctx, validator, delegation)
+	if err != nil {
+		return nil, err
+	}
+
+	delegation.Shares = delegation.Shares.Add(pendingRewards[0].Amount.ToLegacyDec())
+	p.stakingKeeper.SetDelegation(ctx, delegation)
 
 	return method.Outputs.Pack(true)
 }

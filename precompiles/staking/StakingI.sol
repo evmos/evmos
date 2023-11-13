@@ -238,6 +238,24 @@ interface StakingI is authorization.AuthorizationI {
             PageResponse calldata pageResponse
         );
 
+
+    // Restakes the rewards earned by the delegator to the validator.
+    // @param delegatorAddress The address of the delegator.
+    // @param validatorAddress The address of the validator.
+    // @return success Whether or not the restake was successful.
+    function restake(
+        address delegatorAddress,
+        address validatorAddress
+    ) external returns (bool success);
+
+
+    // Restakes all the rewards earned by the delegator to all their validators.
+    // @param delegatorAddress The address of the delegator.
+    // @return success Whether or not the restake was successful.
+    function restakeAll(
+        address delegatorAddress
+    ) external returns (bool success);
+
     /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
     /// delegator address to the validator address.
     /// @param delegatorAddress The address of the delegator

@@ -658,6 +658,25 @@ func NewUnbondingDelegationRequest(args []interface{}) (*stakingtypes.QueryUnbon
 	}, nil
 }
 
+// checkRestakeArgs checks the arguments for the restake function.
+func checkRestakeArgs(args []interface{}) (common.Address, common.Address, error) {
+	if len(args) != 2 {
+		return common.Address{}, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+	}
+
+	delegatorAddr, ok := args[0].(common.Address)
+	if !ok || delegatorAddr == (common.Address{}) {
+		return common.Address{}, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
+	}
+
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return common.Address{}, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", common.Address{}, args[1])
+	}
+
+	return delegatorAddr, validatorAddress, nil
+}
+
 // checkDelegationUndelegationArgs checks the arguments for the delegation and undelegation functions.
 func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string, *big.Int, error) {
 	if len(args) != 3 {
