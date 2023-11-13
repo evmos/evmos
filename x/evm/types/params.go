@@ -5,14 +5,16 @@ package types
 import (
 	"fmt"
 	"math/big"
+	"sort"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
-
 	"github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -101,7 +103,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return validatePrecompiles(p.ActivePrecompiles)
+	return ValidatePrecompiles(p.ActivePrecompiles)
 }
 
 // EIPs returns the ExtraEIPS as a int slice
@@ -126,6 +128,16 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 		precompiles[i] = common.HexToAddress(precompile)
 	}
 	return precompiles
+}
+
+// IsActivePrecompile returns true if the given precompile address is
+// registered as an active precompile.
+func (p Params) IsActivePrecompile(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
+	})
+
+	return found
 }
 
 func validateEVMDenom(i interface{}) error {
@@ -155,7 +167,7 @@ func validateEIPs(i interface{}) error {
 
 	for _, eip := range eips {
 		if !vm.ValidEip(int(eip)) {
-			return fmt.Errorf("EIP %d is not activateable, valid EIPS are: %s", eip, vm.ActivateableEips())
+			return fmt.Errorf("EIP %d is not activateable, valid EIPs are: %s", eip, vm.ActivateableEips())
 		}
 
 		if _, ok := uniqueEIPs[eip]; ok {
@@ -176,15 +188,16 @@ func validateChainConfig(i interface{}) error {
 	return cfg.Validate()
 }
 
-func validatePrecompiles(i interface{}) error {
+// ValidatePrecompiles checks if the precompile addresses are valid and unique.
+func ValidatePrecompiles(i interface{}) error {
 	precompiles, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid precompile slice type: %T", i)
 	}
 
-	seenPrecompiles := make(map[string]bool)
+	seenPrecompiles := make(map[string]struct{})
 	for _, precompile := range precompiles {
-		if seenPrecompiles[precompile] {
+		if _, ok := seenPrecompiles[precompile]; ok {
 			return fmt.Errorf("duplicate precompile %s", precompile)
 		}
 
@@ -192,7 +205,14 @@ func validatePrecompiles(i interface{}) error {
 			return fmt.Errorf("invalid precompile %s", precompile)
 		}
 
-		seenPrecompiles[precompile] = true
+		seenPrecompiles[precompile] = struct{}{}
+	}
+
+	// NOTE: Check that the precompiles are sorted. This is required for the
+	// precompiles to be found correctly when using the IsActivePrecompile method,
+	// because of the use of sort.Find.
+	if !slices.IsSorted(precompiles) {
+		return fmt.Errorf("precompiles need to be sorted: %s", precompiles)
 	}
 
 	return nil
