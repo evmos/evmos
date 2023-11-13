@@ -5,6 +5,7 @@ package staking
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -55,6 +56,23 @@ type EventCancelUnbonding struct {
 	CreationHeight   *big.Int
 }
 
+// Description defines a validator description.
+type Description struct {
+	Moniker         string "json:\"moniker\""
+	Identity        string "json:\"identity\""
+	Website         string "json:\"website\""
+	SecurityContact string "json:\"securityContact\""
+	Details         string "json:\"details\""
+}
+
+// Commission defines a validator commission.
+// since solidity does not support decimals, after passing in the big int, convert the big int into a decimal with a precision of 18
+type Commission struct {
+	Rate          *big.Int "json:\"rate\""
+	MaxRate       *big.Int "json:\"maxRate\""
+	MaxChangeRate *big.Int "json:\"maxChangeRate\""
+}
+
 // NewMsgCreateValidator creates a new MsgCreateValidator instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgCreateValidator, common.Address, error) {
@@ -62,25 +80,22 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
-	description, ok := args[0].(struct {
-		Moniker         string "json:\"moniker\""
-		Identity        string "json:\"identity\""
-		Website         string "json:\"website\""
-		SecurityContact string "json:\"securityContact\""
-		Details         string "json:\"details\""
-	})
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "description", "tuple", args[0])
+	descriptionJson, err := json.Marshal(args[0])
+	if err != nil {
+		return nil, common.Address{}, fmt.Errorf("failed to marshal description to json: %v", err)
+	}
+	var description Description
+	if err := json.Unmarshal(descriptionJson, &description); err != nil {
+		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to description: %v", err)
 	}
 
-	// since solidity does not support decimals, after passing in the big int, convert the big int into a decimal with a precision of 18
-	commission, ok := args[1].(struct {
-		Rate          *big.Int "json:\"rate\""
-		MaxRate       *big.Int "json:\"maxRate\""
-		MaxChangeRate *big.Int "json:\"maxChangeRate\""
-	})
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commission", "tuple", args[1])
+	commissionJson, err := json.Marshal(args[1])
+	if err != nil {
+		return nil, common.Address{}, fmt.Errorf("failed to marshal commission to json: %v", err)
+	}
+	var commission Commission
+	if err := json.Unmarshal(commissionJson, &commission); err != nil {
+		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to commission: %v", err)
 	}
 
 	minSelfDelegation, ok := args[2].(*big.Int)
