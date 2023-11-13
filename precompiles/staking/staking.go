@@ -168,6 +168,7 @@ func (Precompile) IsTransaction(method string) bool {
 		RedelegateMethod,
 		CancelUnbondingDelegationMethod,
 		RestakeMethod,
+		RestakeAllMethod,
 		authorization.ApproveMethod,
 		authorization.RevokeMethod,
 		authorization.IncreaseAllowanceMethod,

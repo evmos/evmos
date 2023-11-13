@@ -32,6 +32,8 @@ const (
 	CancelUnbondingDelegationMethod = "cancelUnbondingDelegation"
 	// RestakeMethod defines the ABI method name for the staking Restake transaction.
 	RestakeMethod = "restake"
+	// RestakeAllMethod defines the ABI method name for the staking RestakeAll transaction.
+	RestakeAllMethod = "restakeAll"
 )
 
 const (
@@ -368,7 +370,7 @@ func (p Precompile) CancelUnbondingDelegation(
 	return method.Outputs.Pack(true)
 }
 
-// Restake performs a restake of the provided delegation for the combination delegator <-> validator
+// Restake performs a restake of the provided delegation for the combination delegator <-> validator.
 func (p Precompile) Restake(
 	ctx sdk.Context,
 	origin common.Address,
@@ -397,8 +399,40 @@ func (p Precompile) Restake(
 		return nil, err
 	}
 
+	// Check if there are any pending rewards to restake and if they are valid
+	if pendingRewards[0].Validate() != nil || len(pendingRewards) == 0 {
+		return nil, fmt.Errorf("invalid or no rewards to restake")
+	}
+
 	delegation.Shares = delegation.Shares.Add(pendingRewards[0].Amount.ToLegacyDec())
 	p.stakingKeeper.SetDelegation(ctx, delegation)
 
+	// Emit Cosmos events
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			stakingtypes.EventTypeDelegate,
+			sdk.NewAttribute(stakingtypes.AttributeKeyValidator, validator.OperatorAddress),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, pendingRewards[0].Amount.String()),
+			sdk.NewAttribute(stakingtypes.AttributeKeyNewShares, delegation.Shares.String()),
+		),
+	})
+
+	// Emit EVM events
+	if err := p.EmitRestakeEvent(ctx, stateDB, delegatorAddr, validatorAddr, pendingRewards[0].Amount.BigInt()); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
+
+// RestakeAll performs a restake of all the rewards for a delegator for all of their validators.
+func (p Precompile) RestakeAll(
+	ctx sdk.Context,
+	origin common.Address,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
 	return method.Outputs.Pack(true)
 }

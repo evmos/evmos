@@ -114,6 +114,80 @@ enum BondStatus {
 /// wraps the pallet.
 /// @custom:address 0x0000000000000000000000000000000000000800
 interface StakingI is authorization.AuthorizationI {
+    /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
+    /// delegator address to the validator address.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param amount The amount of Coin being delegated
+    /// @param newShares The new delegation shares being held
+    event Delegate(
+        address indexed delegatorAddress,
+        string indexed validatorAddress,
+        uint256 amount,
+        uint256 newShares
+    );
+
+    /// @dev Unbond defines an Event emitted when a given amount of tokens are unbonded from the
+    /// validator address to the delegator address.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param amount The amount of Coin being unbonded
+    /// @param completionTime The time at which the unbonding is completed
+    event Unbond(
+        address indexed delegatorAddress,
+        string indexed validatorAddress,
+        uint256 amount,
+        uint256 completionTime
+    );
+
+    /// @dev Redelegate defines an Event emitted when a given amount of tokens are redelegated from
+    /// the source validator address to the destination validator address.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorSrcAddress The address of the validator from which the delegation is retracted
+    /// @param validatorDstAddress The address of the validator to which the delegation is directed
+    /// @param amount The amount of Coin being redelegated
+    /// @param completionTime The time at which the redelegation is completed
+    event Redelegate(
+        address indexed delegatorAddress,
+        string indexed validatorSrcAddress,
+        string indexed validatorDstAddress,
+        uint256 amount,
+        uint256 completionTime
+    );
+
+    /// @dev CancelUnbondingDelegation defines an Event emitted when a given amount of tokens
+    /// that are in the process of unbonding from the validator address are bonded again.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param amount The amount of Coin that was in the unbonding process which is to be canceled
+    /// @param creationHeight The block height at which the unbonding of a delegation was initiated
+    event CancelUnbondingDelegation(
+        address indexed delegatorAddress,
+        string indexed validatorAddress,
+        uint256 amount,
+        uint256 creationHeight
+    );
+
+    /// @dev Restake defines an Event emitted when a given amount of tokens are restaked from
+    /// the delegator address to the validator address.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param amount The amount of Coin being restaked
+    event Restake(
+        address indexed delegatorAddress,
+        address indexed validatorAddress,
+        uint256 amount
+    );
+
+    /// @dev RestakeAll defines an Event emitted when a given amount of tokens are restaked from
+    /// the delegator address to all of their current validators.
+    /// @param delegatorAddress The address of the delegator
+    /// @param amount The amount of Coin being restaked
+    event RestakeAll(
+        address indexed delegatorAddress,
+        uint256 amount
+    );
+
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.
     /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
@@ -198,12 +272,12 @@ interface StakingI is authorization.AuthorizationI {
         string memory status,
         PageRequest calldata pageRequest
     )
-        external
-        view
-        returns (
-            Validator[] calldata validators,
-            PageResponse calldata pageResponse
-        );
+    external
+    view
+    returns (
+        Validator[] calldata validators,
+        PageResponse calldata pageResponse
+    );
 
     /// @dev Queries all redelegations from a source to a destination validator for a given delegator.
     /// @param delegatorAddress The address of the delegator.
@@ -231,12 +305,12 @@ interface StakingI is authorization.AuthorizationI {
         string memory dstValidatorAddress,
         PageRequest calldata pageRequest
     )
-        external
-        view
-        returns (
-            RedelegationResponse[] calldata response,
-            PageResponse calldata pageResponse
-        );
+    external
+    view
+    returns (
+        RedelegationResponse[] calldata response,
+        PageResponse calldata pageResponse
+    );
 
 
     // Restakes the rewards earned by the delegator to the validator.
@@ -256,57 +330,4 @@ interface StakingI is authorization.AuthorizationI {
         address delegatorAddress
     ) external returns (bool success);
 
-    /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
-    /// delegator address to the validator address.
-    /// @param delegatorAddress The address of the delegator
-    /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin being delegated
-    /// @param newShares The new delegation shares being held
-    event Delegate(
-        address indexed delegatorAddress,
-        string indexed validatorAddress,
-        uint256 amount,
-        uint256 newShares
-    );
-
-    /// @dev Unbond defines an Event emitted when a given amount of tokens are unbonded from the
-    /// validator address to the delegator address.
-    /// @param delegatorAddress The address of the delegator
-    /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin being unbonded
-    /// @param completionTime The time at which the unbonding is completed
-    event Unbond(
-        address indexed delegatorAddress,
-        string indexed validatorAddress,
-        uint256 amount,
-        uint256 completionTime
-    );
-
-    /// @dev Redelegate defines an Event emitted when a given amount of tokens are redelegated from
-    /// the source validator address to the destination validator address.
-    /// @param delegatorAddress The address of the delegator
-    /// @param validatorSrcAddress The address of the validator from which the delegation is retracted
-    /// @param validatorDstAddress The address of the validator to which the delegation is directed
-    /// @param amount The amount of Coin being redelegated
-    /// @param completionTime The time at which the redelegation is completed
-    event Redelegate(
-        address indexed delegatorAddress,
-        string indexed validatorSrcAddress,
-        string indexed validatorDstAddress,
-        uint256 amount,
-        uint256 completionTime
-    );
-
-    /// @dev CancelUnbondingDelegation defines an Event emitted when a given amount of tokens
-    /// that are in the process of unbonding from the validator address are bonded again.
-    /// @param delegatorAddress The address of the delegator
-    /// @param validatorAddress The address of the validator
-    /// @param amount The amount of Coin that was in the unbonding process which is to be canceled
-    /// @param creationHeight The block height at which the unbonding of a delegation was initiated
-    event CancelUnbondingDelegation(
-        address indexed delegatorAddress,
-        string indexed validatorAddress,
-        uint256 amount,
-        uint256 creationHeight
-    );
 }

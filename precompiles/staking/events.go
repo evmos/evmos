@@ -28,6 +28,10 @@ const (
 	EventTypeRedelegate = "Redelegate"
 	// EventTypeCancelUnbondingDelegation defines the event type for the staking CancelUnbondingDelegation transaction.
 	EventTypeCancelUnbondingDelegation = "CancelUnbondingDelegation"
+	// EventTypeRestake defines the event type for the staking Restake transaction.
+	EventTypeRestake = "Restake"
+	// EventTypeRestakeAll defines the event type for the staking RestakeAll transaction.
+	EventTypeRestakeAll = "RestakeAll"
 )
 
 // EmitApprovalEvent creates a new approval event emitted on an Approve, IncreaseAllowance and DecreaseAllowance transactions.
@@ -227,6 +231,40 @@ func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB 
 	var b bytes.Buffer
 	b.Write(cmn.PackNum(reflect.ValueOf(msg.Amount.Amount.BigInt())))
 	b.Write(cmn.PackNum(reflect.ValueOf(big.NewInt(msg.CreationHeight))))
+
+	stateDB.AddLog(&ethtypes.Log{
+		Address:     p.Address(),
+		Topics:      topics,
+		Data:        b.Bytes(),
+		BlockNumber: uint64(ctx.BlockHeight()),
+	})
+
+	return nil
+}
+
+// EmitRestakeEvent creates a new restake event emitted on a Restake transaction.
+func (p Precompile) EmitRestakeEvent(ctx sdk.Context, stateDB vm.StateDB, delegatorAddr, validatorAddr common.Address, amount *big.Int) error {
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeRestake]
+	topics := make([]common.Hash, 3)
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(delegatorAddr)
+	if err != nil {
+		return err
+	}
+
+	topics[2], err = cmn.MakeTopic(validatorAddr)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the event data
+	var b bytes.Buffer
+	b.Write(cmn.PackNum(reflect.ValueOf(amount)))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
