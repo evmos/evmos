@@ -133,21 +133,31 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 		return err
 	}
 
-	// Prepare the event data
-	var b bytes.Buffer
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.Rate.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxRate.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Commission.MaxChangeRate.BigInt())))
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.MinSelfDelegation.BigInt())))
-	// TODO: I emit the CreateValidator event in the contract by deploy a normal contract. Determine the encoding of Value and Pubkey
-	b.Write(common.Hex2Bytes("00000000000000000000000000000000000000000000000000000000000000c0"))
-	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
-	b.Write(cmn.PackElement(reflect.ValueOf(msg.Pubkey.String())))
+	// Pack the arguments to be used as the Data field
+	arguments := abi.Arguments{
+		event.Inputs[2],
+		event.Inputs[3],
+		event.Inputs[4],
+		event.Inputs[5],
+		event.Inputs[6],
+		event.Inputs[7],
+	}
+	packed, err := arguments.Pack(
+		msg.Commission.Rate.BigInt(),
+		msg.Commission.MaxRate.BigInt(),
+		msg.Commission.MaxChangeRate.BigInt(),
+		msg.MinSelfDelegation.BigInt(),
+		msg.Pubkey.String(),
+		msg.Value.Amount.BigInt(),
+	)
+	if err != nil {
+		return err
+	}
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        b.Bytes(),
+		Data:        packed,
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
