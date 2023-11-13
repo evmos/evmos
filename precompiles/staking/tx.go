@@ -404,6 +404,11 @@ func (p Precompile) Restake(
 		return nil, fmt.Errorf("invalid or no rewards to restake")
 	}
 
+	// Check for the correct bond denom
+	if pendingRewards[0].Denom != p.stakingKeeper.BondDenom(ctx) {
+		return nil, fmt.Errorf("invalid reward denom")
+	}
+
 	delegation.Shares = delegation.Shares.Add(pendingRewards[0].Amount.ToLegacyDec())
 	p.stakingKeeper.SetDelegation(ctx, delegation)
 
