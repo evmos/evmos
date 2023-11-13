@@ -91,7 +91,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	switch endpoint.ClientConfig.GetClientType() {
 	case exported.Tendermint:
 		tmConfig, ok := endpoint.ClientConfig.(*ibctesting.TendermintConfig)
-		require.True(endpoint.Chain.T, ok)
+		require.True(endpoint.Chain.TB, ok)
 
 		height := endpoint.Counterparty.Chain.LastHeader.GetHeight().(clienttypes.Height)
 		clientState = ibclightclient.NewClientState(
@@ -112,7 +112,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	msg, err := clienttypes.NewMsgCreateClient(
 		clientState, consensusState, endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	res, err := SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
 	if err != nil {
@@ -120,7 +120,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 	}
 
 	endpoint.ClientID, err = ibctesting.ParseClientIDFromEvents(res.GetEvents())
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	return nil
 }
@@ -148,7 +148,7 @@ func (endpoint *Endpoint) UpdateClient() (err error) {
 		endpoint.ClientID, header,
 		endpoint.Chain.SenderAccount.GetAddress().String(),
 	)
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	_, err = SendMsgs(endpoint.Chain, DefaultFeeAmt, msg)
 	return err
@@ -168,7 +168,7 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 	}
 
 	endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents())
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	return nil
 }
@@ -176,7 +176,7 @@ func (endpoint *Endpoint) ConnOpenInit() error {
 // ConnOpenTry will construct and execute a MsgConnectionOpenTry on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenTry() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	counterpartyClient, proofClient, proofConsensus, consensusHeight, proofInit, proofHeight := endpoint.QueryConnectionHandshakeProof()
 
@@ -194,7 +194,7 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 
 	if endpoint.ConnectionID == "" {
 		endpoint.ConnectionID, err = ibctesting.ParseConnectionIDFromEvents(res.GetEvents())
-		require.NoError(endpoint.Chain.T, err)
+		require.NoError(endpoint.Chain.TB, err)
 	}
 
 	return nil
@@ -203,7 +203,7 @@ func (endpoint *Endpoint) ConnOpenTry() error {
 // ConnOpenAck will construct and execute a MsgConnectionOpenAck on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenAck() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	counterpartyClient, proofClient, proofConsensus, consensusHeight, proofTry, proofHeight := endpoint.QueryConnectionHandshakeProof()
 
@@ -221,7 +221,7 @@ func (endpoint *Endpoint) ConnOpenAck() error {
 // ConnOpenConfirm will construct and execute a MsgConnectionOpenConfirm on the associated endpoint.
 func (endpoint *Endpoint) ConnOpenConfirm() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	connectionKey := host.ConnectionKey(endpoint.Counterparty.ConnectionID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(connectionKey)
@@ -278,7 +278,7 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 	}
 
 	endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents())
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	// update version to selected app version
 	// NOTE: this update must be performed after SendMsgs()
@@ -290,7 +290,7 @@ func (endpoint *Endpoint) ChanOpenInit() error {
 // ChanOpenTry will construct and execute a MsgChannelOpenTry on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenTry() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -309,7 +309,7 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 
 	if endpoint.ChannelID == "" {
 		endpoint.ChannelID, err = ibctesting.ParseChannelIDFromEvents(res.GetEvents())
-		require.NoError(endpoint.Chain.T, err)
+		require.NoError(endpoint.Chain.TB, err)
 	}
 
 	// update version to selected app version
@@ -322,7 +322,7 @@ func (endpoint *Endpoint) ChanOpenTry() error {
 // ChanOpenAck will construct and execute a MsgChannelOpenAck on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenAck() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -346,7 +346,7 @@ func (endpoint *Endpoint) ChanOpenAck() error {
 // ChanOpenConfirm will construct and execute a MsgChannelOpenConfirm on the associated endpoint.
 func (endpoint *Endpoint) ChanOpenConfirm() error {
 	err := endpoint.UpdateClient()
-	require.NoError(endpoint.Chain.T, err)
+	require.NoError(endpoint.Chain.TB, err)
 
 	channelKey := host.ChannelKey(endpoint.Counterparty.ChannelConfig.PortID, endpoint.Counterparty.ChannelID)
 	proof, height := endpoint.Counterparty.Chain.QueryProof(channelKey)
@@ -478,7 +478,7 @@ func (endpoint *Endpoint) TimeoutPacket(packet channeltypes.Packet) error {
 
 	proof, proofHeight := endpoint.Counterparty.QueryProof(packetKey)
 	nextSeqRecv, found := endpoint.Counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(endpoint.Counterparty.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
-	require.True(endpoint.Chain.T, found)
+	require.True(endpoint.Chain.TB, found)
 
 	timeoutMsg := channeltypes.NewMsgTimeout(
 		packet, nextSeqRecv,
@@ -509,7 +509,7 @@ func (endpoint *Endpoint) TimeoutOnClose(packet channeltypes.Packet) error {
 	proofClosed, _ := endpoint.Counterparty.QueryProof(channelKey)
 
 	nextSeqRecv, found := endpoint.Counterparty.Chain.App.GetIBCKeeper().ChannelKeeper.GetNextSequenceRecv(endpoint.Counterparty.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
-	require.True(endpoint.Chain.T, found)
+	require.True(endpoint.Chain.TB, found)
 
 	timeoutOnCloseMsg := channeltypes.NewMsgTimeoutOnClose(
 		packet, nextSeqRecv,
@@ -547,7 +547,7 @@ func (endpoint *Endpoint) SetClientState(clientState exported.ClientState) {
 // The consensus state is expected to exist otherwise testing will fail.
 func (endpoint *Endpoint) GetConsensusState(height exported.Height) exported.ConsensusState {
 	consensusState, found := endpoint.Chain.GetConsensusState(endpoint.ClientID, height)
-	require.True(endpoint.Chain.T, found)
+	require.True(endpoint.Chain.TB, found)
 
 	return consensusState
 }
@@ -561,7 +561,7 @@ func (endpoint *Endpoint) SetConsensusState(consensusState exported.ConsensusSta
 // connection is expected to exist otherwise testing will fail.
 func (endpoint *Endpoint) GetConnection() connectiontypes.ConnectionEnd {
 	connection, found := endpoint.Chain.App.GetIBCKeeper().ConnectionKeeper.GetConnection(endpoint.Chain.GetContext(), endpoint.ConnectionID)
-	require.True(endpoint.Chain.T, found)
+	require.True(endpoint.Chain.TB, found)
 
 	return connection
 }
@@ -575,7 +575,7 @@ func (endpoint *Endpoint) SetConnection(connection connectiontypes.ConnectionEnd
 // is expected to exist otherwise testing will fail.
 func (endpoint *Endpoint) GetChannel() channeltypes.Channel {
 	channel, found := endpoint.Chain.App.GetIBCKeeper().ChannelKeeper.GetChannel(endpoint.Chain.GetContext(), endpoint.ChannelConfig.PortID, endpoint.ChannelID)
-	require.True(endpoint.Chain.T, found)
+	require.True(endpoint.Chain.TB, found)
 
 	return channel
 }

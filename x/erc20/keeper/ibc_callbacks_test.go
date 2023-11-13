@@ -173,7 +173,9 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			malleate: func() {
 				// base denom should be prefixed
 				sourcePrefix := transfertypes.GetDenomPrefix(transfertypes.PortID, sourceChannel)
-				prefixedDenom := sourcePrefix + s.app.StakingKeeper.BondDenom(suite.ctx)
+				bondDenom, err := s.app.StakingKeeper.BondDenom(suite.ctx)
+				suite.Require().NoError(err)
+				prefixedDenom := sourcePrefix + bondDenom
 				transfer := transfertypes.NewFungibleTokenPacketData(prefixedDenom, "100", secpAddrCosmos, ethsecpAddrEvmos, "")
 				bz := transfertypes.ModuleCdc.MustMarshalJSON(&transfer)
 				packet = channeltypes.NewPacket(bz, 1, transfertypes.PortID, sourceChannel, transfertypes.PortID, evmosChannel, timeoutHeight, 0)

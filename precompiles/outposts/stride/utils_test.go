@@ -260,7 +260,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
-		TB:              s.T(),
+		TB:             s.T(),
 		Coordinator:    coord,
 		ChainID:        cmn.DefaultChainID,
 		App:            s.app,

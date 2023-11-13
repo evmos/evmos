@@ -103,9 +103,11 @@ var _ = Describe("ERC20:", Ordered, func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
-		govParams := s.app.GovKeeper.GetParams(s.ctx)
+		govParams, err := s.app.GovKeeper.Params.Get(s.ctx)
+		Expect(err).To(BeNil())
+
 		govParams.Quorum = "0.0000000001"
-		err := s.app.GovKeeper.SetParams(s.ctx, govParams)
+		err = s.app.GovKeeper.Params.Set(s.ctx, govParams)
 		Expect(err).To(BeNil())
 	})
 
@@ -128,8 +130,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc})
 					s.Require().NoError(err)
 
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
@@ -141,7 +143,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + time.Hour*1
 					s.CommitAndBeginBlockAfter(duration)
 					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
-					proposal, _ = s.app.GovKeeper.GetProposal(s.ctx, id)
+					proposal, _ = s.app.GovKeeper.Proposals.Get(s.ctx, id)
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
@@ -154,8 +156,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					id, err := submitRegisterCoinProposal(s.ctx, s.app, privKey, []banktypes.Metadata{metadataIbc, metadataCoin})
 					s.Require().NoError(err)
 
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
@@ -199,8 +201,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String()})
 					s.Require().NoError(err)
 
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
@@ -225,8 +227,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// register with sufficient deposit
 					id, err := submitRegisterERC20Proposal(s.ctx, s.app, privKey, []string{contract.String(), contract2.String()})
 					s.Require().NoError(err)
-					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
-					s.Require().True(found)
+					proposal, err := s.app.GovKeeper.Proposals.Get(s.ctx, id)
+					s.Require().NoError(err)
 
 					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)

@@ -919,9 +919,12 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.Commit()
 
 			// Check if the proposal was submitted
-			proposals := s.app.GovKeeper.GetProposals(s.ctx)
-			Expect(len(proposals)).To(Equal(2), "expected two proposals to be found")
-			proposal := proposals[len(proposals)-1]
+			res, err := s.govQueryClient.Proposals(s.ctx, &govv1.QueryProposalsRequest{})
+			Expect(err).ToNot(HaveOccurred())
+			Expect(res).ToNot(BeNil())
+
+			Expect(len(res.Proposals)).To(Equal(2), "expected two proposals to be found")
+			proposal := res.Proposals[len(res.Proposals)-1]
 			clawbackProposalID = proposal.Id
 			Expect(proposal.GetTitle()).To(Equal("test gov clawback"), "expected different proposal title")
 			Expect(proposal.Status).To(Equal(govv1.StatusDepositPeriod), "expected proposal to be in deposit period")
@@ -929,19 +932,20 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 
 		Context("with deposit made", func() {
 			BeforeEach(func() {
-				params := s.app.GovKeeper.GetParams(s.ctx)
+				params, err := s.app.GovKeeper.Params.Get(s.ctx)
+				Expect(err).ToNot(HaveOccurred())
 				depositAmount := params.MinDeposit[0].Amount.Sub(math.NewInt(1))
 				deposit := sdk.Coins{sdk.Coin{Denom: params.MinDeposit[0].Denom, Amount: depositAmount}}
 
 				// Deliver the deposit
 				msgDeposit := govv1beta1.NewMsgDeposit(s.address.Bytes(), clawbackProposalID, deposit)
-				_, err := testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgDeposit)
+				_, err = testutil.DeliverTx(s.ctx, s.app, s.priv, nil, msgDeposit)
 				Expect(err).ToNot(HaveOccurred(), "expected no error during proposal deposit")
 
 				s.Commit()
 
 				// Check the proposal is in voting period
-				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
+				proposal, found := s.app.GovKeeper.Proposals.Get(s.ctx, clawbackProposalID)
 				Expect(found).To(BeTrue(), "expected proposal to be found")
 				Expect(proposal.Status).To(Equal(govv1.StatusVotingPeriod), "expected proposal to be in voting period")
 
@@ -973,7 +977,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				// using only the suite private key
 				priv, ok := s.priv.(*ethsecp256k1.PrivKey)
 				Expect(ok).To(BeTrue(), "expected private key to be of type ethsecp256k1.PrivKey")
-				validators := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+				validators, err := s.app.StakingKeeper.GetBondedValidatorsByPower(s.ctx)
+				Expect(err).ToNot(HaveOccurred())
 				err = testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, s.address.Bytes(), 5e18)
 				Expect(err).ToNot(HaveOccurred(), "expected no error during funding of account")
 				for _, val := range validators {
@@ -993,7 +998,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				s.Commit()
 
 				// Check that proposal has passed
-				proposal, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
+				proposal, found := s.app.GovKeeper.Proposals.Get(s.ctx, clawbackProposalID)
 				Expect(found).To(BeTrue(), "expected proposal to exist")
 				Expect(proposal.Status).ToNot(Equal(govv1.StatusVotingPeriod), "expected proposal to not be in voting period anymore")
 				Expect(proposal.Status).To(Equal(govv1.StatusPassed), "expected proposal to have passed")
@@ -1061,7 +1066,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				s.Commit()
 
 				// Check that the proposal has ended -- since deposit failed it's removed from the store
-				_, found := s.app.GovKeeper.GetProposal(s.ctx, clawbackProposalID)
+				_, found := s.app.GovKeeper.Proposals.Get(s.ctx, clawbackProposalID)
 				Expect(found).To(BeFalse(), "expected proposal not to be found")
 
 				// Check that the store entry was removed

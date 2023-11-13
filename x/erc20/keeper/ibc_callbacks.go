@@ -83,7 +83,10 @@ func (k Keeper) OnRecvPacket(
 	)
 
 	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
 		return ack
@@ -180,7 +183,10 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
 
 	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
 		return nil

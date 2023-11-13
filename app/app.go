@@ -429,8 +429,9 @@ func NewEvmos(
 
 	// use custom Ethermint account for contracts
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
-		appCodec, keys[authtypes.StoreKey],
+		appCodec, runtime.NewKVStoreService(keys[authtypes.StoreKey]),
 		evmostypes.ProtoAccount, maccPerms,
+		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
 		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		authAddr,
 	)

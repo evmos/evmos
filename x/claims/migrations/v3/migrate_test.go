@@ -40,7 +40,7 @@ func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
-	storeKey := storetypes.NewKVStoreKeys(types.ModuleName)
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
 	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)

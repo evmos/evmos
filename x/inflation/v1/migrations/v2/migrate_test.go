@@ -40,7 +40,7 @@ func (ms mockSubspace) WithKeyTable(keyTable paramtypes.KeyTable) paramtypes.Sub
 func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
-	storeKey := storetypes.NewKVStoreKeys(types.ModuleName)
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
 	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	store := ctx.KVStore(storeKey)

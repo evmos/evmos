@@ -18,6 +18,7 @@ package v4_test
 import (
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/app"
@@ -47,7 +48,7 @@ func TestMigrate(t *testing.T) {
 	encCfg := encoding.MakeConfig(app.ModuleBasics)
 	cdc := encCfg.Codec
 
-	storeKey := storetypes.NewKVStoreKeys(types.ModuleName)
+	storeKey := storetypes.NewKVStoreKey(types.ModuleName)
 	tKey := storetypes.NewTransientStoreKey("transient_test")
 	ctx := testutil.DefaultContext(storeKey, tKey)
 	kvStore := ctx.KVStore(storeKey)

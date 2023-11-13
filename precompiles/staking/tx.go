@@ -52,7 +52,11 @@ func (p Precompile) Delegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgDelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgDelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +141,11 @@ func (p Precompile) Undelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgUndelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgUndelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +226,11 @@ func (p Precompile) Redelegate(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgRedelegate(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgRedelegate(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +310,11 @@ func (p Precompile) CancelUnbondingDelegation(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgCancelUnbondingDelegation(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}

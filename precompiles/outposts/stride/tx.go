@@ -54,7 +54,10 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
 
@@ -160,7 +163,10 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
-	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
 	stToken := "st" + bondDenom
 
 	ibcDenom := utils.ComputeIBCDenom(p.portID, p.channelID, stToken)

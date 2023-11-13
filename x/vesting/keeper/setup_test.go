@@ -19,6 +19,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	evm "github.com/evmos/evmos/v15/x/evm/types"
 
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/x/vesting/types"
 )
@@ -43,6 +44,7 @@ type KeeperTestSuite struct {
 	app            *app.Evmos
 	queryClientEvm evm.QueryClient
 	queryClient    types.QueryClient
+	govQueryClient govv1types.QueryClient
 	address        common.Address
 	consAddress    sdk.ConsAddress
 	validator      stakingtypes.Validator

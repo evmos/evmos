@@ -20,7 +20,10 @@ func ClaimStakingRewardsIfNecessary(
 	addr sdk.AccAddress,
 	amount sdk.Coins,
 ) error {
-	stakingDenom := stakingKeeper.BondDenom(ctx)
+	stakingDenom, err := stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
 	found, amountInStakingDenom := amount.Find(stakingDenom)
 	if !found {
 		return errortypes.ErrInsufficientFee.Wrapf(

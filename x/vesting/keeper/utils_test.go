@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -69,6 +70,8 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.VestingKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	suite.govQueryClient = govv1types.NewQueryClient(queryHelper)
 
 	// Set epoch start time and height for all epoch identifiers from the epoch
 	// module

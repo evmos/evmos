@@ -55,7 +55,8 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 }
 
 func (s *PrecompileTestSuite) TestRedeemEvent() {
-	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
+	bondDenom, err := s.app.StakingKeeper.BondDenom(s.ctx)
+	s.Require().NoError(err)
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: "st" + bondDenom,

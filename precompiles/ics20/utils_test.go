@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -284,7 +285,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// create an account to send transactions from
 	chain := &ibctesting.TestChain{
-		T:              s.T(),
+		TB:             s.T(),
 		Coordinator:    coord,
 		ChainID:        cmn.DefaultChainID,
 		App:            s.app,
@@ -406,10 +407,11 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.Require().NoError(err)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
-	validators := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	validators, err := s.app.StakingKeeper.GetValidators(s.chainA.GetContext(), 2)
+	s.Require().NoError(err)
 	cons, err := validators[0].GetConsAddr()
 	s.Require().NoError(err)
-	s.chainA.CurrentHeader.ProposerAddress = cons.Bytes()
+	s.chainA.CurrentHeader.ProposerAddress = cons
 
 	err = s.app.StakingKeeper.SetValidatorByConsAddr(s.chainA.GetContext(), validators[0])
 	s.Require().NoError(err)
