@@ -214,7 +214,7 @@ func (k Keeper) rewardParticipants(
 				// the participant's gas spent and prevent gaming
 				if mintDenom == allocation.Denom {
 					rewardCap := cumulativeGas.Mul(rewardScaler)
-					reward = sdk.MinDec(reward, rewardCap)
+					reward = math.LegacyMinDec(reward, rewardCap)
 				}
 
 				// NOTE: ignore denom validation

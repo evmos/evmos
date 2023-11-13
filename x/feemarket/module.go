@@ -13,6 +13,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -29,10 +30,11 @@ import (
 const consensusVersion = 4
 
 var (
-	_ module.AppModule           = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.EndBlockAppModule   = AppModule{}
-	_ module.BeginBlockAppModule = AppModule{}
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the fee market module.

@@ -18,6 +18,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"cosmossdk.io/core/appmodule"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/evmos/evmos/v15/x/evm/client/cli"
@@ -31,8 +32,9 @@ const consensusVersion = 5
 var (
 	_ module.AppModule           = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.EndBlockAppModule   = AppModule{}
-	_ module.BeginBlockAppModule = AppModule{}
+	
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the evm module.

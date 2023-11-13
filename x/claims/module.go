@@ -14,6 +14,7 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	"cosmossdk.io/core/appmodule"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -29,9 +30,10 @@ import (
 const consensusVersion = 3
 
 var (
-	_ module.AppModule         = AppModule{}
-	_ module.AppModuleBasic    = AppModuleBasic{}
-	_ module.EndBlockAppModule = AppModule{}
+	_ module.AppModule        = AppModule{}
+	_ module.AppModuleBasic   = AppModuleBasic{}
+	
+	_ appmodule.HasEndBlocker = AppModule{}
 )
 
 // ----------------------------------------------------------------------------

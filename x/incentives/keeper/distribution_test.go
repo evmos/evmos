@@ -114,7 +114,7 @@ func (suite *KeeperTestSuite) TestDistributeIncentives() {
 				coinAllocated := math.LegacyNewDec(tc.mintAmount).MulInt64(allocationRate).QuoInt64(100)
 				expBalance := coinAllocated.Mul(gasRatio)
 				params := suite.app.IncentivesKeeper.GetParams(suite.ctx)
-				expBalance = sdk.MinDec(expBalance, params.RewardScaler.MulInt64(int64(gasUsed)))
+				expBalance = math.LegacyMinDec(expBalance, params.RewardScaler.MulInt64(int64(gasUsed)))
 
 				suite.Require().Equal(expBalance.TruncateInt(), balance.Amount, tc.name)
 

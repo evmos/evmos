@@ -9,7 +9,7 @@ import (
 	math "math"
 	math_bits "math/bits"
 
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	cosmossdk_io_math "cosmossdk.io/math"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 )
@@ -101,11 +101,11 @@ type V2Params struct {
 	// enable_V2Incentives is the parameter to enable V2Incentives
 	EnableIncentives bool `protobuf:"varint,1,opt,name=enable_V2Incentives,json=EnableIncentives,proto3" json:"enable_V2Incentives,omitempty"`
 	// allocation_limit is the maximum percentage an V2Incentive can allocate per denomination
-	AllocationLimit github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=allocation_limit,json=allocationLimit,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"allocation_limit"`
+	AllocationLimit cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=allocation_limit,json=allocationLimit,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"allocation_limit"`
 	// V2Incentives_epoch_identifier for the epochs module hooks
 	IncentivesEpochIdentifier string `protobuf:"bytes,3,opt,name=V2Incentives_epoch_identifier,json=IncentivesEpochIdentifier,proto3" json:"V2Incentives_epoch_identifier,omitempty"`
 	// reward_scaler is the scaling factor for capping rewards
-	RewardScaler github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=reward_scaler,json=rewardScaler,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"reward_scaler"`
+	RewardScaler cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=reward_scaler,json=rewardScaler,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"reward_scaler"`
 }
 
 func (m *V2Params) Reset()         { *m = V2Params{} }
