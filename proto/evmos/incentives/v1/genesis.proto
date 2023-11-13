@@ -23,11 +23,9 @@ message Params {
   // enable_incentives is the parameter to enable incentives
   bool enable_incentives = 1;
   // allocation_limit is the maximum percentage an incentive can allocate per denomination
-  string allocation_limit = 2
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string allocation_limit = 2 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
   // incentives_epoch_identifier for the epochs module hooks
   string incentives_epoch_identifier = 3;
   // reward_scaler is the scaling factor for capping rewards
-  string reward_scaler = 4
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string reward_scaler = 4 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 }

@@ -96,8 +96,7 @@ message QueryInflationRateRequest {}
 // RPC method.
 message QueryInflationRateResponse {
   // inflation_rate by which the total supply increases within one period
-  string inflation_rate = 1
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string inflation_rate = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

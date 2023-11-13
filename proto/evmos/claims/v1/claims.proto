@@ -31,8 +31,7 @@ message Claim {
   // completed is true if the action has been completed
   bool completed = 2;
   // claimable_amount of tokens for the action. Zero if completed
-  string claimable_amount = 3
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  string claimable_amount = 3 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
 }
 
 // ClaimsRecordAddress is the claims metadata per address that is used at
@@ -41,8 +40,7 @@ message ClaimsRecordAddress {
   // address of claiming user in either bech32 or hex format
   string address = 1;
   // initial_claimable_amount for the user
-  string initial_claimable_amount = 2
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  string initial_claimable_amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
   // actions_completed is a slice that describes which actions were completed
   repeated bool actions_completed = 3;
 }
@@ -51,8 +49,7 @@ message ClaimsRecordAddress {
 // completed actions to claim the tokens.
 message ClaimsRecord {
   // initial_claimable_amount for the user
-  string initial_claimable_amount = 1
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  string initial_claimable_amount = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
   // actions_completed is a slice that describes which actions were completed
   repeated bool actions_completed = 2;
 }
