@@ -12,7 +12,6 @@ import (
 )
 
 func (s *PostTestSuite) TestPostHandle() {
-
 	testCases := []struct {
 		name        string
 		tx          func() sdk.Tx
