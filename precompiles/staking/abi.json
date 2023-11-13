@@ -5,13 +5,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -36,13 +36,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -166,6 +166,31 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "grantee",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "granter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string[]",
+        "name": "methods",
+        "type": "string[]"
+      }
+    ],
+    "name": "Revocation",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "delegatorAddress",
         "type": "address"
       },
@@ -195,12 +220,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "grantee",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "granter",
         "type": "address"
       },
       {
@@ -224,7 +249,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -287,7 +312,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -386,7 +411,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "spender",
+        "name": "grantee",
         "type": "address"
       },
       {
@@ -723,6 +748,30 @@
       {
         "internalType": "bool",
         "name": "success",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "grantee",
+        "type": "address"
+      },
+      {
+        "internalType": "string[]",
+        "name": "methods",
+        "type": "string[]"
+      }
+    ],
+    "name": "revoke",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "revoked",
         "type": "bool"
       }
     ],
