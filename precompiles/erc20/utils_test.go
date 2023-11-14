@@ -110,9 +110,11 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 }
 
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
-// a given token denomination.
+// a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
+// to the available and active precompiles.
 func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
+	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
 	precompile, err := erc20.NewPrecompile(
 		tokenPair,
@@ -120,7 +122,10 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 		s.network.App.AuthzKeeper,
 		s.network.App.TransferKeeper,
 	)
-	s.Require().NoError(err, "failed to create erc20 precompile")
+	s.Require().NoError(err, "failed to create %q erc20 precompile", denom)
+
+	err = s.network.App.EvmKeeper.AddEVMExtensions(s.network.GetContext(), precompile)
+	s.Require().NoError(err, "failed to add %q erc20 precompile to EVM extensions", denom)
 
 	return precompile
 }
