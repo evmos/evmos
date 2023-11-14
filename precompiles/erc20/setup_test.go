@@ -9,6 +9,9 @@ import (
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var s *PrecompileTestSuite
@@ -33,6 +36,10 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "ERC20 Extension Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
