@@ -1,6 +1,8 @@
 package erc20_test
 
 import (
+	"fmt"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,8 +24,9 @@ var _ = Describe("ERC20 Extension -", func() {
 		err          error
 		sender       keyring.Key
 
-		failCheck testutil.LogCheckArgs
-		passCheck testutil.LogCheckArgs
+		execRevertedCheck testutil.LogCheckArgs
+		failCheck         testutil.LogCheckArgs
+		passCheck         testutil.LogCheckArgs
 	)
 
 	BeforeEach(func() {
@@ -42,7 +45,11 @@ var _ = Describe("ERC20 Extension -", func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
 		failCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
+		execRevertedCheck = failCheck.WithErrContains("execution reverted")
 		passCheck = failCheck.WithExpPass(true)
+
+		err = s.network.NextBlock()
+		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
 	})
 
 	When("querying balance", func() {
@@ -102,18 +109,109 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.MethodName = erc20.BalanceOfMethod
 			balancesArgs.Args = []interface{}{address}
 
-			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
+			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
-			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
-
-			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
-			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 			Expect(balance.Int64()).To(BeZero(), "expected zero balance")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+	})
+
+	When("querying allowance", func() {
+		DescribeTable("it should return an existing allowance", func(callType int) {
+			grantee := utiltx.GenerateAddress()
+			granter := sender
+			expAllowance := big.NewInt(100)
+
+			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(expAllowance)}})
+
+			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
+			allowanceArgs.MethodName = auth.AllowanceMethod
+			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
+
+			_, ethRes, err := s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			var allowance *big.Int
+			err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+			Expect(allowance).To(Equal(expAllowance), "expected different allowance")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+
+		DescribeTable("it should return an error if no allowance exists", func(callType int) {
+			grantee := s.keyring.GetAddr(1)
+			granter := sender
+
+			balanceGrantee, err := s.grpcHandler.GetBalance(grantee.Bytes(), s.network.GetDenom())
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(balanceGrantee.Balance.Amount.Int64()).ToNot(BeZero(), "expected zero balance")
+
+			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
+			allowanceArgs.MethodName = auth.AllowanceMethod
+			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
+
+			noAuthzCheck := failCheck.WithErrContains(
+				fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
+			)
+			if callType == contractCall {
+				noAuthzCheck = execRevertedCheck
+			}
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+
+		DescribeTable("it should return zero if an allowance exists for other tokens", func(callType int) {
+			grantee := s.keyring.GetAddr(1)
+			granter := sender
+			amount := big.NewInt(100)
+
+			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{{s.network.GetDenom(), sdk.NewIntFromBigInt(amount)}})
+
+			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
+			allowanceArgs.MethodName = auth.AllowanceMethod
+			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
+
+			_, ethRes, err := s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			var allowance *big.Int
+			err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+			Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+
+		DescribeTable("it should return an error if the account does not exist", func(callType int) {
+			grantee := utiltx.GenerateAddress()
+			granter := sender
+
+			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
+			allowanceArgs.MethodName = auth.AllowanceMethod
+			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
+
+			noAuthzCheck := failCheck.WithErrContains(
+				fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
+			)
+			if callType == contractCall {
+				noAuthzCheck = execRevertedCheck
+			}
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
