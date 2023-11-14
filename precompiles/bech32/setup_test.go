@@ -5,8 +5,6 @@ import (
 
 	"github.com/evmos/evmos/v15/precompiles/bech32"
 
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
@@ -19,13 +17,8 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom string
-	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
-	// This denomination is used to instantiate the precompile.
-	network     *network.UnitTestNetwork
-	factory     factory.TxFactory
-	grpcHandler grpc.Handler
-	keyring     testkeyring.Keyring
+	network *network.UnitTestNetwork
+	keyring testkeyring.Keyring
 
 	precompile *bech32.Precompile
 }
@@ -40,19 +33,12 @@ func (s *PrecompileTestSuite) SetupTest() {
 	integrationNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
 
-	ctx := integrationNetwork.GetContext()
-	sk := integrationNetwork.App.StakingKeeper
-	bondDenom := sk.BondDenom(ctx)
-	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
-
-	s.bondDenom = bondDenom
-	s.factory = txFactory
-	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.network = integrationNetwork
 
-	s.precompile = s.setupBech32Precompile()
+	precompile, err := bech32.NewPrecompile(6000)
+	s.Require().NoError(err, "failed to create bech32 precompile")
+
+	s.precompile = precompile
 }
