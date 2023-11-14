@@ -38,10 +38,10 @@ func ParseSupplyOfArgs(args []interface{}) (common.Address, error) {
 		return common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	account, ok := args[0].(common.Address)
+	erc20Address, ok := args[0].(common.Address)
 	if !ok {
 		return common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "erc20Address", common.Address{}, args[0])
 	}
 
-	return account, nil
+	return erc20Address, nil
 }
