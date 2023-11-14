@@ -4,7 +4,6 @@
 package bech32
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
@@ -15,6 +14,11 @@ import (
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
+
+const (
+	// PrecompileAddress defines the address of the bech32 precompile contract.
+	PrecompileAddress = "0x0000000000000000000000000000000000000400"
+)
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //
@@ -30,14 +34,9 @@ type Precompile struct {
 // NewPrecompile creates a new bech32 Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(baseGas uint64) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
+	newABI, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
-		return nil, fmt.Errorf("error loading the bech32 ABI %s", err)
-	}
-
-	parsedABI, err := abi.JSON(bytes.NewReader(abiBz))
-	if err != nil {
-		return nil, fmt.Errorf(cmn.ErrInvalidABI, err)
+		return nil, err
 	}
 
 	if baseGas == 0 {
@@ -45,7 +44,7 @@ func NewPrecompile(baseGas uint64) (*Precompile, error) {
 	}
 
 	return &Precompile{
-		ABI:     parsedABI,
+		ABI:     newABI,
 		baseGas: baseGas,
 	}, nil
 }
@@ -53,7 +52,7 @@ func NewPrecompile(baseGas uint64) (*Precompile, error) {
 // Address defines the address of the bech32 compile contract.
 // address: 0x0000000000000000000000000000000000000400
 func (Precompile) Address() common.Address {
-	return common.HexToAddress("0x0000000000000000000000000000000000000400")
+	return common.HexToAddress(PrecompileAddress)
 }
 
 // RequiredGas calculates the contract gas use.

@@ -6,6 +6,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"github.com/evmos/evmos/v15/precompiles/bech32"
 	"sort"
 
 	"golang.org/x/exp/maps"
@@ -47,6 +48,11 @@ func AvailablePrecompiles(
 	// secp256r1 precompile as per EIP-7212
 	p256Precompile := &p256.Precompile{}
 
+	bech32Precompile, err := bech32.NewPrecompile(6000)
+	if err != nil {
+		panic(fmt.Errorf("failed to load bech32 precompile: %w", err))
+	}
+
 	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load staking precompile: %w", err))
@@ -72,6 +78,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load stride outpost: %w", err))
 	}
 
+	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
