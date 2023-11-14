@@ -7,8 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -21,8 +19,6 @@ var _ = Describe("ERC20 Extension -", func() {
 	var (
 		contractAddr common.Address
 		err          error
-		failCheck    testutil.LogCheckArgs
-		passCheck    testutil.LogCheckArgs
 		sender       keyring.Key
 	)
 
@@ -40,13 +36,6 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
-
-		// Set up the checks
-		failCheck = testutil.LogCheckArgs{
-			ABIEvents: s.precompile.Events,
-			ExpPass:   false,
-		}
-		passCheck = failCheck.WithExpPass(true)
 	})
 
 	When("querying balance", func() {
@@ -58,18 +47,22 @@ var _ = Describe("ERC20 Extension -", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
-			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
-				WithMethodName(erc20.BalanceOfMethod).
-				WithArgs(sender.Addr)
+			txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr)
+			balancesArgs.MethodName = erc20.BalanceOfMethod
+			balancesArgs.Args = []interface{}{sender.Addr}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, balancesArgs, passCheck)
+			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
+
+			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
 			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
 
-			var res *big.Int
-			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
+			var balance *big.Int
+			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(res).To(Equal(expBalance), "expected different balance")
+			Expect(balance).To(Equal(expBalance), "expected different balance")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
@@ -83,17 +76,22 @@ var _ = Describe("ERC20 Extension -", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
-			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
-				WithMethodName(erc20.BalanceOfMethod).
-				WithArgs(address)
+			txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr)
+			balancesArgs.MethodName = erc20.BalanceOfMethod
+			balancesArgs.Args = []interface{}{address}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, balancesArgs, passCheck)
+			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
 
-			var res *big.Int
-			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
+			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
+
+			var balance *big.Int
+			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(res.Int64()).To(BeZero(), "expected zero balance")
+			Expect(balance.Int64()).To(BeZero(), "expected zero balance")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
@@ -102,18 +100,23 @@ var _ = Describe("ERC20 Extension -", func() {
 		DescribeTable("it should return zero if the account does not exist", func(callType int) {
 			address := utiltx.GenerateAddress()
 
-			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
-				WithMethodName(erc20.BalanceOfMethod).
-				WithArgs(address)
+			// Query the balance
+			txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr)
+			balancesArgs.MethodName = erc20.BalanceOfMethod
+			balancesArgs.Args = []interface{}{address}
 
-			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, balancesArgs, passCheck)
+			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
-			Expect(ethRes).ToNot(BeNil(), "expected result")
+			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
 
-			var res *big.Int
-			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
+			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
+			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
+
+			var balance *big.Int
+			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(res.Int64()).To(BeZero(), "expected zero balance")
+			Expect(balance.Int64()).To(BeZero(), "expected zero balance")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),

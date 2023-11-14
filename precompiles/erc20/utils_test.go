@@ -12,11 +12,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
 // setupSendAuthz is a helper function to set up a SendAuthorization for
@@ -140,21 +140,23 @@ const (
 	contractCall
 )
 
-// getTxArgs is a helper function to return the correct call arguments for a given call type.
+// getCallArgs is a helper function to return the correct call arguments for a given call type.
 //
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
 // ERC20CallerContract's ABI is used and the given contract address.
-func (s *PrecompileTestSuite) getTxArgs(sender keyring.Key, callType int, contractAddr common.Address) contracts.CallArgs {
-	args := contracts.CallArgs{
-		PrivKey: sender.Priv,
-	}
+func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common.Address) (evmtypes.EvmTxArgs, factory.CallArgs) {
+	txArgs := evmtypes.EvmTxArgs{}
+	callArgs := factory.CallArgs{}
 
 	switch callType {
 	case directCall:
-		args = args.WithABI(s.precompile.ABI).WithAddress(s.precompile.Address())
+		precompileAddr := s.precompile.Address()
+		txArgs.To = &precompileAddr
+		callArgs.ContractABI = s.precompile.ABI
 	case contractCall:
-		args = args.WithABI(testdata.ERC20CallerContract.ABI).WithAddress(contractAddr)
+		txArgs.To = &contractAddr
+		callArgs.ContractABI = testdata.ERC20CallerContract.ABI
 	}
 
-	return args
+	return txArgs, callArgs
 }
