@@ -62,7 +62,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			)
 			packetString := packet.String()
 			err := ValidateAndParseWasmRoutedMemo(packetString, tc.receiver)
-			require.NoError(t, err, fmt.Sprintf("memo is not a valid wasm routed JSON formatted string"))
+			require.NoError(t, err, "memo is not a valid wasm routed JSON formatted string")
 
 			if tc.expNextMemo {
 				require.Contains(t, packetString, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
