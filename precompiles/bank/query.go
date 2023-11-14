@@ -19,7 +19,7 @@ const (
 )
 
 // Balances returns all the native token balances (address, amount) for a given
-// account. This method charges the account the corresponding value of a ERC-20
+// account. This method charges the account the corresponding value of an ERC-20
 // balanceOf call for each token returned.
 func (p Precompile) Balances(
 	ctx sdk.Context,
