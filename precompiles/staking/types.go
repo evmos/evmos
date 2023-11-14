@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -80,21 +78,21 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
-	descriptionJson, err := json.Marshal(args[0])
+	descriptionJSON, err := json.Marshal(args[0])
 	if err != nil {
 		return nil, common.Address{}, fmt.Errorf("failed to marshal description to json: %v", err)
 	}
 	var description Description
-	if err := json.Unmarshal(descriptionJson, &description); err != nil {
+	if err := json.Unmarshal(descriptionJSON, &description); err != nil {
 		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to description: %v", err)
 	}
 
-	commissionJson, err := json.Marshal(args[1])
+	commissionJSON, err := json.Marshal(args[1])
 	if err != nil {
 		return nil, common.Address{}, fmt.Errorf("failed to marshal commission to json: %v", err)
 	}
 	var commission Commission
-	if err := json.Unmarshal(commissionJson, &commission); err != nil {
+	if err := json.Unmarshal(commissionJSON, &commission); err != nil {
 		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to commission: %v", err)
 	}
 
@@ -142,15 +140,15 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 			Details:         description.Details,
 		},
 		Commission: stakingtypes.CommissionRates{
-			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, math.LegacyPrecision),
-			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.MaxRate, math.LegacyPrecision),
-			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.MaxChangeRate, math.LegacyPrecision),
+			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.MaxRate, sdk.Precision),
+			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.MaxChangeRate, sdk.Precision),
 		},
 		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
 		ValidatorAddress:  validatorAddress,
 		Pubkey:            pubkey,
-		Value:             sdk.NewCoin(denom, sdk.NewIntFromBigInt(value)),
+		Value:             sdk.Coin{Denom: denom, Amount: sdk.NewIntFromBigInt(value)},
 	}
 
 	if err := msg.ValidateBasic(); err != nil {

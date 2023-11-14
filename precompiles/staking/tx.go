@@ -49,7 +49,7 @@ const (
 func (p Precompile) CreateValidator(
 	ctx sdk.Context,
 	origin common.Address,
-	contract *vm.Contract,
+	_ *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -62,14 +62,13 @@ func (p Precompile) CreateValidator(
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
-		"args", fmt.Sprintf(
-			"{ min_self_delegation: %s, delegator_address: %s, validator_address: %s, pubkey: %s, value: %s }",
-			msg.MinSelfDelegation.String(),
-			delegatorHexAddr,
-			msg.ValidatorAddress,
-			msg.Pubkey.String(),
-			msg.Value.Amount.String(),
-		),
+		"description", msg.Description.String(),
+		"commission", msg.Commission.String(),
+		"min_self_delegation", msg.MinSelfDelegation.String(),
+		"delegator_address", delegatorHexAddr.String(),
+		"validator_address", msg.ValidatorAddress,
+		"pubkey", msg.Pubkey.String(),
+		"value", msg.Value.Amount.String(),
 	)
 
 	// We only allow users to directly call the StakingI contract's address which is 0x0000000000000000000000000000000000000800 to create a new validator.
