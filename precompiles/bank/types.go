@@ -4,7 +4,6 @@
 package bank
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 
@@ -27,7 +26,7 @@ func ParseBalancesArgs(args []interface{}) (sdk.AccAddress, error) {
 
 	account, ok := args[0].(common.Address)
 	if !ok {
-		return nil, errors.New("invalid account address")
+		return nil, fmt.Errorf(cmn.ErrInvalidType, "account", common.Address{}, args[0])
 	}
 
 	return account.Bytes(), nil
