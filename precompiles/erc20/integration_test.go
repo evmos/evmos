@@ -217,4 +217,45 @@ var _ = Describe("ERC20 Extension -", func() {
 			Entry(" - through contract", contractCall),
 		)
 	})
+
+	When("querying total supply", func() {
+		DescribeTable("it should return the total supply", func(callType int) {
+			expSupply := big.NewInt(100)
+
+			// Fund account with some tokens
+			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(expSupply)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Query the balance
+			txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractAddr)
+			supplyArgs.MethodName = erc20.TotalSupplyMethod
+
+			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			var supply *big.Int
+			err = s.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
+			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+			Expect(supply).To(Equal(expSupply), "expected different supply")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+
+		DescribeTable("it should return zero if no tokens exist", func(callType int) {
+			txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractAddr)
+			supplyArgs.MethodName = erc20.TotalSupplyMethod
+
+			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			var supply *big.Int
+			err = s.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
+			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+			Expect(supply.Int64()).To(BeZero(), "expected zero supply")
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
+	})
 })

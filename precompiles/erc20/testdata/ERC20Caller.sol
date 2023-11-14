@@ -32,4 +32,8 @@ contract ERC20Caller {
     function balanceOf(address owner) external view returns (uint256) {
         return token.balanceOf(owner);
     }
+
+    function totalSupply() external view returns (uint256) {
+        return token.totalSupply();
+    }
 }
