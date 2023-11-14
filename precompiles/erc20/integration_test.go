@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -20,6 +21,9 @@ var _ = Describe("ERC20 Extension -", func() {
 		contractAddr common.Address
 		err          error
 		sender       keyring.Key
+
+		failCheck testutil.LogCheckArgs
+		passCheck testutil.LogCheckArgs
 	)
 
 	BeforeEach(func() {
@@ -36,6 +40,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+		failCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
+		passCheck = failCheck.WithExpPass(true)
 	})
 
 	When("querying balance", func() {
@@ -51,13 +58,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.MethodName = erc20.BalanceOfMethod
 			balancesArgs.Args = []interface{}{sender.Addr}
 
-			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
+			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
-			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
-
-			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
-			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
@@ -80,13 +82,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.MethodName = erc20.BalanceOfMethod
 			balancesArgs.Args = []interface{}{address}
 
-			res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, balancesArgs)
+			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
-			Expect(res.IsOK()).To(BeTrue(), "expected tx to be ok")
-
-			ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-			Expect(err).ToNot(HaveOccurred(), "failed to decode tx response")
-			Expect(ethRes.Ret).ToNot(BeEmpty(), "expected result")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)

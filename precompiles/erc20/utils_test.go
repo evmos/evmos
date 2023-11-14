@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -12,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -159,4 +161,27 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common
 	}
 
 	return txArgs, callArgs
+}
+
+// callContractAndCheckLogs is a helper function to call a contract and check the logs using
+// the integration test utilities.
+//
+// TODO: add this to network utils?
+func (s *PrecompileTestSuite) callContractAndCheckLogs(
+	priv cryptotypes.PrivKey,
+	txArgs evmtypes.EvmTxArgs,
+	callArgs factory.CallArgs,
+	logCheckArgs testutil.LogCheckArgs,
+) (abci.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
+	res, err := s.factory.ExecuteContractCall(priv, txArgs, callArgs)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, nil, err
+	}
+
+	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+	if err != nil {
+		return abci.ResponseDeliverTx{}, nil, err
+	}
+
+	return res, ethRes, testutil.CheckLogs(logCheckArgs)
 }
