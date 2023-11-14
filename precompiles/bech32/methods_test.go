@@ -48,7 +48,7 @@ func (s *PrecompileTestSuite) TestHexToBech32() {
 			"fail - invalid bech32 HRP",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					"",
 				}
 			},
@@ -60,7 +60,7 @@ func (s *PrecompileTestSuite) TestHexToBech32() {
 			"pass - valid hex address and valid bech32 HRP",
 			func() []interface{} {
 				return []interface{}{
-					s.address,
+					s.keyring.GetAddr(0),
 					config.Bech32Prefix,
 				}
 			},
@@ -70,7 +70,7 @@ func (s *PrecompileTestSuite) TestHexToBech32() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(string)
 				s.Require().True(ok)
-				s.Require().Equal(sdk.AccAddress(s.address.Bytes()).String(), addr)
+				s.Require().Equal(s.keyring.GetAccAddr(0).String(), addr)
 			},
 			false,
 			"",
@@ -166,7 +166,7 @@ func (s *PrecompileTestSuite) TestBech32ToHex() {
 			"success - valid bech32 address",
 			func() []interface{} {
 				return []interface{}{
-					sdk.AccAddress(s.address.Bytes()).String(),
+					s.keyring.GetAccAddr(0).String(),
 				}
 			},
 			func(data []byte) {
@@ -175,7 +175,7 @@ func (s *PrecompileTestSuite) TestBech32ToHex() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(s.address, addr)
+				s.Require().Equal(s.keyring.GetAddr(0), addr)
 			},
 			false,
 			"",

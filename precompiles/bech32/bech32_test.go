@@ -52,7 +52,7 @@ func (s *PrecompileTestSuite) TestNewPrecompile() {
 // TestRun tests the precompile's Run method.
 func (s *PrecompileTestSuite) TestRun() {
 	contract := vm.NewPrecompile(
-		vm.AccountRef(s.address),
+		vm.AccountRef(s.keyring.GetAddr(0)),
 		s.precompile,
 		big.NewInt(0),
 		uint64(1000000),
@@ -91,7 +91,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					s.address,
+					s.keyring.GetAddr(0),
 					"",
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -109,7 +109,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					s.address,
+					s.keyring.GetAddr(0),
 					config.Bech32Prefix,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -122,7 +122,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(string)
 				s.Require().True(ok)
-				s.Require().Equal(sdk.AccAddress(s.address.Bytes()).String(), addr)
+				s.Require().Equal(s.keyring.GetAccAddr(0).String(), addr)
 			},
 			true,
 			"",
@@ -132,7 +132,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					s.address,
+					common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()),
 					config.Bech32PrefixValAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -145,7 +145,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(string)
 				s.Require().True(ok)
-				s.Require().Equal(sdk.ValAddress(s.address.Bytes()).String(), addr)
+				s.Require().Equal(s.network.GetValidators()[0].OperatorAddress, addr)
 			},
 			true,
 			"",
@@ -155,7 +155,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.HexToBech32Method,
-					s.address,
+					s.keyring.GetAddr(0),
 					config.Bech32PrefixConsAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -168,7 +168,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(string)
 				s.Require().True(ok)
-				s.Require().Equal(sdk.ConsAddress(s.address.Bytes()).String(), addr)
+				s.Require().Equal(sdk.ConsAddress(s.keyring.GetAddr(0).Bytes()).String(), addr)
 			},
 			true,
 			"",
@@ -178,7 +178,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.Bech32ToHexMethod,
-					sdk.AccAddress(s.address.Bytes()).String(),
+					s.keyring.GetAccAddr(0).String(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input
@@ -190,7 +190,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(s.address, addr)
+				s.Require().Equal(s.keyring.GetAddr(0), addr)
 			},
 			true,
 			"",
@@ -200,7 +200,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.Bech32ToHexMethod,
-					sdk.ValAddress(s.address.Bytes()).String(),
+					s.network.GetValidators()[0].OperatorAddress,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input
@@ -212,7 +212,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(s.address, addr)
+				s.Require().Equal(common.BytesToAddress(s.network.GetValidators()[0].GetOperator().Bytes()), addr)
 			},
 			true,
 			"",
@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			func() *vm.Contract {
 				input, err := s.precompile.Pack(
 					bech32.Bech32ToHexMethod,
-					sdk.ConsAddress(s.address.Bytes()).String(),
+					sdk.ConsAddress(s.keyring.GetAddr(0).Bytes()).String(),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				contract.Input = input
@@ -234,7 +234,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().Len(args, 1)
 				addr, ok := args[0].(common.Address)
 				s.Require().True(ok)
-				s.Require().Equal(s.address, addr)
+				s.Require().Equal(s.keyring.GetAddr(0), addr)
 			},
 			true,
 			"",

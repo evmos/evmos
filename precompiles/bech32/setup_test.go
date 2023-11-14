@@ -3,51 +3,56 @@ package bech32_test
 import (
 	"testing"
 
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	evmosapp "github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/bech32"
+
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
 var s *PrecompileTestSuite
 
+// PrecompileTestSuite is the implementation of the TestSuite interface for ERC20 precompile
+// unit tests.
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx        sdk.Context
-	app        *evmosapp.Evmos
-	address    common.Address
-	validators []stakingtypes.Validator
-	ethSigner  ethtypes.Signer
-	privKey    cryptotypes.PrivKey
-	signer     keyring.Signer
-	bondDenom  string
+	bondDenom string
+	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
+	// This denomination is used to instantiate the precompile.
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
-	precompile        *bech32.Precompile
-	activePrecompiles []common.Address
-	stateDB           vm.StateDB
+	precompile *bech32.Precompile
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+	keyring := testkeyring.New(2)
+	integrationNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	ctx := integrationNetwork.GetContext()
+	sk := integrationNetwork.App.StakingKeeper
+	bondDenom := sk.BondDenom(ctx)
+	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
+
+	s.bondDenom = bondDenom
+	s.factory = txFactory
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.network = integrationNetwork
+
+	s.precompile = s.setupBech32Precompile()
 }
