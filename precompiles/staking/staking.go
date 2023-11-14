@@ -165,7 +165,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - DecreaseAllowance
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case DelegateMethod,
+	case CreateValidatorMethod,
+		DelegateMethod,
 		UndelegateMethod,
 		RedelegateMethod,
 		CancelUnbondingDelegationMethod,
