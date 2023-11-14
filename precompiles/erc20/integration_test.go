@@ -1,71 +1,56 @@
 package erc20_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"math/big"
 )
 
-var _ = Describe("ERC20 Extension - ", func() {
+var _ = Describe("ERC20 Extension -", func() {
 	var (
-		defaultCallArgs contracts.CallArgs
-
-		// contractCall returns the call arguments in order to call the ERC20 extension through
-		// a smart contract.
-		contractCall func() contracts.CallArgs
-		// directCall returns the call arguments in order to call the ERC20 extension directly.
-		directCall func() contracts.CallArgs
-
-		sender            keyring.Key
-		failCheck         testutil.LogCheckArgs
-		execRevertedCheck testutil.LogCheckArgs
-		passCheck         testutil.LogCheckArgs
+		contractAddr common.Address
+		err          error
+		failCheck    testutil.LogCheckArgs
+		passCheck    testutil.LogCheckArgs
+		sender       keyring.Key
 	)
 
 	BeforeEach(func() {
 		s.SetupTest()
 
 		sender = s.keyring.GetKey(0)
-		defaultCallArgs = contracts.CallArgs{
-			PrivKey: sender.Priv,
-		}
 
-		contractCall = func() contracts.CallArgs {
-			return defaultCallArgs
-			// FIXME: add contract call support
-			// WithABI(s.precompile.ABI).
-			// WithAddress(s.precompile.Address())
-		}
-		_ = contractCall
-
-		directCall = func() contracts.CallArgs {
-			return defaultCallArgs.
-				WithABI(s.precompile.ABI).
-				WithAddress(s.precompile.Address())
-		}
-		_ = directCall
+		contractAddr, err = s.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract:        testdata.ERC20CallerContract,
+				ConstructorArgs: []interface{}{s.precompile.Address()},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
 		// Set up the checks
 		failCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.Events,
 			ExpPass:   false,
 		}
-		execRevertedCheck = failCheck.WithErrContains("execution reverted")
 		passCheck = failCheck.WithExpPass(true)
-
-		// TODO: remove these once used
-		_ = execRevertedCheck
-		_ = passCheck
 	})
 
 	When("querying balance", func() {
-		It("should return an existing balance", func() {
+		DescribeTable("it should return an existing balance", func(callType int) {
 			expBalance := big.NewInt(100)
 
 			// Fund account with some tokens
@@ -73,7 +58,7 @@ var _ = Describe("ERC20 Extension - ", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
-			balancesArgs := directCall().
+			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
 				WithMethodName(erc20.BalanceOfMethod).
 				WithArgs(sender.Addr)
 
@@ -85,9 +70,12 @@ var _ = Describe("ERC20 Extension - ", func() {
 			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 			Expect(res).To(Equal(expBalance), "expected different balance")
-		})
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
 
-		It("should return zero if balance only exists for other tokens", func() {
+		DescribeTable("it should return zero if balance only exists for other tokens", func(callType int) {
 			address := utiltx.GenerateAddress()
 
 			// Fund account with some tokens
@@ -95,7 +83,7 @@ var _ = Describe("ERC20 Extension - ", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
-			balancesArgs := directCall().
+			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
 				WithMethodName(erc20.BalanceOfMethod).
 				WithArgs(address)
 
@@ -106,24 +94,29 @@ var _ = Describe("ERC20 Extension - ", func() {
 			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 			Expect(res.Int64()).To(BeZero(), "expected zero balance")
-		})
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
 
-		It("should return zero if the account does not exist", func() {
+		DescribeTable("it should return zero if the account does not exist", func(callType int) {
 			address := utiltx.GenerateAddress()
 
-			balancesArgs := directCall().
+			balancesArgs := s.getTxArgs(sender, callType, contractAddr).
 				WithMethodName(erc20.BalanceOfMethod).
 				WithArgs(address)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.network.GetContext(), s.network.App, balancesArgs, passCheck)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
 			Expect(ethRes).ToNot(BeNil(), "expected result")
-			println("ethRes.Ret", ethRes.Ret)
 
 			var res *big.Int
 			err = s.precompile.UnpackIntoInterface(&res, erc20.BalanceOfMethod, ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 			Expect(res.Int64()).To(BeZero(), "expected zero balance")
-		})
+		},
+			Entry(" - direct call", directCall),
+			Entry(" - through contract", contractCall),
+		)
 	})
 })

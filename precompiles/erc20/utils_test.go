@@ -9,8 +9,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
+	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 )
@@ -128,4 +132,29 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 	s.Require().NoError(err, "failed to add %q erc20 precompile to EVM extensions", denom)
 
 	return precompile
+}
+
+// callType constants to differentiate between direct calls and calls through a contract.
+const (
+	directCall = iota + 1
+	contractCall
+)
+
+// getTxArgs is a helper function to return the correct call arguments for a given call type.
+//
+// In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
+// ERC20CallerContract's ABI is used and the given contract address.
+func (s *PrecompileTestSuite) getTxArgs(sender keyring.Key, callType int, contractAddr common.Address) contracts.CallArgs {
+	args := contracts.CallArgs{
+		PrivKey: sender.Priv,
+	}
+
+	switch callType {
+	case directCall:
+		args = args.WithABI(s.precompile.ABI).WithAddress(s.precompile.Address())
+	case contractCall:
+		args = args.WithABI(testdata.ERC20CallerContract.ABI).WithAddress(contractAddr)
+	}
+
+	return args
 }
