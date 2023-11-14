@@ -6,8 +6,9 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	"github.com/evmos/evmos/v15/precompiles/bech32"
 	"sort"
+
+	"github.com/evmos/evmos/v15/precompiles/bech32"
 
 	"golang.org/x/exp/maps"
 
