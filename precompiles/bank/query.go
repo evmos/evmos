@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 const (
@@ -16,6 +17,9 @@ const (
 	// TotalSupplyMethod defines the ABI method name for the bank TotalSupply
 	// query.
 	TotalSupplyMethod = "totalSupply"
+	// SupplyOfMethod defines the ABI method name for the bank SupplyOf
+	// query.
+	SupplyOfMethod = "supplyOf"
 )
 
 // Balances returns all the native token balances (address, amount) for a given
@@ -95,4 +99,27 @@ func (p Precompile) TotalSupply(
 	})
 
 	return method.Outputs.Pack(totalSupply)
+}
+
+// SupplyOf returns the total native supply of a given registered erc20 token.
+func (p Precompile) SupplyOf(
+	ctx sdk.Context,
+	_ *vm.Contract,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	erc20ContractAddress, err := ParseSupplyOfArgs(args)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenPairID := p.erc20Keeper.GetERC20Map(ctx, erc20ContractAddress)
+	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
+	if !found {
+		return nil, types.ErrTokenPairNotFound
+	}
+
+	supply := p.bankKeeper.GetSupply(ctx, tokenPair.Denom)
+
+	return method.Outputs.Pack(supply.Amount.BigInt())
 }
