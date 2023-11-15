@@ -4,10 +4,14 @@
 package staking
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -439,7 +443,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
 			OperatorAddress: res.Validator.OperatorAddress,
-			ConsensusPubkey: res.Validator.ConsensusPubkey.String(),
+			ConsensusPubkey: formatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
 			Tokens:          res.Validator.Tokens.BigInt(),
@@ -474,7 +478,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 	for i, v := range res.Validators {
 		vo.Validators[i] = ValidatorInfo{
 			OperatorAddress:   v.OperatorAddress,
-			ConsensusPubkey:   v.ConsensusPubkey.String(),
+			ConsensusPubkey:   formatConsensusPubkey(v.ConsensusPubkey),
 			Jailed:            v.Jailed,
 			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
 			Tokens:            v.Tokens.BigInt(),
@@ -680,4 +684,13 @@ func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string
 	}
 
 	return delegatorAddr, validatorAddress, amount, nil
+}
+
+// formatConsensusPubkey format ConsensusPubkey into a base64 string
+func formatConsensusPubkey(consensusPubkey *codectypes.Any) string {
+	ed25519pk, ok := consensusPubkey.GetCachedValue().(cryptotypes.PubKey)
+	if ok {
+		return base64.StdEncoding.EncodeToString(ed25519pk.Bytes())
+	}
+	return consensusPubkey.String()
 }
