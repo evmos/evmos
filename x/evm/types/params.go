@@ -29,6 +29,7 @@ var (
 	// AvailableEVMExtensions defines the default active precompiles
 	AvailableEVMExtensions = []string{
 		"0x0000000000000000000000000000000000000013", // P256 precompile
+		"0x0000000000000000000000000000000000000400", // Bech32 precompile
 		"0x0000000000000000000000000000000000000800", // Staking precompile
 		"0x0000000000000000000000000000000000000801", // Distribution precompile
 		"0x0000000000000000000000000000000000000802", // ICS20 transfer precompile
