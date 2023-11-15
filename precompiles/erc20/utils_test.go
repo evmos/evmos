@@ -112,8 +112,7 @@ func (s *PrecompileTestSuite) requireSendAuthz(grantee, granter sdk.AccAddress, 
 	sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
 	s.Require().True(ok, "expected send authorization")
 
-	spendLimits := sendAuthz.SpendLimit
-	s.Require().Equal(amount, spendLimits, "expected different spend limit amount")
+	s.Require().Equal(amount, sendAuthz.SpendLimit, "expected different spend limit amount")
 	if len(allowList) == 0 {
 		s.Require().Empty(sendAuthz.AllowList, "expected empty allow list")
 	} else {
