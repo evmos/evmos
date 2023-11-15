@@ -22,6 +22,9 @@ import (
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+
+	//nolint:revive // dot imports are fine for Gomega
+	. "github.com/onsi/gomega"
 )
 
 // setupSendAuthz is a helper function to set up a SendAuthorization for
@@ -223,4 +226,33 @@ func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
 	}
 
 	return nil
+}
+
+// ExpectedBalance is a helper struct to check the balances of accounts.
+type ExpectedBalance struct {
+	address  sdk.AccAddress
+	expCoins sdk.Coins
+}
+
+// ExpectBalances is a helper function to check if the balances of the given accounts are as expected.
+func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
+	for _, expBalance := range expBalances {
+		for _, expCoin := range expBalance.expCoins {
+			coinBalance, err := s.grpcHandler.GetBalance(expBalance.address, expCoin.Denom)
+			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
+			Expect(coinBalance.Balance.Amount.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
+		}
+	}
+}
+
+// expectNoSendAuthz is a helper function to check that no SendAuthorization
+// exists for a given grantee and granter combination.
+func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress) {
+	grants, err := s.grpcHandler.GetGrants(grantee.String(), granter.String())
+	Expect(err).ToNot(HaveOccurred(), "expected no error querying the grants")
+	Expect(grants).To(HaveLen(0), "expected no grants")
+
+	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
+	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorizations")
+	Expect(authzs).To(HaveLen(0), "expected no authorizations")
 }
