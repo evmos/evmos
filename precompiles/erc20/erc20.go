@@ -21,8 +21,21 @@ import (
 	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 )
 
-// abiPath defines the path to the ERC-20 precompile ABI JSON file.
-const abiPath = "abi.json"
+const (
+	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
+	abiPath = "abi.json"
+
+	GasTransfer          = 3_000_000
+	GasApprove           = 30_956
+	GasIncreaseAllowance = 34_605
+	GasDecreaseAllowance = 34_519
+	GasName              = 3_421
+	GasSymbol            = 3_464
+	GasDecimals          = 427
+	GasTotalSupply       = 2_477
+	GasBalanceOf         = 2_851
+	GasAllowance         = 3_246
+)
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //
@@ -90,28 +103,28 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	switch method.Name {
 	// ERC-20 transactions
 	case TransferMethod:
-		return 3_000_000
+		return GasTransfer
 	case TransferFromMethod:
-		return 3_000_000
+		return GasTransfer
 	case auth.ApproveMethod:
-		return 30_956
+		return GasApprove
 	case auth.IncreaseAllowanceMethod:
-		return 34_605
+		return GasIncreaseAllowance
 	case auth.DecreaseAllowanceMethod:
-		return 34_519
+		return GasDecreaseAllowance
 	// ERC-20 queries
 	case NameMethod:
-		return 3_421
+		return GasName
 	case SymbolMethod:
-		return 3_464
+		return GasSymbol
 	case DecimalsMethod:
-		return 427
+		return GasDecimals
 	case TotalSupplyMethod:
-		return 2_477
+		return GasTotalSupply
 	case BalanceOfMethod:
-		return 2_851
+		return GasBalanceOf
 	case auth.AllowanceMethod:
-		return 3_246
+		return GasAllowance
 	default:
 		return 0
 	}

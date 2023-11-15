@@ -43,7 +43,9 @@ func (k Keeper) PostTxProcessing(
 	receipt *ethtypes.Receipt,
 ) error {
 	contract := msg.To()
-	if contract == nil {
+	// when baseFee and minGasPrice in freemarker module are both 0
+	// the user may send a transaction with gasPrice of 0 to the precompiled contract
+	if contract == nil || msg.GasPrice().Sign() <= 0 {
 		return nil
 	}
 

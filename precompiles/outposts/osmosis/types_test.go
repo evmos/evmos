@@ -25,7 +25,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		windowSeconds      uint64
 		onFailedDelivery   string
 		nextMemo           string
-		expMemo            bool
+		expNextMemo        bool
 	}{
 		{
 			name:               "pass - correct string without memo",
@@ -36,7 +36,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
 			nextMemo:           "",
-			expMemo:            false,
+			expNextMemo:        false,
 		},
 		{
 			name:               "pass - correct string with memo",
@@ -47,7 +47,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
 			nextMemo:           "a next memo",
-			expMemo:            true,
+			expNextMemo:        true,
 		},
 	}
 
@@ -61,8 +61,10 @@ func TestCreatePacketWithMemo(t *testing.T) {
 				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
 			)
 			packetString := packet.String()
+			err := ValidateAndParseWasmRoutedMemo(packetString, tc.receiver)
+			require.NoError(t, err, "memo is not a valid wasm routed JSON formatted string")
 
-			if tc.expMemo {
+			if tc.expNextMemo {
 				require.Contains(t, packetString, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
 			} else {
 				require.NotContains(t, packetString, fmt.Sprintf("next_memo: %s", tc.nextMemo))
@@ -191,10 +193,23 @@ func TestParseSwapPacketData(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, _, _, _, _, _, err := osmosisoutpost.ParseSwapPacketData(tc.args)
+			swapPacketData, err := osmosisoutpost.ParseSwapPacketData(tc.args)
 
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
+				require.Equal(
+					t,
+					osmosisoutpost.SwapPacketData{
+						Sender:             testSender,
+						Input:              testInput,
+						Output:             testOutput,
+						Amount:             testAmount,
+						SlippagePercentage: testSlippagePercentage,
+						WindowSeconds:      testWindowSeconds,
+						SwapReceiver:       testReceiver,
+					},
+					swapPacketData,
+				)
 			} else {
 				require.Error(t, err, "expected error while validating the memo")
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
@@ -342,7 +357,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, aevmosDenom),
 		},
 		{
 			name:         "fail - input equal to output ibc osmo",
@@ -352,7 +367,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, uosmosDenom),
 		},
 		{
 			name:         "fail - invalid input",

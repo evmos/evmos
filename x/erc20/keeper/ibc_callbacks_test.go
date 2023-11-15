@@ -27,7 +27,7 @@ import (
 	"github.com/evmos/evmos/v15/contracts"
 	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
 
@@ -349,6 +349,8 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				suite.app.EvmKeeper,
 				suite.app.StakingKeeper,
 				suite.app.ClaimsKeeper,
+				suite.app.AuthzKeeper,
+				&suite.app.TransferKeeper,
 			)
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers

@@ -34,7 +34,7 @@ import (
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evm "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -365,6 +365,15 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		suite.queryClientEvm,
 		contracts.ERC20MinterBurnerDecimalsContract,
 		name, symbol, decimals,
+	)
+}
+
+func (suite *KeeperTestSuite) requireActivePrecompiles(precompiles []string) {
+	params := suite.app.EvmKeeper.GetParams(suite.ctx)
+	suite.Require().Equal(
+		precompiles,
+		params.ActivePrecompiles,
+		"expected different active precompiles",
 	)
 }
 

@@ -4,7 +4,6 @@
 package bank
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 
@@ -27,8 +26,22 @@ func ParseBalancesArgs(args []interface{}) (sdk.AccAddress, error) {
 
 	account, ok := args[0].(common.Address)
 	if !ok {
-		return nil, errors.New("invalid account address")
+		return nil, fmt.Errorf(cmn.ErrInvalidType, "account", common.Address{}, args[0])
 	}
 
 	return account.Bytes(), nil
+}
+
+// ParseSupplyOfArgs parses the call arguments for the bank SupplyOf query.
+func ParseSupplyOfArgs(args []interface{}) (common.Address, error) {
+	if len(args) != 1 {
+		return common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
+	}
+
+	erc20Address, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "erc20Address", common.Address{}, args[0])
+	}
+
+	return erc20Address, nil
 }

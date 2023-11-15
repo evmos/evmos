@@ -29,7 +29,7 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts

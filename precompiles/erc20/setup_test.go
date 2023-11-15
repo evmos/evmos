@@ -8,8 +8,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -45,18 +43,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
 
-	// Create dummy token pair to instantiate the precompile
-	tokenDenom := "xmpl"
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), tokenDenom, erc20types.OWNER_MODULE)
-
-	precompile, err := erc20precompile.NewPrecompile(
-		tokenPair,
-		integrationNetwork.App.BankKeeper,
-		integrationNetwork.App.AuthzKeeper,
-		integrationNetwork.App.TransferKeeper,
-	)
-	s.Require().NoError(err, "failed to create erc20 precompile")
-
 	ctx := integrationNetwork.GetContext()
 	sk := integrationNetwork.App.StakingKeeper
 	bondDenom := sk.BondDenom(ctx)
@@ -66,7 +52,11 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
-	s.precompile = precompile
 	s.network = integrationNetwork
-	s.tokenDenom = tokenDenom
+
+	// Instantiate the precompile with an exemplary token denomination.
+	//
+	// NOTE: This has to be done AFTER assigning the suite fields.
+	s.tokenDenom = "xmpl"
+	s.precompile = s.setupERC20Precompile(s.tokenDenom)
 }

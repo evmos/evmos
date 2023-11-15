@@ -161,9 +161,9 @@ import (
 	incentivesclient "github.com/evmos/evmos/v15/x/incentives/client"
 	incentiveskeeper "github.com/evmos/evmos/v15/x/incentives/keeper"
 	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
-	"github.com/evmos/evmos/v15/x/inflation"
-	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/keeper"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
+	inflation "github.com/evmos/evmos/v15/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	"github.com/evmos/evmos/v15/x/recovery"
 	recoverykeeper "github.com/evmos/evmos/v15/x/recovery/keeper"
 	recoverytypes "github.com/evmos/evmos/v15/x/recovery/types"
@@ -530,6 +530,7 @@ func NewEvmos(
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.EvmKeeper, app.StakingKeeper, app.ClaimsKeeper,
+		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
 	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
