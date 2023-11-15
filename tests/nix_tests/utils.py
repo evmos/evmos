@@ -473,6 +473,14 @@ def update_node_cmd(path, cmd, i):
         ini.write(fp)
 
 
+def update_evmosd_and_setup_stride(modified_bin):
+    def inner(path, base_port, config):
+        update_evmos_bin(modified_bin)(path,base_port, config)
+        setup_stride()(path,base_port, config)
+    
+    return inner
+
+
 def update_evmos_bin(modified_bin, nodes=[0, 1]):
     """
     updates the evmos binary with a patched binary.
@@ -492,6 +500,16 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
 
     return inner
 
+
+def setup_stride():
+    def inner(path, base_port, config):
+        chain_id = "stride-1"
+        base_dir = Path(path / chain_id)
+        os.environ['BASE_DIR'] = str(base_dir)
+        os.environ['BASE_PORT'] = str(base_port)
+        subprocess.run(["../../scripts/setup-stride.sh"], check=True)
+    
+    return inner
 
 def register_wevmos(evmos):
     """
