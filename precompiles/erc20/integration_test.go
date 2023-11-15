@@ -396,4 +396,127 @@ var _ = Describe("ERC20 Extension -", func() {
 			// NOTE: we are not passing the contract call here because this test is for direct calls only
 		)
 	})
+
+	When("transferring tokens from another account", func() {
+		DescribeTable("it should transfer tokens with a sufficient allowance set", func(callType int) {
+			from := s.keyring.GetKey(1)
+			receiver := utiltx.GenerateAddress()
+			fundAmount := big.NewInt(300)
+			amount := big.NewInt(100)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Set allowance
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(amount)}})
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferFromMethod
+			transferArgs.Args = []interface{}{from.Addr, receiver, amount}
+
+			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			fromBalancePost, err := s.grpcHandler.GetBalance(from.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(fromBalancePost.Balance.Amount.Int64()).To(Equal(fundAmount.Int64()-amount.Int64()), "expected different balance after transfer")
+
+			receiverBalancePost, err := s.grpcHandler.GetBalance(receiver.Bytes(), s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(receiverBalancePost.Balance.Amount.Int64()).To(Equal(amount.Int64()), "expected different balance after transfer")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should return an error if the sender does not have enough allowance", func(callType int) {
+			from := s.keyring.GetKey(1)
+			receiver := utiltx.GenerateAddress()
+			fundAmount := big.NewInt(400)
+			authzAmount := big.NewInt(200)
+			amount := big.NewInt(300)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Set allowance
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(authzAmount)}})
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferFromMethod
+			transferArgs.Args = []interface{}{from.Addr, receiver, amount}
+
+			insufficientAllowanceCheck := failCheck.WithErrContains(
+				"requested amount is more than spend limit",
+			)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should return an error if there is no allowance set", func(callType int) {
+			from := s.keyring.GetKey(1)
+			receiver := utiltx.GenerateAddress()
+			fundAmount := big.NewInt(400)
+			amount := big.NewInt(300)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferFromMethod
+			transferArgs.Args = []interface{}{from.Addr, receiver, amount}
+
+			insufficientAllowanceCheck := failCheck.WithErrContains(
+				"authorization not found",
+			)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
+			from := s.keyring.GetKey(1)
+			receiver := utiltx.GenerateAddress()
+			fundAmount := big.NewInt(200)
+			authzAmount := big.NewInt(300)
+			amount := big.NewInt(300)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Set allowance
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(authzAmount)}})
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferFromMethod
+			transferArgs.Args = []interface{}{from.Addr, receiver, amount}
+
+			insufficientBalanceCheck := failCheck.WithErrContains(
+				fmt.Sprintf("spendable balance 200xmpl is smaller than 300xmpl: insufficient funds"),
+			)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+	})
 })
