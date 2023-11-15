@@ -490,7 +490,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			// Check that the allowance was removed since we authorized only the transferred amount
 			s.expectNoSendAuthz(spender.Bytes(), owner.AccAddr)
 		},
-			//Entry(" - direct call", directCall),
+			// Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
 		)
 
