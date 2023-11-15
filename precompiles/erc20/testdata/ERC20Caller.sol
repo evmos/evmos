@@ -14,15 +14,18 @@ contract ERC20Caller {
     }
 
     function transfer(address to, uint256 amount) external {
-        token.transfer(to, amount);
+        bool success = token.transfer(to, amount);
+        require(success, "ERC20Caller: transfer failed");
     }
 
     function transferFrom(address from, address to, uint256 amount) external {
-        token.transferFrom(from, to, amount);
+        bool success = token.transferFrom(from, to, amount);
+        require(success, "ERC20Caller: transferFrom failed");
     }
 
     function approve(address spender, uint256 amount) external {
-        token.approve(spender, amount);
+        bool success = token.approve(spender, amount);
+        require(success, "ERC20Caller: approve failed");
     }
 
     function allowance(address owner, address spender) external view returns (uint256) {
