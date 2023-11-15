@@ -279,7 +279,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param value The amount of coin being self delegated
     event CreateValidator(
         address indexed delegatorAddress,
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 commissionRate,
         uint256 commissionMaxRate,
         uint256 commissionMaxChangeRate,
