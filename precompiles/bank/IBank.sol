@@ -31,4 +31,9 @@ interface IBank {
   /// native tokens.
   /// @return totalSupply the supply as an array of native token balances
   function totalSupply() external view returns (Balance[] memory totalSupply);
+
+
+  /// @dev supplyOf defines a method for retrieving the total supply of a particular native coin.
+  /// @return totalSupply the supply as a uint256
+  function supplyOf(address erc20Address) external view returns (uint256 totalSupply);
 }
