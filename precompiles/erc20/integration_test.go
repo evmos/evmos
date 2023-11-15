@@ -369,8 +369,6 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 
 		// TODO: is this the behavior we want? Makes sense right because the contract is not a wallet?
-		//
-		// We'll have to check with funds that belong to the contract in the transferFrom checks
 		DescribeTable("it should return an error trying to call from a smart contract", func(callType int) {
 			receiver := s.keyring.GetAddr(1)
 			fundAmount := big.NewInt(300)
