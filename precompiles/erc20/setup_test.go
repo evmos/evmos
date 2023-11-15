@@ -10,7 +10,9 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 

@@ -15,7 +15,10 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
@@ -58,7 +61,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			expBalance := big.NewInt(100)
 
 			// Fund account with some tokens
-			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(expBalance)}})
+			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(expBalance)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
@@ -129,7 +134,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			granter := sender
 			expAllowance := big.NewInt(100)
 
-			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(expAllowance)}})
+			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(expAllowance)},
+			})
 
 			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
 			allowanceArgs.MethodName = auth.AllowanceMethod
@@ -178,7 +185,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			granter := sender
 			amount := big.NewInt(100)
 
-			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{{s.network.GetDenom(), sdk.NewIntFromBigInt(amount)}})
+			s.setupSendAuthz(grantee.Bytes(), granter.Priv, sdk.Coins{
+				{Denom: s.network.GetDenom(), Amount: sdk.NewIntFromBigInt(amount)},
+			})
 
 			txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr)
 			allowanceArgs.MethodName = auth.AllowanceMethod
@@ -224,7 +233,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			expSupply := big.NewInt(100)
 
 			// Fund account with some tokens
-			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(expSupply)}})
+			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(expSupply)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Query the balance
@@ -267,7 +278,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(100)
 
 			// Fund account with some tokens
-			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			senderBalancePre, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
@@ -285,7 +298,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
-			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+			res, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
 
 			senderBalancePost, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
@@ -297,6 +310,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			Expect(receiverBalancePost.Balance.Amount.Int64()).To(Equal(amount.Int64()), "expected different balance after transfer")
 
 			// TODO: Check gas
+			println("Gas used (res): ", res.GasUsed)
+			println("Gas used (ethRes): ", ethRes.GasUsed)
+			// Expect(res.GasUsed).To(Equal(uint64(0)), "expected different gas used")
 			// Expect(ethRes.GasUsed).To(Equal(1), "expected different gas used")
 		},
 			Entry(" - direct call", directCall),
@@ -311,9 +327,13 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(100)
 
 			// Fund accounts with some tokens
-			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmountSender)}})
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmountSender)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
-			err = s.network.FundAccount(receiver.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmountReceiver)}})
+			err = s.network.FundAccount(receiver.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmountReceiver)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			senderBalancePre, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
@@ -356,7 +376,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(100)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Transfer tokens
@@ -377,7 +399,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(200)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Transfer tokens
@@ -386,7 +410,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferArgs.Args = []interface{}{receiver, amount}
 
 			insufficientBalanceCheck := failCheck.WithErrContains(
-				fmt.Sprintf("spendable balance 100xmpl is smaller than 200xmpl: insufficient funds"),
+				"spendable balance 100xmpl is smaller than 200xmpl: insufficient funds",
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
@@ -405,11 +429,15 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(100)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Set allowance
-			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(amount)}})
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(amount)},
+			})
 
 			// Transfer tokens
 			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
@@ -433,6 +461,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			// NOTE: we are not passing the contract call here because this test case only covers direct calls
 		)
 
+		//nolint:dupl // these tests are not duplicates
 		DescribeTable("it should return an error if the sender does not have enough allowance", func(callType int) {
 			from := s.keyring.GetKey(1)
 			receiver := utiltx.GenerateAddress()
@@ -441,11 +470,15 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(300)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Set allowance
-			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(authzAmount)}})
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(authzAmount)},
+			})
 
 			// Transfer tokens
 			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
@@ -470,7 +503,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(300)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Transfer tokens
@@ -489,6 +524,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			// NOTE: we are not passing the contract call here because this test case only covers direct calls
 		)
 
+		//nolint:dupl // these tests are not duplicates
 		DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
 			from := s.keyring.GetKey(1)
 			receiver := utiltx.GenerateAddress()
@@ -497,11 +533,15 @@ var _ = Describe("ERC20 Extension -", func() {
 			amount := big.NewInt(300)
 
 			// Fund account with some tokens
-			err = s.network.FundAccount(from.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			err = s.network.FundAccount(from.AccAddr, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(fundAmount)},
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 			// Set allowance
-			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(authzAmount)}})
+			s.setupSendAuthz(sender.AccAddr, from.Priv, sdk.Coins{
+				{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(authzAmount)},
+			})
 
 			// Transfer tokens
 			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
@@ -509,7 +549,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferArgs.Args = []interface{}{from.Addr, receiver, amount}
 
 			insufficientBalanceCheck := failCheck.WithErrContains(
-				fmt.Sprintf("spendable balance 200xmpl is smaller than 300xmpl: insufficient funds"),
+				"spendable balance 200xmpl is smaller than 300xmpl: insufficient funds",
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
