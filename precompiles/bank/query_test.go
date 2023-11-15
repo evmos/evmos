@@ -223,7 +223,6 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 		{
 			"pass - EVMOS total supply",
 			func() []interface{} {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
 				return []interface{}{
 					s.evmosAddr,
 				}
