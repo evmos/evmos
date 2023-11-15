@@ -7,6 +7,7 @@ import (
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
@@ -72,7 +73,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.Args = []interface{}{sender.Addr}
 
 			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
@@ -96,7 +97,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.Args = []interface{}{address}
 
 			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
@@ -116,7 +117,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			balancesArgs.Args = []interface{}{address}
 
 			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var balance *big.Int
 			err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
@@ -143,7 +144,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
 
 			_, ethRes, err := s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var allowance *big.Int
 			err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
@@ -174,7 +175,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			}
 
 			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
@@ -194,7 +195,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			allowanceArgs.Args = []interface{}{granter.Addr, grantee}
 
 			_, ethRes, err := s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var allowance *big.Int
 			err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
@@ -221,7 +222,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			}
 
 			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			Entry(" - through contract", contractCall),
@@ -243,7 +244,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			supplyArgs.MethodName = erc20.TotalSupplyMethod
 
 			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var supply *big.Int
 			err = s.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
@@ -259,7 +260,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			supplyArgs.MethodName = erc20.TotalSupplyMethod
 
 			_, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			var supply *big.Int
 			err = s.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
@@ -299,7 +300,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
 			res, ethRes, err := s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			senderBalancePost, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
 			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
@@ -352,7 +353,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			senderBalancePost, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
 			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
@@ -387,7 +388,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferArgs.Args = []interface{}{receiver, amount}
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			// NOTE: we are not passing the direct call here because this test is specific to the contract calls
 			Entry(" - through contract", contractCall),
@@ -414,7 +415,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			// NOTE: we are not passing the contract call here because this test is for direct calls only
@@ -447,7 +448,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			fromBalancePost, err := s.grpcHandler.GetBalance(from.AccAddr, s.tokenDenom)
 			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
@@ -490,7 +491,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -518,7 +519,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -553,7 +554,233 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+	})
+
+	When("approving an allowance", func() {
+		DescribeTable("it should approve an allowance", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+			amount := big.NewInt(100)
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, amount}
+
+			approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(1), "expected different number of authorizations")
+
+			sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
+			Expect(ok).To(BeTrue(), "expected different authorization type")
+			Expect(sendAuthz.SpendLimit).To(HaveLen(1), "expected spend limit only in one denomination")
+			Expect(sendAuthz.SpendLimit[0].Amount.Int64()).To(Equal(amount.Int64()), "expected different spend limit")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+			amount := big.NewInt(100)
+			bondCoin := sdk.Coin{Denom: s.network.GetDenom(), Amount: sdk.NewInt(200)}
+			tokenCoin := sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(amount)}
+
+			// Setup a previous authorization
+			s.setupSendAuthz(grantee.AccAddr, granter.Priv, sdk.Coins{bondCoin})
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, amount}
+
+			approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance contains both spend limits
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(1), "expected different number of authorizations")
+
+			sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
+			Expect(ok).To(BeTrue(), "expected different authorization type")
+			Expect(sendAuthz.SpendLimit).To(HaveLen(2), "expected spend limit in two denominations")
+			Expect(sendAuthz.SpendLimit).To(Equal(sdk.NewCoins(bondCoin, tokenCoin)), "expected different spend limit")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+			amount := big.NewInt(100)
+			bondCoin := sdk.Coin{Denom: s.network.GetDenom(), Amount: sdk.NewInt(200)}
+			tokenCoin := sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(amount)}
+			doubleTokenCoin := sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewInt(200)}
+
+			// Setup a previous authorization
+			s.setupSendAuthz(grantee.AccAddr, granter.Priv, sdk.NewCoins(bondCoin, doubleTokenCoin))
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, amount}
+
+			approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance contains both spend limits
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(1), "expected different number of authorizations")
+
+			sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
+			Expect(ok).To(BeTrue(), "expected different authorization type")
+			Expect(sendAuthz.SpendLimit).To(HaveLen(2), "expected spend limit in two denominations")
+			Expect(sendAuthz.SpendLimit).To(Equal(sdk.NewCoins(bondCoin, tokenCoin)), "expected different spend limit")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+			amount := big.NewInt(100)
+			bondCoin := sdk.Coin{Denom: s.network.GetDenom(), Amount: sdk.NewInt(200)}
+			tokenCoin := sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(amount)}
+
+			// Setup a previous authorization
+			s.setupSendAuthz(grantee.AccAddr, granter.Priv, sdk.NewCoins(bondCoin, tokenCoin))
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, common.Big0}
+
+			approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance contains both spend limits
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(1), "expected different number of authorizations")
+
+			sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
+			Expect(ok).To(BeTrue(), "expected different authorization type")
+			Expect(sendAuthz.SpendLimit).To(HaveLen(1), "expected spend limit in one denomination")
+			Expect(sendAuthz.SpendLimit).To(Equal(sdk.NewCoins(bondCoin)), "expected different spend limit")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should delete the authorization when approving zero with no other spend limits", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+			amount := big.NewInt(100)
+			tokenCoin := sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(amount)}
+
+			// Setup a previous authorization
+			s.setupSendAuthz(grantee.AccAddr, granter.Priv, sdk.NewCoins(tokenCoin))
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, common.Big0}
+
+			approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance contains both spend limits
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(0), "expected different number of authorizations")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should return an error if approving 0 and no allowance exists", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, common.Big0}
+
+			nonPosCheck := failCheck.WithErrContains("cannot approve non-positive values")
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, nonPosCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			// Check allowance contains both spend limits
+			authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
+			Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
+			Expect(authzs).To(HaveLen(0), "expected different number of authorizations")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		// TODO: this is passing right now?? Should we allow someone to create an authorization for themselves?
+		DescribeTable("it should return an error if the grantee is the same as the granter", func(callType int) {
+			grantee := sender
+			granter := sender
+			amount := big.NewInt(100)
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, amount}
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, execRevertedCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test case only covers direct calls
+		)
+
+		DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType int) {
+			grantee := s.keyring.GetKey(1)
+			granter := sender
+
+			// Setup a previous authorization
+			s.setupSendAuthz(grantee.AccAddr, granter.Priv, sdk.NewCoins(sdk.Coin{Denom: s.network.GetDenom(), Amount: sdk.NewInt(200)}))
+
+			// Approve allowance
+			txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr)
+			approveArgs.MethodName = auth.ApproveMethod
+			approveArgs.Args = []interface{}{grantee.Addr, common.Big0}
+
+			notFoundCheck := failCheck.WithErrContains(
+				fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			)
+
+			_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		},
 			Entry(" - direct call", directCall),
 			// NOTE: we are not passing the contract call here because this test case only covers direct calls

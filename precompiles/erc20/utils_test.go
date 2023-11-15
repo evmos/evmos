@@ -219,7 +219,7 @@ func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
 	}
 
 	if !strings.Contains(err.Error(), logCheckArgs.ErrContains) {
-		return errorsmod.Wrap(err, "expected different error")
+		return errorsmod.Wrapf(err, "expected different error; wanted %q", logCheckArgs.ErrContains)
 	}
 
 	return nil
