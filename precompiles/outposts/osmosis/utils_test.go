@@ -20,9 +20,8 @@ func parseStringAsJSON(memo string) (jsonObject map[string]interface{}, err erro
 	}
 
 	// the jsonObject must be a valid JSON object
-	err = json.Unmarshal([]byte(memo), &jsonObject)
-	if err != nil {
-		return jsonObject, err
+	if err := json.Unmarshal([]byte(memo), &jsonObject); err != nil {
+		return nil, err
 	}
 
 	return jsonObject, nil
