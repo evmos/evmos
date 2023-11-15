@@ -136,6 +136,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 - (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
 - (gov) [#1981](https://github.com/evmos/evmos/pull/1981) Remove deprecated `cosmos.params.v1beta1/ParameterChangeProposal` handler
+- (revenue) [#2032](https://github.com/evmos/evmos/pull/2032) Fixed the problem that users cannot send transactions with gasPrice of 0 to precompiled contracts.
+
 
 ## [v14.1.0] - 2023-09-25
 
