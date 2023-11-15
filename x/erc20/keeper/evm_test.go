@@ -14,6 +14,7 @@ import (
 	"github.com/evmos/evmos/v15/contracts"
 	"github.com/evmos/evmos/v15/x/erc20/keeper"
 	"github.com/evmos/evmos/v15/x/erc20/types"
+	erc20mocks "github.com/evmos/evmos/v15/x/erc20/types/mocks"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -53,7 +54,7 @@ func (suite *KeeperTestSuite) TestQueryERC20() {
 }
 
 func (suite *KeeperTestSuite) TestBalanceOf() {
-	var mockEVMKeeper *MockEVMKeeper
+	var mockEVMKeeper *erc20mocks.EVMKeeper
 	contract := utiltx.GenerateAddress()
 	testCases := []struct {
 		name       string
@@ -90,12 +91,14 @@ func (suite *KeeperTestSuite) TestBalanceOf() {
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
-		mockEVMKeeper = &MockEVMKeeper{}
+		mockEVMKeeper = &erc20mocks.EVMKeeper{}
 		suite.app.Erc20Keeper = keeper.NewKeeper(
 			suite.app.GetKey("erc20"), suite.app.AppCodec(),
 			authtypes.NewModuleAddress(govtypes.ModuleName),
 			suite.app.AccountKeeper, suite.app.BankKeeper,
-			mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
+			mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+			s.app.AuthzKeeper, &s.app.TransferKeeper,
+		)
 
 		tc.malleate()
 
@@ -240,7 +243,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 }
 
 func (suite *KeeperTestSuite) TestForceFail() {
-	var mockEVMKeeper *MockEVMKeeper
+	var mockEVMKeeper *erc20mocks.EVMKeeper
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	testCases := []struct {
 		name     string
@@ -279,11 +282,13 @@ func (suite *KeeperTestSuite) TestForceFail() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			suite.SetupTest() // reset
-			mockEVMKeeper = &MockEVMKeeper{}
+			mockEVMKeeper = &erc20mocks.EVMKeeper{}
 			suite.app.Erc20Keeper = keeper.NewKeeper(
 				suite.app.GetKey("erc20"), suite.app.AppCodec(),
 				authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
+				suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+				s.app.AuthzKeeper, &s.app.TransferKeeper,
+			)
 
 			tc.malleate()
 
@@ -304,7 +309,7 @@ func (suite *KeeperTestSuite) TestForceFail() {
 }
 
 func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
-	var mockEVMKeeper *MockEVMKeeper
+	var mockEVMKeeper *erc20mocks.EVMKeeper
 	contract := utiltx.GenerateAddress()
 	testCases := []struct {
 		name     string
@@ -368,11 +373,15 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 	}
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
-		mockEVMKeeper = &MockEVMKeeper{}
+
+		// TODO: what's the reason we are using mockEVMKeeper here? Instead of just passing the suite.app.EvmKeeper?
+		mockEVMKeeper = &erc20mocks.EVMKeeper{}
 		suite.app.Erc20Keeper = keeper.NewKeeper(
 			suite.app.GetKey("erc20"), suite.app.AppCodec(),
 			authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper)
+			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+			s.app.AuthzKeeper, &s.app.TransferKeeper,
+		)
 
 		tc.malleate()
 
