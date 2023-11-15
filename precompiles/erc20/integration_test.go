@@ -494,6 +494,35 @@ var _ = Describe("ERC20 Extension -", func() {
 			Entry(" - through contract", contractCall),
 		)
 
+		// TODO: This is working right now! We should probably block this.
+		DescribeTable("it should return an error trying to send using a smart contract but triggered from another account", func(callType int) {
+			msgSender := s.keyring.GetKey(0)
+			owner := s.keyring.GetKey(1)
+			receiver := utiltx.GenerateAddress()
+			spender := contractAddr
+
+			fundCoin := sdk.NewInt64Coin(s.tokenDenom, 300)
+			transferCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(owner.AccAddr, sdk.Coins{fundCoin})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Set allowance
+			s.setupSendAuthz(spender.Bytes(), owner.Priv, sdk.Coins{transferCoin})
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferFromMethod
+			transferArgs.Args = []interface{}{owner.Addr, receiver, transferCoin.Amount.BigInt()}
+
+			_, _, err = s.callContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, execRevertedCheck)
+			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+		},
+			// NOTE: we are not passing the direct call here because this test is specific to the contract calls
+			Entry(" - through contract", contractCall),
+		)
+
 		//nolint:dupl // these tests are not duplicates
 		DescribeTable("it should return an error when the spender does not have enough allowance", func(callType int) {
 			owner := sender
