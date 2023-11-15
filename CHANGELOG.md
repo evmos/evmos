@@ -48,6 +48,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 - (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
+- (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
+- (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
 
 ### Improvements
 
@@ -83,6 +85,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
+- (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
+- (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
+- (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
 
 ### Bug Fixes
 
