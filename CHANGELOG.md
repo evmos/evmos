@@ -89,6 +89,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
 - (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
 - (bank) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
+- (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test 
 
 ### Bug Fixes
 
