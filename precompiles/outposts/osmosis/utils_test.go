@@ -16,7 +16,7 @@ func parseStringAsJSON(memo string) (jsonObject map[string]interface{}, err erro
 	jsonObject = make(map[string]interface{})
 
 	if len(memo) == 0 {
-		return jsonObject, fmt.Errorf("string cannot be empty")
+		return nil, fmt.Errorf("string cannot be empty")
 	}
 
 	// the jsonObject must be a valid JSON object
