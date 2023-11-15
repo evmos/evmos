@@ -258,4 +258,141 @@ var _ = Describe("ERC20 Extension -", func() {
 			Entry(" - through contract", contractCall),
 		)
 	})
+
+	When("transferring tokens", func() {
+		DescribeTable("it should transfer tokens to a non-existing address", func(callType int) {
+			receiver := utiltx.GenerateAddress()
+			fundAmount := big.NewInt(200)
+			amount := big.NewInt(100)
+
+			// Fund account with some tokens
+			err := s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			senderBalancePre, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(senderBalancePre.Balance.Amount.Int64()).To(Equal(fundAmount.Int64()), "expected different balance before transfer")
+
+			receiverBalancePre, err := s.grpcHandler.GetBalance(receiver.Bytes(), s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(receiverBalancePre.Balance.Amount.Int64()).To(BeZero(), "expected zero balance before transfer")
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferMethod
+			transferArgs.Args = []interface{}{receiver, amount}
+
+			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			senderBalancePost, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(senderBalancePost.Balance.Amount.Int64()).To(Equal(senderBalancePre.Balance.Amount.Int64()-amount.Int64()), "expected different balance after transfer")
+
+			receiverBalancePost, err := s.grpcHandler.GetBalance(receiver.Bytes(), s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(receiverBalancePost.Balance.Amount.Int64()).To(Equal(amount.Int64()), "expected different balance after transfer")
+
+			// TODO: Check gas
+			// Expect(ethRes.GasUsed).To(Equal(1), "expected different gas used")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because that requires an authorization which is
+			// a separate test case.
+		)
+
+		DescribeTable("it should transfer tokens to an existing address", func(callType int) {
+			receiver := s.keyring.GetKey(1)
+			fundAmountSender := big.NewInt(300)
+			fundAmountReceiver := big.NewInt(500)
+			amount := big.NewInt(100)
+
+			// Fund accounts with some tokens
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmountSender)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+			err = s.network.FundAccount(receiver.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmountReceiver)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			senderBalancePre, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(senderBalancePre.Balance.Amount.Int64()).To(Equal(fundAmountSender.Int64()), "expected different balance before transfer")
+
+			receiverBalancePre, err := s.grpcHandler.GetBalance(receiver.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(receiverBalancePre.Balance.Amount.Int64()).To(Equal(fundAmountReceiver.Int64()), "expected different balance before transfer")
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferMethod
+			transferArgs.Args = []interface{}{receiver.Addr, amount}
+
+			transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+
+			senderBalancePost, err := s.grpcHandler.GetBalance(sender.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(senderBalancePost.Balance.Amount.Int64()).To(Equal(senderBalancePre.Balance.Amount.Int64()-amount.Int64()), "expected different balance after transfer")
+
+			receiverBalancePost, err := s.grpcHandler.GetBalance(receiver.AccAddr, s.tokenDenom)
+			Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+			Expect(receiverBalancePost.Balance.Amount.Int64()).To(Equal(receiverBalancePre.Balance.Amount.Int64()+amount.Int64()), "expected different balance after transfer")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because that requires an authorization which is
+			// a separate test case.
+		)
+
+		// TODO: is this the behavior we want? Makes sense right because the contract is not a wallet?
+		//
+		// We'll have to check with funds that belong to the contract in the transferFrom checks
+		DescribeTable("it should return an error trying to call from a smart contract", func(callType int) {
+			receiver := s.keyring.GetAddr(1)
+			fundAmount := big.NewInt(300)
+			amount := big.NewInt(100)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferMethod
+			transferArgs.Args = []interface{}{receiver, amount}
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			// NOTE: we are not passing the direct call here because this test is specific to the contract calls
+			Entry(" - through contract", contractCall),
+		)
+
+		DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
+			receiver := s.keyring.GetAddr(1)
+			fundAmount := big.NewInt(100)
+			amount := big.NewInt(200)
+
+			// Fund account with some tokens
+			err = s.network.FundAccount(sender.AccAddr, sdk.Coins{{s.tokenDenom, sdk.NewIntFromBigInt(fundAmount)}})
+			Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+			// Transfer tokens
+			txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr)
+			transferArgs.MethodName = erc20.TransferMethod
+			transferArgs.Args = []interface{}{receiver, amount}
+
+			insufficientBalanceCheck := failCheck.WithErrContains(
+				fmt.Sprintf("spendable balance 100xmpl is smaller than 200xmpl: insufficient funds"),
+			)
+
+			_, _, err = s.callContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+			Expect(err).ToNot(HaveOccurred(), "failed to call contract")
+		},
+			Entry(" - direct call", directCall),
+			// NOTE: we are not passing the contract call here because this test is for direct calls only
+		)
+	})
 })
