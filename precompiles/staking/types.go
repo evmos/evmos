@@ -9,9 +9,8 @@ import (
 	"fmt"
 	"math/big"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
