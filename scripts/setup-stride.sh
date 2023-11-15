@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source .env
-set -eu 
+set -eu
 
 # remove node0 - only use node1
 rm -rf "$BASE_DIR/node0"
@@ -13,9 +13,10 @@ DENOM=ustrd
 
 STRIDE_DAY_EPOCH_DURATION="140s"
 STRIDE_EPOCH_EPOCH_DURATION="35s"
-MAX_DEPOSIT_PERIOD="30s"
-VOTING_PERIOD="30s"
-UNBONDING_TIME="240s"
+MIN_DEPOSIT_AMT=1
+MAX_DEPOSIT_PERIOD="10s"
+VOTING_PERIOD="10s"
+UNBONDING_TIME="1814400s"
 
 # need to update the ports based on the base port
 P2P_ADDR_PORT=$((BASE_PORT + 100))
@@ -35,7 +36,8 @@ rm -rf ${STRIDE_HOME}
 
 $STRIDED init stride-local --chain-id $CHAIN_ID --overwrite
 
-app_config=$(cat <<EOF
+app_config=$(
+    cat <<EOF
 minimum-gas-prices = "0ustrd"
 pruning = "nothing"
 pruning-keep-recent = "0"
@@ -104,9 +106,10 @@ query_gas_limit = 300000
 lru_size = 0
 EOF
 )
-echo "$app_config" > "$app_toml"
+echo "$app_config" >"$app_toml"
 
-config=$(cat <<EOF
+config=$(
+    cat <<EOF
 proxy_app = "tcp://127.0.0.1:26658"
 moniker = "node0"
 block_sync = true
@@ -233,34 +236,34 @@ max_open_connections = 3
 namespace = "cometbft"
 EOF
 )
-echo "$config" > "$config_toml"
+echo "$config" >"$config_toml"
 
 sed -i -E "s|chain-id = \"\"|chain-id = \"${CHAIN_ID}\"|g" $client_toml
 sed -i -E "s|keyring-backend = \"os\"|keyring-backend = \"test\"|g" $client_toml
 sed -i -E "s|node = \".*\"|node = \"tcp://localhost:${RPC_LADDR_PORT}\"|g" $client_toml
 
-jq '(.app_state.epochs.epochs[] | select(.identifier=="day") ).duration = $epochLen' --arg epochLen $STRIDE_DAY_EPOCH_DURATION $genesis_json > json.tmp && mv json.tmp $genesis_json
-jq '(.app_state.epochs.epochs[] | select(.identifier=="stride_epoch") ).duration = $epochLen' --arg epochLen $STRIDE_EPOCH_EPOCH_DURATION $genesis_json > json.tmp && mv json.tmp $genesis_json
-jq '.app_state.gov.params.max_deposit_period = $newVal' --arg newVal "$MAX_DEPOSIT_PERIOD" $genesis_json > json.tmp && mv json.tmp $genesis_json
-jq '.app_state.gov.params.voting_period = $newVal' --arg newVal "$VOTING_PERIOD" $genesis_json > json.tmp && mv json.tmp $genesis_json
-
+jq '(.app_state.epochs.epochs[] | select(.identifier=="day") ).duration = $epochLen' --arg epochLen $STRIDE_DAY_EPOCH_DURATION $genesis_json >json.tmp && mv json.tmp $genesis_json
+jq '(.app_state.epochs.epochs[] | select(.identifier=="stride_epoch") ).duration = $epochLen' --arg epochLen $STRIDE_EPOCH_EPOCH_DURATION $genesis_json >json.tmp && mv json.tmp $genesis_json
+jq '.app_state.gov.params.max_deposit_period = $newVal' --arg newVal "$MAX_DEPOSIT_PERIOD" $genesis_json >json.tmp && mv json.tmp $genesis_json
+jq '.app_state.gov.params.voting_period = $newVal' --arg newVal "$VOTING_PERIOD" $genesis_json >json.tmp && mv json.tmp $genesis_json
+jq '.app_state.gov.params.min_deposit = [{"denom": $denom, "amount": $newVal}]' --arg newVal "$MIN_DEPOSIT_AMT" --arg denom "$DENOM" $genesis_json >json.tmp && mv json.tmp $genesis_json
 
 $STRIDED add-consumer-section 1
-jq '.app_state.ccvconsumer.params.unbonding_period = $newVal' --arg newVal "$UNBONDING_TIME" $genesis_json > json.tmp && mv json.tmp $genesis_json
+jq '.app_state.ccvconsumer.params.unbonding_period = $newVal' --arg newVal "$UNBONDING_TIME" $genesis_json >json.tmp && mv json.tmp $genesis_json
 
-echo "$VALIDATOR1_MNEMONIC" | $STRIDED keys add validator1 --recover --keyring-backend=test 
+echo "$VALIDATOR1_MNEMONIC" | $STRIDED keys add validator1 --recover --keyring-backend=test
 $STRIDED add-genesis-account $($STRIDED keys show validator1 -a) 10000000000000${DENOM}
 
-echo "$VALIDATOR2_MNEMONIC" | $STRIDED keys add validator2 --recover --keyring-backend=test 
+echo "$VALIDATOR2_MNEMONIC" | $STRIDED keys add validator2 --recover --keyring-backend=test
 $STRIDED add-genesis-account $($STRIDED keys show validator2 -a) 10000000000000${DENOM}
 
-echo "$COMMUNITY_MNEMONIC" | $STRIDED keys add community --recover --keyring-backend=test 
+echo "$COMMUNITY_MNEMONIC" | $STRIDED keys add community --recover --keyring-backend=test
 $STRIDED add-genesis-account $($STRIDED keys show community -a) 10000000000000${DENOM}
 
-echo "$SIGNER1_MNEMONIC" | $STRIDED keys add signer1 --recover --keyring-backend=test 
+echo "$SIGNER1_MNEMONIC" | $STRIDED keys add signer1 --recover --keyring-backend=test
 $STRIDED add-genesis-account $($STRIDED keys show signer1 -a) 10000000000000${DENOM}
 
-echo "$SIGNER2_MNEMONIC" | $STRIDED keys add signer2 --recover --keyring-backend=test 
+echo "$SIGNER2_MNEMONIC" | $STRIDED keys add signer2 --recover --keyring-backend=test
 $STRIDED add-genesis-account $($STRIDED keys show signer2 -a) 10000000000000${DENOM}
 
 # Update the task.ini file to run only one node
@@ -274,4 +277,4 @@ command = strided start --home .
 stdout_logfile = %(here)s/node.log"
 
 # Replace the content of task.ini with the new content
-echo "$new_content" > "$BASE_DIR/tasks.ini"
+echo "$new_content" >"$BASE_DIR/tasks.ini"
