@@ -1,10 +1,11 @@
 package erc20_test
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"math/big"
 	"strings"
 	"time"
+
+	errorsmod "cosmossdk.io/errors"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"

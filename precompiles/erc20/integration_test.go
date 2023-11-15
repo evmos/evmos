@@ -2,8 +2,9 @@ package erc20_test
 
 import (
 	"fmt"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"math/big"
+
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
