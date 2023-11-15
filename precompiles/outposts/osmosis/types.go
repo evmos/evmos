@@ -101,7 +101,7 @@ type Memo struct {
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string.
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo.
-	Memo *Memo `json:"memo"`
+	Memo *Memo `json:"wasm"`
 }
 
 // CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis
@@ -137,7 +137,7 @@ func CreatePacketWithMemo(
 // string.
 func (r RawPacketMetadata) String() string {
 	// Convert the struct to a JSON string
-	jsonBytes, err := json.MarshalIndent(r, "", "  ")
+	jsonBytes, err := json.Marshal(r)
 	if err != nil {
 		return ""
 	}

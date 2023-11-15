@@ -167,6 +167,10 @@ class CosmosCLI:
     # ==========================
     #        TX utils
     # ==========================
+    def block_results_rpc(self):
+        rsp = requests.get(f"{self.node_rpc_http}/block_results").json()
+        assert "error" not in rsp, rsp["error"]
+        return rsp["result"]
 
     def tx_search(self, events: str):
         "/tx_search"

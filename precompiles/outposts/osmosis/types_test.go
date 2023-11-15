@@ -25,7 +25,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		windowSeconds      uint64
 		onFailedDelivery   string
 		nextMemo           string
-		expMemo            bool
+		expMemo            string
 	}{
 		{
 			name:               "pass - correct string without memo",
@@ -36,7 +36,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
 			nextMemo:           "",
-			expMemo:            false,
+			expMemo:            "{\"wasm\":{\"contract\":\"contract\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":10,\"window_seconds\":30}},\"receiver\":\"receiver\",\"on_failed_delivery\":\"do_nothing\"}}}}",
 		},
 		{
 			name:               "pass - correct string with memo",
@@ -47,7 +47,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
 			nextMemo:           "a next memo",
-			expMemo:            true,
+			expMemo:            "{\"wasm\":{\"contract\":\"contract\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":10,\"window_seconds\":30}},\"receiver\":\"receiver\",\"on_failed_delivery\":\"do_nothing\",\"next_memo\":\"a next memo\"}}}}",
 		},
 	}
 
@@ -60,13 +60,8 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			packet := osmosisoutpost.CreatePacketWithMemo(
 				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
 			)
-			packetString := packet.String()
-
-			if tc.expMemo {
-				require.Contains(t, packetString, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
-			} else {
-				require.NotContains(t, packetString, fmt.Sprintf("next_memo: %s", tc.nextMemo))
-			}
+			memo := packet.String()
+			require.Equal(t, tc.expMemo, memo)
 		})
 
 	}
