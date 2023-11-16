@@ -50,6 +50,39 @@ func (s *PrecompileTestSuite) setupSendAuthz(
 	s.Require().NoError(err, "failed to execute MsgGrant")
 }
 
+// setupSendAuthzForContract is a helper function which executes an approval
+// for the given contract data.
+//
+// If:
+//   - the classic ERC20 contract is used, it calls the `approve` method on the contract.
+//   - in other cases, it sends a `MsgGrant` to set up the authorization.
+func (s *PrecompileTestSuite) setupSendAuthzForContract(
+	callType int, contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+) {
+	Expect(amount).To(HaveLen(1), "expected only one coin")
+	Expect(amount[0].Denom).To(Equal(s.tokenDenom),
+		"this test utility only works with the token denom in the context of these integration tests",
+	)
+
+	println("Setting up authorization for call type: ", callType)
+
+	if callType == erc20Call {
+		txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, "approve", grantee, amount.AmountOf(s.tokenDenom).BigInt())
+
+		// Check that an approval was made
+		approveCheck := testutil.LogCheckArgs{
+			ABIEvents: contractData.erc20ABI.Events,
+			ExpEvents: []string{"Approval"},
+			ExpPass:   true,
+		}
+
+		_, _, err := s.factory.CallContractAndCheckLogs(granterPriv, txArgs, callArgs, approveCheck)
+		Expect(err).ToNot(HaveOccurred(), "failed to execute approve")
+	} else {
+		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
+	}
+}
+
 // requireOut is a helper utility to reduce the amount of boilerplate code in the query tests.
 //
 // It requires the output bytes and error to match the expected values. Additionally, the method outputs

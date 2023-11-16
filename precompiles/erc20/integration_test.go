@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
@@ -115,7 +116,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 100)}
 
 				// Fund account with some tokens
-				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
+				err := s.network.FundAccount(sender.AccAddr, fundCoins)
+				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Query the balance
 				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractData, erc20.BalanceOfMethod, address)
@@ -130,6 +132,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contracts
+				// only support the actual token denomination and don't know of other balances.
 			)
 
 			DescribeTable("it should return zero if the account does not exist", func(callType int) {
@@ -148,6 +152,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
 			)
 		})
 
@@ -157,7 +162,21 @@ var _ = Describe("ERC20 Extension -", func() {
 				granter := sender
 				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				s.setupSendAuthz(grantee.Bytes(), granter.Priv, authzCoins)
+				// Make topics for the grantee and granter common.Address types
+				granteeTopic, err := cmn.MakeTopic(grantee)
+				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
+				println("Grantee topic: ", granteeTopic.String())
+				granterTopic, err := cmn.MakeTopic(granter.Addr)
+				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
+				println("Granter topic: ", granterTopic.String())
+				contractTopic, err := cmn.MakeTopic(contractAddr)
+				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
+				println("Contract topic: ", contractTopic.String())
+				ownerTopic, err := cmn.MakeTopic(sender.Addr)
+				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
+				println("Owner topic: ", ownerTopic.String())
+
+				s.setupSendAuthzForContract(callType, contractData, grantee, granter.Priv, authzCoins)
 
 				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
@@ -171,6 +190,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// Interestingly, this returns an empty allowance but the logs show that an approval was made..
+				Entry(" - through erc20 contract", erc20Call),
 			)
 
 			DescribeTable("it should return an error if no allowance exists", func(callType int) {
