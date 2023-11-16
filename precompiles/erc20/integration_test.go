@@ -212,6 +212,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// FIXME: other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
+				Entry(" - through erc20 contract", erc20Call),
 			)
 
 			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType int) {
@@ -233,6 +235,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
+				// only supports the actual token denomination and doesn't know of other allowances.
 			)
 
 			DescribeTable("it should return an error if the account does not exist", func(callType int) {
@@ -253,6 +257,8 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// FIXME: Other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
+				Entry(" - through erc20 contract", erc20Call),
 			)
 		})
 
@@ -277,6 +283,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
 			)
 
 			DescribeTable("it should return zero if no tokens exist", func(callType int) {
@@ -292,6 +299,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
 			)
 		})
 
@@ -781,14 +789,30 @@ var _ = Describe("ERC20 Extension -", func() {
 
 	Context("metadata query -", func() {
 		Context("for a non-IBC token without registered metadata", func() {
+			BeforeEach(func() {
+				// Deploy ERC20NoMetadata contract for this test
+				erc20Addr, err := s.factory.DeployContract(
+					sender.Priv,
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: contracts.ERC20NoMetadataContract,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				// NOTE: update the address but leave the ABI as it is, so that the ABI includes
+				// the metadata methods but the contract doesn't have them.
+				contractData.erc20Addr = erc20Addr
+			})
+
 			DescribeTable("querying the name should return an error", func(callType int) {
 				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractData, erc20.NameMethod)
 
-				noIBCVoucherCheck := execRevertedCheck
-				if callType == directCall {
-					noIBCVoucherCheck = failCheck.WithErrContains(
-						fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-					)
+				noIBCVoucherCheck := failCheck.WithErrContains(
+					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
+				)
+				if callType == contractCall {
+					noIBCVoucherCheck = execRevertedCheck
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, nameArgs, noIBCVoucherCheck)
@@ -796,16 +820,19 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
+				// -- do we really want the same behavior for the EVM extension?
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
 			)
 
 			DescribeTable("querying the symbol should return an error", func(callType int) {
 				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractData, erc20.SymbolMethod)
 
-				noIBCVoucherCheck := execRevertedCheck
-				if callType == directCall {
-					noIBCVoucherCheck = failCheck.WithErrContains(
-						fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-					)
+				noIBCVoucherCheck := failCheck.WithErrContains(
+					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
+				)
+				if callType == contractCall {
+					noIBCVoucherCheck = execRevertedCheck
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, symbolArgs, noIBCVoucherCheck)
@@ -813,16 +840,19 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
+				// -- do we really want the same behavior for the EVM extension?
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
 			)
 
 			DescribeTable("querying the decimals should return an error", func(callType int) {
 				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractData, erc20.DecimalsMethod)
 
-				noIBCVoucherCheck := execRevertedCheck
-				if callType == directCall {
-					noIBCVoucherCheck = failCheck.WithErrContains(
-						fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-					)
+				noIBCVoucherCheck := failCheck.WithErrContains(
+					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
+				)
+				if callType == contractCall {
+					noIBCVoucherCheck = execRevertedCheck
 				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, decimalsArgs, noIBCVoucherCheck)
@@ -830,6 +860,9 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
+				// -- do we really want the same behavior for the EVM extension?
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
 			)
 		})
 
@@ -851,6 +884,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				// overwrite the other precompile with this one, so that the test utils like s.getTxAndCallArgs still work.
 				s.precompile = s.setupERC20Precompile(ibcDenomTrace.IBCDenom())
 
+				// update this in the global contractData
+				contractData.precompileABI = s.precompile.ABI
+				contractData.precompileAddr = s.precompile.Address()
+
 				// TODO: can I handle this differently, just using the integration utils and not using the keeper directly?
 				s.network.App.TransferKeeper.SetDenomTrace(s.network.GetContext(), ibcDenomTrace)
 			})
@@ -868,6 +905,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 			)
 
 			DescribeTable("querying the symbol should return the symbol", func(callType int) {
@@ -883,6 +921,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 			)
 
 			DescribeTable("querying the decimals should return the decimals", func(callType int) {
@@ -899,6 +938,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// FIXME: this is failing??
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 			)
 		})
 	})
