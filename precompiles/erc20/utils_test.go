@@ -65,8 +65,6 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 		"this test utility only works with the token denom in the context of these integration tests",
 	)
 
-	println("Setting up authorization for call type: ", callType)
-
 	if callType == erc20Call {
 		txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
 
