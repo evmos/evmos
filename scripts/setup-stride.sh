@@ -5,6 +5,7 @@
 # This is needed because Stride is a Cosmos Hub consumer chain.
 # So we need to update the setup to make it work properly.
 
+source .env
 set -eu
 
 STRIDE_HOME="$BASE_DIR/node1"
@@ -43,6 +44,11 @@ jq '.app_state.genutil.gen_txs = []' $genesis_json >json.tmp && mv json.tmp $gen
 # unbonding period should match staking unbonding time
 unbonding_time=$(jq -r '.app_state.staking.params.unbonding_time' <$genesis_json)
 jq '.app_state.ccvconsumer.params.unbonding_period = $unbonding_time' --arg unbonding_time "$unbonding_time" $genesis_json >json.tmp && mv json.tmp $genesis_json
+
+# add keys to the keyring
+echo "$COMMUNITY_MNEMONIC" | $STRIDED keys add community --recover --keyring-backend=test
+echo "$SIGNER1_MNEMONIC" | $STRIDED keys add signer1 --recover --keyring-backend=test
+echo "$SIGNER2_MNEMONIC" | $STRIDED keys add signer2 --recover --keyring-backend=test
 
 # Update the tasks.ini file to run only one node
 new_content="[program:stride-1-node]
