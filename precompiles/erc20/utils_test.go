@@ -2,12 +2,8 @@ package erc20_test
 
 import (
 	"math/big"
-	"strings"
 	"time"
 
-	errorsmod "cosmossdk.io/errors"
-
-	abci "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -16,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -166,65 +161,6 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common
 	}
 
 	return txArgs, callArgs
-}
-
-// callContractAndCheckLogs is a helper function to call a contract and check the logs using
-// the integration test utilities.
-//
-// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
-// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
-//
-// TODO: add this to network utils?
-func (s *PrecompileTestSuite) callContractAndCheckLogs(
-	priv cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-	callArgs factory.CallArgs,
-	logCheckArgs testutil.LogCheckArgs,
-) (abci.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
-	res, err := s.factory.ExecuteContractCall(priv, txArgs, callArgs)
-	logCheckArgs.Res = res
-	if err != nil {
-		// NOTE: here we are still passing the response to the log check function,
-		// because we want to check the logs and expected error in case of a VM error.
-		//
-		// TODO: refactor CheckLogs function
-		return abci.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
-	}
-
-	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-	if err != nil {
-		return abci.ResponseDeliverTx{}, nil, err
-	}
-
-	return res, ethRes, testutil.CheckLogs(logCheckArgs)
-}
-
-// CheckError is a helper function to check if the error is the expected one.
-//
-// TODO: improve this
-func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
-	if (err == nil) && logCheckArgs.ExpPass {
-		return nil
-	}
-
-	if (err == nil) && !logCheckArgs.ExpPass {
-		return errorsmod.Wrap(err, "expected error but got none")
-	}
-
-	if (err != nil) && logCheckArgs.ExpPass {
-		return errorsmod.Wrap(err, "expected no error but got one")
-	}
-
-	if logCheckArgs.ErrContains == "" {
-		// NOTE: if err contains is empty, we return the error as it is
-		return errorsmod.Wrap(err, "ErrContains needs to be filled")
-	}
-
-	if !strings.Contains(err.Error(), logCheckArgs.ErrContains) {
-		return errorsmod.Wrapf(err, "expected different error; wanted %q", logCheckArgs.ErrContains)
-	}
-
-	return nil
 }
 
 // ExpectedBalance is a helper struct to check the balances of accounts.
