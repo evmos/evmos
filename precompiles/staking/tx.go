@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// CreateValidatorMethod defines the ABI method name for the staking create validator transaction
+	CreateValidatorMethod = "createValidator"
 	// DelegateMethod defines the ABI method name for the staking Delegate
 	// transaction.
 	DelegateMethod = "delegate"
@@ -30,8 +32,6 @@ const (
 	// CancelUnbondingDelegationMethod defines the ABI method name for the staking
 	// CancelUnbondingDelegation transaction.
 	CancelUnbondingDelegationMethod = "cancelUnbondingDelegation"
-	// CreateValidatorMethod defines the ABI method name for the staking create validator transaction
-	CreateValidatorMethod = "createValidator"
 )
 
 const (
