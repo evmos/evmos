@@ -162,7 +162,7 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common
 		callArgs.ContractABI = s.precompile.ABI
 	case contractCall:
 		txArgs.To = &contractAddr
-		callArgs.ContractABI = testdata.ERC20CallerContract.ABI
+		callArgs.ContractABI = testdata.ERC20AllowanceCallerContract.ABI
 	}
 
 	return txArgs, callArgs
@@ -244,13 +244,31 @@ func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 	}
 }
 
+// expectSendAuthz is a helper function to check that a SendAuthorization
+// exists for a given grantee and granter combination for a given amount and optionally an access list.
+//
+// NOTE: This helper expects only one authorization to exist.
+//
+// NOTE 2: This mirrors the requireSendAuthz method but adapted to Ginkgo.
+func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, expAmount sdk.Coins, allowList []string) {
+	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
+	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorization")
+	Expect(authzs).To(HaveLen(1), "expected one authorization")
+
+	sendAuthz, ok := authzs[0].(*banktypes.SendAuthorization)
+	Expect(ok).To(BeTrue(), "expected send authorization")
+
+	Expect(sendAuthz.SpendLimit).To(Equal(expAmount), "expected different spend limit amount")
+	if len(allowList) == 0 {
+		Expect(sendAuthz.AllowList).To(BeEmpty(), "expected empty allow list")
+	} else {
+		Expect(allowList).To(Equal(sendAuthz.AllowList), "expected different allow list")
+	}
+}
+
 // expectNoSendAuthz is a helper function to check that no SendAuthorization
 // exists for a given grantee and granter combination.
 func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress) {
-	grants, err := s.grpcHandler.GetGrants(grantee.String(), granter.String())
-	Expect(err).ToNot(HaveOccurred(), "expected no error querying the grants")
-	Expect(grants).To(HaveLen(0), "expected no grants")
-
 	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorizations")
 	Expect(authzs).To(HaveLen(0), "expected no authorizations")

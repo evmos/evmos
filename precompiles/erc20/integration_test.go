@@ -2,6 +2,7 @@ package erc20_test
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"math/big"
 
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
@@ -42,7 +43,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
-				Contract:        testdata.ERC20CallerContract,
+				Contract:        testdata.ERC20AllowanceCallerContract,
 				ConstructorArgs: []interface{}{s.precompile.Address()},
 			},
 		)
@@ -612,7 +613,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance
-				s.requireSendAuthz(grantee.AccAddr, granter.AccAddr, transferCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, transferCoins, nil)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -638,7 +639,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains both spend limits
-				s.requireSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -665,7 +666,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains both spend limits
-				s.requireSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -691,7 +692,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains only the spend limit in network denomination
-				s.requireSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins, nil)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -789,7 +790,212 @@ var _ = Describe("ERC20 Extension -", func() {
 		})
 	})
 
-	Context("metadata queries -", func() {
+	Context("allowance adjustments -", func() {
+		var (
+			grantee keyring.Key
+			granter keyring.Key
+		)
 
+		BeforeEach(func() {
+			// Deploying the contract which has the increase / decrease allowance methods
+			contractAddr, err = s.factory.DeployContract(
+				sender.Priv,
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract:        testdata.ERC20AllowanceCallerContract,
+					ConstructorArgs: []interface{}{s.precompile.Address()},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+			grantee = s.keyring.GetKey(0)
+			granter = s.keyring.GetKey(1)
+		})
+
+		When("no allowance exists", func() {
+			DescribeTable("increasing the allowance should create a new authorization", func(callType int) {
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				increaseArgs.MethodName = auth.IncreaseAllowanceMethod
+				increaseArgs.Args = []interface{}{grantee.Addr, authzCoins[0].Amount.BigInt()}
+
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins, nil)
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("decreasing the allowance should return an error", func(callType int) {
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				decreaseArgs.MethodName = auth.DecreaseAllowanceMethod
+				decreaseArgs.Args = []interface{}{grantee.Addr, authzCoins[0].Amount.BigInt()}
+
+				notFoundCheck := execRevertedCheck
+				if callType == directCall {
+					notFoundCheck = failCheck.WithErrContains(
+						fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.Addr.String()),
+					)
+				}
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, notFoundCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+		})
+
+		When("an allowance exists for other tokens", func() {
+			var bondCoins sdk.Coins
+
+			BeforeEach(func() {
+				bondCoins = sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
+			})
+
+			DescribeTable("increasing the allowance should add the token to the spend limit", func(callType int) {
+				increaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				increaseArgs.MethodName = auth.IncreaseAllowanceMethod
+				increaseArgs.Args = []interface{}{grantee.Addr, increaseCoins[0].Amount.BigInt()}
+
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(increaseCoins...), nil)
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("decreasing the allowance should return an error", func(callType int) {
+				decreaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				decreaseArgs.MethodName = auth.DecreaseAllowanceMethod
+				decreaseArgs.Args = []interface{}{grantee.Addr, decreaseCoins[0].Amount.BigInt()}
+
+				notFoundCheck := execRevertedCheck
+				if callType == directCall {
+					notFoundCheck = failCheck.WithErrContains(
+						fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.Addr.String()),
+					)
+				}
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, notFoundCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+		})
+
+		When("an allowance exists for the same token", func() {
+			var authzCoins sdk.Coins
+
+			BeforeEach(func() {
+				authzCoins = sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
+
+				s.setupSendAuthz(grantee.AccAddr, granter.Priv, authzCoins)
+			})
+
+			DescribeTable("increasing the allowance should increase the spend limit", func(callType int) {
+				increaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				increaseArgs.MethodName = auth.IncreaseAllowanceMethod
+				increaseArgs.Args = []interface{}{grantee.Addr, increaseCoins[0].Amount.BigInt()}
+
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Add(increaseCoins...), nil)
+			},
+				Entry(" - direct call", directCall),
+				// FIXME: this also shows interesting behavior because when calling this there is an authorization from the contract to the grantee
+				// instead of the increasing the one from granter to the grantee, because the granter is always taken as the contract caller (in this case the smart contract),
+				// even though we sign with the granter key. I think this is different to how we have it implemented for other precompiles, e.g. staking?
+				//
+				// See IncreaseAllowance method in the approve.go file:
+				//
+				// ```
+				// granter := contract.CallerAddress
+				// ```
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("decreasing the allowance should decrease the spend limit", func(callType int) {
+				decreaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				decreaseArgs.MethodName = auth.DecreaseAllowanceMethod
+				decreaseArgs.Args = []interface{}{grantee.Addr, decreaseCoins[0].Amount.BigInt()}
+
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Sub(decreaseCoins...), nil)
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType int) {
+				maxUint256Coins := sdk.Coins{sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr)
+				increaseArgs.MethodName = auth.IncreaseAllowanceMethod
+				increaseArgs.Args = []interface{}{grantee.Addr, maxUint256Coins[0].Amount.BigInt()}
+
+				overflowCheck := execRevertedCheck
+				if callType == directCall {
+					overflowCheck = failCheck.WithErrContains("integer overflow when increasing")
+				}
+
+				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, overflowCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("decreasing the allowance to zero should remove the token from the spend limit", func(callType int) {
+				Expect(true).To(BeFalse(), "not implemented")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+
+			DescribeTable("decreasing the allowance below zero should return an error", func(callType int) {
+				Expect(true).To(BeFalse(), "not implemented")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+		})
+
+		When("an allowance exists for only the same token", func() {
+			DescribeTable("decreasing the allowance to zero should delete the authorization", func(callType int) {
+				Expect(true).To(BeFalse(), "not implemented")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+			)
+		})
 	})
 })
