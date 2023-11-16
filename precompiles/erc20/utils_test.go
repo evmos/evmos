@@ -66,20 +66,28 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 	)
 
 	if callType == erc20Call {
-		txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
-
-		// Check that an approval was made
-		approveCheck := testutil.LogCheckArgs{
-			ABIEvents: contractData.erc20ABI.Events,
-			ExpEvents: []string{"Approval"},
-			ExpPass:   true,
-		}
-
-		_, _, err := s.factory.CallContractAndCheckLogs(granterPriv, txArgs, callArgs, approveCheck)
-		Expect(err).ToNot(HaveOccurred(), "failed to execute approve")
+		s.setupSendAuthzForERC20(contractData, grantee, granterPriv, amount)
 	} else {
 		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
 	}
+}
+
+// setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
+// a given grantee and granter combination for a given amount.
+func (s *PrecompileTestSuite) setupSendAuthzForERC20(
+	contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+) {
+	txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
+
+	// Check that an approval was made
+	approveCheck := testutil.LogCheckArgs{
+		ABIEvents: contractData.erc20ABI.Events,
+		ExpEvents: []string{"Approval"},
+		ExpPass:   true,
+	}
+
+	_, _, err := s.factory.CallContractAndCheckLogs(granterPriv, txArgs, callArgs, approveCheck)
+	Expect(err).ToNot(HaveOccurred(), "failed to execute approve")
 }
 
 // requireOut is a helper utility to reduce the amount of boilerplate code in the query tests.
@@ -223,6 +231,41 @@ func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 	}
 }
 
+// ExpectBalancesForContract is a helper function to check expected balances for given accounts depending
+// on the call type.
+func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractData ContractData, expBalances []ExpectedBalance) {
+	switch callType {
+	case directCall:
+		s.ExpectBalances(expBalances)
+	case contractCall:
+		s.ExpectBalances(expBalances)
+	case erc20Call:
+		s.ExpectBalancesForERC20(contractData, expBalances)
+	}
+}
+
+// ExpectBalancesForERC20 is a helper function to check expected balances for given accounts
+// when using the ERC20 contract.
+func (s *PrecompileTestSuite) ExpectBalancesForERC20(contractData ContractData, expBalances []ExpectedBalance) {
+	for _, expBalance := range expBalances {
+		for _, expCoin := range expBalance.expCoins {
+			addr := common.BytesToAddress(expBalance.address.Bytes())
+
+			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "balanceOf", addr)
+
+			passCheck := testutil.LogCheckArgs{ExpPass: true}
+
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
+			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
+
+			var balance *big.Int
+			err = contractData.erc20ABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
+			Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
+			Expect(balance.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
+		}
+	}
+}
+
 // expectSendAuthz is a helper function to check that a SendAuthorization
 // exists for a given grantee and granter combination for a given amount and optionally an access list.
 //
@@ -240,12 +283,66 @@ func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, e
 	Expect(sendAuthz.SpendLimit).To(Equal(expAmount), "expected different spend limit amount")
 }
 
+// expectSendAuthzForERC20 is a helper function to check that a SendAuthorization
+// exists for a given grantee and granter combination for a given amount.
+func (s *PrecompileTestSuite) expectSendAuthzForERC20(contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins) {
+	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.AllowanceMethod, grantee, granter)
+
+	passCheck := testutil.LogCheckArgs{ExpPass: true}
+
+	_, ethRes, err := s.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
+	Expect(err).ToNot(HaveOccurred(), "expected no error getting allowance")
+
+	var allowance *big.Int
+	err = contractData.erc20ABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
+	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking allowance")
+	Expect(allowance.Int64()).To(Equal(expAmount.AmountOf(s.tokenDenom).Int64()), "expected different allowance")
+}
+
+// ExpectSendAuthzForContract is a helper function to check that a SendAuthorization
+// exists for a given grantee and granter combination for a given amount and optionally an access list.
+//
+// NOTE: This helper expects only one authorization to exist.
+func (s *PrecompileTestSuite) ExpectSendAuthzForContract(
+	callType int, contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins,
+) {
+	switch callType {
+	case directCall:
+		s.expectSendAuthz(grantee.Bytes(), granter.Bytes(), expAmount)
+	case contractCall:
+		s.expectSendAuthz(grantee.Bytes(), granter.Bytes(), expAmount)
+	case erc20Call:
+		s.expectSendAuthzForERC20(contractData, grantee, granter, expAmount)
+	}
+}
+
 // expectNoSendAuthz is a helper function to check that no SendAuthorization
 // exists for a given grantee and granter combination.
 func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress) {
 	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorizations")
 	Expect(authzs).To(HaveLen(0), "expected no authorizations")
+}
+
+// expectNoSendAuthzForERC20 is a helper function to check that no SendAuthorization
+// exists for a given grantee and granter combination.
+func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(contractData ContractData, grantee, granter common.Address) {
+	s.expectSendAuthzForERC20(contractData, grantee, granter, sdk.Coins{})
+}
+
+// ExpectNoSendAuthzForContract is a helper function to check that no SendAuthorization
+// exists for a given grantee and granter combination.
+func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
+	callType int, contractData ContractData, grantee, granter common.Address,
+) {
+	switch callType {
+	case directCall:
+		s.expectNoSendAuthz(grantee.Bytes(), granter.Bytes())
+	case contractCall:
+		s.expectNoSendAuthz(grantee.Bytes(), granter.Bytes())
+	case erc20Call:
+		s.expectNoSendAuthzForERC20(contractData, grantee, granter)
+	}
 }
 
 // ContractData is a helper struct to hold the addresses and ABIs for the
