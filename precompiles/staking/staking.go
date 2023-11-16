@@ -153,6 +153,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 //
 // Available staking transactions are:
+//   - CreateValidator
 //   - Delegate
 //   - Undelegate
 //   - Redelegate

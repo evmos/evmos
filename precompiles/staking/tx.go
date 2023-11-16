@@ -62,7 +62,6 @@ func (p Precompile) CreateValidator(
 	p.Logger(ctx).Debug(
 		"tx called",
 		"method", method.Name,
-		"description", msg.Description.String(),
 		"commission", msg.Commission.String(),
 		"min_self_delegation", msg.MinSelfDelegation.String(),
 		"delegator_address", delegatorHexAddr.String(),
@@ -71,7 +70,7 @@ func (p Precompile) CreateValidator(
 		"value", msg.Value.Amount.String(),
 	)
 
-	// We only allow users to directly call the StakingI contract's address which is 0x0000000000000000000000000000000000000800 to create a new validator.
+	// we only allow the tx signer "origin" to create their own validator.
 	if origin != delegatorHexAddr {
 		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), delegatorHexAddr.String())
 	}

@@ -139,31 +139,14 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 		return err
 	}
 
-	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{
-		event.Inputs[2],
-		event.Inputs[3],
-		event.Inputs[4],
-		event.Inputs[5],
-		event.Inputs[6],
-		event.Inputs[7],
-	}
-	packed, err := arguments.Pack(
-		msg.Commission.Rate.BigInt(),
-		msg.Commission.MaxRate.BigInt(),
-		msg.Commission.MaxChangeRate.BigInt(),
-		msg.MinSelfDelegation.BigInt(),
-		msg.Pubkey.String(),
-		msg.Value.Amount.BigInt(),
-	)
-	if err != nil {
-		return err
-	}
+	// Prepare the event data
+	var b bytes.Buffer
+	b.Write(cmn.PackNum(reflect.ValueOf(msg.Value.Amount.BigInt())))
 
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        packed,
+		Data:        b.Bytes(),
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
