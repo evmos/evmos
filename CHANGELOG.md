@@ -84,6 +84,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
+- (erc20) [#2044](https://github.com/evmos/evmos/pull/2044) Add ERC20 precompile integration tests.
 
 ### Bug Fixes
 
