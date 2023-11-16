@@ -241,8 +241,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, expSupply.Int64())}
 
 				// Fund account with some tokens
-				err := s.network.FundAccount(sender.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Query the balance
 				txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractData, erc20.TotalSupplyMethod)
@@ -282,8 +281,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
 				// Fund account with some tokens
-				err := s.network.FundAccount(sender.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoins[0].Amount.BigInt())
@@ -316,10 +314,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
 
 				// Fund accounts with some tokens
-				err = s.network.FundAccount(sender.AccAddr, fundCoinsSender)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
-				err = s.network.FundAccount(receiver.AccAddr, fundCoinsReceiver)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoinsSender)
+				s.fundWithTokens(callType, contractData, receiver.Addr, fundCoinsReceiver)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver.Addr, transferCoin.Amount.BigInt())
@@ -346,8 +342,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(sender.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
@@ -365,8 +360,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 300)
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(sender.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
@@ -393,7 +387,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(owner.AccAddr, fundCoins)
+				s.fundWithTokens(callType, contractData, owner.Addr, fundCoins)
 
 				// Set allowance
 				s.setupSendAuthz(spender.AccAddr, owner.Priv, transferCoins)
@@ -426,7 +420,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(owner.AccAddr, fundCoin)
+				s.fundWithTokens(callType, contractData, owner.Addr, fundCoin)
 
 				// Set allowance
 				s.setupSendAuthz(spender.Bytes(), owner.Priv, transferCoins)
@@ -462,12 +456,11 @@ var _ = Describe("ERC20 Extension -", func() {
 				receiver := utiltx.GenerateAddress()
 				spender := contractAddr
 
-				fundCoin := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(owner.AccAddr, fundCoin)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, owner.Addr, fundCoins)
 
 				// Set allowance
 				s.setupSendAuthz(spender.Bytes(), owner.Priv, transferCoins)
@@ -495,8 +488,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 200)
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(owner.AccAddr, fundCoins)
-
+				s.fundWithTokens(callType, contractData, owner.Addr, fundCoins)
 				// Set allowance
 				s.setupSendAuthz(spender.AccAddr, owner.Priv, authzCoins)
 
@@ -521,8 +513,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 300)
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(from.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, from.Addr, fundCoins)
 
 				// Set allowance
 				s.setupSendAuthz(spender.Bytes(), from.Priv, authzCoins)
@@ -544,8 +535,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(from.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, from.Addr, fundCoins)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
@@ -568,8 +558,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
 
 				// Fund account with some tokens
-				err = s.network.FundAccount(from.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, from.Addr, fundCoins)
 
 				// Set allowance
 				s.setupSendAuthz(sender.AccAddr, from.Priv, transferCoins)
