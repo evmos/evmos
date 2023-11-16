@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/contracts"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
@@ -27,8 +28,12 @@ import (
 var _ = Describe("ERC20 Extension -", func() {
 	var (
 		contractAddr common.Address
-		err          error
-		sender       keyring.Key
+		// contractData is a helper struct to hold the addresses and ABIs for the
+		// different contract instances that are subject to testing here.
+		contractData          ContractData
+		erc20MinterBurnerAddr common.Address
+		err                   error
+		sender                keyring.Key
 
 		execRevertedCheck testutil.LogCheckArgs
 		failCheck         testutil.LogCheckArgs
@@ -50,6 +55,28 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
+		erc20MinterBurnerAddr, err = s.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: contracts.ERC20MinterBurnerDecimalsContract,
+				ConstructorArgs: []interface{}{
+					"Xmpl", "Xmpl", uint8(6),
+				},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
+
+		contractData = ContractData{
+			ownerPriv:      sender.Priv,
+			erc20Addr:      erc20MinterBurnerAddr,
+			erc20ABI:       contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			contractAddr:   contractAddr,
+			contractABI:    testdata.ERC20AllowanceCallerContract.ABI,
+			precompileAddr: s.precompile.Address(),
+			precompileABI:  s.precompile.ABI,
+		}
+
 		failCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
 		execRevertedCheck = failCheck.WithErrContains("execution reverted")
 		passCheck = failCheck.WithExpPass(true)
@@ -62,15 +89,13 @@ var _ = Describe("ERC20 Extension -", func() {
 		When("querying balance", func() {
 			DescribeTable("it should return an existing balance", func(callType int) {
 				expBalance := big.NewInt(100)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, expBalance.Int64())}
 
 				// Fund account with some tokens
-				err := s.network.FundAccount(sender.AccAddr, sdk.Coins{
-					{Denom: s.tokenDenom, Amount: sdk.NewIntFromBigInt(expBalance)},
-				})
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Query the balance
-				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.BalanceOfMethod, sender.Addr)
+				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractData, erc20.BalanceOfMethod, sender.Addr)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -82,6 +107,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
 			)
 
 			DescribeTable("it should return zero if balance only exists for other tokens", func(callType int) {
@@ -89,11 +115,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 100)}
 
 				// Fund account with some tokens
-				err := s.network.FundAccount(sender.AccAddr, fundCoins)
-				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+				s.fundWithTokens(callType, contractData, sender.Addr, fundCoins)
 
 				// Query the balance
-				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.BalanceOfMethod, address)
+				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractData, erc20.BalanceOfMethod, address)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -111,7 +136,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				address := utiltx.GenerateAddress()
 
 				// Query the balance
-				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.BalanceOfMethod, address)
+				txArgs, balancesArgs := s.getTxAndCallArgs(callType, contractData, erc20.BalanceOfMethod, address)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -134,7 +159,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				s.setupSendAuthz(grantee.Bytes(), granter.Priv, authzCoins)
 
-				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr, auth.AllowanceMethod, granter.Addr, grantee)
+				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -152,7 +177,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				grantee := s.keyring.GetAddr(1)
 				granter := sender
 
-				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr, auth.AllowanceMethod, granter.Addr, grantee)
+				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
 				noAuthzCheck := failCheck.WithErrContains(
 					fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
@@ -175,7 +200,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				s.setupSendAuthz(grantee.Bytes(), granter.Priv, authzCoins)
 
-				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr, auth.AllowanceMethod, granter.Addr, grantee)
+				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -193,7 +218,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				grantee := utiltx.GenerateAddress()
 				granter := sender
 
-				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractAddr, auth.AllowanceMethod, granter.Addr, grantee)
+				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
 				noAuthzCheck := failCheck.WithErrContains(
 					fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
@@ -220,7 +245,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Query the balance
-				txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TotalSupplyMethod)
+				txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractData, erc20.TotalSupplyMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -235,7 +260,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("it should return zero if no tokens exist", func(callType int) {
-				txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TotalSupplyMethod)
+				txArgs, supplyArgs := s.getTxAndCallArgs(callType, contractData, erc20.TotalSupplyMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -261,7 +286,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferMethod, receiver, transferCoins[0].Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoins[0].Amount.BigInt())
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
@@ -297,7 +322,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferMethod, receiver.Addr, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver.Addr, transferCoin.Amount.BigInt())
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
@@ -325,7 +350,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -344,7 +369,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
 
 				insufficientBalanceCheck := failCheck.WithErrContains(
 					"spendable balance 200xmpl is smaller than 300xmpl: insufficient funds",
@@ -374,7 +399,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(spender.AccAddr, owner.Priv, transferCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferFromMethod, owner.Addr, receiver, transferCoins[0].Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, owner.Addr, receiver, transferCoins[0].Amount.BigInt())
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
@@ -408,7 +433,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(
-					callType, contractAddr,
+					callType, contractData,
 					erc20.TransferFromMethod,
 					owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
 				)
@@ -449,7 +474,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(
-					callType, contractAddr,
+					callType, contractData,
 					erc20.TransferFromMethod,
 					owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
 				)
@@ -476,7 +501,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(spender.AccAddr, owner.Priv, authzCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferFromMethod, owner.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, owner.Addr, receiver, transferCoin.Amount.BigInt())
 
 				insufficientAllowanceCheck := failCheck.WithErrContains("requested amount is more than spend limit")
 
@@ -503,7 +528,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(spender.Bytes(), from.Priv, authzCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
 
 				_, _, err = s.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -523,7 +548,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
 
 				insufficientAllowanceCheck := failCheck.WithErrContains(
 					"authorization not found",
@@ -550,7 +575,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(sender.AccAddr, from.Priv, transferCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.TransferFromMethod, from.Addr, receiver, transferCoins[0].Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoins[0].Amount.BigInt())
 
 				insufficientBalanceCheck := failCheck.WithErrContains(
 					"spendable balance 200xmpl is smaller than 300xmpl: insufficient funds",
@@ -571,7 +596,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, transferCoins[0].Amount.BigInt())
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, transferCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -595,7 +620,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
 				approveArgs.MethodName = auth.ApproveMethod
 				approveArgs.Args = []interface{}{grantee.Addr, tokenCoins[0].Amount.BigInt()}
 
@@ -622,7 +647,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(doubleTokenCoin))
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -646,7 +671,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(tokenCoin))
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, common.Big0)
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -669,7 +694,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, tokenCoins)
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, common.Big0)
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -688,7 +713,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				granter := sender
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, common.Big0)
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
 				nonPosCheck := failCheck.WithErrContains("cannot approve non-positive values")
 
@@ -711,7 +736,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				amount := big.NewInt(100)
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, amount)
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, amount)
 
 				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -729,7 +754,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
 
 				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractAddr, auth.ApproveMethod, grantee.Addr, common.Big0)
+				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
 				notFoundCheck := failCheck.WithErrContains(
 					fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
@@ -747,7 +772,7 @@ var _ = Describe("ERC20 Extension -", func() {
 	Context("metadata query -", func() {
 		Context("for a non-IBC token without registered metadata", func() {
 			DescribeTable("querying the name should return an error", func(callType int) {
-				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.NameMethod)
+				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractData, erc20.NameMethod)
 
 				noIBCVoucherCheck := execRevertedCheck
 				if callType == directCall {
@@ -764,7 +789,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("querying the symbol should return an error", func(callType int) {
-				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.SymbolMethod)
+				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractData, erc20.SymbolMethod)
 
 				noIBCVoucherCheck := execRevertedCheck
 				if callType == directCall {
@@ -781,7 +806,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("querying the decimals should return an error", func(callType int) {
-				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.DecimalsMethod)
+				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractData, erc20.DecimalsMethod)
 
 				noIBCVoucherCheck := execRevertedCheck
 				if callType == directCall {
@@ -821,7 +846,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			})
 
 			DescribeTable("querying the name should return the name", func(callType int) {
-				txArgs, nameArgs := s.getTxAndCallArgs(directCall, contractAddr, erc20.NameMethod)
+				txArgs, nameArgs := s.getTxAndCallArgs(directCall, contractData, erc20.NameMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, nameArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -836,7 +861,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("querying the symbol should return the symbol", func(callType int) {
-				txArgs, symbolArgs := s.getTxAndCallArgs(directCall, contractAddr, erc20.SymbolMethod)
+				txArgs, symbolArgs := s.getTxAndCallArgs(directCall, contractData, erc20.SymbolMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, symbolArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -851,7 +876,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("querying the decimals should return the decimals", func(callType int) {
-				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractAddr, erc20.DecimalsMethod)
+				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractData, erc20.DecimalsMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, decimalsArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -894,7 +919,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("increasing the allowance should create a new authorization", func(callType int) {
 				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.IncreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractData, auth.IncreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -911,7 +936,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("decreasing the allowance should return an error", func(callType int) {
 				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
 
 				notFoundCheck := execRevertedCheck
 				if callType == directCall {
@@ -939,7 +964,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("increasing the allowance should add the token to the spend limit", func(callType int) {
 				increaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.IncreaseAllowanceMethod, grantee.Addr, increaseCoins[0].Amount.BigInt())
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractData, auth.IncreaseAllowanceMethod, grantee.Addr, increaseCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -956,7 +981,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("decreasing the allowance should return an error", func(callType int) {
 				decreaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
 
 				notFoundCheck := execRevertedCheck
 				if callType == directCall {
@@ -988,7 +1013,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("increasing the allowance should increase the spend limit", func(callType int) {
 				increaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.IncreaseAllowanceMethod, grantee.Addr, increaseCoins[0].Amount.BigInt())
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractData, auth.IncreaseAllowanceMethod, grantee.Addr, increaseCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -1013,7 +1038,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("decreasing the allowance should decrease the spend limit", func(callType int) {
 				decreaseCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -1031,7 +1056,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType int) {
 				maxUint256Coins := sdk.Coins{sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
 
-				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
+				txArgs, increaseArgs := s.getTxAndCallArgs(callType, contractData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 
 				overflowCheck := execRevertedCheck
 				if callType == directCall {
@@ -1047,7 +1072,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("decreasing the allowance to zero should remove the token from the spend limit", func(callType int) {
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins.AmountOf(s.tokenDenom).BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins.AmountOf(s.tokenDenom).BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -1067,7 +1092,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("decreasing the allowance below zero should return an error", func(callType int) {
 				decreaseCoins := sdk.Coins{sdk.NewCoin(s.tokenDenom, authzCoins.AmountOf(s.tokenDenom).AddRaw(100))}
 
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, decreaseCoins[0].Amount.BigInt())
 
 				overflowCheck := execRevertedCheck
 				if callType == directCall {
@@ -1092,7 +1117,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				s.setupSendAuthz(grantee.AccAddr, granter.Priv, authzCoins)
 
-				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractAddr, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
+				txArgs, decreaseArgs := s.getTxAndCallArgs(callType, contractData, auth.DecreaseAllowanceMethod, grantee.Addr, authzCoins[0].Amount.BigInt())
 
 				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
@@ -1116,7 +1141,14 @@ var _ = Describe("ERC20 Extension - migration Flows -", func() {
 		})
 	})
 
-	When("running the migration logic for existing ERC20 tokens", func() {
+	When("migrating an extended ERC20 token (e.g. ERC20Votes)", func() {
+		// TODO: make sure that extended tokens are compatible with the ERC20 extensions
+		It("should migrate the full token balance to the bank module", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+	})
+
+	When("running the migration logic for a set of existing ERC20 tokens", func() {
 		BeforeEach(func() {
 			// TODO: Add some ERC20 tokens and then run migration logic
 			// TODO: check here that the balance cannot be queried from the bank keeper before migrating the token
@@ -1145,6 +1177,12 @@ var _ = Describe("ERC20 Extension - migration Flows -", func() {
 		})
 
 		It("should be possible to query the balances using an EVM transaction", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+	})
+
+	When("using Evmos (not wEvmos) in smart contracts", func() {
+		It("should be using straight Evmos for sending funds in smart contracts", func() {
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})

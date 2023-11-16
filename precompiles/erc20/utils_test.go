@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -140,6 +140,7 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 const (
 	directCall = iota + 1
 	contractCall
+	erc20Call
 )
 
 // getCallArgs is a helper function to return the correct call arguments for a given call type.
@@ -148,7 +149,7 @@ const (
 // ERC20CallerContract's ABI is used and the given contract address.
 func (s *PrecompileTestSuite) getTxAndCallArgs(
 	callType int,
-	contractAddr common.Address,
+	contractData ContractData,
 	methodName string,
 	args ...interface{},
 ) (evmtypes.EvmTxArgs, factory.CallArgs) {
@@ -157,12 +158,14 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(
 
 	switch callType {
 	case directCall:
-		precompileAddr := s.precompile.Address()
-		txArgs.To = &precompileAddr
-		callArgs.ContractABI = s.precompile.ABI
+		txArgs.To = &contractData.precompileAddr
+		callArgs.ContractABI = contractData.precompileABI
 	case contractCall:
-		txArgs.To = &contractAddr
-		callArgs.ContractABI = testdata.ERC20AllowanceCallerContract.ABI
+		txArgs.To = &contractData.contractAddr
+		callArgs.ContractABI = contractData.contractABI
+	case erc20Call:
+		txArgs.To = &contractData.erc20Addr
+		callArgs.ContractABI = contractData.erc20ABI
 	}
 
 	callArgs.MethodName = methodName
@@ -211,4 +214,62 @@ func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress)
 	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorizations")
 	Expect(authzs).To(HaveLen(0), "expected no authorizations")
+}
+
+// ContractData is a helper struct to hold the addresses and ABIs for the
+// different contract instances that are subject to testing here.
+type ContractData struct {
+	ownerPriv cryptotypes.PrivKey
+
+	erc20Addr      common.Address
+	erc20ABI       abi.ABI
+	contractAddr   common.Address
+	contractABI    abi.ABI
+	precompileAddr common.Address
+	precompileABI  abi.ABI
+}
+
+// fundWithTokens is a helper function for the scope of the ERC20 integration tests.
+// Depending on the passed call type, it funds the given address with tokens either
+// using the Bank module or by minting straight on the ERC20 contract.
+func (s *PrecompileTestSuite) fundWithTokens(
+	callType int,
+	contractData ContractData,
+	receiver common.Address,
+	fundCoins sdk.Coins,
+) {
+	Expect(fundCoins).To(HaveLen(1), "expected only one coin")
+	Expect(fundCoins[0].Denom).To(Equal(s.tokenDenom),
+		"this helper function only supports funding with the token denom in the context of these integration tests",
+	)
+
+	var err error
+
+	switch callType {
+	case directCall:
+		err = s.network.FundAccount(receiver.Bytes(), fundCoins)
+	case contractCall:
+		err = s.network.FundAccount(receiver.Bytes(), fundCoins)
+	case erc20Call:
+		err = s.MintERC20(contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
+	}
+
+	Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+}
+
+// MintERC20 is a helper function to mint tokens on the ERC20 contract.
+//
+// NOTE: we are checking that there was a Transfer event emitted (which happens on minting).
+func (s *PrecompileTestSuite) MintERC20(contractData ContractData, receiver common.Address, amount *big.Int) error {
+	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "mint", receiver, amount)
+
+	mintCheck := testutil.LogCheckArgs{
+		ABIEvents: contractData.erc20ABI.Events,
+		ExpEvents: []string{"Transfer"}, // NOTE: this event occurs when calling "mint" on ERC20s
+		ExpPass:   true,
+	}
+
+	_, _, err := s.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck)
+
+	return err
 }
