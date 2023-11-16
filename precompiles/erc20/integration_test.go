@@ -169,9 +169,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				granterTopic, err := cmn.MakeTopic(granter.Addr)
 				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
 				println("Granter topic: ", granterTopic.String())
-				contractTopic, err := cmn.MakeTopic(contractAddr)
+				erc20Topic, err := cmn.MakeTopic(contractData.erc20Addr)
 				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
-				println("Contract topic: ", contractTopic.String())
+				println("ERC20 contract topic: ", erc20Topic.String())
 				ownerTopic, err := cmn.MakeTopic(sender.Addr)
 				Expect(err).ToNot(HaveOccurred(), "failed to make topic")
 				println("Owner topic: ", ownerTopic.String())
@@ -190,7 +190,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
-				// Interestingly, this returns an empty allowance but the logs show that an approval was made..
+				// FIXME: This returns an empty allowance but the logs show that an approval was made - however the approval was made for a different owner??
 				Entry(" - through erc20 contract", erc20Call),
 			)
 
