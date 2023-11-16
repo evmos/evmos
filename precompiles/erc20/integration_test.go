@@ -1017,7 +1017,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins)
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: It's expected to fail with "execution reverted" but for the wrong reason (see above)
+				// FIXME: It's expected to fail with "execution reverted" but fails for the wrong reason (see above)
 				Entry(" - through contract", contractCall),
 			)
 		})
