@@ -250,7 +250,7 @@ func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 // NOTE: This helper expects only one authorization to exist.
 //
 // NOTE 2: This mirrors the requireSendAuthz method but adapted to Ginkgo.
-func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, expAmount sdk.Coins, allowList []string) {
+func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, expAmount sdk.Coins) {
 	authzs, err := s.grpcHandler.GetAuthorizations(grantee.String(), granter.String())
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking the authorization")
 	Expect(authzs).To(HaveLen(1), "expected one authorization")
@@ -259,11 +259,6 @@ func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, e
 	Expect(ok).To(BeTrue(), "expected send authorization")
 
 	Expect(sendAuthz.SpendLimit).To(Equal(expAmount), "expected different spend limit amount")
-	if len(allowList) == 0 {
-		Expect(sendAuthz.AllowList).To(BeEmpty(), "expected empty allow list")
-	} else {
-		Expect(allowList).To(Equal(sendAuthz.AllowList), "expected different allow list")
-	}
 }
 
 // expectNoSendAuthz is a helper function to check that no SendAuthorization

@@ -2,12 +2,12 @@ package erc20_test
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"math/big"
 
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
@@ -482,7 +482,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 			)
 
-			//nolint:dupl // these tests are not duplicates
 			DescribeTable("it should return an error when the spender does not have enough allowance", func(callType int) {
 				owner := sender
 				spender := s.keyring.GetKey(1)
@@ -511,7 +510,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 			)
 
-			//nolint:dupl // these tests are not duplicates
 			DescribeTable("it should return an error when using smart contract and the spender does not have enough allowance", func(callType int) {
 				from := sender
 				spender := contractAddr // NOTE: in case of a contract call the spender is the contract itself
@@ -565,7 +563,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 			)
 
-			//nolint:dupl // these tests are not duplicates
 			DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
 				from := s.keyring.GetKey(1)
 				receiver := utiltx.GenerateAddress()
@@ -613,7 +610,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, transferCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, transferCoins)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -639,7 +636,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains both spend limits
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -666,7 +663,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains both spend limits
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -692,7 +689,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains only the spend limit in network denomination
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -825,7 +822,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins)
 			},
 				Entry(" - direct call", directCall),
 				// FIXME: This is also not creating the authorization from the granter to the grantee but from the contract to the grantee.
@@ -874,7 +871,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(increaseCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
@@ -926,7 +923,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Add(increaseCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
 				// FIXME: this also shows interesting behavior because when calling this there is an authorization from the contract to the grantee
@@ -953,7 +950,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, _, err = s.callContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Sub(decreaseCoins...), nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins.Sub(decreaseCoins...))
 			},
 				Entry(" - direct call", directCall),
 				// FIXME: This is failing for the same reason as the increase allowance test above.
@@ -994,7 +991,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Check that only the spend limit in the network denomination remains
 				bondDenom := s.network.GetDenom()
 				expCoins := sdk.Coins{sdk.NewCoin(bondDenom, authzCoins.AmountOf(bondDenom))}
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, expCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, expCoins)
 			},
 				Entry(" - direct call", directCall),
 				// FIXME: Failing for same reason
@@ -1017,7 +1014,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check that the allowance was not changed
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins, nil)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, authzCoins)
 			},
 				Entry(" - direct call", directCall),
 				// FIXME: It's expected to fail with "execution reverted" but for the wrong reason (see above)
