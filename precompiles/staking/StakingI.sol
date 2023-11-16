@@ -11,10 +11,21 @@ address constant STAKING_PRECOMPILE_ADDRESS = 0x00000000000000000000000000000000
 StakingI constant STAKING_CONTRACT = StakingI(STAKING_PRECOMPILE_ADDRESS);
 
 /// @dev Define all the available staking methods.
+string constant MSG_CREATE_VALIDATOR = "/cosmos.staking.v1beta1.MsgCreateValidator";
 string constant MSG_DELEGATE = "/cosmos.staking.v1beta1.MsgDelegate";
 string constant MSG_UNDELEGATE = "/cosmos.staking.v1beta1.MsgUndelegate";
 string constant MSG_REDELEGATE = "/cosmos.staking.v1beta1.MsgBeginRedelegate";
 string constant MSG_CANCEL_UNDELEGATION = "/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation";
+
+/// @dev Defines the initial description to be used for creating
+/// a validator.
+struct Description {
+    string moniker;
+    string identity;
+    string website;
+    string securityContact;
+    string details;
+}
 
 /// @dev Defines the initial commission rates to be used for creating
 /// a validator.
@@ -114,6 +125,25 @@ enum BondStatus {
 /// wraps the pallet.
 /// @custom:address 0x0000000000000000000000000000000000000800
 interface StakingI is authorization.AuthorizationI {
+    /// @dev Defines a method for creating a new validator.
+    /// @param description The initial description
+    /// @param commissionRates The initial commissionRates
+    /// @param minSelfDelegation The validator's self declared minimum self delegation
+    /// @param delegatorAddress The delegator address
+    /// @param validatorAddress The validator address
+    /// @param pubkey The consensus public key of the validator
+    /// @param value The amount of the coin to be self delegated to the validator
+    /// @return success Whether or not the create validator was successful
+    function createValidator(
+        Description calldata description,
+        CommissionRates calldata commissionRates,
+        uint256 minSelfDelegation,
+        address delegatorAddress,
+        string memory validatorAddress,
+        string memory pubkey,
+        uint256 value
+    ) external returns (bool success);
+
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.
     /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
@@ -237,6 +267,16 @@ interface StakingI is authorization.AuthorizationI {
             RedelegationResponse[] calldata response,
             PageResponse calldata pageResponse
         );
+
+    /// @dev CreateValidator defines an Event emitted when a create a new validator.
+    /// @param delegatorAddress The address of the delegator
+    /// @param validatorAddress The address of the validator
+    /// @param value The amount of coin being self delegated
+    event CreateValidator(
+        address indexed delegatorAddress,
+        address indexed validatorAddress,
+        uint256 value
+    );
 
     /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
     /// delegator address to the validator address.

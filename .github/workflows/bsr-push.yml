@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: bufbuild/buf-setup-action@v1.28.0
+      - uses: bufbuild/buf-setup-action@v1.28.1
       # Push Evmos protos to the Buf Schema Registry
       - uses: bufbuild/buf-push-action@v1.2.0
         with:

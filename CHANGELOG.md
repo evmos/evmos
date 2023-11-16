@@ -85,6 +85,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
+- (staking) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
 - (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
 - (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
