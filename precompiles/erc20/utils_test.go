@@ -146,7 +146,12 @@ const (
 //
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
 // ERC20CallerContract's ABI is used and the given contract address.
-func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common.Address) (evmtypes.EvmTxArgs, factory.CallArgs) {
+func (s *PrecompileTestSuite) getTxAndCallArgs(
+	callType int,
+	contractAddr common.Address,
+	methodName string,
+	args ...interface{},
+) (evmtypes.EvmTxArgs, factory.CallArgs) {
 	txArgs := evmtypes.EvmTxArgs{}
 	callArgs := factory.CallArgs{}
 
@@ -159,6 +164,9 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(callType int, contractAddr common
 		txArgs.To = &contractAddr
 		callArgs.ContractABI = testdata.ERC20AllowanceCallerContract.ABI
 	}
+
+	callArgs.MethodName = methodName
+	callArgs.Args = args
 
 	return txArgs, callArgs
 }
