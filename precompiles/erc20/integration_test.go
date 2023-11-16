@@ -1178,3 +1178,44 @@ var _ = Describe("ERC20 Extension -", func() {
 		})
 	})
 })
+
+var _ = Describe("ERC20 Extension - migration Flows -", func() {
+	When("migrating an existing ERC20 token", func() {
+		It("should migrate the full token balance to the bank module", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+	})
+
+	When("running the migration logic for existing ERC20 tokens", func() {
+		BeforeEach(func() {
+			// TODO: Add some ERC20 tokens and then run migration logic
+			// TODO: check here that the balance cannot be queried from the bank keeper before migrating the token
+		})
+
+		It("should add and enable the corresponding EVM extensions", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+
+		It("should be possible to query the balances through the bank module", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+
+		It("should return all tokens when querying all balances for an account", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+	})
+
+	When("registering a native IBC coin", func() {
+		BeforeEach(func() {
+			// TODO: Add some IBC coins, register the token pair and then run migration logic
+		})
+
+		It("should add the corresponding EVM extensions", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+
+		It("should be possible to query the balances using an EVM transaction", func() {
+			Expect(true).To(BeFalse(), "not implemented")
+		})
+	})
+})
