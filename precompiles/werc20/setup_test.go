@@ -2,8 +2,6 @@ package werc20_test
 
 import (
 	"github.com/evmos/evmos/v15/precompiles/werc20"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"testing"
 
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
@@ -62,16 +60,4 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.keyring = keyring
 	s.network = integrationNetwork
 
-	// Create the token pair for WEVMOS <-> EVMOS.
-	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), bondDenom, erc20types.OWNER_MODULE)
-
-	precompile, err := werc20.NewPrecompile(
-		tokenPair,
-		s.network.App.BankKeeper,
-		s.network.App.AuthzKeeper,
-		s.network.App.TransferKeeper,
-	)
-	s.Require().NoError(err, "failed to create wevmos precompile")
-
-	s.precompile = precompile
 }
