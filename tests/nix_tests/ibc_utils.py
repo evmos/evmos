@@ -137,7 +137,7 @@ def prepare_network(
 
         chain_instance = CosmosChain(tmp_path / chain_name, meta["bin"])
         # wait for grpc ready in other_chains
-        wait_for_port(ports.grpc_port(chain_instance.base_port(0)))
+        wait_for_port(ports.grpc_port(chain_instance.base_port()))
 
         chains[chain] = chain_instance
         # pystarport (used to start the setup), by default uses ethereum
