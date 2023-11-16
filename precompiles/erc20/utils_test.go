@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"math/big"
 	"time"
 
@@ -67,7 +68,7 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 	println("Setting up authorization for call type: ", callType)
 
 	if callType == erc20Call {
-		txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, "approve", grantee, amount.AmountOf(s.tokenDenom).BigInt())
+		txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
 
 		// Check that an approval was made
 		approveCheck := testutil.LogCheckArgs{
