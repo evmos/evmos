@@ -5,7 +5,6 @@ package staking
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -54,8 +53,8 @@ type EventCancelUnbonding struct {
 	CreationHeight   *big.Int
 }
 
-// Description defines a validator description.
-type Description struct {
+// Description use golang type alias defines a validator description.
+type Description = struct {
 	Moniker         string "json:\"moniker\""
 	Identity        string "json:\"identity\""
 	Website         string "json:\"website\""
@@ -63,9 +62,9 @@ type Description struct {
 	Details         string "json:\"details\""
 }
 
-// Commission defines a validator commission.
+// Commission use golang type alias defines a validator commission.
 // since solidity does not support decimals, after passing in the big int, convert the big int into a decimal with a precision of 18
-type Commission struct {
+type Commission = struct {
 	Rate          *big.Int "json:\"rate\""
 	MaxRate       *big.Int "json:\"maxRate\""
 	MaxChangeRate *big.Int "json:\"maxChangeRate\""
@@ -78,22 +77,24 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
-	descriptionJSON, err := json.Marshal(args[0])
-	if err != nil {
-		return nil, common.Address{}, fmt.Errorf("failed to marshal description to json: %v", err)
-	}
-	var description Description
-	if err := json.Unmarshal(descriptionJSON, &description); err != nil {
-		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to description: %v", err)
+	description := stakingtypes.Description{}
+	if descriptionInput, ok := args[0].(Description); ok {
+		description.Moniker = descriptionInput.Moniker
+		description.Identity = descriptionInput.Identity
+		description.Website = descriptionInput.Website
+		description.SecurityContact = descriptionInput.SecurityContact
+		description.Details = descriptionInput.Details
+	} else {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
 
-	commissionJSON, err := json.Marshal(args[1])
-	if err != nil {
-		return nil, common.Address{}, fmt.Errorf("failed to marshal commission to json: %v", err)
-	}
-	var commission Commission
-	if err := json.Unmarshal(commissionJSON, &commission); err != nil {
-		return nil, common.Address{}, fmt.Errorf("failed to unmarshal json to commission: %v", err)
+	commission := stakingtypes.CommissionRates{}
+	if commissionInput, ok := args[1].(Commission); ok {
+		commission.Rate = sdk.NewDecFromBigIntWithPrec(commissionInput.Rate, sdk.Precision)
+		commission.MaxRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxRate, sdk.Precision)
+		commission.MaxChangeRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, sdk.Precision)
+	} else {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
 	}
 
 	minSelfDelegation, ok := args[2].(*big.Int)
@@ -132,18 +133,8 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	msg := &stakingtypes.MsgCreateValidator{
-		Description: stakingtypes.Description{
-			Moniker:         description.Moniker,
-			Identity:        description.Identity,
-			Website:         description.Website,
-			SecurityContact: description.SecurityContact,
-			Details:         description.Details,
-		},
-		Commission: stakingtypes.CommissionRates{
-			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
-			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.MaxRate, sdk.Precision),
-			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.MaxChangeRate, sdk.Precision),
-		},
+		Description:       description,
+		Commission:        commission,
 		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
 		ValidatorAddress:  validatorAddress,
