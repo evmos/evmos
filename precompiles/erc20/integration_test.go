@@ -364,7 +364,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				// a separate test case.
 			)
 
-			// TODO: is this the behavior we want? Makes sense right because the contract is not a wallet?
 			DescribeTable("it should return an error trying to call from a smart contract", func(callType int) {
 				receiver := s.keyring.GetAddr(1)
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
