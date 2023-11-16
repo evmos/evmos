@@ -1,7 +1,6 @@
 package erc20_test
 
 import (
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"math/big"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
