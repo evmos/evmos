@@ -522,7 +522,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// FIXME: This is working right now! We should probably block this.
 				Entry(" - through contract", contractCall),
-				// NOTE: the ERC20 contract doesn't support this and will revert
+				// NOTE: this fails currently because of the error setting up the approval (see above)
 				Entry(" - through erc20 contract", erc20Call),
 			)
 
