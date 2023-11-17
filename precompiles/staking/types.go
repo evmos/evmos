@@ -163,35 +163,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 	description := stakingtypes.Description{}
 	if descriptionInput, ok := args[0].(Description); ok {
-		if descriptionInput.Moniker == "" {
-			description.Moniker = stakingtypes.DoNotModifyDesc
-		} else {
-			description.Moniker = descriptionInput.Moniker
-		}
-
-		if descriptionInput.Identity == "" {
-			description.Identity = stakingtypes.DoNotModifyDesc
-		} else {
-			description.Identity = descriptionInput.Identity
-		}
-
-		if descriptionInput.Website == "" {
-			description.Website = stakingtypes.DoNotModifyDesc
-		} else {
-			description.Website = descriptionInput.Website
-		}
-
-		if descriptionInput.SecurityContact == "" {
-			description.SecurityContact = stakingtypes.DoNotModifyDesc
-		} else {
-			description.SecurityContact = descriptionInput.SecurityContact
-		}
-
-		if descriptionInput.Details == "" {
-			description.Details = stakingtypes.DoNotModifyDesc
-		} else {
-			description.Details = descriptionInput.Details
-		}
+		description.Moniker = descriptionInput.Moniker
+		description.Identity = descriptionInput.Identity
+		description.Website = descriptionInput.Website
+		description.SecurityContact = descriptionInput.SecurityContact
+		description.Details = descriptionInput.Details
 	} else {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
