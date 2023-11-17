@@ -20,6 +20,11 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+const (
+	DoNotModifyCommissionRate    = -1 // constant used in flags to indicate that commission rate field should not be updated
+	DoNotModifyMinSelfDelegation = -1 // constant used in flags to indicate that min self delegation field should not be updated
+)
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
@@ -147,6 +152,93 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	return msg, delegatorAddress, nil
+}
+
+// NewMsgEditValidator creates a new MsgEditValidator instance and does sanity checks
+// on the given arguments before populating the message.
+func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, common.Address, error) {
+	if len(args) != 4 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
+	}
+
+	description := stakingtypes.Description{}
+	if descriptionInput, ok := args[0].(Description); ok {
+		if descriptionInput.Moniker == "" {
+			description.Moniker = stakingtypes.DoNotModifyDesc
+		} else {
+			description.Moniker = descriptionInput.Moniker
+		}
+
+		if descriptionInput.Identity == "" {
+			description.Identity = stakingtypes.DoNotModifyDesc
+		} else {
+			description.Identity = descriptionInput.Identity
+		}
+
+		if descriptionInput.Website == "" {
+			description.Website = stakingtypes.DoNotModifyDesc
+		} else {
+			description.Website = descriptionInput.Website
+		}
+
+		if descriptionInput.SecurityContact == "" {
+			description.SecurityContact = stakingtypes.DoNotModifyDesc
+		} else {
+			description.SecurityContact = descriptionInput.SecurityContact
+		}
+
+		if descriptionInput.Details == "" {
+			description.Details = stakingtypes.DoNotModifyDesc
+		} else {
+			description.Details = descriptionInput.Details
+		}
+	} else {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
+	}
+
+	validatorAddress, ok := args[1].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+	}
+	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	commissionRateBigInt, ok := args[2].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", "int256", args[2])
+	}
+	commissionRate := new(sdk.Dec)
+	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
+		commissionRate = nil
+	} else {
+		*commissionRate = sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+	}
+
+	minSelfDelegationBigInt, ok := args[3].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", "int256", args[3])
+	}
+	minSelfDelegation := new(sdk.Int)
+	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) == 0 {
+		minSelfDelegation = nil
+	} else {
+		*minSelfDelegation = sdk.NewIntFromBigInt(minSelfDelegationBigInt)
+	}
+
+	msg := &stakingtypes.MsgEditValidator{
+		Description:       description,
+		ValidatorAddress:  validatorAddress,
+		CommissionRate:    commissionRate,
+		MinSelfDelegation: minSelfDelegation,
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return msg, common.BytesToAddress(valAddr.Bytes()), nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks

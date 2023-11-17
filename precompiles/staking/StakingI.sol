@@ -12,6 +12,7 @@ StakingI constant STAKING_CONTRACT = StakingI(STAKING_PRECOMPILE_ADDRESS);
 
 /// @dev Define all the available staking methods.
 string constant MSG_CREATE_VALIDATOR = "/cosmos.staking.v1beta1.MsgCreateValidator";
+string constant MSG_EDIT_VALIDATOR = "/cosmos.staking.v1beta1.MsgEditValidator";
 string constant MSG_DELEGATE = "/cosmos.staking.v1beta1.MsgDelegate";
 string constant MSG_UNDELEGATE = "/cosmos.staking.v1beta1.MsgUndelegate";
 string constant MSG_REDELEGATE = "/cosmos.staking.v1beta1.MsgBeginRedelegate";
@@ -142,6 +143,18 @@ interface StakingI is authorization.AuthorizationI {
         string memory validatorAddress,
         string memory pubkey,
         uint256 value
+    ) external returns (bool success);
+
+    /// @dev Defines a method for edit a validator.
+    /// @param description Description parameter to be updated, an empty string "" means keeping it as is and not updating it.
+    /// @param commissionRate CommissionRate parameter to be updated, -1 means keeping it as is and not updating it.
+    /// @param minSelfDelegation MinSelfDelegation parameter to be updated, -1 means keeping it as is and not updating it.
+    /// @return success Whether or not edit validator was successful
+    function editValidator(
+        Description calldata description,
+        string memory validatorAddress,
+        int256 commissionRate,
+        int256 minSelfDelegation
     ) external returns (bool success);
 
     /// @dev Defines a method for performing a delegation of coins from a delegator to a validator.
@@ -276,6 +289,16 @@ interface StakingI is authorization.AuthorizationI {
         address indexed delegatorAddress,
         address indexed validatorAddress,
         uint256 value
+    );
+
+    /// @dev EditValidator defines an Event emitted when edit a validator.
+    /// @param validatorAddress The address of the validator
+    /// @param commissionRate The commission rate
+    /// @param minSelfDelegation The min self delegation
+    event EditValidator(
+        address indexed validatorAddress,
+        int256 commissionRate,
+        int256 minSelfDelegation
     );
 
     /// @dev Delegate defines an Event emitted when a given amount of tokens are delegated from the
