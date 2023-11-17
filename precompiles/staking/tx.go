@@ -18,6 +18,8 @@ import (
 )
 
 const (
+	// CreateValidatorMethod defines the ABI method name for the staking create validator transaction
+	CreateValidatorMethod = "createValidator"
 	// DelegateMethod defines the ABI method name for the staking Delegate
 	// transaction.
 	DelegateMethod = "delegate"
@@ -42,6 +44,50 @@ const (
 	// CancelUnbondingDelegationAuthz defines the authorization type for the staking
 	CancelUnbondingDelegationAuthz = stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_CANCEL_UNBONDING_DELEGATION
 )
+
+// CreateValidator performs create validator.
+func (p Precompile) CreateValidator(
+	ctx sdk.Context,
+	origin common.Address,
+	_ *vm.Contract,
+	stateDB vm.StateDB,
+	method *abi.Method,
+	args []interface{},
+) ([]byte, error) {
+	msg, delegatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	p.Logger(ctx).Debug(
+		"tx called",
+		"method", method.Name,
+		"commission", msg.Commission.String(),
+		"min_self_delegation", msg.MinSelfDelegation.String(),
+		"delegator_address", delegatorHexAddr.String(),
+		"validator_address", msg.ValidatorAddress,
+		"pubkey", msg.Pubkey.String(),
+		"value", msg.Value.Amount.String(),
+	)
+
+	// we only allow the tx signer "origin" to create their own validator.
+	if origin != delegatorHexAddr {
+		return nil, fmt.Errorf(ErrDifferentOriginFromDelegator, origin.String(), delegatorHexAddr.String())
+	}
+
+	// Execute the transaction using the message server
+	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
+	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+		return nil, err
+	}
+
+	// Emit the event for the delegate transaction
+	if err = p.EmitCreateValidatorEvent(ctx, stateDB, msg, delegatorHexAddr); err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(true)
+}
 
 // Delegate performs a delegation of coins from a delegator to a validator.
 func (p Precompile) Delegate(

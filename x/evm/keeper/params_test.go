@@ -7,9 +7,8 @@ import (
 )
 
 func (suite *KeeperTestSuite) TestParams() {
-	params := suite.app.EvmKeeper.GetParams(suite.ctx)
-	err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
-	suite.Require().NoError(err)
+	params := types.DefaultParams()
+
 	testCases := []struct {
 		name      string
 		paramsFun func() interface{}
@@ -96,9 +95,33 @@ func (suite *KeeperTestSuite) TestParams() {
 			},
 			true,
 		},
+		{
+			name: "success - Active precompiles are sorted when setting params",
+			paramsFun: func() interface{} {
+				params.ActivePrecompiles = []string{
+					"0x0000000000000000000000000000000000000801",
+					"0x0000000000000000000000000000000000000800",
+				}
+				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err, "expected no error when setting params")
+
+				// NOTE: return sorted slice here because the precompiles should be sorted when setting the params
+				return []string{
+					"0x0000000000000000000000000000000000000800",
+					"0x0000000000000000000000000000000000000801",
+				}
+			},
+			getFun: func() interface{} {
+				evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+				return evmParams.GetActivePrecompiles()
+			},
+			expected: true,
+		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			suite.SetupTest()
+
 			outcome := reflect.DeepEqual(tc.paramsFun(), tc.getFun())
 			suite.Require().Equal(tc.expected, outcome)
 		})
