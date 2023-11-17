@@ -565,9 +565,9 @@ release:
 ###############################################################################
 
 CONTRACTS_DIR := contracts
-COMPILED_DIR := contracts/compiled_contracts
+COMPILED_DIR := $(CONTRACTS_DIR)/compiled_contracts
 TMP := tmp
-TMP_CONTRACTS := $(TMP).contracts
+TMP_CONTRACTS := $(TMP)/contracts
 TMP_COMPILED := $(TMP)/compiled.json
 TMP_JSON := $(TMP)/tmp.json
 
@@ -578,17 +578,16 @@ contracts-compile: contracts-clean openzeppelin create-contracts-json
 # Install openzeppelin solidity contracts
 openzeppelin:
 	@echo "Importing openzeppelin contracts..."
-	@cd $(CONTRACTS_DIR)
-	@npm install
-	@cd ../../../../
-	@mv node_modules $(TMP)
-	@mv package-lock.json $(TMP)
-	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
+	@cd $(CONTRACTS_DIR) && \
+	 npm install && \
+	 mv node_modules $(TMP) && \
+	 mv $(TMP)/@openzeppelin . && \
+	 rm -rf $(TMP)
 
 # Clean tmp files
 contracts-clean:
-	@rm -rf tmp
-	@rm -rf node_modules
+	@rm -rf $(CONTRACTS_DIR)/$(TMP)
+	@rm -rf $(CONTRACTS_DIR)/node_modules
 	@rm -rf $(COMPILED_DIR)
 	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
 
@@ -614,7 +613,7 @@ create-contracts-json:
 		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
 		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
 	done
-	@rm -rf tmp
+	@rm -rf $(TMP)
 
 ###############################################################################
 ###                                Licenses                                 ###
