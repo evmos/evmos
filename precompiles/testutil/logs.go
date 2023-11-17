@@ -44,8 +44,6 @@ func CheckLogs(logArgs LogCheckArgs) error {
 		return err
 	}
 
-	fmt.Printf("Expected events: %s\n", logArgs.ExpEvents)
-
 	if len(ethRes.Logs) != len(logArgs.ExpEvents) {
 		return fmt.Errorf("expected %d events in Ethereum response; got: %d", len(logArgs.ExpEvents), len(ethRes.Logs))
 	}
