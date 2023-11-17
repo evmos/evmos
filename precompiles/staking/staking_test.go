@@ -40,6 +40,11 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 			true,
 		},
 		{
+			staking.CreateValidatorMethod,
+			s.precompile.Methods[staking.CreateValidatorMethod].Name,
+			true,
+		},
+		{
 			staking.DelegateMethod,
 			s.precompile.Methods[staking.DelegateMethod].Name,
 			true,
