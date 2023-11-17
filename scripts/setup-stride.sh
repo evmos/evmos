@@ -5,7 +5,8 @@
 # This is needed because Stride is a Cosmos Hub consumer chain.
 # So we need to update the setup to make it work properly.
 
-source ./.env
+# shellcheck source=.env
+source .env
 set -eu
 
 STRIDE_HOME="$BASE_DIR/node1"
