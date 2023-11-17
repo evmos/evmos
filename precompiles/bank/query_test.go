@@ -3,6 +3,8 @@ package bank_test
 import (
 	"math/big"
 
+	"github.com/evmos/evmos/v15/x/erc20/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/precompiles/bank"
@@ -156,6 +158,105 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 			err = s.precompile.UnpackIntoInterface(&balances, method.Name, bz)
 			s.Require().NoError(err)
 			s.Require().Equal(tc.expSupply, balances)
+		})
+	}
+}
+
+func (s *PrecompileTestSuite) TestSupplyOf() {
+	method := s.precompile.Methods[bank.SupplyOfMethod]
+
+	evmosTotalSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
+	s.Require().True(ok)
+
+	testcases := []struct {
+		name        string
+		malleate    func() []interface{}
+		expErr      bool
+		errContains string
+		expSupply   *big.Int
+	}{
+		{
+			"fail - invalid number of arguments",
+			func() []interface{} {
+				return []interface{}{
+					"", "", "",
+				}
+			},
+			true,
+			"invalid number of arguments",
+			nil,
+		},
+		{
+			"fail - invalid hex address",
+			func() []interface{} {
+				return []interface{}{
+					"random text",
+				}
+			},
+			true,
+			"invalid type for erc20Address",
+			nil,
+		},
+		{
+			"fail - erc20 not registered",
+			func() []interface{} {
+				return []interface{}{
+					evmosutiltx.GenerateAddress(),
+				}
+			},
+			true,
+			types.ErrTokenPairNotFound.Error(),
+			nil,
+		},
+		{
+			"pass - XMPL total supply",
+			func() []interface{} {
+				return []interface{}{
+					s.xmplAddr,
+				}
+			},
+			false,
+			"",
+			big.NewInt(1e18),
+		},
+
+		{
+			"pass - EVMOS total supply",
+			func() []interface{} {
+				return []interface{}{
+					s.evmosAddr,
+				}
+			},
+			false,
+			"",
+			evmosTotalSupply,
+		},
+	}
+
+	for _, tc := range testcases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			s.SetupTest()
+
+			bz, err := s.precompile.SupplyOf(
+				s.network.GetContext(),
+				nil,
+				&method,
+				tc.malleate(),
+			)
+
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.errContains)
+			} else {
+				out, err := method.Outputs.Unpack(bz)
+				s.Require().NoError(err, "expected no error unpacking")
+				supply, ok := out[0].(*big.Int)
+				s.Require().True(ok, "expected output to be a big.Int")
+				s.Require().NoError(err)
+				s.Require().Equal(supply, tc.expSupply)
+			}
 		})
 	}
 }
