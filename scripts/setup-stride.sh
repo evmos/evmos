@@ -5,7 +5,7 @@
 # This is needed because Stride is a Cosmos Hub consumer chain.
 # So we need to update the setup to make it work properly.
 
-source .env
+source ./.env
 set -eu
 
 STRIDE_HOME="$BASE_DIR/node1"
@@ -22,28 +22,28 @@ NODE0_DIR="$BASE_DIR/node0"
 tmp_config_toml="/tmp/config.toml"
 tmp_app_toml="/tmp/app.toml"
 tmp_client_toml="/tmp/client.toml"
-mv $NODE0_DIR/config/config.toml ${tmp_config_toml}
-mv $NODE0_DIR/config/app.toml ${tmp_app_toml}
-mv $NODE0_DIR/config/client.toml ${tmp_client_toml}
+mv "$NODE0_DIR"/config/config.toml ${tmp_config_toml}
+mv "$NODE0_DIR"/config/app.toml ${tmp_app_toml}
+mv "$NODE0_DIR"/config/client.toml ${tmp_client_toml}
 
 # remove node0 - only use node1
 # but keep node0 configs (ports mostly)
-rm -rf ${NODE0_DIR}
+rm -rf "${NODE0_DIR}"
 
 # use the generated config files
-mv ${tmp_config_toml} ${config_toml}
-mv ${tmp_app_toml} ${app_toml}
-mv ${tmp_client_toml} ${client_toml}
+mv ${tmp_config_toml} "${config_toml}"
+mv ${tmp_app_toml} "${app_toml}"
+mv ${tmp_client_toml} "${client_toml}"
 
 # add consumer section to run a stand-alone node
 $STRIDED add-consumer-section 1
 
 # remove the genesis txs (no validators in consumer chain)
-jq '.app_state.genutil.gen_txs = []' $genesis_json >json.tmp && mv json.tmp $genesis_json
+jq '.app_state.genutil.gen_txs = []' "$genesis_json" >json.tmp && mv json.tmp "$genesis_json"
 
 # unbonding period should match staking unbonding time
-unbonding_time=$(jq -r '.app_state.staking.params.unbonding_time' <$genesis_json)
-jq '.app_state.ccvconsumer.params.unbonding_period = $unbonding_time' --arg unbonding_time "$unbonding_time" $genesis_json >json.tmp && mv json.tmp $genesis_json
+unbonding_time=$(jq -r '.app_state.staking.params.unbonding_time' <"$genesis_json")
+jq '.app_state.ccvconsumer.params.unbonding_period = $unbonding_time' --arg unbonding_time "$unbonding_time" "$genesis_json" >json.tmp && mv json.tmp "$genesis_json"
 
 # add keys to the keyring
 echo "$COMMUNITY_MNEMONIC" | $STRIDED keys add community --recover --keyring-backend=test
