@@ -21,4 +21,4 @@ cd ../tests/nix_tests/hardhat
 npm install
 npm run typechain
 cd ..
-pytest test_osmosis_outpost.py -vv -s
+pytest -vv -s
