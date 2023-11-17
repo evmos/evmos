@@ -21,18 +21,6 @@ buildGo119Module rec {
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
   ]);
 
-  # allow to edit the source code files
-  # in case patches are provided
-  prePatch = ''
-    chmod -R +w $src
-  '';
-
-  # revert the write permission post patch to
-  # allow nix gc to clean it when necessary
-  postPatch = ''
-    chmod -R -w $src
-  '';
-
   doCheck = false;
   subPackages = [ "cmd/${appName}" ];
 }
