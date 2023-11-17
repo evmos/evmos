@@ -77,7 +77,7 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 func (s *PrecompileTestSuite) setupSendAuthzForERC20(
 	contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 ) {
-	txArgs, callArgs := s.getTxAndCallArgs(contractCall, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
+	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
 
 	// Check that an approval was made
 	approveCheck := testutil.LogCheckArgs{
@@ -286,7 +286,7 @@ func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, e
 // expectSendAuthzForERC20 is a helper function to check that a SendAuthorization
 // exists for a given grantee and granter combination for a given amount.
 func (s *PrecompileTestSuite) expectSendAuthzForERC20(contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins) {
-	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.AllowanceMethod, grantee, granter)
+	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.AllowanceMethod, granter, grantee)
 
 	passCheck := testutil.LogCheckArgs{ExpPass: true}
 

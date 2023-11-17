@@ -44,7 +44,6 @@ func CheckLogs(logArgs LogCheckArgs) error {
 		return err
 	}
 
-	println("Found number of events: ", len(ethRes.Logs))
 	fmt.Printf("Expected events: %s\n", logArgs.ExpEvents)
 
 	if len(ethRes.Logs) != len(logArgs.ExpEvents) {
@@ -55,9 +54,6 @@ func CheckLogs(logArgs LogCheckArgs) error {
 	availableEventIDs := make([]string, 0, len(ethRes.Logs))
 	for _, log := range ethRes.Logs {
 		availableEventIDs = append(availableEventIDs, log.Topics[0])
-		println("owner: ", log.Topics[1])
-		println("spender: ", log.Topics[2])
-		println("value: ", log.Data)
 	}
 
 	expEventIDs := make([]string, 0, len(expABIEvents))
