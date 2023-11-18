@@ -1,6 +1,7 @@
 package staking_test
 
 import (
+	"encoding/base64"
 	"fmt"
 	"math/big"
 
@@ -303,7 +304,8 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 
 				consPubKey, err := validator.ConsPubKey()
 				s.Require().NoError(err)
-				_ = consPubKey.String()
+				consPubKeyBase64 := base64.StdEncoding.EncodeToString(consPubKey.Bytes())
+				s.Require().Equal(pubkey, consPubKeyBase64, "expected validator pubkey to be %s; got %s", pubkey, consPubKeyBase64)
 
 				operator := validator.GetOperator().String()
 				s.Require().Equal(validatorAddress, operator, "expected validator operator to be %s; got %s", validatorAddress, operator)

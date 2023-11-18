@@ -130,7 +130,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	if len(pubkeyBytes) != ed25519.PubKeySize {
-		return nil, common.Address{}, fmt.Errorf("pubkey is incorrect size, expected to be %t; got %t", ed25519.PubKeySize, len(pubkeyBytes))
+		return nil, common.Address{}, fmt.Errorf("pubkey is incorrect size, expected to be %d; got %d", ed25519.PubKeySize, len(pubkeyBytes))
 	}
 
 	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
