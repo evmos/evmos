@@ -284,6 +284,9 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
+			s.SetupTest() // reset
+			operatorAddress = sdk.ValAddress(s.address.Bytes()).String()
+
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), 200000)
 			_, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
