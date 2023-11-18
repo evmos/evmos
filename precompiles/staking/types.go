@@ -20,6 +20,13 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+// EventCreateValidator defines the event data for the staking CreateValidator transaction.
+type EventCreateValidator struct {
+	DelegatorAddress common.Address
+	ValidatorAddress common.Address
+	Value            *big.Int
+}
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
