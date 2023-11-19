@@ -105,12 +105,16 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
+				optAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				optHexAddr := common.BytesToAddress(optAddr)
+
 				// Check the fully unpacked event matches the one emitted
 				var delegatorRewards distribution.EventWithdrawDelegatorRewards
-				err := cmn.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
+				err = cmn.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, delegatorRewards.DelegatorAddress)
-				s.Require().Equal(crypto.Keccak256Hash([]byte(s.validators[0].OperatorAddress)), delegatorRewards.ValidatorAddress)
+				s.Require().Equal(optHexAddr, delegatorRewards.ValidatorAddress)
 				s.Require().Equal(big.NewInt(1000000000000000000), delegatorRewards.Amount)
 			},
 			20000,
