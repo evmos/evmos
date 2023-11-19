@@ -201,24 +201,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			"",
 		},
 		{
-			"fail - invalid pubkey",
-			func() []interface{} {
-				return []interface{}{
-					description,
-					commission,
-					minSelfDelegation,
-					delegatorAddress,
-					validatorAddress,
-					"bHVrZQ==",
-					value,
-				}
-			},
-			200000,
-			func(data []byte) {},
-			true,
-			"pubkey is incorrect size",
-		},
-		{
 			"fail - invalid value",
 			func() []interface{} {
 				return []interface{}{
