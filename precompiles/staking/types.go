@@ -539,7 +539,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
 			OperatorAddress: res.Validator.OperatorAddress,
-			ConsensusPubkey: formatConsensusPubkey(res.Validator.ConsensusPubkey),
+			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
 			Tokens:          res.Validator.Tokens.BigInt(),
@@ -574,7 +574,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 	for i, v := range res.Validators {
 		vo.Validators[i] = ValidatorInfo{
 			OperatorAddress:   v.OperatorAddress,
-			ConsensusPubkey:   formatConsensusPubkey(v.ConsensusPubkey),
+			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 			Jailed:            v.Jailed,
 			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
 			Tokens:            v.Tokens.BigInt(),
@@ -782,8 +782,8 @@ func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string
 	return delegatorAddr, validatorAddress, amount, nil
 }
 
-// formatConsensusPubkey format ConsensusPubkey into a base64 string
-func formatConsensusPubkey(consensusPubkey *codectypes.Any) string {
+// FormatConsensusPubkey format ConsensusPubkey into a base64 string
+func FormatConsensusPubkey(consensusPubkey *codectypes.Any) string {
 	ed25519pk, ok := consensusPubkey.GetCachedValue().(cryptotypes.PubKey)
 	if ok {
 		return base64.StdEncoding.EncodeToString(ed25519pk.Bytes())
