@@ -1,9 +1,11 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package factory
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -14,6 +16,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/gogoproto/proto"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -87,6 +90,35 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
 	logCheckArgs.Res = res
 	if err != nil {
+		// TODO: this unwrapping errors code here is WIP for the custom errors being returned by
+		// contracts adhering to ERC-6093. It should be checked how to correctly expected these errors
+		// in the integration tests.
+		unwrappedErr := UnwrapErrors(err)
+
+		// check if the error is a RevertError with a reason
+		if revertErr, ok := unwrappedErr.(*evmtypes.RevertError); ok {
+			// will remove this, just checking which errors are available at this point
+			for errName, availableErr := range callArgs.ContractABI.Errors {
+				fmt.Println("err name:", errName)
+				fmt.Println("Available error:", availableErr.Name)
+				if availableErr.Name == revertErr.Error() {
+					return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
+				}
+			}
+
+			// decode the revert error reason
+			reason := revertErr.ErrorData().(string)
+			reasonBytes, decodeErr := hexutil.Decode(reason)
+			if decodeErr != nil {
+				return abcitypes.ResponseDeliverTx{}, nil, err
+			}
+			reason, unpackErr := abi.UnpackRevert(reasonBytes)
+			if unpackErr != nil {
+				return abcitypes.ResponseDeliverTx{}, nil, err
+			}
+			fmt.Println("Revert reason:", reason)
+		}
+
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
 		//
@@ -100,6 +132,35 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	}
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)
+}
+
+// UnwrapErrors is a helper function to unwrap any received error.
+// Depending on the passed error it either unwraps to the last underlying error or until
+// a RevertError type is found. This error contains an encoded reason which must be decoded to be
+// made readable.
+func UnwrapErrors(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	for {
+		cause := errors.Unwrap(err)
+		if cause == nil {
+			return err
+		}
+
+		// If the same error is returned it means that unwrapping using Cause does not work - we return the error as it is.
+		if errors.Is(cause, err) {
+			return cause
+		}
+
+		// If the error is a RevertError, we also want to return the error
+		if _, ok := cause.(*evmtypes.RevertError); ok {
+			return cause
+		}
+
+		err = cause
+	}
 }
 
 // CheckError is a helper function to check if the error is the expected one.
