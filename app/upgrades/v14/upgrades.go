@@ -80,7 +80,8 @@ func CreateUpgradeHandler(
 	pk paramskeeper.Keeper,
 	cdc codec.BinaryCodec,
 ) upgradetypes.UpgradeHandler {
-	return func(ctx context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		if utils.IsMainnet(ctx.ChainID()) {

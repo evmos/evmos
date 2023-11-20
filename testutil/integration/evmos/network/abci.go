@@ -11,7 +11,7 @@ import (
 func (n *IntegrationNetwork) NextBlock() error {
 	// End block and commit
 	header := n.ctx.BlockHeader()
-	n.app.EndBlocker(n.ctx, abci.RequestEndBlock{Height: header.Height})
+	n.app.EndBlocker(n.ctx)
 	n.app.Commit()
 
 	// Update block header and BeginBlock

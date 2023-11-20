@@ -42,7 +42,8 @@ func (k Keeper) Hooks() Hooks {
 
 // AfterProposalVote is a wrapper for calling the Gov AfterProposalVote hook on
 // the module keeper
-func (h Hooks) AfterProposalVote(ctx context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
+func (h Hooks) AfterProposalVote(c context.Context, proposalID uint64, voterAddr sdk.AccAddress) error {
+	ctx := sdk.UnwrapSDKContext(c)
 	return h.k.AfterProposalVote(ctx, proposalID, voterAddr)
 }
 
@@ -80,7 +81,8 @@ func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddre
 // delegates their EVMOS tokens to a validator, the claimable amount for the
 // user's claims record delegation action is claimed and transferred to the user
 // address.
-func (k Keeper) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
+func (k Keeper) AfterDelegationModified(c context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
+	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
 
 	claimsRecord, found := k.GetClaimsRecord(ctx, delAddr)

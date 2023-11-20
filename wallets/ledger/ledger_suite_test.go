@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/internal/sdkmath"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -98,7 +99,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 		[]sdk.Coin{
 			{
 				Denom:  "atom",
-				Amount: sdk.NewIntFromUint64(150),
+				Amount: sdkmath.NewIntFromUint64(150),
 			},
 		},
 	)
