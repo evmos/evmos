@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/crypto/hd"
@@ -146,7 +147,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					msg := []byte("test message")
 
-					signed, _, err := kr.SignByAddress(ledgerAddr, msg)
+					signed, _, err := kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 					s.Require().NoError(err, "failed to sign messsage")
 
 					valid := s.pubKey.VerifySignature(msg, signed)
@@ -160,7 +161,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					msg := []byte("test message")
 
-					_, _, err = kr.SignByAddress(ledgerAddr, msg)
+					_, _, err = kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 
 					s.Require().Error(err, "false positive result, error expected")
 
