@@ -36,7 +36,7 @@ const (
 	// DepositRequiredGas defines the gas required for the Deposit transaction.
 	DepositRequiredGas uint64 = 28_799
 	// WithdrawRequiredGas defines the gas required for the Withdraw transaction.
-	WithdrawRequiredGas uint64 = 3_000_000
+	WithdrawRequiredGas uint64 = 35_960
 )
 
 // NewPrecompile creates a new WERC20 Precompile instance as a
@@ -112,15 +112,12 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case method == nil:
 		// If there is no method specified, then it's the fallback or receive case
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-
 	case method.Name == cmn.FallbackMethod, method.Name == cmn.ReceiveMethod, method.Name == DepositMethod:
 		// WERC20 transactions
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-
 	case method.Name == WithdrawMethod:
 		// Withdraw Method
 		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
-
 	default:
 		// ERC20 transactions and queries
 		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
