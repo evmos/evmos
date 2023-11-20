@@ -4,9 +4,11 @@
 package werc20
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"math/big"
 )
 
 const (
@@ -35,6 +37,12 @@ func (p Precompile) Deposit(
 		return nil, err
 	}
 
+	// NOTE: To avoid triggering the minting/burning mechanism we override the
+	// balances of the contract and the sender manually to perform a no-op so
+	// the balances are kept in sync.
+	stateDB.AddBalance(dst, amount)
+	stateDB.SubBalance(contract.Address(), amount)
+
 	return nil, nil
 }
 
@@ -46,10 +54,13 @@ func (p Precompile) Withdraw(
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	_ *abi.Method,
-	_ []interface{},
+	args []interface{},
 ) ([]byte, error) {
 	src := contract.Caller()
-	amount := contract.Value()
+	amount, ok := args[0].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("invalid argument type: %T", args[0])
+	}
 
 	if err := p.EmitWithdrawEvent(ctx, stateDB, src, amount); err != nil {
 		return nil, err

@@ -35,6 +35,7 @@ contract WEVMOS9 {
     function() external payable {
         deposit();
     }
+
     function deposit() public payable {
         balanceOf[msg.sender] += msg.value;
         emit Deposit(msg.sender, msg.value);

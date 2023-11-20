@@ -5,7 +5,6 @@ package werc20
 
 import (
 	"embed"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -31,6 +30,13 @@ var _ vm.PrecompiledContract = &Precompile{}
 type Precompile struct {
 	*erc20.Precompile
 }
+
+const (
+	// DepositRequiredGas defines the gas required for the Deposit transaction.
+	DepositRequiredGas uint64 = 28_799
+	// WithdrawRequiredGas defines the gas required for the Withdraw transaction.
+	WithdrawRequiredGas uint64 = 3_000_000
+)
 
 // NewPrecompile creates a new WERC20 Precompile instance as a
 // PrecompiledContract interface.
@@ -65,20 +71,26 @@ func (p Precompile) Address() common.Address {
 
 // RequiredGas calculates the contract gas use.
 func (p Precompile) RequiredGas(input []byte) uint64 {
+	// TODO: these values were obtained from Remix using the WEVMOS9.sol.
+	// We should execute the transactions from Evmos testnet
+	// to ensure parity in the values.
+
+	// If there is no method ID, then it's the fallback or receive case
+	if len(input) == 0 {
+		return DepositRequiredGas
+	}
+
 	methodID := input[:4]
 	method, err := p.MethodById(methodID)
 	if err != nil {
 		return 0
 	}
 
-	// TODO: these values were obtained from Remix using the WEVMOS9.sol.
-	// We should execute the transactions from Evmos testnet
-	// to ensure parity in the values.
 	switch method.Name {
-	case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
-		return 28_799
+	case DepositMethod:
+		return DepositRequiredGas
 	case WithdrawMethod:
-		return 3_000_000
+		return WithdrawRequiredGas
 	}
 
 	return p.Precompile.RequiredGas(input)
@@ -95,16 +107,21 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	switch method.Name {
-	// WERC20 transactions
-	case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
+	// If there is no method specified, then it's the fallback or receive case
+	if method == nil {
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-	case WithdrawMethod:
-		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+	} else {
+		switch method.Name {
+		// WERC20 transactions
+		case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
+			bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+		case WithdrawMethod:
+			bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
 
-	default:
-		// ERC20 transactions and queries
-		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
+		default:
+			// ERC20 transactions and queries
+			bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
+		}
 	}
 
 	if err != nil {
