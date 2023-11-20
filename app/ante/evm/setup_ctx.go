@@ -3,7 +3,6 @@
 package evm
 
 import (
-	"errors"
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
@@ -97,12 +96,6 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 	// no need to validate basic on recheck tx, call next antehandler
 	if ctx.IsReCheckTx() {
 		return next(ctx, tx, simulate)
-	}
-
-	err := tx.ValidateBasic()
-	// ErrNoSignatures is fine with eth tx
-	if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
-		return ctx, errorsmod.Wrap(err, "tx basic validation failed")
 	}
 
 	// For eth type cosmos tx, some fields should be verified as zero values,

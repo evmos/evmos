@@ -12,16 +12,16 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	cmtcfg "github.com/cometbft/cometbft/config"
-	cmtflags "github.com/cometbft/cometbft/libs/cli/flags"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/node"
 	cmtclient "github.com/cometbft/cometbft/rpc/client"
@@ -29,6 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	"cosmossdk.io/simapp"
@@ -44,7 +45,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
-	servercmtlog "github.com/cosmos/cosmos-sdk/server/log"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -63,7 +63,10 @@ import (
 )
 
 // package-wide network lock to only allow one test network at a time
-var lock = new(sync.Mutex)
+var (
+	lock     = new(sync.Mutex)
+	portPool = make(chan string, 200)
+)
 
 // AppConstructor defines a function which accepts a network configuration and
 // creates an ABCI Application to provide to Tendermint.
@@ -180,12 +183,15 @@ type (
 		RPCClient     cmtclient.Client
 		JSONRPCClient *ethclient.Client
 
+		app         servertypes.Application
 		tmNode      *node.Node
 		api         *api.Server
 		grpc        *grpc.Server
 		grpcWeb     *http.Server
 		jsonrpc     *http.Server
 		jsonrpcDone chan struct{}
+		errGroup    *errgroup.Group
+		cancelFn    context.CancelFunc
 	}
 )
 
@@ -259,13 +265,13 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		appCfg.Telemetry.GlobalLabels = [][]string{{"chain_id", cfg.ChainID}}
 
 		ctx := server.NewDefaultContext()
-		tmCfg := ctx.Config
-		tmCfg.Consensus.TimeoutCommit = cfg.TimeoutCommit
+		cmtCfg := ctx.Config
+		cmtCfg.Consensus.TimeoutCommit = cfg.TimeoutCommit
 
 		// Only allow the first validator to expose an RPC, API and gRPC
 		// server/client due to Tendermint in-process constraints.
 		apiAddr := ""
-		tmCfg.RPC.ListenAddress = ""
+		cmtCfg.RPC.ListenAddress = ""
 		appCfg.GRPC.Enable = false
 		appCfg.GRPCWeb.Enable = false
 		appCfg.JSONRPC.Enable = false
@@ -274,11 +280,11 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			if cfg.APIAddress != "" {
 				apiListenAddr = cfg.APIAddress
 			} else {
-				var err error
-				apiListenAddr, _, err = server.FreeTCPAddr()
-				if err != nil {
-					return nil, err
+				if len(portPool) == 0 {
+					return nil, fmt.Errorf("failed to get port for API server")
 				}
+				port := <-portPool
+				apiListenAddr = fmt.Sprintf("tcp://0.0.0.0:%s", port)
 			}
 
 			appCfg.API.Address = apiListenAddr
@@ -289,39 +295,35 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			apiAddr = fmt.Sprintf("http://%s:%s", apiURL.Hostname(), apiURL.Port())
 
 			if cfg.RPCAddress != "" {
-				tmCfg.RPC.ListenAddress = cfg.RPCAddress
+				cmtCfg.RPC.ListenAddress = cfg.RPCAddress
 			} else {
-				rpcAddr, _, err := server.FreeTCPAddr()
-				if err != nil {
-					return nil, err
+				if len(portPool) == 0 {
+					return nil, fmt.Errorf("failed to get port for RPC server")
 				}
-				tmCfg.RPC.ListenAddress = rpcAddr
+				port := <-portPool
+				cmtCfg.RPC.ListenAddress = fmt.Sprintf("tcp://0.0.0.0:%s", port)
 			}
 
 			if cfg.GRPCAddress != "" {
 				appCfg.GRPC.Address = cfg.GRPCAddress
 			} else {
-				_, grpcPort, err := server.FreeTCPAddr()
-				if err != nil {
-					return nil, err
+				if len(portPool) == 0 {
+					return nil, fmt.Errorf("failed to get port for GRPC server")
 				}
-				appCfg.GRPC.Address = fmt.Sprintf("0.0.0.0:%s", grpcPort)
+				port := <-portPool
+				appCfg.GRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
 			}
 			appCfg.GRPC.Enable = true
-
-			if err != nil {
-				return nil, err
-			}
 			appCfg.GRPCWeb.Enable = true
 
 			if cfg.JSONRPCAddress != "" {
 				appCfg.JSONRPC.Address = cfg.JSONRPCAddress
 			} else {
-				_, jsonRPCPort, err := server.FreeTCPAddr()
-				if err != nil {
-					return nil, err
+				if len(portPool) == 0 {
+					return nil, fmt.Errorf("failed to get port for JSON-RPC server")
 				}
-				appCfg.JSONRPC.Address = fmt.Sprintf("0.0.0.0:%s", jsonRPCPort)
+				port := <-portPool
+				appCfg.JSONRPC.Address = fmt.Sprintf("0.0.0.0:%s", port)
 			}
 			appCfg.JSONRPC.Enable = true
 			appCfg.JSONRPC.API = config.GetAPINamespaces()
@@ -330,7 +332,6 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		logger := log.NewNopLogger()
 		if cfg.EnableTMLogging {
 			logger = log.NewLogger(os.Stdout)
-			logger, _ = cmtflags.ParseLogLevel("info", servercmtlog.CometLoggerWrapper{Logger: logger}, cmtcfg.DefaultLogLevel)
 		}
 
 		ctx.Logger = logger
@@ -350,25 +351,27 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
-		tmCfg.SetRoot(nodeDir)
-		tmCfg.Moniker = nodeDirName
+		cmtCfg.SetRoot(nodeDir)
+		cmtCfg.Moniker = nodeDirName
 		monikers[i] = nodeDirName
 
-		proxyAddr, _, err := server.FreeTCPAddr()
-		if err != nil {
-			return nil, err
+		if len(portPool) == 0 {
+			return nil, fmt.Errorf("failed to get port for Proxy server")
 		}
-		tmCfg.ProxyApp = proxyAddr
+		port := <-portPool
+		proxyAddr := fmt.Sprintf("tcp://0.0.0.0:%s", port)
+		cmtCfg.ProxyApp = proxyAddr
 
-		p2pAddr, _, err := server.FreeTCPAddr()
-		if err != nil {
-			return nil, err
+		if len(portPool) == 0 {
+			return nil, fmt.Errorf("failed to get port for Proxy server")
 		}
-		tmCfg.P2P.ListenAddress = p2pAddr
-		tmCfg.P2P.AddrBookStrict = false
-		tmCfg.P2P.AllowDuplicateIP = true
+		port = <-portPool
+		p2pAddr := fmt.Sprintf("tcp://0.0.0.0:%s", port)
+		cmtCfg.P2P.ListenAddress = p2pAddr
+		cmtCfg.P2P.AddrBookStrict = false
+		cmtCfg.P2P.AllowDuplicateIP = true
 
-		nodeID, pubKey, err := genutil.InitializeNodeValidatorFiles(tmCfg)
+		nodeID, pubKey, err := genutil.InitializeNodeValidatorFiles(cmtCfg)
 		if err != nil {
 			return nil, err
 		}
@@ -414,7 +417,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			sdk.NewCoin(cfg.BondDenom, cfg.StakingTokens),
 		)
 
-		genFiles = append(genFiles, tmCfg.GenesisFile())
+		genFiles = append(genFiles, cmtCfg.GenesisFile())
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: balances.Sort()})
 		genAccounts = append(genAccounts, &evmostypes.EthAccount{
 			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
@@ -488,7 +491,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		clientCtx := client.Context{}.
 			WithKeyringDir(clientDir).
 			WithKeyring(kb).
-			WithHomeDir(tmCfg.RootDir).
+			WithHomeDir(cmtCfg.RootDir).
 			WithChainID(cfg.ChainID).
 			WithInterfaceRegistry(cfg.InterfaceRegistry).
 			WithCodec(cfg.Codec).
@@ -504,8 +507,8 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			NodeID:     nodeID,
 			PubKey:     pubKey,
 			Moniker:    nodeDirName,
-			RPCAddress: tmCfg.RPC.ListenAddress,
-			P2PAddress: tmCfg.P2P.ListenAddress,
+			RPCAddress: cmtCfg.RPC.ListenAddress,
+			P2PAddress: cmtCfg.P2P.ListenAddress,
 			APIAddress: apiAddr,
 			Address:    addr,
 			ValAddress: sdk.ValAddress(addr),
@@ -533,7 +536,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 
 	// Ensure we cleanup incase any test was abruptly halted (e.g. SIGINT) as any
 	// defer in a test would not be called.
-	server.TrapSignal(network.Cleanup)
+	trapSignal(network.Cleanup)
 
 	return network, nil
 }
@@ -697,4 +700,28 @@ func centerText(text string, width int) string {
 	rightBuffer := strings.Repeat(" ", (width-textLen)/2+(width-textLen)%2)
 
 	return fmt.Sprintf("%s%s%s", leftBuffer, text, rightBuffer)
+}
+
+// trapSignal traps SIGINT and SIGTERM and calls os.Exit once a signal is received.
+func trapSignal(cleanupFunc func()) {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigs
+
+		if cleanupFunc != nil {
+			cleanupFunc()
+		}
+		exitCode := 128
+
+		switch sig {
+		case syscall.SIGINT:
+			exitCode += int(syscall.SIGINT)
+		case syscall.SIGTERM:
+			exitCode += int(syscall.SIGTERM)
+		}
+
+		os.Exit(exitCode)
+	}()
 }
