@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"math/big"
 
-	sdkmath "cosmossdk.io/math"
+	protov2 "google.golang.org/protobuf/proto"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -194,6 +195,10 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 // GetMsgs returns a single MsgEthereumTx as an sdk.Msg.
 func (msg *MsgEthereumTx) GetMsgs() []sdk.Msg {
 	return []sdk.Msg{msg}
+}
+
+func (msg *MsgEthereumTx) GetMsgsV2() ([]protov2.Message, error) {
+	return nil, errors.New("not implemented")
 }
 
 // GetSigners returns the expected signers for an Ethereum transaction message.
