@@ -51,6 +51,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		// Create the token pair for WEVMOS <-> EVMOS.
 		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
+		s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
 		precompile, err := werc20.NewPrecompile(
 			tokenPair,
@@ -89,13 +90,13 @@ var _ = Describe("WEVMOS Extension -", func() {
 			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "")
 			txArgs.Amount = big.NewInt(1e18)
 
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
+			_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			balanceCheck := failCheck.WithExpPass(true)
 			txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
 
-			_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
+			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
 			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 			// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
@@ -160,47 +161,47 @@ var _ = Describe("WEVMOS Extension -", func() {
 	})
 
 	// TODO: Add more granular cases but don't want to just confirm the same functionality as ERC20 tests.
-	Context("ERC20 specific functions", func() {
-		When("querying balance", func() {
-			DescribeTable("it should return an existing balance", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-
-		When("querying allowance", func() {
-			DescribeTable("it should return an existing allowance", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-
-		When("querying total supply", func() {
-			DescribeTable("it should return the total supply", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-
-		When("approving for a spender", func() {
-			DescribeTable("it should approve the spender", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-
-		When("transferring tokens from contract caller", func() {
-			DescribeTable("it should transfer the tokens", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-
-		When("transferring tokens on behalf of a custom `from` ", func() {
-			DescribeTable("it should transfer the tokens", func(callType int) {
-				Entry("direct WERC20 contract call", func() {})
-				Entry("contract call", func() {})
-			})
-		})
-	})
+	//Context("ERC20 specific functions", func() {
+	//	When("querying balance", func() {
+	//		DescribeTable("it should return an existing balance", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//
+	//	When("querying allowance", func() {
+	//		DescribeTable("it should return an existing allowance", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//
+	//	When("querying total supply", func() {
+	//		DescribeTable("it should return the total supply", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//
+	//	When("approving for a spender", func() {
+	//		DescribeTable("it should approve the spender", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//
+	//	When("transferring tokens from contract caller", func() {
+	//		DescribeTable("it should transfer the tokens", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//
+	//	When("transferring tokens on behalf of a custom `from` ", func() {
+	//		DescribeTable("it should transfer the tokens", func(callType int) {
+	//			Entry("direct WERC20 contract call", func() {})
+	//			Entry("contract call", func() {})
+	//		})
+	//	})
+	//})
 })
