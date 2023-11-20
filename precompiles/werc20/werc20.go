@@ -88,7 +88,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	switch method.Name {
-	case DepositMethod:
+	case DepositMethod, cmn.FallbackMethod, cmn.ReceiveMethod:
 		return DepositRequiredGas
 	case WithdrawMethod:
 		return WithdrawRequiredGas
