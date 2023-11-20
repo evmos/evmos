@@ -7,8 +7,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/armon/go-metrics"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/hashicorp/go-metrics"
 
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"

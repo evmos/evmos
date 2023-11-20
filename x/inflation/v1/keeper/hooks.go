@@ -6,11 +6,11 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
 	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/hashicorp/go-metrics"
 )
 
 // BeforeEpochStart: noop, We don't need to do anything here

@@ -10,7 +10,6 @@ import (
 	"github.com/evmos/evmos/v15/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/gogoproto/proto"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
@@ -38,7 +37,6 @@ import (
 	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/evm"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	"github.com/evmos/evmos/v15/x/evm/types"
 
@@ -49,11 +47,14 @@ import (
 	"github.com/cometbft/cometbft/version"
 )
 
+// TODO move these to msg_server_test.go
+// because Handler was deprecated
+
 type EvmTestSuite struct {
 	suite.Suite
 
 	ctx     sdk.Context
-	handler sdk.Handler
+	server  types.MsgServer
 	app     *app.Evmos
 	chainID *big.Int
 
@@ -167,7 +168,7 @@ func (suite *EvmTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
 
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
-	suite.handler = evm.NewHandler(suite.app.EvmKeeper)
+	suite.server = suite.app.EvmKeeper
 }
 
 func (suite *EvmTestSuite) SetupTest() {
@@ -257,7 +258,7 @@ func (suite *EvmTestSuite) TestHandleMsgEthereumTx() {
 			suite.SetupTest() // reset
 
 			tc.malleate()
-			res, err := suite.handler(suite.ctx, tx)
+			res, err := suite.server.EthereumTx(suite.ctx, tx)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -306,16 +307,11 @@ func (suite *EvmTestSuite) TestHandlerLogs() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	result, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
 
-	var txResponse types.MsgEthereumTxResponse
-
-	err = proto.Unmarshal(result.Data, &txResponse)
-	suite.Require().NoError(err, "failed to decode result data")
-
-	suite.Require().Equal(len(txResponse.Logs), 1)
-	suite.Require().Equal(len(txResponse.Logs[0].Topics), 2)
+	suite.Require().Equal(len(result.Logs), 1)
+	suite.Require().Equal(len(result.Logs[0].Topics), 2)
 }
 
 func (suite *EvmTestSuite) TestDeployAndCallContract() {
@@ -389,13 +385,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	res, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	var res types.MsgEthereumTxResponse
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// store - changeOwner
@@ -418,11 +409,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx = types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err = suite.handler(suite.ctx, tx)
+	res, err = suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// query - getOwner
@@ -440,11 +428,8 @@ func (suite *EvmTestSuite) TestDeployAndCallContract() {
 	tx = types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err = suite.handler(suite.ctx, tx)
+	res, err = suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err, "failed to handle eth tx msg")
-
-	err = proto.Unmarshal(result.Data, &res)
-	suite.Require().NoError(err, "failed to decode result data")
 	suite.Require().Equal(res.VmError, "", "failed to handle eth tx msg")
 
 	// FIXME: correct owner?
@@ -468,7 +453,7 @@ func (suite *EvmTestSuite) TestSendTransaction() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, err := suite.handler(suite.ctx, tx)
+	result, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err)
 	suite.Require().NotNil(result)
 }
@@ -554,7 +539,7 @@ func (suite *EvmTestSuite) TestOutOfGasWhenDeployContract() {
 		}
 	}()
 
-	_, err := suite.handler(suite.ctx, tx)
+	_, err := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().NoError(err)
 
 	suite.Require().Fail("panic did not happen")
@@ -577,11 +562,7 @@ func (suite *EvmTestSuite) TestErrorWhenDeployContract() {
 	tx := types.NewTx(ethTxParams)
 	suite.SignTx(tx)
 
-	result, _ := suite.handler(suite.ctx, tx)
-	var res types.MsgEthereumTxResponse
-
-	_ = proto.Unmarshal(result.Data, &res)
-
+	res, _ := suite.server.EthereumTx(suite.ctx, tx)
 	suite.Require().Equal("invalid opcode: opcode 0xa6 not defined", res.VmError, "correct evm error")
 
 	// TODO: snapshot checking

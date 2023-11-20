@@ -30,9 +30,9 @@ import (
 const consensusVersion = 3
 
 var (
-	_ module.AppModule        = AppModule{}
-	_ module.AppModuleBasic   = AppModuleBasic{}
-	
+	_ module.AppModule      = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
 	_ appmodule.HasEndBlocker = AppModule{}
 )
 
