@@ -1,8 +1,9 @@
 package werc20_test
 
 import (
-	"github.com/evmos/evmos/v15/precompiles/werc20"
 	"testing"
+
+	"github.com/evmos/evmos/v15/precompiles/werc20"
 
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
@@ -54,5 +55,4 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.network = integrationNetwork
-
 }
