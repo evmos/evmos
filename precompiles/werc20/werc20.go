@@ -109,10 +109,10 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch {
-	case method == nil:
-		// If there is no method specified, then it's the fallback or receive case
-		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-	case method.Name == cmn.FallbackMethod, method.Name == cmn.ReceiveMethod, method.Name == DepositMethod:
+	case method == nil,
+		method.Name == cmn.FallbackMethod,
+		method.Name == cmn.ReceiveMethod,
+		method.Name == DepositMethod:
 		// WERC20 transactions
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
 	case method.Name == WithdrawMethod:
