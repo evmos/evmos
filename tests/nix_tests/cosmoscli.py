@@ -1123,18 +1123,17 @@ class CosmosCLI:
     # ==========================
     def register_host_zone_msg(
         self,
+        sender_addr,
         connection_id,
         host_denom,
         bech32_prefix,
         ibc_denom,
         channel_id,
         unbonding_frequency,
+        lsm_enabled=0,
         **kwargs,
     ):
-        """
-        Generates a MsgRegisterHostZone
-        """
-        generated = json.loads(
+        return json.loads(
             self.raw(
                 "tx",
                 "stakeibc",
@@ -1145,14 +1144,16 @@ class CosmosCLI:
                 ibc_denom,
                 channel_id,
                 unbonding_frequency,
-                "--generate-only",
-                from_="stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl",  # gov mod acc - is the account allowed to execute this message # noqa: E501
+                str(lsm_enabled),
+                "-y",
+                from_=sender_addr,
                 chain_id="stride-1",
+                home=self.data_dir,
+                node=self.node_rpc,
+                keyring_backend="test",
                 **kwargs,
             )
-        )["body"]
-        assert len(generated["messages"]) == 1
-        return generated["messages"][0]
+        )
 
     def get_host_zones(self, **kwargs):
         """
