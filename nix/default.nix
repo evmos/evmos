@@ -25,9 +25,10 @@ import sources.nixpkgs {
         src = sources.stride; 
         name = "stride";
         appName = "strided";
-        version = "v11.0.0";
-        rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
-        vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
+        version = "v16.0.0";
+        rev = "e0c02910e036f4f2894a96c5222aebacc3ce0a4a";
+        vendorSha256 = "sha256-vktJQOnnr/QcxiReMnCrlKEFqarMMFzfMjoB3LQ27vk=";
+        patches = [ ../tests/nix_tests/configs/stride-admins.patch ]; # patch stride to allow tests addresses perform transactions that would need a gov proposal instead
       };
       # In case of osmosis & gaia, they provide the compiled binary. We'll use this
       # cause it is faster than building from source
