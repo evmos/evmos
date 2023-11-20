@@ -63,7 +63,7 @@ func (p Precompile) Withdraw(
 		return nil, fmt.Errorf("invalid argument type: %T", args[0])
 	}
 
-	if err := p.EmitWithdrawEvent(ctx, stateDB, src, amount); err != nil {
+	if err := p.EmitWithdrawalEvent(ctx, stateDB, src, amount); err != nil {
 		return nil, err
 	}
 
