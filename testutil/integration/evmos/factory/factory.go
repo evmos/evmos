@@ -5,9 +5,10 @@ package factory
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"math/big"
 	"strings"
+
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 
 	"github.com/cosmos/gogoproto/proto"
 
