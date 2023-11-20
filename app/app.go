@@ -493,7 +493,7 @@ func NewEvmos(
 
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
-		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
+		appCodec, keys[ibcexported.StoreKey], app.GetSubspace(ibcexported.ModuleName), stakingKeeper, app.UpgradeKeeper, scopedIBCKeeper, authAddr,
 	)
 
 	// register the proposal types
@@ -567,6 +567,7 @@ func NewEvmos(
 		app.IBCKeeper.ChannelKeeper, app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
+		authAddr,
 	)
 
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
@@ -633,10 +634,11 @@ func NewEvmos(
 		app.GetSubspace(icahosttypes.SubModuleName),
 		app.ClaimsKeeper,
 		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
+		app.IBCKeeper.PortKeeper,
 		app.AccountKeeper,
 		scopedICAHostKeeper,
 		bApp.MsgServiceRouter(),
+		authAddr,
 	)
 
 	// create host IBC module

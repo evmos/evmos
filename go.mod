@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	cosmossdk.io/api v0.7.3-0.20231029200940-6af7f30bfd54
-	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.12.0
 	cosmossdk.io/errors v1.0.0
 	cosmossdk.io/log v1.2.1
@@ -13,9 +12,10 @@ require (
 	cosmossdk.io/store v1.0.0
 	cosmossdk.io/tools/confix v0.1.0
 	cosmossdk.io/tools/rosetta v0.2.1
-	cosmossdk.io/x/evidence v0.0.0-20231103111158-e83a20081ced
-	cosmossdk.io/x/feegrant v0.0.0-20231103111158-e83a20081ced
-	cosmossdk.io/x/upgrade v0.0.0-20231103111158-e83a20081ced
+	cosmossdk.io/x/evidence v0.1.0
+	cosmossdk.io/x/feegrant v0.1.0
+	cosmossdk.io/x/tx v0.12.0
+	cosmossdk.io/x/upgrade v0.1.0
 	github.com/armon/go-metrics v0.4.1
 	github.com/btcsuite/btcd v0.23.3
 	github.com/btcsuite/btcd/btcutil v1.1.3
@@ -27,7 +27,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.11
 	github.com/cosmos/ibc-go/modules/capability v1.0.0
-	github.com/cosmos/ibc-go/v8 v8.0.0-rc.0
+	github.com/cosmos/ibc-go/v8 v8.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/golang/protobuf v1.5.3
@@ -55,6 +55,7 @@ require (
 	golang.org/x/crypto v0.14.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/net v0.17.0
+	golang.org/x/sync v0.5.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20231012201019-e917dd12ba7a
 	google.golang.org/grpc v1.59.0
@@ -68,11 +69,11 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.3 // indirect
 	cloud.google.com/go/storage v1.30.1 // indirect
-	cosmossdk.io/client/v2 v2.0.0-20231103103049-f73a17f75727 // indirect
+	cosmossdk.io/client/v2 v2.0.0-beta.1 // indirect
+	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
-	cosmossdk.io/x/circuit v0.0.0-20231103111158-e83a20081ced // indirect
+	cosmossdk.io/x/circuit v0.1.0 // indirect
 	cosmossdk.io/x/nft v0.0.0-20231103111158-e83a20081ced // indirect
-	cosmossdk.io/x/tx v0.12.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -242,7 +243,6 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
