@@ -19,15 +19,18 @@ import (
 // in the staking keeper.
 func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt math.Int) {
 	zeroDec := math.LegacyZeroDec()
-	stakingParams := sk.GetParams(ctx)
-	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams, err := sk.GetParams(ctx)
+	require.NoError(t, err)
+	stakingParams.BondDenom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 	stakingParams.MinCommissionRate = zeroDec
-	err := sk.SetParams(ctx, stakingParams)
+	err = sk.SetParams(ctx, stakingParams)
 	require.NoError(t, err)
 
 	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-	stakingHelper.Denom = sk.BondDenom(ctx)
+	stakingHelper.Denom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 
 	valAddr := sdk.ValAddress(pubKey.Address())
 	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)

@@ -27,15 +27,18 @@ import (
 // CreateValidator creates a validator with the provided public key and stake amount
 func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
 	zeroDec := math.LegacyZeroDec()
-	stakingParams := sk.GetParams(ctx)
-	stakingParams.BondDenom = sk.BondDenom(ctx)
+	stakingParams, err := sk.GetParams(ctx)
+	require.NoError(t, err)
+	stakingParams.BondDenom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 	stakingParams.MinCommissionRate = zeroDec
-	err := sk.SetParams(ctx, stakingParams)
+	err = sk.SetParams(ctx, stakingParams)
 	require.NoError(t, err)
 
 	stakingHelper := teststaking.NewHelper(t, ctx, &sk)
 	stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-	stakingHelper.Denom = sk.BondDenom(ctx)
+	stakingHelper.Denom, err = sk.BondDenom(ctx)
+	require.NoError(t, err)
 
 	valAddr := sdk.ValAddress(pubKey.Address())
 	stakingHelper.CreateValidator(valAddr, pubKey, stakeAmt, true)
@@ -129,7 +132,10 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		staking.EndBlocker(ctx, &app.StakingKeeper)
 
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
-		validator := app.StakingKeeper.Validator(ctx, valAddr)
+		validator, err := app.StakingKeeper.Validator(ctx, valAddr)
+		if err != nil {
+			return sdk.Context{}, fmt.Errorf("failed to get validator: %s", err.Error())
+		}
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, reward.Mul(math.NewInt(2))))
 		app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards)
 	}

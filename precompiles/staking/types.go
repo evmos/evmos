@@ -67,10 +67,6 @@ func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate
 		},
 	}
 
-	if err = msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddr, nil
 }
 
@@ -89,10 +85,6 @@ func NewMsgUndelegate(args []interface{}, denom string) (*stakingtypes.MsgUndele
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
 		},
-	}
-
-	if err = msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, delegatorAddr, nil
@@ -135,10 +127,6 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		},
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddr, nil
 }
 
@@ -177,10 +165,6 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 			Amount: math.NewIntFromBigInt(amount),
 		},
 		CreationHeight: creationHeight.Int64(),
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
 	}
 
 	return msg, delegatorAddr, nil

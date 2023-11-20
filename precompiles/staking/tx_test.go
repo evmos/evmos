@@ -206,7 +206,8 @@ func (s *PrecompileTestSuite) TestDelegate() {
 			bz, err := s.precompile.Delegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
 			// query the delegation in the staking keeper
-			delegation := s.app.StakingKeeper.Delegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
+			delegation, err := s.app.StakingKeeper.Delegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].OperatorAddress))
+			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
@@ -482,7 +483,8 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 			bz, err := s.precompile.Redelegate(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress, s.validators[1].OperatorAddress))
 
 			// query the redelegations in the staking keeper
-			redelegations := s.app.StakingKeeper.GetRedelegations(s.ctx, s.address.Bytes(), 5)
+			redelegations, err := s.app.StakingKeeper.GetRedelegations(s.ctx, s.address.Bytes(), 5)
+			s.Require().NoError(err)
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -654,8 +656,9 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				_, err = s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &undelegateMethod, undelegateArgs)
 				s.Require().NoError(err)
 
-				_, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-				s.Require().False(found)
+				_, err = s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				s.Require().Error(err)
+				s.Require().Contains("not found", err.Error())
 
 				err = s.CreateAuthorization(s.address, staking.CancelUnbondingDelegationAuthz, nil)
 				s.Require().NoError(err)
@@ -664,8 +667,8 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				s.Require().NoError(err)
 				tc.postCheck(bz)
 
-				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
-				s.Require().True(found)
+				delegation, err := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()))
+				s.Require().NoError(err)
 
 				bech32Addr, err := sdk.Bech32ifyAddressBytes("evmos", s.address.Bytes())
 				s.Require().NoError(err)
