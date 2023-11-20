@@ -18,8 +18,8 @@ import (
 const (
 	// EventTypeDeposit defines the event type for the Deposit transaction.
 	EventTypeDeposit = "Deposit"
-	// EventTypeWithdraw defines the event type for the Withdraw transaction.
-	EventTypeWithdraw = "Withdrawal"
+	// EventTypeWithdrawal defines the event type for the Withdraw transaction.
+	EventTypeWithdrawal = "Withdrawal"
 )
 
 // EmitDepositEvent creates a new Deposit event emitted on a Deposit transaction.
@@ -28,9 +28,9 @@ func (p Precompile) EmitDepositEvent(ctx sdk.Context, stateDB vm.StateDB, dst co
 	return p.createWERC20Event(ctx, stateDB, event, dst, amount)
 }
 
-// EmitWithdrawEvent creates a new Withdraw event emitted on Withdraw transaction.
+// EmitWithdrawEvent creates a new Withdrawal event emitted on Withdraw transaction.
 func (p Precompile) EmitWithdrawEvent(ctx sdk.Context, stateDB vm.StateDB, src common.Address, amount *big.Int) error {
-	event := p.ABI.Events[EventTypeWithdraw]
+	event := p.ABI.Events[EventTypeWithdrawal]
 	return p.createWERC20Event(ctx, stateDB, event, src, amount)
 }
 

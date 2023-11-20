@@ -108,21 +108,22 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	// If there is no method specified, then it's the fallback or receive case
-	if method == nil {
+	switch {
+	case method == nil:
+		// If there is no method specified, then it's the fallback or receive case
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-	} else {
-		switch method.Name {
-		// WERC20 transactions
-		case cmn.FallbackMethod, cmn.ReceiveMethod, DepositMethod:
-			bz, err = p.Deposit(ctx, contract, stateDB, method, args)
-		case WithdrawMethod:
-			bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
 
-		default:
-			// ERC20 transactions and queries
-			bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
-		}
+	case method.Name == cmn.FallbackMethod, method.Name == cmn.ReceiveMethod, method.Name == DepositMethod:
+		// WERC20 transactions
+		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
+
+	case method.Name == WithdrawMethod:
+		// Withdraw Method
+		bz, err = p.Withdraw(ctx, contract, stateDB, method, args)
+
+	default:
+		// ERC20 transactions and queries
+		bz, err = p.Precompile.HandleMethod(ctx, contract, stateDB, method, args)
 	}
 
 	if err != nil {

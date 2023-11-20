@@ -51,6 +51,8 @@ func (p Precompile) RunSetup(
 	}
 	ctx = stateDB.GetContext()
 
+	// NOTE: This is a special case where the calling transaction does not specify a function name.
+	// In this case we default to a `fallback` or `receive` function on the contract.
 	if len(contract.Input) != 0 {
 		methodID := contract.Input[:4]
 		// NOTE: this function iterates over the method map and returns
