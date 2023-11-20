@@ -13,7 +13,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -142,7 +141,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + time.Hour*1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					proposal, _ = s.app.GovKeeper.Proposals.Get(s.ctx, id)
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
@@ -168,7 +167,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
@@ -213,7 +212,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the contract deployer", func() {
@@ -239,7 +238,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight()})
+					s.app.EndBlocker(s.ctx)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the contract deployer", func() {

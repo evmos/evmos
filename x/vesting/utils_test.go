@@ -120,7 +120,7 @@ func (s *VestingTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorSet,
 
 	// commit genesis changes
 	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+	app.BeginBlocker(s.ctx)
 
 	s.app = app
 }

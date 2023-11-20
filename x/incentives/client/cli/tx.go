@@ -80,10 +80,6 @@ func NewRegisterIncentiveProposalCmd() *cobra.Command {
 				return err
 			}
 
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -152,11 +148,6 @@ func NewCancelIncentiveProposalCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
