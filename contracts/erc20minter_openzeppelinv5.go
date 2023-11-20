@@ -15,24 +15,24 @@ import (
 
 var (
 	//go:embed compiled_contracts/ERC20Minter_OpenZeppelinV5.json
-	ERC20MinterJSON []byte //nolint: golint
+	ERC20MinterV5JSON []byte //nolint: golint
 
-	// ERC20MinterContract is the compiled erc20 contract
-	ERC20MinterContract evmtypes.CompiledContract
+	// ERC20MinterV5Contract is the compiled erc20 contract
+	ERC20MinterV5Contract evmtypes.CompiledContract
 
-	// ERC20MinterAddress is the erc20 module address
-	ERC20MinterAddress common.Address
+	// ERC20MinterV5Address is the erc20 module address
+	ERC20MinterV5Address common.Address
 )
 
 func init() {
-	ERC20MinterAddress = types.ModuleAddress
+	ERC20MinterV5Address = types.ModuleAddress
 
-	err := json.Unmarshal(ERC20MinterJSON, &ERC20MinterContract)
+	err := json.Unmarshal(ERC20MinterV5JSON, &ERC20MinterV5Contract)
 	if err != nil {
 		panic(err)
 	}
 
-	if len(ERC20MinterContract.Bin) == 0 {
+	if len(ERC20MinterV5Contract.Bin) == 0 {
 		panic("load contract failed")
 	}
 }

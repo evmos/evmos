@@ -65,24 +65,41 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 		"this test utility only works with the token denom in the context of these integration tests",
 	)
 
-	if callType == erc20Call {
-		s.setupSendAuthzForERC20(contractData, grantee, granterPriv, amount)
-	} else {
+	switch callType {
+	case directCall:
 		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
+	case contractCall:
+		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
+	case erc20Call:
+		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
+	case erc20V5Call:
+		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
+	default:
+		panic("unknown contract call type")
 	}
 }
 
 // setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
 // a given grantee and granter combination for a given amount.
 func (s *PrecompileTestSuite) setupSendAuthzForERC20(
-	contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+	callType int, contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 ) {
-	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
+	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
 
 	// Check that an approval was made
+	var abiEvents map[string]abi.Event
+	switch callType {
+	case erc20Call:
+		abiEvents = contractData.erc20ABI.Events
+	case erc20V5Call:
+		abiEvents = contractData.erc20V5ABI.Events
+	default:
+		panic("unknown contract call type")
+	}
+
 	approveCheck := testutil.LogCheckArgs{
-		ABIEvents: contractData.erc20ABI.Events,
-		ExpEvents: []string{"Approval"},
+		ABIEvents: abiEvents,
+		ExpEvents: []string{auth.EventTypeApproval},
 		ExpPass:   true,
 	}
 
@@ -181,6 +198,7 @@ const (
 	directCall = iota + 1
 	contractCall
 	erc20Call
+	erc20V5Call
 )
 
 // getCallArgs is a helper function to return the correct call arguments for a given call type.
@@ -206,6 +224,11 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(
 	case erc20Call:
 		txArgs.To = &contractData.erc20Addr
 		callArgs.ContractABI = contractData.erc20ABI
+	case erc20V5Call:
+		txArgs.To = &contractData.erc20V5Addr
+		callArgs.ContractABI = contractData.erc20V5ABI
+	default:
+		panic("unknown contract call type")
 	}
 
 	callArgs.MethodName = methodName
@@ -240,18 +263,22 @@ func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractDa
 	case contractCall:
 		s.ExpectBalances(expBalances)
 	case erc20Call:
-		s.ExpectBalancesForERC20(contractData, expBalances)
+		s.ExpectBalancesForERC20(callType, contractData, expBalances)
+	case erc20V5Call:
+		s.ExpectBalancesForERC20(callType, contractData, expBalances)
+	default:
+		panic("unknown contract call type")
 	}
 }
 
 // ExpectBalancesForERC20 is a helper function to check expected balances for given accounts
 // when using the ERC20 contract.
-func (s *PrecompileTestSuite) ExpectBalancesForERC20(contractData ContractData, expBalances []ExpectedBalance) {
+func (s *PrecompileTestSuite) ExpectBalancesForERC20(callType int, contractData ContractData, expBalances []ExpectedBalance) {
 	for _, expBalance := range expBalances {
 		for _, expCoin := range expBalance.expCoins {
 			addr := common.BytesToAddress(expBalance.address.Bytes())
 
-			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "balanceOf", addr)
+			txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, "balanceOf", addr)
 
 			passCheck := testutil.LogCheckArgs{ExpPass: true}
 
@@ -285,8 +312,8 @@ func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, e
 
 // expectSendAuthzForERC20 is a helper function to check that a SendAuthorization
 // exists for a given grantee and granter combination for a given amount.
-func (s *PrecompileTestSuite) expectSendAuthzForERC20(contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins) {
-	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, auth.AllowanceMethod, granter, grantee)
+func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType int, contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins) {
+	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter, grantee)
 
 	passCheck := testutil.LogCheckArgs{ExpPass: true}
 
@@ -312,7 +339,11 @@ func (s *PrecompileTestSuite) ExpectSendAuthzForContract(
 	case contractCall:
 		s.expectSendAuthz(grantee.Bytes(), granter.Bytes(), expAmount)
 	case erc20Call:
-		s.expectSendAuthzForERC20(contractData, grantee, granter, expAmount)
+		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
+	case erc20V5Call:
+		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
+	default:
+		panic("unknown contract call type")
 	}
 }
 
@@ -326,8 +357,8 @@ func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress)
 
 // expectNoSendAuthzForERC20 is a helper function to check that no SendAuthorization
 // exists for a given grantee and granter combination.
-func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(contractData ContractData, grantee, granter common.Address) {
-	s.expectSendAuthzForERC20(contractData, grantee, granter, sdk.Coins{})
+func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(callType int, contractData ContractData, grantee, granter common.Address) {
+	s.expectSendAuthzForERC20(callType, contractData, grantee, granter, sdk.Coins{})
 }
 
 // ExpectNoSendAuthzForContract is a helper function to check that no SendAuthorization
@@ -341,7 +372,11 @@ func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
 	case contractCall:
 		s.expectNoSendAuthz(grantee.Bytes(), granter.Bytes())
 	case erc20Call:
-		s.expectNoSendAuthzForERC20(contractData, grantee, granter)
+		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
+	case erc20V5Call:
+		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
+	default:
+		panic("unknown contract call type")
 	}
 }
 
@@ -352,6 +387,8 @@ type ContractData struct {
 
 	erc20Addr      common.Address
 	erc20ABI       abi.ABI
+	erc20V5Addr    common.Address
+	erc20V5ABI     abi.ABI
 	contractAddr   common.Address
 	contractABI    abi.ABI
 	precompileAddr common.Address
@@ -380,7 +417,11 @@ func (s *PrecompileTestSuite) fundWithTokens(
 	case contractCall:
 		err = s.network.FundAccount(receiver.Bytes(), fundCoins)
 	case erc20Call:
-		err = s.MintERC20(contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
+		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
+	case erc20V5Call:
+		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
+	default:
+		panic("unknown contract call type")
 	}
 
 	Expect(err).ToNot(HaveOccurred(), "failed to fund account")
@@ -389,11 +430,21 @@ func (s *PrecompileTestSuite) fundWithTokens(
 // MintERC20 is a helper function to mint tokens on the ERC20 contract.
 //
 // NOTE: we are checking that there was a Transfer event emitted (which happens on minting).
-func (s *PrecompileTestSuite) MintERC20(contractData ContractData, receiver common.Address, amount *big.Int) error {
-	txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "mint", receiver, amount)
+func (s *PrecompileTestSuite) MintERC20(callType int, contractData ContractData, receiver common.Address, amount *big.Int) error {
+	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, "mint", receiver, amount)
+
+	var abiEvents map[string]abi.Event
+	switch callType {
+	case erc20Call:
+		abiEvents = contractData.erc20ABI.Events
+	case erc20V5Call:
+		abiEvents = contractData.erc20V5ABI.Events
+	default:
+		panic("unknown contract call type")
+	}
 
 	mintCheck := testutil.LogCheckArgs{
-		ABIEvents: contractData.erc20ABI.Events,
+		ABIEvents: abiEvents,
 		ExpEvents: []string{"Transfer"}, // NOTE: this event occurs when calling "mint" on ERC20s
 		ExpPass:   true,
 	}

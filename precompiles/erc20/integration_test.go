@@ -30,10 +30,9 @@ var _ = Describe("ERC20 Extension -", func() {
 		contractAddr common.Address
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
-		contractData          ContractData
-		erc20MinterBurnerAddr common.Address
-		err                   error
-		sender                keyring.Key
+		contractData ContractData
+		err          error
+		sender       keyring.Key
 
 		execRevertedCheck testutil.LogCheckArgs
 		failCheck         testutil.LogCheckArgs
@@ -55,7 +54,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
-		erc20MinterBurnerAddr, err = s.factory.DeployContract(
+		erc20MinterBurnerAddr, err := s.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -67,10 +66,24 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
 
+		ERC20MinterV5Addr, err := s.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: contracts.ERC20MinterV5Contract,
+				ConstructorArgs: []interface{}{
+					"Xmpl", "Xmpl",
+				},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter contract")
+
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
 			erc20Addr:      erc20MinterBurnerAddr,
 			erc20ABI:       contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			erc20V5Addr:    ERC20MinterV5Addr,
+			erc20V5ABI:     contracts.ERC20MinterV5Contract.ABI,
 			contractAddr:   contractAddr,
 			contractABI:    testdata.ERC20AllowanceCallerContract.ABI,
 			precompileAddr: s.precompile.Address(),
@@ -108,6 +121,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return zero if balance only exists for other tokens", func(callType int) {
@@ -152,6 +166,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -176,6 +191,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error if no allowance exists", func(callType int) {
@@ -198,6 +214,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				// FIXME: other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType int) {
@@ -243,6 +260,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				// FIXME: Other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -268,6 +286,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return zero if no tokens exist", func(callType int) {
@@ -284,6 +303,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -322,6 +342,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we are not passing the contract call here because that requires an authorization which is
 				// a separate test case.
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should transfer tokens to an existing address", func(callType int) {
@@ -354,6 +375,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we are not passing the contract call here because that requires an authorization which is
 				// a separate test case.
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error trying to call from a smart contract", func(callType int) {
@@ -398,6 +420,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: This error message currently is different from the EVM extension message
 				// -- says "ERC20: transfer amount exceeds balance" instead of "spendable balance ... is smaller than ..."
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -447,6 +470,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// FIXME: other than the EVM extension, the ERC20 contract emits an additional Approval event (we only emit 1x Transfer)
 				Entry("- through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should transfer tokens using a smart contract with a sufficient approval set", func(callType int) {
@@ -563,6 +587,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: we have a different error here than the EVM extension
 				// -- says "ERC20: transfer amount exceeds allowance" instead of "requested amount is more than spend limit"
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error when using smart contract and the spender does not have enough allowance", func(callType int) {
@@ -615,6 +640,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: we have a different error here than the EVM extension
 				// -- says "ERC20: transfer amount exceeds allowance" instead of "authorization not found"
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
@@ -648,6 +674,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: we have a different error here than the EVM extension
 				// -- says "ERC20: transfer amount exceeds balance" instead of "spendable balance ... is smaller than ..."
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -674,6 +701,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType int) {
@@ -727,6 +755,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType int) {
@@ -777,6 +806,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error if approving 0 and no allowance exists", func(callType int) {
@@ -799,6 +829,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType int) {
@@ -826,6 +857,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// TODO: the approval tests should be also tested for contract calls
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType int) {
@@ -891,6 +923,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the symbol should return an error", func(callType int) {
@@ -911,6 +944,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the decimals should return an error", func(callType int) {
@@ -931,6 +965,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -974,6 +1009,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the symbol should return the symbol", func(callType int) {
@@ -990,6 +1026,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the decimals should return the decimals", func(callType int) {
@@ -1007,6 +1044,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: this is failing??
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 	})
@@ -1264,12 +1302,13 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				// FIXME: failing because of erc20 approval bug (see above)
 				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 	})
 })
 
-var _ = Describe("ERC20 Extension - migration Flows -", func() {
+var _ = Describe("ERC20 Extension migration Flows -", func() {
 	When("migrating an existing ERC20 token", func() {
 		It("should migrate the full token balance to the bank module", func() {
 			Expect(true).To(BeFalse(), "not implemented")
