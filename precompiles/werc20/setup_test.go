@@ -49,12 +49,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
 
-	ctx := integrationNetwork.GetContext()
-	sk := integrationNetwork.App.StakingKeeper
-	bondDenom := sk.BondDenom(ctx)
-	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
-
-	s.bondDenom = bondDenom
+	s.bondDenom = integrationNetwork.GetDenom()
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
