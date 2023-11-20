@@ -28,4 +28,8 @@ const (
 	ErrNegativeAmount = "negative amount when decreasing allowance"
 	// ErrInvalidType is raised when the provided type is different than the expected.
 	ErrInvalidType = "invalid type for %s: expected %T, received %T"
+	// ErrInvalidDescription is raised when the input description cannot be cast to stakingtypes.Description{}.
+	ErrInvalidDescription = "invalid description: %v"
+	// ErrInvalidCommission is raised when the input commission cannot be cast to stakingtypes.CommissionRates{}.
+	ErrInvalidCommission = "invalid commission: %v"
 )
