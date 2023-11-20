@@ -5,6 +5,7 @@ package werc20
 
 import (
 	"embed"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
