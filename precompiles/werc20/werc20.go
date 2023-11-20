@@ -88,7 +88,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	}
 
 	switch method.Name {
-	case DepositMethod, cmn.FallbackMethod, cmn.ReceiveMethod:
+	case DepositMethod:
 		return DepositRequiredGas
 	case WithdrawMethod:
 		return WithdrawRequiredGas
@@ -110,8 +110,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch {
 	case method == nil,
-		method.Name == cmn.FallbackMethod,
-		method.Name == cmn.ReceiveMethod,
 		method.Name == DepositMethod:
 		// WERC20 transactions
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
@@ -137,14 +135,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 }
 
 // IsTransaction checks if the given methodID corresponds to a transaction or query.
-func (p Precompile) IsTransaction(methodID string) bool {
-	switch methodID {
-	case cmn.FallbackMethod,
-		cmn.ReceiveMethod,
-		DepositMethod,
-		WithdrawMethod:
+func (p Precompile) IsTransaction(methodName string) bool {
+	switch methodName {
+	case DepositMethod, WithdrawMethod:
 		return true
 	default:
-		return p.Precompile.IsTransaction(methodID)
+		return p.Precompile.IsTransaction(methodName)
 	}
 }
