@@ -74,6 +74,8 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
 	case erc20V5Call:
 		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
+	case erc20V5CallerCall:
+		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
 	default:
 		panic("unknown contract call type")
 	}
@@ -93,6 +95,12 @@ func (s *PrecompileTestSuite) setupSendAuthzForERC20(
 		abiEvents = contractData.erc20ABI.Events
 	case erc20V5Call:
 		abiEvents = contractData.erc20V5ABI.Events
+	case erc20V5CallerCall:
+		// NOTE: In order to set up an allowance from the granter to the grantee, the call needs
+		// to be made to the actual ERC20 contract, not the ERC20Caller contract.
+		abiEvents = contractData.erc20V5ABI.Events
+		txArgs.To = &contractData.erc20V5Addr
+		callArgs.ContractABI = contractData.erc20V5ABI
 	default:
 		panic("unknown contract call type")
 	}
@@ -199,6 +207,7 @@ const (
 	contractCall
 	erc20Call
 	erc20V5Call
+	erc20V5CallerCall
 )
 
 // getCallArgs is a helper function to return the correct call arguments for a given call type.
@@ -227,6 +236,9 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(
 	case erc20V5Call:
 		txArgs.To = &contractData.erc20V5Addr
 		callArgs.ContractABI = contractData.erc20V5ABI
+	case erc20V5CallerCall:
+		txArgs.To = &contractData.erc20V5CallerAddr
+		callArgs.ContractABI = contractData.erc20V5CallerABI
 	default:
 		panic("unknown contract call type")
 	}
@@ -265,6 +277,8 @@ func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractDa
 	case erc20Call:
 		s.ExpectBalancesForERC20(callType, contractData, expBalances)
 	case erc20V5Call:
+		s.ExpectBalancesForERC20(callType, contractData, expBalances)
+	case erc20V5CallerCall:
 		s.ExpectBalancesForERC20(callType, contractData, expBalances)
 	default:
 		panic("unknown contract call type")
@@ -342,6 +356,8 @@ func (s *PrecompileTestSuite) ExpectSendAuthzForContract(
 		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
 	case erc20V5Call:
 		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
+	case erc20V5CallerCall:
+		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
 	default:
 		panic("unknown contract call type")
 	}
@@ -375,6 +391,8 @@ func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
 		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
 	case erc20V5Call:
 		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
+	case erc20V5CallerCall:
+		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
 	default:
 		panic("unknown contract call type")
 	}
@@ -385,14 +403,16 @@ func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
 type ContractData struct {
 	ownerPriv cryptotypes.PrivKey
 
-	erc20Addr      common.Address
-	erc20ABI       abi.ABI
-	erc20V5Addr    common.Address
-	erc20V5ABI     abi.ABI
-	contractAddr   common.Address
-	contractABI    abi.ABI
-	precompileAddr common.Address
-	precompileABI  abi.ABI
+	erc20Addr         common.Address
+	erc20ABI          abi.ABI
+	erc20V5Addr       common.Address
+	erc20V5ABI        abi.ABI
+	erc20V5CallerAddr common.Address
+	erc20V5CallerABI  abi.ABI
+	contractAddr      common.Address
+	contractABI       abi.ABI
+	precompileAddr    common.Address
+	precompileABI     abi.ABI
 }
 
 // fundWithTokens is a helper function for the scope of the ERC20 integration tests.
@@ -420,6 +440,8 @@ func (s *PrecompileTestSuite) fundWithTokens(
 		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
 	case erc20V5Call:
 		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
+	case erc20V5CallerCall:
+		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
 	default:
 		panic("unknown contract call type")
 	}
@@ -439,6 +461,11 @@ func (s *PrecompileTestSuite) MintERC20(callType int, contractData ContractData,
 		abiEvents = contractData.erc20ABI.Events
 	case erc20V5Call:
 		abiEvents = contractData.erc20V5ABI.Events
+	case erc20V5CallerCall:
+		// NOTE: When using the ERC20 caller contract, we must still mint from the actual ERC20 v5 contract.
+		abiEvents = contractData.erc20V5ABI.Events
+		txArgs.To = &contractData.erc20V5Addr
+		callArgs.ContractABI = contractData.erc20V5ABI
 	default:
 		panic("unknown contract call type")
 	}

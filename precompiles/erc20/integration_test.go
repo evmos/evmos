@@ -79,16 +79,30 @@ var _ = Describe("ERC20 Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter contract")
 
+		erc20MinterV5CallerAddr, err := s.factory.DeployContract(
+			sender.Priv,
+			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+			factory.ContractDeploymentData{
+				Contract: testdata.ERC20AllowanceCallerContract,
+				ConstructorArgs: []interface{}{
+					ERC20MinterV5Addr,
+				},
+			},
+		)
+		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter caller contract")
+
 		contractData = ContractData{
-			ownerPriv:      sender.Priv,
-			erc20Addr:      erc20MinterBurnerAddr,
-			erc20ABI:       contracts.ERC20MinterBurnerDecimalsContract.ABI,
-			erc20V5Addr:    ERC20MinterV5Addr,
-			erc20V5ABI:     contracts.ERC20MinterV5Contract.ABI,
-			contractAddr:   contractAddr,
-			contractABI:    testdata.ERC20AllowanceCallerContract.ABI,
-			precompileAddr: s.precompile.Address(),
-			precompileABI:  s.precompile.ABI,
+			ownerPriv:         sender.Priv,
+			erc20Addr:         erc20MinterBurnerAddr,
+			erc20ABI:          contracts.ERC20MinterBurnerDecimalsContract.ABI,
+			erc20V5Addr:       ERC20MinterV5Addr,
+			erc20V5ABI:        contracts.ERC20MinterV5Contract.ABI,
+			erc20V5CallerAddr: erc20MinterV5CallerAddr,
+			erc20V5CallerABI:  testdata.ERC20AllowanceCallerContract.ABI,
+			contractAddr:      contractAddr,
+			contractABI:       testdata.ERC20AllowanceCallerContract.ABI,
+			precompileAddr:    s.precompile.Address(),
+			precompileABI:     s.precompile.ABI,
 		}
 
 		failCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
@@ -123,6 +137,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return zero if balance only exists for other tokens", func(callType int) {
@@ -168,6 +183,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 		})
 
@@ -193,6 +209,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return zero if no allowance exists", func(callType int) {
@@ -213,6 +230,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType int) {
@@ -256,6 +274,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 		})
 
@@ -282,6 +301,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return zero if no tokens exist", func(callType int) {
@@ -299,6 +319,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 		})
 
@@ -334,8 +355,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Expect(ethRes.GasUsed).To(Equal(1), "expected different gas used")
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because that requires an authorization which is
-				// a separate test case.
+				// NOTE: we are not passing the contract call here because transferring using a caller contract
+				// is only supported through transferFrom method.
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
@@ -367,8 +388,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because that requires an authorization which is
-				// a separate test case.
+				// NOTE: we are not passing the contract call here because transferring using a caller contract
+				// is only supported through transferFrom method.
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
@@ -389,6 +410,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				// NOTE: we are not passing the direct call here because this test is specific to the contract calls
 				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
@@ -471,10 +493,19 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			DescribeTable("it should transfer tokens using a smart contract with a sufficient approval set", func(callType int) {
 				owner := sender
-				spender := contractAddr // NOTE: in case of a contract call the spender is the contract itself
 				receiver := utiltx.GenerateAddress()
 				fundCoin := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				var spender common.Address
+				switch callType {
+				case contractCall:
+					spender = contractData.contractAddr
+				case erc20V5CallerCall:
+					spender = contractData.erc20V5CallerAddr
+				default:
+					panic(fmt.Sprintf("unexpected call type for this test case: %d", callType))
+				}
 
 				// Fund account with some tokens
 				s.fundWithTokens(callType, contractData, owner.Addr, fundCoin)
@@ -515,13 +546,23 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because this is supposed to
 				// test external contract calls
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return an error trying to send using a smart contract but triggered from another account", func(callType int) {
 				msgSender := s.keyring.GetKey(0)
 				owner := s.keyring.GetKey(1)
 				receiver := utiltx.GenerateAddress()
-				spender := contractAddr
+
+				var spender common.Address
+				switch callType {
+				case contractCall:
+					spender = contractData.contractAddr
+				case erc20V5CallerCall:
+					spender = contractData.erc20V5CallerAddr
+				default:
+					panic(fmt.Sprintf("unexpected call type for this test case: %d", callType))
+				}
 
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
@@ -549,8 +590,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// FIXME: This is working right now! We should probably block this.
 				Entry(" - through contract", contractCall),
-				// NOTE: we are not passing the erc20 contract call here because this is supposed to
-				// test external contract calls (not directly to token source)
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return an error when the spender does not have enough allowance", func(callType int) {
@@ -588,17 +628,26 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			DescribeTable("it should return an error when using smart contract and the spender does not have enough allowance", func(callType int) {
 				from := sender
-				spender := contractAddr // NOTE: in case of a contract call the spender is the contract itself
 				receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 400)}
 				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 				transferCoin := sdk.NewInt64Coin(s.tokenDenom, 300)
 
+				var spender common.Address
+				switch callType {
+				case contractCall:
+					spender = contractData.contractAddr
+				case erc20V5CallerCall:
+					spender = contractData.erc20V5CallerAddr
+				default:
+					panic(fmt.Sprintf("unexpected call type for this test case: %d", callType))
+				}
+
 				// Fund account with some tokens
 				s.fundWithTokens(callType, contractData, from.Addr, fundCoins)
 
 				// Set allowance
-				s.setupSendAuthz(spender.Bytes(), from.Priv, authzCoins)
+				s.setupSendAuthzForContract(callType, contractData, spender, from.Priv, authzCoins)
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
@@ -608,7 +657,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				// NOTE: we are not passing the direct call here because this test is for contract calls only
 				Entry(" - through contract", contractCall),
-				// TODO: deploy caller contract for ERC20 original contract
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return an error if there is no allowance set", func(callType int) {
@@ -695,9 +744,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType int) {
@@ -721,10 +771,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: This fails because it's creating the different authorization (see above)
-				Entry(" - through contract", contractCall),
 				// NOTE 2: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType int) {
@@ -749,9 +799,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, bondCoins.Add(tokenCoins...))
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType int) {
@@ -775,9 +825,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, bondCoins)
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
-				// NOTE 2: we are not passing the erc20 contract call here because the ERC20 contract
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should delete the authorization when approving zero with no other spend limits", func(callType int) {
@@ -800,32 +851,34 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 
-			DescribeTable("it should return an error if approving 0 and no allowance exists", func(callType int) {
+			DescribeTable("it should no-op if approving 0 and no allowance exists", func(callType int) {
 				grantee := s.keyring.GetKey(1)
 				granter := sender
 
 				// Approve allowance
 				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
-				nonPosCheck := failCheck.WithErrContains("cannot approve non-positive values")
+				// We are expecting an approval to be made, but no authorization stored since it's 0
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
-				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, nonPosCheck)
+				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				// Check allowance contains both spend limits
-				authzs, err := s.grpcHandler.GetAuthorizations(grantee.AccAddr.String(), granter.AccAddr.String())
-				Expect(err).ToNot(HaveOccurred(), "failed to get authorizations")
-				Expect(authzs).To(HaveLen(0), "expected different number of authorizations")
+				// Check still no authorization exists
+				s.ExpectNoSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr)
 			},
+				// FIXME: This currently fails with "cannot approve non-positive values" while the ERC20 just no-ops
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType int) {
@@ -851,9 +904,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 			},
 				Entry(" - direct call", directCall),
-				// TODO: the approval tests should be also tested for contract calls
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType int) {
@@ -870,15 +924,18 @@ var _ = Describe("ERC20 Extension -", func() {
 				notFoundCheck := failCheck.WithErrContains(
 					fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
 				)
+				if callType == contractCall {
+					notFoundCheck = execRevertedCheck
+				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the contract call here because this test case only covers direct calls
-				//
-				// NOTE 2: we are not passing the erc20 contract call here because the ERC20 contract
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 		})
 	})
@@ -1087,8 +1144,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, authzCoins)
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: This is also not creating the authorization from the granter to the grantee but from the contract to the grantee.
-				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("decreasing the allowance should return an error", func(callType int) {
@@ -1107,7 +1166,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
-				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 		})
 
@@ -1132,10 +1194,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, bondCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: failing for the same reason
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("decreasing the allowance should return an error", func(callType int) {
@@ -1154,9 +1216,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 		})
 
@@ -1185,18 +1248,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, authzCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: this also shows interesting behavior because when calling this there is an authorization from the contract to the grantee
-				// instead of the increasing the one from granter to the grantee, because the granter is always taken as the contract caller (in this case the smart contract),
-				// even though we sign with the granter key. I think this is different to how we have it implemented for other precompiles, e.g. staking?
-				//
-				// See IncreaseAllowance method in the approve.go file:
-				//
-				// ```
-				// granter := contract.CallerAddress
-				// ```
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("decreasing the allowance should decrease the spend limit", func(callType int) {
@@ -1212,11 +1267,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, authzCoins.Sub(decreaseCoins...))
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: This is failing for the same reason as the increase allowance test above.
-				// It tries to decrease from the contract to the grantee (which doesn't exist) instead of the granter to the grantee.
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType int) {
@@ -1233,10 +1287,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: Failing
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("decreasing the allowance to zero should remove the token from the spend limit", func(callType int) {
@@ -1253,13 +1307,13 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, expCoins)
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: Failing for same reason
-				Entry(" - through contract", contractCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
 				// only supports the actual token denomination and doesn't know of other allowances.
-				//
+
 				// TODO: switch this around, have most test cases for only the token denom and then one special case for
 				// the network denom
+
+				// TODO: add contract tests
 			)
 
 			DescribeTable("decreasing the allowance below zero should return an error", func(callType int) {
@@ -1279,8 +1333,8 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, authzCoins)
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: It's expected to fail with "execution reverted" but fails for the wrong reason (see above)
-				Entry(" - through contract", contractCall),
+
+				// TODO: add contract tests
 			)
 		})
 
@@ -1300,11 +1354,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: failing for same reason
-				Entry(" - through contract", contractCall),
-				// FIXME: failing because of erc20 approval bug (see above)
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: add contract tests
 			)
 		})
 	})
