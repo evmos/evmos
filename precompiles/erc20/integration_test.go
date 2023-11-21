@@ -194,25 +194,22 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
-			DescribeTable("it should return an error if no allowance exists", func(callType int) {
+			DescribeTable("it should return zero if no allowance exists", func(callType int) {
 				grantee := s.keyring.GetAddr(1)
 				granter := sender
 
 				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
-				noAuthzCheck := failCheck.WithErrContains(
-					fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
-				)
-				if callType == contractCall {
-					noAuthzCheck = execRevertedCheck
-				}
-
-				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
-				// FIXME: other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
@@ -240,25 +237,22 @@ var _ = Describe("ERC20 Extension -", func() {
 				// only supports the actual token denomination and doesn't know of other allowances.
 			)
 
-			DescribeTable("it should return an error if the account does not exist", func(callType int) {
+			DescribeTable("it should return zero if the account does not exist", func(callType int) {
 				grantee := utiltx.GenerateAddress()
 				granter := sender
 
 				txArgs, allowanceArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter.Addr, grantee)
 
-				noAuthzCheck := failCheck.WithErrContains(
-					fmt.Sprintf(auth.ErrAuthzDoesNotExistOrExpired, erc20.SendMsgURL, grantee.String()),
-				)
-				if callType == contractCall {
-					noAuthzCheck = execRevertedCheck
-				}
-
-				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, noAuthzCheck)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
-				// FIXME: Other than the extension, the ERC20 contract doesn't return an error but returns a zero allowance
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
