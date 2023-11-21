@@ -174,10 +174,6 @@ func (r RawPacketMetadata) String() string {
 	return string(jsonBytes)
 }
 
-func ValidateReceiver(receiver string, evmosPrefix string) error {
-	return nil
-}
-
 // CreateOnFailedDeliveryField is an utility function to create the memo field
 // onFailedDelivery. The returned string is the bech32 of the receiver input
 // or "do_nothing".

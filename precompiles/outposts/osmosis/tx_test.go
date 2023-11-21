@@ -27,7 +27,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 	senderAddress := utiltx.GenerateAddress()
 	sender := sdktypes.AccAddress(senderAddress.Bytes())
 	randomAddress := utiltx.GenerateAddress()
-	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
+	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7" //nolint:goconst
 
 	method := s.precompile.Methods[osmosis.SwapMethod]
 	testCases := []struct {
