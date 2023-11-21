@@ -60,7 +60,7 @@ func (p Precompile) RunSetup(
 
 	// Simplify the calldata checks
 	isEmptyCallData := len(contract.Input) == 0
-	isShortCallData := len(contract.Input) < 4
+	isShortCallData := len(contract.Input) > 0 && len(contract.Input) < 4
 	isStandardCallData := len(contract.Input) >= 4
 
 	switch {
