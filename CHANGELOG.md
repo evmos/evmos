@@ -93,6 +93,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
 - (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test 
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
+- (distribution) [#2054](https://github.com/evmos/evmos/pull/2054) Change the validator address in the events from string type to address type.
 - (staking) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
 - (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
 - (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
