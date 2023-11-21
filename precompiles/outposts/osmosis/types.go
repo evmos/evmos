@@ -9,7 +9,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	evmosconfig "github.com/evmos/evmos/v15/cmd/config"
 	"github.com/evmos/evmos/v15/utils"
 	"golang.org/x/exp/slices"
 
@@ -108,11 +107,7 @@ func (m Memo) Validate() error {
 	}
 
 	// Check if account is a valid bech32 address
-	bech32Prefix, _, err := cosmosbech32.DecodeAndConvert(osmosisSwap.Receiver)
-	if err != nil {
-		return fmt.Errorf(ErrReceiverAddress, err)
-	}
-	if bech32Prefix != evmosconfig.Bech32Prefix {
+	if _, err := sdk.AccAddressFromBech32(osmosisSwap.Receiver); err != nil {
 		return fmt.Errorf(ErrReceiverAddress, "not a valid evmos address")
 	}
 

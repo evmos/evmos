@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
@@ -223,7 +222,6 @@ func TestParseSwapPacketData(t *testing.T) {
 func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
-	// receiver := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
@@ -260,7 +258,7 @@ func TestValidateMemo(t *testing.T) {
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
-			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "decoding bech32 failed:"),
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			name:               "fail - empty receiver",
 			receiver:           "",
@@ -268,7 +266,7 @@ func TestValidateMemo(t *testing.T) {
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
-			errContains:        fmt.Sprint(bech32.ErrInvalidLength(len("")).Error()),
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,

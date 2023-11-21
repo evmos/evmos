@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: "invalid separator",
+			errContains: fmt.Sprintf(osmosis.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			//  THIS PANICS INSIDE CheckAuthzExists
 			name:   "fail - origin different from address caller",
