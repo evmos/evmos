@@ -167,7 +167,7 @@ func (p Precompile) standardCallData(contract *vm.Contract) (method *abi.Method,
 
 	// Case 3.2: calldata contains a non-existing method ID - 'fallback' is called if present
 	if err != nil && p.HasFallback() {
-		return method, nil
+		return &p.Fallback, nil
 	}
 
 	return method, nil
