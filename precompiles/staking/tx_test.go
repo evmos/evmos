@@ -183,7 +183,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			"invalid type for",
 		},
 		{
-			"fail - invalid pubkey",
+			"fail - pubkey decoding error",
 			func() []interface{} {
 				return []interface{}{
 					description,
@@ -198,7 +198,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			200000,
 			func(data []byte) {},
 			true,
-			"",
+			"illegal base64 data",
 		},
 		{
 			"fail - invalid value",
@@ -276,6 +276,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
+				s.Require().Nil(validator)
 			} else {
 				s.Require().NoError(err)
 				s.Require().NotNil(validator, "expected validator not to be nil")
