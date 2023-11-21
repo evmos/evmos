@@ -134,7 +134,7 @@ func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB
 		return err
 	}
 
-	topics, err := p.createCreateValidatorTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
+	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,7 @@ func (p Precompile) EmitDelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *
 
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeDelegate]
-	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, msg.ValidatorAddress)
+	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -194,9 +194,14 @@ func (p Precompile) EmitDelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *
 
 // EmitUnbondEvent creates a new unbond event emitted on an Undelegate transaction.
 func (p Precompile) EmitUnbondEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgUndelegate, delegatorAddr common.Address, completionTime int64) error {
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return err
+	}
+
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeUnbond]
-	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, msg.ValidatorAddress)
+	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -218,14 +223,24 @@ func (p Precompile) EmitUnbondEvent(ctx sdk.Context, stateDB vm.StateDB, msg *st
 
 // EmitRedelegateEvent creates a new redelegate event emitted on a Redelegate transaction.
 func (p Precompile) EmitRedelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgBeginRedelegate, delegatorAddr common.Address, completionTime int64) error {
-	// Prepare the event topics
-	event := p.ABI.Events[EventTypeRedelegate]
-	topics, err := p.createStakingTxTopics(4, event, delegatorAddr, msg.ValidatorSrcAddress)
+	valSrcAddr, err := sdk.ValAddressFromBech32(msg.ValidatorSrcAddress)
 	if err != nil {
 		return err
 	}
 
-	topics[3], err = cmn.MakeTopic(msg.ValidatorDstAddress)
+	valDstAddr, err := sdk.ValAddressFromBech32(msg.ValidatorDstAddress)
+	if err != nil {
+		return err
+	}
+
+	// Prepare the event topics
+	event := p.ABI.Events[EventTypeRedelegate]
+	topics, err := p.createStakingTxTopics(4, event, delegatorAddr, common.BytesToAddress(valSrcAddr.Bytes()))
+	if err != nil {
+		return err
+	}
+
+	topics[3], err = cmn.MakeTopic(common.BytesToAddress(valDstAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -247,9 +262,14 @@ func (p Precompile) EmitRedelegateEvent(ctx sdk.Context, stateDB vm.StateDB, msg
 
 // EmitCancelUnbondingDelegationEvent creates a new cancel unbonding delegation event emitted on a CancelUnbondingDelegation transaction.
 func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgCancelUnbondingDelegation, delegatorAddr common.Address) error {
+	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	if err != nil {
+		return err
+	}
+
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeCancelUnbondingDelegation]
-	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, msg.ValidatorAddress)
+	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -269,31 +289,8 @@ func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB 
 	return nil
 }
 
-// createStakingTxTopics creates the topics for staking transactions Delegate, Undelegate, Redelegate and CancelUnbondingDelegation.
-func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, delegatorAddr common.Address, validatorAddr string) ([]common.Hash, error) {
-	topics := make([]common.Hash, topicsLen)
-	// NOTE: If your solidity event contains indexed event types, then they become a topic rather than part of the data property of the log.
-	// In solidity you may only have up to 4 topics but only 3 indexed event types. The first topic is always the signature of the event.
-
-	// The first topic is always the signature of the event.
-	topics[0] = event.ID
-
-	var err error
-	topics[1], err = cmn.MakeTopic(delegatorAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	topics[2], err = cmn.MakeTopic(validatorAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	return topics, nil
-}
-
-// createCreateValidatorTxTopics creates the topics for staking transactions CreateValidator.
-func (p Precompile) createCreateValidatorTxTopics(topicsLen uint64, event abi.Event, delegatorAddr common.Address, validatorAddr common.Address) ([]common.Hash, error) {
+// createStakingTxTopics creates the topics for staking transactions CreateValidator, Delegate, Undelegate, Redelegate and CancelUnbondingDelegation.
+func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, delegatorAddr common.Address, validatorAddr common.Address) ([]common.Hash, error) {
 	topics := make([]common.Hash, topicsLen)
 	// NOTE: If your solidity event contains indexed event types, then they become a topic rather than part of the data property of the log.
 	// In solidity you may only have up to 4 topics but only 3 indexed event types. The first topic is always the signature of the event.

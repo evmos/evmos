@@ -23,7 +23,7 @@ import (
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	NewShares        *big.Int
 }
@@ -31,7 +31,7 @@ type EventDelegate struct {
 // EventUnbond defines the event data for the staking Undelegate transaction.
 type EventUnbond struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CompletionTime   *big.Int
 }
@@ -39,8 +39,8 @@ type EventUnbond struct {
 // EventRedelegate defines the event data for the staking Redelegate transaction.
 type EventRedelegate struct {
 	DelegatorAddress    common.Address
-	ValidatorSrcAddress common.Hash
-	ValidatorDstAddress common.Hash
+	ValidatorSrcAddress common.Address
+	ValidatorDstAddress common.Address
 	Amount              *big.Int
 	CompletionTime      *big.Int
 }
@@ -48,7 +48,7 @@ type EventRedelegate struct {
 // EventCancelUnbonding defines the event data for the staking CancelUnbond transaction.
 type EventCancelUnbonding struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CreationHeight   *big.Int
 }
