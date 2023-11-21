@@ -1,0 +1,16 @@
+diff --git a/utils/admins.go b/utils/admins.go
+index 4a48a394..759bd8ca 100644
+--- a/utils/admins.go
++++ b/utils/admins.go
+@@ -3,4 +3,11 @@ package utils
+ var Admins = map[string]bool{
+ 	"stride1k8c2m5cn322akk5wy8lpt87dd2f4yh9azg7jlh": true, // F5
+ 	"stride10d07y265gmmuvt4z0w9aw880jnsr700jefnezl": true, // gov module
++	// Register the accounts used in the tests as admins
++	// so we can perform transactions without the need of a gov
++	// proposal
++	"stride1n8fnlazhatn7n68xul2cqn6gfqfdsj5u739754": true, // validator
++	"stride1ecmf7dka6354q2mjq7ajk5zr90zhmjzt3gchwg": true, // community
++	"stride1dujgxlvdyf2swd3nqjsxgzndqlf0jq9k5z3a42": true, // signer1
++	"stride1tctknvd48jf4ztsxpgfe85gkd493npn8qne947": true, // signer2
+ }

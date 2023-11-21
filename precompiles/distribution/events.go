@@ -93,6 +93,11 @@ func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.Stat
 
 // EmitWithdrawDelegatorRewardsEvent creates a new event emitted on a WithdrawDelegatorRewards transaction.
 func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, delegatorAddress common.Address, validatorAddress string, coins sdk.Coins) error {
+	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
+	if err != nil {
+		return err
+	}
+
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeWithdrawDelegatorRewards]
 	topics := make([]common.Hash, 3)
@@ -100,13 +105,12 @@ func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB v
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
 
-	var err error
 	topics[1], err = cmn.MakeTopic(delegatorAddress)
 	if err != nil {
 		return err
 	}
 
-	topics[2], err = cmn.MakeTopic(validatorAddress)
+	topics[2], err = cmn.MakeTopic(common.BytesToAddress(valAddr.Bytes()))
 	if err != nil {
 		return err
 	}
