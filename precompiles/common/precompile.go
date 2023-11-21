@@ -53,20 +53,67 @@ func (p Precompile) RunSetup(
 
 	// NOTE: This is a special case where the calling transaction does not specify a function name.
 	// In this case we default to a `fallback` or `receive` function on the contract.
-	if len(contract.Input) != 0 {
+
+	// Check if the fallback or receive functions are present in the ABI
+	isFallbackPresent := p.HasFallback()
+	isReceivePresent := p.HasReceive()
+
+	// Simplify the calldata checks
+	isEmptyCallData := len(contract.Input) == 0
+	isShortCallData := len(contract.Input) < 4
+	isStandardCallData := len(contract.Input) >= 4
+
+	switch {
+	// Case 1: Calldata is empty
+	case isEmptyCallData:
+		switch {
+		// Case 1.1: Send call or transfer tx - 'receive' is called if present and value is transferred
+		case contract.Value().Sign() > 0 && isReceivePresent:
+			method = &p.Receive
+		// Case 1.2: Either 'receive' is not present, or no value is transferred - call 'fallback' if present
+		case isFallbackPresent:
+			method = &p.Fallback
+		// Case 1.3: Neither 'receive' nor 'fallback' are present - return error
+		default:
+			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
+		}
+
+	// Case 2: calldata is non-empty but less than 4 bytes needed for a method
+	case isShortCallData:
+		switch isFallbackPresent {
+		// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
+		case true:
+			method = &p.Fallback
+		// Case 2.2: calldata contains less than 4 bytes needed for a method and 'fallback' is not present - return error
+		case false:
+			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
+		}
+
+	// Case 3: calldata is non-empty and contains the minimum 4 bytes needed for a method
+	case isStandardCallData:
 		methodID := contract.Input[:4]
 		// NOTE: this function iterates over the method map and returns
 		// the method with the given ID
 		method, err = p.MethodById(methodID)
-		if err != nil {
+
+		// Case 3.1: calldata contains a non-existing method ID - 'fallback' is called if present
+		if err != nil && isFallbackPresent {
+			method = &p.Fallback
+		}
+
+		// Case 3.2 calldata contains a non-existing method ID, and `fallback` is not present - return error
+		if err != nil && !isFallbackPresent {
 			return sdk.Context{}, nil, nil, uint64(0), nil, err
 		}
+	}
 
-		// return error if trying to write to state during a read-only call
-		if readOnly && isTransaction(method.Name) {
-			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrWriteProtection
-		}
+	// return error if trying to write to state during a read-only call
+	if readOnly && isTransaction(method.Name) {
+		return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrWriteProtection
+	}
 
+	// if the method type is `function` continue looking for arguments
+	if method.Type == abi.Function {
 		argsBz := contract.Input[4:]
 		args, err = method.Inputs.Unpack(argsBz)
 		if err != nil {
