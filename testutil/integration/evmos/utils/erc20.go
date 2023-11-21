@@ -63,7 +63,10 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	}
 	fmt.Printf("Proposal status: %s\n", proposalRes.Proposal.Status)
 
-	network.NextBlock()
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
 
 	// Vote on proposal
 	msgVote := govtypes.NewMsgVote(

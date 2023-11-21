@@ -93,10 +93,10 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 		//// contracts adhering to ERC-6093. It should be checked how to correctly expected these errors
 		//// in the integration tests.
 		//// FIXME: adjust this
-		//unwrappedErr := UnwrapErrors(err)
+		// unwrappedErr := UnwrapErrors(err)
 		//
 		//// check if the error is a RevertError with a reason
-		//if revertErr, ok := unwrappedErr.(*evmtypes.RevertError); ok {
+		// if revertErr, ok := unwrappedErr.(*evmtypes.RevertError); ok {
 		//	// will remove this, just checking which errors are available at this point
 		//	for errName, availableErr := range callArgs.ContractABI.Errors {
 		//		fmt.Println("err name:", errName)
@@ -117,7 +117,7 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 		//		return abcitypes.ResponseDeliverTx{}, nil, err
 		//	}
 		//	fmt.Println("Revert reason:", reason)
-		//}
+		// }
 
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
