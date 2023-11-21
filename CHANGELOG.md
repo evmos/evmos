@@ -89,9 +89,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
 - (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
 - (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
+- (staking) [#2046](https://github.com/evmos/evmos/pull/2046) Format any type ConsensusPubkey into a base64 string.
 - (bank) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
 - (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test 
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
+- (distribution) [#2054](https://github.com/evmos/evmos/pull/2054) Change the validator address in the events from string type to address type.
+- (staking) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
 - (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
 - (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
 - (osmosis-outpost) [#202063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
