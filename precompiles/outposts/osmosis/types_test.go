@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
@@ -15,6 +14,8 @@ import (
 
 func TestCreatePacketWithMemo(t *testing.T) {
 	t.Parallel()
+
+	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 
 	testCases := []struct {
 		name               string
@@ -30,7 +31,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		{
 			name:               "pass - correct string without memo",
 			outputDenom:        "aevmos",
-			receiver:           "receiver",
+			receiver:           receiver,
 			contract:           "contract",
 			slippagePercentage: 10,
 			windowSeconds:      30,
@@ -41,7 +42,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		{
 			name:               "pass - correct string with memo",
 			outputDenom:        "aevmos",
-			receiver:           "receiver",
+			receiver:           receiver,
 			contract:           "contract",
 			slippagePercentage: 10,
 			windowSeconds:      30,
@@ -80,13 +81,13 @@ func TestCreatePacketWithMemo(t *testing.T) {
 func TestParseSwapPacketData(t *testing.T) {
 	t.Parallel()
 
-	testSender := common.HexToAddress("sender")
-	testInput := common.HexToAddress("input")
-	testOutput := common.HexToAddress("output")
-	testAmount := big.NewInt(3)
-	testSlippagePercentage := uint8(10)
-	testWindowSeconds := uint64(20)
-	testReceiver := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
+	sender := common.HexToAddress("sender")
+	input := common.HexToAddress("input")
+	output := common.HexToAddress("output")
+	amount := big.NewInt(3)
+	slippagePercentage := uint8(10)
+	windowSeconds := uint64(20)
+	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 
 	testCases := []struct {
 		name        string
@@ -97,90 +98,90 @@ func TestParseSwapPacketData(t *testing.T) {
 		{
 			name: "pass - valid payload",
 			args: []interface{}{
-				testSender,
-				testInput,
-				testOutput,
-				testAmount,
-				testSlippagePercentage,
-				testWindowSeconds,
-				testReceiver,
+				sender,
+				input,
+				output,
+				amount,
+				slippagePercentage,
+				windowSeconds,
+				receiver,
 			},
 			expPass: true,
 		}, {
 			name: "fail - wrong sender type",
 			args: []interface{}{
 				"sender",
-				testInput,
-				testOutput,
-				testAmount,
-				testSlippagePercentage,
-				testWindowSeconds,
-				testReceiver,
+				input,
+				output,
+				amount,
+				slippagePercentage,
+				windowSeconds,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for sender: expected common.Address, received string",
 		}, {
 			name: "fail - wrong input type",
 			args: []interface{}{
-				testSender,
+				sender,
 				"input",
-				testOutput,
-				testAmount,
-				testSlippagePercentage,
-				testWindowSeconds,
-				testReceiver,
+				output,
+				amount,
+				slippagePercentage,
+				windowSeconds,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for input: expected common.Address, received string",
 		}, {
 			name: "fail - wrong output type",
 			args: []interface{}{
-				testSender,
-				testInput,
+				sender,
+				input,
 				"output",
-				testAmount,
-				testSlippagePercentage,
-				testWindowSeconds,
-				testReceiver,
+				amount,
+				slippagePercentage,
+				windowSeconds,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for output: expected common.Address, received string",
 		}, {
 			name: "fail - wrong amount type",
 			args: []interface{}{
-				testSender,
-				testInput,
-				testOutput,
+				sender,
+				input,
+				output,
 				3,
-				testSlippagePercentage,
-				testWindowSeconds,
-				testReceiver,
+				slippagePercentage,
+				windowSeconds,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for amount: expected big.Int, received int",
 		}, {
 			name: "fail - wrong slippage percentage type",
 			args: []interface{}{
-				testSender,
-				testInput,
-				testOutput,
-				testAmount,
+				sender,
+				input,
+				output,
+				amount,
 				10,
-				testWindowSeconds,
-				testReceiver,
+				windowSeconds,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for slippagePercentage: expected uint8, received int",
 		}, {
 			name: "fail - wrong window seconds type",
 			args: []interface{}{
-				testSender,
-				testInput,
-				testOutput,
-				testAmount,
-				testSlippagePercentage,
+				sender,
+				input,
+				output,
+				amount,
+				slippagePercentage,
 				uint16(20),
-				testReceiver,
+				receiver,
 			},
 			expPass:     false,
 			errContains: "invalid type for windowSeconds: expected uint64, received uint16",
@@ -200,13 +201,13 @@ func TestParseSwapPacketData(t *testing.T) {
 				require.Equal(
 					t,
 					osmosisoutpost.SwapPacketData{
-						Sender:             testSender,
-						Input:              testInput,
-						Output:             testOutput,
-						Amount:             testAmount,
-						SlippagePercentage: testSlippagePercentage,
-						WindowSeconds:      testWindowSeconds,
-						SwapReceiver:       testReceiver,
+						Sender:             sender,
+						Input:              input,
+						Output:             output,
+						Amount:             amount,
+						SlippagePercentage: slippagePercentage,
+						WindowSeconds:      windowSeconds,
+						SwapReceiver:       receiver,
 					},
 					swapPacketData,
 				)
@@ -221,7 +222,7 @@ func TestParseSwapPacketData(t *testing.T) {
 func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
-	receiver := "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5"
+	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
@@ -243,13 +244,29 @@ func TestValidateMemo(t *testing.T) {
 			windowSeconds:      windowSeconds,
 			expPass:            true,
 		}, {
+			name:               "fail - not evmos bech32",
+			receiver:           "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "not a valid evmos address"),
+		}, {
+			name:               "fail - not bech32",
+			receiver:           "cosmos",
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "not a valid evmos address"),
+		}, {
 			name:               "fail - empty receiver",
 			receiver:           "",
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
 			expPass:            false,
-			errContains:        fmt.Sprint(bech32.ErrInvalidLength(len("")).Error()),
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
