@@ -54,10 +54,6 @@ func (p Precompile) RunSetup(
 	// NOTE: This is a special case where the calling transaction does not specify a function name.
 	// In this case we default to a `fallback` or `receive` function on the contract.
 
-	// Check if the fallback or receive functions are present in the ABI
-	isFallbackPresent := p.HasFallback()
-	isReceivePresent := p.HasReceive()
-
 	// Simplify the calldata checks
 	isEmptyCallData := len(contract.Input) == 0
 	isShortCallData := len(contract.Input) > 0 && len(contract.Input) < 4
@@ -67,43 +63,22 @@ func (p Precompile) RunSetup(
 	switch {
 	// Case 1: Calldata is empty
 	case isEmptyCallData:
-		switch {
-		// Case 1.1: Send call or transfer tx - 'receive' is called if present and value is transferred
-		case contract.Value().Sign() > 0 && isReceivePresent:
-			method = &p.Receive
-		// Case 1.2: Either 'receive' is not present, or no value is transferred - call 'fallback' if present
-		case isFallbackPresent:
-			method = &p.Fallback
-		// Case 1.3: Neither 'receive' nor 'fallback' are present - return error
-		default:
-			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
+		method, err = p.emptyCallData(contract)
+		if err != nil {
+			return sdk.Context{}, nil, nil, uint64(0), nil, err
 		}
 
 	// Case 2: calldata is non-empty but less than 4 bytes needed for a method
 	case isShortCallData:
-		switch isFallbackPresent {
-		// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
-		case true:
-			method = &p.Fallback
-		// Case 2.2: calldata contains less than 4 bytes needed for a method and 'fallback' is not present - return error
-		case false:
-			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
+		method, err = p.methodIDCallData()
+		if err != nil {
+			return sdk.Context{}, nil, nil, uint64(0), nil, err
 		}
 
 	// Case 3: calldata is non-empty and contains the minimum 4 bytes needed for a method
 	case isStandardCallData:
-		methodID := contract.Input[:4]
-		// NOTE: this function iterates over the method map and returns
-		// the method with the given ID
-		method, err = p.MethodById(methodID)
-
-		// Case 3.1: calldata contains a non-existing method ID - 'fallback' is called if present
-		if err != nil && isFallbackPresent {
-			method = &p.Fallback
-		}
-
-		// Case 3.2 calldata contains a non-existing method ID, and `fallback` is not present - return error
-		if err != nil && !isFallbackPresent {
+		method, err = p.standardCallData(contract)
+		if err != nil {
 			return sdk.Context{}, nil, nil, uint64(0), nil, err
 		}
 	}
@@ -158,4 +133,55 @@ func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas sdk.Gas, 
 			}
 		}
 	}
+}
+
+// emptyCallData is a helper function that returns the method to be called when the calldata is empty.
+func (p Precompile) emptyCallData(contract *vm.Contract) (method *abi.Method, err error) {
+	switch {
+	// Case 1.1: Send call or transfer tx - 'receive' is called if present and value is transferred
+	case contract.Value().Sign() > 0 && p.HasReceive():
+		method = &p.Receive
+	// Case 1.2: Either 'receive' is not present, or no value is transferred - call 'fallback' if present
+	case p.HasFallback():
+		method = &p.Fallback
+	// Case 1.3: Neither 'receive' nor 'fallback' are present - return error
+	default:
+		return nil, vm.ErrExecutionReverted
+	}
+
+	return method, nil
+}
+
+// methodIDCallData is a helper function that returns the method to be called when the calldata is less than 4 bytes.
+func (p Precompile) methodIDCallData() (method *abi.Method, err error) {
+	switch p.HasFallback() {
+	// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
+	case true:
+		method = &p.Fallback
+	// Case 2.2: calldata contains less than 4 bytes needed for a method and 'fallback' is not present - return error
+	case false:
+		return nil, vm.ErrExecutionReverted
+	}
+
+	return method, nil
+}
+
+// standardCallData is a helper function that returns the method to be called when the calldata is 4 bytes or more.
+func (p Precompile) standardCallData(contract *vm.Contract) (method *abi.Method, err error) {
+	methodID := contract.Input[:4]
+	// NOTE: this function iterates over the method map and returns
+	// the method with the given ID
+	method, err = p.MethodById(methodID)
+
+	// Case 3.1: calldata contains a non-existing method ID - 'fallback' is called if present
+	if err != nil && p.HasFallback() {
+		method = &p.Fallback
+	}
+
+	// Case 3.2 calldata contains a non-existing method ID, and `fallback` is not present - return error
+	if err != nil && !p.HasFallback() {
+		return nil, err
+	}
+
+	return method, err
 }
