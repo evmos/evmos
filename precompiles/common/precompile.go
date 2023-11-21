@@ -63,23 +63,18 @@ func (p Precompile) RunSetup(
 	// Case 1: Calldata is empty
 	case isEmptyCallData:
 		method, err = p.emptyCallData(contract)
-		if err != nil {
-			return sdk.Context{}, nil, nil, uint64(0), nil, err
-		}
 
 	// Case 2: calldata is non-empty but less than 4 bytes needed for a method
 	case isShortCallData:
 		method, err = p.methodIDCallData()
-		if err != nil {
-			return sdk.Context{}, nil, nil, uint64(0), nil, err
-		}
 
 	// Case 3: calldata is non-empty and contains the minimum 4 bytes needed for a method
 	case isStandardCallData:
 		method, err = p.standardCallData(contract)
-		if err != nil {
-			return sdk.Context{}, nil, nil, uint64(0), nil, err
-		}
+	}
+
+	if err != nil {
+		return sdk.Context{}, nil, nil, uint64(0), nil, err
 	}
 
 	// return error if trying to write to state during a read-only call
@@ -152,16 +147,12 @@ func (p Precompile) emptyCallData(contract *vm.Contract) (method *abi.Method, er
 
 // methodIDCallData is a helper function that returns the method to be called when the calldata is less than 4 bytes.
 func (p Precompile) methodIDCallData() (method *abi.Method, err error) {
-	switch p.HasFallback() {
-	// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
-	case true:
-		method = &p.Fallback
 	// Case 2.2: calldata contains less than 4 bytes needed for a method and 'fallback' is not present - return error
-	case false:
+	if !p.HasFallback() {
 		return nil, vm.ErrExecutionReverted
 	}
-
-	return method, nil
+	// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
+	return &p.Fallback, nil
 }
 
 // standardCallData is a helper function that returns the method to be called when the calldata is 4 bytes or more.
@@ -171,15 +162,15 @@ func (p Precompile) standardCallData(contract *vm.Contract) (method *abi.Method,
 	// the method with the given ID
 	method, err = p.MethodById(methodID)
 
-	// Case 3.1: calldata contains a non-existing method ID - 'fallback' is called if present
-	if err != nil && p.HasFallback() {
-		method = &p.Fallback
-	}
-
-	// Case 3.2 calldata contains a non-existing method ID, and `fallback` is not present - return error
+	// Case 3.1 calldata contains a non-existing method ID, and `fallback` is not present - return error
 	if err != nil && !p.HasFallback() {
 		return nil, err
 	}
 
-	return method, err
+	// Case 3.2: calldata contains a non-existing method ID - 'fallback' is called if present
+	if err != nil && p.HasFallback() {
+		return method, nil
+	}
+
+	return method, nil
 }
