@@ -89,6 +89,10 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
 	}
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
 
 	// Check if proposal passed
 	proposalRes, err = gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
