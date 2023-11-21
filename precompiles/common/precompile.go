@@ -60,9 +60,10 @@ func (p Precompile) RunSetup(
 
 	// Simplify the calldata checks
 	isEmptyCallData := len(contract.Input) == 0
-	isShortCallData := len(contract.Input) < 4
+	isShortCallData := len(contract.Input) > 0 && len(contract.Input) < 4
 	isStandardCallData := len(contract.Input) >= 4
 
+	fmt.Println(isEmptyCallData, isShortCallData, isStandardCallData)
 	switch {
 	// Case 1: Calldata is empty
 	case isEmptyCallData:
@@ -133,6 +134,7 @@ func (p Precompile) RunSetup(
 	// we need to consume the gas that was already used by the EVM
 	ctx.GasMeter().ConsumeGas(initialGas, "creating a new gas meter")
 
+	fmt.Println(method.Type)
 	return ctx, stateDB, method, initialGas, args, nil
 }
 

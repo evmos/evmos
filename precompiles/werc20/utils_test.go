@@ -1,10 +1,15 @@
 package werc20_test
 
 import (
+	"math/big"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -57,4 +62,20 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(
 	callArgs.Args = args
 
 	return txArgs, callArgs
+}
+
+func (s *PrecompileTestSuite) checkBalances(failCheck testutil.LogCheckArgs, sender keyring.Key, contractData ContractData) {
+	balanceCheck := failCheck.WithExpPass(true)
+	txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
+
+	_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
+	s.Require().NoError(err, "failed to call contract")
+
+	// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
+	balanceAfter := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sender.AccAddr, s.bondDenom)
+
+	var erc20Balance *big.Int
+	err = s.precompile.UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
+	s.Require().NoError(err, "failed to unpack result")
+	s.Require().Equal(erc20Balance, balanceAfter.Amount.BigInt(), "expected different balance")
 }

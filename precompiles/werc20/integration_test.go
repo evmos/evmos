@@ -4,7 +4,6 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/werc20"
 	"github.com/evmos/evmos/v15/precompiles/werc20/testdata"
@@ -83,85 +82,112 @@ var _ = Describe("WEVMOS Extension -", func() {
 	})
 
 	Context("WEVMOS specific functions", func() {
-		It("calling with no function specified, should call fallback - should emit the Deposit event but not modify the balance", func() {
-			sender := s.keyring.GetKey(0)
+		When("calling deposit and withdraw correctly", func() {
+			It("calling deposit - should emit the Deposit event but not modify the balance", func() {
+				sender := s.keyring.GetKey(0)
 
-			depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
-			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "")
-			txArgs.Amount = big.NewInt(1e18)
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgs.Amount = big.NewInt(1e18)
 
-			_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			balanceCheck := failCheck.WithExpPass(true)
-			txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
+				s.checkBalances(failCheck, sender, contractData)
+			})
 
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			It("calling withdraw - should emit the Withdrawal event but not modify the balance", func() {
+				// Calling withdraw method
+				sender := s.keyring.GetKey(0)
+				amount := big.NewInt(1e18)
 
-			// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
-			balanceAfter := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sender.AccAddr, s.bondDenom)
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
 
-			var erc20Balance *big.Int
-			err = s.precompile.UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
-			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(balanceAfter.Amount.BigInt()).To(Equal(erc20Balance), "expected different balance")
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
 		})
 
-		It("calling deposit - should emit the Deposit event but not modify the balance", func() {
-			sender := s.keyring.GetKey(0)
+		// TODO: How do we actually check the method types here? We can see the correct ones being populated in the
+		// by printing the line in the cmn.Precompile
+		When("calling with incomplete data or amount", func() {
+			It("calls with no function, no call data, with amount - should call `receive` ", func() {
+				sender := s.keyring.GetKey(0)
 
-			depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
-			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
-			txArgs.Amount = big.NewInt(1e18)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Amount = big.NewInt(1e18)
 
-			_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, callArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			balanceCheck := failCheck.WithExpPass(true)
-			txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				s.checkBalances(failCheck, sender, contractData)
+			})
 
-			// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
-			balanceAfter := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sender.AccAddr, s.bondDenom)
+			It("calls with no function, short call data, with amount -  should call `fallback` ", func() {
+				sender := s.keyring.GetKey(0)
 
-			var erc20Balance *big.Int
-			err = s.precompile.UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
-			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(balanceAfter.Amount.BigInt()).To(Equal(erc20Balance), "expected different balance")
-		})
+				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Input = []byte{1, 2, 3} // 3 dummy bytes
 
-		It("calling withdraw - should emit the Withdrawal event but not modify the balance", func() {
-			// Calling withdraw method
-			sender := s.keyring.GetKey(0)
-			amount := big.NewInt(1e18)
+				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
-			txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, withdrawCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				s.checkBalances(failCheck, sender, contractData)
+			})
 
-			balanceCheck := failCheck.WithExpPass(true)
-			txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractData, erc20.BalanceOfMethod, sender.Addr)
+			It("calls with no function, standard length call data, with amount - should call `fallback` ", func() {
+				sender := s.keyring.GetKey(0)
 
-			_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
-			Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Input = []byte{1, 2, 3, 4} // 4 dummy bytes needed for minimum length
 
-			// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
-			balanceAfter := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sender.AccAddr, s.bondDenom)
+				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-			var erc20Balance *big.Int
-			err = s.precompile.UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
-			Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-			Expect(balanceAfter.Amount.BigInt()).To(Equal(erc20Balance), "expected different balance")
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
+
+			It("calls with no function, standard length call data, no amount -  should call `fallback` ", func() {
+				sender := s.keyring.GetKey(0)
+
+				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Input = []byte{1, 2, 3, 4} // 4 dummy bytes needed for minimum length
+
+				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
 		})
 	})
 
 	// TODO: Add more granular cases but don't want to just confirm the same functionality as ERC20 tests.
-	//Context("ERC20 specific functions", func() {
+	// Context("ERC20 specific functions", func() {
 	//	When("querying balance", func() {
 	//		DescribeTable("it should return an existing balance", func(callType int) {
 	//			Entry("direct WERC20 contract call", func() {})
