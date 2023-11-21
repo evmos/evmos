@@ -256,44 +256,30 @@ def register_host_zone(
     """
     Register a Host Zone in Stride Chain.
     This helper function submits the corresponding
-    governance proposal, votes it, wait till it passes
-    and checks that the host zone was registered successfully
+    transaction and checks that the host zone
+    was registered successfully
     """
     prev_registered_zones = len(stride.cosmos_cli().get_host_zones())
 
-    msg = stride.cosmos_cli().register_host_zone_msg(
+    rsp = stride.cosmos_cli().register_host_zone_msg(
+        proposer,
         connection_id,
         host_denom,
         bech32_prefix,
         ibc_denom,
         channel_id,
         unbonding_frequency,
+        0,
+        gas=700000,
     )
-    proposal = {
-        "messages": [msg],
-        "deposit": "1ustrd",
-        "title": f"Register {bech32_prefix} zone",
-        "summary": f"Proposal to register {bech32_prefix} zone",
-    }
-    with tempfile.NamedTemporaryFile("w") as proposal_file:
-        json.dump(proposal, proposal_file)
-        proposal_file.flush()
-        rsp = stride.cosmos_cli().gov_proposal(proposer, proposal_file.name)
-        assert rsp["code"] == 0, rsp["raw_log"]
-        txhash = rsp["txhash"]
+    assert rsp["code"] == 0, rsp["raw_log"]
+    txhash = rsp["txhash"]
 
+    # check the tx receipt to confirm was successful
     wait_for_new_blocks(stride.cosmos_cli(), 2)
     receipt = stride.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
-    proposal_id = get_event_attribute_value(
-        receipt["tx_result"]["events"],
-        "submit_proposal",
-        "proposal_id",
-    )
-    assert int(proposal_id) > 0
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(stride, proposal_id, gas_prices="2000000ustrd")
+    assert receipt["tx_result"]["code"] == 0
 
-    # query token pairs and get WEVMOS address
     updated_registered_zones = stride.cosmos_cli().get_host_zones()
     assert len(updated_registered_zones) == prev_registered_zones + 1
     return updated_registered_zones
@@ -473,6 +459,14 @@ def update_node_cmd(path, cmd, i):
         ini.write(fp)
 
 
+def update_evmosd_and_setup_stride(modified_bin):
+    def inner(path, base_port, config):
+        update_evmos_bin(modified_bin)(path, base_port, config)
+        setup_stride()(path, base_port, config)
+
+    return inner
+
+
 def update_evmos_bin(modified_bin, nodes=[0, 1]):
     """
     updates the evmos binary with a patched binary.
@@ -489,6 +483,17 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
         # need to update the bin in all these
         for i in nodes:
             update_node_cmd(path / chain_id, modified_bin, i)
+
+    return inner
+
+
+def setup_stride():
+    def inner(path, base_port, config):
+        chain_id = "stride-1"
+        base_dir = Path(path / chain_id)
+        os.environ["BASE_DIR"] = str(base_dir)
+        os.environ["BASE_PORT"] = str(base_port)
+        subprocess.run(["../../scripts/setup-stride.sh"], check=True)
 
     return inner
 
