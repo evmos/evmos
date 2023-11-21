@@ -9,7 +9,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	evmostypes "github.com/evmos/evmos/v15/types"
 )
@@ -29,8 +28,6 @@ var (
 func init() {
 	govv1beta1.RegisterProposalType(ProposalTypeRegisterIncentive)
 	govv1beta1.RegisterProposalType(ProposalTypeCancelIncentive)
-	govcdc.ModuleCdc.Amino.RegisterConcrete(&RegisterIncentiveProposal{}, "incentives/RegisterIncentiveProposal", nil)
-	govcdc.ModuleCdc.Amino.RegisterConcrete(&CancelIncentiveProposal{}, "incentives/CancelIncentiveProposal", nil)
 }
 
 // NewRegisterIncentiveProposal returns new instance of RegisterIncentiveProposal

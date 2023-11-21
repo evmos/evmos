@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 
 	"cosmossdk.io/log"
-	tmjson "github.com/cometbft/cometbft/libs/json"
-	tmquery "github.com/cometbft/cometbft/libs/pubsub/query"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
+	cmtquery "github.com/cometbft/cometbft/libs/pubsub/query"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -30,7 +30,7 @@ import (
 
 var (
 	txEvents  = cmttypes.QueryForEvent(cmttypes.EventTx).String()
-	evmEvents = tmquery.MustParse(fmt.Sprintf("%s='%s' AND %s.%s='%s'",
+	evmEvents = cmtquery.MustCompile(fmt.Sprintf("%s='%s' AND %s.%s='%s'",
 		cmttypes.EventTypeKey,
 		cmttypes.EventTx,
 		sdk.EventTypeMessage,
@@ -279,7 +279,7 @@ func (es *EventSystem) consumeEvents() {
 			if rpcResp.Error != nil {
 				time.Sleep(5 * time.Second)
 				continue
-			} else if err := tmjson.Unmarshal(rpcResp.Result, &ev); err != nil {
+			} else if err := cmtjson.Unmarshal(rpcResp.Result, &ev); err != nil {
 				es.logger.Error("failed to JSON unmarshal ResponsesCh result event", "error", err.Error())
 				continue
 			}

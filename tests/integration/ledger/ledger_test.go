@@ -184,7 +184,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					receiverAccAddr = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
-					cmd = bankcli.NewSendTxCmd()
+					cmd = bankcli.NewSendTxCmd(s.app.AccountKeeper.AddressCodec())
 					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
 					kr, clientCtx, ctx = s.NewKeyringAndCtxs(krHome, mockedIn, encCfg)

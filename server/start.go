@@ -38,7 +38,6 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	pruningtypes "cosmossdk.io/store/pruning/types"
-	"cosmossdk.io/tools/rosetta"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -48,6 +47,7 @@ import (
 	servercmtlog "github.com/cosmos/cosmos-sdk/server/log"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/rosetta"
 
 	"github.com/evmos/evmos/v15/cmd/evmosd/opendb"
 	"github.com/evmos/evmos/v15/indexer"

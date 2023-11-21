@@ -137,7 +137,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorS
 
 	// commit genesis changes
 	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
+	app.BeginBlocker(s.ctx)
 
 	s.app = app
 }
@@ -252,7 +252,7 @@ func (s *PrecompileTestSuite) CreateAuthorization(grantee common.Address, authzT
 			if validator.IsJailed() {
 				return
 			}
-			validators = append(validators, validator.GetOperator())
+			validators = append(validators, sdk.ValAddress(validator.GetOperator()))
 			return
 		},
 	)

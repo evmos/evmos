@@ -5,6 +5,7 @@ package network
 import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -59,7 +60,7 @@ func (n *IntegrationNetwork) GetInflationClient() infltypes.QueryClient {
 
 func (n *IntegrationNetwork) GetAuthClient() authtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	authtypes.RegisterQueryServer(queryHelper, n.app.AccountKeeper)
+	authtypes.RegisterQueryServer(queryHelper, authkeeper.NewQueryServer(n.app.AccountKeeper))
 	return authtypes.NewQueryClient(queryHelper)
 }
 

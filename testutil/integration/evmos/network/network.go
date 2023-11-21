@@ -170,7 +170,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
-	evmosApp.BeginBlock(abcitypes.RequestBeginBlock{Header: header})
+	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
+	evmosApp.BeginBlocker(n.ctx)
 
 	// Set networks global parameters
 	n.app = evmosApp

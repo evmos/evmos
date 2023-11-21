@@ -143,10 +143,9 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorS
 		tmhash.Sum([]byte("validators")),
 	)
 
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
-
 	// create Contexts
 	s.ctx = app.BaseApp.NewContextLegacy(false, header)
+	app.BeginBlocker(s.ctx)
 	s.app = app
 }
 

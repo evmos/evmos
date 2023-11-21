@@ -14,16 +14,20 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"cosmossdk.io/tools/rosetta"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/rosetta"
 	// NOT SUPPORTED IN SDK v0.50
 	// "github.com/crypto-org-chain/cronos/memiavl"
 	// memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
 )
 
 const (
+	// ServerStartTime defines the time duration that the server need to stay running after startup
+	// for the startup be considered successful
+	ServerStartTime = 5 * time.Second
+
 	// DefaultAPIEnable is the default value for the parameter that defines if the cosmos REST API server is enabled
 	DefaultAPIEnable = false
 
@@ -404,7 +408,7 @@ func DefaultRosettaConfig() *RosettaConfig {
 		Config: rosetta.Config{
 			Blockchain:          DefaultRosettaBlockchain,
 			Network:             DefaultRosettaNetwork,
-			TendermintRPC:       rosetta.DefaultTendermintEndpoint,
+			TendermintRPC:       rosetta.DefaultCometEndpoint,
 			GRPCEndpoint:        rosetta.DefaultGRPCEndpoint,
 			Addr:                rosetta.DefaultAddr,
 			Retries:             rosetta.DefaultRetries,

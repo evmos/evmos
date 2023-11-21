@@ -17,7 +17,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -122,12 +121,9 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *cmttypes.ValidatorS
 		tmhash.Sum([]byte("validators")),
 	)
 
-	app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
-
 	// create Context
 	s.ctx = app.BaseApp.NewContextLegacy(false, header)
+	app.BeginBlocker(s.ctx)
 	s.app = app
 }
 
@@ -245,7 +241,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 		s.Require().NoError(err)
 
 		// end block to bond validator and increase block height
-		sdkstaking.EndBlocker(s.ctx, &s.app.StakingKeeper)
+		s.app.StakingKeeper.EndBlocker(s.ctx)
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(math.NewInt(2))))
 		s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, r.Validator, allocatedRewards)

@@ -90,9 +90,9 @@ func decodeAminoSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	}
 
 	// Validate payload messages
-	msgs := make([]sdk.Msg, len(aminoDoc.Msgs))
+	msgs := make([]sdk.LegacyMsg, len(aminoDoc.Msgs))
 	for i, jsonMsg := range aminoDoc.Msgs {
-		var m sdk.Msg
+		var m sdk.LegacyMsg
 		if err := aminoCodec.UnmarshalJSON(jsonMsg, &m); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("failed to unmarshal sign doc message: %w", err)
 		}
@@ -152,16 +152,18 @@ func decodeProtobufSignDoc(signDocBytes []byte) (apitypes.TypedData, error) {
 	}
 
 	// Validate payload messages
+	legacyMsgs := make([]sdk.LegacyMsg, len(body.Messages))
 	msgs := make([]sdk.Msg, len(body.Messages))
 	for i, protoMsg := range body.Messages {
-		var m sdk.Msg
-		if err := protoCodec.UnpackAny(protoMsg, &m); err != nil {
+		var lm sdk.LegacyMsg
+		if err := protoCodec.UnpackAny(protoMsg, &lm); err != nil {
 			return apitypes.TypedData{}, fmt.Errorf("could not unpack message object with error %w", err)
 		}
-		msgs[i] = m
+		legacyMsgs[i] = lm
+		msgs[i] = lm
 	}
 
-	if err := validatePayloadMessages(msgs); err != nil {
+	if err := validatePayloadMessages(legacyMsgs); err != nil {
 		return apitypes.TypedData{}, err
 	}
 
@@ -211,7 +213,7 @@ func validateCodecInit() error {
 
 // validatePayloadMessages ensures that the transaction messages can be represented in an EIP-712
 // encoding by checking that messages exist and share a single signer.
-func validatePayloadMessages(msgs []sdk.Msg) error {
+func validatePayloadMessages(msgs []sdk.LegacyMsg) error {
 	if len(msgs) == 0 {
 		return errors.New("unable to build EIP-712 payload: transaction does contain any messages")
 	}

@@ -613,29 +613,6 @@ func (suite *KeeperTestSuite) TestClawbackVestingAccountStore() {
 	suite.Require().Equal(acc.String(), acc2.String())
 }
 
-func (suite *KeeperTestSuite) TestClawbackVestingAccountMarshal() {
-	suite.SetupTest()
-
-	// Create and set clawback vesting account
-	vestingStart := s.ctx.BlockTime()
-	funder := sdk.AccAddress(types.ModuleName)
-	addr := sdk.AccAddress(utiltx.GenerateAddress().Bytes())
-	baseAccount := authtypes.NewBaseAccountWithAddress(addr)
-	acc := types.NewClawbackVestingAccount(baseAccount, funder, balances, vestingStart, lockupPeriods, vestingPeriods)
-
-	bz, err := suite.app.AccountKeeper.MarshalAccount(acc)
-	suite.Require().NoError(err)
-
-	acc2, err := suite.app.AccountKeeper.UnmarshalAccount(bz)
-	suite.Require().NoError(err)
-	suite.Require().IsType(&types.ClawbackVestingAccount{}, acc2)
-	suite.Require().Equal(acc.String(), acc2.String())
-
-	// error on bad bytes
-	_, err = suite.app.AccountKeeper.UnmarshalAccount(bz[:len(bz)/2])
-	suite.Require().Error(err)
-}
-
 func (suite *KeeperTestSuite) TestConvertVestingAccount() {
 	startTime := s.ctx.BlockTime().Add(-5 * time.Second)
 	testCases := []struct {

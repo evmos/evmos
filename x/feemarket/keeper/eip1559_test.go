@@ -104,7 +104,7 @@ func (suite *KeeperTestSuite) TestCalculateBaseFee() {
 				MaxBytes: 10,
 			}
 			consParams := tmproto.ConsensusParams{Block: &blockParams}
-			suite.ctx = suite.ctx.WithConsensusParams(&consParams)
+			suite.ctx = suite.ctx.WithConsensusParams(consParams)
 
 			fee := suite.app.FeeMarketKeeper.CalculateBaseFee(suite.ctx)
 			if tc.NoBaseFee {

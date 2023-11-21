@@ -5,6 +5,7 @@ package ledger_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -156,7 +157,7 @@ func (suite *LedgerTestSuite) TestSignatures() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
 			tc.mockFunc()
-			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx)
+			_, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.tx, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			if tc.expPass {
 				suite.Require().NoError(err)
 			} else {
@@ -200,9 +201,9 @@ func (suite *LedgerTestSuite) TestSignatureEquivalence() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest() // reset
 			tc.mockFunc()
-			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf)
+			protoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txProtobuf, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			suite.Require().NoError(err)
-			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino)
+			aminoSignature, err := suite.ledger.SignSECP256K1(gethaccounts.DefaultBaseDerivationPath, tc.txAmino, byte(signingtypes.SignMode_SIGN_MODE_TEXTUAL))
 			suite.Require().NoError(err)
 			if tc.expPass {
 				suite.Require().Equal(protoSignature, aminoSignature)

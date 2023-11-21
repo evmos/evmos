@@ -557,12 +557,14 @@ func (suite *AnteTestSuite) createSignerBytes(chainID string, signMode signing.S
 		PubKey:        pubKey,
 	}
 
-	signerBytes, err := suite.clientCtx.TxConfig.SignModeHandler().GetSignBytes(
+	signerBytes, err := authsigning.GetSignBytesAdapter(
 		suite.ctx,
+		suite.clientCtx.TxConfig.SignModeHandler(),
 		signMode,
 		signerInfo,
-		tx,
+		txBuilder.GetTx(),
 	)
+
 	suite.Require().NoError(err)
 
 	return signerBytes

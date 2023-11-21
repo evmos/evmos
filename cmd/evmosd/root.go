@@ -25,8 +25,6 @@ import (
 	"cosmossdk.io/store/snapshots"
 	snapshottypes "cosmossdk.io/store/snapshots/types"
 	storetypes "cosmossdk.io/store/types"
-	confixcmd "cosmossdk.io/tools/confix/cmd"
-	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
@@ -43,6 +41,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
+	rosettaCmd "github.com/cosmos/rosetta/cmd"
 
 	evmosclient "github.com/evmos/evmos/v15/client"
 	"github.com/evmos/evmos/v15/client/block"
@@ -223,7 +223,8 @@ func txCommand() *cobra.Command {
 	)
 
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
-	flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment
+	// TODO uncomment when updating the sdk dependency to evmos' fork
+	// flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment
 
 	app.ModuleBasics.AddTxCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
