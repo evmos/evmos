@@ -94,6 +94,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
 - (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
 - (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
+- (osmosis-outpost) [#202063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
 
 ### Bug Fixes
 
