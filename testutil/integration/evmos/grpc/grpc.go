@@ -3,6 +3,7 @@
 package grpc
 
 import (
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	commongrpc "github.com/evmos/evmos/v15/testutil/integration/common/grpc"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
@@ -23,6 +24,10 @@ type Handler interface {
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
+
+	// Gov methods
+	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
+	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
 
 	// Revenue methods
 	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)

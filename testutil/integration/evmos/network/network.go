@@ -18,6 +18,7 @@ import (
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
@@ -36,15 +37,17 @@ type Network interface {
 
 	// Clients
 	GetEvmClient() evmtypes.QueryClient
+	GetGovClient() govtypes.QueryClient
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be require, we should provide an easier way to update the params
-	UpdateRevenueParams(params revtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
 	UpdateEvmParams(params evmtypes.Params) error
+	UpdateGovParams(params govtypes.Params) error
+	UpdateInflationParams(params infltypes.Params) error
+	UpdateRevenueParams(params revtypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
