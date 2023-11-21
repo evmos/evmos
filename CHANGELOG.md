@@ -94,7 +94,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
 - (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
 - (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
-- (erc20) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC20 EVM extension approval behavior to align with standard ERC20 smart contracts.
+- (erc20) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC20 EVM extension allowance behavior to align with standard ERC20 smart contracts.
 
 ### Bug Fixes
 
