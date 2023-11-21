@@ -112,8 +112,8 @@ func (p Precompile) EditValidator(
 	}
 
 	minSelfDelegation := strconv.Itoa(DoNotModifyMinSelfDelegation)
-	if msg.CommissionRate != nil {
-		commissionRate = msg.MinSelfDelegation.String()
+	if msg.MinSelfDelegation != nil {
+		minSelfDelegation = msg.MinSelfDelegation.String()
 	}
 
 	p.Logger(ctx).Debug(

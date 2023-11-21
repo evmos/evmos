@@ -177,6 +177,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
 	}
+
 	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
 	if err != nil {
 		return nil, common.Address{}, err
@@ -186,6 +187,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", "int256", args[2])
 	}
+
 	commissionRate := new(sdk.Dec)
 	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
 		commissionRate = nil
@@ -197,6 +199,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", "int256", args[3])
 	}
+
 	minSelfDelegation := new(sdkmath.Int)
 	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) == 0 {
 		minSelfDelegation = nil
