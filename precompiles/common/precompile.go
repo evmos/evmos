@@ -133,16 +133,14 @@ func (p Precompile) emptyCallData(contract *vm.Contract) (method *abi.Method, er
 	switch {
 	// Case 1.1: Send call or transfer tx - 'receive' is called if present and value is transferred
 	case contract.Value().Sign() > 0 && p.HasReceive():
-		method = &p.Receive
+		return &p.Receive, nil
 	// Case 1.2: Either 'receive' is not present, or no value is transferred - call 'fallback' if present
 	case p.HasFallback():
-		method = &p.Fallback
+		return &p.Fallback, nil
 	// Case 1.3: Neither 'receive' nor 'fallback' are present - return error
 	default:
 		return nil, vm.ErrExecutionReverted
 	}
-
-	return method, nil
 }
 
 // methodIDCallData is a helper function that returns the method to be called when the calldata is less than 4 bytes.
