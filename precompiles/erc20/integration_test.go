@@ -16,6 +16,7 @@ import (
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
@@ -463,6 +464,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: we are not passing the contract call here because this test is for direct calls only
 
 				// FIXME: other than the EVM extension, the ERC20 contract emits an additional Approval event (we only emit 1x Transfer)
+				// NOTE: Interestingly, the new ERC20 v5 contract does not emit the additional Approval event
 				Entry("- through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
@@ -961,6 +963,12 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
+		})
+
+		It("should register the ERC20", func() {
+			// Register the deployed erc20 contract as a token pair
+			err := utils.RegisterERC20(s.factory, s.network, contractData.erc20V5Addr, contractData.ownerPriv)
+			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
 		})
 
 		Context("for a token with available metadata", func() {
