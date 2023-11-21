@@ -3,6 +3,7 @@ package erc20_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	erc20precompile "github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
@@ -51,6 +52,15 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
 	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	// Set up min deposit in Evmos
+	params, err := grpcHandler.GetGovParams("deposit")
+	s.Require().NoError(err, "failed to get gov params")
+
+	updatedParams := params.Params
+	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(integrationNetwork.GetDenom(), sdk.NewInt(1e18)))
+	err = integrationNetwork.UpdateGovParams(*updatedParams)
+	s.Require().NoError(err, "failed to update min deposit")
 
 	s.bondDenom = integrationNetwork.GetDenom()
 	s.factory = txFactory
