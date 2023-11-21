@@ -5,6 +5,7 @@ package network
 
 import (
 	"testing"
+	"time"
 
 	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
@@ -28,6 +29,7 @@ type Network interface {
 	GetValidators() []stakingtypes.Validator
 
 	NextBlock() error
+	NextBlockAfter(duration time.Duration) error
 
 	// Clients
 	GetAuthClient() authtypes.QueryClient
