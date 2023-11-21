@@ -198,7 +198,9 @@ func (p Precompile) Allowance(
 
 	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		// NOTE: We are not returning the error here, because we want to align the behavior with
+		// standard ERC20 smart contracts, which return zero if an allowance is not found.
+		allowance = common.Big0
 	}
 
 	return method.Outputs.Pack(allowance)
@@ -237,15 +239,15 @@ func GetAuthzExpirationAndAllowance(
 	denom string,
 ) (authz.Authorization, *time.Time, *big.Int, error) {
 	authorization, expiration, err := auth.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
-	// TODO: return error if doesn't exist?
 	if err != nil {
 		return nil, nil, common.Big0, err
 	}
 
 	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
-		// TODO: return error if invalid authorization?
-		return nil, nil, common.Big0, nil
+		return nil, nil, common.Big0, fmt.Errorf(
+			"expected authorization to be a %T", banktypes.SendAuthorization{},
+		)
 	}
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)
