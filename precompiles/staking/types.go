@@ -173,14 +173,9 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
 
-	validatorAddress, ok := args[1].(string)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
-	}
-
-	valAddr, err := sdk.ValAddressFromBech32(validatorAddress)
-	if err != nil {
-		return nil, common.Address{}, err
+	validatorHexAddr, ok := args[1].(common.Address)
+	if !ok || validatorHexAddr == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
 	}
 
 	commissionRateBigInt, ok := args[2].(*big.Int)
@@ -209,7 +204,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 
 	msg := &stakingtypes.MsgEditValidator{
 		Description:       description,
-		ValidatorAddress:  validatorAddress,
+		ValidatorAddress:  sdk.ValAddress(validatorHexAddr.Bytes()).String(),
 		CommissionRate:    commissionRate,
 		MinSelfDelegation: minSelfDelegation,
 	}
@@ -218,7 +213,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, err
 	}
 
-	return msg, common.BytesToAddress(valAddr.Bytes()), nil
+	return msg, validatorHexAddr, nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks

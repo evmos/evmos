@@ -585,9 +585,9 @@
         "type": "tuple"
       },
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "internalType": "int256",

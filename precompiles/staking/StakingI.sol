@@ -152,7 +152,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return success Whether or not edit validator was successful
     function editValidator(
         Description calldata description,
-        string memory validatorAddress,
+        address validatorAddress,
         int256 commissionRate,
         int256 minSelfDelegation
     ) external returns (bool success);
