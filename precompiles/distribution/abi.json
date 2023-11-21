@@ -48,9 +48,9 @@
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,
