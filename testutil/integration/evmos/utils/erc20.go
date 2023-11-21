@@ -1,9 +1,13 @@
 package utils
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
+
+	errorsmod "cosmossdk.io/errors"
+
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,8 +18,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	"strconv"
-	"time"
 )
 
 // RegisterERC20 is a helper function to register ERC20 token through
