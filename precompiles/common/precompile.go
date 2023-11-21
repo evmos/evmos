@@ -63,8 +63,9 @@ func (p Precompile) RunSetup(
 	isShortCallData := len(contract.Input) < 4
 	isStandardCallData := len(contract.Input) >= 4
 
+	switch {
 	// Case 1: Calldata is empty
-	if isEmptyCallData {
+	case isEmptyCallData:
 		switch {
 		// Case 1.1: Send call or transfer tx - 'receive' is called if present and value is transferred
 		case contract.Value().Sign() > 0 && isReceivePresent:
@@ -76,19 +77,20 @@ func (p Precompile) RunSetup(
 		default:
 			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
 		}
-	}
 
 	// Case 2: calldata is non-empty but less than 4 bytes needed for a method
-	// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
-	if isShortCallData && isFallbackPresent {
-		method = &p.Fallback
+	case isShortCallData:
+		switch isFallbackPresent {
+		// Case 2.1: calldata contains less than 4 bytes needed for a method - 'fallback' is called if present
+		case true:
+			method = &p.Fallback
 		// Case 2.2: calldata contains less than 4 bytes needed for a method and 'fallback' is not present - return error
-	} else if isShortCallData && !isFallbackPresent {
-		return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
-	}
+		case false:
+			return sdk.Context{}, nil, nil, uint64(0), nil, vm.ErrExecutionReverted
+		}
 
 	// Case 3: calldata is non-empty and contains the minimum 4 bytes needed for a method
-	if isStandardCallData {
+	case isStandardCallData:
 		methodID := contract.Input[:4]
 		// NOTE: this function iterates over the method map and returns
 		// the method with the given ID

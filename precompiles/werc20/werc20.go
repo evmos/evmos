@@ -88,11 +88,6 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return 0
 	}
 
-	switch method.Type {
-	case abi.Fallback, abi.Receive:
-		return DepositRequiredGas
-	}
-
 	switch method.Name {
 	case DepositMethod:
 		return DepositRequiredGas
