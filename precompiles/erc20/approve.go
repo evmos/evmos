@@ -32,7 +32,7 @@ import (
 //  4. authorization exists, amount positive -> update authorization
 func (p Precompile) Approve(
 	ctx sdk.Context,
-	contract *vm.Contract,
+	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -43,7 +43,7 @@ func (p Precompile) Approve(
 	}
 
 	grantee := spender
-	granter := contract.CallerAddress
+	granter := origin
 
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
@@ -93,7 +93,7 @@ func (p Precompile) Approve(
 //  3. authorization exists, addedValue positive -> update authorization
 func (p Precompile) IncreaseAllowance(
 	ctx sdk.Context,
-	contract *vm.Contract,
+	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -104,7 +104,7 @@ func (p Precompile) IncreaseAllowance(
 	}
 
 	grantee := spender
-	granter := contract.CallerAddress
+	granter := origin
 
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
@@ -151,7 +151,7 @@ func (p Precompile) IncreaseAllowance(
 //  6. authorization exists, subtractedValue positive and subtractedValue higher than allowance -> return error
 func (p Precompile) DecreaseAllowance(
 	ctx sdk.Context,
-	contract *vm.Contract,
+	origin common.Address,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
@@ -162,7 +162,7 @@ func (p Precompile) DecreaseAllowance(
 	}
 
 	grantee := spender
-	granter := contract.CallerAddress
+	granter := origin
 
 	// TODO: owner should be the owner of the contract
 

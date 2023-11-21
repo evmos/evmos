@@ -141,7 +141,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	// It avoids panics and returns the out of gas error so the EVM can continue gracefully.
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
-	bz, err = p.HandleMethod(ctx, contract, stateDB, method, args)
+	bz, err = p.HandleMethod(ctx, evm, contract, stateDB, method, args)
 	if err != nil {
 		return nil, err
 	}
@@ -172,6 +172,7 @@ func (Precompile) IsTransaction(methodID string) bool {
 // HandleMethod handles the execution of each of the ERC-20 methods.
 func (p Precompile) HandleMethod(
 	ctx sdk.Context,
+	evm *vm.EVM,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
@@ -184,11 +185,11 @@ func (p Precompile) HandleMethod(
 	case TransferFromMethod:
 		bz, err = p.TransferFrom(ctx, contract, stateDB, method, args)
 	case auth.ApproveMethod:
-		bz, err = p.Approve(ctx, contract, stateDB, method, args)
+		bz, err = p.Approve(ctx, evm.Origin, stateDB, method, args)
 	case auth.IncreaseAllowanceMethod:
-		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.IncreaseAllowance(ctx, evm.Origin, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
-		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
 		bz, err = p.Name(ctx, contract, stateDB, method, args)

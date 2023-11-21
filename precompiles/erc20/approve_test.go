@@ -7,12 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
 )
 
-//nolint:dupl // tests are not duplicate between the functions
 func (s *PrecompileTestSuite) TestApprove() {
 	method := s.precompile.Methods[authorization.ApproveMethod]
 	amount := int64(100)
@@ -224,15 +221,6 @@ func (s *PrecompileTestSuite) TestApprove() {
 
 			ctx := s.network.GetContext()
 
-			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(
-				s.T(),
-				ctx,
-				s.keyring.GetAddr(0),
-				s.precompile,
-				200_000,
-			)
-
 			var args []interface{}
 			if tc.malleate != nil {
 				args = tc.malleate()
@@ -240,7 +228,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 
 			bz, err := s.precompile.Approve(
 				ctx,
-				contract,
+				s.keyring.GetAddr(0),
 				s.network.GetStateDB(),
 				&method,
 				args,
@@ -422,15 +410,6 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 
 			ctx := s.network.GetContext()
 
-			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(
-				s.T(),
-				ctx,
-				s.keyring.GetAddr(0),
-				s.precompile,
-				200_000,
-			)
-
 			var args []interface{}
 			if tc.malleate != nil {
 				args = tc.malleate()
@@ -438,7 +417,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 
 			bz, err := s.precompile.IncreaseAllowance(
 				ctx,
-				contract,
+				s.keyring.GetAddr(0),
 				s.network.GetStateDB(),
 				&method,
 				args,
@@ -722,15 +701,6 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 
 			ctx := s.network.GetContext()
 
-			var contract *vm.Contract
-			contract, ctx = testutil.NewPrecompileContract(
-				s.T(),
-				ctx,
-				s.keyring.GetAddr(0),
-				s.precompile,
-				200_000,
-			)
-
 			var args []interface{}
 			if tc.malleate != nil {
 				args = tc.malleate()
@@ -738,7 +708,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 
 			bz, err := s.precompile.DecreaseAllowance(
 				ctx,
-				contract,
+				s.keyring.GetAddr(0),
 				s.network.GetStateDB(),
 				&method,
 				args,
