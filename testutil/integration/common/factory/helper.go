@@ -3,6 +3,7 @@
 package factory
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -12,7 +13,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	xauthsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
@@ -39,14 +40,16 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 
 	sequence := account.GetSequence()
-	signMode := txConfig.SignModeHandler().DefaultMode()
-	signerData := xauthsigning.SignerData{
+	signerData := authsigning.SignerData{
 		ChainID:       tf.network.GetChainID(),
 		AccountNumber: account.GetAccountNumber(),
 		Sequence:      sequence,
 		Address:       senderAddress.String(),
 	}
-
+	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "invalid sign mode")
+	}
 	// sign tx
 	sigsV2 := signing.SignatureV2{
 		PubKey: privKey.PubKey(),
@@ -80,7 +83,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 	}
 	txBuilder.SetFeeAmount(fees)
 
-	signature, err := cosmostx.SignWithPrivKey(signMode, signerData, txBuilder, privKey, txConfig, sequence)
+	signature, err := cosmostx.SignWithPrivKey(context.TODO(), signMode, signerData, txBuilder, privKey, txConfig, sequence)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to sign tx")
 	}
