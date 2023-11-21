@@ -6,6 +6,7 @@ package werc20
 import (
 	"embed"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
@@ -77,7 +78,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	// to ensure parity in the values.
 
 	// If there is no method ID, then it's the fallback or receive case
-	if len(input) == 0 {
+	if len(input) == 0 || len(input) < 4 {
 		return DepositRequiredGas
 	}
 
@@ -85,6 +86,11 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	method, err := p.MethodById(methodID)
 	if err != nil {
 		return 0
+	}
+
+	switch method.Type {
+	case abi.Fallback, abi.Receive:
+		return DepositRequiredGas
 	}
 
 	switch method.Name {
@@ -109,7 +115,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch {
-	case method == nil,
+	case method.Type == abi.Fallback,
+		method.Type == abi.Receive,
 		method.Name == DepositMethod:
 		// WERC20 transactions
 		bz, err = p.Deposit(ctx, contract, stateDB, method, args)
@@ -135,11 +142,11 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 }
 
 // IsTransaction checks if the given methodID corresponds to a transaction or query.
-func (p Precompile) IsTransaction(methodName string) bool {
-	switch methodName {
+func (p Precompile) IsTransaction(methodID string) bool {
+	switch methodID {
 	case DepositMethod, WithdrawMethod:
 		return true
 	default:
-		return p.Precompile.IsTransaction(methodName)
+		return p.Precompile.IsTransaction(methodID)
 	}
 }
