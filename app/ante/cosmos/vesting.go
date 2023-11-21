@@ -77,49 +77,48 @@ func (vdd VestingDelegationDecorator) validateMsg(ctx sdk.Context, msg sdk.Msg) 
 		return nil
 	}
 
-	for _, addr := range msg.GetSigners() {
-		acc := vdd.ak.GetAccount(ctx, addr)
-		if acc == nil {
-			return errorsmod.Wrapf(
-				errortypes.ErrUnknownAddress,
-				"account %s does not exist", addr,
-			)
-		}
+	addr := sdk.AccAddress(delegateMsg.DelegatorAddress)
+	acc := vdd.ak.GetAccount(ctx, addr)
+	if acc == nil {
+		return errorsmod.Wrapf(
+			errortypes.ErrUnknownAddress,
+			"account %s does not exist", addr,
+		)
+	}
 
-		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
-		if !isClawback {
-			// continue to next decorator as this logic only applies to vesting
-			return nil
-		}
+	clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
+	if !isClawback {
+		// continue to next decorator as this logic only applies to vesting
+		return nil
+	}
 
-		// error if bond amount is > vested coins
-		bondDenom, err := vdd.sk.BondDenom(ctx)
-		if err != nil {
-			return err
-		}
-		coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
-		if coins == nil || coins.Empty() {
-			return errorsmod.Wrap(
-				vestingtypes.ErrInsufficientVestedCoins,
-				"account has no vested coins",
-			)
-		}
+	// error if bond amount is > vested coins
+	bondDenom, err := vdd.sk.BondDenom(ctx)
+	if err != nil {
+		return err
+	}
+	coins := clawbackAccount.GetVestedOnly(ctx.BlockTime())
+	if coins == nil || coins.Empty() {
+		return errorsmod.Wrap(
+			vestingtypes.ErrInsufficientVestedCoins,
+			"account has no vested coins",
+		)
+	}
 
-		balance := vdd.bk.GetBalance(ctx, addr, bondDenom)
-		unvestedOnly := clawbackAccount.GetUnvestedOnly(ctx.BlockTime())
-		spendable, hasNeg := sdk.Coins{balance}.SafeSub(unvestedOnly...)
-		if hasNeg {
-			spendable = sdk.NewCoins()
-		}
+	balance := vdd.bk.GetBalance(ctx, addr, bondDenom)
+	unvestedOnly := clawbackAccount.GetUnvestedOnly(ctx.BlockTime())
+	spendable, hasNeg := sdk.Coins{balance}.SafeSub(unvestedOnly...)
+	if hasNeg {
+		spendable = sdk.NewCoins()
+	}
 
-		vested := spendable.AmountOf(bondDenom)
-		if vested.LT(delegateMsg.Amount.Amount) {
-			return errorsmod.Wrapf(
-				vestingtypes.ErrInsufficientVestedCoins,
-				"cannot delegate unvested coins. coins vested < delegation amount (%s < %s)",
-				vested, delegateMsg.Amount.Amount,
-			)
-		}
+	vested := spendable.AmountOf(bondDenom)
+	if vested.LT(delegateMsg.Amount.Amount) {
+		return errorsmod.Wrapf(
+			vestingtypes.ErrInsufficientVestedCoins,
+			"cannot delegate unvested coins. coins vested < delegation amount (%s < %s)",
+			vested, delegateMsg.Amount.Amount,
+		)
 	}
 
 	return nil

@@ -1146,7 +1146,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
 			balanceCommPool := pool.CommunityPool[0]
 
 			// Perform clawback before cliff
@@ -1159,7 +1160,8 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err = s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
 			bCP := pool.CommunityPool[0]
 
 			s.Require().Equal(bF, balanceFunder)
@@ -1193,7 +1195,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			balanceCommPool := pool.CommunityPool[0]
 
 			testClawbackAccount := TestClawbackAccount{
@@ -1202,7 +1206,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				clawbackAccount: clawbackAccount,
 			}
 			// stake vested tokens
-			_, err := delegate(testClawbackAccount, vested)
+			_, err = delegate(testClawbackAccount, vested)
 			Expect(err).To(BeNil())
 
 			// Perform clawback
@@ -1215,7 +1219,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err = s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			bCP := pool.CommunityPool[0]
 
 			expClawback := clawbackAccount.GetUnvestedOnly(s.ctx.BlockTime())
@@ -1304,7 +1310,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			balanceDest := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			balanceCommPool := pool.CommunityPool[0]
 
 			testClawbackAccount := TestClawbackAccount{
@@ -1313,7 +1321,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 				clawbackAccount: clawbackAccount,
 			}
 			// stake vested tokens
-			_, err := delegate(testClawbackAccount, vested)
+			_, err = delegate(testClawbackAccount, vested)
 			Expect(err).To(BeNil())
 
 			// Perform clawback
@@ -1326,7 +1334,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
 			bD := s.app.BankKeeper.GetBalance(s.ctx, dest, stakeDenom)
-			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err = s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			bCP := pool.CommunityPool[0]
 
 			// No amount is clawed back
@@ -1343,12 +1353,14 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			balanceFunder := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			balanceNewFunder := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
 			balanceGrantee := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
-			pool := s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			balanceCommPool := pool.CommunityPool[0]
 
 			// Update clawback vesting account funder
 			updateFunderMsg := types.NewMsgUpdateVestingFunder(funder, newFunder, vestingAddr)
-			_, err := s.app.VestingKeeper.UpdateVestingFunder(ctx, updateFunderMsg)
+			_, err = s.app.VestingKeeper.UpdateVestingFunder(ctx, updateFunderMsg)
 			s.Require().NoError(err)
 
 			// Perform clawback before cliff - funds should go to new funder (no dest address defined)
@@ -1361,7 +1373,9 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			bF := s.app.BankKeeper.GetBalance(s.ctx, funder, stakeDenom)
 			bNewF := s.app.BankKeeper.GetBalance(s.ctx, newFunder, stakeDenom)
 			bG := s.app.BankKeeper.GetBalance(s.ctx, vestingAddr, stakeDenom)
-			pool = s.app.DistrKeeper.GetFeePool(s.ctx)
+			pool, err = s.app.DistrKeeper.FeePool.Get(s.ctx)
+			Expect(err).To(BeNil())
+
 			bCP := pool.CommunityPool[0]
 
 			// Original funder balance should not change

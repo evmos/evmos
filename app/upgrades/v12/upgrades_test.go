@@ -76,7 +76,9 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 	suite.Require().NoError(err)
 
-	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+	suite.Require().NoError(err)
+	balanceBefore := pool.CommunityPool
 	suite.Require().Equal(balanceBefore.AmountOf(utils.BaseDenom), math.LegacyNewDecFromInt(res))
 
 	// return funds to accounts affected
@@ -101,6 +103,8 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 		suite.Require().Equal(balance.Amount, res)
 	}
 
-	balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+	pool, err = suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+	suite.Require().NoError(err)
+	balanceAfter := pool.CommunityPool
 	suite.Require().True(balanceAfter.IsZero(), "Community pool balance should be zero after the distribution, but is %d", balanceAfter.AmountOf(utils.BaseDenom))
 }

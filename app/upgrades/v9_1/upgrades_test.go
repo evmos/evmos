@@ -105,7 +105,9 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 				suite.Require().NoError(err)
 
-				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				balanceBefore := pool.CommunityPool
 				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 			},
 			true,
@@ -128,7 +130,9 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 				suite.Require().NoError(err)
 
-				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				balanceBefore := pool.CommunityPool
 				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 
 				v9.Accounts[0][1] = v9.MaxRecover
@@ -153,7 +157,9 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				err = suite.app.DistrKeeper.FundCommunityPool(suite.ctx, coins, sender)
 				suite.Require().NoError(err)
 
-				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				balanceBefore := pool.CommunityPool
 				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 
 				v9.Accounts[1000][1] = v9.MaxRecover
@@ -187,7 +193,9 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 					suite.Require().Equal(balance.Amount, res)
 				}
 
-				balanceAfter := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				balanceAfter := pool.CommunityPool
 				suite.Require().True(balanceAfter.IsZero())
 			} else {
 				for i := range v9.Accounts {

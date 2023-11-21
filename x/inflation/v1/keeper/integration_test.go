@@ -54,7 +54,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 				It("should not allocate funds to the community pool", func() {
-					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 			})
@@ -78,7 +80,9 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 
 				It("should allocate funds to the community pool", func() {
-					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balanceCommunityPool := pool.CommunityPool
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
@@ -115,7 +119,9 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 
 				It("should not allocate funds to the community pool", func() {
-					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 			})
@@ -139,7 +145,9 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 
 				It("should allocate funds to the community pool", func() {
-					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balanceCommunityPool := pool.CommunityPool
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
@@ -170,7 +178,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 				It("should not allocate funds to the community pool", func() {
-					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balance := pool.CommunityPool
 					Expect(balance.IsZero()).To(BeTrue())
 				})
 			})
@@ -193,7 +203,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					Expect(actual.Amount).To(Equal(expected))
 				})
 				It("should allocate funds to the community pool", func() {
-					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
+					pool, err := s.app.DistrKeeper.FeePool.Get(s.ctx)
+					Expect(err).To(BeNil())
+					balanceCommunityPool := pool.CommunityPool
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)

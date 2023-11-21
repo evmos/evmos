@@ -70,7 +70,9 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 				denomMint,
 			)
 
-			balanceCommunityPool := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+			pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+			suite.Require().NoError(err)
+			balanceCommunityPool := pool.CommunityPool
 
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)

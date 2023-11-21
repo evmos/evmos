@@ -389,7 +389,9 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 			tc.malleate()
 
 			initialBalance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, types.DefaultClaimsDenom)
-			initialCommunityPoolCoins := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+			pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+			suite.Require().NoError(err)
+			initialCommunityPoolCoins := pool.CommunityPool
 
 			amt, err := suite.app.ClaimsKeeper.ClaimCoinsForAction(suite.ctx, addr, tc.claimsRecord, tc.action, tc.params)
 			if tc.expError {
@@ -410,7 +412,9 @@ func (suite *KeeperTestSuite) TestClaimCoinsForAction() {
 
 			if !tc.expClawedBack.IsZero() {
 				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(tc.params.ClaimsDenom, tc.expClawedBack))
-				funds := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				funds := pool.CommunityPool
 				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
 			}
 
@@ -447,10 +451,12 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 				recipientClaimsRecord := types.NewClaimsRecord(math.NewInt(200))
 
 				expBalance := suite.app.BankKeeper.GetBalance(suite.ctx, recipient, params.ClaimsDenom)
-				initialCommunityPoolCoins := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err := suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				initialCommunityPoolCoins := pool.CommunityPool
 
 				coins := sdk.Coins{sdk.NewCoin(params.ClaimsDenom, math.NewInt(100))}
-				err := testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
+				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, types.ModuleName, coins)
 				suite.Require().NoError(err)
 
 				params := types.Params{
@@ -472,7 +478,9 @@ func (suite *KeeperTestSuite) TestMergeClaimRecords() {
 				suite.Require().Equal(expectedRecord, mergedRecord)
 
 				initialCommunityPoolCoins = initialCommunityPoolCoins.Add(sdk.NewDecCoin(params.ClaimsDenom, math.NewInt(50)))
-				funds := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
+				pool, err = suite.app.DistrKeeper.FeePool.Get(suite.ctx)
+				suite.Require().NoError(err)
+				funds := pool.CommunityPool
 				suite.Require().Equal(initialCommunityPoolCoins.String(), funds.String())
 
 				expBalance = expBalance.Add(sdk.NewCoin(params.ClaimsDenom, math.NewInt(50)))
@@ -754,10 +762,10 @@ func (suite *KeeperTestSuite) TestDelegationAutoWithdrawAndDelegateMore() {
 	}
 
 	// set addr[0] as a validator
-	validator, err := stakingtypes.NewValidator(sdk.ValAddress(addrs[0]), pub1.PubKey(), stakingtypes.Description{})
+	validator, err := stakingtypes.NewValidator(addrs[0].String(), pub1.PubKey(), stakingtypes.Description{})
 	suite.Require().NoError(err)
 	validator = stakingkeeper.TestingUpdateValidator(&suite.app.StakingKeeper, suite.ctx, validator, true)
-	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
+	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, sdk.ValAddress(validator.GetOperator()))
 	suite.Require().NoError(err)
 
 	validator, _ = validator.AddTokensFromDel(sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction))
