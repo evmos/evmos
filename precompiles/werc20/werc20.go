@@ -78,7 +78,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	// to ensure parity in the values.
 
 	// If there is no method ID, then it's the fallback or receive case
-	if len(input) == 0 || len(input) < 4 {
+	if len(input) < 4 {
 		return DepositRequiredGas
 	}
 
