@@ -26,10 +26,11 @@ import (
 // operation succeeded and emits the Approval event on success.
 //
 // The Approve method handles 4 cases:
-//  1. no authorization, amount 0 or negative -> return error
+//  1. no authorization, amount negative -> return error
 //  2. no authorization, amount positive -> create a new authorization
 //  3. authorization exists, amount 0 or negative -> delete authorization
 //  4. authorization exists, amount positive -> update authorization
+//  5. no authorizaiton, amount 0 -> no-op but still emit Approval event
 func (p Precompile) Approve(
 	ctx sdk.Context,
 	contract *vm.Contract,
@@ -49,11 +50,9 @@ func (p Precompile) Approve(
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
 	switch {
-	case authorization == nil && amount != nil && amount.Sign() <= 0:
+	case authorization == nil && amount != nil && amount.Sign() < 0:
 		// case 1: no authorization, amount 0 or negative -> error
-		// TODO: (@fedekunze) check if this is correct by comparing behavior with
-		// regular ERC20
-		err = errors.New("cannot approve non-positive values")
+		err = errors.New("cannot approve negative values")
 	case authorization == nil && amount != nil && amount.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		err = p.createAuthorization(ctx, grantee, granter, amount)
