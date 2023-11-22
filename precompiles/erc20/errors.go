@@ -27,7 +27,11 @@ func BuildExecRevertedErr(reason string) (error, error) {
 	prefixBytes := crypto.Keccak256([]byte("Error(string)"))
 
 	// This is reverse-engineering the ABI encoding of the revert reason.
-	typ, _ := abi.NewType("string", "", nil)
+	typ, err := abi.NewType("string", "", nil)
+	if err != nil {
+		return nil, err
+	}
+
 	packedReason, err := (abi.Arguments{{Type: typ}}).Pack(reason)
 	if err != nil {
 		return nil, errors.New("failed to pack revert reason")
