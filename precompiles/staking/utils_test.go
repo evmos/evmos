@@ -2,7 +2,6 @@ package staking_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"time"
 
@@ -418,7 +417,7 @@ func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.Vali
 		s.Require().Equal(int64(0), validators[i].UnbondingTime)
 		s.Require().Equal(int64(0), validators[i].Commission.Int64())
 		s.Require().Equal(int64(0), validators[i].MinSelfDelegation.Int64())
-		s.Require().Contains(validators[i].ConsensusPubkey, fmt.Sprintf("%v", s.validators[j].ConsensusPubkey.Value))
+		s.Require().Equal(validators[i].ConsensusPubkey, staking.FormatConsensusPubkey(s.validators[j].ConsensusPubkey))
 	}
 }
 

@@ -9,7 +9,7 @@ import "./../erc20/IERC20MetadataAllowance.sol";
  * @dev Interface for representing the native EVM token as ERC20 standard.
  */
 interface IWERC20 is IERC20MetadataAllowance {
-		/// @dev Emitted when the native tokens are deposited in exchange for the wrapped ERC20.
+    /// @dev Emitted when the native tokens are deposited in exchange for the wrapped ERC20.
     /// @param dst The account for which the deposit is made.
     /// @param wad The amount of native tokens deposited.
     event Deposit(address indexed dst, uint256 wad);
@@ -19,7 +19,7 @@ interface IWERC20 is IERC20MetadataAllowance {
     /// @param wad The amount of native tokens withdrawn.
     event Withdrawal(address indexed src, uint256 wad);
 
-		/// @dev Default fallback payable function. Calls the deposit method.
+    /// @dev Default fallback payable function. Calls the deposit method.
     fallback() external payable;
 
     /// @dev Default receive payable function. Calls the deposit method.

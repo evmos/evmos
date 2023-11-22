@@ -20,10 +20,17 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+// EventCreateValidator defines the event data for the staking CreateValidator transaction.
+type EventCreateValidator struct {
+	DelegatorAddress common.Address
+	ValidatorAddress common.Address
+	Value            *big.Int
+}
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	NewShares        *big.Int
 }
@@ -31,7 +38,7 @@ type EventDelegate struct {
 // EventUnbond defines the event data for the staking Undelegate transaction.
 type EventUnbond struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CompletionTime   *big.Int
 }
@@ -39,8 +46,8 @@ type EventUnbond struct {
 // EventRedelegate defines the event data for the staking Redelegate transaction.
 type EventRedelegate struct {
 	DelegatorAddress    common.Address
-	ValidatorSrcAddress common.Hash
-	ValidatorDstAddress common.Hash
+	ValidatorSrcAddress common.Address
+	ValidatorDstAddress common.Address
 	Amount              *big.Int
 	CompletionTime      *big.Int
 }
@@ -48,7 +55,7 @@ type EventRedelegate struct {
 // EventCancelUnbonding defines the event data for the staking CancelUnbond transaction.
 type EventCancelUnbonding struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CreationHeight   *big.Int
 }
@@ -121,6 +128,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	if err != nil {
 		return nil, common.Address{}, err
 	}
+
 	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
 	pubkey, err := codectypes.NewAnyWithValue(ed25519pk)
 	if err != nil {
@@ -539,7 +547,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
 			OperatorAddress: res.Validator.OperatorAddress,
-			ConsensusPubkey: res.Validator.ConsensusPubkey.String(),
+			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
 			Tokens:          res.Validator.Tokens.BigInt(),
@@ -574,7 +582,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 	for i, v := range res.Validators {
 		vo.Validators[i] = ValidatorInfo{
 			OperatorAddress:   v.OperatorAddress,
-			ConsensusPubkey:   v.ConsensusPubkey.String(),
+			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 			Jailed:            v.Jailed,
 			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
 			Tokens:            v.Tokens.BigInt(),
@@ -780,4 +788,13 @@ func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string
 	}
 
 	return delegatorAddr, validatorAddress, amount, nil
+}
+
+// FormatConsensusPubkey format ConsensusPubkey into a base64 string
+func FormatConsensusPubkey(consensusPubkey *codectypes.Any) string {
+	ed25519pk, ok := consensusPubkey.GetCachedValue().(cryptotypes.PubKey)
+	if ok {
+		return base64.StdEncoding.EncodeToString(ed25519pk.Bytes())
+	}
+	return consensusPubkey.String()
 }
