@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	tmlog "cosmossdk.io/log"
-	"cosmossdk.io/simapp/params"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v15/app"
@@ -189,6 +189,6 @@ func TestKVIndexer(t *testing.T) {
 }
 
 // MakeEncodingConfig creates the EncodingConfig
-func MakeEncodingConfig() params.EncodingConfig {
+func MakeEncodingConfig() sdktestutil.TestEncodingConfig {
 	return evmenc.MakeConfig(app.ModuleBasics)
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/encoding"
 
-	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 
@@ -23,6 +22,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/evmos/v15/types"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
 	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
@@ -163,7 +163,7 @@ type StakingCustomGenesisState struct {
 }
 
 // setStakingGenesisState sets the staking genesis state
-func setStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
+func setStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams StakingCustomGenesisState) types.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -174,14 +174,14 @@ func setStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisStat
 }
 
 // setAuthGenesisState sets the auth genesis state
-func setAuthGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, genAccounts []authtypes.GenesisAccount) simapp.GenesisState {
+func setAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, genAccounts []authtypes.GenesisAccount) types.GenesisState {
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccounts)
 	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGenesis)
 	return genesisState
 }
 
 // setInflationGenesisState sets the inflation genesis state
-func setInflationGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+func setInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
 	inflationParams := infltypes.DefaultParams()
 	inflationParams.EnableInflation = false
 
@@ -196,7 +196,7 @@ type BankCustomGenesisState struct {
 }
 
 // setBankGenesisState sets the bank genesis state
-func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams BankCustomGenesisState) simapp.GenesisState {
+func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams BankCustomGenesisState) types.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,

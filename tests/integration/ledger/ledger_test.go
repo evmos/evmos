@@ -5,7 +5,6 @@ import (
 	"context"
 
 	"cosmossdk.io/math"
-	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -23,6 +22,7 @@ import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktestutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -42,7 +42,7 @@ var (
 var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
-		encCfg          params.EncodingConfig
+		encCfg          sdktestutilmod.TestEncodingConfig
 		kr              keyring.Keyring
 		mockedIn        sdktestutil.BufferReader
 		clientCtx       client.Context

@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"
-	"cosmossdk.io/simapp"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
@@ -21,6 +20,7 @@ import (
 	"github.com/evmos/evmos/v15/encoding"
 	"github.com/evmos/evmos/v15/ethereum/eip712"
 	"github.com/evmos/evmos/v15/testutil"
+	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/utils"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
@@ -42,7 +42,7 @@ type AnteTestSuite struct {
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = app.EthSetup(checkTx, func(app *app.Evmos, genesis evmostypes.GenesisState) evmostypes.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
