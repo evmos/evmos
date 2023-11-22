@@ -57,14 +57,17 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to get proposal ID from events")
 	}
-	fmt.Printf("Proposal submitted with ID: %d\n", proposalID)
+
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
 
 	gq := network.GetGovClient()
 	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to query proposal")
 	}
-	fmt.Printf("Proposal status: %s\n", proposalRes.Proposal.Status)
 
 	err = network.NextBlock()
 	if err != nil {
@@ -86,17 +89,17 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 		return errorsmod.Wrap(err, "failed to vote on proposal")
 	}
 
-	fmt.Printf("Found %d events voting\n", len(res.Events))
-
 	err = network.NextBlockAfter(365 * 24 * time.Hour) // commit a year later
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
 	}
+
 	err = network.NextBlock()
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after proposal")
+		return errorsmod.Wrap(err, "failed to commit block after votes")
 	}
 
+	gq = network.GetGovClient()
 	// Check if proposal passed
 	proposalRes, err = gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
 	if err != nil {
@@ -106,8 +109,6 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	if proposalRes.Proposal.Status != govtypes.StatusPassed {
 		return fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
 	}
-	fmt.Printf("Proposal status: %s\n", proposalRes.Proposal.Status)
-
 	return nil
 }
 
