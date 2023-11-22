@@ -246,6 +246,9 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 
 func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
 	signingTx, err := tf.buildSignedTx(msg)
+    if err != nil {
+      return nil, errorsmod.Wrap(err, "failed to build signed tx")
+    }
 	txConfig := tf.ec.TxConfig
 	txBytes, err := txConfig.TxEncoder()(signingTx)
 	if err != nil {

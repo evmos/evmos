@@ -82,7 +82,6 @@ func BenchmarkAnteHandler(b *testing.B) {
 				b.StopTimer()
 				// Start with a clean block
 				if err := unitNetwork.NextBlock(); err != nil {
-					fmt.Println(err)
 					break
 				}
 				ctx := unitNetwork.GetContext()
@@ -90,13 +89,15 @@ func BenchmarkAnteHandler(b *testing.B) {
 				// Generate fresh tx type
 				tx, err := suite.generateTxType(v.txType)
 				if err != nil {
-					fmt.Println(err)
 					break
 				}
 				b.StartTimer()
 
 				// Run benchmark
-				ante(ctx, tx, v.simulate)
+				_, err = ante(ctx, tx, v.simulate)
+				if err != nil {
+					break
+				}
 			}
 		})
 	}
