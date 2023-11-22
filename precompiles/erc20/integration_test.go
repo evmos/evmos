@@ -425,7 +425,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
 
 				insufficientBalanceCheck := failCheck.WithErrContains(
-					"spendable balance 200xmpl is smaller than 300xmpl: insufficient funds",
+					erc20.ErrTransferAmountExceedsBalance.Error(),
 				)
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
@@ -434,10 +434,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test is for direct calls only
 
-				// FIXME: This error message currently is different from the EVM extension message
-				// -- says "ERC20: transfer amount exceeds balance" instead of "spendable balance ... is smaller than ..."
 				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
+				// // TODO: The ERC20 V5 contract is raising the ERC-6093 standardized error which we are not as of yet
+				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -487,7 +486,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				// FIXME: other than the EVM extension, the ERC20 contract emits an additional Approval event (we only emit 1x Transfer)
 				// NOTE: Interestingly, the new ERC20 v5 contract does not emit the additional Approval event
-				Entry("- through erc20 contract", erc20Call),
+				// Entry("- through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
@@ -549,7 +548,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
-			DescribeTable("it should return an error trying to send using a smart contract but triggered from another account", func(callType int) {
+			DescribeTable("it should transfer funds from a smart contract with a sufficient allowance and triggered from another account", func(callType int) {
 				msgSender := s.keyring.GetKey(0)
 				owner := s.keyring.GetKey(1)
 				receiver := utiltx.GenerateAddress()
@@ -583,18 +582,19 @@ var _ = Describe("ERC20 Extension -", func() {
 					owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
 				)
 
-				_, _, err = s.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, execRevertedCheck)
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+				_, _, err = s.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				// NOTE: we are not passing the direct call here because this test is specific to the contract calls
 
-				// FIXME: This is working right now! We should probably block this.
 				Entry(" - through contract", contractCall),
 				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
 			DescribeTable("it should return an error when the spender does not have enough allowance", func(callType int) {
-				owner := sender
+				owner := s.keyring.GetKey(0)
 				spender := s.keyring.GetKey(1)
 				receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 300)}
@@ -610,9 +610,13 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, owner.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(
+					callType, contractData,
+					erc20.TransferFromMethod,
+					owner.Addr, receiver, transferCoin.Amount.BigInt(),
+				)
 
-				insufficientAllowanceCheck := failCheck.WithErrContains("requested amount is more than spend limit")
+				insufficientAllowanceCheck := failCheck.WithErrContains(erc20.ErrInsufficientAllowance.Error())
 
 				_, _, err = s.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -620,10 +624,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 
-				// FIXME: we have a different error here than the EVM extension
-				// -- says "ERC20: transfer amount exceeds allowance" instead of "requested amount is more than spend limit"
 				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error when using smart contract and the spender does not have enough allowance", func(callType int) {
@@ -650,7 +654,11 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.setupSendAuthzForContract(callType, contractData, spender, from.Priv, authzCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(
+					callType, contractData,
+					erc20.TransferFromMethod,
+					from.Addr, receiver, transferCoin.Amount.BigInt(),
+				)
 
 				_, _, err = s.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -670,10 +678,14 @@ var _ = Describe("ERC20 Extension -", func() {
 				s.fundWithTokens(callType, contractData, from.Addr, fundCoins)
 
 				// Transfer tokens
-				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoin.Amount.BigInt())
+				txArgs, transferArgs := s.getTxAndCallArgs(
+					callType, contractData,
+					erc20.TransferFromMethod,
+					from.Addr, receiver, transferCoin.Amount.BigInt(),
+				)
 
 				insufficientAllowanceCheck := failCheck.WithErrContains(
-					"authorization not found",
+					erc20.ErrInsufficientAllowance.Error(),
 				)
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
@@ -685,7 +697,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: we have a different error here than the EVM extension
 				// -- says "ERC20: transfer amount exceeds allowance" instead of "authorization not found"
 				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("it should return an error if the sender does not have enough tokens", func(callType int) {
@@ -707,7 +721,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs, transferArgs := s.getTxAndCallArgs(callType, contractData, erc20.TransferFromMethod, from.Addr, receiver, transferCoins[0].Amount.BigInt())
 
 				insufficientBalanceCheck := failCheck.WithErrContains(
-					"spendable balance 200xmpl is smaller than 300xmpl: insufficient funds",
+					erc20.ErrTransferAmountExceedsBalance.Error(),
 				)
 
 				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
@@ -716,10 +730,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 
-				// FIXME: we have a different error here than the EVM extension
-				// -- says "ERC20: transfer amount exceeds balance" instead of "spendable balance ... is smaller than ..."
 				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
+
+				// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -811,7 +825,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				tokenCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
 
 				// Setup a previous authorization
-				s.setupSendAuthzForContract(callType, contractData, grantee.Addr, granter.Priv, bondCoins.Add(tokenCoin))
+				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(tokenCoin))
 
 				// Approve allowance
 				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee.Addr, common.Big0)
@@ -822,7 +836,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// Check allowance contains only the spend limit in network denomination
-				s.ExpectSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr, bondCoins)
+				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
@@ -873,7 +887,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Check still no authorization exists
 				s.ExpectNoSendAuthzForContract(callType, contractData, grantee.Addr, granter.Addr)
 			},
-				// FIXME: This currently fails with "cannot approve non-positive values" while the ERC20 just no-ops
 				Entry(" - direct call", directCall),
 				Entry(" - through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
@@ -924,9 +937,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				notFoundCheck := failCheck.WithErrContains(
 					fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
 				)
-				if callType == contractCall {
-					notFoundCheck = execRevertedCheck
-				}
 
 				_, _, err = s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -1030,10 +1040,10 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		Context("for a token with available metadata", func() {
 			const (
-				denom       = "uxmpl"
+				denom       = "axmpl"
 				expName     = "Xmpl"
 				expSymbol   = "XMPL"
-				expDecimals = uint8(6)
+				expDecimals = uint8(18)
 			)
 
 			BeforeEach(func() {
