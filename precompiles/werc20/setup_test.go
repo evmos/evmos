@@ -29,6 +29,7 @@ type PrecompileTestSuite struct {
 	factory     factory.TxFactory
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
+	tokenDenom  string
 
 	precompile *werc20.Precompile
 }

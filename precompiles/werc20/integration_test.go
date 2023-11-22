@@ -3,6 +3,12 @@ package werc20_test
 import (
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
+	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/werc20"
@@ -23,12 +29,12 @@ var _ = Describe("WEVMOS Extension -", func() {
 		WEVMOSContractAddr common.Address
 		err                error
 		sender             keyring.Key
+		amount             *big.Int
 
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
 		contractData ContractData
 
-		_         testutil.LogCheckArgs
 		failCheck testutil.LogCheckArgs
 		passCheck testutil.LogCheckArgs
 	)
@@ -49,8 +55,28 @@ var _ = Describe("WEVMOS Extension -", func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
 		// Create the token pair for WEVMOS <-> EVMOS.
+		evmosMetadata := banktypes.Metadata{
+			Description: "The native token of Evmos",
+			Base:        s.bondDenom,
+			// NOTE: Denom units MUST be increasing
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    s.bondDenom,
+					Exponent: 0,
+					Aliases:  []string{"aevmos"},
+				},
+				{
+					Denom:    "aevmos",
+					Exponent: 18,
+				},
+			},
+			Name:    "Evmos",
+			Symbol:  "EVMOS",
+			Display: "aevmos",
+		}
+		s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), evmosMetadata)
+
 		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
-		s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
 		precompile, err := werc20.NewPrecompile(
 			tokenPair,
@@ -65,6 +91,8 @@ var _ = Describe("WEVMOS Extension -", func() {
 		err = s.network.App.EvmKeeper.AddEVMExtensions(s.network.GetContext(), precompile)
 		Expect(err).ToNot(HaveOccurred(), "failed to add wevmos extension")
 
+		s.tokenDenom = tokenPair.GetDenom()
+
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
 			erc20Addr:      WEVMOSContractAddr,
@@ -74,21 +102,22 @@ var _ = Describe("WEVMOS Extension -", func() {
 		}
 
 		failCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.Events}
-		// execRevertedCheck = failCheck.WithErrContains("execution reverted")
 		passCheck = failCheck.WithExpPass(true)
 
 		err = s.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
+
+		// Default sender and amount
+		sender = s.keyring.GetKey(0)
+		amount = big.NewInt(1e18)
 	})
 
 	Context("WEVMOS specific functions", func() {
 		When("calling deposit and withdraw correctly", func() {
 			It("calling deposit - should emit the Deposit event but not modify the balance", func() {
-				sender := s.keyring.GetKey(0)
-
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
-				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Amount = amount
 
 				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -97,10 +126,6 @@ var _ = Describe("WEVMOS Extension -", func() {
 			})
 
 			It("calling withdraw - should emit the Withdrawal event but not modify the balance", func() {
-				// Calling withdraw method
-				sender := s.keyring.GetKey(0)
-				amount := big.NewInt(1e18)
-
 				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
 
@@ -111,14 +136,11 @@ var _ = Describe("WEVMOS Extension -", func() {
 			})
 		})
 
-		// TODO: How do we actually check the method types here? We can see the correct ones being populated in the
-		// by printing the line in the cmn.Precompile
+		// TODO: How do we actually check the method types here? We can see the correct ones being populated by printing the line in the cmn.Precompile
 		When("calling with incomplete data or amount", func() {
-			It("calls with no function, no call data, with amount - should call `receive` ", func() {
-				sender := s.keyring.GetKey(0)
-
+			It("calls no call data, with amount - should call `receive` ", func() {
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, "")
-				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Amount = amount
 
 				res, err := s.factory.ExecuteContractCall(sender.Priv, txArgs, callArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -131,11 +153,9 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls with no function, short call data, with amount -  should call `fallback` ", func() {
-				sender := s.keyring.GetKey(0)
-
+			It("calls short call data, with amount -  should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Amount = amount
 				txArgs.Input = []byte{1, 2, 3} // 3 dummy bytes
 
 				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
@@ -149,11 +169,9 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls with no function, standard length call data, with amount - should call `fallback` ", func() {
-				sender := s.keyring.GetKey(0)
-
+			It("calls standard length call data, with amount - should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-				txArgs.Amount = big.NewInt(1e18)
+				txArgs.Amount = amount
 				txArgs.Input = []byte{1, 2, 3, 4} // 4 dummy bytes needed for minimum length
 
 				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
@@ -167,11 +185,10 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls with no function, standard length call data, no amount -  should call `fallback` ", func() {
-				sender := s.keyring.GetKey(0)
-
+			It("calls with non-existing function, with amount -  should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
-				txArgs.Input = []byte{1, 2, 3, 4} // 4 dummy bytes needed for minimum length
+				txArgs.Input = []byte("nonExistingMethod")
+				txArgs.Amount = amount
 
 				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -186,48 +203,187 @@ var _ = Describe("WEVMOS Extension -", func() {
 		})
 	})
 
-	// TODO: Add more granular cases but don't want to just confirm the same functionality as ERC20 tests.
-	// Context("ERC20 specific functions", func() {
-	//	When("querying balance", func() {
-	//		DescribeTable("it should return an existing balance", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//
-	//	When("querying allowance", func() {
-	//		DescribeTable("it should return an existing allowance", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//
-	//	When("querying total supply", func() {
-	//		DescribeTable("it should return the total supply", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//
-	//	When("approving for a spender", func() {
-	//		DescribeTable("it should approve the spender", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//
-	//	When("transferring tokens from contract caller", func() {
-	//		DescribeTable("it should transfer the tokens", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//
-	//	When("transferring tokens on behalf of a custom `from` ", func() {
-	//		DescribeTable("it should transfer the tokens", func(callType int) {
-	//			Entry("direct WERC20 contract call", func() {})
-	//			Entry("contract call", func() {})
-	//		})
-	//	})
-	//})
+	Context("ERC20 specific functions", func() {
+		When("querying name", func() {
+			It("should return the correct name", func() {
+				// Query the name
+				txArgs, nameArgs := s.getTxAndCallArgs(directCall, contractData, erc20.NameMethod)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, nameArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var name string
+				err = s.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(name).To(Equal("Evmos"), "expected different name")
+			})
+		})
+
+		When("querying symbol", func() {
+			It("should return the correct symbol", func() {
+				// Query the symbol
+				txArgs, symbolArgs := s.getTxAndCallArgs(directCall, contractData, erc20.SymbolMethod)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, symbolArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var symbol string
+				err = s.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(symbol).To(Equal("EVMOS"), "expected different symbol")
+			})
+		})
+
+		When("querying decimals", func() {
+			It("should return the correct decimals", func() {
+				// Query the decimals
+				txArgs, decimalsArgs := s.getTxAndCallArgs(directCall, contractData, erc20.DecimalsMethod)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, decimalsArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var decimals uint8
+				err = s.precompile.UnpackIntoInterface(&decimals, erc20.DecimalsMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(decimals).To(Equal(uint8(18)), "expected different decimals")
+			})
+		})
+
+		When("querying balance", func() {
+			It("should return an existing balance", func() {
+				// Query the balance
+				txArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, erc20.BalanceOfMethod, sender.Addr)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				expBalance := s.network.App.BankKeeper.GetBalance(s.network.GetContext(), sender.AccAddr, s.bondDenom)
+
+				var balance *big.Int
+				err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance).To(Equal(expBalance.Amount.BigInt()), "expected different balance")
+			})
+
+			It("should return a 0 balance new address", func() {
+				// Query the balance
+				txArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, erc20.BalanceOfMethod, evmosutiltx.GenerateAddress())
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance.Int64()).To(Equal(int64(0)), "expected different balance")
+			})
+		})
+
+		When("querying allowance", func() {
+			It("should return an existing allowance", func() {
+				grantee := evmosutiltx.GenerateAddress()
+				granter := sender
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+				s.setupSendAuthzForContract(directCall, grantee, granter.Priv, authzCoins)
+
+				txArgs, allowanceArgs := s.getTxAndCallArgs(directCall, contractData, auth.AllowanceMethod, granter.Addr, grantee)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = s.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance).To(Equal(authzCoins[0].Amount.BigInt()), "expected different allowance")
+			})
+
+			It("should return zero if no balance exists", func() {
+				address := evmosutiltx.GenerateAddress()
+
+				// Query the balance
+				txArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, erc20.BalanceOfMethod, address)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = s.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance.Int64()).To(BeZero(), "expected zero balance")
+			})
+		})
+
+		When("querying total supply", func() {
+			It("should return the total supply", func() {
+				expSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
+				Expect(ok).To(BeTrue(), "failed to parse expected supply")
+
+				// Query the balance
+				txArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TotalSupplyMethod)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var supply *big.Int
+				err = s.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(supply).To(Equal(expSupply), "expected different supply")
+			})
+		})
+
+		When("transferring tokens", func() {
+			It("it should transfer tokens to a receiver using `transfer`", func() {
+				// Get receiver address
+				receiver := s.keyring.GetKey(1)
+
+				senderBalance := s.network.App.BankKeeper.GetAllBalances(s.network.GetContext(), sender.AccAddr)
+				receiverBalance := s.network.App.BankKeeper.GetAllBalances(s.network.GetContext(), receiver.AccAddr)
+
+				// Transfer tokens
+				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferMethod, receiver.Addr, amount)
+				txArgs.GasPrice = big.NewInt(765625000)
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
+
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				gasAmount := ethRes.GasUsed * txArgs.GasPrice.Uint64()
+				coinsWithGasIncluded := transferCoins.Add(sdk.NewInt64Coin(s.bondDenom, int64(gasAmount)))
+				s.ExpectBalances(
+					[]ExpectedBalance{
+						{address: sender.AccAddr, expCoins: senderBalance.Sub(coinsWithGasIncluded...)},
+						{address: receiver.AccAddr, expCoins: receiverBalance.Add(transferCoins...)},
+					},
+				)
+			})
+
+			It("it should transfer tokens to a receiver using `transferFrom`", func() {
+				// Get receiver address
+				receiver := s.keyring.GetKey(1)
+
+				senderBalance := s.network.App.BankKeeper.GetAllBalances(s.network.GetContext(), sender.AccAddr)
+				receiverBalance := s.network.App.BankKeeper.GetAllBalances(s.network.GetContext(), receiver.AccAddr)
+
+				// Transfer tokens
+				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferFromMethod, sender.Addr, receiver.Addr, amount)
+				txArgs.GasPrice = big.NewInt(765625000)
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
+
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				gasAmount := ethRes.GasUsed * txArgs.GasPrice.Uint64()
+				coinsWithGasIncluded := transferCoins.Add(sdk.NewInt64Coin(s.bondDenom, int64(gasAmount)))
+				s.ExpectBalances(
+					[]ExpectedBalance{
+						{address: sender.AccAddr, expCoins: senderBalance.Sub(coinsWithGasIncluded...)},
+						{address: receiver.AccAddr, expCoins: receiverBalance.Add(transferCoins...)},
+					},
+				)
+			})
+		})
+	})
 })

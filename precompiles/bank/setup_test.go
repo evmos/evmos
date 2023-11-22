@@ -78,7 +78,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		},
 		Name:    "Evmos",
 		Symbol:  "EVMOS",
-		Display: "evmos",
+		Display: "aevmos",
 	}
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")

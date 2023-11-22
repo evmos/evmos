@@ -103,7 +103,6 @@ func (p Precompile) RunSetup(
 	// we need to consume the gas that was already used by the EVM
 	ctx.GasMeter().ConsumeGas(initialGas, "creating a new gas meter")
 
-	fmt.Println(method.Type)
 	return ctx, stateDB, method, initialGas, args, nil
 }
 
