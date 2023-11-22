@@ -59,7 +59,6 @@ func (p Precompile) RunSetup(
 	isShortCallData := len(contract.Input) > 0 && len(contract.Input) < 4
 	isStandardCallData := len(contract.Input) >= 4
 
-	fmt.Println(isEmptyCallData, isShortCallData, isStandardCallData)
 	switch {
 	// Case 1: Calldata is empty
 	case isEmptyCallData:
@@ -169,7 +168,7 @@ func (p Precompile) standardCallData(contract *vm.Contract) (method *abi.Method,
 
 	// Case 3.2: calldata contains a non-existing method ID - 'fallback' is called if present
 	if err != nil && p.HasFallback() {
-		return method, nil
+		return &p.Fallback, nil
 	}
 
 	return method, nil
