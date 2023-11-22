@@ -180,11 +180,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	}
 
 	commissionRate := new(sdk.Dec)
-	if commissionRateBigInt.Sign() == -1 {
+	if commissionRateBigInt.Sign() <= 0 {
 		if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
 			commissionRate = nil
 		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "self delegation must be -1 means not changed or a positive integer")
+			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "commission rate must be -1(means not changed) or between 0 and 1 (inclusive)")
 		}
 	} else {
 		*commissionRate = sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
@@ -196,11 +196,11 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	}
 
 	minSelfDelegation := new(sdkmath.Int)
-	if minSelfDelegationBigInt.Sign() == -1 {
+	if minSelfDelegationBigInt.Sign() <= 0 {
 		if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) == 0 {
 			minSelfDelegation = nil
 		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "commission rate must be -1 -1 means not changed or between 0 and 1 (inclusive)")
+			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "min self delegation must be -1(means not changed) or a positive integer")
 		}
 	} else {
 		*minSelfDelegation = sdk.NewIntFromBigInt(minSelfDelegationBigInt)
