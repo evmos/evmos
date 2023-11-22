@@ -9,13 +9,11 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/evmos/evmos/v15/utils"
 	"golang.org/x/exp/slices"
 
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
-	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
@@ -98,6 +96,32 @@ type Memo struct {
 	Msg *Msg `json:"msg"`
 }
 
+// Validate performs basic validation of the IBC memo for the Osmosis outpost.
+// This function assumes that memo field is parsed with ParseSwapPacketData, which
+// performs data casting ensuring outputDenom cannot be an empty string.
+func (m Memo) Validate() error {
+	osmosisSwap := m.Msg.OsmosisSwap
+
+	if osmosisSwap.OnFailedDelivery == "" {
+		return fmt.Errorf(ErrEmptyOnFailedDelivery)
+	}
+
+	// Check if account is a valid bech32 address
+	if _, err := sdk.AccAddressFromBech32(osmosisSwap.Receiver); err != nil {
+		return fmt.Errorf(ErrReceiverAddress, "not a valid evmos address")
+	}
+
+	if osmosisSwap.Slippage.TWAP.SlippagePercentage == 0 || osmosisSwap.Slippage.TWAP.SlippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrSlippagePercentage)
+	}
+
+	if osmosisSwap.Slippage.TWAP.WindowSeconds == 0 || osmosisSwap.Slippage.TWAP.WindowSeconds > MaxWindowSeconds {
+		return fmt.Errorf(ErrWindowSeconds)
+	}
+
+	return nil
+}
+
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string.
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo.
@@ -143,33 +167,6 @@ func (r RawPacketMetadata) String() string {
 	}
 
 	return string(jsonBytes)
-}
-
-// Validate performs basic validation of the IBC memo for the Osmosis outpost.
-// This function assumes that memo field are parsed with ParseSwapPacketData, which
-// performs data casting ensuring outputDenom cannot be an empty string.
-func (m Memo) Validate() error {
-	osmosisSwap := m.Msg.OsmosisSwap
-
-	if osmosisSwap.OnFailedDelivery == "" {
-		return fmt.Errorf(ErrEmptyOnFailedDelivery)
-	}
-
-	// Check if account is a valid bech32 address
-	_, _, err := bech32.Decode(osmosisSwap.Receiver, address.MaxAddrLen)
-	if err != nil {
-		return err
-	}
-
-	if osmosisSwap.Slippage.TWAP.SlippagePercentage == 0 || osmosisSwap.Slippage.TWAP.SlippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrSlippagePercentage)
-	}
-
-	if osmosisSwap.Slippage.TWAP.WindowSeconds == 0 || osmosisSwap.Slippage.TWAP.WindowSeconds > MaxWindowSeconds {
-		return fmt.Errorf(ErrWindowSeconds)
-	}
-
-	return nil
 }
 
 // CreateOnFailedDeliveryField is an utility function to create the memo field

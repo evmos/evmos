@@ -5,9 +5,6 @@ package osmosis
 import "fmt"
 
 var (
-	// ErrEmptyReceiver is raised when the receiver used in the memo is an
-	// empty string.
-	ErrEmptyReceiver = "receiver address cannot be empty"
 	// ErrEmptyOnFailedDelivery is raised when the onFailedDeliver field of the
 	// IBC memo is an empty string.
 	ErrEmptyOnFailedDelivery = "onFailedDelivery cannot be empty"
@@ -25,4 +22,7 @@ var (
 	// ErrInputTokenNotSupported is raised when the osmosis outpost receives a non-supported
 	// input token for the swap.
 	ErrInputTokenNotSupported = "input not supported, supported tokens: %v" //#nosec G101 -- no hardcoded credentials here
+	// ErrReceiverAddress is raised when an error occurs during the validation of the receiver of the
+	// swap.
+	ErrReceiverAddress = "error during receiver address validation: %s"
 )
