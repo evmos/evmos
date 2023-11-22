@@ -42,7 +42,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	rosettaCmd "github.com/cosmos/rosetta/cmd"
+	// rosettaCmd "github.com/cosmos/rosetta/cmd"
 
 	evmosclient "github.com/evmos/evmos/v15/client"
 	"github.com/evmos/evmos/v15/client/block"
@@ -166,8 +166,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		panic(err)
 	}
 
+	// TODO uncomment after merging https://github.com/cosmos/rosetta/pull/58
 	// add rosetta
-	rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
+	// rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
 
 	return rootCmd, encodingConfig
 }

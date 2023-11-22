@@ -17,7 +17,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/rosetta"
+	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
+	// "github.com/cosmos/rosetta"
 	// NOT SUPPORTED IN SDK v0.50
 	// "github.com/crypto-org-chain/cronos/memiavl"
 	// memiavlcfg "github.com/crypto-org-chain/cronos/store/config"
@@ -217,7 +218,8 @@ type TLSConfig struct {
 
 // RosettaConfig defines configuration for the Rosetta server.
 type RosettaConfig struct {
-	rosetta.Config
+	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
+	// rosetta.Config
 	// Enable defines if the Rosetta server should be enabled.
 	Enable bool `mapstructure:"enable"`
 }
@@ -404,20 +406,21 @@ func (c TLSConfig) Validate() error {
 
 // DefaultEVMConfig returns the default EVM configuration
 func DefaultRosettaConfig() *RosettaConfig {
+	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
 	return &RosettaConfig{
-		Config: rosetta.Config{
-			Blockchain:          DefaultRosettaBlockchain,
-			Network:             DefaultRosettaNetwork,
-			TendermintRPC:       rosetta.DefaultCometEndpoint,
-			GRPCEndpoint:        rosetta.DefaultGRPCEndpoint,
-			Addr:                rosetta.DefaultAddr,
-			Retries:             rosetta.DefaultRetries,
-			Offline:             rosetta.DefaultOffline,
-			EnableFeeSuggestion: rosetta.DefaultEnableFeeSuggestion,
-			GasToSuggest:        DefaultRosettaGasToSuggest,
-			DenomToSuggest:      DefaultRosettaDenomToSuggest,
-			GasPrices:           DefaultRosettaGasPrices,
-		},
+		// Config: rosetta.Config{
+		// 	Blockchain:          DefaultRosettaBlockchain,
+		// 	Network:             DefaultRosettaNetwork,
+		// 	TendermintRPC:       rosetta.DefaultCometEndpoint,
+		// 	GRPCEndpoint:        rosetta.DefaultGRPCEndpoint,
+		// 	Addr:                rosetta.DefaultAddr,
+		// 	Retries:             rosetta.DefaultRetries,
+		// 	Offline:             rosetta.DefaultOffline,
+		// 	EnableFeeSuggestion: rosetta.DefaultEnableFeeSuggestion,
+		// 	GasToSuggest:        DefaultRosettaGasToSuggest,
+		// 	DenomToSuggest:      DefaultRosettaDenomToSuggest,
+		// 	GasPrices:           DefaultRosettaGasPrices,
+		// },
 		Enable: DefaultRosettaEnable,
 	}
 }

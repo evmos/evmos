@@ -46,8 +46,9 @@ import (
 	servergrpc "github.com/cosmos/cosmos-sdk/server/grpc"
 	servercmtlog "github.com/cosmos/cosmos-sdk/server/log"
 	"github.com/cosmos/cosmos-sdk/server/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/rosetta"
+	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
+	// sdk "github.com/cosmos/cosmos-sdk/types"
+	// "github.com/cosmos/rosetta"
 
 	"github.com/evmos/evmos/v15/cmd/evmosd/opendb"
 	"github.com/evmos/evmos/v15/indexer"
@@ -644,42 +645,44 @@ func startRosettaServer(
 	if !config.Rosetta.Enable {
 		return nil
 	}
-	offlineMode := config.Rosetta.Offline
+	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
+	// offlineMode := config.Rosetta.Offline
 
 	// If GRPC is not enabled rosetta cannot work in online mode, so it works in
 	// offline mode.
-	if !config.GRPC.Enable {
-		offlineMode = true
-	}
+	// if !config.GRPC.Enable {
+	// 	offlineMode = true
+	// }
 
-	minGasPrices, err := sdk.ParseDecCoins(config.MinGasPrices)
-	if err != nil {
-		svrCtx.Logger.Error("failed to parse minimum-gas-prices", "error", err.Error())
-		return err
-	}
+	// minGasPrices, err := sdk.ParseDecCoins(config.MinGasPrices)
+	// if err != nil {
+	// 	svrCtx.Logger.Error("failed to parse minimum-gas-prices", "error", err.Error())
+	// 	return err
+	// }
 
-	conf := &rosetta.Config{
-		Blockchain:          config.Rosetta.Blockchain,
-		Network:             config.Rosetta.Network,
-		TendermintRPC:       svrCtx.Config.RPC.ListenAddress,
-		GRPCEndpoint:        config.GRPC.Address,
-		Addr:                config.Rosetta.Addr,
-		Retries:             config.Rosetta.Retries,
-		Offline:             offlineMode,
-		GasToSuggest:        config.Rosetta.GasToSuggest,
-		EnableFeeSuggestion: config.Rosetta.EnableFeeSuggestion,
-		GasPrices:           minGasPrices.Sort(),
-		Codec:               clientCtx.Codec.(*codec.ProtoCodec),
-		InterfaceRegistry:   clientCtx.InterfaceRegistry,
-	}
+	// conf := &rosetta.Config{
+	// 	Blockchain:          config.Rosetta.Blockchain,
+	// 	Network:             config.Rosetta.Network,
+	// 	TendermintRPC:       svrCtx.Config.RPC.ListenAddress,
+	// 	GRPCEndpoint:        config.GRPC.Address,
+	// 	Addr:                config.Rosetta.Addr,
+	// 	Retries:             config.Rosetta.Retries,
+	// 	Offline:             offlineMode,
+	// 	GasToSuggest:        config.Rosetta.GasToSuggest,
+	// 	EnableFeeSuggestion: config.Rosetta.EnableFeeSuggestion,
+	// 	GasPrices:           minGasPrices.Sort(),
+	// 	Codec:               clientCtx.Codec.(*codec.ProtoCodec),
+	// 	InterfaceRegistry:   clientCtx.InterfaceRegistry,
+	// }
 
-	rosettaSrv, err := rosetta.ServerFromConfig(conf)
-	if err != nil {
-		return err
-	}
+	// rosettaSrv, err := rosetta.ServerFromConfig(conf)
+	// if err != nil {
+	// 	return err
+	// }
 
 	g.Go(func() error {
-		return rosettaSrv.Start()
+		// return rosettaSrv.Start()
+		return nil
 	})
 	return nil
 }
