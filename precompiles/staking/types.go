@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"math/big"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdktypeserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -183,7 +184,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
 			commissionRate = nil
 		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "self delegation must be -1 means not changed or a positive integer")
+			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "self delegation must be -1 means not changed or a positive integer")
 		}
 	} else {
 		*commissionRate = sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
@@ -199,7 +200,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) == 0 {
 			minSelfDelegation = nil
 		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "commission rate must be -1 -1 means not changed or between 0 and 1 (inclusive)")
+			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "commission rate must be -1 -1 means not changed or between 0 and 1 (inclusive)")
 		}
 	} else {
 		*minSelfDelegation = sdk.NewIntFromBigInt(minSelfDelegationBigInt)
