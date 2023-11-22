@@ -89,40 +89,6 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
 	logCheckArgs.Res = res
 	if err != nil {
-		//// TODO: this unwrapping errors code here is WIP for the custom errors being returned by
-		//// contracts adhering to ERC-6093. It should be checked how to correctly expected these errors
-		//// in the integration tests.
-		//// FIXME: adjust this
-		// unwrappedErr := UnwrapErrors(err)
-		//
-		//// check if the error is a RevertError with a reason
-		// if revertErr, ok := unwrappedErr.(*evmtypes.RevertError); ok {
-		//	// will remove this, just checking which errors are available at this point
-		//	for errName, availableErr := range callArgs.ContractABI.Errors {
-		//		fmt.Println("err name:", errName)
-		//		fmt.Println("Available error:", availableErr.Name)
-		//		if availableErr.Name == revertErr.Error() {
-		//			return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
-		//		}
-		//	}
-		//
-		//	// decode the revert error reason
-		//	reason := revertErr.ErrorData().(string)
-		//	reasonBytes, decodeErr := hexutil.Decode(reason)
-		//	if decodeErr != nil {
-		//		return abcitypes.ResponseDeliverTx{}, nil, err
-		//	}
-		//	reason, unpackErr := abi.UnpackRevert(reasonBytes)
-		//	if unpackErr != nil {
-		//		return abcitypes.ResponseDeliverTx{}, nil, err
-		//	}
-		//	fmt.Println("Revert reason:", reason)
-		// }
-
-		// NOTE: here we are still passing the response to the log check function,
-		// because we want to check the logs and expected error in case of a VM error.
-		//
-		// TODO: refactor CheckLogs function
 		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
 	}
 
