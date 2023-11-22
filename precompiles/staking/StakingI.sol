@@ -309,7 +309,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param newShares The new delegation shares being held
     event Delegate(
         address indexed delegatorAddress,
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 amount,
         uint256 newShares
     );
@@ -322,7 +322,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param completionTime The time at which the unbonding is completed
     event Unbond(
         address indexed delegatorAddress,
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 amount,
         uint256 completionTime
     );
@@ -336,8 +336,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @param completionTime The time at which the redelegation is completed
     event Redelegate(
         address indexed delegatorAddress,
-        string indexed validatorSrcAddress,
-        string indexed validatorDstAddress,
+        address indexed validatorSrcAddress,
+        address indexed validatorDstAddress,
         uint256 amount,
         uint256 completionTime
     );
@@ -350,7 +350,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param creationHeight The block height at which the unbonding of a delegation was initiated
     event CancelUnbondingDelegation(
         address indexed delegatorAddress,
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 amount,
         uint256 creationHeight
     );

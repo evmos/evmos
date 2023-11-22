@@ -78,14 +78,21 @@ class CosmosChain:
         self.config = json.loads((base_dir / "config.json").read_text())
         self.daemon_name = daemon_name
 
-    def base_port(self, i):
+    def base_port(self, i=0):
         return self.config["validators"][i]["base_port"]
 
-    def node_rpc(self, i):
+    def node_rpc(self, i=0):
         return "tcp://127.0.0.1:%d" % ports.rpc_port(self.base_port(i))
 
     def cosmos_cli(self, i=0):
-        return CosmosCLI(self.base_dir / f"node{i}", self.node_rpc(i), self.daemon_name)
+        node_path = self.base_dir / f"node{i}"
+        if node_path.exists() and node_path.is_dir():
+            return CosmosCLI(node_path, self.node_rpc(i), self.daemon_name)
+        # in case the provided directory does not exist
+        # try with the other node. This applies for
+        # stride that has a special setup because is a consumer chain
+        node_path = self.base_dir / "node1"
+        return CosmosCLI(node_path, self.node_rpc(), self.daemon_name)
 
 
 #  Hermes IBC relayer

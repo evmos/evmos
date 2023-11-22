@@ -72,9 +72,9 @@
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,
@@ -128,9 +128,9 @@
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,
@@ -184,15 +184,15 @@
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorSrcAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorDstAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,
@@ -246,9 +246,9 @@
       },
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,

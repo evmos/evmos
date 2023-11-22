@@ -27,7 +27,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 	senderAddress := utiltx.GenerateAddress()
 	sender := sdktypes.AccAddress(senderAddress.Bytes())
 	randomAddress := utiltx.GenerateAddress()
-	osmoAddress := "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2"
+	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7" //nolint:goconst
 
 	method := s.precompile.Methods[osmosis.SwapMethod]
 	testCases := []struct {
@@ -60,7 +60,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -80,7 +80,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -100,7 +100,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -120,7 +120,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -148,7 +148,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError: true,
@@ -169,7 +169,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -193,7 +193,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError: true,
@@ -222,7 +222,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: "invalid separator",
+			errContains: fmt.Sprintf(osmosis.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			//  THIS PANICS INSIDE CheckAuthzExists
 			name:   "fail - origin different from address caller",
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -267,7 +267,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError:    true,
@@ -291,7 +291,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,
-					osmoAddress,
+					receiver,
 				}
 			},
 			expError: false,
