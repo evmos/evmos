@@ -124,7 +124,7 @@ func (p Precompile) EmitAllowanceChangeEvent(ctx sdk.Context, stateDB vm.StateDB
 	return nil
 }
 
-// EmitCreateValidatorEvent creates a new ctreate valdator event emitted on a CreateValidator transaction.
+// EmitCreateValidatorEvent creates a new create validator event emitted on a CreateValidator transaction.
 func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgCreateValidator, delegatorAddr common.Address) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeCreateValidator]
