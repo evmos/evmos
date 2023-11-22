@@ -12,7 +12,14 @@ from .network import (
     create_snapshots_dir,
     setup_custom_evmos,
 )
-from .utils import ADDRS, eth_to_bech32, memiavl_config, update_evmos_bin, wait_for_port
+from .utils import (
+    ADDRS,
+    eth_to_bech32,
+    memiavl_config,
+    update_evmos_bin,
+    update_evmosd_and_setup_stride,
+    wait_for_port,
+)
 
 # EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
@@ -82,11 +89,14 @@ def get_evmos_generator(
         if custom_scenario:
             # build the binary modified for a custom scenario
             modified_bin = build_patched_evmosd(custom_scenario)
+            post_init_func = update_evmos_bin(modified_bin)
+            if "stride" in custom_scenario:
+                post_init_func = update_evmosd_and_setup_stride(modified_bin)
             gen = setup_custom_evmos(
                 tmp_path,
                 26700,
                 Path(__file__).parent / file,
-                post_init=update_evmos_bin(modified_bin),
+                post_init=post_init_func,
                 chain_binary=modified_bin,
             )
         else:
@@ -127,7 +137,7 @@ def prepare_network(
 
         chain_instance = CosmosChain(tmp_path / chain_name, meta["bin"])
         # wait for grpc ready in other_chains
-        wait_for_port(ports.grpc_port(chain_instance.base_port(0)))
+        wait_for_port(ports.grpc_port(chain_instance.base_port()))
 
         chains[chain] = chain_instance
         # pystarport (used to start the setup), by default uses ethereum
