@@ -5,7 +5,6 @@ package factory
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -98,35 +97,6 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	}
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)
-}
-
-// UnwrapErrors is a helper function to unwrap any received error.
-// Depending on the passed error it either unwraps to the last underlying error or until
-// a RevertError type is found. This error contains an encoded reason which must be decoded to be
-// made readable.
-func UnwrapErrors(err error) error {
-	if err == nil {
-		return nil
-	}
-
-	for {
-		cause := errors.Unwrap(err)
-		if cause == nil {
-			return err
-		}
-
-		// If the same error is returned it means that unwrapping using Cause does not work - we return the error as it is.
-		if errors.Is(cause, err) {
-			return cause
-		}
-
-		// If the error is a RevertError, we also want to return the error
-		if _, ok := cause.(*evmtypes.RevertError); ok {
-			return cause
-		}
-
-		err = cause
-	}
 }
 
 // CheckError is a helper function to check if the error is the expected one.
