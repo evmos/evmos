@@ -223,8 +223,7 @@ func txCommand() *cobra.Command {
 	)
 
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
-	// TODO uncomment when updating the sdk dependency to evmos' fork
-	// flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment
+	flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment
 
 	app.ModuleBasics.AddTxCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
