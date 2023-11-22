@@ -12,6 +12,7 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -36,6 +37,8 @@ type TxFactory interface {
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	// GenerateEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+	GenerateEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
 	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -66,6 +69,16 @@ func New(
 		network:              network,
 		ec:                   &ec,
 	}
+}
+
+// GenerateEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+func (tf *IntegrationTxFactory) GenerateEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
+	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
+	}
+
+	return tf.buildSignedTx(msgEthereumTx)
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -232,18 +245,19 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 }
 
 func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
+	signingTx, err := tf.buildSignedTx(msg)
 	txConfig := tf.ec.TxConfig
-	txBuilder := txConfig.NewTxBuilder()
-	signingTx, err := msg.BuildTx(txBuilder, tf.network.GetDenom())
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to build tx")
-	}
-
 	txBytes, err := txConfig.TxEncoder()(signingTx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}
 	return txBytes, nil
+}
+
+func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signing.Tx, error) {
+	txConfig := tf.ec.TxConfig
+	txBuilder := txConfig.NewTxBuilder()
+	return msg.BuildTx(txBuilder, tf.network.GetDenom())
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse
