@@ -18,6 +18,10 @@ string constant MSG_UNDELEGATE = "/cosmos.staking.v1beta1.MsgUndelegate";
 string constant MSG_REDELEGATE = "/cosmos.staking.v1beta1.MsgBeginRedelegate";
 string constant MSG_CANCEL_UNDELEGATION = "/cosmos.staking.v1beta1.MsgCancelUnbondingDelegation";
 
+/// @dev Define the editValidator method when the user does not want to change its value
+int256 constant DO_NOT_MODIFY_COMMISSION_RATE = -1;
+int256 constant DO_NOT_MODIFY_MIN_SELF_DELEGATION = -1;
+
 /// @dev Defines the initial description to be used for creating
 /// a validator.
 struct Description {

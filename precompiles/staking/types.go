@@ -83,23 +83,13 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
-	description := stakingtypes.Description{}
-	if descriptionInput, ok := args[0].(Description); ok {
-		description.Moniker = descriptionInput.Moniker
-		description.Identity = descriptionInput.Identity
-		description.Website = descriptionInput.Website
-		description.SecurityContact = descriptionInput.SecurityContact
-		description.Details = descriptionInput.Details
-	} else {
+	description, ok := args[0].(Description)
+	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
 
-	commission := stakingtypes.CommissionRates{}
-	if commissionInput, ok := args[1].(Commission); ok {
-		commission.Rate = sdk.NewDecFromBigIntWithPrec(commissionInput.Rate, sdk.Precision)
-		commission.MaxRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxRate, sdk.Precision)
-		commission.MaxChangeRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, sdk.Precision)
-	} else {
+	commission, ok := args[1].(Commission)
+	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
 	}
 
@@ -139,8 +129,18 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	}
 
 	msg := &stakingtypes.MsgCreateValidator{
-		Description:       description,
-		Commission:        commission,
+		Description: stakingtypes.Description{
+			Moniker:         description.Moniker,
+			Identity:        description.Identity,
+			Website:         description.Website,
+			SecurityContact: description.SecurityContact,
+			Details:         description.Details,
+		},
+		Commission: stakingtypes.CommissionRates{
+			Rate:          sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			MaxRate:       sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+			MaxChangeRate: sdk.NewDecFromBigIntWithPrec(commission.Rate, sdk.Precision),
+		},
 		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
 		ValidatorAddress:  validatorAddress,
@@ -162,14 +162,8 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
 	}
 
-	description := stakingtypes.Description{}
-	if descriptionInput, ok := args[0].(Description); ok {
-		description.Moniker = descriptionInput.Moniker
-		description.Identity = descriptionInput.Identity
-		description.Website = descriptionInput.Website
-		description.SecurityContact = descriptionInput.SecurityContact
-		description.Details = descriptionInput.Details
-	} else {
+	description, ok := args[0].(Description)
+	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
 	}
 
@@ -203,7 +197,13 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	}
 
 	msg := &stakingtypes.MsgEditValidator{
-		Description:       description,
+		Description: stakingtypes.Description{
+			Moniker:         description.Moniker,
+			Identity:        description.Identity,
+			Website:         description.Website,
+			SecurityContact: description.SecurityContact,
+			Details:         description.Details,
+		},
 		ValidatorAddress:  sdk.ValAddress(validatorHexAddr.Bytes()).String(),
 		CommissionRate:    commissionRate,
 		MinSelfDelegation: minSelfDelegation,
