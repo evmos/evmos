@@ -2,7 +2,9 @@ package erc20
 
 import (
 	"errors"
+	"strings"
 
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/crypto"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -33,4 +35,23 @@ func BuildExecRevertedErr(reason string) (error, error) {
 	reasonBytes = append(reasonBytes, packedReason...)
 
 	return evmtypes.NewExecErrorWithReason(reasonBytes), nil
+}
+
+// convertErrToERC20Error is a helper function which maps errors raised by the Cosmos SDK stack
+// to the corresponding errors which are raised by an ERC20 contract.
+//
+// TODO: Create the full RevertError types instead of just the standard error type.
+//
+// TODO: Return ERC-6093 compliant errors.
+func convertErrToERC20Error(err error) error {
+	switch {
+	case strings.Contains(err.Error(), "spendable balance"):
+		return ErrTransferAmountExceedsBalance
+	case strings.Contains(err.Error(), "requested amount is more than spend limit"):
+		return ErrInsufficientAllowance
+	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
+		return ErrInsufficientAllowance
+	default:
+		return err
+	}
 }
