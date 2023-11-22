@@ -522,11 +522,12 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			errContains: "invalid spender address: invalid address",
 		},
 		{
-			name: "fail - no allowance exists",
+			name: "pass - no allowance exists should return 0",
 			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), s.keyring.GetAddr(1)}
 			},
-			errContains: "does not exist or is expired",
+			expPass:  true,
+			expAllow: common.Big0,
 		},
 		{
 			name: "pass - allowance exists but not for precompile token pair denom",
