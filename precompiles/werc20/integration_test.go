@@ -1,8 +1,9 @@
 package werc20_test
 
 import (
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math/big"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
