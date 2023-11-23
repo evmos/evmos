@@ -180,7 +180,7 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 	}
 
 	commissionRate := new(sdk.Dec)
-	if commissionRateBigInt.Sign() <= 0 {
+	if commissionRateBigInt.Sign() < 0 {
 		if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
 			commissionRate = nil
 		} else {
