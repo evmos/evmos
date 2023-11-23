@@ -19,6 +19,7 @@ import (
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"golang.org/x/exp/slices"
 
 	//nolint:revive // dot imports are fine for Gomega
 	. "github.com/onsi/gomega"
@@ -66,16 +67,10 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 		"this test utility only works with the token denom in the context of these integration tests",
 	)
 
-	switch callType {
-	case directCall:
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
 		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
-	case contractCall:
-		s.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
-	case erc20Call:
-		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
-	case erc20V5Call:
-		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
-	case erc20V5CallerCall:
+	case slices.Contains(erc20CallTypes, callType):
 		s.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
 	default:
 		panic("unknown contract call type")
@@ -206,8 +201,14 @@ const (
 	directCall CallType = iota + 1
 	contractCall
 	erc20Call
+	erc20CallerCall
 	erc20V5Call
 	erc20V5CallerCall
+)
+
+var (
+	nativeCallTypes = []CallType{directCall, contractCall}
+	erc20CallTypes  = []CallType{erc20Call, erc20CallerCall, erc20V5Call, erc20V5CallerCall}
 )
 
 // getCallArgs is a helper function to return the correct call arguments for a given call type.
@@ -255,16 +256,10 @@ func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 // ExpectBalancesForContract is a helper function to check expected balances for given accounts depending
 // on the call type.
 func (s *PrecompileTestSuite) ExpectBalancesForContract(callType CallType, contractData ContractsData, expBalances []ExpectedBalance) {
-	switch callType {
-	case directCall:
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
 		s.ExpectBalances(expBalances)
-	case contractCall:
-		s.ExpectBalances(expBalances)
-	case erc20Call:
-		s.ExpectBalancesForERC20(callType, contractData, expBalances)
-	case erc20V5Call:
-		s.ExpectBalancesForERC20(callType, contractData, expBalances)
-	case erc20V5CallerCall:
+	case slices.Contains(erc20CallTypes, callType):
 		s.ExpectBalancesForERC20(callType, contractData, expBalances)
 	default:
 		panic("unknown contract call type")
@@ -337,16 +332,10 @@ func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType CallType, contrac
 func (s *PrecompileTestSuite) ExpectSendAuthzForContract(
 	callType CallType, contractData ContractsData, grantee, granter common.Address, expAmount sdk.Coins,
 ) {
-	switch callType {
-	case directCall:
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
 		s.expectSendAuthz(grantee.Bytes(), granter.Bytes(), expAmount)
-	case contractCall:
-		s.expectSendAuthz(grantee.Bytes(), granter.Bytes(), expAmount)
-	case erc20Call:
-		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
-	case erc20V5Call:
-		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
-	case erc20V5CallerCall:
+	case slices.Contains(erc20CallTypes, callType):
 		s.expectSendAuthzForERC20(callType, contractData, grantee, granter, expAmount)
 	default:
 		panic("unknown contract call type")
@@ -372,16 +361,10 @@ func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(callType CallType, contr
 func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
 	callType CallType, contractData ContractsData, grantee, granter common.Address,
 ) {
-	switch callType {
-	case directCall:
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
 		s.expectNoSendAuthz(grantee.Bytes(), granter.Bytes())
-	case contractCall:
-		s.expectNoSendAuthz(grantee.Bytes(), granter.Bytes())
-	case erc20Call:
-		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
-	case erc20V5Call:
-		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
-	case erc20V5CallerCall:
+	case slices.Contains(erc20CallTypes, callType):
 		s.expectNoSendAuthzForERC20(callType, contractData, grantee, granter)
 	default:
 		panic("unknown contract call type")
@@ -426,16 +409,10 @@ func (s *PrecompileTestSuite) fundWithTokens(
 
 	var err error
 
-	switch callType {
-	case directCall:
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
 		err = s.network.FundAccount(receiver.Bytes(), fundCoins)
-	case contractCall:
-		err = s.network.FundAccount(receiver.Bytes(), fundCoins)
-	case erc20Call:
-		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
-	case erc20V5Call:
-		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
-	case erc20V5CallerCall:
+	case slices.Contains(erc20CallTypes, callType):
 		err = s.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(s.tokenDenom).BigInt())
 	default:
 		panic("unknown contract call type")

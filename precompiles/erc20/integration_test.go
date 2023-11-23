@@ -970,12 +970,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("querying the name should return an error", func(callType CallType) {
 				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
-				if callType == contractCall {
-					noIBCVoucherCheck = execRevertedCheck
-				}
-
-				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, nameArgs, noIBCVoucherCheck)
+				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, nameArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
@@ -988,12 +983,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("querying the symbol should return an error", func(callType CallType) {
 				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
-				if callType == contractCall {
-					noIBCVoucherCheck = execRevertedCheck
-				}
-
-				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, symbolArgs, noIBCVoucherCheck)
+				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, symbolArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
@@ -1006,12 +996,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("querying the decimals should return an error", func(callType CallType) {
 				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
-				if callType == contractCall {
-					noIBCVoucherCheck = execRevertedCheck
-				}
-
-				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, decimalsArgs, noIBCVoucherCheck)
+				_, _, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, decimalsArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			},
 				Entry(" - direct call", directCall),
@@ -1144,7 +1129,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		BeforeEach(func() {
 			// Deploying the contract which has the increase / decrease allowance methods
-			_, err := s.factory.DeployContract(
+			contractAddr, err := s.factory.DeployContract(
 				s.keyring.GetPrivKey(0),
 				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 				factory.ContractDeploymentData{
@@ -1153,6 +1138,11 @@ var _ = Describe("ERC20 Extension -", func() {
 				},
 			)
 			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+			contractsData.contractData[erc20CallerCall] = ContractData{
+				Address: contractAddr,
+				ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+			}
 
 			grantee = s.keyring.GetKey(0)
 			granter = s.keyring.GetKey(1)
@@ -1179,7 +1169,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				// NOTE: The ERC20 V5 contract does not contain these methods
 				// Entry(" - through erc20 v5 contract", erc20V5Call),
 				Entry(" - contract call", contractCall),
-				Entry(" - through erc20 caller contract", erc20V5CallerCall),
+				Entry(" - through erc20 caller contract", erc20CallerCall),
 			)
 
 			// NOTE: We have to split between direct and contract calls here because the ERC20 behavior
@@ -1219,7 +1209,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					s.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, contractAddr, authzCoins)
 				},
 					Entry(" - contract call", contractCall),
-					Entry(" - through erc20 caller contract", erc20V5CallerCall),
+					Entry(" - through erc20 caller contract", erc20CallerCall),
 				)
 			})
 		})
