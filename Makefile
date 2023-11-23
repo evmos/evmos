@@ -26,6 +26,7 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
+ROCKSDB_VERSION ?= "8.5.3"
 
 export GO111MODULE = on
 
@@ -168,6 +169,18 @@ build-docker:
 	echo 'SCRIPT_PATH=$$(cd $$(dirname $$0) && pwd -P)' >> ./build/evmosd
 	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
 	chmod +x ./build/evmosd
+
+build-pebbledb:
+	@go mod edit -replace github.com/cometbft/cometbft-db=github.com/notional-labs/cometbft-db@pebble
+	@go mod tidy
+	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
+
+build-rocksdb:
+	# Make sure to run this command with root permission
+	./scripts/install_librocksdb.sh $(ROCKSDB_VERSION)
+	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/include" \
+	CGO_LDFLAGS="-L/usr/lib -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
+	COSMOS_BUILD_OPTIONS=rocksdb $(MAKE) build
 
 push-docker: build-docker
 	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
