@@ -345,25 +345,9 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	// Register EVMOS ERC20 equivalent
 	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
-	evmosMetadata := banktypes.Metadata{
-		Description: "The native token of Evmos",
-		Base:        bondDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    bondDenom,
-				Exponent: 0,
-				Aliases:  []string{"aevmos"},
-			},
-			{
-				Denom:    "aevmos",
-				Exponent: 18,
-			},
-		},
-		Name:    "Evmos",
-		Symbol:  "EVMOS",
-		Display: "evmos",
-	}
+	fmt.Println(bondDenom)
+	evmosMetadata, found := s.app.BankKeeper.GetDenomMetaData(s.ctx, bondDenom)
+	s.Require().True(found, "expected evmos denom metadata")
 
 	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(2e18))
 	err := s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
