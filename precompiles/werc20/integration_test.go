@@ -90,8 +90,8 @@ var _ = Describe("WEVMOS Extension -", func() {
 	})
 
 	Context("WEVMOS specific functions", func() {
-		When("calling deposit and withdraw correctly", func() {
-			It("calls deposit - should emit the Deposit event but not modify the balance", func() {
+		When("calling deposit correctly", func() {
+			It("should emit the Deposit event but not modify the balance", func() {
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
 				txArgs.Amount = amount
@@ -102,17 +102,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls withdraw - should emit the Withdrawal event but not modify the balance", func() {
-				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
-				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, withdrawCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				s.checkBalances(failCheck, sender, contractData)
-			})
-
-			It("calls deposit - the correct minimum gas is spent", func() {
+			It("should spend the correct minimum gas", func() {
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
 				txArgs.Amount = amount
@@ -123,7 +113,20 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used")
 			})
 
-			It("calls withdraw - the correct minimum gas is spent", func() {
+		})
+
+		When("calling withdraw correctly", func() {
+			It("should emit the Withdrawal event but not modify the balance", func() {
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
+
+			It("should spend the correct minimum gas", func() {
 				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
 
