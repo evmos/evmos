@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strings"
+
+	"github.com/evmos/evmos/v15/precompiles/testutil"
 
 	"github.com/cosmos/gogoproto/proto"
 
@@ -31,6 +34,12 @@ import (
 type TxFactory interface {
 	commonfactory.TxFactory
 
+	// CallContractAndCheckLogs is a helper function to call a contract and check the logs using
+	// the integration test utilities.
+	//
+	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
+	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
+	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error)
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
@@ -66,6 +75,54 @@ func New(
 		network:              network,
 		ec:                   &ec,
 	}
+}
+
+// CallContractAndCheckLogs is a helper function to call a contract and check the logs using
+// the integration test utilities.
+//
+// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
+// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
+func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
+	priv cryptotypes.PrivKey,
+	txArgs evmtypes.EvmTxArgs,
+	callArgs CallArgs,
+	logCheckArgs testutil.LogCheckArgs,
+) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
+	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
+	logCheckArgs.Res = res
+	if err != nil {
+		// NOTE: here we are still passing the response to the log check function,
+		// because we want to check the logs and expected error in case of a VM error.
+		//
+		// TODO: refactor CheckLogs function
+		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
+	}
+
+	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, nil, err
+	}
+
+	return res, ethRes, testutil.CheckLogs(logCheckArgs)
+}
+
+// CheckError is a helper function to check if the error is the expected one.
+func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
+	switch {
+	case logCheckArgs.ExpPass && err == nil:
+		return nil
+	case !logCheckArgs.ExpPass && err == nil:
+		return errorsmod.Wrap(err, "expected error but got none")
+	case logCheckArgs.ExpPass && err != nil:
+		return errorsmod.Wrap(err, "expected no error but got one")
+	case logCheckArgs.ErrContains == "":
+		// NOTE: if err contains is empty, we return the error as it is
+		return errorsmod.Wrap(err, "ErrContains needs to be filled")
+	case !strings.Contains(err.Error(), logCheckArgs.ErrContains):
+		return errorsmod.Wrapf(err, "expected different error; wanted %q", logCheckArgs.ErrContains)
+	}
+
+	return nil
 }
 
 // DeployContract deploys a contract with the provided private key,
