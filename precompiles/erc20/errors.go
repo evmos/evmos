@@ -13,12 +13,23 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
+// Errors that have formatted information are defined here as a string.
+const (
+	ErrIntegerOverflow           = "amount %s causes integer overflow"
+	ErrNoAllowanceForToken       = "allowance for token %s does not exist"
+	ErrSubtractMoreThanAllowance = "subtracted value cannot be greater than existing allowance for denom %s: %s > %s"
+)
+
 var (
-	// ErrNegativeAmount is returned an approval for a negative amount is attempted.
-	//
-	// NOTE: Since Solidity support unsigned integers, this is only a safety check and
-	// should not happen.
-	ErrNegativeAmount = errors.New("cannot approve negative values")
+	// errorSignature are the prefix bytes for the hex-encoded reason string. See UnpackRevert in ABI implementation in Geth.
+	errorSignature = crypto.Keccak256([]byte("Error(string)"))
+
+	// Precompile errors
+	ErrDecreaseNonPositiveValue = errors.New("cannot decrease allowance with non-positive values")
+	ErrDenomTraceNotFound       = errors.New("denom trace not found")
+	ErrIncreaseNonPositiveValue = errors.New("cannot increase allowance with non-positive values")
+	ErrNegativeAmount           = errors.New("cannot approve negative values")
+	ErrNoIBCVoucherDenom        = errors.New("denom is not an IBC voucher")
 
 	// ErrInsufficientAllowance is returned by ERC20 smart contracts in case
 	// no authorization is found or the granted amount is not sufficient.
@@ -31,11 +42,8 @@ var (
 // BuildExecRevertedErr returns a mocked error that should align with the
 // behavior of the original ERC20 Solidity implementation.
 //
-// FIXME: This is not yet producing the correct reason bytes.
+// FIXME: This is not yet producing the correct reason bytes. Will fix on a follow up PR.
 func BuildExecRevertedErr(reason string) (error, error) {
-	// The reason bytes are prefixed with this byte array -> see UnpackRevert in ABI implementation in Geth.
-	prefixBytes := crypto.Keccak256([]byte("Error(string)"))
-
 	// This is reverse-engineering the ABI encoding of the revert reason.
 	typ, err := abi.NewType("string", "", nil)
 	if err != nil {
@@ -48,7 +56,7 @@ func BuildExecRevertedErr(reason string) (error, error) {
 	}
 
 	var reasonBytes []byte
-	reasonBytes = append(reasonBytes, prefixBytes...)
+	reasonBytes = append(reasonBytes, errorSignature...)
 	reasonBytes = append(reasonBytes, packedReason...)
 
 	return evmtypes.NewExecErrorWithReason(reasonBytes), nil
