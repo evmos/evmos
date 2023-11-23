@@ -178,16 +178,22 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
+	return s.setupERC20PrecompileForTokenPair(tokenPair)
+}
+
+// setupERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
+// a given token pair and adds the precompile to the available and active precompiles.
+func (s *PrecompileTestSuite) setupERC20PrecompileForTokenPair(tokenPair erc20types.TokenPair) *erc20.Precompile {
 	precompile, err := erc20.NewPrecompile(
 		tokenPair,
 		s.network.App.BankKeeper,
 		s.network.App.AuthzKeeper,
 		s.network.App.TransferKeeper,
 	)
-	s.Require().NoError(err, "failed to create %q erc20 precompile", denom)
+	s.Require().NoError(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 
 	err = s.network.App.EvmKeeper.AddEVMExtensions(s.network.GetContext(), precompile)
-	s.Require().NoError(err, "failed to add %q erc20 precompile to EVM extensions", denom)
+	s.Require().NoError(err, "failed to add %q erc20 precompile to EVM extensions", tokenPair.Denom)
 
 	return precompile
 }

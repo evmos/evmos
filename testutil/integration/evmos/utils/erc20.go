@@ -45,10 +45,11 @@ func (ed ERC20RegistrationData) ValidateBasic() error {
 
 // RegisterERC20 is a helper function to register ERC20 token through
 // submitting a governance proposal and having it pass.
-func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20RegistrationData) error {
+// It returns the registered token pair.
+func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20RegistrationData) (erc20types.TokenPair, error) {
 	err := data.ValidateBasic()
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to validate erc20 registration data")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to validate erc20 registration data")
 	}
 
 	proposal := erc20types.RegisterERC20Proposal{
@@ -60,34 +61,34 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 	// Submit the proposal
 	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, &proposal)
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to submit proposal")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to submit proposal")
 	}
 
 	err = network.NextBlock()
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after proposal")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after proposal")
 	}
 
 	// Vote on proposal
 	err = VoteOnProposal(tf, data.ProposerPriv, proposalID, govtypes.OptionYes)
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to vote on proposal")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to vote on proposal")
 	}
 
 	gq := network.GetGovClient()
 	params, err := gq.Params(network.GetContext(), &govtypes.QueryParamsRequest{ParamsType: "voting"})
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to query voting params")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query voting params")
 	}
 
 	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after voting period ends")
 	}
 
 	err = network.NextBlock()
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after votes")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to commit block after votes")
 	}
 
 	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
@@ -95,19 +96,19 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20Regi
 	gq = network.GetGovClient()
 	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to query proposal")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query proposal")
 	}
 
 	if proposalRes.Proposal.Status != govtypes.StatusPassed {
-		return fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
+		return erc20types.TokenPair{}, fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
 	}
 
 	// Check if token pair is registered
 	eq := network.GetERC20Client()
-	_, err = eq.TokenPair(network.GetContext(), &erc20types.QueryTokenPairRequest{Token: data.Address.Hex()})
+	tokenPairRes, err := eq.TokenPair(network.GetContext(), &erc20types.QueryTokenPairRequest{Token: data.Address.Hex()})
 	if err != nil {
-		return errorsmod.Wrap(err, "failed to query token pair")
+		return erc20types.TokenPair{}, errorsmod.Wrap(err, "failed to query token pair")
 	}
 
-	return nil
+	return tokenPairRes.TokenPair, nil
 }

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
@@ -18,6 +17,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -970,9 +970,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("querying the name should return an error", func(callType CallType) {
 				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(
-					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-				)
+				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
 				if callType == contractCall {
 					noIBCVoucherCheck = execRevertedCheck
 				}
@@ -985,15 +983,12 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
-				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the symbol should return an error", func(callType CallType) {
 				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(
-					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-				)
+				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
 				if callType == contractCall {
 					noIBCVoucherCheck = execRevertedCheck
 				}
@@ -1006,15 +1001,12 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
-				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the decimals should return an error", func(callType CallType) {
 				txArgs, decimalsArgs := s.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
 
-				noIBCVoucherCheck := failCheck.WithErrContains(
-					fmt.Sprintf("denom is not an IBC voucher: %s", s.tokenDenom),
-				)
+				noIBCVoucherCheck := failCheck.WithErrContains(erc20.ErrNoIBCVoucherDenom.Error())
 				if callType == contractCall {
 					noIBCVoucherCheck = execRevertedCheck
 				}
@@ -1027,7 +1019,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				// FIXME: Instead of "not supported" or similar this just returns the general "execution reverted" without any other info
 				// -- do we really want the same behavior for the EVM extension?
 				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
-				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
 
@@ -1035,7 +1026,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			erc20V5Addr := contractsData.GetContractData(erc20V5Call).Address
 
 			// Register the deployed erc20 contract as a token pair
-			err := utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
+			_, err := utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
 				Address:      erc20V5Addr,
 				Denom:        s.tokenDenom,
 				ProposerPriv: s.keyring.GetPrivKey(0),
@@ -1046,20 +1037,29 @@ var _ = Describe("ERC20 Extension -", func() {
 		Context("for a token with available metadata", func() {
 			const (
 				denom       = "axmpl"
-				expName     = "Xmpl"
-				expSymbol   = "XMPL"
+				expSymbol   = "Xmpl"
 				expDecimals = uint8(18)
 			)
 
+			var (
+				erc20Addr common.Address
+				expName   string
+			)
+
 			BeforeEach(func() {
-				// Deploy new precompile for this test using the xmpl ibc voucher
-				//
-				// NOTE: this is not the same as the one used in the other tests
-				// because we need to set the metadata for this one.
-				ibcDenomTrace := types.DenomTrace{Path: "channel-0", BaseDenom: denom}
+				erc20Addr = contractsData.GetContractData(erc20V5Call).Address
+				expName = erc20types.CreateDenom(erc20Addr.String())
+
+				// Register ERC20 token pair for this test
+				tokenPair, err := utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
+					Address:      erc20Addr,
+					Denom:        denom,
+					ProposerPriv: s.keyring.GetPrivKey(0),
+				})
+				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
 
 				// overwrite the other precompile with this one, so that the test utils like s.getTxAndCallArgs still work.
-				s.precompile = s.setupERC20Precompile(ibcDenomTrace.IBCDenom())
+				s.precompile = s.setupERC20PrecompileForTokenPair(tokenPair)
 
 				// update this in the global contractsData
 				contractsData.contractData[directCall] = ContractData{
@@ -1067,12 +1067,27 @@ var _ = Describe("ERC20 Extension -", func() {
 					ABI:     s.precompile.ABI,
 				}
 
-				// TODO: can I handle this differently, just using the integration utils and not using the keeper directly?
-				s.network.App.TransferKeeper.SetDenomTrace(s.network.GetContext(), ibcDenomTrace)
+				// Deploy contract calling the ERC20 precompile
+				callerAddr, err := s.factory.DeployContract(
+					s.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: testdata.ERC20AllowanceCallerContract,
+						ConstructorArgs: []interface{}{
+							s.precompile.Address(),
+						},
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				contractsData.contractData[contractCall] = ContractData{
+					Address: callerAddr,
+					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+				}
 			})
 
 			DescribeTable("querying the name should return the name", func(callType CallType) {
-				txArgs, nameArgs := s.getTxAndCallArgs(directCall, contractsData, erc20.NameMethod)
+				txArgs, nameArgs := s.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, nameArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -1084,12 +1099,11 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
-				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
 			DescribeTable("querying the symbol should return the symbol", func(callType CallType) {
-				txArgs, symbolArgs := s.getTxAndCallArgs(directCall, contractsData, erc20.SymbolMethod)
+				txArgs, symbolArgs := s.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
 
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(s.keyring.GetPrivKey(0), txArgs, symbolArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -1101,7 +1115,6 @@ var _ = Describe("ERC20 Extension -", func() {
 			},
 				Entry(" - direct call", directCall),
 				Entry(" - through contract", contractCall),
-				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 
@@ -1117,9 +1130,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(decimals).To(Equal(expDecimals), "expected different decimals")
 			},
 				Entry(" - direct call", directCall),
-				// FIXME: this is failing??
 				Entry(" - through contract", contractCall),
-				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here because it also has Metadata that can be queried
 				Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
 		})
@@ -1444,7 +1455,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
 
 			// Register the deployed erc20 contract as a token pair
-			err = utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
+			_, err = utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
 				Address:      erc20Addr,
 				Denom:        tokenDenom,
 				ProposerPriv: contractOwner.Priv,
