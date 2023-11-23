@@ -112,7 +112,6 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used")
 			})
-
 		})
 
 		When("calling withdraw correctly", func() {
