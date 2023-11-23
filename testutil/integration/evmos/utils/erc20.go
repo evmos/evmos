@@ -4,69 +4,62 @@
 package utils
 
 import (
-	"errors"
-	"fmt"
-	"strconv"
-	"time"
-
 	errorsmod "cosmossdk.io/errors"
-
-	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"fmt"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
-	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 )
 
+// ERC20RegistrationData is the necessary data to provide in order to register an ERC20 token.
+type ERC20RegistrationData struct {
+	// Address is the address of the ERC20 token.
+	Address common.Address
+	// Denom is the ERC20 token denom.
+	Denom string
+	// ProposerPriv is the private key used to sign the proposal and voting transactions.
+	ProposerPriv cryptotypes.PrivKey
+}
+
+// ValidateBasic does stateless validation of the data for the ERC20 registration.
+func (ed ERC20RegistrationData) ValidateBasic() error {
+	emptyAddr := common.Address{}
+	if ed.Address.Hex() == emptyAddr.Hex() {
+		return fmt.Errorf("address cannot be empty")
+	}
+
+	if ed.Denom == "" {
+		return fmt.Errorf("denom cannot be empty")
+	}
+
+	if ed.ProposerPriv == nil {
+		return fmt.Errorf("proposer private key cannot be nil")
+	}
+
+	return nil
+}
+
 // RegisterERC20 is a helper function to register ERC20 token through
 // submitting a governance proposal and having it pass.
-func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr common.Address, proposerPriv cryptotypes.PrivKey) error {
-	proposal := erc20types.RegisterERC20Proposal{
-		Title:          "Register ERC20 Token",
-		Description:    fmt.Sprintf("This proposal registers the ERC20 token at address: %s", erc20Addr.Hex()),
-		Erc20Addresses: []string{erc20Addr.Hex()},
+func RegisterERC20(tf factory.TxFactory, network network.Network, data ERC20RegistrationData) error {
+	err := data.ValidateBasic()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to validate erc20 registration data")
 	}
 
-	proposerAccAddr := sdk.AccAddress(proposerPriv.PubKey().Address())
+	proposal := erc20types.RegisterERC20Proposal{
+		Title:          fmt.Sprintf("Register %s Token", data.Denom),
+		Description:    fmt.Sprintf("This proposal registers the ERC20 token at address: %s", data.Address.Hex()),
+		Erc20Addresses: []string{data.Address.Hex()},
+	}
 
 	// Submit the proposal
-	msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
-		&proposal,
-		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), sdk.NewInt(1e18))),
-		proposerAccAddr,
-	)
+	proposalID, err := SubmitProposal(tf, network, data.ProposerPriv, &proposal)
 	if err != nil {
-		return err
-	}
-
-	txArgs := commonfactory.CosmosTxArgs{
-		Msgs: []sdk.Msg{msgSubmitProposal},
-	}
-
-	res, err := tf.ExecuteCosmosTx(proposerPriv, txArgs)
-	if err != nil {
-		return err
-	}
-
-	proposalID, err := getProposalIDFromEvents(res.Events)
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to get proposal ID from events")
-	}
-
-	err = network.NextBlock()
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after proposal")
-	}
-
-	gq := network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to query proposal")
+		return errorsmod.Wrap(err, "failed to submit proposal")
 	}
 
 	err = network.NextBlock()
@@ -75,21 +68,18 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	}
 
 	// Vote on proposal
-	msgVote := govtypes.NewMsgVote(
-		proposerAccAddr,
-		proposalID,
-		govtypes.OptionYes,
-		"",
-	)
-
-	res, err = tf.ExecuteCosmosTx(proposerPriv, commonfactory.CosmosTxArgs{
-		Msgs: []sdk.Msg{msgVote},
-	})
+	err = VoteOnProposal(tf, data.ProposerPriv, proposalID, govtypes.OptionYes)
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to vote on proposal")
 	}
 
-	err = network.NextBlockAfter(365 * 24 * time.Hour) // commit a year later
+	gq := network.GetGovClient()
+	params, err := gq.Params(network.GetContext(), &govtypes.QueryParamsRequest{ParamsType: "voting"})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to query voting params")
+	}
+
+	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
 	}
@@ -99,9 +89,10 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 		return errorsmod.Wrap(err, "failed to commit block after votes")
 	}
 
+	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
+	// context.
 	gq = network.GetGovClient()
-	// Check if proposal passed
-	proposalRes, err = gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
+	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
 	if err != nil {
 		return errorsmod.Wrap(err, "failed to query proposal")
 	}
@@ -109,45 +100,13 @@ func RegisterERC20(tf factory.TxFactory, network network.Network, erc20Addr comm
 	if proposalRes.Proposal.Status != govtypes.StatusPassed {
 		return fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
 	}
+
+	// Check if token pair is registered
+	eq := network.GetERC20Client()
+	_, err = eq.TokenPair(network.GetContext(), &erc20types.QueryTokenPairRequest{Token: data.Address.Hex()})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to query token pair")
+	}
+
 	return nil
-}
-
-// getProposalIDFromEvents returns the proposal ID from the events in
-// the ResponseDeliverTx.
-func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
-	var (
-		err        error
-		found      = false
-		proposalID uint64
-	)
-
-	for _, event := range events {
-		if event.Type != "proposal_deposit" {
-			continue
-		}
-
-		for _, attr := range event.Attributes {
-			if attr.Key != "proposal_id" {
-				continue
-			}
-
-			proposalID, err = strconv.ParseUint(attr.Value, 10, 64)
-			if err != nil {
-				return 0, errorsmod.Wrap(err, "failed to parse proposal ID")
-			}
-
-			found = true
-			break
-		}
-
-		if found {
-			break
-		}
-	}
-
-	if !found {
-		return 0, errors.New("proposal deposit not found")
-	}
-
-	return proposalID, nil
 }

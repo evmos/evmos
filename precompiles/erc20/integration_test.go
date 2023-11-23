@@ -1034,7 +1034,11 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		It("should register the ERC20", func() {
 			// Register the deployed erc20 contract as a token pair
-			err := utils.RegisterERC20(s.factory, s.network, contractData.erc20V5Addr, contractData.ownerPriv)
+			err := utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
+				Address:      contractData.erc20V5Addr,
+				Denom:        s.tokenDenom,
+				ProposerPriv: s.keyring.GetPrivKey(0),
+			})
 			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
 		})
 
