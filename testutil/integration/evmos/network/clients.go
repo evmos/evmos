@@ -13,6 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/encoding"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
@@ -26,6 +27,12 @@ func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
 	// simulations.
 	cacheCtx, _ := ctx.CacheContext()
 	return baseapp.NewQueryServerTestHelper(cacheCtx, interfaceRegistry)
+}
+
+func (n *IntegrationNetwork) GetERC20Client() erc20types.QueryClient {
+	queryHelper := getQueryHelper(n.GetContext())
+	erc20types.RegisterQueryServer(queryHelper, n.app.Erc20Keeper)
+	return erc20types.NewQueryClient(queryHelper)
 }
 
 func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
