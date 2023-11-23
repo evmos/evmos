@@ -105,6 +105,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cmn-precompile) [#2064](https://github.com/evmos/evmos/pull/2064) Handle all `fallback` and `receive` function cases
 - (erc20) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC20 EVM extension allowance behavior to align with standard ERC20 smart contracts.
 - (erc20) [#2067](https://github.com/evmos/evmos/pull/2067) Further alignments between ERC20 smart contracts and EVM extension.
+- (stride-outpost) [#2069](https://github.com/evmos/evmos/pull/2069) Refactor `osmosis` and `stride` testing.
 
 ### Bug Fixes
 
