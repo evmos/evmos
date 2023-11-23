@@ -1445,10 +1445,14 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 
 			// NOTE: We need to overwrite the information in the contractData here for this specific
 			// deployed contract.
-			contractData.ownerPriv = contractOwner.Priv
-			contractData.contractData[erc20V5Call] = ContractData{
-				Address: erc20Addr,
-				ABI:     contracts.ERC20MinterV5Contract.ABI,
+			contractData = ContractsData{
+				ownerPriv: contractOwner.Priv,
+				contractData: map[CallType]ContractData{
+					erc20V5Call: {
+						Address: erc20Addr,
+						ABI:     contracts.ERC20MinterV5Contract.ABI,
+					},
+				},
 			}
 
 			err = s.network.NextBlock()
