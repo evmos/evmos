@@ -1,5 +1,5 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:LGPL-3.0-only
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
 package keeper
 
@@ -21,11 +21,11 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	// the address capable of executing a MsgUpdateParams message. Typically, this should be the x/gov module account.
 	authority          sdk.AccAddress
-	bankKeeper         types.BankKeeper
-	evmKeeper          types.EVMKeeper
-	accountKeeper      types.AccountKeeper
-	distributionKeeper types.DistributionKeeper
-	feeCollectorName   string
+	BankKeeper         types.BankKeeper
+	EVMKeeper          types.EVMKeeper
+	AccountKeeper      types.AccountKeeper
+	DistributionKeeper types.DistributionKeeper
+	FeeCollectorName   string
 }
 
 // NewKeeper creates new instances of the fees Keeper
@@ -43,11 +43,11 @@ func NewKeeper(
 		storeKey:           storeKey,
 		cdc:                cdc,
 		authority:          authority,
-		bankKeeper:         bk,
-		distributionKeeper: dk,
-		evmKeeper:          evmKeeper,
-		accountKeeper:      ak,
-		feeCollectorName:   feeCollector,
+		BankKeeper:         bk,
+		DistributionKeeper: dk,
+		EVMKeeper:          evmKeeper,
+		AccountKeeper:      ak,
+		FeeCollectorName:   feeCollector,
 	}
 }
 

@@ -41,7 +41,7 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	deployer := sdk.MustAccAddressFromBech32(msg.DeployerAddress)
-	deployerAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
+	deployerAccount := k.EVMKeeper.GetAccountWithoutBalance(ctx, common.BytesToAddress(deployer))
 	if deployerAccount == nil {
 		return nil, errorsmod.Wrapf(
 			errortypes.ErrNotFound,
@@ -57,7 +57,7 @@ func (k Keeper) RegisterRevenue(
 	}
 
 	// contract must already be deployed, to avoid spam registrations
-	contractAccount := k.evmKeeper.GetAccountWithoutBalance(ctx, contract)
+	contractAccount := k.EVMKeeper.GetAccountWithoutBalance(ctx, contract)
 
 	if contractAccount == nil || !contractAccount.IsContract() {
 		return nil, errorsmod.Wrapf(
