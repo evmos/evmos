@@ -14,13 +14,6 @@ import (
 	evmosutils "github.com/evmos/evmos/v15/utils"
 )
 
-const (
-	// FallbackMethod is the name of the fallback method.
-	FallbackMethod = "fallback"
-	// ReceiveMethod is the name of the receive method.
-	ReceiveMethod = "receive"
-)
-
 var (
 	// TrueValue is the byte array representing a true value in solidity.
 	TrueValue = []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1}
@@ -31,6 +24,7 @@ var (
 	// DefaultPrecompilesBech32 is the standard bech32 address for the precompiles
 	DefaultPrecompilesBech32 = []string{
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn2svlxe", // secp256r1 curve precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqnqcxyd", // bech32 precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqq4xrkxv", // Staking precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile

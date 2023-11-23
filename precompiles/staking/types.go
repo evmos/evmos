@@ -4,10 +4,14 @@
 package staking
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -16,10 +20,17 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+// EventCreateValidator defines the event data for the staking CreateValidator transaction.
+type EventCreateValidator struct {
+	DelegatorAddress common.Address
+	ValidatorAddress common.Address
+	Value            *big.Int
+}
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	NewShares        *big.Int
 }
@@ -27,7 +38,7 @@ type EventDelegate struct {
 // EventUnbond defines the event data for the staking Undelegate transaction.
 type EventUnbond struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CompletionTime   *big.Int
 }
@@ -35,8 +46,8 @@ type EventUnbond struct {
 // EventRedelegate defines the event data for the staking Redelegate transaction.
 type EventRedelegate struct {
 	DelegatorAddress    common.Address
-	ValidatorSrcAddress common.Hash
-	ValidatorDstAddress common.Hash
+	ValidatorSrcAddress common.Address
+	ValidatorDstAddress common.Address
 	Amount              *big.Int
 	CompletionTime      *big.Int
 }
@@ -44,9 +55,106 @@ type EventRedelegate struct {
 // EventCancelUnbonding defines the event data for the staking CancelUnbond transaction.
 type EventCancelUnbonding struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 	CreationHeight   *big.Int
+}
+
+// Description use golang type alias defines a validator description.
+type Description = struct {
+	Moniker         string "json:\"moniker\""
+	Identity        string "json:\"identity\""
+	Website         string "json:\"website\""
+	SecurityContact string "json:\"securityContact\""
+	Details         string "json:\"details\""
+}
+
+// Commission use golang type alias defines a validator commission.
+// since solidity does not support decimals, after passing in the big int, convert the big int into a decimal with a precision of 18
+type Commission = struct {
+	Rate          *big.Int "json:\"rate\""
+	MaxRate       *big.Int "json:\"maxRate\""
+	MaxChangeRate *big.Int "json:\"maxChangeRate\""
+}
+
+// NewMsgCreateValidator creates a new MsgCreateValidator instance and does sanity checks
+// on the given arguments before populating the message.
+func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgCreateValidator, common.Address, error) {
+	if len(args) != 7 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+	}
+
+	description := stakingtypes.Description{}
+	if descriptionInput, ok := args[0].(Description); ok {
+		description.Moniker = descriptionInput.Moniker
+		description.Identity = descriptionInput.Identity
+		description.Website = descriptionInput.Website
+		description.SecurityContact = descriptionInput.SecurityContact
+		description.Details = descriptionInput.Details
+	} else {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDescription, args[0])
+	}
+
+	commission := stakingtypes.CommissionRates{}
+	if commissionInput, ok := args[1].(Commission); ok {
+		commission.Rate = sdk.NewDecFromBigIntWithPrec(commissionInput.Rate, sdk.Precision)
+		commission.MaxRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxRate, sdk.Precision)
+		commission.MaxChangeRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, sdk.Precision)
+	} else {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
+	}
+
+	minSelfDelegation, ok := args[2].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
+	}
+
+	delegatorAddress, ok := args[3].(common.Address)
+	if !ok || delegatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[3])
+	}
+
+	validatorAddress, ok := args[4].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[4])
+	}
+
+	// use cli `evmosd tendermint show-validator` get pubkey
+	pubkeyBase64Str, ok := args[5].(string)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "pubkey", "string", args[5])
+	}
+	pubkeyBytes, err := base64.StdEncoding.DecodeString(pubkeyBase64Str)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
+	pubkey, err := codectypes.NewAnyWithValue(ed25519pk)
+	if err != nil {
+		return nil, common.Address{}, err
+	}
+
+	value, ok := args[6].(*big.Int)
+	if !ok {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[6])
+	}
+
+	msg := &stakingtypes.MsgCreateValidator{
+		Description:       description,
+		Commission:        commission,
+		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
+		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
+		ValidatorAddress:  validatorAddress,
+		Pubkey:            pubkey,
+		Value:             sdk.Coin{Denom: denom, Amount: sdk.NewIntFromBigInt(value)},
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, common.Address{}, err
+	}
+
+	return msg, delegatorAddress, nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks
@@ -439,7 +547,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
 			OperatorAddress: res.Validator.OperatorAddress,
-			ConsensusPubkey: res.Validator.ConsensusPubkey.String(),
+			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
 			Tokens:          res.Validator.Tokens.BigInt(),
@@ -474,7 +582,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 	for i, v := range res.Validators {
 		vo.Validators[i] = ValidatorInfo{
 			OperatorAddress:   v.OperatorAddress,
-			ConsensusPubkey:   v.ConsensusPubkey.String(),
+			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 			Jailed:            v.Jailed,
 			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
 			Tokens:            v.Tokens.BigInt(),
@@ -680,4 +788,13 @@ func checkDelegationUndelegationArgs(args []interface{}) (common.Address, string
 	}
 
 	return delegatorAddr, validatorAddress, amount, nil
+}
+
+// FormatConsensusPubkey format ConsensusPubkey into a base64 string
+func FormatConsensusPubkey(consensusPubkey *codectypes.Any) string {
+	ed25519pk, ok := consensusPubkey.GetCachedValue().(cryptotypes.PubKey)
+	if ok {
+		return base64.StdEncoding.EncodeToString(ed25519pk.Bytes())
+	}
+	return consensusPubkey.String()
 }

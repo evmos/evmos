@@ -119,7 +119,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -129,7 +129,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: "denom trace not found",
+			errContains: erc20.ErrDenomTraceNotFound.Error(),
 		},
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
@@ -142,7 +142,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:  "pass - valid ibc denom without metadata and neither atto nor micro prefix",
@@ -236,7 +236,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -246,12 +246,12 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: "denom trace not found",
+			errContains: erc20.ErrDenomTraceNotFound.Error(),
 		},
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:  "fail - valid ibc denom without metadata and neither atto nor micro prefix",
@@ -522,11 +522,12 @@ func (s *PrecompileTestSuite) TestAllowance() {
 			errContains: "invalid spender address: invalid address",
 		},
 		{
-			name: "fail - no allowance exists",
+			name: "pass - no allowance exists should return 0",
 			malleate: func(_ sdk.Context, _ *app.Evmos, _ *big.Int) []interface{} {
 				return []interface{}{s.keyring.GetAddr(0), s.keyring.GetAddr(1)}
 			},
-			errContains: "does not exist or is expired",
+			expPass:  true,
+			expAllow: common.Big0,
 		},
 		{
 			name: "pass - allowance exists but not for precompile token pair denom",

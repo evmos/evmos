@@ -4,13 +4,13 @@
 package erc20
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"math/big"
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -198,7 +198,9 @@ func (p Precompile) Allowance(
 
 	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		// NOTE: We are not returning the error here, because we want to align the behavior with
+		// standard ERC20 smart contracts, which return zero if an allowance is not found.
+		allowance = common.Big0
 	}
 
 	return method.Outputs.Pack(allowance)
@@ -212,7 +214,7 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-		return transfertypes.DenomTrace{}, fmt.Errorf("denom is not an IBC voucher: %s", denom)
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
@@ -222,7 +224,7 @@ func GetDenomTrace(
 
 	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return transfertypes.DenomTrace{}, errors.New("denom trace not found")
+		return transfertypes.DenomTrace{}, ErrDenomTraceNotFound
 	}
 
 	return denomTrace, nil
@@ -237,15 +239,15 @@ func GetAuthzExpirationAndAllowance(
 	denom string,
 ) (authz.Authorization, *time.Time, *big.Int, error) {
 	authorization, expiration, err := auth.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
-	// TODO: return error if doesn't exist?
 	if err != nil {
 		return nil, nil, common.Big0, err
 	}
 
 	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
-		// TODO: return error if invalid authorization?
-		return nil, nil, common.Big0, nil
+		return nil, nil, common.Big0, fmt.Errorf(
+			"expected authorization to be a %T", banktypes.SendAuthorization{},
+		)
 	}
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)

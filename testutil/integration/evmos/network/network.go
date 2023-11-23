@@ -180,6 +180,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners
+
 	return nil
 }
 

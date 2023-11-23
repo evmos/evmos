@@ -48,6 +48,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 - (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
+- (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
+- (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
 
 ### Improvements
 
@@ -75,7 +77,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
 - (distribution) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
 - (erc20) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
+- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Only allow user to pass in aevmos native token as transaction fees.
 - (erc20) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC20 precompile approvals.
+- (bin) [#2007](https://github.com/evmos/evmos/pull/2007) Add commands in Makefile for building binary with rocksDB and pebbleDB
 - (erc20) [#2009](https://github.com/evmos/evmos/pull/2009) Add ERC20 precompile transaction unit tests.
 - (osmosis-outpost) [#2011](https://github.com/evmos/evmos/pull/2011) Update outpost swap ABI to return IBC next sequence.
 - (utils) [#2010](https://github.com/evmos/evmos/pull/2010) Add utils function to create ibc denom trace.
@@ -83,6 +87,24 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
+- (staking) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
+- (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
+- (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
+- (bank) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
+- (staking) [#2046](https://github.com/evmos/evmos/pull/2046) Format any type ConsensusPubkey into a base64 string.
+- (bank) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
+- (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test
+- (staking) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
+- (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
+- (distribution) [#2054](https://github.com/evmos/evmos/pull/2054) Change the validator address in the events from string type to address type.
+- (staking) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
+- (werc20) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
+- (werc20) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC20 base integration tests.
+- (werc20) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
+- (osmosis-outpost) [#2063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
+- (cmn-precompile) [#2064](https://github.com/evmos/evmos/pull/2064) Handle all `fallback` and `receive` function cases
+- (erc20) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC20 EVM extension allowance behavior to align with standard ERC20 smart contracts.
+- (erc20) [#2067](https://github.com/evmos/evmos/pull/2067) Further alignments between ERC20 smart contracts and EVM extension.
 
 ### Bug Fixes
 
@@ -131,6 +153,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (rpc) [#1863](https://github.com/evmos/evmos/pull/1863) Handle error gracefully on RPC calls when node is not persisting ABCI responses.
 - (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
 - (gov) [#1981](https://github.com/evmos/evmos/pull/1981) Remove deprecated `cosmos.params.v1beta1/ParameterChangeProposal` handler
+- (revenue) [#2032](https://github.com/evmos/evmos/pull/2032) Fixed the problem that users cannot send transactions with gasPrice of 0 to precompiled contracts.
+
 
 ## [v14.1.0] - 2023-09-25
 

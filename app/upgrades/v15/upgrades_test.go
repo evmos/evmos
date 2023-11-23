@@ -54,7 +54,7 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 			extraEIPs:   []int64{3860},
 			expEIPs:     []int64{},
 			expPass:     false,
-			errContains: "is not activateable, valid EIPS are",
+			errContains: "is not activateable, valid EIPs are",
 		},
 	}
 
