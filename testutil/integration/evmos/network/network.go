@@ -4,6 +4,7 @@ package network
 
 import (
 	"encoding/json"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math"
 	"math/big"
 
@@ -176,6 +177,29 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners
+
+	// Register the native EVMOS token in the bank module for the network
+	evmosMetadata := banktypes.Metadata{
+		Description: "The native token of Evmos",
+		Base:        n.cfg.denom,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 0,
+				Aliases:  []string{n.cfg.denom},
+			},
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 18,
+			},
+		},
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+		Display: n.cfg.denom,
+	}
+	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
+
 	return nil
 }
 

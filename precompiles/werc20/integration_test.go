@@ -4,7 +4,6 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
@@ -54,28 +53,6 @@ var _ = Describe("WEVMOS Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
-		// Create the token pair for WEVMOS <-> EVMOS.
-		evmosMetadata := banktypes.Metadata{
-			Description: "The native token of Evmos",
-			Base:        s.bondDenom,
-			// NOTE: Denom units MUST be increasing
-			DenomUnits: []*banktypes.DenomUnit{
-				{
-					Denom:    s.bondDenom,
-					Exponent: 0,
-					Aliases:  []string{"aevmos"},
-				},
-				{
-					Denom:    "aevmos",
-					Exponent: 18,
-				},
-			},
-			Name:    "Evmos",
-			Symbol:  "EVMOS",
-			Display: "aevmos",
-		}
-		s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), evmosMetadata)
-
 		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
 
 		precompile, err := werc20.NewPrecompile(
@@ -114,7 +91,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 	Context("WEVMOS specific functions", func() {
 		When("calling deposit and withdraw correctly", func() {
-			It("calling deposit - should emit the Deposit event but not modify the balance", func() {
+			It("calls deposit - should emit the Deposit event but not modify the balance", func() {
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
 				txArgs.Amount = amount
@@ -125,7 +102,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calling withdraw - should emit the Withdrawal event but not modify the balance", func() {
+			It("calls withdraw - should emit the Withdrawal event but not modify the balance", func() {
 				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
 				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
 
@@ -133,6 +110,27 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				s.checkBalances(failCheck, sender, contractData)
+			})
+
+			It("calls deposit - the correct minimum gas is spent", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgs.Amount = amount
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.DepositRequiredGas), "expected different gas used")
+			})
+
+			It("calls withdraw - the correct minimum gas is spent", func() {
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgs, callArgs := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, callArgs, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(ethRes.GasUsed).To(BeNumerically(">=", werc20.WithdrawRequiredGas), "expected different gas used")
 			})
 		})
 
@@ -153,7 +151,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls short call data, with amount -  should call `fallback` ", func() {
+			It("calls short call data, with amount - should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
 				txArgs.Amount = amount
 				txArgs.Input = []byte{1, 2, 3} // 3 dummy bytes
@@ -169,10 +167,10 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls standard length call data, with amount - should call `fallback` ", func() {
+			It("calls with non-existing function, with amount - should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Input = []byte("nonExistingMethod")
 				txArgs.Amount = amount
-				txArgs.Input = []byte{1, 2, 3, 4} // 4 dummy bytes needed for minimum length
 
 				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
@@ -185,10 +183,38 @@ var _ = Describe("WEVMOS Extension -", func() {
 				s.checkBalances(failCheck, sender, contractData)
 			})
 
-			It("calls with non-existing function, with amount -  should call `fallback` ", func() {
+			It("calls non call data, without amount - should call `fallback` ", func() {
+				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+
+				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
+
+			It("calls short call data, without amount - should call `fallback` ", func() {
+				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
+				txArgs.Input = []byte{1, 2, 3} // 3 dummy bytes
+
+				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				depositCheck.Res = res
+				err = testutil.CheckLogs(depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				s.checkBalances(failCheck, sender, contractData)
+			})
+
+			It("calls with non-existing function, without amount -  should call `fallback` ", func() {
 				txArgs, _ := s.getTxAndCallArgs(erc20Call, contractData, "")
 				txArgs.Input = []byte("nonExistingMethod")
-				txArgs.Amount = amount
 
 				res, err := s.factory.ExecuteEthTx(sender.Priv, txArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
