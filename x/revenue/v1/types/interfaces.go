@@ -16,11 +16,6 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
-// AccountKeeper defines the expected interface needed to retrieve account info.
-type AccountKeeper interface {
-	GetModuleAddress(moduleName string) sdk.AccAddress
-}
-
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
@@ -40,6 +35,7 @@ type EVMKeeper interface {
 	EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, chainID *big.Int) (*statedb.EVMConfig, error)
 	GetParams(ctx sdk.Context) evmtypes.Params
 	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
+	GetBaseFee(ctx sdk.Context, ethCfg *evmtypes.ChainConfig) *big.Int
 }
 
 type (
