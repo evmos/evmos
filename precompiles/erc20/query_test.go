@@ -119,7 +119,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -129,7 +129,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: "denom trace not found",
+			errContains: erc20.ErrDenomTraceNotFound.Error(),
 		},
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
@@ -142,7 +142,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:  "pass - valid ibc denom without metadata and neither atto nor micro prefix",
@@ -236,7 +236,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -246,12 +246,12 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: "denom trace not found",
+			errContains: erc20.ErrDenomTraceNotFound.Error(),
 		},
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: "denom is not an IBC voucher",
+			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
 		},
 		{
 			name:  "fail - valid ibc denom without metadata and neither atto nor micro prefix",

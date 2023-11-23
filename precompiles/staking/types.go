@@ -20,6 +20,13 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
+// EventCreateValidator defines the event data for the staking CreateValidator transaction.
+type EventCreateValidator struct {
+	DelegatorAddress common.Address
+	ValidatorAddress common.Address
+	Value            *big.Int
+}
+
 // EventDelegate defines the event data for the staking Delegate transaction.
 type EventDelegate struct {
 	DelegatorAddress common.Address
@@ -121,6 +128,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	if err != nil {
 		return nil, common.Address{}, err
 	}
+
 	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
 	pubkey, err := codectypes.NewAnyWithValue(ed25519pk)
 	if err != nil {
