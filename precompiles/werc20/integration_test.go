@@ -1,6 +1,7 @@
 package werc20_test
 
 import (
+	"fmt"
 	"math/big"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -27,14 +28,16 @@ import (
 
 var _ = Describe("WEVMOS Extension -", func() {
 	var (
-		WEVMOSContractAddr common.Address
-		err                error
-		sender             keyring.Key
-		amount             *big.Int
+		WEVMOSContractAddr         common.Address
+		WEVMOSOriginalContractAddr common.Address
+		err                        error
+		sender                     keyring.Key
+		amount                     *big.Int
 
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
-		contractData ContractData
+		contractData         ContractData
+		contractDataOriginal ContractData
 
 		failCheck testutil.LogCheckArgs
 		passCheck testutil.LogCheckArgs
@@ -251,6 +254,46 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				s.checkBalances(failCheck, sender, contractData)
+			})
+		})
+	})
+
+	Context("Comparing to original WEVMOS contract", func() {
+		BeforeEach(func() {
+			WEVMOSOriginalContractAddr, err = s.factory.DeployContract(
+				sender.Priv,
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract:        testdata.WEVMOSContract,
+					ConstructorArgs: []interface{}{},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+			contractDataOriginal = ContractData{
+				ownerPriv: sender.Priv,
+				erc20Addr: WEVMOSOriginalContractAddr,
+				erc20ABI:  testdata.WEVMOSContract.ABI,
+			}
+		})
+
+		When("calling deposit", func() {
+			It("should emit the Deposit event", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				//txArgsPrecompile.Amount = amount
+
+				_, ethResPrecompile, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				//txArgsContract.Amount = amount
+				//txArgsContract.GasLimit = 50_000
+
+				_, ethResOriginal, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				fmt.Println(ethResOriginal.GasUsed, ethResPrecompile.GasUsed)
+				//s.checkBalances(failCheck, sender, contractData)
 			})
 		})
 	})
