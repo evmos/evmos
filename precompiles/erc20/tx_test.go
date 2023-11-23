@@ -63,7 +63,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 			},
 			func() {},
 			true,
-			"spendable balance 1000000000000000000xmpl is smaller than 2000000000000000000xmpl: insufficient funds",
+			erc20.ErrTransferAmountExceedsBalance.Error(),
 		},
 		{
 			"pass",
@@ -161,7 +161,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 			},
 			func() {},
 			true,
-			"spendable balance 1000000000000000000xmpl is smaller than 2000000000000000000xmpl: insufficient funds",
+			erc20.ErrTransferAmountExceedsBalance.Error(),
 		},
 		{
 			"pass",

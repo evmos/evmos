@@ -4,13 +4,13 @@
 package erc20
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"math/big"
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -214,7 +214,7 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-		return transfertypes.DenomTrace{}, fmt.Errorf("denom is not an IBC voucher: %s", denom)
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
@@ -224,7 +224,7 @@ func GetDenomTrace(
 
 	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return transfertypes.DenomTrace{}, errors.New("denom trace not found")
+		return transfertypes.DenomTrace{}, ErrDenomTraceNotFound
 	}
 
 	return denomTrace, nil
