@@ -50,8 +50,8 @@ command -v jq >/dev/null 2>&1 || {
 set -e
 
 # Set client config
-evmosd config keyring-backend "$KEYRING"
-evmosd config chain-id "$CHAINID"
+evmosd config set client keyring-backend "$KEYRING"
+evmosd config set client chain-id "$CHAINID"
 
 # Import keys from mnemonics
 echo "$VAL_MNEMONIC" | evmosd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO"

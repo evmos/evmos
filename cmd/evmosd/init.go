@@ -112,7 +112,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
 			if initHeight < 1 {
 				initHeight = 1
-			}			
+			}
 
 			nodeID, _, err := genutil.InitializeNodeValidatorFilesFromMnemonic(config, mnemonic)
 			if err != nil {
@@ -135,7 +135,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			if defaultDenom != "" {
 				sdk.DefaultBondDenom = defaultDenom
 			}
-	
+
 			appState, err := json.MarshalIndent(mbm.DefaultGenesis(cdc), "", " ")
 			if err != nil {
 				return errors.Wrap(err, "Failed to marshal default genesis state")

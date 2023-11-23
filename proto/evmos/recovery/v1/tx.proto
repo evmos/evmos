@@ -12,6 +12,7 @@ option go_package = "github.com/evmos/evmos/v15/x/recovery/types";
 
 // Msg defines the recovery Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // UpdateParams defined a governance operation for updating the x/recovery module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);

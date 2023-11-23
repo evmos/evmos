@@ -13,21 +13,26 @@ import (
 )
 
 // MakeConfig creates an EncodingConfig for testing
+// and registers the interfaces
 func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
-	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := types.NewInterfaceRegistry()
-	codec := amino.NewProtoCodec(interfaceRegistry)
-
-	encodingConfig := sdktestutil.TestEncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
-		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
-		Amino:             cdc,
-	}
-
+	encodingConfig := Config()
 	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	return encodingConfig
+}
+
+// Config creates a new EncodingConfig and returns it
+func Config() sdktestutil.TestEncodingConfig {
+	cdc := amino.NewLegacyAmino()
+	interfaceRegistry := types.NewInterfaceRegistry()
+	codec := amino.NewProtoCodec(interfaceRegistry)
+
+	return sdktestutil.TestEncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Codec:             codec,
+		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
+		Amino:             cdc,
+	}
 }

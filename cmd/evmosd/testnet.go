@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -78,8 +77,8 @@ type initArgs struct {
 	numValidators     int
 	outputDir         string
 	startingIPAddress string
-	baseFee           sdkmath.Int
-	minGasPrice       sdkmath.LegacyDec
+	baseFee           math.Int
+	minGasPrice       math.LegacyDec
 }
 
 type startArgs struct {
@@ -354,8 +353,8 @@ func initTestnetFiles(
 		}
 
 		minGasPrice := args.minGasPrice
-		if sdkmath.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
-			minGasPrice = sdkmath.LegacyNewDecFromInt(args.baseFee)
+		if math.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
+			minGasPrice = math.LegacyNewDecFromInt(args.baseFee)
 		}
 
 		txBuilder.SetMemo(memo)
@@ -418,8 +417,8 @@ func initGenFiles(
 	genBalances []banktypes.Balance,
 	genFiles []string,
 	numValidators int,
-	baseFee sdkmath.Int,
-	minGasPrice sdkmath.LegacyDec,
+	baseFee math.Int,
+	minGasPrice math.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
 	// set the accounts in the genesis state

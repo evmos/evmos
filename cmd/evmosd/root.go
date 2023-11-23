@@ -32,16 +32,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
 	// rosettaCmd "github.com/cosmos/rosetta/cmd"
 
 	evmosclient "github.com/evmos/evmos/v15/client"
@@ -97,6 +103,26 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 			initClientCtx, err = clientcfg.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
+			}
+
+			// This needs to go after ReadFromClientConfig, as that function
+			// sets the RPC client needed for SIGN_MODE_TEXTUAL. This sign mode
+			// is only available if the client is online.
+			if !initClientCtx.Offline {
+				enabledSignModes := append(tx.DefaultSignModes, signing.SignMode_SIGN_MODE_TEXTUAL)
+				txConfigOpts := tx.ConfigOptions{
+					EnabledSignModes:           enabledSignModes,
+					TextualCoinMetadataQueryFn: txmodule.NewGRPCCoinMetadataQueryFn(initClientCtx),
+				}
+				txConfig, err := tx.NewTxConfigWithOptions(
+					initClientCtx.Codec,
+					txConfigOpts,
+				)
+				if err != nil {
+					return err
+				}
+
+				initClientCtx = initClientCtx.WithTxConfig(txConfig)
 			}
 
 			if err := client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
@@ -170,6 +196,27 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	// add rosetta
 	// rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
 
+	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
+	// and the CLI options for the modules
+	// add keyring to autocli opts
+	tempApp := app.NewEvmos(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil, true, nil,
+		tempDir(app.DefaultNodeHome),
+		0,
+		encoding.Config(),
+		simtestutil.NewAppOptionsWithFlagHome(tempDir(app.DefaultNodeHome)),
+	)
+	autoCliOpts := tempApp.AutoCliOpts()
+	initClientCtx, _ = clientcfg.ReadFromClientConfig(initClientCtx)
+	autoCliOpts.Keyring, _ = keyring.NewAutoCLIKeyring(initClientCtx.Keyring)
+	autoCliOpts.ClientCtx = initClientCtx
+
+	if err := autoCliOpts.EnhanceRootCommand(rootCmd); err != nil {
+		panic(err)
+	}
+
 	return rootCmd, encodingConfig
 }
 
@@ -196,7 +243,6 @@ func queryCommand() *cobra.Command {
 		sdkserver.QueryBlockResultsCmd(),
 	)
 
-	app.ModuleBasics.AddQueryCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
@@ -226,7 +272,6 @@ func txCommand() *cobra.Command {
 	// DefaultGasAdjustment value to use as default in gas-adjustment flag
 	flags.DefaultGasAdjustment = servercfg.DefaultGasAdjustment
 
-	app.ModuleBasics.AddTxCommands(cmd)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd
@@ -370,4 +415,14 @@ func initTendermintConfig() *cmtcfg.Config {
 	// cfg.P2P.MaxNumOutboundPeers = 40
 
 	return cfg
+}
+
+func tempDir(defaultHome string) string {
+	dir, err := os.MkdirTemp("", "evmos")
+	if err != nil {
+		dir = defaultHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }
