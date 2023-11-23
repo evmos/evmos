@@ -79,6 +79,7 @@ func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) 
 	return nil, fmt.Errorf("eth tx not found: %s", ethHash)
 }
 
+// UnpackEthMsg unpacks an Ethereum message from a Cosmos SDK message
 func UnpackEthMsg(msg sdk.Msg) (
 	ethMsg *MsgEthereumTx,
 	txData TxData,
