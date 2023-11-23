@@ -4,29 +4,25 @@
 package stride_test
 
 import (
-	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
+	"testing"
+
+	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v15/testutil/integration/common/grpc"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
-var s *PrecompileTestSuite
-
-//const (
-//	portID    = "transfer"
-//	channelID = "channel-0"
-//)
+var _ *PrecompileTestSuite
 
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	unitNetwork *network.UnitTestNetwork
+	network     *network.UnitTestNetwork
 	grpcHandler grpc.Handler
 	keyring     testkeyring.Keyring
 
-	precompile *osmosis.Precompile
+	precompile *stride.Precompile
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
@@ -35,26 +31,28 @@ func TestPrecompileTestSuite(t *testing.T) {
 
 func (s *PrecompileTestSuite) SetupTest() {
 	keyring := testkeyring.New(2)
-	unitNetwork := network.NewUnitTestNetwork(
+	network := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
-	precompile, err := osmosis.NewPrecompile(
+	precompile, err := stride.NewPrecompile(
 		portID,
 		channelID,
-		osmosis.XCSContract,
-		unitNetwork.App.BankKeeper,
-		unitNetwork.App.TransferKeeper,
-		unitNetwork.App.StakingKeeper,
-		unitNetwork.App.Erc20Keeper,
-		unitNetwork.App.AuthzKeeper,
+		network.App.TransferKeeper,
+		network.App.Erc20Keeper,
+		network.App.AuthzKeeper,
+		network.App.StakingKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
+	s.precompile = precompile
 
-	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	grpcHandler := grpc.NewIntegrationHandler(network)
 
-	s.unitNetwork = unitNetwork
+	s.network = network
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
 	s.precompile = precompile
+
+	// Register stEvmos Coin as an ERC20 token
+	s.registerStrideCoinERC20()
 }
