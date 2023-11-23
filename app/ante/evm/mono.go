@@ -128,7 +128,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// Use the lowest priority of all the messages as the final one.
-
 	for i, msg := range tx.GetMsgs() {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
@@ -148,7 +147,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 3. min gas price (global min fee)
-		if decUtils.BaseFee != nil && txData.TxType() != ethtypes.LegacyTxType {
+		if txData.TxType() == ethtypes.DynamicFeeTxType && decUtils.BaseFee != nil {
 			feeAmt = txData.EffectiveFee(decUtils.BaseFee)
 			fee = sdkmath.LegacyNewDecFromBigInt(feeAmt)
 		}
@@ -166,7 +165,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			decUtils.EvmParams.EnableCreate,
 			decUtils.EvmParams.EnableCall,
 			decUtils.BaseFee,
-			feeAmt,
+			txData.Fee(),
 			txData.TxType(),
 			decUtils.EvmDenom,
 			decUtils.TxFee,
@@ -174,7 +173,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		if err != nil {
 			return ctx, err
 		}
-
 		decUtils.TxFee = txFee
 		decUtils.TxGasLimit = txGasLimit
 
@@ -221,7 +219,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 9. gas consumption
-
 		gasWanted, minPriority, err := ConsumeGas(
 			ctx,
 			md.bankKeeper,
