@@ -1438,14 +1438,18 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 		})
 
 		It("should migrate the full token balance to the bank module", func() {
-			// execute the migration of the token
+			// TODO: implement test on follow-up PR
+			Skip("will be addressed on follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
 
 	When("migrating an extended ERC20 token (e.g. ERC20Votes)", func() {
-		// TODO: make sure that extended tokens are compatible with the ERC20 extensions
 		It("should migrate the full token balance to the bank module", func() {
+			// TODO: make sure that extended tokens are compatible with the ERC20 extensions
+			Skip("not included in first tranche")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
@@ -1457,14 +1461,20 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 		})
 
 		It("should add and enable the corresponding EVM extensions", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 
 		It("should be possible to query the balances through the bank module", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 
 		It("should return all tokens when querying all balances for an account", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
@@ -1475,16 +1485,22 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 		})
 
 		It("should add the corresponding EVM extensions", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 
 		It("should be possible to query the balances using an EVM transaction", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
 
 	When("using Evmos (not wEvmos) in smart contracts", func() {
 		It("should be using straight Evmos for sending funds in smart contracts", func() {
+			Skip("will be addressed in follow-up PR")
+
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
