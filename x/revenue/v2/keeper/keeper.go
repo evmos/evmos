@@ -25,11 +25,10 @@ func NewKeeper(
 	authority sdk.AccAddress,
 	bk v1types.BankKeeper,
 	dk v1types.DistributionKeeper,
-	ak v1types.AccountKeeper,
 	evmKeeper v1types.EVMKeeper,
 	feeCollector string,
 ) Keeper {
-	k := v1keeper.NewKeeper(storeKey, cdc, authority, bk, dk, ak, evmKeeper, feeCollector)
+	k := v1keeper.NewKeeper(storeKey, cdc, authority, bk, dk, evmKeeper, feeCollector)
 	return Keeper{
 		Keeper: &k,
 	}
