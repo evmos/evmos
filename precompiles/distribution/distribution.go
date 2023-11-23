@@ -143,8 +143,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - SetWithdrawAddress
 //   - WithdrawDelegatorRewards
 //   - WithdrawValidatorCommission
-func (Precompile) IsTransaction(methodID string) bool {
-	switch methodID {
+func (Precompile) IsTransaction(methodName string) bool {
+	switch methodName {
 	case ClaimRewardsMethod,
 		SetWithdrawAddressMethod,
 		WithdrawDelegatorRewardsMethod,
