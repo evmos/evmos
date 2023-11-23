@@ -14,7 +14,17 @@ import (
 )
 
 var (
-	ErrInsufficientAllowance        = errors.New("ERC20: insufficient allowance")
+	// ErrNegativeAmount is returned an approval for a negative amount is attempted.
+	//
+	// NOTE: Since Solidity support unsigned integers, this is only a safety check and
+	// should not happen.
+	ErrNegativeAmount = errors.New("cannot approve negative values")
+
+	// ErrInsufficientAllowance is returned by ERC20 smart contracts in case
+	// no authorization is found or the granted amount is not sufficient.
+	ErrInsufficientAllowance = errors.New("ERC20: insufficient allowance")
+	// ErrTransferAmountExceedsBalance is returned by ERC20 smart contracts in
+	// case a transfer is attempted, that sends more than the sender's balance.
 	ErrTransferAmountExceedsBalance = errors.New("ERC20: transfer amount exceeds balance")
 )
 

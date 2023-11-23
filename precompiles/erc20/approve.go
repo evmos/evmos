@@ -52,7 +52,7 @@ func (p Precompile) Approve(
 	switch {
 	case authorization == nil && amount != nil && amount.Sign() < 0:
 		// case 1: no authorization, amount 0 or negative -> error
-		err = errors.New("cannot approve negative values")
+		err = ErrNegativeAmount
 	case authorization == nil && amount != nil && amount.Sign() > 0:
 		// case 2: no authorization, amount positive -> create a new authorization
 		err = p.createAuthorization(ctx, grantee, granter, amount)
