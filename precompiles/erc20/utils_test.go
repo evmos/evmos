@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"fmt"
 	"math/big"
 	"time"
 
@@ -58,7 +59,7 @@ func (s *PrecompileTestSuite) setupSendAuthz(
 //   - the classic ERC20 contract is used, it calls the `approve` method on the contract.
 //   - in other cases, it sends a `MsgGrant` to set up the authorization.
 func (s *PrecompileTestSuite) setupSendAuthzForContract(
-	callType int, contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+	callType CallType, contractData ContractsData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 ) {
 	Expect(amount).To(HaveLen(1), "expected only one coin")
 	Expect(amount[0].Denom).To(Equal(s.tokenDenom),
@@ -84,26 +85,16 @@ func (s *PrecompileTestSuite) setupSendAuthzForContract(
 // setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
 // a given grantee and granter combination for a given amount.
 func (s *PrecompileTestSuite) setupSendAuthzForERC20(
-	callType int, contractData ContractData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+	callType CallType, contractData ContractsData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
 ) {
-	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
-
-	// Check that an approval was made
-	var abiEvents map[string]abi.Event
-	switch callType {
-	case erc20Call:
-		abiEvents = contractData.erc20ABI.Events
-	case erc20V5Call:
-		abiEvents = contractData.erc20V5ABI.Events
-	case erc20V5CallerCall:
-		// NOTE: In order to set up an allowance from the granter to the grantee, the call needs
-		// to be made to the actual ERC20 contract, not the ERC20Caller contract.
-		abiEvents = contractData.erc20V5ABI.Events
-		txArgs.To = &contractData.erc20V5Addr
-		callArgs.ContractABI = contractData.erc20V5ABI
-	default:
-		panic("unknown contract call type")
+	if callType == erc20V5CallerCall {
+		// NOTE: When using the ERC20 caller contract, we must still approve from the actual ERC20 v5 contract.
+		callType = erc20V5Call
 	}
+
+	abiEvents := contractData.GetContractData(callType).ABI.Events
+
+	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee, amount.AmountOf(s.tokenDenom).BigInt())
 
 	approveCheck := testutil.LogCheckArgs{
 		ABIEvents: abiEvents,
@@ -201,9 +192,12 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 	return precompile
 }
 
+// CallType indicates which type of contract call is made during the integration tests.
+type CallType int
+
 // callType constants to differentiate between direct calls and calls through a contract.
 const (
-	directCall = iota + 1
+	directCall CallType = iota + 1
 	contractCall
 	erc20Call
 	erc20V5Call
@@ -215,36 +209,22 @@ const (
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise, the
 // ERC20CallerContract's ABI is used and the given contract address.
 func (s *PrecompileTestSuite) getTxAndCallArgs(
-	callType int,
-	contractData ContractData,
+	callType CallType,
+	contractData ContractsData,
 	methodName string,
 	args ...interface{},
 ) (evmtypes.EvmTxArgs, factory.CallArgs) {
-	txArgs := evmtypes.EvmTxArgs{}
-	callArgs := factory.CallArgs{}
+	cd := contractData.GetContractData(callType)
 
-	switch callType {
-	case directCall:
-		txArgs.To = &contractData.precompileAddr
-		callArgs.ContractABI = contractData.precompileABI
-	case contractCall:
-		txArgs.To = &contractData.contractAddr
-		callArgs.ContractABI = contractData.contractABI
-	case erc20Call:
-		txArgs.To = &contractData.erc20Addr
-		callArgs.ContractABI = contractData.erc20ABI
-	case erc20V5Call:
-		txArgs.To = &contractData.erc20V5Addr
-		callArgs.ContractABI = contractData.erc20V5ABI
-	case erc20V5CallerCall:
-		txArgs.To = &contractData.erc20V5CallerAddr
-		callArgs.ContractABI = contractData.erc20V5CallerABI
-	default:
-		panic("unknown contract call type")
+	txArgs := evmtypes.EvmTxArgs{
+		To: &cd.Address,
 	}
 
-	callArgs.MethodName = methodName
-	callArgs.Args = args
+	callArgs := factory.CallArgs{
+		ContractABI: cd.ABI,
+		MethodName:  methodName,
+		Args:        args,
+	}
 
 	return txArgs, callArgs
 }
@@ -268,7 +248,7 @@ func (s *PrecompileTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 
 // ExpectBalancesForContract is a helper function to check expected balances for given accounts depending
 // on the call type.
-func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractData ContractData, expBalances []ExpectedBalance) {
+func (s *PrecompileTestSuite) ExpectBalancesForContract(callType CallType, contractData ContractsData, expBalances []ExpectedBalance) {
 	switch callType {
 	case directCall:
 		s.ExpectBalances(expBalances)
@@ -287,18 +267,8 @@ func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractDa
 
 // ExpectBalancesForERC20 is a helper function to check expected balances for given accounts
 // when using the ERC20 contract.
-func (s *PrecompileTestSuite) ExpectBalancesForERC20(callType int, contractData ContractData, expBalances []ExpectedBalance) {
-	var contractABI abi.ABI
-	switch callType {
-	case erc20Call:
-		contractABI = contractData.erc20ABI
-	case erc20V5Call:
-		contractABI = contractData.erc20V5ABI
-	case erc20V5CallerCall:
-		contractABI = contractData.erc20V5CallerABI
-	default:
-		panic("unknown contract call type")
-	}
+func (s *PrecompileTestSuite) ExpectBalancesForERC20(callType CallType, contractData ContractsData, expBalances []ExpectedBalance) {
+	contractABI := contractData.GetContractData(callType).ABI
 
 	for _, expBalance := range expBalances {
 		for _, expCoin := range expBalance.expCoins {
@@ -338,7 +308,9 @@ func (s *PrecompileTestSuite) expectSendAuthz(grantee, granter sdk.AccAddress, e
 
 // expectSendAuthzForERC20 is a helper function to check that a SendAuthorization
 // exists for a given grantee and granter combination for a given amount.
-func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType int, contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins) {
+func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType CallType, contractData ContractsData, grantee, granter common.Address, expAmount sdk.Coins) {
+	contractABI := contractData.GetContractData(callType).ABI
+
 	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, auth.AllowanceMethod, granter, grantee)
 
 	passCheck := testutil.LogCheckArgs{ExpPass: true}
@@ -347,7 +319,7 @@ func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType int, contractData
 	Expect(err).ToNot(HaveOccurred(), "expected no error getting allowance")
 
 	var allowance *big.Int
-	err = contractData.erc20ABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
+	err = contractABI.UnpackIntoInterface(&allowance, "allowance", ethRes.Ret)
 	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking allowance")
 	Expect(allowance.Int64()).To(Equal(expAmount.AmountOf(s.tokenDenom).Int64()), "expected different allowance")
 }
@@ -357,7 +329,7 @@ func (s *PrecompileTestSuite) expectSendAuthzForERC20(callType int, contractData
 //
 // NOTE: This helper expects only one authorization to exist.
 func (s *PrecompileTestSuite) ExpectSendAuthzForContract(
-	callType int, contractData ContractData, grantee, granter common.Address, expAmount sdk.Coins,
+	callType CallType, contractData ContractsData, grantee, granter common.Address, expAmount sdk.Coins,
 ) {
 	switch callType {
 	case directCall:
@@ -385,14 +357,14 @@ func (s *PrecompileTestSuite) expectNoSendAuthz(grantee, granter sdk.AccAddress)
 
 // expectNoSendAuthzForERC20 is a helper function to check that no SendAuthorization
 // exists for a given grantee and granter combination.
-func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(callType int, contractData ContractData, grantee, granter common.Address) {
+func (s *PrecompileTestSuite) expectNoSendAuthzForERC20(callType CallType, contractData ContractsData, grantee, granter common.Address) {
 	s.expectSendAuthzForERC20(callType, contractData, grantee, granter, sdk.Coins{})
 }
 
 // ExpectNoSendAuthzForContract is a helper function to check that no SendAuthorization
 // exists for a given grantee and granter combination.
 func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
-	callType int, contractData ContractData, grantee, granter common.Address,
+	callType CallType, contractData ContractsData, grantee, granter common.Address,
 ) {
 	switch callType {
 	case directCall:
@@ -410,29 +382,34 @@ func (s *PrecompileTestSuite) ExpectNoSendAuthzForContract(
 	}
 }
 
-// ContractData is a helper struct to hold the addresses and ABIs for the
+// ContractsData is a helper struct to hold the addresses and ABIs for the
 // different contract instances that are subject to testing here.
-type ContractData struct {
-	ownerPriv cryptotypes.PrivKey
+type ContractsData struct {
+	contractData map[CallType]ContractData
+	ownerPriv    cryptotypes.PrivKey
+}
 
-	erc20Addr         common.Address
-	erc20ABI          abi.ABI
-	erc20V5Addr       common.Address
-	erc20V5ABI        abi.ABI
-	erc20V5CallerAddr common.Address
-	erc20V5CallerABI  abi.ABI
-	contractAddr      common.Address
-	contractABI       abi.ABI
-	precompileAddr    common.Address
-	precompileABI     abi.ABI
+// ContractData is a helper struct to hold the address and ABI for a given contract.
+type ContractData struct {
+	Address common.Address
+	ABI     abi.ABI
+}
+
+// GetContractData is a helper function to return the contract data for a given call type.
+func (cd ContractsData) GetContractData(callType CallType) ContractData {
+	data, found := cd.contractData[callType]
+	if !found {
+		panic(fmt.Sprintf("no contract data found for call type: %d", callType))
+	}
+	return data
 }
 
 // fundWithTokens is a helper function for the scope of the ERC20 integration tests.
 // Depending on the passed call type, it funds the given address with tokens either
 // using the Bank module or by minting straight on the ERC20 contract.
 func (s *PrecompileTestSuite) fundWithTokens(
-	callType int,
-	contractData ContractData,
+	callType CallType,
+	contractData ContractsData,
 	receiver common.Address,
 	fundCoins sdk.Coins,
 ) {
@@ -464,23 +441,14 @@ func (s *PrecompileTestSuite) fundWithTokens(
 // MintERC20 is a helper function to mint tokens on the ERC20 contract.
 //
 // NOTE: we are checking that there was a Transfer event emitted (which happens on minting).
-func (s *PrecompileTestSuite) MintERC20(callType int, contractData ContractData, receiver common.Address, amount *big.Int) error {
-	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, "mint", receiver, amount)
-
-	var abiEvents map[string]abi.Event
-	switch callType {
-	case erc20Call:
-		abiEvents = contractData.erc20ABI.Events
-	case erc20V5Call:
-		abiEvents = contractData.erc20V5ABI.Events
-	case erc20V5CallerCall:
+func (s *PrecompileTestSuite) MintERC20(callType CallType, contractData ContractsData, receiver common.Address, amount *big.Int) error {
+	if callType == erc20V5CallerCall {
 		// NOTE: When using the ERC20 caller contract, we must still mint from the actual ERC20 v5 contract.
-		abiEvents = contractData.erc20V5ABI.Events
-		txArgs.To = &contractData.erc20V5Addr
-		callArgs.ContractABI = contractData.erc20V5ABI
-	default:
-		panic("unknown contract call type")
+		callType = erc20V5Call
 	}
+	abiEvents := contractData.GetContractData(callType).ABI.Events
+
+	txArgs, callArgs := s.getTxAndCallArgs(callType, contractData, "mint", receiver, amount)
 
 	mintCheck := testutil.LogCheckArgs{
 		ABIEvents: abiEvents,
