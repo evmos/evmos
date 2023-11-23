@@ -82,6 +82,7 @@ func BenchmarkAnteHandler(b *testing.B) {
 				b.StopTimer()
 				// Start with a clean block
 				if err := unitNetwork.NextBlock(); err != nil {
+					fmt.Println(err)
 					break
 				}
 				ctx := unitNetwork.GetContext()
@@ -89,6 +90,7 @@ func BenchmarkAnteHandler(b *testing.B) {
 				// Generate fresh tx type
 				tx, err := suite.generateTxType(v.txType)
 				if err != nil {
+					fmt.Println(err)
 					break
 				}
 				b.StartTimer()
@@ -96,6 +98,7 @@ func BenchmarkAnteHandler(b *testing.B) {
 				// Run benchmark
 				_, err = ante(ctx, tx, v.simulate)
 				if err != nil {
+					fmt.Println(err)
 					break
 				}
 			}
@@ -112,7 +115,7 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 			To:     &receiver.Addr,
 			Amount: big.NewInt(1000),
 		}
-		return s.txFactory.GenerateEthTx(senderPriv, txArgs)
+		return s.txFactory.GenerateSignedEthTx(senderPriv, txArgs)
 	case "bank_msg_send":
 		sender := s.keyring.GetKey(1)
 		receiver := s.keyring.GetAccAddr(0)

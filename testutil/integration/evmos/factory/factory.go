@@ -37,8 +37,8 @@ type TxFactory interface {
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
-	// GenerateEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-	GenerateEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
 	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -72,13 +72,18 @@ func New(
 }
 
 // GenerateEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-func (tf *IntegrationTxFactory) GenerateEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
+func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
 	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
 
-	return tf.buildSignedTx(msgEthereumTx)
+	signedMsg, err := signMsgEthereumTx(msgEthereumTx, privKey, tf.network.GetChainID())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
+	}
+
+	return tf.buildSignedTx(signedMsg)
 }
 
 // DeployContract deploys a contract with the provided private key,
@@ -131,19 +136,14 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
 ) (abcitypes.ResponseDeliverTx, error) {
-	msgEthereumTx, err := tf.createMsgEthereumTx(priv, txArgs)
+	signedMsg, err := tf.GenerateSignedEthTx(priv, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate signed ethereum tx")
 	}
 
-	signedMsg, err := signMsgEthereumTx(msgEthereumTx, priv, tf.network.GetChainID())
+	txBytes, err := tf.encodeTx(signedMsg)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign ethereum tx")
-	}
-
-	txBytes, err := tf.buildAndEncodeEthTx(signedMsg)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build and encode ethereum tx")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode ethereum tx")
 	}
 
 	res, err := tf.network.BroadcastTxSync(txBytes)
@@ -244,13 +244,9 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	return txArgs, nil
 }
 
-func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
-	signingTx, err := tf.buildSignedTx(msg)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to build signed tx")
-	}
+func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
-	txBytes, err := txConfig.TxEncoder()(signingTx)
+	txBytes, err := txConfig.TxEncoder()(tx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}
