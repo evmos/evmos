@@ -53,6 +53,8 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	return next(ctx, tx, simulate)
 }
 
+// SignatureVerification checks that the registered chain id is the same as the one on the message, and
+// that the signer address matches the one defined on the message.
 func SignatureVerification(
 	msg *evmtypes.MsgEthereumTx,
 	signer ethtypes.Signer,

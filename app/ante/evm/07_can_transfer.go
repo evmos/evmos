@@ -65,6 +65,7 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	return next(ctx, tx, simulate)
 }
 
+// CanTransfer checks if the sender is allowed to transfer funds according to the EVM block
 func CanTransfer(
 	ctx sdk.Context,
 	evmKeeper EVMKeeper,

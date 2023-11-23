@@ -54,6 +54,7 @@ func (issd EthIncrementSenderSequenceDecorator) AnteHandle(ctx sdk.Context, tx s
 	return next(ctx, tx, simulate)
 }
 
+// IncrementNonce increments the sequence of the account.
 func IncrementNonce(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,

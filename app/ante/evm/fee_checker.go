@@ -40,6 +40,7 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 	}
 }
 
+// FeeChecker returns the effective fee and priority for a given transaction.
 func FeeChecker(
 	ctx sdk.Context,
 	k DynamicFeeEVMKeeper,

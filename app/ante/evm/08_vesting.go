@@ -74,6 +74,9 @@ func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	return next(ctx, tx, simulate)
 }
 
+// CheckVesting checks if the account is a clawback vesting account and if so,
+// checks that the account has sufficient unlocked balances to cover the
+// transaction.
 func CheckVesting(
 	ctx sdk.Context,
 	bankKeeper evmtypes.BankKeeper,

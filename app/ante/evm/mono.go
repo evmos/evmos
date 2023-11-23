@@ -70,6 +70,7 @@ func NewMonoDecorator(
 	}
 }
 
+// NewUtils returns a new DecoratorUtils instance.
 func (md MonoDecorator) NewUtils(ctx sdk.Context) (*DecoratorUtils, error) {
 	evmParams := md.evmKeeper.GetParams(ctx)
 	chainCfg := evmParams.GetChainConfig()

@@ -66,6 +66,7 @@ func (mfd EthMempoolFeeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulat
 	return next(ctx, tx, simulate)
 }
 
+// CheckMempoolFee checks if the provided fee is at least as large as the local validator's
 func CheckMempoolFee(fee, mempoolMinGasPrice, gasLimit sdkmath.LegacyDec, isLondon bool) error {
 	if isLondon {
 		return nil

@@ -122,6 +122,7 @@ func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 	return next(newCtx, tx, simulate)
 }
 
+// ConsumeGas consumes the gas from the user balance and returns the updated gasWanted and minPriority.
 func ConsumeGas(
 	ctx sdk.Context,
 	bankKeeper anteutils.BankKeeper,

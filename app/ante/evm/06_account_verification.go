@@ -56,6 +56,7 @@ func (avd EthAccountVerificationDecorator) AnteHandle(
 	return next(ctx, tx, simulate)
 }
 
+// VerifyAccountBalance checks that the sender balance is greater than the total transaction cost.
 func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,
