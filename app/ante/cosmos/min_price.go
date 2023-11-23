@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"golang.org/x/exp/slices"
+
 	errorsmod "cosmossdk.io/errors"
 	evmante "github.com/evmos/evmos/v15/app/ante/evm"
 
@@ -42,7 +44,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	evmDenom := evmParams.GetEvmDenom()
 
 	// only allow user to pass in aevmos native token as transaction fees
-	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && feeCoins.GetDenomByIndex(0) == evmDenom)
+	validFees := len(feeCoins) == 0 || (len(feeCoins) == 1 && slices.Contains([]string{evmDenom, sdk.DefaultBondDenom}, feeCoins.GetDenomByIndex(0)))
 	if !validFees && !simulate {
 		return ctx, fmt.Errorf("expected only use native token %s for fee, but got %s", evmDenom, feeCoins.String())
 	}

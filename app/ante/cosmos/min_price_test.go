@@ -107,18 +107,18 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			true,
 		},
 		{
-			"invalid cosmos tx with wrong denom",
+			"invalid cosmos tx with stake denom",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
 				params.MinGasPrice = sdk.NewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), sdk.DefaultBondDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
-			fmt.Sprintf("expected only use native token %s for fee", denom),
+			"provided fee < minimum global fee",
 			true,
 		},
 		{
