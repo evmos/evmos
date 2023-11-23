@@ -4,9 +4,10 @@ package network
 
 import (
 	"encoding/json"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math"
 	"math/big"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/types"
