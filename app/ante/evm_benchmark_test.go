@@ -29,56 +29,59 @@ type benchmarkSuite struct {
 	keyring     testkeyring.Keyring
 }
 
+// Setup
+var table = []struct {
+	name     string
+	txType   string
+	simulate bool
+}{
+	{
+		"evm_transfer_sim",
+		"evm_transfer",
+		true,
+	},
+	{
+		"evm_transfer",
+		"evm_transfer",
+		false,
+	},
+	{
+		"bank_msg_send_sim",
+		"bank_msg_send",
+		true,
+	},
+	{
+		"bank_msg_send",
+		"bank_msg_send",
+		false,
+	},
+}
+
 func BenchmarkAnteHandler(b *testing.B) {
-	// Setup
-	keyring := testkeyring.New(3)
-	unitNetwork := network.NewUnitTestNetwork(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	txFactory := factory.New(unitNetwork, grpcHandler)
-	suite := benchmarkSuite{
-		network:     unitNetwork,
-		grpcHandler: grpcHandler,
-		txFactory:   txFactory,
-		keyring:     keyring,
-	}
-
-	handlerOptions := suite.generateHandlerOptions()
-	ante := ante.NewAnteHandler(handlerOptions)
-
-	table := []struct {
-		name     string
-		txType   string
-		simulate bool
-	}{
-		{
-			"evm_transfer_sim",
-			"evm_transfer",
-			true,
-		},
-		{
-			"evm_transfer",
-			"evm_transfer",
-			false,
-		},
-		{
-			"bank_msg_send_sim",
-			"bank_msg_send",
-			true,
-		},
-		{
-			"bank_msg_send",
-			"bank_msg_send",
-			false,
-		},
-	}
-
-	b.ResetTimer()
 	for _, v := range table {
+		// Reset chain on every tx type to have a clean state
+		// and a fair benchmark
+		b.StopTimer()
+		keyring := testkeyring.New(2)
+		unitNetwork := network.NewUnitTestNetwork(
+			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		)
+		grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+		txFactory := factory.New(unitNetwork, grpcHandler)
+		suite := benchmarkSuite{
+			network:     unitNetwork,
+			grpcHandler: grpcHandler,
+			txFactory:   txFactory,
+			keyring:     keyring,
+		}
+
+		handlerOptions := suite.generateHandlerOptions()
+		ante := ante.NewAnteHandler(handlerOptions)
+		b.StartTimer()
+
 		b.Run(fmt.Sprintf("tx_type_%v", v.name), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				// Stop timer through tx setup
+				// Stop timer while building the tx setup
 				b.StopTimer()
 				// Start with a clean block
 				if err := unitNetwork.NextBlock(); err != nil {
