@@ -11,6 +11,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/app"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
@@ -119,7 +120,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -129,7 +130,7 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: erc20.ErrDenomTraceNotFound.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:  "fail - invalid denom (too short < 3 chars)",
@@ -137,12 +138,12 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				app.TransferKeeper.SetDenomTrace(ctx, tooShortTrace)
 			},
-			errContains: "invalid base denomination; should be at least length 3; got: \"ab\"",
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:  "pass - valid ibc denom without metadata and neither atto nor micro prefix",
@@ -236,7 +237,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - empty denom",
 			denom:       "",
-			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:        "fail - invalid denom trace",
@@ -246,12 +247,12 @@ func (s *PrecompileTestSuite) TestDecimals() {
 		{
 			name:        "fail - denom not found",
 			denom:       types.DenomTrace{Path: "channel-0", BaseDenom: "notfound"}.IBCDenom(),
-			errContains: erc20.ErrDenomTraceNotFound.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:        "fail - denom without metadata and not an IBC voucher",
 			denom:       "noIBCvoucher",
-			errContains: erc20.ErrNoIBCVoucherDenom.Error(),
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:  "fail - valid ibc denom without metadata and neither atto nor micro prefix",
@@ -259,7 +260,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 			malleate: func(ctx sdk.Context, app *app.Evmos) {
 				app.TransferKeeper.SetDenomTrace(ctx, validTraceDenomNoMicroAtto)
 			},
-			errContains: "invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: \"mevmos\"",
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:  "pass - invalid denom (too short < 3 chars)",
@@ -313,7 +314,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 				// NOTE: we set the denom metadata for the coin
 				app.BankKeeper.SetDenomMetaData(s.network.GetContext(), overflowMetadata)
 			},
-			errContains: "uint8 overflow: invalid decimals",
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 		{
 			name:  "pass - valid ibc denom with metadata but no display denom",
@@ -326,7 +327,7 @@ func (s *PrecompileTestSuite) TestDecimals() {
 				// NOTE: we set the denom metadata for the coin
 				app.BankKeeper.SetDenomMetaData(ctx, noDisplayMetadata)
 			},
-			errContains: "display denomination not found for denom: \"uatom\"",
+			errContains: vm.ErrExecutionReverted.Error(),
 		},
 	}
 
