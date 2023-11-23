@@ -32,6 +32,15 @@ func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, deno
 	return txBuilder
 }
 
+func (suite *AnteTestSuite) CreateTestCosmosTxBuilderWithFees(fees sdk.Coins, msgs ...sdk.Msg) client.TxBuilder {
+	txBuilder := suite.clientCtx.TxConfig.NewTxBuilder()
+	txBuilder.SetGasLimit(TestGasLimit)
+	txBuilder.SetFeeAmount(fees)
+	err := txBuilder.SetMsgs(msgs...)
+	suite.Require().NoError(err)
+	return txBuilder
+}
+
 func newMsgExec(grantee sdk.AccAddress, msgs []sdk.Msg) *authz.MsgExec {
 	msg := authz.NewMsgExec(grantee, msgs)
 	return &msg

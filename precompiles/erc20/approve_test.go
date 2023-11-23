@@ -9,6 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 )
 
@@ -63,7 +65,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot approve non-positive values",
+			errContains: erc20.ErrNegativeAmount.Error(),
 		},
 		{
 			name: "fail - approve uint256 overflow",
@@ -91,7 +93,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), common.Big0,
 				}
 			},
-			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			errContains: fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization was not adjusted
 				s.requireSendAuthz(
@@ -314,7 +316,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot increase allowance with non-positive values",
+			errContains: erc20.ErrIncreaseNonPositiveValue.Error(),
 		},
 		{
 			name: "pass - increase allowance without existing authorization",
@@ -374,7 +376,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
-			errContains: "integer overflow when increasing allowance",
+			errContains: cmn.ErrIntegerOverflow,
 			postCheck: func() {
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
@@ -512,7 +514,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot decrease allowance with non-positive values",
+			errContains: erc20.ErrDecreaseNonPositiveValue.Error(),
 		},
 		{
 			name: "fail - decrease allowance without existing authorization",
@@ -677,7 +679,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			errContains: fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization for the other denom was not deleted
 				s.requireSendAuthz(
@@ -701,7 +703,6 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			// TODO: have more verbose error message here like "authorization for different denomination found"?
 			errContains: "subtracted value cannot be greater than existing allowance",
 			postCheck: func() {
 				// NOTE: Here we check that the authorization was not adjusted
