@@ -9,13 +9,11 @@ import (
 	"fmt"
 	"math/big"
 
-	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdktypeserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -187,15 +185,10 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", "int256", args[2])
 	}
 
-	commissionRate := new(sdk.Dec)
-	if commissionRateBigInt.Sign() < 0 {
-		if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) == 0 {
-			commissionRate = nil
-		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "commission rate must be -1(means not changed) or between 0 and 1 (inclusive)")
-		}
-	} else {
-		*commissionRate = sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+	var commissionRate *sdkmath.LegacyDec
+	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
+		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
+		commissionRate = &cr
 	}
 
 	minSelfDelegationBigInt, ok := args[3].(*big.Int)
@@ -203,15 +196,10 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "minSelfDelegation", "int256", args[3])
 	}
 
-	minSelfDelegation := new(sdkmath.Int)
-	if minSelfDelegationBigInt.Sign() <= 0 {
-		if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) == 0 {
-			minSelfDelegation = nil
-		} else {
-			return nil, common.Address{}, sdkerrors.Wrap(sdktypeserrors.ErrInvalidRequest, "min self delegation must be -1(means not changed) or a positive integer")
-		}
-	} else {
-		*minSelfDelegation = sdk.NewIntFromBigInt(minSelfDelegationBigInt)
+	var minSelfDelegation *sdkmath.Int
+	if minSelfDelegationBigInt.Cmp(big.NewInt(DoNotModifyMinSelfDelegation)) != 0 {
+		msd := sdkmath.NewIntFromBigInt(minSelfDelegationBigInt)
+		minSelfDelegation = &msd
 	}
 
 	msg := &stakingtypes.MsgEditValidator{
