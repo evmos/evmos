@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v15/app/ante/cosmos"
+	"github.com/evmos/evmos/v15/cmd/config"
 	"github.com/evmos/evmos/v15/testutil"
 	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/utils"
@@ -18,6 +18,7 @@ var execTypes = []struct {
 	isCheckTx bool
 	simulate  bool
 }{
+	{"checkTx", true, false},
 	{"deliverTx", false, false},
 	{"deliverTxSimulate", false, true},
 }
@@ -35,6 +36,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		malleate            func() sdk.Tx
 		expPass             bool
 		errMsg              string
+		localMinGasPrice    int64
+		expCheckPass        bool
 		allowPassOnSimulate bool
 	}{
 		{
@@ -44,6 +47,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			false,
 			"invalid transaction type",
+			0,
+			false,
 			false,
 		},
 		{
@@ -59,6 +64,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			true,
 			"",
+			0,
+			true,
 			true,
 		},
 		{
@@ -74,6 +81,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			true,
 			"",
+			0,
+			true,
 			true,
 		},
 		{
@@ -89,6 +98,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			true,
 			"",
+			0,
+			true,
 			true,
 		},
 		{
@@ -104,6 +115,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			false,
 			"provided fee < minimum global fee",
+			0,
+			false,
 			true,
 		},
 		{
@@ -119,6 +132,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			false,
 			"provided fee < minimum global fee",
+			0,
+			false,
 			true,
 		},
 		{
@@ -134,6 +149,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			true,
 			"",
+			0,
+			true,
 			true,
 		},
 		{
@@ -149,6 +166,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			true,
 			"",
+			0,
+			true,
 			true,
 		},
 		{
@@ -163,7 +182,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				return txBuilder.GetTx()
 			},
 			true,
-			"",
+			"provided fee < minimum global fee",
+			0,
+			true,
 			true,
 		},
 		{
@@ -180,6 +201,25 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			},
 			false,
 			fmt.Sprintf("expected only use native token %s for fee", denom),
+			0,
+			false,
+			true,
+		},
+		{
+			"valid cosmos tx with MinGasPrices = 10, LocalMinGasPrices = 20, gasPrice = 10",
+			func() sdk.Tx {
+				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params.MinGasPrice = sdk.NewDec(10)
+				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				suite.Require().NoError(err)
+
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				return txBuilder.GetTx()
+			},
+			true,
+			"provided fee < minimum local fee",
+			20,
+			false,
 			true,
 		},
 	}
@@ -189,10 +229,16 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			suite.Run(et.name+"_"+tc.name, func() {
 				// s.SetupTest(et.isCheckTx)
 				ctx := suite.ctx.WithIsReCheckTx(et.isCheckTx)
+
+				localMinGasPrices := sdk.NewDecCoins(sdk.NewDecCoinFromDec(config.BaseDenom, sdk.NewDec(tc.localMinGasPrice)))
+				ctx = ctx.WithMinGasPrices(localMinGasPrices)
+
 				dec := cosmosante.NewMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EvmKeeper)
 				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NextFn)
 
-				if (et.name == "deliverTx" && tc.expPass) || (et.name == "deliverTxSimulate" && et.simulate && tc.allowPassOnSimulate) {
+				if (et.name == "checkTx" && tc.expCheckPass) ||
+					(et.name == "deliverTx" && tc.expPass) ||
+					(et.name == "deliverTxSimulate" && et.simulate && tc.allowPassOnSimulate) {
 					suite.Require().NoError(err, tc.name)
 				} else {
 					suite.Require().Error(err, tc.name)

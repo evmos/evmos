@@ -163,6 +163,16 @@ Example:
 			baseFee, _ := cmd.Flags().GetString(flagBaseFee)
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
+			// only allow user use aevmos native token as transaction fees
+			minGasPrices, err := sdk.ParseDecCoin(args.minGasPrices)
+			if err != nil {
+				return err
+			}
+
+			if minGasPrices.Denom != cmdcfg.BaseDenom {
+				return fmt.Errorf("invalid value for --minimum-gas-prices. expected %s for gas price but got %s", cmdcfg.BaseDenom, minGasPrices.Denom)
+			}
+
 			var ok bool
 			args.baseFee, ok = sdk.NewIntFromString(baseFee)
 			if !ok || args.baseFee.LT(sdk.ZeroInt()) {

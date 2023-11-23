@@ -37,11 +37,19 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 		return ctx, errorsmod.Wrapf(errortypes.ErrInvalidType, "invalid transaction type %T, expected sdk.FeeTx", tx)
 	}
 
-	minGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
-
 	feeCoins := feeTx.GetFee()
 	evmParams := mpd.evmKeeper.GetParams(ctx)
 	evmDenom := evmParams.GetEvmDenom()
+
+	globalMinGasPrice := mpd.feesKeeper.GetParams(ctx).MinGasPrice
+	localMinGasPrice := ctx.MinGasPrices().AmountOf(evmDenom)
+
+	whichFee := "global"
+	minGasPrice := globalMinGasPrice
+	if ctx.IsCheckTx() && localMinGasPrice.GT(globalMinGasPrice) {
+		minGasPrice = localMinGasPrice
+		whichFee = "local"
+	}
 
 	// only allow user to pass in aevmos and stake native token as transaction fees
 	// allow use stake native tokens for fees is just for unit tests to pass
@@ -86,7 +94,8 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	if !feeCoins.IsAnyGTE(requiredFees) {
 		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
-			"provided fee < minimum global fee (%s < %s). Please increase the gas price.",
+			"provided fee < minimum %s fee (%s < %s). Please increase the gas price.",
+			whichFee,
 			feeCoins,
 			requiredFees)
 	}
