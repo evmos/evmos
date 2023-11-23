@@ -288,6 +288,18 @@ func (s *PrecompileTestSuite) ExpectBalancesForContract(callType int, contractDa
 // ExpectBalancesForERC20 is a helper function to check expected balances for given accounts
 // when using the ERC20 contract.
 func (s *PrecompileTestSuite) ExpectBalancesForERC20(callType int, contractData ContractData, expBalances []ExpectedBalance) {
+	var contractABI abi.ABI
+	switch callType {
+	case erc20Call:
+		contractABI = contractData.erc20ABI
+	case erc20V5Call:
+		contractABI = contractData.erc20V5ABI
+	case erc20V5CallerCall:
+		contractABI = contractData.erc20V5CallerABI
+	default:
+		panic("unknown contract call type")
+	}
+
 	for _, expBalance := range expBalances {
 		for _, expCoin := range expBalance.expCoins {
 			addr := common.BytesToAddress(expBalance.address.Bytes())
@@ -300,7 +312,7 @@ func (s *PrecompileTestSuite) ExpectBalancesForERC20(callType int, contractData 
 			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
 			var balance *big.Int
-			err = contractData.erc20ABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
+			err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
 			Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
 			Expect(balance.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
 		}

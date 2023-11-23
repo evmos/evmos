@@ -3,14 +3,14 @@ package erc20_test
 import (
 	"fmt"
 	"math/big"
-
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
@@ -1379,7 +1379,66 @@ var _ = Describe("ERC20 Extension -", func() {
 
 var _ = Describe("ERC20 Extension migration Flows -", func() {
 	When("migrating an existing ERC20 token", func() {
+		var (
+			contractData ContractData
+
+			tokenDenom  = "xmpl"
+			tokenName   = "Xmpl"
+			tokenSymbol = strings.ToUpper(tokenDenom)
+
+			supply = sdk.NewInt64Coin(tokenDenom, 1000000000000000000)
+		)
+
+		BeforeEach(func() {
+			contractOwner := s.keyring.GetKey(0)
+
+			// Deploy an ERC20 contract
+			erc20Addr, err := s.factory.DeployContract(
+				contractOwner.Priv,
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract: contracts.ERC20MinterV5Contract,
+					ConstructorArgs: []interface{}{
+						tokenName, tokenSymbol,
+					},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+			contractData.erc20V5ABI = contracts.ERC20MinterV5Contract.ABI
+			contractData.erc20V5Addr = erc20Addr
+			contractData.ownerPriv = contractOwner.Priv
+
+			err = s.network.NextBlock()
+			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
+
+			// Register the deployed erc20 contract as a token pair
+			err = utils.RegisterERC20(s.factory, s.network, utils.ERC20RegistrationData{
+				Address:      erc20Addr,
+				Denom:        tokenDenom,
+				ProposerPriv: contractOwner.Priv,
+			})
+			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+
+			err = s.network.NextBlock()
+			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
+
+			// Mint the supply of tokens
+			err = s.MintERC20(erc20V5Call, contractData, contractOwner.Addr, supply.Amount.BigInt())
+			Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
+
+			err = s.network.NextBlock()
+			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
+
+			// Check that the supply was minted
+			s.ExpectBalancesForERC20(erc20V5Call, contractData, []ExpectedBalance{{
+				address:  contractOwner.AccAddr,
+				expCoins: sdk.Coins{supply},
+			}})
+		})
+
 		It("should migrate the full token balance to the bank module", func() {
+			// execute the migration of the token
 			Expect(true).To(BeFalse(), "not implemented")
 		})
 	})
