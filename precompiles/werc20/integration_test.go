@@ -1,6 +1,7 @@
 package werc20_test
 
 import (
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -52,6 +53,28 @@ var _ = Describe("WEVMOS Extension -", func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+		// Register the native EVMOS token in the bank module for the network
+		evmosMetadata := banktypes.Metadata{
+			Description: "The native token of Evmos",
+			Base:        s.bondDenom,
+			// NOTE: Denom units MUST be increasing
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    s.bondDenom,
+					Exponent: 0,
+					Aliases:  []string{s.bondDenom},
+				},
+				{
+					Denom:    s.bondDenom,
+					Exponent: 18,
+				},
+			},
+			Name:    "Evmos",
+			Symbol:  "EVMOS",
+			Display: s.bondDenom,
+		}
+		s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), evmosMetadata)
 
 		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
 
