@@ -7,6 +7,7 @@ package utils
 
 import (
 	"fmt"
+
 	"github.com/evmos/evmos/v15/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
