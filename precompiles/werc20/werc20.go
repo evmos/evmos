@@ -35,9 +35,9 @@ type Precompile struct {
 
 const (
 	// DepositRequiredGas defines the gas required for the Deposit transaction.
-	DepositRequiredGas uint64 = 28_799
+	DepositRequiredGas uint64 = 23_878
 	// WithdrawRequiredGas defines the gas required for the Withdraw transaction.
-	WithdrawRequiredGas uint64 = 35_960
+	WithdrawRequiredGas uint64 = 9207
 )
 
 // NewPrecompile creates a new WERC20 Precompile instance as a
