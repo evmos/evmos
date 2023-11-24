@@ -17,6 +17,7 @@ import (
 	cfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/cli"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	"github.com/cosmos/go-bip39"
@@ -150,6 +151,8 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			// Get initial height
 			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
 
+			appGenesis.AppName = version.AppName
+			appGenesis.AppVersion = version.Version
 			appGenesis.ChainID = chainID
 			appGenesis.AppState = appState
 			appGenesis.InitialHeight = initHeight
