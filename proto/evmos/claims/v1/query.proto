@@ -9,6 +9,7 @@ import "evmos/claims/v1/claims.proto";
 import "evmos/claims/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/claims/types";
 
@@ -40,8 +41,11 @@ message QueryTotalUnclaimedRequest {}
 // RPC method.
 message QueryTotalUnclaimedResponse {
   // coins defines the unclaimed coins
-  repeated cosmos.base.v1beta1.Coin coins = 1
-      [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -50,7 +54,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params defines the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // QueryClaimsRecordsRequest is the request type for the Query/ClaimsRecords RPC
@@ -64,7 +68,7 @@ message QueryClaimsRecordsRequest {
 // RPC method.
 message QueryClaimsRecordsResponse {
   // claims defines all claims records
-  repeated ClaimsRecordAddress claims = 1 [(gogoproto.nullable) = false];
+  repeated ClaimsRecordAddress claims = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -80,7 +84,8 @@ message QueryClaimsRecordRequest {
 // method.
 message QueryClaimsRecordResponse {
   // initial_claimable_amount of the user
-  string initial_claimable_amount = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  string initial_claimable_amount = 1
+      [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // claims of the user
-  repeated Claim claims = 2 [(gogoproto.nullable) = false];
+  repeated Claim claims = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }

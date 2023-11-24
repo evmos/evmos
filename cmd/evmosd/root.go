@@ -71,7 +71,24 @@ const (
 // NewRootCmd creates a new root command for evmosd. It is called once in the
 // main function.
 func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
+	// and the CLI options for the modules
+	// add keyring to autocli opts
+	tempApp := app.NewEvmos(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil, true, nil,
+		tempDir(app.DefaultNodeHome),
+		0,
+		encoding.Config(),
+		simtestutil.NewAppOptionsWithFlagHome(tempDir(app.DefaultNodeHome)),
+	)	
+	encodingConfig := sdktestutil.TestEncodingConfig{
+		InterfaceRegistry: tempApp.InterfaceRegistry(),
+		Codec:             tempApp.AppCodec(),
+		TxConfig:          tempApp.GetTxConfig(),
+		Amino:             tempApp.LegacyAmino(),
+	}
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Codec).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -148,14 +165,14 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
 			genutiltypes.DefaultMessageValidator,
-			encodingConfig.TxConfig.SigningContext().ValidatorAddressCodec(),
+			tempApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
 		),
 		MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(
-			app.ModuleBasics, encodingConfig.TxConfig,
+			app.ModuleBasics, tempApp.GetTxConfig(),
 			banktypes.GenesisBalancesIterator{},
 			app.DefaultNodeHome,
-			encodingConfig.TxConfig.SigningContext().ValidatorAddressCodec(),
+			tempApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
 		),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
@@ -196,18 +213,6 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 	// add rosetta
 	// rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
 
-	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
-	// and the CLI options for the modules
-	// add keyring to autocli opts
-	tempApp := app.NewEvmos(
-		log.NewNopLogger(),
-		dbm.NewMemDB(),
-		nil, true, nil,
-		tempDir(app.DefaultNodeHome),
-		0,
-		encoding.Config(),
-		simtestutil.NewAppOptionsWithFlagHome(tempDir(app.DefaultNodeHome)),
-	)
 	autoCliOpts := tempApp.AutoCliOpts()
 	initClientCtx, _ = clientcfg.ReadFromClientConfig(initClientCtx)
 	autoCliOpts.Keyring, _ = keyring.NewAutoCLIKeyring(initClientCtx.Keyring)

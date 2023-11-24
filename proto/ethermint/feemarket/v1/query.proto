@@ -6,6 +6,7 @@ package ethermint.feemarket.v1;
 import "ethermint/feemarket/v1/feemarket.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/feemarket/types";
 
@@ -33,7 +34,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse defines the response type for querying x/evm parameters.
 message QueryParamsResponse {
   // params define the evm module parameters.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // QueryBaseFeeRequest defines the request type for querying the EIP1559 base

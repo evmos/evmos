@@ -138,7 +138,6 @@ import (
 	v82 "github.com/evmos/evmos/v15/app/upgrades/v8_2"
 	v9 "github.com/evmos/evmos/v15/app/upgrades/v9"
 	v91 "github.com/evmos/evmos/v15/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v15/encoding"
 	"github.com/evmos/evmos/v15/ethereum/eip712"
 	"github.com/evmos/evmos/v15/precompiles/common"
 	srvflags "github.com/evmos/evmos/v15/server/flags"
@@ -290,6 +289,7 @@ type Evmos struct {
 	cdc               *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
+	txConfig          client.TxConfig
 
 	invCheckPeriod uint
 
@@ -465,7 +465,7 @@ func NewEvmos(
 	if err != nil {
 		panic(err)
 	}
-	encodingConfig.TxConfig = txConfig
+	app.txConfig = txConfig
 
 	stakingKeeper := stakingkeeper.NewKeeper(
 		appCodec,
@@ -720,7 +720,7 @@ func NewEvmos(
 		// SDK app modules
 		genutil.NewAppModule(
 			app.AccountKeeper, app.StakingKeeper,
-			app, encodingConfig.TxConfig,
+			app, app.txConfig,
 		),
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts, app.GetSubspace(authtypes.ModuleName)),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper, app.GetSubspace(banktypes.ModuleName)),
@@ -942,7 +942,7 @@ func NewEvmos(
 
 	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	app.setAnteHandler(app.txConfig, maxGasWanted)
 	app.setPostHandler()
 	app.SetEndBlocker(app.EndBlocker)
 	app.setupUpgradeHandlers()
@@ -1237,8 +1237,7 @@ func (app *Evmos) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 
 // GetTxConfig implements the TestingApp interface.
 func (app *Evmos) GetTxConfig() client.TxConfig {
-	cfg := encoding.MakeConfig(ModuleBasics)
-	return cfg.TxConfig
+	return app.txConfig
 }
 
 // AutoCliOpts returns the autocli options for the app.

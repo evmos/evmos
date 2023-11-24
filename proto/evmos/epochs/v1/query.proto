@@ -7,6 +7,7 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "evmos/epochs/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/epochs/types";
 
@@ -33,7 +34,7 @@ message QueryEpochsInfoRequest {
 // method.
 message QueryEpochsInfoResponse {
   // epochs is a slice of all EpochInfos
-  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false];
+  repeated EpochInfo epochs = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

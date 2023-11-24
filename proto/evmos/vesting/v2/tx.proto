@@ -9,6 +9,7 @@ import "cosmos/vesting/v1beta1/vesting.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/vesting/types";
 
@@ -42,6 +43,7 @@ service Msg {
 // MsgCreateClawbackVestingAccount defines a message that enables creating a
 // ClawbackVestingAccount.
 message MsgCreateClawbackVestingAccount {
+  option (amino.name) = "evmos/MsgCreateClawbackVestingAccount";
   option (gogoproto.equal) = false;
   option (cosmos.msg.v1.signer) = "vesting_address";
   // funder_address specifies the account that will be able to fund the vesting account
@@ -59,21 +61,25 @@ message MsgCreateClawbackVestingAccountResponse {}
 // MsgFundVestingAccount defines a message that enables funding an existing clawback
 // vesting account.
 message MsgFundVestingAccount {
+  option (amino.name) = "evmos/MsgFundVestingAccount";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address specifies the account that funds the vesting account
   string funder_address = 1;
   // vesting_address specifies the account that receives the funds
   string vesting_address = 2;
   // start_time defines the time at which the vesting period begins
-  google.protobuf.Timestamp start_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp start_time = 3
+      [(gogoproto.stdtime) = true, (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // lockup_periods defines the unlocking schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period lockup_periods = 4 [
     (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
   // vesting_periods defines the vesting schedule relative to the start_time
   repeated cosmos.vesting.v1beta1.Period vesting_periods = 5 [
     (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/x/auth/vesting/types.Periods"
   ];
 }
@@ -85,6 +91,7 @@ message MsgFundVestingAccountResponse {}
 // MsgClawback defines a message that removes unvested tokens from a
 // ClawbackVestingAccount.
 message MsgClawback {
+  option (amino.name) = "evmos/MsgClawback";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address is the address which funded the account
   string funder_address = 1;
@@ -100,13 +107,17 @@ message MsgClawback {
 // MsgClawbackResponse defines the MsgClawback response type.
 message MsgClawbackResponse {
   // coins is the slice of clawed back coins
-  repeated cosmos.base.v1beta1.Coin coins = 1
-      [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
 }
 
 // MsgUpdateVestingFunder defines a message that updates the funder account of a
 // ClawbackVestingAccount.
 message MsgUpdateVestingFunder {
+  option (amino.name) = "evmos/MsgUpdateVestingFunder";
   option (cosmos.msg.v1.signer) = "funder_address";
   // funder_address is the current funder address of the ClawbackVestingAccount
   string funder_address = 1;

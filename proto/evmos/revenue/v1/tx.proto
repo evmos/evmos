@@ -8,6 +8,7 @@ import "cosmos_proto/cosmos.proto";
 import "evmos/revenue/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/revenue/v1/types";
 
@@ -34,6 +35,8 @@ service Msg {
 
 // MsgRegisterRevenue defines a message that registers a Revenue
 message MsgRegisterRevenue {
+  option (amino.name) = "evmos/MsgRegisterRevenue";
+  option (cosmos.msg.v1.signer) = "deployer_address";
   option (gogoproto.equal) = false;
   // contract_address in hex format
   string contract_address = 1;
@@ -54,6 +57,8 @@ message MsgRegisterRevenueResponse {}
 // MsgUpdateRevenue defines a message that updates the withdrawer address for a
 // registered Revenue
 message MsgUpdateRevenue {
+  option (amino.name) = "evmos/MsgUpdateRevenue";
+  option (cosmos.msg.v1.signer) = "deployer_address";
   option (gogoproto.equal) = false;
   // contract_address in hex format
   string contract_address = 1;
@@ -69,6 +74,8 @@ message MsgUpdateRevenueResponse {}
 
 // MsgCancelRevenue defines a message that cancels a registered Revenue
 message MsgCancelRevenue {
+  option (amino.name) = "evmos/MsgCancelRevenue";
+  option (cosmos.msg.v1.signer) = "deployer_address";
   option (gogoproto.equal) = false;
   // contract_address in hex format
   string contract_address = 1;
@@ -82,12 +89,13 @@ message MsgCancelRevenueResponse {}
 
 // MsgUpdateParams defines a Msg for updating the x/revenue module parameters.
 message MsgUpdateParams {
+  option (amino.name) = "evmos/x/revenue/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
   // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // params defines the x/revenue parameters to update.
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a

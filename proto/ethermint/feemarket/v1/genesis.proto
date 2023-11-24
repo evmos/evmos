@@ -5,13 +5,14 @@ package ethermint.feemarket.v1;
 
 import "ethermint/feemarket/v1/feemarket.proto";
 import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/feemarket/types";
 
 // GenesisState defines the feemarket module's genesis state.
 message GenesisState {
   // params defines all the parameters of the feemarket module.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // DEPRECATED: base fee is the exported value from previous software version.
   // Zero by default.
   reserved 2;

@@ -8,6 +8,7 @@ import "evmos/revenue/v1/genesis.proto";
 import "evmos/revenue/v1/revenue.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/revenue/v1/types";
 
@@ -50,7 +51,7 @@ message QueryRevenuesRequest {
 // QueryRevenuesResponse is the response type for the Query/Revenues RPC method.
 message QueryRevenuesResponse {
   // revenues is a slice of all stored Reveneue
-  repeated Revenue revenues = 1 [(gogoproto.nullable) = false];
+  repeated Revenue revenues = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -64,7 +65,7 @@ message QueryRevenueRequest {
 // QueryRevenueResponse is the response type for the Query/Revenue RPC method.
 message QueryRevenueResponse {
   // revenue is a stored Reveneue for the queried contract
-  Revenue revenue = 1 [(gogoproto.nullable) = false];
+  Revenue revenue = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -73,7 +74,7 @@ message QueryParamsRequest {}
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
   // params is the returned revenue parameter
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // QueryDeployerRevenuesRequest is the request type for the

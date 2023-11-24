@@ -9,6 +9,7 @@ import "cosmos_proto/cosmos.proto";
 import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/erc20/types";
 
@@ -32,9 +33,11 @@ service Msg {
 
 // MsgConvertCoin defines a Msg to convert a native Cosmos coin to a ERC20 token
 message MsgConvertCoin {
+  option (amino.name) = "evmos/MsgConvertCoin";
+  option (cosmos.msg.v1.signer) = "sender";
   // coin is a Cosmos coin whose denomination is registered in a token pair. The coin
   // amount defines the amount of coins to convert.
-  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin coin = 1 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // receiver is the hex address to receive ERC20 token
   string receiver = 2;
   // sender is the cosmos bech32 address from the owner of the given Cosmos coins
@@ -47,10 +50,13 @@ message MsgConvertCoinResponse {}
 // MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
 // coin.
 message MsgConvertERC20 {
+  option (amino.name) = "evmos/MsgConvertERC20";
+  option (cosmos.msg.v1.signer) = "sender";
   // contract_address of an ERC20 token contract, that is registered in a token pair
   string contract_address = 1;
   // amount of ERC20 tokens to convert
-  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  string amount = 2
+      [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false, (amino.dont_omitempty) = true];
   // receiver is the bech32 address to receive native Cosmos coins
   string receiver = 3;
   // sender is the hex address from the owner of the given ERC20 tokens
@@ -63,6 +69,7 @@ message MsgConvertERC20Response {}
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47
 message MsgUpdateParams {
+  option (amino.name) = "evmos/x/erc20/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -70,7 +77,7 @@ message MsgUpdateParams {
 
   // params defines the x/evm parameters to update.
   // NOTE: All parameters must be supplied.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 2 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
 }
 
 // MsgUpdateParamsResponse defines the response structure for executing a
