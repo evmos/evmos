@@ -88,6 +88,8 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
 	logCheckArgs.Res = res
 	if err != nil {
+		// NOTE: here we are still passing the response to the log check function,
+		// because we want to check the logs and expected error in case of a VM error.
 		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
 	}
 

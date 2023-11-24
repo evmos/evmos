@@ -5,61 +5,54 @@ package stride_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
-
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v15/app"
-	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-
+	"github.com/evmos/evmos/v15/testutil/integration/common/grpc"
+	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
-var s *PrecompileTestSuite
+var _ *PrecompileTestSuite
 
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	ctx           sdk.Context
-	app           *evmosapp.Evmos
-	address       common.Address
-	differentAddr common.Address
-	validators    []stakingtypes.Validator
-	valSet        *tmtypes.ValidatorSet
-	ethSigner     ethtypes.Signer
-	privKey       cryptotypes.PrivKey
-	signer        keyring.Signer
-	bondDenom     string
+	network     *network.UnitTestNetwork
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
 	precompile *stride.Precompile
-	stateDB    *statedb.StateDB
-
-	coordinator    *ibctesting.Coordinator
-	chainA         *ibctesting.TestChain
-	chainB         *ibctesting.TestChain
-	transferPath   *evmosibc.Path
-	queryClientEVM evmtypes.QueryClient
-
-	defaultExpirationDuration time.Time
-
-	suiteIBCTesting bool
 }
 
 func TestPrecompileTestSuite(t *testing.T) {
-	s = new(PrecompileTestSuite)
-	suite.Run(t, s)
+	suite.Run(t, new(PrecompileTestSuite))
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
-	s.DoSetupTest()
+	keyring := testkeyring.New(2)
+	network := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	precompile, err := stride.NewPrecompile(
+		portID,
+		channelID,
+		network.App.TransferKeeper,
+		network.App.Erc20Keeper,
+		network.App.AuthzKeeper,
+		network.App.StakingKeeper,
+	)
+	s.Require().NoError(err, "expected no error during precompile creation")
+	s.precompile = precompile
+
+	grpcHandler := grpc.NewIntegrationHandler(network)
+
+	s.network = network
+	s.grpcHandler = grpcHandler
+	s.keyring = keyring
+	s.precompile = precompile
+
+	// Register stEvmos Coin as an ERC20 token
+	s.registerStrideCoinERC20()
 }
