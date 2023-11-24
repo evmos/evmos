@@ -336,7 +336,6 @@ type Evmos struct {
 
 	// the module manager
 	mm  *module.Manager
-	bmm module.BasicManager
 
 	// the configurator
 	configurator module.Configurator
@@ -473,8 +472,8 @@ func NewEvmos(
 		app.AccountKeeper,
 		app.BankKeeper,
 		authAddr,
-		authcodec.NewBech32Codec(sdk.Bech32PrefixValAddr),
-		authcodec.NewBech32Codec(sdk.Bech32PrefixConsAddr),
+		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
+		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	)
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		appCodec,
@@ -759,10 +758,6 @@ func NewEvmos(
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
 			app.GetSubspace(revenuetypes.ModuleName)),
 	)
-
-	app.bmm = ModuleBasics
-	app.bmm.RegisterLegacyAminoCodec(cdc)
-	app.bmm.RegisterInterfaces(interfaceRegistry)
 
 	// NOTE: upgrade module is required to be prioritized
 	app.mm.SetOrderPreBlockers(

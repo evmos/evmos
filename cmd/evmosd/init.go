@@ -108,12 +108,6 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 				}
 			}
 
-			// Get initial height
-			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
-			if initHeight < 1 {
-				initHeight = 1
-			}
-
 			nodeID, _, err := genutil.InitializeNodeValidatorFilesFromMnemonic(config, mnemonic)
 			if err != nil {
 				return err
@@ -152,6 +146,9 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 					return errors.Wrap(err, "Failed to read genesis doc from file")
 				}
 			}
+
+			// Get initial height
+			initHeight, _ := cmd.Flags().GetInt64(flags.FlagInitHeight)
 
 			appGenesis.ChainID = chainID
 			appGenesis.AppState = appState

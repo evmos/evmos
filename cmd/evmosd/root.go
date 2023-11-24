@@ -80,9 +80,9 @@ func NewRootCmd() (*cobra.Command, sdktestutil.TestEncodingConfig) {
 		nil, true, nil,
 		tempDir(app.DefaultNodeHome),
 		0,
-		encoding.Config(),
+		encoding.MakeConfig(app.ModuleBasics),
 		simtestutil.NewAppOptionsWithFlagHome(tempDir(app.DefaultNodeHome)),
-	)	
+	)
 	encodingConfig := sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),

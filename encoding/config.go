@@ -3,11 +3,15 @@
 package encoding
 
 import (
+	"cosmossdk.io/x/tx/signing"
 	amino "github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	"github.com/cosmos/gogoproto/proto"
 
 	enccodec "github.com/evmos/evmos/v15/encoding/codec"
 )
@@ -15,18 +19,28 @@ import (
 // MakeConfig creates an EncodingConfig for testing
 // and registers the interfaces
 func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
-	encodingConfig := Config()
-	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	return encodingConfig
+	ec := encodingConfig()
+	enccodec.RegisterLegacyAminoCodec(ec.Amino)
+	mb.RegisterLegacyAminoCodec(ec.Amino)
+	enccodec.RegisterInterfaces(ec.InterfaceRegistry)
+	mb.RegisterInterfaces(ec.InterfaceRegistry)
+	return ec
 }
 
-// Config creates a new EncodingConfig and returns it
-func Config() sdktestutil.TestEncodingConfig {
+// encodingConfig creates a new EncodingConfig and returns it
+func encodingConfig() sdktestutil.TestEncodingConfig {
 	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := types.NewInterfaceRegistry()
+	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: signing.Options{
+			AddressCodec: address.Bech32Codec{
+				Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
+			},
+			ValidatorAddressCodec: address.Bech32Codec{
+				Bech32Prefix: sdk.GetConfig().GetBech32ValidatorAddrPrefix(),
+			},
+		},
+	})
 	codec := amino.NewProtoCodec(interfaceRegistry)
 
 	return sdktestutil.TestEncodingConfig{
