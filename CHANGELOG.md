@@ -108,6 +108,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (stride-outpost) [#2069](https://github.com/evmos/evmos/pull/2069) Refactor `osmosis` and `stride` testing.
 - (erc20) [#2073](https://github.com/evmos/evmos/pull/2073) Align metadata query errors with ERC20 contracts.
 - (werc20) [#2074](https://github.com/evmos/evmos/pull/2074) Add `werc20` EVM Extension acceptance tests with `WEVMOS` contract.
+- (erc20) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC20 contracts.
 
 ### Bug Fixes
 
