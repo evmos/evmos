@@ -32,6 +32,7 @@ import (
 	"github.com/cometbft/cometbft/proxy"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cometbft/cometbft/rpc/client/local"
+	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 
 	ethmetricsexp "github.com/ethereum/go-ethereum/metrics/exp"
@@ -46,6 +47,8 @@ import (
 	servergrpc "github.com/cosmos/cosmos-sdk/server/grpc"
 	servercmtlog "github.com/cosmos/cosmos-sdk/server/log"
 	"github.com/cosmos/cosmos-sdk/server/types"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
 	// TODO uncoment after merging https://github.com/cosmos/rosetta/pull/58
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 	// "github.com/cosmos/rosetta"
@@ -78,13 +81,13 @@ func NewDefaultStartOptions(appCreator types.AppCreator, defaultNodeHome string)
 }
 
 // StartCmd runs the service passed in, either stand-alone or in-process with
-// Tendermint.
+// CometBFT.
 func StartCmd(opts StartOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Run the full node",
-		Long: `Run the full node application with Tendermint in or out of process. By
-default, the application will run with Tendermint in process.
+		Long: `Run the full node application with CometBFT in or out of process. By
+default, the application will run with CometBFT in process.
 
 Pruning options can be provided via the '--pruning' flag or alternatively with '--pruning-keep-recent',
 'pruning-keep-every', and 'pruning-interval' together.
@@ -125,9 +128,9 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
-			withTM, _ := cmd.Flags().GetBool(srvflags.WithTendermint)
+			withTM, _ := cmd.Flags().GetBool(srvflags.WithCometBFT)
 			if !withTM {
-				serverCtx.Logger.Info("starting ABCI without Tendermint")
+				serverCtx.Logger.Info("starting ABCI without CometBFT")
 				return startStandAlone(serverCtx, opts)
 			}
 
@@ -142,7 +145,7 @@ which accepts a path for the resulting pprof file.
 				}
 			}
 
-			serverCtx.Logger.Info("starting ABCI with Tendermint")
+			serverCtx.Logger.Info("starting ABCI with CometBFT")
 
 			// amino is needed here for backwards compatibility of REST routes
 			if err := startInProcess(serverCtx, clientCtx, opts); err != nil {
@@ -155,7 +158,7 @@ which accepts a path for the resulting pprof file.
 	}
 
 	cmd.Flags().String(flags.FlagHome, opts.DefaultNodeHome, "The application home directory")
-	cmd.Flags().Bool(srvflags.WithTendermint, true, "Run abci app embedded in-process with tendermint")
+	cmd.Flags().Bool(srvflags.WithCometBFT, true, "Run abci app embedded in-process with CometBFT")
 	cmd.Flags().String(srvflags.Address, "tcp://0.0.0.0:26658", "Listen address")
 	cmd.Flags().String(srvflags.Transport, "socket", "Transport protocol: socket, grpc")
 	cmd.Flags().String(srvflags.TraceStore, "", "Enable KVStore tracing to an output file")
@@ -170,10 +173,10 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().Uint64(server.FlagPruningKeepRecent, 0, "Number of recent heights to keep on disk (ignored if pruning is not 'custom')")
 	cmd.Flags().Uint64(server.FlagPruningInterval, 0, "Height interval at which pruned heights are removed from disk (ignored if pruning is not 'custom')") //nolint:lll
 	cmd.Flags().Uint(server.FlagInvCheckPeriod, 0, "Assert registered invariants every N blocks")
-	cmd.Flags().Uint64(server.FlagMinRetainBlocks, 0, "Minimum block height offset during ABCI commit to prune Tendermint blocks")
+	cmd.Flags().Uint64(server.FlagMinRetainBlocks, 0, "Minimum block height offset during ABCI commit to prune CometBFT blocks")
 	cmd.Flags().String(srvflags.AppDBBackend, "", "The type of database for application and snapshots databases")
 
-	cmd.Flags().Bool(srvflags.GRPCOnly, false, "Start the node in gRPC query only mode without Tendermint process")
+	cmd.Flags().Bool(srvflags.GRPCOnly, false, "Start the node in gRPC query only mode without CometBFT process")
 	cmd.Flags().Bool(srvflags.GRPCEnable, config.DefaultGRPCEnable, "Define if the gRPC server should be enabled")
 	cmd.Flags().String(srvflags.GRPCAddress, serverconfig.DefaultGRPCAddress, "the gRPC server address to listen on")
 	cmd.Flags().Bool(srvflags.GRPCWebEnable, config.DefaultGRPCWebEnable, "Define if the gRPC-Web server should be enabled. (Note: gRPC must also be enabled.)")
@@ -207,7 +210,7 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().Uint64(server.FlagStateSyncSnapshotInterval, 0, "State sync snapshot interval")
 	cmd.Flags().Uint32(server.FlagStateSyncSnapshotKeepRecent, 2, "State sync snapshot to keep")
 
-	// add support for all Tendermint-specific command line options
+	// add support for all CometBFT-specific command line options
 	tcmd.AddNodeFlags(cmd)
 	return cmd
 }
@@ -348,7 +351,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 		return err
 	}
 
-	genDocProvider := node.DefaultGenesisDocProviderFunc(cfg)
+	genDocProvider := GenDocProvider(cfg)
 
 	var (
 		tmNode   *node.Node
@@ -356,11 +359,11 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	)
 
 	if gRPCOnly {
-		logger.Info("starting node in query only mode; Tendermint is disabled")
+		logger.Info("starting node in query only mode; CometBFT is disabled")
 		config.GRPC.Enable = true
 		config.JSONRPC.EnableIndexer = false
 	} else {
-		logger.Info("starting node with ABCI Tendermint in-process")
+		logger.Info("starting node with ABCI CometBFT in-process")
 
 		cmtApp := server.NewCometABCIWrapper(app)
 		tmNode, err = node.NewNode(
@@ -474,7 +477,7 @@ func startInProcess(svrCtx *server.Context, clientCtx client.Context, opts Start
 	}
 
 	// At this point it is safe to block the process if we're in query only mode as
-	// we do not need to start Rosetta or handle any Tendermint related processes.
+	// we do not need to start Rosetta or handle any CometBFT related processes.
 	if gRPCOnly {
 		// wait for signal capture and gracefully return
 		// we are guaranteed to be waiting for the "ListenForQuitSignals" goroutine.
@@ -685,4 +688,16 @@ func startRosettaServer(
 		return nil
 	})
 	return nil
+}
+
+// returns a function which returns the genesis doc from the genesis file.
+func GenDocProvider(cfg *cmtcfg.Config) func() (*cmttypes.GenesisDoc, error) {
+	return func() (*cmttypes.GenesisDoc, error) {
+		appGenesis, err := genutiltypes.AppGenesisFromFile(cfg.GenesisFile())
+		if err != nil {
+			return nil, err
+		}
+
+		return appGenesis.ToGenesisDoc()
+	}
 }
