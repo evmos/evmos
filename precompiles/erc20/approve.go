@@ -189,7 +189,7 @@ func (p Precompile) DecreaseAllowance(
 		err = fmt.Errorf(ErrNoAllowanceForToken, p.tokenPair.Denom)
 	case subtractedValue != nil && subtractedValue.Cmp(allowance) > 0:
 		// case 6. subtractedValue positive and subtractedValue higher than allowance -> return error
-		err = fmt.Errorf(ErrSubtractMoreThanAllowance, p.tokenPair.Denom, subtractedValue, allowance)
+		err = ConvertErrToERC20Error(fmt.Errorf(ErrSubtractMoreThanAllowance, p.tokenPair.Denom, subtractedValue, allowance))
 	}
 
 	if err != nil {
@@ -247,9 +247,9 @@ func (p Precompile) removeSpendLimitOrDeleteAuthorization(ctx sdk.Context, grant
 	newSpendLimit, hasNeg := sendAuthz.SpendLimit.SafeSub(denomCoins)
 	// NOTE: safety check only, this should never happen since we only subtract what was found in the slice.
 	if hasNeg {
-		return fmt.Errorf(ErrSubtractMoreThanAllowance,
+		return ConvertErrToERC20Error(fmt.Errorf(ErrSubtractMoreThanAllowance,
 			p.tokenPair.Denom, denomCoins, sendAuthz.SpendLimit,
-		)
+		))
 	}
 
 	if newSpendLimit.IsZero() {
@@ -276,7 +276,7 @@ func (p Precompile) increaseAllowance(
 	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
 	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
 	if overflow {
-		return nil, errors.New(cmn.ErrIntegerOverflow)
+		return nil, ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow))
 	}
 
 	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
@@ -306,7 +306,7 @@ func (p Precompile) decreaseAllowance(
 	amount = new(big.Int).Sub(allowance.Amount.BigInt(), subtractedValue)
 	// NOTE: Safety check only since this is checked in the DecreaseAllowance method already.
 	if amount.Sign() < 0 {
-		return nil, fmt.Errorf(ErrSubtractMoreThanAllowance, p.tokenPair.Denom, subtractedValue, allowance.Amount)
+		return nil, ConvertErrToERC20Error(fmt.Errorf(ErrSubtractMoreThanAllowance, p.tokenPair.Denom, subtractedValue, allowance.Amount))
 	}
 
 	if err := p.updateAuthorization(ctx, grantee, granter, amount, sendAuthz, expiration); err != nil {
