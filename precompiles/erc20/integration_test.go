@@ -689,8 +689,6 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test case only covers direct calls
 
-				// FIXME: we have a different error here than the EVM extension
-				// -- says "ERC20: transfer amount exceeds allowance" instead of "authorization not found"
 				Entry(" - through erc20 contract", erc20Call),
 
 				// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
@@ -734,215 +732,333 @@ var _ = Describe("ERC20 Extension -", func() {
 		})
 
 		When("approving an allowance", func() {
-			DescribeTable("it should approve an allowance", func(callType CallType) {
-				grantee := s.keyring.GetKey(0)
-				granter := s.keyring.GetKey(1)
-				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
+			Context("in a direct call", func() {
+				DescribeTable("it should approve an allowance", func(callType CallType) {
+					grantee := s.keyring.GetKey(0)
+					granter := s.keyring.GetKey(1)
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
 
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, transferCoins[0].Amount.BigInt())
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, transferCoins[0].Amount.BigInt())
 
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				// Check allowance
-				s.ExpectSendAuthzForContract(
-					callType, contractsData,
-					grantee.Addr, granter.Addr, transferCoins,
-				)
-			},
-				Entry(" - direct call", directCall),
-				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
-
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-				bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
-				tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
-
-				// set up a previous authorization
-				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
-
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				// Check allowance contains both spend limits
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
-			},
-				Entry(" - direct call", directCall),
-				// NOTE 2: we are not passing the erc20 contract call here because the ERC20 contract
-				// only supports the actual token denomination and doesn't know of other allowances.
-
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-				bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
-				tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
-				doubleTokenCoin := sdk.NewInt64Coin(s.tokenDenom, 200)
-
-				// set up a previous authorization
-				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(doubleTokenCoin))
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
-
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				// Check allowance contains both spend limits
-				s.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(tokenCoins...))
-			},
-				Entry(" - direct call", directCall),
-				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-				bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
-				tokenCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
-
-				// set up a previous authorization
-				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(tokenCoin))
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
-
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				// Check allowance contains only the spend limit in network denomination
-				s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
-			},
-				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
-				// only supports the actual token denomination and doesn't know of other allowances.
-
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should delete the authorization when approving zero with no other spend limits", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-				tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
-
-				// set up a previous authorization
-				s.setupSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Priv, tokenCoins)
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
-
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				// Check allowance was deleted
-				s.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
-			},
-				Entry(" - direct call", directCall),
-				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
-
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should no-op if approving 0 and no allowance exists", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
-
-				// We are expecting an approval to be made, but no authorization stored since it's 0
-				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-				// Check still no authorization exists
-				s.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr)
-			},
-				Entry(" - direct call", directCall),
-				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
-
-				// TODO: add contract tests
-			)
-
-			DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType CallType) {
-				grantee := s.keyring.GetKey(0)
-				granter := s.keyring.GetKey(0)
-				authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
-
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(
-					callType, contractsData,
-					auth.ApproveMethod,
-					grantee.Addr, authzCoins[0].Amount.BigInt(),
+					// Check allowance
+					s.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter.Addr, transferCoins,
+					)
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
-				approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+				DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+					tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
 
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					// set up a previous authorization
+					s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
 
-				s.ExpectSendAuthzForContract(
-					callType, contractsData,
-					grantee.Addr, granter.Addr, authzCoins,
-				)
-			},
-				Entry(" - direct call", directCall),
-				Entry(" - through erc20 contract", erc20Call),
-				Entry(" - through erc20 v5 contract", erc20V5Call),
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
 
-				// TODO: add contract tests
-			)
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
 
-			DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType CallType) {
-				grantee := s.keyring.GetKey(1)
-				granter := s.keyring.GetKey(0)
-				bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				// set up a previous authorization
-				s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
+					// Check allowance contains both spend limits
+					s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
+				},
+					Entry(" - direct call", directCall),
 
-				// Approve allowance
-				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
-
-				notFoundCheck := failCheck.WithErrContains(
-					fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
+					// NOTE 2: we are not passing the erc20 contract call here because the ERC20 contract
+					// only supports the actual token denomination and doesn't know of other allowances.
 				)
 
-				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
-				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-			},
-				Entry(" - direct call", directCall),
-				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
-				// only supports the actual token denomination and doesn't know of other allowances.
+				DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+					tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+					doubleTokenCoin := sdk.NewInt64Coin(s.tokenDenom, 200)
 
-				// TODO: add contract tests
-			)
+					// set up a previous authorization
+					s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(doubleTokenCoin))
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
+
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance contains both spend limits
+					s.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(tokenCoins...))
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+					tokenCoin := sdk.NewInt64Coin(s.tokenDenom, 100)
+
+					// set up a previous authorization
+					s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins.Add(tokenCoin))
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance contains only the spend limit in network denomination
+					s.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
+					// only supports the actual token denomination and doesn't know of other allowances.
+				)
+
+				DescribeTable("it should delete the authorization when approving zero with no other spend limits", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+					tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+					// set up a previous authorization
+					s.setupSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Priv, tokenCoins)
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance was deleted
+					s.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should no-op if approving 0 and no allowance exists", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+
+					// We are expecting an approval to be made, but no authorization stored since it's 0
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check still no authorization exists
+					s.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr)
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType CallType) {
+					grantee := s.keyring.GetKey(0)
+					granter := s.keyring.GetKey(0)
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(
+						callType, contractsData,
+						auth.ApproveMethod,
+						grantee.Addr, authzCoins[0].Amount.BigInt(),
+					)
+
+					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					s.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter.Addr, authzCoins,
+					)
+				},
+					Entry(" - direct call", directCall),
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType CallType) {
+					grantee := s.keyring.GetKey(1)
+					granter := s.keyring.GetKey(0)
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(s.network.GetDenom(), 200)}
+
+					// set up a previous authorization
+					s.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+
+					notFoundCheck := failCheck.WithErrContains(
+						fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
+					)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
+					// only supports the actual token denomination and doesn't know of other allowances.
+				)
+			})
+
+			// NOTE: We have to split the tests for contract calls into a separate context because
+			// when approving through a smart contract, the approval is created between the contract address and the
+			// grantee, instead of the sender address and the grantee.
+			Context("in a contract call", func() {
+				DescribeTable("it should approve an allowance", func(callType CallType) {
+					sender := s.keyring.GetKey(0)
+					grantee := s.keyring.GetKey(1)
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, transferCoins[0].Amount.BigInt())
+
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance
+					s.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter, transferCoins,
+					)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType CallType) {
+					sender := s.keyring.GetKey(0)
+					grantee := s.keyring.GetKey(1)
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+					initialAmount := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+					newAmount := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 200)}
+
+					// Set up a first approval
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, initialAmount[0].Amount.BigInt())
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+					_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Set up a second approval which should overwrite the initial one
+					txArgs, approveArgs = s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, newAmount[0].Amount.BigInt())
+					approveCheck = passCheck.WithExpEvents(auth.EventTypeApproval)
+					_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance has been updated
+					s.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter, newAmount,
+					)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should delete the authorization when approving zero with no other spend limits", func(callType CallType) {
+					sender := s.keyring.GetKey(0)
+					grantee := s.keyring.GetKey(1)
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+					tokenCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+					// set up a previous authorization
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, tokenCoins[0].Amount.BigInt())
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+					_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Approve allowance
+					txArgs, approveArgs = s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+					_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check allowance was deleted from the keeper / is returning 0 for smart contracts
+					s.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should no-op if approving 0 and no allowance exists", func(callType CallType) {
+					sender := s.keyring.GetKey(0)
+					grantee := s.keyring.GetKey(1)
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
+
+					// We are expecting an approval event to be emitted, but no authorization to be stored
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					// Check still no authorization exists
+					s.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType CallType) {
+					sender := s.keyring.GetKey(0)
+					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+					grantee := granter
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, 100)}
+
+					// Approve allowance
+					txArgs, approveArgs := s.getTxAndCallArgs(
+						callType, contractsData,
+						auth.ApproveMethod,
+						grantee, authzCoins[0].Amount.BigInt(),
+					)
+
+					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approvalCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					s.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee, granter, authzCoins,
+					)
+				},
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+			})
 		})
 	})
 
