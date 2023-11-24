@@ -268,7 +268,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			})
 
-			It("should have similar gas consumption", func() {
+			It("should have exact gas consumption", func() {
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
 				txArgsPrecompile.Amount = amount
@@ -283,8 +283,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				_, ethResOriginal, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				// Expect to be within 5000 gas of each other
-				Expect(ethResOriginal.GasUsed).To(BeNumerically("~", ethResPrecompile.GasUsed, 5000), "expected similar gas used")
+				Expect(ethResOriginal.GasUsed).To(Equal(ethResPrecompile.GasUsed), "expected exact gas used")
 			})
 
 			It("should return the same error", func() {
@@ -364,7 +363,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 			})
 
-			It("should have similar gas consumption", func() {
+			It("should have exact gas consumption", func() {
 				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
 				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
 
@@ -372,14 +371,11 @@ var _ = Describe("WEVMOS Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.WithdrawMethod, amount)
-				txArgsContract.GasLimit = 50_000
 
 				_, ethResOriginal, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, withdrawCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				// Expect to be within 35000 gas of each other
-				// TODO Investigate this large discrepancy
-				Expect(ethResOriginal.GasUsed).To(BeNumerically("~", ethResPrecompile.GasUsed, 35000), "expected similar gas used")
+				Expect(ethResOriginal.GasUsed).To(Equal(ethResPrecompile.GasUsed), "expected exact gas used")
 			})
 
 			It("should return the same error", func() {
