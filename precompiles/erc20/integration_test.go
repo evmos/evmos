@@ -931,7 +931,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs, approveArgs := s.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
 
 				notFoundCheck := failCheck.WithErrContains(
-					fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+					fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 				)
 
 				_, _, err := s.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, notFoundCheck)
@@ -1249,7 +1249,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				notFoundCheck := execRevertedCheck
 				if callType == directCall {
 					notFoundCheck = failCheck.WithErrContains(
-						fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+						fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 					)
 				}
 
