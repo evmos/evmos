@@ -9,6 +9,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
@@ -76,6 +77,15 @@ func convertErrToERC20Error(err error) error {
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
 		return ErrInsufficientAllowance
+	case errors.Is(err, ErrNoIBCVoucherDenom) ||
+		errors.Is(err, ErrDenomTraceNotFound) ||
+		strings.Contains(err.Error(), "invalid base denomination") ||
+		strings.Contains(err.Error(), "display denomination not found") ||
+		strings.Contains(err.Error(), "invalid decimals"):
+		// NOTE: These are the cases when trying to query metadata of a contract, which has no metadata available.
+		// The ERC20 contract raises an "execution reverted" error, without any further information here, which we
+		// reproduce (even though it's less verbose than the actual error).
+		return vm.ErrExecutionReverted
 	default:
 		return err
 	}
