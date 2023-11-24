@@ -25,7 +25,7 @@ import (
 
 var _ = Describe("WEVMOS Extension -", func() {
 	var (
-		WEVMOSContractAddr         common.Address
+		WERC20ContractAddr         common.Address
 		WEVMOSOriginalContractAddr common.Address
 		err                        error
 		sender                     keyring.Key
@@ -45,7 +45,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		sender = s.keyring.GetKey(0)
 
-		WEVMOSContractAddr, err = s.factory.DeployContract(
+		WERC20ContractAddr, err = s.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -55,7 +55,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
-		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
+		tokenPair := erc20types.NewTokenPair(WERC20ContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
 
 		precompile, err := werc20.NewPrecompile(
 			tokenPair,
@@ -74,7 +74,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
-			erc20Addr:      WEVMOSContractAddr,
+			erc20Addr:      WERC20ContractAddr,
 			erc20ABI:       testdata.WEVMOSContract.ABI,
 			precompileAddr: s.precompile.Address(),
 			precompileABI:  s.precompile.ABI,
