@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -32,11 +33,9 @@ var (
 	ErrNegativeAmount           = errors.New("cannot approve negative values")
 	ErrNoIBCVoucherDenom        = errors.New("denom is not an IBC voucher")
 
-	// ErrInsufficientAllowance is returned by ERC20 smart contracts in case
-	// no authorization is found or the granted amount is not sufficient.
-	ErrInsufficientAllowance = errors.New("ERC20: insufficient allowance")
-	// ErrTransferAmountExceedsBalance is returned by ERC20 smart contracts in
-	// case a transfer is attempted, that sends more than the sender's balance.
+	// ERC20 errors
+	ErrDecreasedAllowanceBelowZero  = errors.New("ERC20: decreased allowance below zero")
+	ErrInsufficientAllowance        = errors.New("ERC20: insufficient allowance")
 	ErrTransferAmountExceedsBalance = errors.New("ERC20: transfer amount exceeds balance")
 )
 
@@ -63,13 +62,13 @@ func BuildExecRevertedErr(reason string) (error, error) {
 	return evmtypes.NewExecErrorWithReason(reasonBytes), nil
 }
 
-// convertErrToERC20Error is a helper function which maps errors raised by the Cosmos SDK stack
+// ConvertErrToERC20Error is a helper function which maps errors raised by the Cosmos SDK stack
 // to the corresponding errors which are raised by an ERC20 contract.
 //
 // TODO: Create the full RevertError types instead of just the standard error type.
 //
 // TODO: Return ERC-6093 compliant errors.
-func convertErrToERC20Error(err error) error {
+func ConvertErrToERC20Error(err error) error {
 	switch {
 	case strings.Contains(err.Error(), "spendable balance"):
 		return ErrTransferAmountExceedsBalance
@@ -77,6 +76,10 @@ func convertErrToERC20Error(err error) error {
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
 		return ErrInsufficientAllowance
+	case strings.Contains(err.Error(), "subtracted value cannot be greater than existing allowance"):
+		return ErrDecreasedAllowanceBelowZero
+	case strings.Contains(err.Error(), cmn.ErrIntegerOverflow):
+		return vm.ErrExecutionReverted
 	case errors.Is(err, ErrNoIBCVoucherDenom) ||
 		errors.Is(err, ErrDenomTraceNotFound) ||
 		strings.Contains(err.Error(), "invalid base denomination") ||
