@@ -77,8 +77,8 @@ func convertErrToERC20Error(err error) error {
 		return ErrInsufficientAllowance
 	case strings.Contains(err.Error(), authz.ErrNoAuthorizationFound.Error()):
 		return ErrInsufficientAllowance
-	case strings.Contains(err.Error(), ErrNoIBCVoucherDenom.Error()) ||
-		strings.Contains(err.Error(), ErrDenomTraceNotFound.Error()) ||
+	case errors.Is(err, ErrNoIBCVoucherDenom) ||
+		errors.Is(err, ErrDenomTraceNotFound) ||
 		strings.Contains(err.Error(), "invalid base denomination") ||
 		strings.Contains(err.Error(), "display denomination not found") ||
 		strings.Contains(err.Error(), "invalid decimals"):
