@@ -335,7 +335,7 @@ type Evmos struct {
 	RevenueKeeper    revenuekeeper.Keeper
 
 	// the module manager
-	mm  *module.Manager
+	mm *module.Manager
 
 	// the configurator
 	configurator module.Configurator
