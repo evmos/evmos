@@ -44,7 +44,7 @@ const (
 
 // Name returns the name of the token. If the token metadata is registered in the
 // bank module, it returns its name. Otherwise, it returns the base denomination of
-// the token capitalized (eg. uatom -> Atom).
+// the token capitalized (e.g. uatom -> Atom).
 func (p Precompile) Name(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -59,7 +59,7 @@ func (p Precompile) Name(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		return nil, convertErrToERC20Error(err)
 	}
 
 	name := strings.ToUpper(string(baseDenom[1])) + baseDenom[2:]
@@ -67,8 +67,8 @@ func (p Precompile) Name(
 }
 
 // Symbol returns the symbol of the token. If the token metadata is registered in the
-// bank module, it returns its symbol. Otherwise it returns the base denomination of
-// the token in uppercase (eg. uatom -> ATOM).
+// bank module, it returns its symbol. Otherwise, it returns the base denomination of
+// the token in uppercase (e.g. uatom -> ATOM).
 func (p Precompile) Symbol(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -83,7 +83,7 @@ func (p Precompile) Symbol(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		return nil, convertErrToERC20Error(err)
 	}
 
 	symbol := strings.ToUpper(baseDenom[1:])
@@ -91,8 +91,8 @@ func (p Precompile) Symbol(
 }
 
 // Decimals returns the decimals places of the token. If the token metadata is registered in the
-// bank module, it returns its the display denomination exponent. Otherwise it infers the decimal
-// value from the first character of the base denomination (eg. uatom -> 6).
+// bank module, it returns the display denomination exponent. Otherwise, it infers the decimal
+// value from the first character of the base denomination (e.g. uatom -> 6).
 func (p Precompile) Decimals(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -104,8 +104,7 @@ func (p Precompile) Decimals(
 	if !found {
 		denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 		if err != nil {
-			// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-			return nil, err
+			return nil, convertErrToERC20Error(err)
 		}
 
 		// we assume the decimal from the first character of the denomination
@@ -115,11 +114,10 @@ func (p Precompile) Decimals(
 		case "a": // atto (a) -> 18 decimals
 			return method.Outputs.Pack(uint8(18))
 		}
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, fmt.Errorf(
+		return nil, convertErrToERC20Error(fmt.Errorf(
 			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
 			denomTrace.BaseDenom,
-		)
+		))
 	}
 
 	var (
@@ -135,12 +133,17 @@ func (p Precompile) Decimals(
 	}
 
 	if !displayFound {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, fmt.Errorf("display denomination not found for denom: %q", p.tokenPair.Denom)
+		return nil, convertErrToERC20Error(fmt.Errorf(
+			"display denomination not found for denom: %q",
+			p.tokenPair.Denom,
+		))
 	}
 
 	if decimals > math.MaxUint8 {
-		return nil, fmt.Errorf("uint8 overflow: invalid decimals: %d", decimals)
+		return nil, convertErrToERC20Error(fmt.Errorf(
+			"uint8 overflow: invalid decimals: %d",
+			decimals,
+		))
 	}
 
 	return method.Outputs.Pack(uint8(decimals)) //#nosec G701 // we are checking for overflow above
