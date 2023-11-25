@@ -4,6 +4,8 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/evmos/evmos/v15/app"
 
 	"github.com/evmos/evmos/v15/precompiles/authorization"
@@ -280,9 +282,12 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - validator query",
 			func() []byte {
+				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				input, err := s.precompile.Pack(
 					staking.ValidatorMethod,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(valAddr.Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input

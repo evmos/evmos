@@ -4,6 +4,7 @@
 package staking
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -19,6 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
+
+const ByteNil byte = 0 // constant used in flags to indicate the key field in PageRequest is nil
 
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.
 type EventCreateValidator struct {
@@ -323,10 +326,12 @@ func NewValidatorRequest(args []interface{}) (*stakingtypes.QueryValidatorReques
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, ok := args[0].(string)
-	if !ok {
-		return nil, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[0])
+	validatorHexAddr, ok := args[0].(common.Address)
+	if !ok || validatorHexAddr == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
 	}
+
+	validatorAddress := sdk.ValAddress(validatorHexAddr.Bytes()).String()
 
 	return &stakingtypes.QueryValidatorRequest{ValidatorAddr: validatorAddress}, nil
 }
@@ -341,6 +346,10 @@ func NewValidatorsRequest(method *abi.Method, args []interface{}) (*stakingtypes
 	var input ValidatorsInput
 	if err := method.Inputs.Copy(&input, args); err != nil {
 		return nil, fmt.Errorf("error while unpacking args to ValidatorsInput struct: %s", err)
+	}
+
+	if bytes.Equal(input.PageRequest.Key, []byte{ByteNil}) {
+		input.PageRequest.Key = nil
 	}
 
 	return &stakingtypes.QueryValidatorsRequest{
@@ -544,9 +553,11 @@ func DefaultValidatorOutput() ValidatorOutput {
 
 // FromResponse populates the ValidatorOutput from a QueryValidatorResponse.
 func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse) ValidatorOutput {
+	operatorAddress, _ := sdk.ValAddressFromBech32(res.Validator.OperatorAddress)
+
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
-			OperatorAddress: res.Validator.OperatorAddress,
+			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()).String(),
 			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
@@ -580,8 +591,9 @@ type ValidatorsOutput struct {
 func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsResponse) *ValidatorsOutput {
 	vo.Validators = make([]ValidatorInfo, len(res.Validators))
 	for i, v := range res.Validators {
+		operatorAddress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
 		vo.Validators[i] = ValidatorInfo{
-			OperatorAddress:   v.OperatorAddress,
+			OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
 			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 			Jailed:            v.Jailed,
 			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),

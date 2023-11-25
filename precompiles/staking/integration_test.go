@@ -793,8 +793,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -803,14 +804,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
 		It("should return an empty validator if the validator is not found", func() {
-			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
+			newValHexAddr := testutiltx.GenerateAddress()
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				newValAddr.String(),
+				newValHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2073,7 +2074,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("with non-existing address should return an empty validator", func() {
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				nonExistingVal.String(),
+				nonExistingAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2087,8 +2088,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("with existing address should return the validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2097,7 +2099,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 

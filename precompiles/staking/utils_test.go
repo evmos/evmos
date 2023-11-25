@@ -403,12 +403,14 @@ func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes
 func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.ValidatorInfo, expLen int) {
 	// returning order can change
 	valOrder := []int{0, 1}
-	if validators[0].OperatorAddress != s.validators[0].OperatorAddress {
+	varAddr := sdk.ValAddress(common.HexToAddress(validators[0].OperatorAddress).Bytes()).String()
+	if varAddr != s.validators[0].OperatorAddress {
 		valOrder = []int{1, 0}
 	}
 	for i := 0; i < expLen; i++ {
 		j := valOrder[i]
-		s.Require().Equal(s.validators[j].OperatorAddress, validators[i].OperatorAddress)
+
+		s.Require().Equal(s.validators[j].OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
 		s.Require().Equal(uint8(s.validators[j].Status), validators[i].Status)
 		s.Require().Equal(s.validators[j].Tokens.Uint64(), validators[i].Tokens.Uint64())
 		s.Require().Equal(s.validators[j].DelegatorShares.BigInt(), validators[i].DelegatorShares)
@@ -511,6 +513,9 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 	for i, v := range s.validators {
 		validatorAddrs[i] = v.OperatorAddress
 	}
-	Expect(slices.Contains(validatorAddrs, valOut.OperatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
+
+	operatorAddress := sdk.ValAddress(common.HexToAddress(valOut.OperatorAddress).Bytes()).String()
+
+	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 }
