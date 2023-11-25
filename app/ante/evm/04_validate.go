@@ -84,6 +84,8 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 }
 
 // FIXME: split this function into multiple ones
+// CheckDisabledCreateCallAndUpdateTxFee checks if contract creation or call are disabled through governance
+// and updates the transaction fee by adding the message fee to the cumulative transaction fee
 func CheckDisabledCreateCallAndUpdateTxFee(
 	to *common.Address,
 	from sdk.AccAddress,
