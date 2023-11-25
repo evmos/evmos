@@ -28,7 +28,7 @@ func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 }
 
 // newEVMAnteHandler creates the default ante handler for Ethereum transactions
-func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func newEVMAnteHandler(options HandlerOptions) sdk.AnteHandler { // nolint: unused
 	return sdk.ChainAnteDecorators(
 		// outermost AnteDecorator. SetUpContext must be called first
 		evmante.NewEthSetUpContextDecorator(options.EvmKeeper),
