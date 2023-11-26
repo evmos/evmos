@@ -553,7 +553,10 @@ func DefaultValidatorOutput() ValidatorOutput {
 
 // FromResponse populates the ValidatorOutput from a QueryValidatorResponse.
 func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse) ValidatorOutput {
-	operatorAddress, _ := sdk.ValAddressFromBech32(res.Validator.OperatorAddress)
+	operatorAddress, err := sdk.ValAddressFromBech32(res.Validator.OperatorAddress)
+	if err != nil {
+		return DefaultValidatorOutput()
+	}
 
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
@@ -591,19 +594,23 @@ type ValidatorsOutput struct {
 func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsResponse) *ValidatorsOutput {
 	vo.Validators = make([]ValidatorInfo, len(res.Validators))
 	for i, v := range res.Validators {
-		operatorAddress, _ := sdk.ValAddressFromBech32(v.OperatorAddress)
-		vo.Validators[i] = ValidatorInfo{
-			OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
-			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
-			Jailed:            v.Jailed,
-			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
-			Tokens:            v.Tokens.BigInt(),
-			DelegatorShares:   v.DelegatorShares.BigInt(),
-			Description:       v.Description.Details,
-			UnbondingHeight:   v.UnbondingHeight,
-			UnbondingTime:     v.UnbondingTime.UTC().Unix(),
-			Commission:        v.Commission.CommissionRates.Rate.BigInt(),
-			MinSelfDelegation: v.MinSelfDelegation.BigInt(),
+		operatorAddress, err := sdk.ValAddressFromBech32(v.OperatorAddress)
+		if err != nil {
+			vo.Validators[i] = DefaultValidatorOutput().Validator
+		} else {
+			vo.Validators[i] = ValidatorInfo{
+				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
+				ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
+				Jailed:            v.Jailed,
+				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
+				Tokens:            v.Tokens.BigInt(),
+				DelegatorShares:   v.DelegatorShares.BigInt(),
+				Description:       v.Description.Details,
+				UnbondingHeight:   v.UnbondingHeight,
+				UnbondingTime:     v.UnbondingTime.UTC().Unix(),
+				Commission:        v.Commission.CommissionRates.Rate.BigInt(),
+				MinSelfDelegation: v.MinSelfDelegation.BigInt(),
+			}
 		}
 	}
 
