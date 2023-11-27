@@ -335,21 +335,18 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 	contractABI := contractData.GetContractData(callType).ABI
 
 	for _, expBalance := range expBalances {
-		for _, expCoin := range expBalance.expCoins {
-			addr := common.BytesToAddress(expBalance.address.Bytes())
+		addr := common.BytesToAddress(expBalance.address.Bytes())
+		txArgs, callArgs := is.getTxAndCallArgs(callType, contractData, "balanceOf", addr)
 
-			txArgs, callArgs := is.getTxAndCallArgs(callType, contractData, "balanceOf", addr)
+		passCheck := testutil.LogCheckArgs{ExpPass: true}
 
-			passCheck := testutil.LogCheckArgs{ExpPass: true}
+		_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
+		Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
-			_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
-			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
-
-			var balance *big.Int
-			err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
-			Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
-			Expect(balance.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
-		}
+		var balance *big.Int
+		err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
+		Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
+		Expect(balance.Int64()).To(Equal(expBalance.expCoins.AmountOf(is.tokenDenom).Int64()), "expected different balance")
 	}
 }
 
