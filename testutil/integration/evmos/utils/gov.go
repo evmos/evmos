@@ -12,7 +12,8 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
@@ -53,12 +54,12 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 	}
 
 	gq := network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govtypes.QueryProposalRequest{ProposalId: proposalID})
+	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
 	if err != nil {
 		return 0, errorsmod.Wrap(err, "failed to query proposal")
 	}
 
-	if proposalRes.Proposal.Status != govtypes.StatusVotingPeriod {
+	if proposalRes.Proposal.Status != govv1.StatusVotingPeriod {
 		return 0, fmt.Errorf("expected proposal to be in voting period; got: %s", proposalRes.Proposal.Status.String())
 	}
 
@@ -67,10 +68,10 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 
 // VoteOnProposal is a helper function to vote on a governance proposal given the private key of the voter and
 // the option to vote.
-func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposalID uint64, option govtypes.VoteOption) error {
+func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposalID uint64, option govv1.VoteOption) error {
 	voterAccAddr := sdk.AccAddress(voterPriv.PubKey().Address())
 
-	msgVote := govtypes.NewMsgVote(
+	msgVote := govv1.NewMsgVote(
 		voterAccAddr,
 		proposalID,
 		option,
@@ -89,17 +90,17 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
 	var (
 		err        error
-		found      = false
+		found      bool
 		proposalID uint64
 	)
 
 	for _, event := range events {
-		if event.Type != "proposal_deposit" {
+		if event.Type != govtypes.EventTypeProposalDeposit {
 			continue
 		}
 
 		for _, attr := range event.Attributes {
-			if attr.Key != "proposal_id" {
+			if attr.Key != govtypes.AttributeKeyProposalID {
 				continue
 			}
 
