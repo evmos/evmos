@@ -40,6 +40,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### API Breaking
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
+- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) depecrate legacy EIP712 ante handler
 
 ### Features
 
