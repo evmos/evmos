@@ -4,8 +4,10 @@
 package keeper
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	"encoding/hex"
+
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
