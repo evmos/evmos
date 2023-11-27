@@ -150,6 +150,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
+	consnsusParams := app.DefaultConsensusParams
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -175,6 +176,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.app = evmosApp
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
+	n.ctx = n.ctx.WithConsensusParams(consnsusParams)
+	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
+
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners

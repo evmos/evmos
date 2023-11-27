@@ -289,12 +289,15 @@ var _ = Describe("WEVMOS Extension -", func() {
 			It("should return the same error", func() {
 				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
 				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				// Increase the amount to 9e18 to trigger the insufficient balance error
 				txArgsPrecompile.Amount = big.NewInt(9e18)
+				txArgsPrecompile.GasLimit = 50_000
 
 				_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
 				Expect(errPrecompile).To(HaveOccurred(), "unexpected result calling contract")
 
 				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				// Increase the amount to 9e18 to trigger the insufficient balance error
 				txArgsContract.Amount = big.NewInt(9e18)
 				txArgsContract.GasLimit = 50_000
 
@@ -535,7 +538,12 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferMethod, receiver.Addr, amount)
-				txArgs.GasPrice = big.NewInt(765625000)
+				// Prefilling the gas price with the base fee to calculate expected balances after
+				// the transfer
+				baseFeeRes, err := s.grpcHandler.GetBaseFee()
+				Expect(err).ToNot(HaveOccurred(), "unexpected error querying base fee")
+				txArgs.GasPrice = baseFeeRes.BaseFee.BigInt()
+
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
@@ -561,7 +569,12 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferFromMethod, sender.Addr, receiver.Addr, amount)
-				txArgs.GasPrice = big.NewInt(765625000)
+				// Prefilling the gas price with the base fee to calculate expected balances after
+				// the transfer
+				baseFeeRes, err := s.grpcHandler.GetBaseFee()
+				Expect(err).ToNot(HaveOccurred(), "unexpected error querying base fee")
+				txArgs.GasPrice = baseFeeRes.BaseFee.BigInt()
+
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
