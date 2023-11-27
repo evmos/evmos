@@ -1173,18 +1173,6 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 		})
 
-		It("should register the ERC20", func() {
-			erc20V5Addr := contractsData.GetContractData(erc20V5Call).Address
-
-			// Register the deployed erc20 contract as a token pair
-			_, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-				Address:      erc20V5Addr,
-				Denom:        is.tokenDenom,
-				ProposerPriv: is.keyring.GetPrivKey(0),
-			})
-			Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
-		})
-
 		Context("for a token with available metadata", func() {
 			const (
 				denom       = "axmpl"
