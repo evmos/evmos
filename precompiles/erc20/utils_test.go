@@ -495,7 +495,7 @@ func (is *IntegrationTestSuite) MintERC20(callType CallType, contractData Contra
 
 	mintCheck := testutil.LogCheckArgs{
 		ABIEvents: abiEvents,
-		ExpEvents: []string{"Transfer"}, // NOTE: this event occurs when calling "mint" on ERC20s
+		ExpEvents: []string{erc20.EventTypeTransfer}, // NOTE: this event occurs when calling "mint" on ERC20s
 		ExpPass:   true,
 	}
 

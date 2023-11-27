@@ -18,6 +18,7 @@ import (
 	evmostesting "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
@@ -677,7 +678,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 					mintCheck := testutil.LogCheckArgs{
 						ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
-						ExpEvents: []string{"Transfer"}, // upon minting the tokens are sent to the receiving address
+						ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
 						ExpPass:   true,
 					}
 
