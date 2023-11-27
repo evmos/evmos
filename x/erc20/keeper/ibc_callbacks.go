@@ -92,7 +92,7 @@ func (k Keeper) OnRecvPacket(
 
 	pair, _ := k.GetTokenPair(ctx, pairID)
 	if !pair.Enabled || pair.IsNativeCoin() {
-		// no-op: continue with the rest of the stack without conversion
+		// no-op: continue with the rest of the stack without registration
 		return ack
 	}
 
@@ -122,21 +122,6 @@ func (k Keeper) OnRecvPacket(
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 	}
-
-	// Instead of converting just the received coins, convert the whole user balance
-	//// which includes the received coins.
-	//balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
-	//
-	//// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
-	//msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
-	//
-	//// NOTE: we don't use ValidateBasic the msg since we've already validated
-	//// the ICS20 packet data
-	//
-	//// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	//if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
-	//	return channeltypes.NewErrorAcknowledgement(err)
-	//}
 
 	defer func() {
 		telemetry.IncrCounterWithLabels(
