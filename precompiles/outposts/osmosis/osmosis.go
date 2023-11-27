@@ -12,6 +12,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -22,8 +23,7 @@ import (
 )
 
 const (
-	// OsmosisPrefix represents the human readable part of a bech32 address
-	// on the Osmosis chain.
+	// OsmosisPrefix represents the human readable part for bech32 addresses on the Osmosis chain.
 	OsmosisPrefix = "osmo"
 
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
@@ -58,18 +58,20 @@ type Precompile struct {
 	transferKeeper transferkeeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
+	channelKeeper  channelkeeper.Keeper
 }
 
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	authzKeeper authzkeeper.Keeper,
 	portID, channelID string,
 	osmosisXCSContract string,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := LoadABI()
 	if err != nil {
@@ -89,10 +91,11 @@ func NewPrecompile(
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
 		osmosisXCSContract: osmosisXCSContract,
-		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
+		transferKeeper:     transferKeeper,
 		stakingKeeper:      stakingKeeper,
 		erc20Keeper:        erc20Keeper,
+		channelKeeper:      channelKeeper,
 	}, nil
 }
 
