@@ -35,9 +35,9 @@ type Precompile struct {
 
 const (
 	// DepositRequiredGas defines the gas required for the Deposit transaction.
-	DepositRequiredGas uint64 = 28_799
+	DepositRequiredGas uint64 = 23_878
 	// WithdrawRequiredGas defines the gas required for the Withdraw transaction.
-	WithdrawRequiredGas uint64 = 35_960
+	WithdrawRequiredGas uint64 = 9207
 )
 
 // NewPrecompile creates a new WERC20 Precompile instance as a
@@ -136,7 +136,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given methodID corresponds to a transaction or query.
+// IsTransaction checks if the given method name corresponds to a transaction or query.
 func (p Precompile) IsTransaction(methodName string) bool {
 	switch methodName {
 	case DepositMethod, WithdrawMethod:

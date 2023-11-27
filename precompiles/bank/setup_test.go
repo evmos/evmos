@@ -61,25 +61,9 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.network = integrationNetwork
 
 	// Register EVMOS
-	evmosMetadata := banktypes.Metadata{
-		Description: "The native token of Evmos",
-		Base:        bondDenom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    bondDenom,
-				Exponent: 0,
-				Aliases:  []string{"aevmos"},
-			},
-			{
-				Denom:    "aevmos",
-				Exponent: 18,
-			},
-		},
-		Name:    "Evmos",
-		Symbol:  "EVMOS",
-		Display: "aevmos",
-	}
+	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(s.network.GetContext(), s.bondDenom)
+	s.Require().True(found, "expected evmos denom metadata")
+
 	tokenPair, err := s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), evmosMetadata)
 	s.Require().NoError(err, "failed to register coin")
 

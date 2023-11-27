@@ -3,8 +3,6 @@ package werc20_test
 import (
 	"math/big"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
@@ -27,14 +25,16 @@ import (
 
 var _ = Describe("WEVMOS Extension -", func() {
 	var (
-		WEVMOSContractAddr common.Address
-		err                error
-		sender             keyring.Key
-		amount             *big.Int
+		WERC20ContractAddr         common.Address
+		WEVMOSOriginalContractAddr common.Address
+		err                        error
+		sender                     keyring.Key
+		amount                     *big.Int
 
 		// contractData is a helper struct to hold the addresses and ABIs for the
 		// different contract instances that are subject to testing here.
-		contractData ContractData
+		contractData         ContractData
+		contractDataOriginal ContractData
 
 		failCheck testutil.LogCheckArgs
 		passCheck testutil.LogCheckArgs
@@ -45,7 +45,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		sender = s.keyring.GetKey(0)
 
-		WEVMOSContractAddr, err = s.factory.DeployContract(
+		WERC20ContractAddr, err = s.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -55,29 +55,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
-		// Register the native EVMOS token in the bank module for the network
-		evmosMetadata := banktypes.Metadata{
-			Description: "The native token of Evmos",
-			Base:        s.bondDenom,
-			// NOTE: Denom units MUST be increasing
-			DenomUnits: []*banktypes.DenomUnit{
-				{
-					Denom:    s.bondDenom,
-					Exponent: 0,
-					Aliases:  []string{s.bondDenom},
-				},
-				{
-					Denom:    s.bondDenom,
-					Exponent: 18,
-				},
-			},
-			Name:    "Evmos",
-			Symbol:  "EVMOS",
-			Display: s.bondDenom,
-		}
-		s.network.App.BankKeeper.SetDenomMetaData(s.network.GetContext(), evmosMetadata)
-
-		tokenPair := erc20types.NewTokenPair(WEVMOSContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
+		tokenPair := erc20types.NewTokenPair(WERC20ContractAddr, s.bondDenom, erc20types.OWNER_MODULE)
 
 		precompile, err := werc20.NewPrecompile(
 			tokenPair,
@@ -96,7 +74,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
-			erc20Addr:      WEVMOSContractAddr,
+			erc20Addr:      WERC20ContractAddr,
 			erc20ABI:       testdata.WEVMOSContract.ABI,
 			precompileAddr: s.precompile.Address(),
 			precompileABI:  s.precompile.ABI,
@@ -255,6 +233,172 @@ var _ = Describe("WEVMOS Extension -", func() {
 		})
 	})
 
+	Context("Comparing to original WEVMOS contract", func() {
+		BeforeEach(func() {
+			WEVMOSOriginalContractAddr, err = s.factory.DeployContract(
+				sender.Priv,
+				evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+				factory.ContractDeploymentData{
+					Contract:        testdata.WEVMOSContract,
+					ConstructorArgs: []interface{}{},
+				},
+			)
+			Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+			contractDataOriginal = ContractData{
+				ownerPriv: sender.Priv,
+				erc20Addr: WEVMOSOriginalContractAddr,
+				erc20ABI:  testdata.WEVMOSContract.ABI,
+			}
+		})
+
+		When("calling deposit", func() {
+			It("should emit the Deposit event", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgsPrecompile.Amount = amount
+
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				txArgsContract.Amount = amount
+				txArgsContract.GasLimit = 50_000
+
+				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			})
+
+			It("should have exact gas consumption", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgsPrecompile.Amount = amount
+
+				_, ethResPrecompile, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				txArgsContract.Amount = amount
+				txArgsContract.GasLimit = 50_000
+
+				_, ethResOriginal, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(ethResOriginal.GasUsed).To(Equal(ethResPrecompile.GasUsed), "expected exact gas used")
+			})
+
+			It("should return the same error", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				// Increase the amount to 9e18 to trigger the insufficient balance error
+				txArgsPrecompile.Amount = big.NewInt(9e18)
+				txArgsPrecompile.GasLimit = 50_000
+
+				_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+				Expect(errPrecompile).To(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				// Increase the amount to 9e18 to trigger the insufficient balance error
+				txArgsContract.Amount = big.NewInt(9e18)
+				txArgsContract.GasLimit = 50_000
+
+				_, _, errOriginal := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(errOriginal).To(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(errOriginal.Error()).To(Equal(errPrecompile.Error()), "expected same error")
+			})
+
+			It("should reflect the correct balances", func() {
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.DepositMethod)
+				txArgsPrecompile.Amount = amount
+
+				_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, depositCheck)
+				Expect(errPrecompile).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				txArgsContract.Amount = amount
+				txArgsContract.GasLimit = 50_000
+
+				_, _, errOriginal := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(errOriginal).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				// Check balances after calling precompile
+				s.checkBalances(failCheck, sender, contractData)
+
+				// Check balances after calling original contract
+				balanceCheck := failCheck.WithExpPass(true)
+				txArgs, balancesArgs := s.getTxAndCallArgs(erc20Call, contractDataOriginal, erc20.BalanceOfMethod, sender.Addr)
+
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, balanceCheck)
+				Expect(err).ToNot(HaveOccurred(), "failed to execute balanceOf")
+
+				// Check the balance in the bank module is the same as calling `balanceOf` on the precompile
+				var erc20Balance *big.Int
+				err = s.precompile.UnpackIntoInterface(&erc20Balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(erc20Balance).To(Equal(amount), "expected different balance")
+			})
+		})
+
+		When("calling withdraw", func() {
+			BeforeEach(func() {
+				// Deposit into the WEVMOS contract to have something to withdraw
+				depositCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeDeposit)
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.DepositMethod)
+				txArgsContract.Amount = amount
+				txArgsContract.GasLimit = 50_000
+
+				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, depositCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			})
+
+			It("should emit the Withdraw event", func() {
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.WithdrawMethod, amount)
+				txArgsContract.GasLimit = 50_000
+
+				_, _, err = s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			})
+
+			It("should have exact gas consumption", func() {
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod, amount)
+
+				_, ethResPrecompile, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.WithdrawMethod, amount)
+
+				_, ethResOriginal, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, withdrawCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(ethResOriginal.GasUsed).To(Equal(ethResPrecompile.GasUsed), "expected exact gas used")
+			})
+
+			It("should return the same error", func() {
+				withdrawCheck := passCheck.WithExpPass(true).WithExpEvents(werc20.EventTypeWithdrawal)
+				txArgsPrecompile, callArgsPrecompile := s.getTxAndCallArgs(erc20Call, contractData, werc20.WithdrawMethod)
+
+				_, _, errPrecompile := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsPrecompile, callArgsPrecompile, withdrawCheck)
+				Expect(errPrecompile).To(HaveOccurred(), "unexpected result calling contract")
+
+				txArgsContract, callArgsContract := s.getTxAndCallArgs(erc20Call, contractDataOriginal, werc20.WithdrawMethod)
+				txArgsContract.GasLimit = 50_000
+
+				_, _, errOriginal := s.factory.CallContractAndCheckLogs(sender.Priv, txArgsContract, callArgsContract, withdrawCheck)
+				Expect(errOriginal).To(HaveOccurred(), "unexpected result calling contract")
+
+				Expect(errOriginal.Error()).To(Equal(errPrecompile.Error()), "expected same error")
+			})
+		})
+	})
+
 	Context("ERC20 specific functions", func() {
 		When("querying name", func() {
 			It("should return the correct name", func() {
@@ -394,7 +538,12 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferMethod, receiver.Addr, amount)
-				txArgs.GasPrice = big.NewInt(765625000)
+				// Prefilling the gas price with the base fee to calculate expected balances after
+				// the transfer
+				baseFeeRes, err := s.grpcHandler.GetBaseFee()
+				Expect(err).ToNot(HaveOccurred(), "unexpected error querying base fee")
+				txArgs.GasPrice = baseFeeRes.BaseFee.BigInt()
+
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
@@ -420,7 +569,12 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				// Transfer tokens
 				txArgs, transferArgs := s.getTxAndCallArgs(directCall, contractData, erc20.TransferFromMethod, sender.Addr, receiver.Addr, amount)
-				txArgs.GasPrice = big.NewInt(765625000)
+				// Prefilling the gas price with the base fee to calculate expected balances after
+				// the transfer
+				baseFeeRes, err := s.grpcHandler.GetBaseFee()
+				Expect(err).ToNot(HaveOccurred(), "unexpected error querying base fee")
+				txArgs.GasPrice = baseFeeRes.BaseFee.BigInt()
+
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)

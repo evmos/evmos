@@ -34,6 +34,7 @@ import (
 	evmosibc "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
@@ -64,7 +65,6 @@ var (
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	atomComnCoins      = []cmn.Coin{atomCmnCoin}
 	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
@@ -498,19 +498,6 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 			SpendLimit:    defaultCmnCoins,
 		},
 	}
-
-	defaultManyAllocs = []cmn.ICS20Allocation{
-		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: s.transferPath.EndpointA.ChannelID,
-			SpendLimit:    defaultCmnCoins,
-		},
-		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: "channel-1",
-			SpendLimit:    atomComnCoins,
-		},
-	}
 }
 
 // TODO upstream this change to evmos (adding gasPrice)
@@ -603,7 +590,7 @@ func (s *PrecompileTestSuite) setupERC20ContractTests(amount *big.Int) common.Ad
 
 	mintCheck := testutil.LogCheckArgs{
 		ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
-		ExpEvents: []string{"Transfer"}, // upon minting the tokens are sent to the receiving address
+		ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
 		ExpPass:   true,
 	}
 

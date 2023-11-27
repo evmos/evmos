@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -376,7 +377,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
-			errContains: cmn.ErrIntegerOverflow,
+			errContains: erc20.ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow)).Error(),
 			postCheck: func() {
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
@@ -664,7 +665,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount + 1),
 				}
 			},
-			errContains: "subtracted value cannot be greater than existing allowance",
+			errContains: erc20.ConvertErrToERC20Error(errors.New("subtracted value cannot be greater than existing allowance")).Error(),
 		},
 		{
 			name: "fail - decrease allowance with existing authorization in different denomination",
@@ -703,7 +704,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			errContains: "subtracted value cannot be greater than existing allowance",
+			errContains: erc20.ConvertErrToERC20Error(errors.New("subtracted value cannot be greater than existing allowance")).Error(),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization was not adjusted
 				s.requireSendAuthz(

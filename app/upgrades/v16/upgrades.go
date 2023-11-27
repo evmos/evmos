@@ -46,6 +46,10 @@ func CreateUpgradeHandler(
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
 
+		// recovery module is deprecated since it is renamed to "revenue" module
+		logger.Debug("deleting recovery module from version map...")
+		delete(vm, "recovery")
+
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
