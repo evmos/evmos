@@ -161,7 +161,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (gov) [#1981](https://github.com/evmos/evmos/pull/1981) Remove deprecated `cosmos.params.v1beta1/ParameterChangeProposal` handler
 - (revenue) [#2032](https://github.com/evmos/evmos/pull/2032) Fixed the problem that users cannot send transactions with gasPrice of 0 to precompiled contracts.
 
-
 ## [v14.1.0] - 2023-09-25
 
 ### Bug Fixes
