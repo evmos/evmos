@@ -31,6 +31,7 @@ const (
 	// DefaultOnFailedDelivery is the default value used for the `on_failed_delivery` field.
 	DefaultOnFailedDelivery = "do_nothing"
 )
+
 const (
 	// OsmosisDenom is the base denom in the Osmosis chain.
 	OsmosisDenom = "uosmo"
