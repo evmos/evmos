@@ -19,10 +19,19 @@ message InflationDistribution {
   // to be allocated as staking rewards
   string staking_rewards = 1
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+
+  // protolint:disable FIELDS_HAVE_COMMENT
+
   // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address
-  string usage_incentives = 2
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string usage_incentives = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    deprecated = true
+  ];
+
+  // protolint:enable FIELDS_HAVE_COMMENT
+
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool
   string community_pool = 3
