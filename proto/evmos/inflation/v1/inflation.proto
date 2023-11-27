@@ -19,7 +19,7 @@ message InflationDistribution {
   // to be allocated as staking rewards
   string staking_rewards = 1
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
-  // usage_incentives defines the proportion of the minted minted_denom that is
+  // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address
   string usage_incentives = 2
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];

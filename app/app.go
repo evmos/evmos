@@ -157,10 +157,6 @@ import (
 	"github.com/evmos/evmos/v15/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v15/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	"github.com/evmos/evmos/v15/x/incentives"
-	incentivesclient "github.com/evmos/evmos/v15/x/incentives/client"
-	incentiveskeeper "github.com/evmos/evmos/v15/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
 	inflation "github.com/evmos/evmos/v15/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
@@ -223,7 +219,6 @@ var (
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
 				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
-				incentivesclient.RegisterIncentiveProposalHandler, incentivesclient.CancelIncentiveProposalHandler,
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
@@ -242,7 +237,6 @@ var (
 		feemarket.AppModuleBasic{},
 		inflation.AppModuleBasic{},
 		erc20.AppModuleBasic{},
-		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
 		revenue.AppModuleBasic{},
@@ -262,12 +256,6 @@ var (
 		inflationtypes.ModuleName:      {authtypes.Minter},
 		erc20types.ModuleName:          {authtypes.Minter, authtypes.Burner},
 		claimstypes.ModuleName:         nil,
-		incentivestypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
-	}
-
-	// module accounts that are allowed to receive tokens
-	allowedReceivingModAcc = map[string]bool{
-		incentivestypes.ModuleName: true,
 	}
 )
 
@@ -322,13 +310,12 @@ type Evmos struct {
 	FeeMarketKeeper feemarketkeeper.Keeper
 
 	// Evmos keepers
-	InflationKeeper  inflationkeeper.Keeper
-	ClaimsKeeper     *claimskeeper.Keeper
-	Erc20Keeper      erc20keeper.Keeper
-	IncentivesKeeper incentiveskeeper.Keeper
-	EpochsKeeper     epochskeeper.Keeper
-	VestingKeeper    vestingkeeper.Keeper
-	RevenueKeeper    revenuekeeper.Keeper
+	InflationKeeper inflationkeeper.Keeper
+	ClaimsKeeper    *claimskeeper.Keeper
+	Erc20Keeper     erc20keeper.Keeper
+	EpochsKeeper    epochskeeper.Keeper
+	VestingKeeper   vestingkeeper.Keeper
+	RevenueKeeper   revenuekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -478,7 +465,6 @@ func NewEvmos(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper)).
-		AddRoute(incentivestypes.RouterKey, incentives.NewIncentivesProposalHandler(&app.IncentivesKeeper)).
 		AddRoute(vestingtypes.RouterKey, vesting.NewVestingProposalHandler(&app.VestingKeeper))
 
 	govConfig := govtypes.Config{
@@ -528,11 +514,6 @@ func NewEvmos(
 		app.AuthzKeeper, &app.TransferKeeper,
 	)
 
-	app.IncentivesKeeper = incentiveskeeper.NewKeeper(
-		keys[incentivestypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.InflationKeeper, app.StakingKeeper, app.EvmKeeper,
-	)
-
 	app.RevenueKeeper = revenuekeeper.NewKeeper(
 		keys[revenuetypes.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.BankKeeper, app.DistrKeeper, app.AccountKeeper, app.EvmKeeper,
@@ -564,7 +545,6 @@ func NewEvmos(
 	app.EpochsKeeper = *epochsKeeper.SetHooks(
 		epochskeeper.NewMultiEpochHooks(
 			// insert epoch hooks receivers here
-			app.IncentivesKeeper.Hooks(),
 			app.InflationKeeper.Hooks(),
 		),
 	)
@@ -579,7 +559,6 @@ func NewEvmos(
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
 			app.Erc20Keeper.Hooks(),
-			app.IncentivesKeeper.Hooks(),
 			app.RevenueKeeper.Hooks(),
 			app.ClaimsKeeper.Hooks(),
 		),
@@ -682,8 +661,6 @@ func NewEvmos(
 			app.GetSubspace(inflationtypes.ModuleName)),
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper,
 			app.GetSubspace(erc20types.ModuleName)),
-		incentives.NewAppModule(app.IncentivesKeeper, app.AccountKeeper,
-			app.GetSubspace(incentivestypes.ModuleName)),
 		epochs.NewAppModule(appCodec, app.EpochsKeeper),
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper,
 			app.GetSubspace(claimstypes.ModuleName)),
@@ -724,7 +701,6 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
-		incentivestypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
@@ -757,7 +733,6 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
-		incentivestypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
@@ -797,7 +772,6 @@ func NewEvmos(
 		vestingtypes.ModuleName,
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
-		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
@@ -1005,7 +979,7 @@ func (app *Evmos) BlockedAddrs() map[string]bool {
 	sort.Strings(accs)
 
 	for _, acc := range accs {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
 	for _, precompile := range common.DefaultPrecompilesBech32 {
@@ -1183,7 +1157,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(inflationtypes.ModuleName)
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
-	paramsKeeper.Subspace(incentivestypes.ModuleName)
 	paramsKeeper.Subspace(revenuetypes.ModuleName)
 	return paramsKeeper
 }
@@ -1305,7 +1278,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.EvmKeeper,
 			app.BankKeeper,
 			app.InflationKeeper,
-			app.IncentivesKeeper,
 		),
 	)
 
@@ -1369,9 +1341,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Deleted: []string{crisistypes.ModuleName},
 		}
 	case v16.UpgradeName:
-		// crisis module is deprecated in v15
+		// recovery and incentives modules are deprecated in v16
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{"recoveryv1"},
+			Deleted: []string{"recoveryv1", "incentives"},
 		}
 	}
 

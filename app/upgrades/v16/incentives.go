@@ -7,26 +7,17 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	incentiveskeeper "github.com/evmos/evmos/v15/x/incentives/keeper"
-	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
 	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
 )
 
 // BurnUsageIncentivesPool burns the entirety of the usage incentives pool
 func BurnUsageIncentivesPool(ctx sdk.Context, bk bankkeeper.Keeper) error {
-	incentivesPoolBalance := bk.GetAllBalances(ctx, authtypes.NewModuleAddress(incentivestypes.ModuleName))
+	incentivesPoolBalance := bk.GetAllBalances(ctx, authtypes.NewModuleAddress("incentives"))
 	if !incentivesPoolBalance.IsAllPositive() {
 		return nil
 	}
 
 	return bk.BurnCoins(ctx, authtypes.FeeCollectorName, incentivesPoolBalance)
-}
-
-// DisableUsageIncentives disables the usage incentives
-func DisableUsageIncentives(ctx sdk.Context, incentivesKeeper incentiveskeeper.Keeper) error {
-	params := incentivesKeeper.GetParams(ctx)
-	params.EnableIncentives = false
-	return incentivesKeeper.SetParams(ctx, params)
 }
 
 // UpdateInflationParams updates the inflation params to and sets the usage incentive allocation
