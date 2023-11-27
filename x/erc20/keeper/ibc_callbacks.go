@@ -70,7 +70,7 @@ func (k Keeper) OnRecvPacket(
 
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
-	// return acknoledgement without conversion if sender is a module account
+	// return acknowledgement without conversion if sender is a module account
 	if types.IsModuleAccount(senderAcc) {
 		return ack
 	}
@@ -82,13 +82,6 @@ func (k Keeper) OnRecvPacket(
 		data.Denom, data.Amount,
 	)
 
-	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
-	if coin.Denom == bondDenom {
-		// no-op, received coin is the staking denomination
-		return ack
-	}
-
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	if len(pairID) == 0 {
 		// short-circuit: if the denom is not registered, conversion will fail
@@ -97,7 +90,7 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	pair, _ := k.GetTokenPair(ctx, pairID)
-	if !pair.Enabled {
+	if !pair.Enabled || pair.IsNativeCoin() {
 		// no-op: continue with the rest of the stack without conversion
 		return ack
 	}
@@ -170,6 +163,10 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
+	if !k.IsERC20Enabled(ctx) {
+		return nil
+	}
+
 	// assume that all module accounts on Evmos need to have their tokens in the
 	// IBC representation as opposed to ERC20
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
@@ -177,21 +174,20 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		return nil
 	}
 
+	pairID := k.GetTokenPairID(ctx, data.Denom)
+	if len(pairID) == 0 {
+		// short-circuit: if the denom is not registered, conversion will fail
+		// so we can continue with the rest of the stack
+		return nil
+	}
+
+	pair, _ := k.GetTokenPair(ctx, pairID)
+	if !pair.Enabled || pair.IsNativeCoin() {
+		// no-op: continue with the rest of the stack without conversion
+		return nil
+	}
+
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-
-	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
-	if coin.Denom == bondDenom {
-		// no-op, received coin is the staking denomination
-		return nil
-	}
-
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 || !k.IsDenomRegistered(ctx, coin.Denom) {
-		// no-op, ERC20s are disabled or the denom is not registered
-		return nil
-	}
-
 	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
 
 	// NOTE: we don't use ValidateBasic the msg since we've already validated the

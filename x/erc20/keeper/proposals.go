@@ -5,10 +5,13 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"encoding/hex"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 
 	"github.com/evmos/evmos/v15/x/erc20/types"
 )
@@ -39,14 +42,24 @@ func (k Keeper) RegisterCoin(
 		)
 	}
 
-	addr, err := k.DeployERC20Contract(ctx, coinMetadata)
+	hexBz, err := hex.DecodeString(coinMetadata.Base[len(transfertypes.DenomPrefix+"/"):])
 	if err != nil {
-		return nil, errorsmod.Wrap(
-			err, "failed to create wrapped coin denom metadata for ERC20",
-		)
+		return nil, errorsmod.Wrapf(transfertypes.ErrInvalidDenomForTransfer, "invalid hex %s", coinMetadata.Base)
 	}
 
+	addr := common.BytesToAddress(hexBz)
+
 	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
+
+	precompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := k.evmKeeper.AddEVMExtensions(ctx, precompile); err != nil {
+		return nil, err
+	}
+
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())

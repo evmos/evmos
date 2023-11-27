@@ -219,6 +219,14 @@ func ValidatePrecompiles(i interface{}) error {
 	return nil
 }
 
+func (p Params) IsPrecompileRegistered(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
+	})
+
+	return found
+}
+
 // IsLondon returns if london hardfork is enabled.
 func IsLondon(ethConfig *params.ChainConfig, height int64) bool {
 	return ethConfig.IsLondon(big.NewInt(height))

@@ -6,6 +6,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"github.com/evmos/evmos/v15/x/evm/types"
 	"sort"
 
 	"github.com/evmos/evmos/v15/precompiles/bech32"
@@ -144,6 +145,16 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 	}
 
 	params.ActivePrecompiles = append(params.ActivePrecompiles, addresses...)
+
+	// sort precompile addresses
+	sort.Slice(params.ActivePrecompiles, func(i, j int) bool {
+		return params.ActivePrecompiles[i] < params.ActivePrecompiles[j]
+	})
+
+	// error if the precompiled address is already registered
+	if err := types.ValidatePrecompiles(params.ActivePrecompiles); err != nil {
+		return err
+	}
 
 	// NOTE: the active precompiles are sorted and validated before setting them
 	// in the params
