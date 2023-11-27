@@ -130,32 +130,3 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
 	)
 }
-
-// newCosmosAnteHandlerEip712 creates the ante handler for transactions signed with EIP712
-func newLegacyCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
-	return sdk.ChainAnteDecorators(
-		cosmosante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
-		cosmosante.NewAuthzLimiterDecorator( // disable the Msg types that cannot be included on an authz.MsgExec msgs field
-			sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-			sdk.MsgTypeURL(&sdkvesting.MsgCreateVestingAccount{}),
-		),
-		ante.NewSetUpContextDecorator(),
-		ante.NewValidateBasicDecorator(),
-		ante.NewTxTimeoutHeightDecorator(),
-		cosmosante.NewMinGasPriceDecorator(options.FeeMarketKeeper, options.EvmKeeper),
-		ante.NewValidateMemoDecorator(options.AccountKeeper),
-		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		cosmosante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.DistributionKeeper, options.FeegrantKeeper, options.StakingKeeper, options.TxFeeChecker),
-		cosmosante.NewVestingDelegationDecorator(options.AccountKeeper, options.StakingKeeper, options.BankKeeper, options.Cdc),
-		// SetPubKeyDecorator must be called before all signature verification decorators
-		ante.NewSetPubKeyDecorator(options.AccountKeeper),
-		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
-		// Note: signature verification uses EIP instead of the cosmos signature validator
-		//nolint: staticcheck
-		cosmosante.NewLegacyEip712SigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
-		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
-		evmante.NewGasWantedDecorator(options.EvmKeeper, options.FeeMarketKeeper),
-	)
-}
