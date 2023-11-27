@@ -219,6 +219,7 @@ func ValidatePrecompiles(i interface{}) error {
 	return nil
 }
 
+// IsPrecompileRegistered returns true if the given precompile address is registered in the params.
 func (p Params) IsPrecompileRegistered(address string) bool {
 	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
 		return strings.Compare(address, p.ActivePrecompiles[i])

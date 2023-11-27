@@ -10,11 +10,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
+	"github.com/evmos/evmos/v15/utils"
 
 	"github.com/evmos/evmos/v15/ibc"
 	"github.com/evmos/evmos/v15/x/erc20/types"
@@ -95,20 +96,40 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Instead of converting just the received coins, convert the whole user balance
-	// which includes the received coins.
-	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
-
-	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
-	msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
-
-	// NOTE: we don't use ValidateBasic the msg since we've already validated
-	// the ICS20 packet data
-
-	// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	denomAddr, err := utils.GetIBCDenomAddress(coin.Denom)
+	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
+
+	params := k.evmKeeper.GetParams(ctx)
+	found := params.IsPrecompileRegistered(denomAddr.String())
+	if !found {
+		// Register a new precompile address
+		newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
+		err = k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+	}
+
+	// Instead of converting just the received coins, convert the whole user balance
+	//// which includes the received coins.
+	//balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
+	//
+	//// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
+	//msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
+	//
+	//// NOTE: we don't use ValidateBasic the msg since we've already validated
+	//// the ICS20 packet data
+	//
+	//// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
+	//if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	//	return channeltypes.NewErrorAcknowledgement(err)
+	//}
 
 	defer func() {
 		telemetry.IncrCounterWithLabels(
