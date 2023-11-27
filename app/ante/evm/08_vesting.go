@@ -30,50 +30,6 @@ type EthVestingExpenseTracker struct {
 	spendable *big.Int
 }
 
-// NewEthVestingTransactionDecorator returns a new EthVestingTransactionDecorator.
-func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.BankKeeper, ek EVMKeeper) EthVestingTransactionDecorator {
-	return EthVestingTransactionDecorator{
-		ak: ak,
-		bk: bk,
-		ek: ek,
-	}
-}
-
-// AnteHandle validates that a clawback vesting account has surpassed the
-// vesting cliff and lockup period.
-//
-// This AnteHandler decorator will fail if:
-//   - the message is not a MsgEthereumTx
-//   - sender account cannot be found
-//   - tx values are in excess of any account's spendable balances
-func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// Track the total value to be spent by each address across all messages and ensure
-	// that no account can exceed its spendable balance.
-	accountExpenses := make(map[string]*EthVestingExpenseTracker)
-	denom := vtd.ek.GetParams(ctx).EvmDenom
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		value := txData.GetValue()
-
-		acc := vtd.ak.GetAccount(ctx, from)
-		if acc == nil {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
-				"account %s does not exist", acc)
-		}
-
-		if err := CheckVesting(ctx, vtd.bk, acc, accountExpenses, value, denom); err != nil {
-			return ctx, err
-		}
-	}
-
-	return next(ctx, tx, simulate)
-}
-
 // CheckVesting checks if the account is a clawback vesting account and if so,
 // checks that the account has sufficient unlocked balances to cover the
 // transaction.

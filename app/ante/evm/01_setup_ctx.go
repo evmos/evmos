@@ -10,28 +10,8 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 )
 
-var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
-
-// EthSetupContextDecorator is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
+// SetupContext is adapted from SetUpContextDecorator from cosmos-sdk, it ignores gas consumption
 // by setting the gas meter to infinite
-type EthSetupContextDecorator struct {
-	evmKeeper EVMKeeper
-}
-
-func NewEthSetUpContextDecorator(evmKeeper EVMKeeper) EthSetupContextDecorator {
-	return EthSetupContextDecorator{
-		evmKeeper: evmKeeper,
-	}
-}
-
-func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	newCtx, err = SetupContext(ctx, tx, esc.evmKeeper)
-	if err != nil {
-		return ctx, err
-	}
-	return next(newCtx, tx, simulate)
-}
-
 func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context, error) {
 	// all transactions must implement GasTx
 	_, ok := tx.(authante.GasTx)

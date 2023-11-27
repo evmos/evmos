@@ -19,7 +19,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
-var _ sdk.AnteDecorator = &EthSetupContextDecorator{}
+var _ sdk.AnteDecorator = &MonoDecorator{}
 
 // MonoDecorator is a single decorator that handles all the prechecks for
 // ethereum transactions.

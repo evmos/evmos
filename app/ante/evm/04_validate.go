@@ -16,76 +16,9 @@ import (
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
-// EthValidateBasicDecorator is adapted from ValidateBasicDecorator from cosmos-sdk, it ignores ErrNoSignatures
-type EthValidateBasicDecorator struct {
-	evmKeeper EVMKeeper
-}
-
-// NewEthValidateBasicDecorator creates a new EthValidateBasicDecorator
-func NewEthValidateBasicDecorator(ek EVMKeeper) EthValidateBasicDecorator {
-	return EthValidateBasicDecorator{
-		evmKeeper: ek,
-	}
-}
-
-// AnteHandle handles basic validation of tx
-func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-	// no need to validate basic on recheck tx, call next antehandler
-	if ctx.IsReCheckTx() {
-		return next(ctx, tx, simulate)
-	}
-
-	txFeeInfo, err := ValidateTx(tx)
-	if err != nil {
-		return ctx, err
-	}
-
-	txFee := sdk.Coins{}
-	txGasLimit := uint64(0)
-
-	evmParams := vbd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	chainID := vbd.evmKeeper.ChainID()
-	ethCfg := chainCfg.EthereumConfig(chainID)
-	baseFee := vbd.evmKeeper.GetBaseFee(ctx, ethCfg)
-	enableCreate := evmParams.GetEnableCreate()
-	enableCall := evmParams.GetEnableCall()
-	evmDenom := evmParams.GetEvmDenom()
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		txFee, txGasLimit, err = CheckDisabledCreateCallAndUpdateTxFee(
-			txData.GetTo(),
-			from,
-			txGasLimit,
-			txData.GetGas(),
-			enableCreate,
-			enableCall,
-			baseFee,
-			txData.Fee(),
-			txData.TxType(),
-			evmDenom,
-			txFee,
-		)
-		if err != nil {
-			return ctx, err
-		}
-	}
-
-	if err := CheckTxFee(txFeeInfo, txFee, txGasLimit); err != nil {
-		return ctx, err
-	}
-
-	return next(ctx, tx, simulate)
-}
-
-// FIXME: split this function into multiple ones
 // CheckDisabledCreateCallAndUpdateTxFee checks if contract creation or call are disabled through governance
 // and updates the transaction fee by adding the message fee to the cumulative transaction fee
+// FIXME: split this function into multiple ones
 func CheckDisabledCreateCallAndUpdateTxFee(
 	to *common.Address,
 	from sdk.AccAddress,
@@ -119,6 +52,7 @@ func CheckDisabledCreateCallAndUpdateTxFee(
 	return txFee, txGasLimit, nil
 }
 
+// ValidateTx validates that the SDK transaction is built correctly.
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type
 func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
 	err := tx.ValidateBasic()
@@ -162,6 +96,7 @@ func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
 	return authInfo.Fee, nil
 }
 
+// CheckTxFee ensures the transaction fee and gas limit matches the expected values.
 func CheckTxFee(txFeeInfo *tx.Fee, txFee sdk.Coins, txGasLimit uint64) error {
 	if txFeeInfo == nil {
 		return nil

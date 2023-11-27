@@ -3,7 +3,6 @@
 package evm
 
 import (
-	"math"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -43,7 +42,7 @@ func NewEthGasConsumeDecorator(
 	}
 }
 
-// AnteHandle validates that the Ethereum tx message has enough to cover intrinsic gas
+// ConsumeGas validates that the Ethereum tx message has enough to cover intrinsic gas
 // (during CheckTx only) and that the sender has enough balance to pay for the gas cost.
 // If the balance is not sufficient, it will be attempted to withdraw enough staking rewards
 // for the payment.
@@ -51,80 +50,6 @@ func NewEthGasConsumeDecorator(
 // Intrinsic gas for a transaction is the amount of gas that the transaction uses before the
 // transaction is executed. The gas is a constant value plus any cost incurred by additional bytes
 // of data supplied with the transaction.
-//
-// This AnteHandler decorator will fail if:
-// - the message is not a MsgEthereumTx
-// - sender account cannot be found
-// - transaction's gas limit is lower than the intrinsic gas
-// - user has neither enough balance nor staking rewards to deduct the transaction fees (gas_limit * gas_price)
-// - transaction or block gas meter runs out of gas
-// - sets the gas meter limit
-// - gas limit is greater than the block gas meter limit
-func (egcd EthGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-	gasWanted := uint64(0)
-	// gas consumption limit already checked during CheckTx so there's no need to
-	// verify it again during ReCheckTx
-	if ctx.IsReCheckTx() {
-		// Use new context with gasWanted = 0
-		// Otherwise, there's an error on txmempool.postCheck (tendermint)
-		// that is not bubbled up. Thus, the Tx never runs on DeliverMode
-		// Error: "gas wanted -1 is negative"
-		// For more information, see issue #1554
-		// https://github.com/evmos/ethermint/issues/1554
-		newCtx := ctx.WithGasMeter(types.NewInfiniteGasMeterWithLimit(gasWanted))
-		return next(newCtx, tx, simulate)
-	}
-
-	evmParams := egcd.evmKeeper.GetParams(ctx)
-	evmDenom := evmParams.GetEvmDenom()
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(egcd.evmKeeper.ChainID())
-
-	blockHeight := big.NewInt(ctx.BlockHeight())
-	homestead := ethCfg.IsHomestead(blockHeight)
-	istanbul := ethCfg.IsIstanbul(blockHeight)
-
-	// Use the lowest priority of all the messages as the final one.
-	minPriority := int64(math.MaxInt64)
-	baseFee := egcd.evmKeeper.GetBaseFee(ctx, ethCfg)
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		gasWanted, minPriority, err = ConsumeGas(
-			ctx,
-			egcd.bankKeeper,
-			egcd.distributionKeeper,
-			egcd.evmKeeper,
-			egcd.stakingKeeper,
-			from,
-			txData,
-			minPriority,
-			gasWanted,
-			egcd.maxGasWanted,
-			evmDenom,
-			baseFee,
-			homestead,
-			istanbul,
-		)
-
-		if err != nil {
-			return ctx, err
-		}
-	}
-
-	newCtx, err := CheckBlockGasLimit(ctx, gasWanted, minPriority)
-	if err != nil {
-		return ctx, err
-	}
-
-	return next(newCtx, tx, simulate)
-}
-
-// ConsumeGas consumes the gas from the user balance and returns the updated gasWanted and minPriority.
 func ConsumeGas(
 	ctx sdk.Context,
 	bankKeeper anteutils.BankKeeper,
@@ -185,7 +110,7 @@ func ConsumeGas(
 	return gasWanted, minPriority, nil
 }
 
-// deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
+// DeductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
 // If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
 func DeductFee(
 	ctx sdk.Context,
