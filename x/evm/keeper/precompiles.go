@@ -6,8 +6,9 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	"github.com/evmos/evmos/v15/x/evm/types"
 	"sort"
+
+	"github.com/evmos/evmos/v15/x/evm/types"
 
 	"github.com/evmos/evmos/v15/precompiles/bech32"
 
