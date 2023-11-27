@@ -16,21 +16,19 @@ import (
 )
 
 const (
-	// SwapMethod is the name of the swap method
+	// SwapMethod is the name of the swap method.
 	SwapMethod = "swap"
-	// SwapAction is the action name needed in the memo field
+	// SwapAction is the action name needed in the memo field.
 	SwapAction = "Swap"
 )
 
 const (
 	// NextMemo is the memo to use after the swap of the token in the IBC packet
-	// built on the Osmosis chain. In the alpha version of the outpost this is
-	// an empty string that will not be included in the XCS V2 contract payload.
+	// built on the Osmosis chain.
 	NextMemo = ""
 )
 
-// Swap is a transaction that swap tokens on the Osmosis chain using
-// an ICS20 transfer with a custom memo field to trigger the XCS V2 contract.
+// Swap is a transaction that swap tokens on the Osmosis chain.
 func (p Precompile) Swap(
 	ctx sdk.Context,
 	origin common.Address,

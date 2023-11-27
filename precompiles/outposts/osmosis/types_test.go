@@ -6,15 +6,17 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/require"
 
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v15/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreatePacketWithMemo(t *testing.T) {
 	t.Parallel()
 
+	contract := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 
 	testCases := []struct {
@@ -32,7 +34,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			name:               "pass - correct string without memo",
 			outputDenom:        "aevmos",
 			receiver:           receiver,
-			contract:           "contract",
+			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
@@ -43,7 +45,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			name:               "pass - correct string with memo",
 			outputDenom:        "aevmos",
 			receiver:           receiver,
-			contract:           "contract",
+			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
 			onFailedDelivery:   "do_nothing",
@@ -107,6 +109,11 @@ func TestParseSwapPacketData(t *testing.T) {
 				receiver,
 			},
 			expPass: true,
+		}, {
+			name:        "fail - invalid number of args",
+			args:        []interface{}{},
+			expPass:     false,
+			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 7, 0),
 		}, {
 			name: "fail - wrong sender type",
 			args: []interface{}{

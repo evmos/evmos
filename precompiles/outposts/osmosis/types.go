@@ -28,17 +28,15 @@ const (
 )
 
 const (
-	// DefaultOnFailedDelivery is the default value used in the XCSV2 contract
-	// for the on_failed_delivery field.
+	// DefaultOnFailedDelivery is the default value used for the `on_failed_delivery` field.
 	DefaultOnFailedDelivery = "do_nothing"
 )
-
 const (
 	// OsmosisDenom is the base denom in the Osmosis chain.
 	OsmosisDenom = "uosmo"
 )
 
-// EventSwap is the event type emitted on a Swap transaction
+// EventSwap is the event type emitted on a Swap transaction.
 type EventSwap struct {
 	Sender   common.Address
 	Input    common.Address
@@ -61,9 +59,7 @@ type Slippage struct {
 	TWAP *TWAP `json:"twap"`
 }
 
-// OsmosisSwap represents the details for a swap transaction on the Osmosis chain
-// using the XCS V2 contract. This payload is one of the variant of the entry_point Execute
-// in the CosmWasm contract.
+// OsmosisSwap represents the details for a swap transaction on the Osmosis chain.
 //
 //nolint:revive
 type OsmosisSwap struct {
@@ -81,26 +77,30 @@ type OsmosisSwap struct {
 	NextMemo string `json:"next_memo,omitempty"`
 }
 
-// Msg contains the OsmosisSwap details used in the memo relayed to the Osmosis ibc hook middleware.
+// Msg contains the OsmosisSwap details used in the memo relayed to the Osmosis IBC Wasm router.
 type Msg struct {
-	// OsmosisSwap provides details for a swap transaction. It's optional and can be omitted if not provided.
+	// OsmosisSwap provides details for a swap transaction.
 	OsmosisSwap *OsmosisSwap `json:"osmosis_swap"`
 }
 
-// Memo wraps the message details for the IBC packet relayed to the Osmosis chain. This include the
-// address of the smart contract that will receive the Msg.
-type Memo struct {
+// Wasm wraps the message details required for the IBC packet to be valid for the Wasm router.
+type Wasm struct {
 	// Contract represents the address or identifier of the contract to be called.
 	Contract string `json:"contract"`
 	// Msg contains the details of the operation to be executed on the contract.
 	Msg *Msg `json:"msg"`
 }
 
+// Memo wraps the message details for the IBC packet relayed to the Osmosis chain.
+type Memo struct {
+	Wasm *Wasm `json:"wasm"`
+}
+
 // Validate performs basic validation of the IBC memo for the Osmosis outpost.
 // This function assumes that memo field is parsed with ParseSwapPacketData, which
 // performs data casting ensuring outputDenom cannot be an empty string.
 func (m Memo) Validate() error {
-	osmosisSwap := m.Msg.OsmosisSwap
+	osmosisSwap := m.Wasm.Msg.OsmosisSwap
 
 	if osmosisSwap.OnFailedDelivery == "" {
 		return fmt.Errorf(ErrEmptyOnFailedDelivery)
@@ -129,7 +129,7 @@ type RawPacketMetadata struct {
 }
 
 // CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis
-// outpost that can be parsed by the ibc hook middleware on the Osmosis chain.
+// outpost that can be parsed by the ibc hook middleware, the Wasm hook, on the Osmosis chain.
 func CreatePacketWithMemo(
 	outputDenom, receiver, contract string,
 	slippagePercentage uint8,
@@ -138,19 +138,21 @@ func CreatePacketWithMemo(
 ) *RawPacketMetadata {
 	return &RawPacketMetadata{
 		&Memo{
-			Contract: contract,
-			Msg: &Msg{
-				OsmosisSwap: &OsmosisSwap{
-					OutputDenom: outputDenom,
-					Slippage: &Slippage{
-						&TWAP{
-							SlippagePercentage: slippagePercentage,
-							WindowSeconds:      windowSeconds,
+			&Wasm{
+				Contract: contract,
+				Msg: &Msg{
+					OsmosisSwap: &OsmosisSwap{
+						OutputDenom: outputDenom,
+						Slippage: &Slippage{
+							&TWAP{
+								SlippagePercentage: slippagePercentage,
+								WindowSeconds:      windowSeconds,
+							},
 						},
+						Receiver:         receiver,
+						OnFailedDelivery: onFailedDelivery,
+						NextMemo:         nextMemo,
 					},
-					Receiver:         receiver,
-					OnFailedDelivery: onFailedDelivery,
-					NextMemo:         nextMemo,
 				},
 			},
 		},
@@ -188,8 +190,7 @@ func CreateOnFailedDeliveryField(receiver string) string {
 	return onFailedDelivery
 }
 
-// ValidateInputOutput validate the input and output tokens used in the Osmosis
-// swap.
+// ValidateInputOutput validate the input and output tokens used in the Osmosis swap.
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom, portID, channelID string,
 ) error {
