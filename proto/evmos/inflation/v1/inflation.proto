@@ -7,6 +7,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/evmos/v15/x/inflation/v1/types";
 
+
 // InflationDistribution defines the distribution in which inflation is
 // allocated through minting on each epoch (staking, incentives, community). It
 // excludes the team vesting distribution, as this is minted once at genesis.
@@ -29,8 +30,6 @@ message InflationDistribution {
     (gogoproto.nullable) = false,
     deprecated = true
   ];
-
-  // protolint:enable FIELDS_HAVE_COMMENT
 
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool
