@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package factory
 
 import (
@@ -8,28 +9,24 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-
-	"github.com/cosmos/gogoproto/proto"
-
+	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v15/precompiles/testutil"
+	"github.com/evmos/evmos/v15/server/config"
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-
-	errorsmod "cosmossdk.io/errors"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/server/config"
 )
 
 type TxFactory interface {
@@ -80,7 +77,7 @@ func New(
 	}
 }
 
-// GenerateEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
 	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
 	if err != nil {
@@ -111,8 +108,6 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	if err != nil {
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
-		//
-		// TODO: refactor CheckLogs function
 		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
 	}
 
@@ -273,7 +268,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		txArgs.Nonce = accountResp.GetNonce()
 	}
 
-	// If there is no GasPrice it is assume this is a DynamicFeeTx.
+	// If there is no GasPrice it is assumed this is a DynamicFeeTx.
 	// If fields are empty they are populated with current dynamic values.
 	if txArgs.GasPrice == nil {
 		if txArgs.GasTipCap == nil {

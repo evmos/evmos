@@ -3,6 +3,8 @@
 package network
 
 import (
+	"time"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/store/types"
 )
@@ -10,14 +12,24 @@ import (
 // NextBlock is a private helper function that runs the EndBlocker logic, commits the changes,
 // updates the header and runs the BeginBlocker
 func (n *IntegrationNetwork) NextBlock() error {
+	return n.NextBlockAfter(time.Second)
+}
+
+// NextBlockAfter is a private helper function that runs the EndBlocker logic, commits the changes,
+// updates the header to have a block time after the given duration and runs the BeginBlocker.
+func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	// End block and commit
 	header := n.ctx.BlockHeader()
 	n.app.EndBlocker(n.ctx, abci.RequestEndBlock{Height: header.Height})
 	n.app.Commit()
 
+	// Calculate new block time after duration
+	newBlockTime := header.Time.Add(duration)
+
 	// Update block header and BeginBlock
 	header.Height++
 	header.AppHash = n.app.LastCommitID().Hash
+	header.Time = newBlockTime
 	n.app.BeginBlock(abci.RequestBeginBlock{
 		Header: header,
 	})
