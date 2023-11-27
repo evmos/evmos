@@ -70,7 +70,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
-					distribution := params.InflationDistribution.UsageIncentives
+					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
 					Expect(actual.IsZero()).To(BeTrue())
@@ -98,7 +98,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				params.InflationDistribution = types.InflationDistribution{
 					StakingRewards:  sdk.NewDecWithPrec(333333333, 9),
 					CommunityPool:   sdk.NewDecWithPrec(666666667, 9),
-					UsageIncentives: math.LegacyZeroDec(),             // Deprecated
+					UsageIncentives: math.LegacyZeroDec(), // Deprecated
 				}
 				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
 			})
@@ -131,7 +131,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
-					distribution := params.InflationDistribution.UsageIncentives
+					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
 					Expect(actual.IsZero()).To(BeTrue())
@@ -186,7 +186,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 					params := s.app.InflationKeeper.GetParams(s.ctx)
-					distribution := params.InflationDistribution.UsageIncentives
+					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
 					Expect(actual.IsZero()).To(BeTrue())
