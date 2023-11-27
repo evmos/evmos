@@ -83,7 +83,7 @@ func FuzzERC20Transfer(f *testing.F) {
 		factory.ContractDeploymentData{
 			Contract: contracts.ERC20MinterBurnerDecimalsContract,
 			ConstructorArgs: []interface{}{
-				"Xmpl", "XMPL", uint8(6),
+				"Xmpl", "XMPL", uint8(18),
 			},
 		},
 	)
@@ -128,6 +128,12 @@ func FuzzERC20Transfer(f *testing.F) {
 
 	file.WriteString("amount, gas used\n")
 
+	f.Add(uint64(1e6))
+	f.Add(uint64(1e9))
+	f.Add(uint64(1e12))
+	f.Add(uint64(1e15))
+	f.Add(uint64(1e18))
+
 	f.Fuzz(func(t *testing.T, amount uint64) {
 		res, err := TransferERC20(
 			suite,
@@ -140,6 +146,6 @@ func FuzzERC20Transfer(f *testing.F) {
 			t.Fatal(err)
 		}
 
-		file.WriteString(fmt.Sprintf("%d,%d\n", amount, res.GasUsed))
+		file.WriteString(fmt.Sprintf("| %d:%d  |\n", amount, res.GasUsed))
 	})
 }
