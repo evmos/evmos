@@ -14,6 +14,7 @@ import (
 
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
@@ -44,6 +45,22 @@ type EventSwap struct {
 	Output   common.Address
 	Amount   *big.Int
 	Receiver string
+}
+
+// IBCConnction contains information of port and channel of an IBC connection.
+type IBCConnection struct {
+	PortID    string
+	ChannelID string
+}
+
+// NewIBCConnection return a new instance of IBCConnection.
+func NewIBCConnection(
+	portID, ChannelID string,
+) IBCConnection {
+	return IBCConnection{
+		PortID:    portID,
+		ChannelID: ChannelID,
+	}
 }
 
 // TWAP represents a Time-Weighted Average Price configuration.
@@ -193,22 +210,58 @@ func CreateOnFailedDeliveryField(receiver string) string {
 
 // ValidateInputOutput validate the input and output tokens used in the Osmosis swap.
 func ValidateInputOutput(
-	inputDenom, outputDenom, stakingDenom, portID, channelID string,
+	inputDenom, outputDenom, stakingDenom string,
+	evmosConnection IBCConnection,
 ) error {
 	if outputDenom == inputDenom {
 		return fmt.Errorf(ErrInputEqualOutput, inputDenom)
 	}
 
-	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, OsmosisDenom)
+	osmoIBCDenom := utils.ComputeIBCDenom(evmosConnection.PortID, evmosConnection.ChannelID, OsmosisDenom)
 
-	// Check that the input token is evmos or osmo.
-	// This constraint will be removed in future
-	validInputs := []string{stakingDenom, osmoIBCDenom}
-	if !slices.Contains(validInputs, inputDenom) {
-		return fmt.Errorf(ErrInputTokenNotSupported, validInputs)
+	// acceptedTokens are the tokens accepted as input or output of the swap.
+	acceptedTokens := []string{stakingDenom, osmoIBCDenom}
+
+	// Check that the input token is aevmos or uosmo.
+	if !slices.Contains(acceptedTokens, inputDenom) {
+		return fmt.Errorf(ErrTokenNotSupported, acceptedTokens)
+	}
+
+	// Check that the output token is aevmos or uosmo.
+	if !slices.Contains(acceptedTokens, outputDenom) {
+		return fmt.Errorf(ErrTokenNotSupported, acceptedTokens)
 	}
 
 	return nil
+}
+
+// ConvertToOsmosisRepresentation returns the Osmosis representation of the denom from the Evmos
+// representation of aevmos and uosmo. Return an error if the denom is different from one these two.
+func ConvertToOsmosisRepresentation(
+	denom, stakingDenom string,
+	evmosConnection, osmosisConnection IBCConnection,
+) (denomOsmosis string, err error) {
+	osmoIBCDenom := utils.ComputeIBCDenom(
+		evmosConnection.PortID,
+		evmosConnection.ChannelID,
+		OsmosisDenom,
+	)
+
+	switch denom {
+	case osmoIBCDenom:
+		denomOsmosis = OsmosisDenom
+	case stakingDenom:
+		denomPrefix := transfertypes.GetPrefixedDenom(
+			osmosisConnection.PortID,
+			osmosisConnection.ChannelID,
+			denom,
+		)
+		denomTrace := transfertypes.ParseDenomTrace(denomPrefix)
+		denomOsmosis = denomTrace.IBCDenom()
+	default:
+		err = fmt.Errorf(ErrTokenNotSupported, []string{stakingDenom, osmoIBCDenom})
+	}
+	return denomOsmosis, err
 }
 
 // SwapPacketData is an utility structure used to wrap args reiceived by the
