@@ -499,7 +499,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test is for direct calls only
 
-				// FIXME: other than the EVM extension, the ERC20 contract emits an additional Approval event (we only emit 1x Transfer)
+				// NOTE: other than the EVM extension, the ERC20MinterBurnerDecimals contract emits an additional Approval event (we only emit 1x Transfer)
 				// NOTE: Interestingly, the new ERC20 v5 contract does not emit the additional Approval event
 				// Entry("- through erc20 contract", erc20Call),
 				Entry(" - through erc20 v5 contract", erc20V5Call),
@@ -1535,7 +1535,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					// Check that the allowance was not changed
 					s.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
 				},
-					// FIXME: We are not raising the correct error here yet -> should return "ERC20: decreased allowance below zero"
 					Entry(" - direct call", directCall),
 					Entry(" - through erc20 contract", erc20Call),
 					// NOTE: The ERC20 V5 contract does not contain these methods
@@ -1552,7 +1551,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					// Check that the allowance was not changed
 					s.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
 				},
-					// FIXME: We are not raising the correct error here yet -> should return "execution reverted"
 					Entry(" - direct call", directCall),
 					Entry(" - through erc20 contract", erc20Call),
 					// NOTE: The ERC20 V5 contract does not contain these methods
