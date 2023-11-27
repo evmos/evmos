@@ -164,9 +164,6 @@ import (
 	inflation "github.com/evmos/evmos/v15/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	"github.com/evmos/evmos/v15/x/recovery"
-	recoverykeeper "github.com/evmos/evmos/v15/x/recovery/keeper"
-	recoverytypes "github.com/evmos/evmos/v15/x/recovery/types"
 	revenue "github.com/evmos/evmos/v15/x/revenue/v1"
 	revenuekeeper "github.com/evmos/evmos/v15/x/revenue/v1/keeper"
 	revenuetypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
@@ -248,7 +245,6 @@ var (
 		incentives.AppModuleBasic{},
 		epochs.AppModuleBasic{},
 		claims.AppModuleBasic{},
-		recovery.AppModuleBasic{},
 		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 	)
@@ -332,7 +328,6 @@ type Evmos struct {
 	IncentivesKeeper incentiveskeeper.Keeper
 	EpochsKeeper     epochskeeper.Keeper
 	VestingKeeper    vestingkeeper.Keeper
-	RecoveryKeeper   *recoverykeeper.Keeper
 	RevenueKeeper    revenuekeeper.Keeper
 
 	// the module manager
@@ -590,22 +585,10 @@ func NewEvmos(
 		),
 	)
 
-	app.RecoveryKeeper = recoverykeeper.NewKeeper(
-		keys[recoverytypes.StoreKey],
-		appCodec,
-		authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		app.TransferKeeper,
-		app.ClaimsKeeper,
-	)
-
 	// NOTE: app.Erc20Keeper is already initialized elsewhere
 
 	// Set the ICS4 wrappers for custom module middlewares
-	app.RecoveryKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
-	app.ClaimsKeeper.SetICS4Wrapper(app.RecoveryKeeper)
+	app.ClaimsKeeper.SetICS4Wrapper(app.IBCKeeper.ChannelKeeper)
 
 	// Override the ICS20 app module
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
@@ -646,7 +629,6 @@ func NewEvmos(
 
 	transferStack = transfer.NewIBCModule(app.TransferKeeper)
 	transferStack = claims.NewIBCMiddleware(*app.ClaimsKeeper, transferStack)
-	transferStack = recovery.NewIBCMiddleware(*app.RecoveryKeeper, transferStack)
 	transferStack = erc20.NewIBCMiddleware(app.Erc20Keeper, transferStack)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -706,8 +688,6 @@ func NewEvmos(
 		claims.NewAppModule(appCodec, *app.ClaimsKeeper,
 			app.GetSubspace(claimstypes.ModuleName)),
 		vesting.NewAppModule(app.VestingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
-		recovery.NewAppModule(*app.RecoveryKeeper,
-			app.GetSubspace(recoverytypes.ModuleName)),
 		revenue.NewAppModule(app.RevenueKeeper, app.AccountKeeper,
 			app.GetSubspace(revenuetypes.ModuleName)),
 	)
@@ -745,7 +725,6 @@ func NewEvmos(
 		erc20types.ModuleName,
 		claimstypes.ModuleName,
 		incentivestypes.ModuleName,
-		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
@@ -779,7 +758,6 @@ func NewEvmos(
 		inflationtypes.ModuleName,
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
-		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
@@ -821,7 +799,6 @@ func NewEvmos(
 		erc20types.ModuleName,
 		incentivestypes.ModuleName,
 		epochstypes.ModuleName,
-		recoverytypes.ModuleName,
 		revenuetypes.ModuleName,
 		consensusparamtypes.ModuleName,
 	)
@@ -1207,7 +1184,6 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(erc20types.ModuleName)
 	paramsKeeper.Subspace(claimstypes.ModuleName)
 	paramsKeeper.Subspace(incentivestypes.ModuleName)
-	paramsKeeper.Subspace(recoverytypes.ModuleName)
 	paramsKeeper.Subspace(revenuetypes.ModuleName)
 	return paramsKeeper
 }
@@ -1368,7 +1344,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// add ica host submodule in v11
 		// initialize recovery store
 		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{icahosttypes.SubModuleName, recoverytypes.StoreKey},
+			Added: []string{icahosttypes.SubModuleName, "recoveryv1"},
 		}
 	case v12.UpgradeName:
 		// no store upgrades
@@ -1388,6 +1364,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 		// crisis module is deprecated in v15
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{crisistypes.ModuleName},
+		}
+	case v16.UpgradeName:
+		// crisis module is deprecated in v15
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"recoveryv1"},
 		}
 	}
 
