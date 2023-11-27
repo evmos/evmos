@@ -25,7 +25,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			name:    "valid",
-			params:  NewParams(DefaultEVMDenom, false, true, true, DefaultChainConfig(), extraEips),
+			params:  NewParams(DefaultEVMDenom, false, true, true, DefaultChainConfig(), extraEips, nil, nil, nil),
 			expPass: true,
 		},
 		{
