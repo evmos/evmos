@@ -39,6 +39,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
+		unitNetwork.App.AuthzKeeper,
 		portID,
 		channelID,
 		osmosis.XCSContract,
@@ -46,7 +47,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
-		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 

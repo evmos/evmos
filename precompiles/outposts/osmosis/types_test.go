@@ -401,7 +401,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputTokenNotSupported, validInputs),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrTokenNotSupported, validInputs),
 		},
 	}
 
@@ -411,7 +411,9 @@ func TestValidateInputOutput(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, tc.portID, tc.channelID)
+			evmosConnection := osmosisoutpost.NewIBCConnection(tc.portID, tc.channelID)
+
+			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, evmosConnection)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 			} else {
@@ -457,6 +459,59 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.receiver)
 
 			require.Contains(t, onFailedDelivery, tc.expRes)
+		})
+	}
+}
+
+func TestConvertToOsmosisRepresentation(t *testing.T) {
+	t.Parallel()
+
+	portID := "transfer"
+	channelID := "channel-0"
+	stakingDenom := "aevmos"
+	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
+	evmosConnection := osmosisoutpost.NewIBCConnection(portID, channelID)
+	osmosisConnection := osmosisoutpost.NewIBCConnection(portID, channelID)
+
+	testCases := []struct {
+		name        string
+		denom       string
+		expPass     bool
+		expDenom    string
+		errContains string
+	}{
+		{
+			name:     "pass - correct conversion of aevmos",
+			denom:    stakingDenom,
+			expPass:  true,
+			expDenom: "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E",
+		}, {
+			name:     "pass - correct conversion of ibc uosmo",
+			denom:    osmoIBCDenom,
+			expPass:  true,
+			expDenom: "uosmo",
+		}, {
+			name:        "fail - not allowed token",
+			denom:       "token",
+			expPass:     false,
+			errContains: fmt.Sprintf(osmosisoutpost.ErrTokenNotSupported, []string{stakingDenom, osmoIBCDenom}),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, stakingDenom, evmosConnection, osmosisConnection)
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+				require.Equal(t, denom, tc.expDenom)
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
 		})
 	}
 }

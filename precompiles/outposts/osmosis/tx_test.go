@@ -153,7 +153,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrInputTokenNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+			errContains: fmt.Sprintf(osmosis.ErrTokenNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		}, {
 			name:   "fail - input equal to denom",
 			sender: senderAddress,
@@ -198,7 +198,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrInputTokenNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+			errContains: fmt.Sprintf(osmosis.ErrTokenNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		}, {
 			name:   "fail - receiver is not a valid bech32",
 			sender: senderAddress,
