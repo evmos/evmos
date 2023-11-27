@@ -2,7 +2,6 @@ package cosmos_test
 
 import (
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/evmos/v15/app/ante/cosmos"
@@ -25,7 +24,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-		Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
+		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
 
 	testCases := []struct {
@@ -52,7 +51,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -67,7 +66,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -82,7 +81,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -97,7 +96,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -112,7 +111,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), "stake", &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), "stake", &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,

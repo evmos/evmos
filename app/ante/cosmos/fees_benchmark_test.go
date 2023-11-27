@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/testutil"
 	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
 )
@@ -24,19 +23,19 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		{
 			name:     "sufficient balance to pay fees",
 			balance:  math.NewInt(1e18),
-			rewards:  []sdkmath.Int{math.ZeroInt()},
+			rewards:  []math.Int{math.ZeroInt()},
 			simulate: true,
 		},
 		{
 			name:    "insufficient funds but sufficient staking rewards",
 			balance: math.ZeroInt(),
-			rewards: []sdkmath.Int{math.NewInt(1e18)},
+			rewards: []math.Int{math.NewInt(1e18)},
 			gas:     10_000_000,
 		},
 		{
 			name:     "sufficient balance to pay fees with 10.000 users staking",
 			balance:  math.NewInt(1e18),
-			rewards:  []sdkmath.Int{math.ZeroInt()},
+			rewards:  []math.Int{math.ZeroInt()},
 			simulate: true,
 			setup: func() {
 				var err error
@@ -54,7 +53,7 @@ func BenchmarkDeductFeeDecorator(b *testing.B) {
 		{
 			name:    "insufficient funds but sufficient staking rewards with 10.000 users staking",
 			balance: math.ZeroInt(),
-			rewards: []sdkmath.Int{math.NewInt(1e18)},
+			rewards: []math.Int{math.NewInt(1e18)},
 			gas:     10_000_000,
 			setup: func() {
 				var err error

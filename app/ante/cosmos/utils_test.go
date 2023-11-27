@@ -78,6 +78,10 @@ func generatePrivKeyAddressPairs(accCount int) ([]*ethsecp256k1.PrivKey, []sdk.A
 func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (sdk.Tx, error) {
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
+	defaultSignMode, err := authsigning.APISignModeToInternal(encodingConfig.TxConfig.SignModeHandler().DefaultMode())
+	if err != nil {
+		return nil, err
+	}
 
 	txBuilder.SetGasLimit(1000000)
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
@@ -89,30 +93,26 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 	sigV2 := signing.SignatureV2{
 		PubKey: priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  signing.SignMode(encodingConfig.TxConfig.SignModeHandler().DefaultMode()),
+			SignMode:  defaultSignMode,
 			Signature: nil,
 		},
 		Sequence: 0,
 	}
 
-	sigsV2 := []signing.SignatureV2{sigV2}
-
-	if err := txBuilder.SetSignatures(sigsV2...); err != nil {
+	if err := txBuilder.SetSignatures(sigV2); err != nil {
 		return nil, err
 	}
 
 	signerData := authsigning.SignerData{
+		Address:       sdk.AccAddress(priv.PubKey().Bytes()).String(),
 		ChainID:       chainID,
 		AccountNumber: 0,
 		Sequence:      0,
-	}
-	signMode, err := authsigning.APISignModeToInternal(encodingConfig.TxConfig.SignModeHandler().DefaultMode())
-	if err != nil {
-		return nil, err
+		PubKey:        priv.PubKey(),
 	}
 
 	sigV2, err = tx.SignWithPrivKey(
-		ctx, signMode, signerData,
+		ctx, defaultSignMode, signerData,
 		txBuilder, priv, encodingConfig.TxConfig,
 		0,
 	)
@@ -120,8 +120,7 @@ func createTx(ctx context.Context, priv cryptotypes.PrivKey, msgs ...sdk.Msg) (s
 		return nil, err
 	}
 
-	sigsV2 = []signing.SignatureV2{sigV2}
-	err = txBuilder.SetSignatures(sigsV2...)
+	err = txBuilder.SetSignatures(sigV2)
 	if err != nil {
 		return nil, err
 	}
