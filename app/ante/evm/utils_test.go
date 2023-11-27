@@ -466,7 +466,6 @@ func (suite *AnteTestSuite) CreateTestEIP712CosmosTxBuilder(
 		suite.app,
 		utiltx.EIP712TxArgs{
 			CosmosTxArgs:       cosmosTxArgs,
-			UseLegacyExtension: suite.useLegacyEIP712Extension,
 			UseLegacyTypedData: suite.useLegacyEIP712TypedData,
 		},
 	)
