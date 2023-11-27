@@ -7,12 +7,15 @@
 package osmosis
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 )
 
 const (
@@ -66,11 +69,25 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// We need the bonded denom just for the outpost alpha version where the
-	// the only two inputs allowed are aevmos and uosmo.
+	evmosConnection := NewIBCConnection(p.portID, p.channelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosConnection)
+	if err != nil {
+		return nil, err
+	}
 
-	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, p.portID, p.channelID)
+	// Retrieve Osmosis channel and port connected with Evmos transfer app.
+	channel, found := p.channelKeeper.GetChannel(ctx, evmosConnection.PortID, evmosConnection.ChannelID)
+	if !found {
+		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosConnection.PortID, evmosConnection.ChannelID)
+	}
+	osmosisConnection := NewIBCConnection(
+		channel.GetCounterparty().GetPortID(),
+		channel.GetCounterparty().GetChannelID(),
+	)
+
+	// We need the output denom in the memo in the Osmosis representation.
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(inputDenom, bondDenom, evmosConnection, osmosisConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +96,7 @@ func (p Precompile) Swap(
 	// in the Osmosis chain as a recovery address for the contract.
 	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
-		outputDenom,
+		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
 		XCSContract,
 		swapPacketData.SlippagePercentage,
@@ -96,8 +113,8 @@ func (p Precompile) Swap(
 
 	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		evmosConnection.PortID,
+		evmosConnection.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		XCSContract,
