@@ -38,16 +38,29 @@ func (gwd GasWantedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	isLondon := ethCfg.IsLondon(blockHeight)
 
+	if err := CheckGasWanted(ctx, gwd.feeMarketKeeper, tx, isLondon); err != nil {
+		return ctx, err
+	}
+
+	return next(ctx, tx, simulate)
+}
+
+func CheckGasWanted(ctx sdk.Context, feeMarketKeeper FeeMarketKeeper, tx sdk.Tx, isLondon bool) error {
+	if !isLondon {
+		return nil
+	}
+
 	feeTx, ok := tx.(sdk.FeeTx)
-	if !ok || !isLondon {
-		return next(ctx, tx, simulate)
+	if !ok {
+		return nil
 	}
 
 	gasWanted := feeTx.GetGas()
+
 	// return error if the tx gas is greater than the block limit (max gas)
 	blockGasLimit := types.BlockGasLimit(ctx)
 	if gasWanted > blockGasLimit {
-		return ctx, errorsmod.Wrapf(
+		return errorsmod.Wrapf(
 			errortypes.ErrOutOfGas,
 			"tx gas (%d) exceeds block gas limit (%d)",
 			gasWanted,
@@ -55,14 +68,15 @@ func (gwd GasWantedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bo
 		)
 	}
 
-	isBaseFeeEnabled := gwd.feeMarketKeeper.GetBaseFeeEnabled(ctx)
-
-	// Add total gasWanted to cumulative in block transientStore in FeeMarket module
-	if isBaseFeeEnabled {
-		if _, err := gwd.feeMarketKeeper.AddTransientGasWanted(ctx, gasWanted); err != nil {
-			return ctx, errorsmod.Wrapf(err, "failed to add gas wanted to transient store")
-		}
+	isBaseFeeEnabled := feeMarketKeeper.GetBaseFeeEnabled(ctx)
+	if !isBaseFeeEnabled {
+		return nil
 	}
 
-	return next(ctx, tx, simulate)
+	// Add total gasWanted to cumulative in block transientStore in FeeMarket module
+	if _, err := feeMarketKeeper.AddTransientGasWanted(ctx, gasWanted); err != nil {
+		return errorsmod.Wrapf(err, "failed to add gas wanted to transient store")
+	}
+
+	return nil
 }

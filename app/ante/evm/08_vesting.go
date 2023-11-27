@@ -8,6 +8,7 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
@@ -20,9 +21,9 @@ type EthVestingTransactionDecorator struct {
 	ek EVMKeeper
 }
 
-// ethVestingExpenseTracker tracks both the total transaction value to be sent across Ethereum
+// EthVestingExpenseTracker tracks both the total transaction value to be sent across Ethereum
 // messages and the maximum spendable value for a given account.
-type ethVestingExpenseTracker struct {
+type EthVestingExpenseTracker struct {
 	// total is the total value to be spent across a transaction with one or more Ethereum message calls
 	total *big.Int
 	// spendable is the maximum value that can be spent
@@ -48,61 +49,78 @@ func NewEthVestingTransactionDecorator(ak evmtypes.AccountKeeper, bk evmtypes.Ba
 func (vtd EthVestingTransactionDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// Track the total value to be spent by each address across all messages and ensure
 	// that no account can exceed its spendable balance.
-	accountExpenses := make(map[string]*ethVestingExpenseTracker)
+	accountExpenses := make(map[string]*EthVestingExpenseTracker)
 	denom := vtd.ek.GetParams(ctx).EvmDenom
 
 	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest,
-				"invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil),
-			)
+		_, txData, from, err := evmtypes.UnpackEthMsg(msg)
+		if err != nil {
+			return ctx, err
 		}
 
-		acc := vtd.ak.GetAccount(ctx, msgEthTx.GetFrom())
+		value := txData.GetValue()
+
+		acc := vtd.ak.GetAccount(ctx, from)
 		if acc == nil {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
 				"account %s does not exist", acc)
 		}
 
-		// Check that this decorator only applies to clawback vesting accounts
-		clawbackAccount, isClawback := acc.(*vestingtypes.ClawbackVestingAccount)
-		if !isClawback {
-			continue
-		}
-
-		// Check to make sure that the account does not exceed its spendable balances.
-		// This transaction would fail in processing, so we should prevent it from
-		// moving past the AnteHandler.
-		msgValue := msgEthTx.AsTransaction().Value()
-
-		expenses, err := vtd.updateAccountExpenses(ctx, accountExpenses, clawbackAccount, msgValue, denom)
-		if err != nil {
+		if err := CheckVesting(ctx, vtd.bk, acc, accountExpenses, value, denom); err != nil {
 			return ctx, err
-		}
-
-		total := expenses.total
-		spendable := expenses.spendable
-
-		if total.Cmp(spendable) > 0 {
-			return ctx, errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
-				"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendable.String(), total.String(),
-			)
 		}
 	}
 
 	return next(ctx, tx, simulate)
 }
 
-// updateAccountExpenses updates or sets the totalSpend for the given account, then
-// returns the new value.
-func (vtd EthVestingTransactionDecorator) updateAccountExpenses(
+// CheckVesting checks if the account is a clawback vesting account and if so,
+// checks that the account has sufficient unlocked balances to cover the
+// transaction.
+func CheckVesting(
 	ctx sdk.Context,
-	accountExpenses map[string]*ethVestingExpenseTracker,
+	bankKeeper evmtypes.BankKeeper,
+	account authtypes.AccountI,
+	accountExpenses map[string]*EthVestingExpenseTracker,
+	addedExpense *big.Int,
+	denom string,
+) error {
+	clawbackAccount, isClawback := account.(*vestingtypes.ClawbackVestingAccount)
+	if !isClawback {
+		return nil
+	}
+
+	// Check to make sure that the account does not exceed its spendable balances.
+	// This transaction would fail in processing, so we should prevent it from
+	// moving past the AnteHandler.
+
+	expenses, err := UpdateAccountExpenses(ctx, bankKeeper, accountExpenses, clawbackAccount, addedExpense, denom)
+	if err != nil {
+		return err
+	}
+
+	total := expenses.total
+	spendable := expenses.spendable
+
+	if total.Cmp(spendable) > 0 {
+		return errorsmod.Wrapf(vestingtypes.ErrInsufficientUnlockedCoins,
+			"clawback vesting account has insufficient unlocked tokens to execute transaction: %s < %s", spendable.String(), total.String(),
+		)
+	}
+
+	return nil
+}
+
+// UpdateAccountExpenses updates or sets the totalSpend for the given account, then
+// returns the new value.
+func UpdateAccountExpenses(
+	ctx sdk.Context,
+	bankKeeper evmtypes.BankKeeper,
+	accountExpenses map[string]*EthVestingExpenseTracker,
 	account *vestingtypes.ClawbackVestingAccount,
 	addedExpense *big.Int,
 	denom string,
-) (*ethVestingExpenseTracker, error) {
+) (*EthVestingExpenseTracker, error) {
 	address := account.GetAddress()
 	addrStr := address.String()
 
@@ -113,7 +131,7 @@ func (vtd EthVestingTransactionDecorator) updateAccountExpenses(
 		return expenses, nil
 	}
 
-	balance := vtd.bk.GetBalance(ctx, address, denom)
+	balance := bankKeeper.GetBalance(ctx, address, denom)
 
 	// Short-circuit if the balance is zero, since we require a non-zero balance to cover
 	// gas fees at a minimum (these are defined to be non-zero). Note that this check
@@ -134,7 +152,7 @@ func (vtd EthVestingTransactionDecorator) updateAccountExpenses(
 		spendableValue = spendableBalance.Amount.BigInt()
 	}
 
-	expenses = &ethVestingExpenseTracker{
+	expenses = &EthVestingExpenseTracker{
 		total:     addedExpense,
 		spendable: spendableValue,
 	}

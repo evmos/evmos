@@ -87,6 +87,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
+- (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (staking) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (erc20) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
 - (bank) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
@@ -159,7 +160,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ibc) [#1918](https://github.com/evmos/evmos/pull/1918) Upgrade ibc-go to `v7.3.1`, which (among other things) fixes the `DenomTraces` REST endpoint.
 - (gov) [#1981](https://github.com/evmos/evmos/pull/1981) Remove deprecated `cosmos.params.v1beta1/ParameterChangeProposal` handler
 - (revenue) [#2032](https://github.com/evmos/evmos/pull/2032) Fixed the problem that users cannot send transactions with gasPrice of 0 to precompiled contracts.
-
 
 ## [v14.1.0] - 2023-09-25
 
