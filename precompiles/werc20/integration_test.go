@@ -1,7 +1,6 @@
 package werc20_test
 
 import (
-	"fmt"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -529,7 +528,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 			})
 		})
 
-		When("transfering tokens", func() {
+		When("transferring tokens", func() {
 			It("it should transfer tokens to a receiver using `transfer`", func() {
 				// Get receiver address
 				receiver := s.keyring.GetKey(1)
