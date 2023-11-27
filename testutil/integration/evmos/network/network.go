@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -12,15 +13,15 @@ import (
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/types"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
-
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
@@ -37,16 +38,19 @@ type Network interface {
 	GetEIP155ChainID() *big.Int
 
 	// Clients
+	GetERC20Client() erc20types.QueryClient
 	GetEvmClient() evmtypes.QueryClient
+	GetGovClient() govtypes.QueryClient
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
-	// would be require, we should provide an easier way to update the params
-	UpdateRevenueParams(params revtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
+	// would be required, we should provide an easier way to update the params
 	UpdateEvmParams(params evmtypes.Params) error
+	UpdateGovParams(params govtypes.Params) error
+	UpdateInflationParams(params infltypes.Params) error
+	UpdateRevenueParams(params revtypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
