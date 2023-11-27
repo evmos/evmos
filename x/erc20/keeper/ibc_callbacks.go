@@ -101,8 +101,10 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
+	// Truncate to 20 bytes (40 hex characters)
+	truncatedAddr := denomAddr[:20]
 	params := k.evmKeeper.GetParams(ctx)
-	found := params.IsPrecompileRegistered(denomAddr.String())
+	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
 	if !found {
 		// Register a new precompile address
 		newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
