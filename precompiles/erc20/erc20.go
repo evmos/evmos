@@ -155,9 +155,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given methodID corresponds to a transaction or query.
-func (Precompile) IsTransaction(methodID string) bool {
-	switch methodID {
+// IsTransaction checks if the given method name corresponds to a transaction or query.
+func (Precompile) IsTransaction(methodName string) bool {
+	switch methodName {
 	case TransferMethod,
 		TransferFromMethod,
 		auth.ApproveMethod,
