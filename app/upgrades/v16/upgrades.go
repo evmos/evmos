@@ -8,6 +8,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v15/precompiles/p256"
 	"github.com/evmos/evmos/v15/utils"
+	claimskeeper "github.com/evmos/evmos/v15/x/claims/keeper"
 	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
 )
 
@@ -16,6 +17,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
+	ck *claimskeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -26,6 +28,18 @@ func CreateUpgradeHandler(
 			if err := ek.EnablePrecompiles(ctx, p256Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
+		}
+
+		// Step #1 to deprecate claims module:
+		// migrate (desired) params
+		claimsParams := ck.GetParams(ctx)
+		evmParams := ek.GetParams(ctx)
+
+		evmParams.AuthorizedChannels = claimsParams.AuthorizedChannels
+		evmParams.EVMChannels = claimsParams.EVMChannels
+
+		if err := ek.SetParams(ctx, evmParams); err != nil {
+			logger.Error("failed to migrate AuthorizedChannels and EVMChannels params", "error", err.Error())
 		}
 
 		// Leave modules are as-is to avoid running InitGenesis.
