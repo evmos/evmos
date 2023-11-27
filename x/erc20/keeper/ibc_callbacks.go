@@ -102,6 +102,11 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Truncate to 20 bytes (40 hex characters)
+	// TODO: Could we sha256 here and then truncate ?
+	// Hash the bytes using SHA-256
+	// sha256Hash := sha256.Sum256(ibcBytes)
+	// ethAddress := hex.EncodeToString(sha256Hash[:20])
+
 	truncatedAddr := denomAddr[:20]
 	params := k.evmKeeper.GetParams(ctx)
 	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
