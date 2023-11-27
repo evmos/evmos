@@ -65,7 +65,6 @@ var (
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	atomComnCoins      = []cmn.Coin{atomCmnCoin}
 	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: sdk.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
@@ -497,19 +496,6 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 			SourcePort:    ibctesting.TransferPort,
 			SourceChannel: s.transferPath.EndpointA.ChannelID,
 			SpendLimit:    defaultCmnCoins,
-		},
-	}
-
-	defaultManyAllocs = []cmn.ICS20Allocation{
-		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: s.transferPath.EndpointA.ChannelID,
-			SpendLimit:    defaultCmnCoins,
-		},
-		{
-			SourcePort:    ibctesting.TransferPort,
-			SourceChannel: "channel-1",
-			SpendLimit:    atomComnCoins,
 		},
 	}
 }
