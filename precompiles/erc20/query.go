@@ -59,7 +59,7 @@ func (p Precompile) Name(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, convertErrToERC20Error(err)
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	name := strings.ToUpper(string(baseDenom[1])) + baseDenom[2:]
@@ -83,7 +83,7 @@ func (p Precompile) Symbol(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, convertErrToERC20Error(err)
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	symbol := strings.ToUpper(baseDenom[1:])
@@ -104,7 +104,7 @@ func (p Precompile) Decimals(
 	if !found {
 		denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 		if err != nil {
-			return nil, convertErrToERC20Error(err)
+			return nil, ConvertErrToERC20Error(err)
 		}
 
 		// we assume the decimal from the first character of the denomination
@@ -114,7 +114,7 @@ func (p Precompile) Decimals(
 		case "a": // atto (a) -> 18 decimals
 			return method.Outputs.Pack(uint8(18))
 		}
-		return nil, convertErrToERC20Error(fmt.Errorf(
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
 			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
 			denomTrace.BaseDenom,
 		))
@@ -133,14 +133,14 @@ func (p Precompile) Decimals(
 	}
 
 	if !displayFound {
-		return nil, convertErrToERC20Error(fmt.Errorf(
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
 			"display denomination not found for denom: %q",
 			p.tokenPair.Denom,
 		))
 	}
 
 	if decimals > math.MaxUint8 {
-		return nil, convertErrToERC20Error(fmt.Errorf(
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
 			"uint8 overflow: invalid decimals: %d",
 			decimals,
 		))

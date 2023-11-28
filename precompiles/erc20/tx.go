@@ -5,7 +5,9 @@ package erc20
 import (
 	"math/big"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -75,27 +77,45 @@ func (p Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err := msg.ValidateBasic(); err != nil {
+	if err = msg.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	sender := sdk.AccAddress(from.Bytes())
-	spender := sdk.AccAddress(contract.CallerAddress.Bytes()) // aka. grantee
+	isTransferFrom := method.Name == TransferFromMethod
+	spenderAddr := contract.CallerAddress
+	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
 
-	if sender.Equals(spender) {
+	var prevAllowance *big.Int
+	if !isTransferFrom {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
+		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
+		if err != nil {
+			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
+		}
+
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
 
 	if err != nil {
-		err = convertErrToERC20Error(err)
+		err = ConvertErrToERC20Error(err)
 		// This should return an error to avoid the contract from being executed and an event being emitted
 		return nil, err
 	}
 
-	if err := p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
+	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
+		return nil, err
+	}
+
+	// NOTE: if it's a direct transfer, we return here but if used through transferFrom,
+	// we need to emit the approval event with the new allowance.
+	if !isTransferFrom {
+		return method.Outputs.Pack(true)
+	}
+
+	newAllowance := new(big.Int).Sub(prevAllowance, amount)
+	if err = p.EmitApprovalEvent(ctx, stateDB, from, spenderAddr, newAllowance); err != nil {
 		return nil, err
 	}
 
