@@ -31,6 +31,8 @@ func CreateUpgradeHandler(
 		// recovery module is deprecated since it is renamed to "revenue" module
 		logger.Debug("deleting recovery module from version map...")
 		delete(vm, "recovery")
+		logger.Debug("deleting claims module from version map...")
+		delete(vm, "claims")
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
