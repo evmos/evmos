@@ -578,6 +578,66 @@ var _ = Describe("ERC20 Extension -", func() {
 				// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
 				// Entry(" - through erc20 v5 contract", erc20V5Call),
 			)
+
+			DescribeTable("it should transfer funds from the own account in case sufficient approval is set", func(callType CallType) {
+				owner := is.keyring.GetKey(0)
+				receiver := utiltx.GenerateAddress()
+
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+				// NOTE: Here we set up the allowance using the contract calls instead of the helper utils,
+				// because the `MsgGrant` used there doesn't allow the sender to be the same as the spender,
+				// but the ERC20 contracts do.
+				txArgs, approveArgs := is.getTxAndCallArgs(
+					callType, contractsData,
+					auth.ApproveMethod,
+					owner.Addr, transferCoins[0].Amount.BigInt(),
+				)
+
+				approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(
+					callType, contractsData,
+					erc20.TransferFromMethod,
+					owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+				)
+
+				transferCheck := passCheck.WithExpEvents(
+					erc20.EventTypeTransfer,
+					auth.EventTypeApproval,
+				)
+
+				_, _, err = is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				is.ExpectBalancesForContract(
+					callType, contractsData,
+					[]ExpectedBalance{
+						{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+						{address: receiver.Bytes(), expCoins: transferCoins},
+					},
+				)
+
+				// Check that the allowance was removed since we authorized only the transferred amount
+				is.ExpectNoSendAuthzForContract(
+					callType, contractsData,
+					owner.Addr, owner.Addr,
+				)
+			},
+				Entry(" - direct call", directCall),
+				// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
 		})
 	})
 
