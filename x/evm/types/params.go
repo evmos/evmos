@@ -166,6 +166,17 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 	return precompiles
 }
 
+// IsEVMChannel returns true if the channel provided is in the list of
+// EVM channels
+func (p Params) IsEVMChannel(channel string) bool {
+	for _, evmChannel := range p.EVMChannels {
+		if channel == evmChannel {
+			return true
+		}
+	}
+	return false
+}
+
 // IsActivePrecompile returns true if the given precompile address is
 // registered as an active precompile.
 func (p Params) IsActivePrecompile(address string) bool {
