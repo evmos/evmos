@@ -1,9 +1,10 @@
 package bank_test
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/precompiles/bank"
-	"math/big"
 
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
@@ -15,7 +16,7 @@ import (
 
 var _ = Describe("Bank Extension -", func() {
 	var (
-		//BankCallerContractAddr         common.Address
+		// BankCallerContractAddr         common.Address
 		err    error
 		sender keyring.Key
 		amount *big.Int
@@ -30,16 +31,6 @@ var _ = Describe("Bank Extension -", func() {
 		s.SetupTest()
 
 		sender = s.keyring.GetKey(0)
-
-		//WERC20ContractAddr, err = s.factory.DeployContract(
-		//	sender.Priv,
-		//	evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
-		//	factory.ContractDeploymentData{
-		//		Contract:        testdata.WEVMOSContract,
-		//		ConstructorArgs: []interface{}{},
-		//	},
-		//)
-		//Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
@@ -76,6 +67,7 @@ var _ = Describe("Bank Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
 				balanceAfter, err := s.grpcHandler.GetBalance(sender.AccAddr, "xmpl")
+				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
@@ -83,14 +75,48 @@ var _ = Describe("Bank Extension -", func() {
 
 		Context("totalSupply query", func() {
 			It("should return the correct total supply", func() {
-				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, sender.Addr)
-				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
+				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.TotalSupplyMethod)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				var balances []bank.Balance
+				err = s.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				evmosTotalSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
+				Expect(ok).To(BeTrue(), "failed to parse evmos total supply")
+				xmplTotalSupply := amount
+
+				Expect(balances[0].Amount).To(Equal(evmosTotalSupply))
+				Expect(balances[1].Amount).To(Equal(xmplTotalSupply))
 			})
 		})
 
-		Context("supplyOf query", func() {})
+		Context("supplyOf query", func() {
+			It("should return the supply of Evmos", func() {
+				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, s.evmosAddr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+				out, err := s.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				evmosTotalSupply, ok := new(big.Int).SetString("11000000000000000000", 10)
+				Expect(ok).To(BeTrue(), "failed to parse evmos total supply")
+
+				Expect(out[0].(*big.Int)).To(Equal(evmosTotalSupply))
+			})
+
+			It("should return the supply of XMPL", func() {
+				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, s.xmplAddr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				out, err := s.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				Expect(out[0].(*big.Int)).To(Equal(amount))
+			})
+		})
 	})
 })

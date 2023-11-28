@@ -55,7 +55,7 @@ type ContractData struct {
 //
 // In case of a direct call to the precompile, the precompile's ABI is used. Otherwise a caller contract is used.
 func (s *PrecompileTestSuite) getTxAndCallArgs(
-	callType int,
+	callType int, //nolint
 	contractData ContractData,
 	methodName string,
 	args ...interface{},
