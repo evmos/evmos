@@ -185,6 +185,8 @@ func NewMsgEditValidator(args []interface{}) (*stakingtypes.MsgEditValidator, co
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "commissionRate", "int256", args[2])
 	}
 
+	// The default value of a variable declared using a pointer is nil, indicating that the user does not want to modify its value.
+	// If the value passed in by the user is not DoNotModifyCommissionRate, which is -1, it means that the user wants to modify its value.
 	var commissionRate *sdkmath.LegacyDec
 	if commissionRateBigInt.Cmp(big.NewInt(DoNotModifyCommissionRate)) != 0 {
 		cr := sdk.NewDecFromBigIntWithPrec(commissionRateBigInt, sdk.Precision)
