@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
 - (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
 - (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
 
 ### Improvements
 
@@ -116,6 +117,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (werc20) [#2074](https://github.com/evmos/evmos/pull/2074) Add `werc20` EVM Extension acceptance tests with `WEVMOS` contract.
 - (erc20) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC20 contracts.
 - (erc20) [#2080](https://github.com/evmos/evmos/pull/2080) Add ERC20 integration test setup.
+- (erc20) [#2081](https://github.com/evmos/evmos/pull/2081) Add ERC20 query integration tests.
+- (erc20) [#2085](https://github.com/evmos/evmos/pull/2085) Add ERC20 transfer integration tests.
+- (erc20) [#2086](https://github.com/evmos/evmos/pull/2086) Add ERC20 metadata query integration tests.
+- (erc20) [#2088](https://github.com/evmos/evmos/pull/2088) Emit additional approval event in case of `transferFrom`.
 
 ### Bug Fixes
 
