@@ -21,8 +21,6 @@ import (
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
-const ByteNil byte = 0 // constant used in flags to indicate the key field in PageRequest is nil
-
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.
 type EventCreateValidator struct {
 	DelegatorAddress common.Address
@@ -348,7 +346,7 @@ func NewValidatorsRequest(method *abi.Method, args []interface{}) (*stakingtypes
 		return nil, fmt.Errorf("error while unpacking args to ValidatorsInput struct: %s", err)
 	}
 
-	if bytes.Equal(input.PageRequest.Key, []byte{ByteNil}) {
+	if bytes.Equal(input.PageRequest.Key, []byte{cmn.ByteNil}) {
 		input.PageRequest.Key = nil
 	}
 

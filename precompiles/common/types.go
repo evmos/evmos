@@ -30,6 +30,7 @@ var (
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
 	}
+	ByteNil byte = 0 // constant used in flags to indicate the key field in PageRequest is nil
 )
 
 // ICS20Allocation defines the spend limit for a particular port and channel.

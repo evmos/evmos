@@ -361,6 +361,34 @@ func (s *PrecompileTestSuite) TestValidators() {
 			false,
 			"",
 		},
+		{
+			"success - bonded status & pagination w/countTotal & key is []byte{0}",
+			func() []interface{} {
+				return []interface{}{
+					stakingtypes.Bonded.String(),
+					query.PageRequest{
+						Key:        []byte{cmn.ByteNil},
+						Limit:      1,
+						CountTotal: true,
+					},
+				}
+			},
+			func(data []byte) {
+				const expLen = 1
+				var valOut staking.ValidatorsOutput
+				err := s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorsMethod, data)
+				s.Require().NoError(err, "failed to unpack output")
+
+				s.Require().Len(valOut.Validators, expLen)
+				// passed CountTotal = true
+				s.Require().Equal(len(s.validators), int(valOut.PageResponse.Total))
+				s.Require().NotEmpty(valOut.PageResponse.NextKey)
+				s.assertValidatorsResponse(valOut.Validators, expLen)
+			},
+			100000,
+			false,
+			"",
+		},
 	}
 
 	for _, tc := range testCases {
