@@ -393,6 +393,11 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
+					is.ExpectSendAuthzForContract(
+						callType, contractsData,
+						owner.Addr, owner.Addr, transferCoins,
+					)
+
 					// Transfer tokens
 					txArgs, transferArgs := is.getTxAndCallArgs(
 						callType, contractsData,
@@ -422,6 +427,8 @@ var _ = Describe("ERC20 Extension -", func() {
 					)
 
 					// Check that the allowance was removed since we authorized only the transferred amount
+					// FIXME: This is not working for the case where we transfer from the own account
+					// because the allowance is not removed on the SDK side.
 					is.ExpectNoSendAuthzForContract(
 						callType, contractsData,
 						owner.Addr, owner.Addr,
