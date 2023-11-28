@@ -199,11 +199,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				res, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected transfer to succeed")
-
+				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 				is.ExpectBalancesForContract(
 					callType, contractsData,
 					[]ExpectedBalance{
@@ -239,11 +235,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected transfer to succeed")
-
+				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 				is.ExpectBalancesForContract(
 					callType, contractsData,
 					[]ExpectedBalance{
@@ -340,11 +332,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
@@ -410,11 +398,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
@@ -581,11 +565,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
@@ -642,11 +622,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
 					is.ExpectBalancesForContract(
 						callType, contractsData,
 						[]ExpectedBalance{
@@ -930,12 +906,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
-					// Check allowance
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(
 						callType, contractsData,
 						grantee.Addr, granter.Addr, transferCoins,
@@ -963,11 +934,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance contains both spend limits
 					is.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins.Add(tokenCoins...))
 				},
@@ -995,11 +962,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance contains both spend limits
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(tokenCoins...))
 				},
@@ -1025,11 +988,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance contains only the spend limit in network denomination
 					is.expectSendAuthz(grantee.AccAddr, granter.AccAddr, bondCoins)
 				},
@@ -1054,11 +1013,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance was deleted
 					is.expectNoSendAuthz(grantee.AccAddr, granter.AccAddr)
 				},
@@ -1080,11 +1035,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check still no authorization exists
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr)
 				},
@@ -1110,11 +1061,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(
 						callType, contractsData,
 						grantee.Addr, granter.Addr, authzCoins,
@@ -1168,11 +1115,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check allowance
 					is.ExpectSendAuthzForContract(
 						callType, contractsData,
@@ -1196,20 +1139,14 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Set up a second approval which should overwrite the initial one
 					txArgs, approveArgs = is.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, newAmount[0].Amount.BigInt())
 					approveCheck = passCheck.WithExpEvents(auth.EventTypeApproval)
 					_, ethRes, err = is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Check allowance has been updated
 					is.ExpectSendAuthzForContract(
@@ -1235,19 +1172,14 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Approve allowance
 					txArgs, approveArgs = is.getTxAndCallArgs(callType, contractsData, auth.ApproveMethod, grantee.Addr, common.Big0)
 					_, ethRes, err = is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 
 					// Check allowance was deleted from the keeper / is returning 0 for smart contracts
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter)
@@ -1270,11 +1202,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					// Check still no authorization exists
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter)
 				},
@@ -1300,11 +1228,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approvalCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.ApproveMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(
 						callType, contractsData,
 						grantee, granter, authzCoins,
@@ -1543,11 +1467,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins)
 				},
 					Entry(" - direct call", directCall),
@@ -1569,11 +1489,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, contractAddr, authzCoins)
 				},
 					Entry(" - contract call", contractCall),
@@ -1600,11 +1516,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected approve to succeed")
-
+				is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, bondCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
@@ -1656,11 +1568,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected approve to succeed")
-
+				is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Add(increaseCoins...))
 			},
 				Entry(" - direct call", directCall),
@@ -1678,11 +1586,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected approve to succeed")
-
+				is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Sub(decreaseCoins...))
 			},
 				Entry(" - direct call", directCall),
@@ -1711,10 +1615,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				var success bool
-				err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-				Expect(success).To(BeTrue(), "expected approve to succeed")
+				is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 
 				// Check that only the spend limit in the network denomination remains
 				bondDenom := is.network.GetDenom()
@@ -1766,11 +1667,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Add(increaseCoins...))
 				},
 					Entry(" - direct call", directCall),
@@ -1787,11 +1684,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, authzCoins.Sub(decreaseCoins...))
 				},
 					Entry(" - direct call", directCall),
@@ -1806,11 +1699,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr)
 				},
 					Entry(" - direct call", directCall),
@@ -1895,11 +1784,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, increaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins.Add(increaseCoins...))
 				},
 					Entry(" - contract call", contractCall),
@@ -1914,11 +1799,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, increaseArgs, execRevertedCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.IncreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeFalse(), "expected approve to fail")
+					Expect(ethRes).To(BeNil(), "expected empty result")
 
 					// Check that the allowance was not changed
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins)
@@ -1937,11 +1818,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr, authzCoins.Sub(decreaseCoins...))
 				},
 					Entry(" - contract call", contractCall),
@@ -1957,11 +1834,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, decreaseArgs, approveCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-					var success bool
-					err = is.precompile.UnpackIntoInterface(&success, auth.DecreaseAllowanceMethod, ethRes.Ret)
-					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
-					Expect(success).To(BeTrue(), "expected approve to succeed")
-
+					is.ExpectTrueToBeReturned(ethRes, auth.DecreaseAllowanceMethod)
 					is.ExpectNoSendAuthzForContract(callType, contractsData, grantee.Addr, granterAddr)
 				},
 					Entry(" - contract call", contractCall),

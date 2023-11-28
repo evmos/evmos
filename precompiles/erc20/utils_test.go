@@ -431,6 +431,15 @@ func (is *IntegrationTestSuite) ExpectNoSendAuthzForContract(
 	}
 }
 
+// ExpectTrueToBeReturned is a helper function to check that the precompile returns true
+// in the ethereum transaction response.
+func (is *IntegrationTestSuite) ExpectTrueToBeReturned(res *evmtypes.MsgEthereumTxResponse, methodName string) {
+	var ret bool
+	err := is.precompile.UnpackIntoInterface(&ret, methodName, res.Ret)
+	Expect(err).ToNot(HaveOccurred(), "expected no error unpacking")
+	Expect(ret).To(BeTrue(), "expected true to be returned")
+}
+
 // ContractsData is a helper struct to hold the addresses and ABIs for the
 // different contract instances that are subject to testing here.
 type ContractsData struct {
