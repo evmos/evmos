@@ -54,37 +54,37 @@ func AvailablePrecompiles(
 
 	bech32Precompile, err := bech32.NewPrecompile(6000)
 	if err != nil {
-		panic(fmt.Errorf("failed to load bech32 precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate bech32 precompile: %w", err))
 	}
 
 	stakingPrecompile, err := stakingprecompile.NewPrecompile(stakingKeeper, authzKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load staking precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate staking precompile: %w", err))
 	}
 
 	distributionPrecompile, err := distprecompile.NewPrecompile(distributionKeeper, stakingKeeper, authzKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate distribution precompile: %w", err))
 	}
 
 	ibcTransferPrecompile, err := ics20precompile.NewPrecompile(transferKeeper, channelKeeper, authzKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load ICS20 precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
 	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
 	}
 
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load bank precompile: %w", err))
+		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
 	if err != nil {
-		panic(fmt.Errorf("failed to load stride outpost: %w", err))
+		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
 	}
 
 	// Stateless precompiles
