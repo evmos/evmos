@@ -82,11 +82,13 @@ func (p Precompile) transfer(
 	}
 
 	isTransferFrom := method.Name == TransferFromMethod
+	owner := sdk.AccAddress(from.Bytes())
 	spenderAddr := contract.CallerAddress
 	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
+	ownerIsSpender := spender.Equals(owner)
 
 	var prevAllowance *big.Int
-	if !isTransferFrom {
+	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
@@ -114,7 +116,15 @@ func (p Precompile) transfer(
 		return method.Outputs.Pack(true)
 	}
 
-	newAllowance := new(big.Int).Sub(prevAllowance, amount)
+	var newAllowance *big.Int
+	if ownerIsSpender {
+		// NOTE: in case the spender is the owner we emit an approval event with
+		// the maxUint256 value.
+		newAllowance = abi.MaxUint256
+	} else {
+		newAllowance = new(big.Int).Sub(prevAllowance, amount)
+	}
+
 	if err = p.EmitApprovalEvent(ctx, stateDB, from, spenderAddr, newAllowance); err != nil {
 		return nil, err
 	}
