@@ -199,6 +199,34 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
 			errContains: fmt.Sprintf(osmosis.ErrTokenNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+		},
+		// All tests below requires the ibcSetup equal to true because run the query GetChannel
+		// that fails if the IBC connection is not open.
+		{
+			name:   "fail - channel not open",
+			sender: senderAddress,
+			origin: senderAddress,
+			malleate: func() []interface{} {
+				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
+				s.Require().NoError(err, "expected no error during evmos erc20 registration")
+
+				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(portID, channelID, osmosis.OsmosisDenom)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				s.Require().NoError(err, "expected no error during ibc erc20 registration")
+
+				return []interface{}{
+					senderAddress,
+					osmoTokenPair.GetERC20Contract(),
+					evmosTokenPair.GetERC20Contract(),
+					transferAmount,
+					slippagePercentage,
+					windowSeconds,
+					receiver,
+				}
+			},
+			expError:    true,
+			ibcSetup:    false,
+			errContains: fmt.Sprintf("port ID (%s) channel ID (%s)", portID, channelID),
 		}, {
 			name:   "fail - receiver is not a valid bech32",
 			sender: senderAddress,
@@ -222,6 +250,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
+			ibcSetup:    true,
 			errContains: fmt.Sprintf(osmosis.ErrReceiverAddress, "not a valid evmos address"),
 		}, {
 			//  THIS PANICS INSIDE CheckAuthzExists
@@ -247,6 +276,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
+			ibcSetup:    true,
 			errContains: fmt.Sprintf(authorization.ErrAuthzDoesNotExistOrExpired, senderAddress, s.keyring.GetAddr(1)),
 		}, {
 			name:   "fail - ibc channel not open",
@@ -302,7 +332,6 @@ func (s *PrecompileTestSuite) TestSwap() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest()
-
 			contract := vm.NewContract(vm.AccountRef(tc.sender), s.precompile, big.NewInt(0), gas)
 
 			stateDB := s.unitNetwork.GetStateDB()

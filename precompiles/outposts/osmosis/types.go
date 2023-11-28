@@ -264,7 +264,7 @@ func ConvertToOsmosisRepresentation(
 	return denomOsmosis, err
 }
 
-// SwapPacketData is an utility structure used to wrap args reiceived by the
+// SwapPacketData is an utility structure used to wrap args received by the
 // Solidity interface of the Swap function.
 type SwapPacketData struct {
 	Sender             common.Address
