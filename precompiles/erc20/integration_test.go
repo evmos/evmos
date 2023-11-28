@@ -272,8 +272,9 @@ var _ = Describe("ERC20 Extension -", func() {
 				// Transfer tokens
 				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
 
-				_, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes).To(BeNil(), "expected empty result")
 			},
 				// NOTE: we are not passing the direct call here because this test is specific to the contract calls
 				Entry(" - through contract", contractCall),
@@ -296,8 +297,9 @@ var _ = Describe("ERC20 Extension -", func() {
 					erc20.ErrTransferAmountExceedsBalance.Error(),
 				)
 
-				_, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes).To(BeNil(), "expected empty result")
 			},
 				Entry(" - direct call", directCall),
 				// NOTE: we are not passing the contract call here because this test is for direct calls only
@@ -455,8 +457,9 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					insufficientAllowanceCheck := failCheck.WithErrContains(erc20.ErrInsufficientAllowance.Error())
 
-					_, _, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -488,8 +491,9 @@ var _ = Describe("ERC20 Extension -", func() {
 						erc20.ErrInsufficientAllowance.Error(),
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -523,8 +527,9 @@ var _ = Describe("ERC20 Extension -", func() {
 						erc20.ErrTransferAmountExceedsBalance.Error(),
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
 				},
 					Entry(" - direct call", directCall),
 					// NOTE: we are not passing the contract call here because this test case only covers direct calls
@@ -567,8 +572,13 @@ var _ = Describe("ERC20 Extension -", func() {
 						auth.EventTypeApproval,
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
 
 					is.ExpectBalancesForContract(
 						callType, contractsData,
@@ -623,8 +633,13 @@ var _ = Describe("ERC20 Extension -", func() {
 						auth.EventTypeApproval,
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
 
 					is.ExpectBalancesForContract(
 						callType, contractsData,
@@ -669,8 +684,9 @@ var _ = Describe("ERC20 Extension -", func() {
 						from.Addr, receiver, transferCoin.Amount.BigInt(),
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
 				},
 					// NOTE: we are not passing the direct call here because this test is for contract calls only
 					Entry(" - through contract", contractCall),
