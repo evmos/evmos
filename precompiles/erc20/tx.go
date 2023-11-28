@@ -81,12 +81,12 @@ func (p Precompile) transfer(
 		return nil, err
 	}
 
-	sender := sdk.AccAddress(from.Bytes())
+	isTransferFrom := method.Name == TransferFromMethod
 	spenderAddr := contract.CallerAddress
 	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
 
 	var prevAllowance *big.Int
-	if sender.Equals(spender) {
+	if !isTransferFrom {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
@@ -110,7 +110,7 @@ func (p Precompile) transfer(
 
 	// NOTE: if it's a direct transfer, we return here but if used through transferFrom,
 	// we need to emit the approval event with the new allowance.
-	if sender.Equals(spender) {
+	if !isTransferFrom {
 		return method.Outputs.Pack(true)
 	}
 
