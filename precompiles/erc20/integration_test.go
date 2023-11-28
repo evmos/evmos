@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"math/big"
 	"strings"
 	"testing"
 
@@ -175,12 +176,6 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		err = is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
-
-		// FIXME: remove once tests are added
-		_ = contractsData
-		_ = failCheck
-		_ = execRevertedCheck
-		_ = passCheck
 	})
 
 	Context("basic functionality -", func() {
@@ -702,6 +697,220 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 				)
 			})
+		})
+
+		When("querying balance", func() {
+			DescribeTable("it should return an existing balance", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				expBalance := big.NewInt(100)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, expBalance.Int64())}
+
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+
+				// Query the balance
+				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, sender.Addr)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance).To(Equal(expBalance), "expected different balance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should return zero if balance only exists for other tokens", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				address := utiltx.GenerateAddress()
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+
+				// Fund account with some tokens
+				err := is.network.FundAccount(sender.AccAddr, fundCoins)
+				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
+
+				// Query the balance
+				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, address)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance.Int64()).To(BeZero(), "expected zero balance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contracts
+				// only support the actual token denomination and don't know of other balances.
+			)
+
+			DescribeTable("it should return zero if the account does not exist", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				address := utiltx.GenerateAddress()
+
+				// Query the balance
+				txArgs, balancesArgs := is.getTxAndCallArgs(callType, contractsData, erc20.BalanceOfMethod, address)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balance *big.Int
+				err = is.precompile.UnpackIntoInterface(&balance, erc20.BalanceOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(balance.Int64()).To(BeZero(), "expected zero balance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+		})
+
+		When("querying allowance", func() {
+			DescribeTable("it should return an existing allowance", func(callType CallType) {
+				grantee := utiltx.GenerateAddress()
+				granter := is.keyring.GetKey(0)
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+				is.setupSendAuthzForContract(callType, contractsData, grantee, granter.Priv, authzCoins)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, grantee)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance).To(Equal(authzCoins[0].Amount.BigInt()), "expected different allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should return zero if no allowance exists", func(callType CallType) {
+				grantee := is.keyring.GetAddr(1)
+				granter := is.keyring.GetKey(0)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, grantee)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType CallType) {
+				grantee := is.keyring.GetKey(1)
+				granter := is.keyring.GetKey(0)
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+
+				is.setupSendAuthz(grantee.AccAddr, granter.Priv, authzCoins)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, grantee.Addr)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				// NOTE: we are not passing the erc20 contract call here because the ERC20 contract
+				// only supports the actual token denomination and doesn't know of other allowances.
+			)
+
+			DescribeTable("it should return zero if the account does not exist", func(callType CallType) {
+				grantee := utiltx.GenerateAddress()
+				granter := is.keyring.GetKey(0)
+
+				txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, grantee)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var allowance *big.Int
+				err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(allowance.Int64()).To(BeZero(), "expected zero allowance")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+		})
+
+		When("querying total supply", func() {
+			DescribeTable("it should return the total supply", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				expSupply := big.NewInt(100)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, expSupply.Int64())}
+
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+
+				// Query the balance
+				txArgs, supplyArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TotalSupplyMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var supply *big.Int
+				err = is.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(supply).To(Equal(expSupply), "expected different supply")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should return zero if no tokens exist", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				txArgs, supplyArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TotalSupplyMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var supply *big.Int
+				err = is.precompile.UnpackIntoInterface(&supply, erc20.TotalSupplyMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(supply.Int64()).To(BeZero(), "expected zero supply")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
 		})
 	})
 
