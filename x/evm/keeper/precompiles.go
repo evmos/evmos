@@ -17,10 +17,12 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	bankprecompile "github.com/evmos/evmos/v15/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v15/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v15/precompiles/ics20"
 	strideoutpost "github.com/evmos/evmos/v15/precompiles/outposts/stride"
@@ -37,6 +39,7 @@ import (
 func AvailablePrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
 	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -74,17 +77,28 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load vesting precompile: %w", err))
 	}
 
+	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load bank precompile: %w", err))
+	}
+
 	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load stride outpost: %w", err))
 	}
 
+	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
+
+	// Stateful precompiles
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
+	precompiles[bankPrecompile.Address()] = bankPrecompile
+
+	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
 	return precompiles
 }
