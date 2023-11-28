@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
@@ -14,6 +16,8 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -179,9 +183,685 @@ var _ = Describe("ERC20 Extension -", func() {
 		_ = passCheck
 	})
 
-	Context("basic functionality -", func() {})
+	Context("basic functionality -", func() {
+		When("transferring tokens", func() {
+			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsed int64) {
+				sender := is.keyring.GetKey(0)
+				receiver := utiltx.GenerateAddress()
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+				transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
-	Context("metadata query -", func() {})
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoins[0].Amount.BigInt())
+
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+				res, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var success bool
+				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(success).To(BeTrue(), "expected transfer to succeed")
+
+				is.ExpectBalancesForContract(
+					callType, contractsData,
+					[]ExpectedBalance{
+						{address: sender.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+						{address: receiver.Bytes(), expCoins: transferCoins},
+					},
+				)
+
+				Expect(res.GasUsed).To(Equal(expGasUsed), "expected different gas used")
+			},
+				// FIXME: The gas used on the precompile is much higher than on the EVM
+				Entry(" - direct call", directCall, int64(3_021_572)),
+				Entry(" - through erc20 contract", erc20Call, int64(54_381)),
+				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_113)),
+			)
+
+			DescribeTable("it should transfer tokens to an existing address", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				receiver := is.keyring.GetKey(1)
+				fundCoinsSender := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+				fundCoinsReceiver := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 500)}
+				transferCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
+
+				// Fund accounts with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoinsSender)
+				is.fundWithTokens(callType, contractsData, receiver.Addr, fundCoinsReceiver)
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver.Addr, transferCoin.Amount.BigInt())
+
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var success bool
+				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(success).To(BeTrue(), "expected transfer to succeed")
+
+				is.ExpectBalancesForContract(
+					callType, contractsData,
+					[]ExpectedBalance{
+						{address: sender.AccAddr, expCoins: fundCoinsSender.Sub(transferCoin)},
+						{address: receiver.AccAddr, expCoins: fundCoinsReceiver.Add(transferCoin)},
+					},
+				)
+			},
+				Entry(" - direct call", directCall),
+				// NOTE: we are not passing the contract call here because transferring using a caller contract
+				// is only supported through transferFrom method.
+				Entry(" - through erc20 contract", erc20Call),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+
+			DescribeTable("it should return an error trying to call from a smart contract", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				receiver := is.keyring.GetAddr(1)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+				transferCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
+
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes).To(BeNil(), "expected empty result")
+			},
+				// NOTE: we are not passing the direct call here because this test is specific to the contract calls
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+			)
+
+			DescribeTable("it should return an error if the sender does not have enough tokens", func(callType CallType) {
+				sender := is.keyring.GetKey(0)
+				receiver := is.keyring.GetAddr(1)
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 200)}
+				transferCoin := sdk.NewInt64Coin(is.tokenDenom, 300)
+
+				// Fund account with some tokens
+				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+
+				// Transfer tokens
+				txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferMethod, receiver, transferCoin.Amount.BigInt())
+
+				insufficientBalanceCheck := failCheck.WithErrContains(
+					erc20.ErrTransferAmountExceedsBalance.Error(),
+				)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+				Expect(ethRes).To(BeNil(), "expected empty result")
+			},
+				Entry(" - direct call", directCall),
+				// NOTE: we are not passing the contract call here because this test is for direct calls only
+
+				Entry(" - through erc20 contract", erc20Call),
+				// // TODO: The ERC20 V5 contract is raising the ERC-6093 standardized error which we are not as of yet
+				// Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+		})
+
+		When("transferring tokens from another account", func() {
+			Context("in a direct call to the token contract", func() {
+				DescribeTable("it should transfer tokens from another account with a sufficient approval set", func(callType CallType) {
+					owner := is.keyring.GetKey(0)
+					spender := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+					// Set allowance
+					is.setupSendAuthzForContract(callType, contractsData, spender.Addr, owner.Priv, transferCoins)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+					)
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+						auth.EventTypeApproval,
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
+
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was removed since we authorized only the transferred amount
+					is.ExpectNoSendAuthzForContract(
+						callType, contractsData,
+						spender.Addr, owner.Addr,
+					)
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test is for direct calls only
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should transfer funds from the own account in case sufficient approval is set", func(callType CallType) {
+					owner := is.keyring.GetKey(0)
+					receiver := utiltx.GenerateAddress()
+
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+					// NOTE: Here we set up the allowance using the contract calls instead of the helper utils,
+					// because the `MsgGrant` used there doesn't allow the sender to be the same as the spender,
+					// but the ERC20 contracts do.
+					txArgs, approveArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						auth.ApproveMethod,
+						owner.Addr, transferCoins[0].Amount.BigInt(),
+					)
+
+					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					is.ExpectSendAuthzForContract(
+						callType, contractsData,
+						owner.Addr, owner.Addr, transferCoins,
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+					)
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+						auth.EventTypeApproval,
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
+
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was removed since we authorized only the transferred amount
+					// FIXME: This is not working for the case where we transfer from the own account
+					// because the allowance is not removed on the SDK side.
+					is.ExpectNoSendAuthzForContract(
+						callType, contractsData,
+						owner.Addr, owner.Addr,
+					)
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error when the spender does not have enough allowance", func(callType CallType) {
+					owner := is.keyring.GetKey(0)
+					spender := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+					transferCoin := sdk.NewInt64Coin(is.tokenDenom, 200)
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+					// Set allowance
+					is.setupSendAuthzForContract(
+						callType, contractsData,
+						spender.Addr, owner.Priv, authzCoins,
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoin.Amount.BigInt(),
+					)
+
+					insufficientAllowanceCheck := failCheck.WithErrContains(erc20.ErrInsufficientAllowance.Error())
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+
+					// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+					// Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error if there is no allowance set", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					from := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, from.Addr, fundCoins)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						from.Addr, receiver, transferCoin.Amount.BigInt(),
+					)
+
+					insufficientAllowanceCheck := failCheck.WithErrContains(
+						erc20.ErrInsufficientAllowance.Error(),
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientAllowanceCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+
+					// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+					// Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+
+				DescribeTable("it should return an error if the sender does not have enough tokens", func(callType CallType) {
+					sender := is.keyring.GetKey(0)
+					from := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 200)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, from.Addr, fundCoins)
+
+					// Set allowance
+					is.setupSendAuthzForContract(
+						callType, contractsData,
+						sender.Addr, from.Priv, transferCoins,
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(callType, contractsData, erc20.TransferFromMethod, from.Addr, receiver, transferCoins[0].Amount.BigInt())
+
+					insufficientBalanceCheck := failCheck.WithErrContains(
+						erc20.ErrTransferAmountExceedsBalance.Error(),
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, insufficientBalanceCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					Entry(" - direct call", directCall),
+					// NOTE: we are not passing the contract call here because this test case only covers direct calls
+
+					Entry(" - through erc20 contract", erc20Call),
+
+					// TODO: the ERC20 V5 contract is raising the ERC-6093 standardized error which we are not using as of yet
+					// Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+			})
+
+			Context("in a call from another smart contract to the token contract", func() {
+				DescribeTable("it should transfer tokens with a sufficient approval set", func(callType CallType) {
+					owner := is.keyring.GetKey(0)
+					receiver := utiltx.GenerateAddress()
+					fundCoin := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					// NOTE: the spender will be the contract address
+					spender := contractsData.GetContractData(callType).Address
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoin)
+
+					// Set allowance
+					is.setupSendAuthzForContract(
+						callType, contractsData,
+						spender, owner.Priv, transferCoins,
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+					)
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+						auth.EventTypeApproval,
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
+
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoin.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was removed since we authorized only the transferred amount
+					is.ExpectNoSendAuthzForContract(
+						callType, contractsData,
+						spender, owner.Addr,
+					)
+				},
+					// Entry(" - direct call", directCall),
+					Entry(" - through contract", contractCall),
+					// NOTE: we are not passing the erc20 contract call here because this is supposed to
+					// test external contract calls
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should transfer funds with a sufficient allowance and triggered from another account", func(callType CallType) {
+					msgSender := is.keyring.GetKey(0)
+					owner := is.keyring.GetKey(1)
+					receiver := utiltx.GenerateAddress()
+
+					// NOTE: the spender will be the contract address
+					spender := contractsData.GetContractData(callType).Address
+
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+					// Set allowance
+					is.setupSendAuthzForContract(
+						callType, contractsData,
+						spender, owner.Priv, transferCoins,
+					)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+					)
+
+					transferCheck := passCheck.WithExpEvents(
+						erc20.EventTypeTransfer,
+						auth.EventTypeApproval,
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
+
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was removed since we authorized only the transferred amount
+					is.ExpectNoSendAuthzForContract(
+						callType, contractsData,
+						spender, owner.Addr,
+					)
+				},
+					// NOTE: we are not passing the direct call here because this test is specific to the contract calls
+
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+
+				DescribeTable("it should return an error when the spender does not have enough allowance", func(callType CallType) {
+					from := is.keyring.GetKey(0)
+					receiver := utiltx.GenerateAddress()
+					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 400)}
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+					transferCoin := sdk.NewInt64Coin(is.tokenDenom, 300)
+
+					// NOTE: the spender will be the contract address
+					spender := contractsData.GetContractData(callType).Address
+
+					// Fund account with some tokens
+					is.fundWithTokens(callType, contractsData, from.Addr, fundCoins)
+
+					// Set allowance
+					is.setupSendAuthzForContract(callType, contractsData, spender, from.Priv, authzCoins)
+
+					// Transfer tokens
+					txArgs, transferArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						erc20.TransferFromMethod,
+						from.Addr, receiver, transferCoin.Amount.BigInt(),
+					)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(from.Priv, txArgs, transferArgs, execRevertedCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+				},
+					// NOTE: we are not passing the direct call here because this test is for contract calls only
+					Entry(" - through contract", contractCall),
+					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
+				)
+			})
+		})
+	})
+
+	Context("metadata query -", func() {
+		Context("for a token without registered metadata", func() {
+			BeforeEach(func() {
+				// Deploy ERC20NoMetadata contract for this test
+				erc20NoMetadataAddr, err := is.factory.DeployContract(
+					is.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: testdata.ERC20NoMetadataContract,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				// NOTE: update the address but leave the ABI as it is, so that the ABI includes
+				// the metadata methods but the contract doesn't have them.
+				contractsData.contractData[erc20Call] = ContractData{
+					Address: erc20NoMetadataAddr,
+					ABI:     contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				}
+			})
+
+			DescribeTable("querying the name should return an error", func(callType CallType) {
+				txArgs, nameArgs := is.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, nameArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+
+			DescribeTable("querying the symbol should return an error", func(callType CallType) {
+				txArgs, symbolArgs := is.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, symbolArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+
+			DescribeTable("querying the decimals should return an error", func(callType CallType) {
+				txArgs, decimalsArgs := is.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, decimalsArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+		})
+
+		Context("for a token with available metadata", func() {
+			const (
+				denom       = "axmpl"
+				expSymbol   = "Xmpl"
+				expDecimals = uint8(18)
+			)
+
+			var (
+				erc20Addr common.Address
+				expName   string
+			)
+
+			BeforeEach(func() {
+				erc20Addr = contractsData.GetContractData(erc20V5Call).Address
+				expName = erc20types.CreateDenom(erc20Addr.String())
+
+				// Register ERC20 token pair for this test
+				tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+					Address:      erc20Addr,
+					Denom:        denom,
+					ProposerPriv: is.keyring.GetPrivKey(0),
+				})
+				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+
+				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
+				is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
+
+				// update this in the global contractsData
+				contractsData.contractData[directCall] = ContractData{
+					Address: is.precompile.Address(),
+					ABI:     is.precompile.ABI,
+				}
+
+				// Deploy contract calling the ERC20 precompile
+				callerAddr, err := is.factory.DeployContract(
+					is.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: testdata.ERC20AllowanceCallerContract,
+						ConstructorArgs: []interface{}{
+							is.precompile.Address(),
+						},
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				contractsData.contractData[contractCall] = ContractData{
+					Address: callerAddr,
+					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+				}
+			})
+
+			DescribeTable("querying the name should return the name", func(callType CallType) {
+				txArgs, nameArgs := is.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, nameArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var name string
+				err = is.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(name).To(Equal(expName), "expected different name")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+
+			DescribeTable("querying the symbol should return the symbol", func(callType CallType) {
+				txArgs, symbolArgs := is.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, symbolArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var symbol string
+				err = is.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(symbol).To(Equal(expSymbol), "expected different symbol")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+
+			DescribeTable("querying the decimals should return the decimals", func(callType CallType) {
+				txArgs, decimalsArgs := is.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, decimalsArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var decimals uint8
+				err = is.precompile.UnpackIntoInterface(&decimals, erc20.DecimalsMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(decimals).To(Equal(expDecimals), "expected different decimals")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+		})
+	})
 
 	Context("allowance adjustments -", func() {})
 })
