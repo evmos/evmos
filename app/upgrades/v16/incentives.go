@@ -32,7 +32,7 @@ func BurnUsageIncentivesPool(ctx sdk.Context, bk bankkeeper.Keeper) error {
 func UpdateInflationParams(ctx sdk.Context, ik inflationkeeper.Keeper) error {
 	params := ik.GetParams(ctx)
 	params.InflationDistribution.CommunityPool = sdkmath.LegacyOneDec().Sub(params.InflationDistribution.StakingRewards)
-	params.InflationDistribution.UsageIncentives = sdkmath.LegacyZeroDec()
+	params.InflationDistribution.UsageIncentives = sdkmath.LegacyZeroDec() //nolint:staticcheck,nolintlint
 
 	if err := params.Validate(); err != nil {
 		return err

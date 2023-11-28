@@ -59,7 +59,7 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() { //nolint:dupl
+			Context("after an epoch ends", func() {
 				BeforeEach(func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
