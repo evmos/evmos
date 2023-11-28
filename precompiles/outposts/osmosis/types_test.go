@@ -427,26 +427,26 @@ func TestValidateInputOutput(t *testing.T) {
 func TestCreateOnFailedDeliveryField(t *testing.T) {
 	t.Parallel()
 
-	receiver := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
+	address := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
 	testCases := []struct {
-		name     string
-		receiver string
-		expRes   string
+		name    string
+		address string
+		expRes  string
 	}{
 		{
-			name:     "pass - receiver osmo bech32",
-			receiver: receiver,
-			expRes:   receiver,
+			name:    "receiver osmo bech32",
+			address: address,
+			expRes:  address,
 		},
 		{
-			name:     "pass - receiver osmo bech32",
-			receiver: "receiver",
-			expRes:   osmosisoutpost.DefaultOnFailedDelivery,
+			name:    "use default do_nothing",
+			address: "not_bech_32",
+			expRes:  osmosisoutpost.DefaultOnFailedDelivery,
 		},
 		{
-			name:     "pass - convert receiver to osmo bech32",
-			receiver: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
-			expRes:   receiver,
+			name:    "convert receiver to osmo bech32",
+			address: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			expRes:  address,
 		},
 	}
 
@@ -456,8 +456,7 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.receiver)
-
+			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.address)
 			require.Contains(t, onFailedDelivery, tc.expRes)
 		})
 	}
