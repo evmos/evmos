@@ -24,7 +24,6 @@ import (
 
 type EIP712TxArgs struct {
 	CosmosTxArgs       CosmosTxArgs
-	UseLegacyExtension bool
 	UseLegacyTypedData bool
 }
 
@@ -39,12 +38,6 @@ type signatureV2Args struct {
 	pubKey    cryptotypes.PubKey
 	signature []byte
 	nonce     uint64
-}
-
-type legacyWeb3ExtensionArgs struct {
-	feePayer  string
-	chainID   uint64
-	signature []byte
 }
 
 // CreateEIP712CosmosTx creates a cosmos tx for typed data according to EIP712.
@@ -122,7 +115,6 @@ func PrepareEIP712CosmosTx(
 		appEvmos,
 		args,
 		builder,
-		chainIDNum,
 		typedData,
 	)
 }
@@ -134,7 +126,6 @@ func signCosmosEIP712Tx(
 	appEvmos *app.Evmos,
 	args EIP712TxArgs,
 	builder authtx.ExtensionOptionsTxBuilder,
-	chainID uint64,
 	data apitypes.TypedData,
 ) (client.TxBuilder, error) {
 	priv := args.CosmosTxArgs.Priv
@@ -157,25 +148,12 @@ func signCosmosEIP712Tx(
 	}
 	signature[crypto.RecoveryIDOffset] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
 
-	if args.UseLegacyExtension {
-		if err := setBuilderLegacyWeb3Extension(
-			builder,
-			legacyWeb3ExtensionArgs{
-				feePayer:  from.String(),
-				chainID:   chainID,
-				signature: signature,
-			}); err != nil {
-			return nil, err
-		}
-	}
-
 	sigsV2 := getTxSignatureV2(
 		signatureV2Args{
 			pubKey:    pubKey,
 			signature: signature,
 			nonce:     nonce,
 		},
-		args.UseLegacyExtension,
 	)
 
 	err = builder.SetSignatures(sigsV2)
@@ -211,35 +189,9 @@ func createTypedData(args typedDataArgs, useLegacy bool) (apitypes.TypedData, er
 	return eip712.WrapTxToTypedData(args.chainID, args.data)
 }
 
-// setBuilderLegacyWeb3Extension creates a legacy ExtensionOptionsWeb3Tx and
-// appends it to the builder options.
-func setBuilderLegacyWeb3Extension(builder authtx.ExtensionOptionsTxBuilder, args legacyWeb3ExtensionArgs) error {
-	option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionsWeb3Tx{
-		FeePayer:         args.feePayer,
-		TypedDataChainID: args.chainID,
-		FeePayerSig:      args.signature,
-	})
-	if err != nil {
-		return err
-	}
-
-	builder.SetExtensionOptions(option)
-	return nil
-}
-
 // getTxSignatureV2 returns the SignatureV2 object corresponding to
 // the arguments, using the legacy implementation as needed.
-func getTxSignatureV2(args signatureV2Args, useLegacyExtension bool) signing.SignatureV2 {
-	if useLegacyExtension {
-		return signing.SignatureV2{
-			PubKey: args.pubKey,
-			Data: &signing.SingleSignatureData{
-				SignMode: signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON,
-			},
-			Sequence: args.nonce,
-		}
-	}
-
+func getTxSignatureV2(args signatureV2Args) signing.SignatureV2 {
 	// Must use SIGN_MODE_DIRECT, since Amino has some trouble parsing certain Any values from a SignDoc
 	// with the Legacy EIP-712 TypedData encodings. This is not an issue with the latest encoding.
 	return signing.SignatureV2{
