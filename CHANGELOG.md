@@ -118,6 +118,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC20 contracts.
 - (erc20) [#2080](https://github.com/evmos/evmos/pull/2080) Add ERC20 integration test setup.
 - (erc20) [#2081](https://github.com/evmos/evmos/pull/2081) Add ERC20 query integration tests.
+- (erc20) [#2083](https://github.com/evmos/evmos/pull/2083) Add integration tests for ERC20 allowance transactions.
 - (erc20) [#2085](https://github.com/evmos/evmos/pull/2085) Add ERC20 transfer integration tests.
 - (erc20) [#2086](https://github.com/evmos/evmos/pull/2086) Add ERC20 metadata query integration tests.
 - (erc20) [#2088](https://github.com/evmos/evmos/pull/2088) Emit additional approval event in case of `transferFrom`.
