@@ -346,7 +346,7 @@ func NewValidatorsRequest(method *abi.Method, args []interface{}) (*stakingtypes
 		return nil, fmt.Errorf("error while unpacking args to ValidatorsInput struct: %s", err)
 	}
 
-	if bytes.Equal(input.PageRequest.Key, []byte{cmn.ByteNil}) {
+	if bytes.Equal(input.PageRequest.Key, []byte{0}) {
 		input.PageRequest.Key = nil
 	}
 
