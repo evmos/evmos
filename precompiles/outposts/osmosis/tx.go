@@ -21,8 +21,6 @@ import (
 const (
 	// SwapMethod is the name of the swap method.
 	SwapMethod = "swap"
-	// SwapAction is the action name needed in the memo field.
-	SwapAction = "Swap"
 )
 
 const (
@@ -106,7 +104,7 @@ func (p Precompile) Swap(
 		NextMemo,
 	)
 
-	err = packet.Memo.Validate()
+	err = packet.Validate()
 	if err != nil {
 		return nil, err
 	}
