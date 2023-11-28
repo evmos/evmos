@@ -42,6 +42,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
 - (ante) [#2078](https://github.com/evmos/evmos/pull/2078) depecrate legacy EIP712 ante handler
 
+### State Machine Breaking
+
+- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
+
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
