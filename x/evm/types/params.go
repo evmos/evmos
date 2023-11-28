@@ -60,7 +60,6 @@ func NewParams(
 	config ChainConfig,
 	extraEIPs []int64,
 	activePrecompiles,
-	authorizedChannels,
 	evmChannels []string,
 ) Params {
 	return Params{
