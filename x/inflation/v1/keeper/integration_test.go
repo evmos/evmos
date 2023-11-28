@@ -73,7 +73,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
-					Expect(actual.IsZero()).To(BeTrue())
+					Expect(actual).To(BeZero())
 					Expect(actual.Amount).To(Equal(expected))
 				})
 
