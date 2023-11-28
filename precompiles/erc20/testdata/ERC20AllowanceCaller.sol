@@ -13,19 +13,16 @@ contract ERC20AllowanceCaller {
         token = erc20Allowance.IERC20MetadataAllowance(tokenAddress);
     }
 
-    function transfer(address to, uint256 amount) external {
-        bool success = token.transfer(to, amount);
-        require(success, "ERC20Caller: transfer failed");
+    function transfer(address to, uint256 amount) external returns (bool) {
+        return token.transfer(to, amount);
     }
 
-    function transferFrom(address from, address to, uint256 amount) external {
-        bool success = token.transferFrom(from, to, amount);
-        require(success, "ERC20Caller: transferFrom failed");
+    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+        return token.transferFrom(from, to, amount);
     }
 
-    function approve(address spender, uint256 amount) external {
-        bool success = token.approve(spender, amount);
-        require(success, "ERC20Caller: approve failed");
+    function approve(address spender, uint256 amount) external returns (bool) {
+        return token.approve(spender, amount);
     }
 
     function allowance(address owner, address spender) external view returns (uint256) {
@@ -52,13 +49,11 @@ contract ERC20AllowanceCaller {
         return token.decimals();
     }
 
-    function increaseAllowance(address spender, uint256 addedValue) external {
-        bool success = token.increaseAllowance(spender, addedValue);
-        require(success, "ERC20Caller: increaseAllowance failed");
+    function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
+        return token.increaseAllowance(spender, addedValue);
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) external {
-        bool success = token.decreaseAllowance(spender, subtractedValue);
-        require(success, "ERC20Caller: decreaseAllowance failed");
+    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
+        return token.decreaseAllowance(spender, subtractedValue);
     }
 }
