@@ -45,6 +45,19 @@ func (s *PrecompileTestSuite) setupSendAuthz(
 	s.Require().NoError(err, "failed to set up send authorization")
 }
 
+func (is *IntegrationTestSuite) setupSendAuthz(
+	grantee sdk.AccAddress, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+) {
+	err := setupSendAuthz(
+		is.network,
+		is.factory,
+		grantee,
+		granterPriv,
+		amount,
+	)
+	Expect(err).ToNot(HaveOccurred(), "failed to set up send authorization")
+}
+
 func setupSendAuthz(
 	network commonnetwork.Network,
 	factory commonfactory.TxFactory,
@@ -77,6 +90,54 @@ func setupSendAuthz(
 	}
 
 	return nil
+}
+
+// setupSendAuthzForContract is a helper function which executes an approval
+// for the given contract data.
+//
+// If:
+//   - the classic ERC20 contract is used, it calls the `approve` method on the contract.
+//   - in other cases, it sends a `MsgGrant` to set up the authorization.
+func (is *IntegrationTestSuite) setupSendAuthzForContract(
+	callType CallType, contractData ContractsData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+) {
+	Expect(amount).To(HaveLen(1), "expected only one coin")
+	Expect(amount[0].Denom).To(Equal(is.tokenDenom),
+		"this test utility only works with the token denom in the context of these integration tests",
+	)
+
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
+		is.setupSendAuthz(grantee.Bytes(), granterPriv, amount)
+	case slices.Contains(erc20CallTypes, callType):
+		is.setupSendAuthzForERC20(callType, contractData, grantee, granterPriv, amount)
+	default:
+		panic("unknown contract call type")
+	}
+}
+
+// setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
+// a given grantee and granter combination for a given amount.
+func (is *IntegrationTestSuite) setupSendAuthzForERC20(
+	callType CallType, contractData ContractsData, grantee common.Address, granterPriv cryptotypes.PrivKey, amount sdk.Coins,
+) {
+	if callType == erc20V5CallerCall {
+		// NOTE: When using the ERC20 caller contract, we must still approve from the actual ERC20 v5 contract.
+		callType = erc20V5Call
+	}
+
+	abiEvents := contractData.GetContractData(callType).ABI.Events
+
+	txArgs, callArgs := is.getTxAndCallArgs(callType, contractData, auth.ApproveMethod, grantee, amount.AmountOf(is.tokenDenom).BigInt())
+
+	approveCheck := testutil.LogCheckArgs{
+		ABIEvents: abiEvents,
+		ExpEvents: []string{auth.EventTypeApproval},
+		ExpPass:   true,
+	}
+
+	_, _, err := is.factory.CallContractAndCheckLogs(granterPriv, txArgs, callArgs, approveCheck)
+	Expect(err).ToNot(HaveOccurred(), "failed to execute approve")
 }
 
 // requireOut is a helper utility to reduce the amount of boilerplate code in the query tests.
@@ -390,6 +451,34 @@ func (cd ContractsData) GetContractData(callType CallType) ContractData {
 		panic(fmt.Sprintf("no contract data found for call type: %d", callType))
 	}
 	return data
+}
+
+// fundWithTokens is a helper function for the scope of the ERC20 integration tests.
+// Depending on the passed call type, it funds the given address with tokens either
+// using the Bank module or by minting straight on the ERC20 contract.
+func (is *IntegrationTestSuite) fundWithTokens(
+	callType CallType,
+	contractData ContractsData,
+	receiver common.Address,
+	fundCoins sdk.Coins,
+) {
+	Expect(fundCoins).To(HaveLen(1), "expected only one coin")
+	Expect(fundCoins[0].Denom).To(Equal(is.tokenDenom),
+		"this helper function only supports funding with the token denom in the context of these integration tests",
+	)
+
+	var err error
+
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
+		err = is.network.FundAccount(receiver.Bytes(), fundCoins)
+	case slices.Contains(erc20CallTypes, callType):
+		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
+	default:
+		panic("unknown contract call type")
+	}
+
+	Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 }
 
 // MintERC20 is a helper function to mint tokens on the ERC20 contract.
