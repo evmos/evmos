@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
 - (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
 - (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
 
 ### Improvements
 
