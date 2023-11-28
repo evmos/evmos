@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v16
 
 import (
@@ -26,8 +27,8 @@ func BurnUsageIncentivesPool(ctx sdk.Context, bk bankkeeper.Keeper) error {
 	return bk.BurnCoins(ctx, authtypes.FeeCollectorName, incentivesPoolBalance)
 }
 
-// UpdateInflationParams updates the inflation params to and sets the usage incentive allocation
-// to zero.
+// UpdateInflationParams updates the inflation params to adjust the inflation distribution while removing
+// the usage incentive allocation portion of it.
 func UpdateInflationParams(ctx sdk.Context, ik inflationkeeper.Keeper) error {
 	params := ik.GetParams(ctx)
 	params.InflationDistribution.CommunityPool = sdkmath.LegacyOneDec().Sub(params.InflationDistribution.StakingRewards)
