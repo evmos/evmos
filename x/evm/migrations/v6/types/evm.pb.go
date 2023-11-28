@@ -686,14 +686,14 @@ func (m *V5TraceConfig) GetTracerJsonConfig() string {
 }
 
 func init() {
-	proto.RegisterType((*V5Params)(nil), "ethermint.evm.v1.Params")
-	proto.RegisterType((*V5ChainConfig)(nil), "ethermint.evm.v1.ChainConfig")
-	proto.RegisterType((*V5State)(nil), "ethermint.evm.v1.State")
-	proto.RegisterType((*V5TransactionLogs)(nil), "ethermint.evm.v1.TransactionLogs")
-	proto.RegisterType((*V5Log)(nil), "ethermint.evm.v1.Log")
-	proto.RegisterType((*V5TxResult)(nil), "ethermint.evm.v1.TxResult")
-	proto.RegisterType((*V5AccessTuple)(nil), "ethermint.evm.v1.AccessTuple")
-	proto.RegisterType((*V5TraceConfig)(nil), "ethermint.evm.v1.TraceConfig")
+	proto.RegisterType((*V5Params)(nil), "ethermint.evm.v1.V5Params")
+	proto.RegisterType((*V5ChainConfig)(nil), "ethermint.evm.v1.V5ChainConfig")
+	proto.RegisterType((*V5State)(nil), "ethermint.evm.v1.V5State")
+	proto.RegisterType((*V5TransactionLogs)(nil), "ethermint.evm.v1.V5TransactionLogs")
+	proto.RegisterType((*V5Log)(nil), "ethermint.evm.v1.V5Log")
+	proto.RegisterType((*V5TxResult)(nil), "ethermint.evm.v1.V5TxResult")
+	proto.RegisterType((*V5AccessTuple)(nil), "ethermint.evm.v1.V5AccessTuple")
+	proto.RegisterType((*V5TraceConfig)(nil), "ethermint.evm.v1.V5TraceConfig")
 }
 
 func init() { proto.RegisterFile("ethermint/evm/v1/evm.proto", fileDescriptor_d21ecc92c8c8583e) }
