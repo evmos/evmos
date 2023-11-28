@@ -1,7 +1,6 @@
 package bank_test
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/precompiles/bank"
 	"math/big"
@@ -72,20 +71,24 @@ var _ = Describe("Bank Extension -", func() {
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				balanceAfter, err := s.grpcHandler.GetBalance(sender.AccAddr, "xmpl")
-				fmt.Println(balanceAfter)
-				fmt.Println(ethRes.GasUsed)
-
 				var balances []bank.Balance
 				err = s.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				fmt.Println(balances)
+				balanceAfter, err := s.grpcHandler.GetBalance(sender.AccAddr, "xmpl")
 
+				Expect(sdk.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
 		})
 
-		Context("totalSupply query", func() {})
+		Context("totalSupply query", func() {
+			It("should return the correct total supply", func() {
+				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, sender.Addr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+			})
+		})
 
 		Context("supplyOf query", func() {})
 

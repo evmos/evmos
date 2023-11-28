@@ -78,6 +78,9 @@ func AvailablePrecompiles(
 	}
 
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to load bank precompile: %w", err))
+	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
 	if err != nil {
