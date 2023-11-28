@@ -14,6 +14,11 @@ import (
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
+
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/ginkgo/v2"
+	//nolint:revive // dot imports are fine for Ginkgo
+	. "github.com/onsi/gomega"
 )
 
 var s *PrecompileTestSuite
@@ -39,6 +44,9 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
+
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Bank Extension Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
@@ -92,6 +100,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		Symbol:  "XMPL",
 		Display: "xmpl",
 	}
+
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 
