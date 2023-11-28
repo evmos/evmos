@@ -7,6 +7,8 @@
 package osmosis
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -95,7 +97,7 @@ func (p Precompile) Swap(
 	}
 
 	// We have to compute the receiver address on the Osmosis chain to have a recovery address.
-	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
+	onFailedDelivery := CreateOnFailedDeliveryField(sdk.AccAddress(sender.Bytes()).String())
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
