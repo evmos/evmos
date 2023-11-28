@@ -82,7 +82,6 @@ func (s *PrecompileTestSuite) TestTransfer() {
 		},
 	}
 
-	//nolint: dupl
 	for _, tc := range testcases {
 		tc := tc
 		s.Run(tc.name, func() {
@@ -225,7 +224,6 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 		},
 	}
 
-	//nolint: dupl
 	for _, tc := range testcases {
 		tc := tc
 		s.Run(tc.name, func() {
