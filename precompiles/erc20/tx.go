@@ -75,13 +75,12 @@ func (p Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err = msg.ValidateBasic(); err != nil {
+	if err := msg.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
 	sender := sdk.AccAddress(from.Bytes())
-	spenderAddr := contract.CallerAddress
-	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
+	spender := sdk.AccAddress(contract.CallerAddress.Bytes()) // aka. grantee
 
 	if sender.Equals(spender) {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
@@ -96,22 +95,7 @@ func (p Precompile) transfer(
 		return nil, err
 	}
 
-	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
-		return nil, err
-	}
-
-	// NOTE: if it's a direct transfer, we return here but if used through transferFrom,
-	// we need to emit the approval event with the new allowance.
-	if sender.Equals(spender) {
-		return method.Outputs.Pack(true)
-	}
-
-	_, _, newAllowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
-	if err != nil {
-		return nil, err
-	}
-
-	if err = p.EmitApprovalEvent(ctx, stateDB, from, spenderAddr, newAllowance); err != nil {
+	if err := p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
 		return nil, err
 	}
 
