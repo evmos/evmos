@@ -367,7 +367,7 @@ func (s *PrecompileTestSuite) TestValidators() {
 				return []interface{}{
 					stakingtypes.Bonded.String(),
 					query.PageRequest{
-						Key:        []byte{cmn.ByteNil},
+						Key:        []byte{0},
 						Limit:      1,
 						CountTotal: true,
 					},
