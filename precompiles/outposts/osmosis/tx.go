@@ -3,7 +3,7 @@
 //
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
-// chain, targeting the Cross-Chain Swap Contract V2 (XCS V2).
+// chain, targeting the Cross-Chain Swap Contract V1 (XCS V1)
 package osmosis
 
 import (
@@ -60,6 +60,8 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
+	// We need to check if the input and output denom exist. If they exist we retrieve their denom
+	// otherwise error out.
 	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
 	if err != nil {
 		return nil, err
@@ -76,7 +78,8 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Retrieve Osmosis channel and port connected with Evmos transfer app.
+	// Retrieve Osmosis channel and port connected with Evmos transfer app. We need these information
+	// to reconstruct the output denom in the Osmosis chain.
 	channel, found := p.channelKeeper.GetChannel(ctx, evmosConnection.PortID, evmosConnection.ChannelID)
 	if !found {
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosConnection.PortID, evmosConnection.ChannelID)
@@ -86,14 +89,12 @@ func (p Precompile) Swap(
 		channel.GetCounterparty().GetChannelID(),
 	)
 
-	// We need the output denom in the memo in the Osmosis representation.
 	outputOnOsmosis, err := ConvertToOsmosisRepresentation(inputDenom, bondDenom, evmosConnection, osmosisConnection)
 	if err != nil {
 		return nil, err
 	}
 
-	// If the receiver doesn't have the prefix "osmo", we should compute its address
-	// in the Osmosis chain as a recovery address for the contract.
+	// We have to compute the receiver address on the Osmosis chain to have a recovery address.
 	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
@@ -127,7 +128,7 @@ func (p Precompile) Swap(
 	}
 
 	// No need to have authorization when the contract caller is the same as
-	// origin (owner of funds) and the sender is the origin
+	// origin (owner of funds) and the sender is the origin.
 	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(
 		ctx,
 		contract,
@@ -139,18 +140,18 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Execute the ICS20 Transfer
+	// Execute the ICS20 Transfer.
 	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update grant only if is needed
+	// Update grant only if is needed.
 	if err := ics20.UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, accept); err != nil {
 		return nil, err
 	}
 
-	// Emit the IBC transfer Event
+	// Emit the IBC transfer Event.
 	if err := ics20.EmitIBCTransferEvent(
 		ctx,
 		stateDB,
@@ -166,7 +167,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Emit the custom Swap Event
+	// Emit the custom Swap Event.
 	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, swapReceiver); err != nil {
 		return nil, err
 	}

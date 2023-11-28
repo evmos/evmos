@@ -6,17 +6,17 @@ package osmosis
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/exp/slices"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v15/utils"
-	"golang.org/x/exp/slices"
-
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
-
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	"github.com/ethereum/go-ethereum/common"
+
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/utils"
 )
 
 const (
@@ -71,8 +71,7 @@ type TWAP struct {
 	WindowSeconds uint64 `json:"window_seconds"`
 }
 
-// Slippage specify how to compute the slippage of the swap. For this version of the outpost
-// only the TWAP is allowed.
+// Slippage specify how to compute the slippage of the swap.
 type Slippage struct {
 	TWAP *TWAP `json:"twap"`
 }
@@ -124,7 +123,7 @@ func (m Memo) Validate() error {
 		return fmt.Errorf(ErrEmptyOnFailedDelivery)
 	}
 
-	// Check if account is a valid bech32 address
+	// Check if account is a valid bech32 evmos address.
 	if _, err := sdk.AccAddressFromBech32(osmosisSwap.Receiver); err != nil {
 		return fmt.Errorf(ErrReceiverAddress, "not a valid evmos address")
 	}
@@ -146,8 +145,8 @@ type RawPacketMetadata struct {
 	Memo *Memo `json:"memo"`
 }
 
-// CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis
-// outpost that can be parsed by the ibc hook middleware, the Wasm hook, on the Osmosis chain.
+// CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis outpost that can be
+// parsed by the ibc hook middleware, the Wasm hook, on the Osmosis chain.
 func CreatePacketWithMemo(
 	outputDenom, receiver, contract string,
 	slippagePercentage uint8,
@@ -190,11 +189,10 @@ func (r RawPacketMetadata) String() string {
 }
 
 // CreateOnFailedDeliveryField is an utility function to create the memo field
-// onFailedDelivery. The returned string is the bech32 of the receiver input
-// or "do_nothing".
-func CreateOnFailedDeliveryField(receiver string) string {
-	onFailedDelivery := receiver
-	bech32Prefix, addressBytes, err := cosmosbech32.DecodeAndConvert(receiver)
+// onFailedDelivery. The returned string is the bech32 of the input or "do_nothing".
+func CreateOnFailedDeliveryField(address string) string {
+	onFailedDelivery := address
+	bech32Prefix, addressBytes, err := cosmosbech32.DecodeAndConvert(address)
 	if err != nil {
 		return DefaultOnFailedDelivery
 	}
@@ -208,7 +206,7 @@ func CreateOnFailedDeliveryField(receiver string) string {
 	return onFailedDelivery
 }
 
-// ValidateInputOutput validate the input and output tokens used in the Osmosis swap.
+// ValidateInputOutput validates the input and output tokens used in the Osmosis swap.
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom string,
 	evmosConnection IBCConnection,
@@ -224,12 +222,12 @@ func ValidateInputOutput(
 
 	// Check that the input token is aevmos or uosmo.
 	if !slices.Contains(acceptedTokens, inputDenom) {
-		return fmt.Errorf(ErrTokenNotSupported, acceptedTokens)
+		return fmt.Errorf(ErrDenomNotSupported, acceptedTokens)
 	}
 
 	// Check that the output token is aevmos or uosmo.
 	if !slices.Contains(acceptedTokens, outputDenom) {
-		return fmt.Errorf(ErrTokenNotSupported, acceptedTokens)
+		return fmt.Errorf(ErrDenomNotSupported, acceptedTokens)
 	}
 
 	return nil
@@ -259,7 +257,7 @@ func ConvertToOsmosisRepresentation(
 		denomTrace := transfertypes.ParseDenomTrace(denomPrefix)
 		denomOsmosis = denomTrace.IBCDenom()
 	default:
-		err = fmt.Errorf(ErrTokenNotSupported, []string{stakingDenom, osmoIBCDenom})
+		err = fmt.Errorf(ErrDenomNotSupported, []string{stakingDenom, osmoIBCDenom})
 	}
 	return denomOsmosis, err
 }
@@ -276,7 +274,7 @@ type SwapPacketData struct {
 	SwapReceiver       string
 }
 
-// ParseSwapPacketData parses the packet data for the Osmosis swap function.
+// ParseSwapPacketData parses the packet data from the outpost precompiled contract.
 func ParseSwapPacketData(args []interface{}) (
 	swapPacketData SwapPacketData,
 	err error,

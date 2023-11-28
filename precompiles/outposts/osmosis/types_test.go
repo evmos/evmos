@@ -401,7 +401,7 @@ func TestValidateInputOutput(t *testing.T) {
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrTokenNotSupported, validInputs),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, validInputs),
 		},
 	}
 
@@ -494,7 +494,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 			name:        "fail - not allowed token",
 			denom:       "token",
 			expPass:     false,
-			errContains: fmt.Sprintf(osmosisoutpost.ErrTokenNotSupported, []string{stakingDenom, osmoIBCDenom}),
+			errContains: fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, []string{stakingDenom, osmoIBCDenom}),
 		},
 	}
 
