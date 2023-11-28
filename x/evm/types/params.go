@@ -43,15 +43,10 @@ var (
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs = []int64{3855}
-	// DefaultAuthorizedChannels defines the list of default IBC authorized channels that can perform
-	// IBC address attestations in order to migrate claimable amounts. By default
-	// only Osmosis and Cosmos Hub channels are authorized
-	DefaultAuthorizedChannels = []string{
-		"channel-0", // Osmosis
-		"channel-3", // Cosmos Hub
-	}
 	DefaultEVMChannels = []string{
-		"channel-2", // Injective
+		"channel-10", // Injective
+		"channel-31", // Cronos
+		"channel-83", // Kava
 	}
 )
 
@@ -75,7 +70,6 @@ func NewParams(
 		ExtraEIPs:           extraEIPs,
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
-		AuthorizedChannels:  authorizedChannels,
 		EVMChannels:         evmChannels,
 	}
 }
@@ -93,7 +87,6 @@ func DefaultParams() Params {
 		ExtraEIPs:           DefaultExtraEIPs,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
-		AuthorizedChannels:  DefaultAuthorizedChannels,
 		EVMChannels:         DefaultEVMChannels,
 	}
 }
@@ -143,10 +136,6 @@ func (p Params) Validate() error {
 	}
 
 	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
-		return err
-	}
-
-	if err := validateChannels(p.AuthorizedChannels); err != nil {
 		return err
 	}
 

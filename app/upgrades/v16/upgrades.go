@@ -35,7 +35,6 @@ func CreateUpgradeHandler(
 		claimsParams := ck.GetParams(ctx)
 		evmParams := ek.GetParams(ctx)
 
-		evmParams.AuthorizedChannels = claimsParams.AuthorizedChannels
 		evmParams.EVMChannels = claimsParams.EVMChannels
 
 		if err := ek.SetParams(ctx, evmParams); err != nil {
