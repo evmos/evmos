@@ -40,7 +40,7 @@ func CreateUpgradeHandler(
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
 
-		// recovery module is deprecated since it is renamed to "revenue" module
+		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
 		delete(vm, "recovery")
 		logger.Debug("deleting incentives module from version map...")
