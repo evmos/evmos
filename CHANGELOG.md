@@ -42,6 +42,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
 - (ante) [#2078](https://github.com/evmos/evmos/pull/2078) depecrate legacy EIP712 ante handler
 
+### State Machine Breaking
+
+- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
+
 ### Features
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
@@ -113,6 +117,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC20 contracts.
 - (erc20) [#2080](https://github.com/evmos/evmos/pull/2080) Add ERC20 integration test setup.
 - (erc20) [#2085](https://github.com/evmos/evmos/pull/2085) Add ERC20 transfer integration tests.
+- (erc20) [#2086](https://github.com/evmos/evmos/pull/2086) Add ERC20 metadata query integration tests.
 
 ### Bug Fixes
 
