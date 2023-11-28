@@ -26,10 +26,10 @@ const (
 	// OsmosisPrefix represents the human readable part for bech32 addresses on the Osmosis chain.
 	OsmosisPrefix = "osmo"
 
-	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
+	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile.
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 
-	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
+	// XCSContract placeholder.
 	XCSContract = "placeholder"
 )
 
@@ -40,7 +40,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
-// Precompile is the structure that define the Osmosis outpost precompile extending
+// Precompile is the structure that defines the Osmosis outpost precompile extending
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
@@ -83,7 +83,7 @@ func NewPrecompile(
 			ABI:                  newAbi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
-			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
 		portID:             portID,
@@ -139,7 +139,7 @@ func (Precompile) IsTransaction(method string) bool {
 	}
 }
 
-// Run executes the precompiled contract IBC transfer methods defined in the ABI.
+// Run executes the precompiled contract Swap method.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
@@ -151,7 +151,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
-	// Osmosis Outpost Methods:
 	case SwapMethod:
 		bz, err = p.Swap(ctx, evm.Origin, stateDB, contract, method, args)
 	default:
