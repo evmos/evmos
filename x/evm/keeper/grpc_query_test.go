@@ -937,7 +937,6 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   26432, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 			expFinalGas:   26828, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
