@@ -108,15 +108,16 @@ type Wasm struct {
 	Msg *Msg `json:"msg"`
 }
 
-// Memo wraps the message details for the IBC packet relayed to the Osmosis chain.
-type Memo struct {
+// RawPacketMetadata is the raw packet metadata used to construct a JSON string.
+type RawPacketMetadata struct {
+	// The Osmosis outpost IBC memo content.
 	Wasm *Wasm `json:"wasm"`
 }
 
 // Validate performs basic validation of the IBC memo for the Osmosis outpost.
 // This function assumes that memo field is parsed with ParseSwapPacketData, which
 // performs data casting ensuring outputDenom cannot be an empty string.
-func (m Memo) Validate() error {
+func (m RawPacketMetadata) Validate() error {
 	osmosisSwap := m.Wasm.Msg.OsmosisSwap
 
 	if osmosisSwap.OnFailedDelivery == "" {
@@ -139,12 +140,6 @@ func (m Memo) Validate() error {
 	return nil
 }
 
-// RawPacketMetadata is the raw packet metadata used to construct a JSON string.
-type RawPacketMetadata struct {
-	// The Osmosis outpost IBC memo.
-	Memo *Memo `json:"memo"`
-}
-
 // CreatePacketWithMemo creates the IBC packet with the memo for the Osmosis outpost that can be
 // parsed by the ibc hook middleware, the Wasm hook, on the Osmosis chain.
 func CreatePacketWithMemo(
@@ -154,22 +149,20 @@ func CreatePacketWithMemo(
 	onFailedDelivery, nextMemo string,
 ) *RawPacketMetadata {
 	return &RawPacketMetadata{
-		&Memo{
-			&Wasm{
-				Contract: contract,
-				Msg: &Msg{
-					OsmosisSwap: &OsmosisSwap{
-						OutputDenom: outputDenom,
-						Slippage: &Slippage{
-							&TWAP{
-								SlippagePercentage: slippagePercentage,
-								WindowSeconds:      windowSeconds,
-							},
+		&Wasm{
+			Contract: contract,
+			Msg: &Msg{
+				OsmosisSwap: &OsmosisSwap{
+					OutputDenom: outputDenom,
+					Slippage: &Slippage{
+						&TWAP{
+							SlippagePercentage: slippagePercentage,
+							WindowSeconds:      windowSeconds,
 						},
-						Receiver:         receiver,
-						OnFailedDelivery: onFailedDelivery,
-						NextMemo:         nextMemo,
 					},
+					Receiver:         receiver,
+					OnFailedDelivery: onFailedDelivery,
+					NextMemo:         nextMemo,
 				},
 			},
 		},

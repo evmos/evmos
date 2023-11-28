@@ -303,7 +303,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			errContains: fmt.Sprintf("port ID (%s) channel ID (%s)", portID, channelID),
 		}, {
-			name:   "pass - correct swap",
+			name:   "pass - correct swap output uosmo",
 			sender: senderAddress,
 			origin: senderAddress,
 			malleate: func() []interface{} {
@@ -318,6 +318,30 @@ func (s *PrecompileTestSuite) TestSwap() {
 					senderAddress,
 					osmoTokenPair.GetERC20Contract(),
 					evmosTokenPair.GetERC20Contract(),
+					transferAmount,
+					slippagePercentage,
+					windowSeconds,
+					receiver,
+				}
+			},
+			expError: false,
+			ibcSetup: true,
+		}, {
+			name:   "pass - correct swap output ibc aevmos",
+			sender: senderAddress,
+			origin: senderAddress,
+			malleate: func() []interface{} {
+				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
+				s.Require().NoError(err, "expected no error during evmos erc20 registration")
+
+				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(portID, channelID, osmosis.OsmosisDenom)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				s.Require().NoError(err, "expected no error during ibc erc20 registration")
+
+				return []interface{}{
+					senderAddress,
+					evmosTokenPair.GetERC20Contract(),
+					osmoTokenPair.GetERC20Contract(),
 					transferAmount,
 					slippagePercentage,
 					windowSeconds,

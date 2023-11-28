@@ -332,7 +332,7 @@ func TestValidateMemo(t *testing.T) {
 				output, tc.receiver, contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
 			)
 
-			err := packet.Memo.Validate()
+			err := packet.Validate()
 
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")

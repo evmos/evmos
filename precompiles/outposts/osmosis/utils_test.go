@@ -45,24 +45,15 @@ func ValidateAndParseWasmRoutedMemo(
 	packet string,
 	receiver string,
 ) (err error) {
-	isMemo, metadata := jsonStringHasKey(packet, "memo")
-	if !isMemo {
-		return fmt.Errorf("string is not a memo")
+	isWasm, metadata := jsonStringHasKey(packet, "wasm")
+	if !isWasm {
+		return fmt.Errorf("string is not a valid wasm targeted memo")
 	}
 
-	memoRaw := metadata["memo"]
-
-	memo, ok := memoRaw.(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("memo packet does not contains the wasm field")
-	}
-
-	wasmRaw := memo["wasm"]
-
-	// Make sure the wasm key is a map.
+	wasmRaw := metadata["wasm"]
 	wasm, ok := wasmRaw.(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("wasm metadata is not a valid JSON map object")
+		return fmt.Errorf("Error in getting the wasm field.")
 	}
 
 	contract, ok := wasm["contract"].(string)
