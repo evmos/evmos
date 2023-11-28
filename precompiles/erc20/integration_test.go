@@ -197,8 +197,13 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
-				res, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				res, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var success bool
+				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(success).To(BeTrue(), "expected transfer to succeed")
 
 				is.ExpectBalancesForContract(
 					callType, contractsData,
@@ -232,8 +237,13 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
 
-				_, _, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var success bool
+				err = is.precompile.UnpackIntoInterface(&success, erc20.TransferMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(success).To(BeTrue(), "expected transfer to succeed")
 
 				is.ExpectBalancesForContract(
 					callType, contractsData,
@@ -326,8 +336,13 @@ var _ = Describe("ERC20 Extension -", func() {
 						auth.EventTypeApproval,
 					)
 
-					_, _, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
 
 					is.ExpectBalancesForContract(
 						callType, contractsData,
@@ -386,8 +401,13 @@ var _ = Describe("ERC20 Extension -", func() {
 						auth.EventTypeApproval,
 					)
 
-					_, _, err = is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var success bool
+					err = is.precompile.UnpackIntoInterface(&success, erc20.TransferFromMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(success).To(BeTrue(), "expected transferFrom to succeed")
 
 					is.ExpectBalancesForContract(
 						callType, contractsData,
@@ -605,6 +625,20 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					_, _, err := is.factory.CallContractAndCheckLogs(msgSender.Priv, txArgs, transferArgs, transferCheck)
 					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					is.ExpectBalancesForContract(
+						callType, contractsData,
+						[]ExpectedBalance{
+							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+							{address: receiver.Bytes(), expCoins: transferCoins},
+						},
+					)
+
+					// Check that the allowance was removed since we authorized only the transferred amount
+					is.ExpectNoSendAuthzForContract(
+						callType, contractsData,
+						spender, owner.Addr,
+					)
 				},
 					// NOTE: we are not passing the direct call here because this test is specific to the contract calls
 
