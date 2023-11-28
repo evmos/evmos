@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
@@ -14,6 +15,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
+	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -181,7 +183,163 @@ var _ = Describe("ERC20 Extension -", func() {
 
 	Context("basic functionality -", func() {})
 
-	Context("metadata query -", func() {})
+	Context("metadata query -", func() {
+		Context("for a token without registered metadata", func() {
+			BeforeEach(func() {
+				// Deploy ERC20NoMetadata contract for this test
+				erc20NoMetadataAddr, err := is.factory.DeployContract(
+					is.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: testdata.ERC20NoMetadataContract,
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				// NOTE: update the address but leave the ABI as it is, so that the ABI includes
+				// the metadata methods but the contract doesn't have them.
+				contractsData.contractData[erc20Call] = ContractData{
+					Address: erc20NoMetadataAddr,
+					ABI:     contracts.ERC20MinterBurnerDecimalsContract.ABI,
+				}
+			})
+
+			DescribeTable("querying the name should return an error", func(callType CallType) {
+				txArgs, nameArgs := is.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, nameArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+
+			DescribeTable("querying the symbol should return an error", func(callType CallType) {
+				txArgs, symbolArgs := is.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, symbolArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+
+			DescribeTable("querying the decimals should return an error", func(callType CallType) {
+				txArgs, decimalsArgs := is.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
+
+				_, _, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, decimalsArgs, execRevertedCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 contract", erc20Call), // NOTE: we're passing the ERC20 contract call here which was adjusted to point to a contract without metadata to expect the same errors
+			)
+		})
+
+		Context("for a token with available metadata", func() {
+			const (
+				denom       = "axmpl"
+				expSymbol   = "Xmpl"
+				expDecimals = uint8(18)
+			)
+
+			var (
+				erc20Addr common.Address
+				expName   string
+			)
+
+			BeforeEach(func() {
+				erc20Addr = contractsData.GetContractData(erc20V5Call).Address
+				expName = erc20types.CreateDenom(erc20Addr.String())
+
+				// Register ERC20 token pair for this test
+				tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+					Address:      erc20Addr,
+					Denom:        denom,
+					ProposerPriv: is.keyring.GetPrivKey(0),
+				})
+				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+
+				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
+				is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
+
+				// update this in the global contractsData
+				contractsData.contractData[directCall] = ContractData{
+					Address: is.precompile.Address(),
+					ABI:     is.precompile.ABI,
+				}
+
+				// Deploy contract calling the ERC20 precompile
+				callerAddr, err := is.factory.DeployContract(
+					is.keyring.GetPrivKey(0),
+					evmtypes.EvmTxArgs{},
+					factory.ContractDeploymentData{
+						Contract: testdata.ERC20AllowanceCallerContract,
+						ConstructorArgs: []interface{}{
+							is.precompile.Address(),
+						},
+					},
+				)
+				Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
+
+				contractsData.contractData[contractCall] = ContractData{
+					Address: callerAddr,
+					ABI:     testdata.ERC20AllowanceCallerContract.ABI,
+				}
+			})
+
+			DescribeTable("querying the name should return the name", func(callType CallType) {
+				txArgs, nameArgs := is.getTxAndCallArgs(callType, contractsData, erc20.NameMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, nameArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var name string
+				err = is.precompile.UnpackIntoInterface(&name, erc20.NameMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(name).To(Equal(expName), "expected different name")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+
+			DescribeTable("querying the symbol should return the symbol", func(callType CallType) {
+				txArgs, symbolArgs := is.getTxAndCallArgs(callType, contractsData, erc20.SymbolMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, symbolArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var symbol string
+				err = is.precompile.UnpackIntoInterface(&symbol, erc20.SymbolMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(symbol).To(Equal(expSymbol), "expected different symbol")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+
+			DescribeTable("querying the decimals should return the decimals", func(callType CallType) {
+				txArgs, decimalsArgs := is.getTxAndCallArgs(callType, contractsData, erc20.DecimalsMethod)
+
+				_, ethRes, err := is.factory.CallContractAndCheckLogs(is.keyring.GetPrivKey(0), txArgs, decimalsArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var decimals uint8
+				err = is.precompile.UnpackIntoInterface(&decimals, erc20.DecimalsMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+				Expect(decimals).To(Equal(expDecimals), "expected different decimals")
+			},
+				Entry(" - direct call", directCall),
+				Entry(" - through contract", contractCall),
+				Entry(" - through erc20 v5 contract", erc20V5Call),
+			)
+		})
+	})
 
 	Context("allowance adjustments -", func() {})
 })
