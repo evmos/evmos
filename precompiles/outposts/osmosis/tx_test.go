@@ -18,6 +18,10 @@ import (
 	"github.com/evmos/evmos/v15/utils"
 )
 
+const (
+	aevmosDenom = "aevmos"
+)
+
 func (s *PrecompileTestSuite) TestSwap() {
 	// Default variables used during tests.
 	slippagePercentage := uint8(10)
@@ -48,7 +52,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 7, 0),
-		}, {
+		},
+		{
 			name:   "fail - origin different from sender",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -65,7 +70,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf(ics20.ErrDifferentOriginFromSender, senderAddress, randomAddress),
-		}, {
+		},
+		{
 			name:   "fail - missing input token denom",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -85,7 +91,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf("token '%s' not registered", randomAddress),
-		}, {
+		},
+		{
 			name:   "fail - missing output token denom",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -105,7 +112,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf("token '%s' not registered", randomAddress),
-		}, {
+		},
+		{
 			name:   "fail - osmo token pair not registered (with osmo hardcoded address)",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -125,7 +133,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf("token '%s' not registered", common.HexToAddress("0x1D54EcB8583Ca25895c512A8308389fFD581F9c9")),
-		}, {
+		},
+		{
 			name:   "fail - osmo token pair registered with another channelID",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -153,8 +162,9 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
-		}, {
+			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{aevmosDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+		},
+		{
 			name:   "fail - input equal to denom",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -173,8 +183,9 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput, "aevmos"),
-		}, {
+			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput, aevmosDenom),
+		},
+		{
 			name:   "fail - invalid input",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -198,7 +209,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{"aevmos", "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{aevmosDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		},
 		// All tests below requires the ibcSetup equal to true because run the query GetChannel
 		// that fails if the IBC connection is not open.
@@ -227,7 +238,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			ibcSetup:    false,
 			errContains: fmt.Sprintf("port ID (%s) channel ID (%s)", portID, channelID),
-		}, {
+		},
+		{
 			name:   "fail - receiver is not a valid bech32",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -252,7 +264,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			ibcSetup:    true,
 			errContains: fmt.Sprintf(osmosis.ErrReceiverAddress, "not a valid evmos address"),
-		}, {
+		},
+		{
 			//  THIS PANICS INSIDE CheckAuthzExists
 			name:   "fail - origin different from address caller",
 			sender: senderAddress,
@@ -278,7 +291,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			expError:    true,
 			ibcSetup:    true,
 			errContains: fmt.Sprintf(authorization.ErrAuthzDoesNotExistOrExpired, senderAddress, s.keyring.GetAddr(1)),
-		}, {
+		},
+		{
 			name:   "fail - ibc channel not open",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -302,7 +316,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError:    true,
 			errContains: fmt.Sprintf("port ID (%s) channel ID (%s)", portID, channelID),
-		}, {
+		},
+		{
 			name:   "pass - correct swap output uosmo",
 			sender: senderAddress,
 			origin: senderAddress,
@@ -326,7 +341,8 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: false,
 			ibcSetup: true,
-		}, {
+		},
+		{
 			name:   "pass - correct swap output ibc aevmos",
 			sender: senderAddress,
 			origin: senderAddress,

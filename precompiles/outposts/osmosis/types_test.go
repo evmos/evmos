@@ -18,6 +18,8 @@ func TestCreatePacketWithMemo(t *testing.T) {
 
 	contract := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
+	aevmosDenom := "aevmos"
+	doNothing := "do_nothing"
 
 	testCases := []struct {
 		name               string
@@ -32,23 +34,23 @@ func TestCreatePacketWithMemo(t *testing.T) {
 	}{
 		{
 			name:               "pass - correct string without memo",
-			outputDenom:        "aevmos",
+			outputDenom:        aevmosDenom,
 			receiver:           receiver,
 			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
-			onFailedDelivery:   "do_nothing",
+			onFailedDelivery:   doNothing,
 			nextMemo:           "",
 			expNextMemo:        false,
 		},
 		{
 			name:               "pass - correct string with memo",
-			outputDenom:        "aevmos",
+			outputDenom:        aevmosDenom,
 			receiver:           receiver,
 			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
-			onFailedDelivery:   "do_nothing",
+			onFailedDelivery:   doNothing,
 			nextMemo:           "a next memo",
 			expNextMemo:        true,
 		},
@@ -347,8 +349,7 @@ func TestValidateMemo(t *testing.T) {
 func TestValidateInputOutput(t *testing.T) {
 	t.Parallel()
 
-	aevmosDenom := "aevmos"
-	stakingDenom := "aevmos"
+	stakingDenom := aevmosDenom
 	portID := "transfer"
 	channelID := "channel-0"
 	uosmosDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
@@ -467,7 +468,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 
 	portID := "transfer"
 	channelID := "channel-0"
-	stakingDenom := "aevmos"
+	stakingDenom := aevmosDenom
 	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
 	evmosConnection := osmosisoutpost.NewIBCConnection(portID, channelID)
 	osmosisConnection := osmosisoutpost.NewIBCConnection(portID, channelID)

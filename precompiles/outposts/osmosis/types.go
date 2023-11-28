@@ -6,8 +6,9 @@ package osmosis
 import (
 	"encoding/json"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"math/big"
+
+	"golang.org/x/exp/slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
@@ -55,11 +56,11 @@ type IBCConnection struct {
 
 // NewIBCConnection return a new instance of IBCConnection.
 func NewIBCConnection(
-	portID, ChannelID string,
+	portID, channelID string,
 ) IBCConnection {
 	return IBCConnection{
 		PortID:    portID,
-		ChannelID: ChannelID,
+		ChannelID: channelID,
 	}
 }
 
@@ -117,8 +118,8 @@ type RawPacketMetadata struct {
 // Validate performs basic validation of the IBC memo for the Osmosis outpost.
 // This function assumes that memo field is parsed with ParseSwapPacketData, which
 // performs data casting ensuring outputDenom cannot be an empty string.
-func (m RawPacketMetadata) Validate() error {
-	osmosisSwap := m.Wasm.Msg.OsmosisSwap
+func (r RawPacketMetadata) Validate() error {
+	osmosisSwap := r.Wasm.Msg.OsmosisSwap
 
 	if osmosisSwap.OnFailedDelivery == "" {
 		return fmt.Errorf(ErrEmptyOnFailedDelivery)

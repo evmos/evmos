@@ -53,12 +53,12 @@ func ValidateAndParseWasmRoutedMemo(
 	wasmRaw := metadata["wasm"]
 	wasm, ok := wasmRaw.(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("Error in getting the wasm field.")
+		return fmt.Errorf("error in getting the wasm field")
 	}
 
 	contract, ok := wasm["contract"].(string)
 	if !ok {
-		return fmt.Errorf(`Could not find key wasm["contract"]`)
+		return fmt.Errorf(`could not find key wasm["contract"]`)
 	}
 
 	_, err = sdk.AccAddressFromBech32(contract)
@@ -73,7 +73,7 @@ func ValidateAndParseWasmRoutedMemo(
 
 	// Ensure the message key is provided
 	if wasm["msg"] == nil {
-		return fmt.Errorf(`Could not find key wasm["msg"]`)
+		return fmt.Errorf(`could not find key wasm["msg"]`)
 	}
 
 	// Make sure the msg key is a map. If it isn't, return an error
