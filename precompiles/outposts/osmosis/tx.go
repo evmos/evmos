@@ -69,25 +69,25 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	evmosConnection := NewIBCChannel(p.portID, p.channelID)
+	evmosChannel := NewIBCChannel(p.portID, p.channelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
-	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosConnection)
+	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
 	}
 
-	// Retrieve Osmosis channel and port connected with Evmos transfer app. We need these information
+	// Retrieve Osmosis channel and port associated with Evmos transfer app. We need these information
 	// to reconstruct the output denom in the Osmosis chain.
-	channel, found := p.channelKeeper.GetChannel(ctx, evmosConnection.PortID, evmosConnection.ChannelID)
+	channel, found := p.channelKeeper.GetChannel(ctx, evmosChannel.PortID, evmosChannel.ChannelID)
 	if !found {
-		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosConnection.PortID, evmosConnection.ChannelID)
+		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosChannel.PortID, evmosChannel.ChannelID)
 	}
-	osmosisConnection := NewIBCChannel(
+	osmosisChannel := NewIBCChannel(
 		channel.GetCounterparty().GetPortID(),
 		channel.GetCounterparty().GetChannelID(),
 	)
 
-	outputOnOsmosis, err := ConvertToOsmosisRepresentation(inputDenom, bondDenom, evmosConnection, osmosisConnection)
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(inputDenom, bondDenom, evmosChannel, osmosisChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +112,8 @@ func (p Precompile) Swap(
 
 	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		evmosConnection.PortID,
-		evmosConnection.ChannelID,
+		evmosChannel.PortID,
+		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		XCSContract,

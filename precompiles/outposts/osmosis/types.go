@@ -48,13 +48,13 @@ type EventSwap struct {
 	Receiver string
 }
 
-// IBCConnction contains information of port and channel of an IBC connection.
+// IBCChannel contains information of port and channel of an IBC channel.
 type IBCChannel struct {
 	PortID    string
 	ChannelID string
 }
 
-// NewIBCConnection return a new instance of IBCConnection.
+// NewIBCChannel return a new instance of IBCChannel.
 func NewIBCChannel(
 	portID, channelID string,
 ) IBCChannel {
@@ -203,13 +203,13 @@ func CreateOnFailedDeliveryField(address string) string {
 // ValidateInputOutput validates the input and output tokens used in the Osmosis swap.
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom string,
-	evmosConnection IBCChannel,
+	evmosChannel IBCChannel,
 ) error {
 	if outputDenom == inputDenom {
 		return fmt.Errorf(ErrInputEqualOutput, inputDenom)
 	}
 
-	osmoIBCDenom := utils.ComputeIBCDenom(evmosConnection.PortID, evmosConnection.ChannelID, OsmosisDenom)
+	osmoIBCDenom := utils.ComputeIBCDenom(evmosChannel.PortID, evmosChannel.ChannelID, OsmosisDenom)
 
 	// acceptedTokens are the tokens accepted as input or output of the swap.
 	acceptedTokens := []string{stakingDenom, osmoIBCDenom}
@@ -231,11 +231,11 @@ func ValidateInputOutput(
 // representation of aevmos and uosmo. Return an error if the denom is different from one these two.
 func ConvertToOsmosisRepresentation(
 	denom, stakingDenom string,
-	evmosConnection, osmosisConnection IBCChannel,
+	evmosChannel, osmosisChannel IBCChannel,
 ) (denomOsmosis string, err error) {
 	osmoIBCDenom := utils.ComputeIBCDenom(
-		evmosConnection.PortID,
-		evmosConnection.ChannelID,
+		evmosChannel.PortID,
+		evmosChannel.ChannelID,
 		OsmosisDenom,
 	)
 
@@ -244,8 +244,8 @@ func ConvertToOsmosisRepresentation(
 		denomOsmosis = OsmosisDenom
 	case stakingDenom:
 		denomPrefix := transfertypes.GetPrefixedDenom(
-			osmosisConnection.PortID,
-			osmosisConnection.ChannelID,
+			osmosisChannel.PortID,
+			osmosisChannel.ChannelID,
 			denom,
 		)
 		denomTrace := transfertypes.ParseDenomTrace(denomPrefix)

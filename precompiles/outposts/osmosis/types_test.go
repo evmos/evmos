@@ -410,9 +410,9 @@ func TestValidateInputOutput(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			evmosConnection := osmosisoutpost.NewIBCChannel(tc.portID, tc.channelID)
+			evmosChannel := osmosisoutpost.NewIBCChannel(tc.portID, tc.channelID)
 
-			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, evmosConnection)
+			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, evmosChannel)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 			} else {
@@ -467,8 +467,8 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 	portID := "transfer"
 	channelID := "channel-0"
 	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
-	evmosConnection := osmosisoutpost.NewIBCChannel(portID, channelID)
-	osmosisConnection := osmosisoutpost.NewIBCChannel(portID, channelID)
+	evmosChannel := osmosisoutpost.NewIBCChannel(portID, channelID)
+	osmosisChannel := osmosisoutpost.NewIBCChannel(portID, channelID)
 
 	testCases := []struct {
 		name        string
@@ -501,7 +501,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, utils.BaseDenom, evmosConnection, osmosisConnection)
+			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, utils.BaseDenom, evmosChannel, osmosisChannel)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 				require.Equal(t, denom, tc.expDenom)

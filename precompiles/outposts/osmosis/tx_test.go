@@ -210,7 +210,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{utils.BaseDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		},
 		// All tests below requires the ibcSetup equal to true because run the query GetChannel
-		// that fails if the IBC connection is not open.
+		// that fails if the IBC channel is not open.
 		{
 			name:   "fail - channel not open",
 			sender: senderAddress,
