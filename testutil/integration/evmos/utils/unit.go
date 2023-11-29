@@ -31,10 +31,12 @@ func RegisterEvmosERC20Coins(
 	network network.UnitTestNetwork,
 	tokenReceiver sdk.AccAddress,
 ) (erc20types.TokenPair, error) {
-	bondDenom := network.App.StakingKeeper.BondDenom(network.GetContext())
-
+	bondDenom, err := network.App.StakingKeeper.BondDenom(network.GetContext())
+	if err != nil {
+		return erc20types.TokenPair{}, err
+	}
 	coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(TokenToMint))
-	err := network.App.BankKeeper.MintCoins(
+	err = network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,
 		sdk.NewCoins(coin),

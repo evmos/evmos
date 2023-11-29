@@ -121,10 +121,12 @@ func CheckDisabledCreateCallAndUpdateTxFee(
 
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type
 func ValidateTx(tx sdk.Tx) (*tx.Fee, error) {
-	err := tx.ValidateBasic()
-	// ErrNoSignatures is fine with eth tx
-	if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
-		return nil, errorsmod.Wrap(err, "tx basic validation failed")
+	if t, ok := tx.(sdk.HasValidateBasic); ok {
+		err := t.ValidateBasic()
+		// ErrNoSignatures is fine with eth tx
+		if err != nil && !errors.Is(err, errortypes.ErrNoSignatures) {
+			return nil, errorsmod.Wrap(err, "tx basic validation failed")
+		}
 	}
 
 	// For eth type cosmos tx, some fields should be verified as zero values,

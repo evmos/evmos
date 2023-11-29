@@ -87,11 +87,11 @@ func (_m *BankKeeper) BlockedAddr(addr cosmos_sdktypes.AccAddress) bool {
 }
 
 // BurnCoins provides a mock function with given fields: ctx, moduleName, amt
-func (_m *BankKeeper) BurnCoins(ctx cosmos_sdktypes.Context, moduleName string, amt cosmos_sdktypes.Coins) error {
+func (_m *BankKeeper) BurnCoins(ctx context.Context, moduleName string, amt cosmos_sdktypes.Coins) error {
 	ret := _m.Called(ctx, moduleName, amt)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, string, cosmos_sdktypes.Coins) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, cosmos_sdktypes.Coins) error); ok {
 		r0 = rf(ctx, moduleName, amt)
 	} else {
 		r0 = ret.Error(0)
@@ -932,17 +932,22 @@ func (_m *BankKeeper) ValidateBalance(ctx cosmos_sdktypes.Context, addr cosmos_s
 }
 
 // WithMintCoinsRestriction provides a mock function with given fields: _a0
-func (_m *BankKeeper) WithMintCoinsRestriction(_a0 keeper.MintingRestrictionFn) keeper.BaseKeeper {
+func (_m *BankKeeper) WithMintCoinsRestriction(_a0 types.MintingRestrictionFn) keeper.BaseKeeper {
 	ret := _m.Called(_a0)
 
 	var r0 keeper.BaseKeeper
-	if rf, ok := ret.Get(0).(func(keeper.MintingRestrictionFn) keeper.BaseKeeper); ok {
+	if rf, ok := ret.Get(0).(func(types.MintingRestrictionFn) keeper.BaseKeeper); ok {
 		r0 = rf(_a0)
 	} else {
 		r0 = ret.Get(0).(keeper.BaseKeeper)
 	}
 
 	return r0
+}
+
+// AppendSendRestriction mocks base method.
+func (_m *BankKeeper) AppendSendRestriction(restriction types.SendRestrictionFn) {
+	_m.Called(restriction)
 }
 
 // NewKeeper creates a new instance of BankKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

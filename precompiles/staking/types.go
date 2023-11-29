@@ -151,10 +151,6 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
 	}
 
-	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
-	}
-
 	return msg, delegatorAddress, nil
 }
 

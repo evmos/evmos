@@ -23,5 +23,5 @@ func (n *IntegrationNetwork) UpdateInflationParams(params infltypes.Params) erro
 }
 
 func (n *IntegrationNetwork) UpdateGovParams(params govtypes.Params) error {
-	return n.app.GovKeeper.SetParams(n.ctx, params)
+	return n.app.GovKeeper.Params.Set(n.ctx, params)
 }

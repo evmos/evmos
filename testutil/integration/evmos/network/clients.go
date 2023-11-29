@@ -9,6 +9,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -44,7 +45,7 @@ func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
 
 func (n *IntegrationNetwork) GetGovClient() govtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	govtypes.RegisterQueryServer(queryHelper, n.app.GovKeeper)
+	govtypes.RegisterQueryServer(queryHelper, govkeeper.NewQueryServer(&n.app.GovKeeper))
 	return govtypes.NewQueryClient(queryHelper)
 }
 

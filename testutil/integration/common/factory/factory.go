@@ -59,7 +59,7 @@ func (tf *IntegrationTxFactory) BuildCosmosTx(privKey cryptotypes.PrivKey, txArg
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
 func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error) {
-	txBuilder, err := tf.BuildCosmosTx(privKey, txArgs)
+	signedTx, err := tf.BuildCosmosTx(privKey, txArgs)
 	if err != nil {
 		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to build tx")
 	}

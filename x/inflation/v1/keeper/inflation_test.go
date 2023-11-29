@@ -32,7 +32,7 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 			"pass - no coins minted ",
 			sdk.NewCoin(denomMint, math.ZeroInt()),
 			func() {},
-			sdk.NewCoin(denomMint, sdk.ZeroInt()),
+			sdk.NewCoin(denomMint, math.ZeroInt()),
 			sdk.DecCoins(nil),
 			true,
 		},
