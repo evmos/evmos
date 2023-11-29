@@ -1162,7 +1162,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			// destination address should remain unchanged
 			s.Require().Equal(balanceDest.Amount.Uint64(), bD.Amount.Uint64())
 			// vesting amount should go to community pool
-			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
+			s.Require().Equal(balanceCommPool.Amount.Add(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
 			s.Require().Equal(stakeDenom, bCP.Denom)
 		})
 
@@ -1220,7 +1220,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.Require().Equal(balanceGrantee.Sub(expClawback[0]).Amount.Uint64(), bG.Amount.Uint64())
 			s.Require().Equal(balanceDest.Amount.Uint64(), bD.Amount.Uint64())
 			// vesting amount should go to community pool
-			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(expClawback[0].Amount.Int64())), bCP.Amount)
+			s.Require().Equal(balanceCommPool.Amount.Add(math.LegacyNewDec(expClawback[0].Amount.Int64())), bCP.Amount)
 			s.Require().Equal(stakeDenom, bCP.Denom)
 		})
 
@@ -1365,7 +1365,7 @@ var _ = Describe("Clawback Vesting Accounts - claw back tokens", func() {
 			s.Require().Equal(balanceNewFunder.Amount.Uint64(), bNewF.Amount.Uint64())
 			s.Require().Equal(balanceGrantee.Sub(vestingAmtTotal[0]).Amount.Uint64(), bG.Amount.Uint64())
 			// vesting amount should go to community pool
-			s.Require().Equal(balanceCommPool.Amount.Add(sdk.NewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
+			s.Require().Equal(balanceCommPool.Amount.Add(math.LegacyNewDec(vestingAmtTotal[0].Amount.Int64())), bCP.Amount)
 		})
 
 		It("should not claw back when governance clawback is disabled", func() {

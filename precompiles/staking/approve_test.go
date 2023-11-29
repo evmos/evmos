@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
 
@@ -228,7 +229,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				// Thus, validators with this status should be considered for the authorization
 
 				// Unbond another validator
-				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), sdk.OneDec())
+				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
 				s.Require().Equal(sdk.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 

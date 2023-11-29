@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/app"
 
 	"github.com/evmos/evmos/v15/precompiles/authorization"
@@ -303,7 +304,7 @@ func (s *PrecompileTestSuite) TestRun() {
 					1000,
 					time.Now().Add(time.Hour),
 					sdk.NewInt(1000),
-					sdk.NewDec(1),
+					math.LegacyNewDec(1),
 					0,
 				)
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -26,9 +27,9 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			Details:         "",
 		}
 		commission = staking.Commission{
-			Rate:          sdk.OneDec().BigInt(),
-			MaxRate:       sdk.OneDec().BigInt(),
-			MaxChangeRate: sdk.OneDec().BigInt(),
+			Rate:          math.LegacyOneDec().BigInt(),
+			MaxRate:       math.LegacyOneDec().BigInt(),
+			MaxChangeRate: math.LegacyOneDec().BigInt(),
 		}
 		minSelfDelegation = big.NewInt(1)
 		delegatorAddress  = s.address
@@ -788,7 +789,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().Equal(redelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.validators[0].OperatorAddress)
 				s.Require().Equal(redelegations[0].ValidatorDstAddress, s.validators[1].OperatorAddress)
-				s.Require().Equal(redelegations[0].Entries[0].SharesDst, sdk.NewDecFromBigInt(tc.expRedelegationShares))
+				s.Require().Equal(redelegations[0].Entries[0].SharesDst, math.LegacyNewDecFromBigInt(tc.expRedelegationShares))
 			}
 		})
 	}
@@ -963,7 +964,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				s.Require().NoError(err)
 				s.Require().Equal(delegation.DelegatorAddress, bech32Addr)
 				s.Require().Equal(delegation.ValidatorAddress, s.validators[0].OperatorAddress)
-				s.Require().Equal(delegation.Shares, sdk.NewDecFromBigInt(tc.expDelegatedShares))
+				s.Require().Equal(delegation.Shares, math.LegacyNewDecFromBigInt(tc.expDelegatedShares))
 
 			}
 		})

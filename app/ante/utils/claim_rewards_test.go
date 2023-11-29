@@ -3,6 +3,7 @@ package utils_test
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
 	"github.com/evmos/evmos/v15/testutil"
@@ -78,7 +79,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				switch {
 				case balance.Amount.Equal(sdk.NewInt(2e14)):
 					suite.Require().Equal(
-						sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: sdk.NewDec(1e14)}},
+						sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e14)}},
 						rewards,
 						"expected total rewards with an amount of 1e14 yet to be withdrawn",
 					)
@@ -111,7 +112,7 @@ func (suite *AnteTestSuite) TestClaimStakingRewardsIfNecessary() {
 				rewards, err := testutil.GetTotalDelegationRewards(suite.ctx, suite.app.DistrKeeper, addr)
 				suite.Require().NoError(err, "failed to query delegation total rewards")
 				suite.Require().Equal(
-					sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: sdk.NewDec(1e18)}},
+					sdk.DecCoins{sdk.DecCoin{Denom: utils.BaseDenom, Amount: math.LegacyNewDec(1e18)}},
 					rewards,
 					"expected total rewards with an amount of 1e18 yet to be withdrawn",
 				)

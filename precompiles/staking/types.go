@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -97,9 +98,9 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 
 	commission := stakingtypes.CommissionRates{}
 	if commissionInput, ok := args[1].(Commission); ok {
-		commission.Rate = sdk.NewDecFromBigIntWithPrec(commissionInput.Rate, sdk.Precision)
-		commission.MaxRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxRate, sdk.Precision)
-		commission.MaxChangeRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, sdk.Precision)
+		commission.Rate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.Rate, math.LegacyPrecision)
+		commission.MaxRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxRate, math.LegacyPrecision)
+		commission.MaxChangeRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, math.LegacyPrecision)
 	} else {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
 	}

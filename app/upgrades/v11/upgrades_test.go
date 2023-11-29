@@ -321,7 +321,7 @@ func (suite *UpgradeTestSuite) fundTestnetRewardsAcc(amount math.Int) {
 }
 
 func (suite *UpgradeTestSuite) sumDelegatorDelegations(ds ...stakingtypes.Delegation) math.Int {
-	sumDec := sdk.NewDec(0)
+	sumDec := math.LegacyNewDec(0)
 
 	for _, d := range ds {
 		validator, ok := suite.app.StakingKeeper.GetValidator(suite.ctx, d.GetValidatorAddr())
@@ -335,7 +335,7 @@ func (suite *UpgradeTestSuite) sumDelegatorDelegations(ds ...stakingtypes.Delega
 }
 
 func (suite *UpgradeTestSuite) sumValidatorDelegations(validator stakingtypes.ValidatorI, ds ...stakingtypes.Delegation) math.Int {
-	sumDec := sdk.NewDec(0)
+	sumDec := math.LegacyNewDec(0)
 
 	for _, d := range ds {
 		amt := validator.TokensFromShares(d.GetShares())

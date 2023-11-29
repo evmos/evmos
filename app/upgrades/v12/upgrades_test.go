@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -76,7 +77,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.Require().NoError(err)
 
 	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().Equal(balanceBefore.AmountOf(utils.BaseDenom), sdk.NewDecFromInt(res))
+	suite.Require().Equal(balanceBefore.AmountOf(utils.BaseDenom), math.LegacyNewDecFromInt(res))
 
 	// return funds to accounts affected
 	err = v12.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)

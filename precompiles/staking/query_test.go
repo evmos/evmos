@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -200,7 +201,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), sdk.NewDec(1))
+			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
 			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))

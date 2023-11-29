@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -18,7 +17,7 @@ import (
 var (
 	epochNumber int64
 	skipped     uint64
-	provision   sdk.Dec
+	provision   math.LegacyDec
 )
 
 var _ = Describe("Inflation", Ordered, func() {
@@ -34,11 +33,11 @@ var _ = Describe("Inflation", Ordered, func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
 				params.ExponentialCalculation = types.ExponentialCalculation{
-					A:             sdk.NewDec(int64(300_000_000)),
-					R:             sdk.NewDecWithPrec(60, 2), // 60%
-					C:             sdk.NewDec(int64(6_375_000)),
-					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
-					MaxVariance:   sdk.ZeroDec(),             // 0%
+					A:             math.LegacyNewDec(int64(300_000_000)),
+					R:             math.LegacyNewDecWithPrec(60, 2), // 60%
+					C:             math.LegacyNewDec(int64(6_375_000)),
+					BondingTarget: math.LegacyNewDecWithPrec(66, 2), // 66%
+					MaxVariance:   math.LegacyZeroDec(),             // 0%
 				}
 				params.InflationDistribution = types.DefaultInflationDistribution
 				err := s.app.InflationKeeper.SetParams(s.ctx, params)
@@ -98,8 +97,8 @@ var _ = Describe("Inflation", Ordered, func() {
 				params := s.app.InflationKeeper.GetParams(s.ctx)
 				params.EnableInflation = true
 				params.InflationDistribution = types.InflationDistribution{
-					StakingRewards:  sdk.NewDecWithPrec(333333333, 9),
-					CommunityPool:   sdk.NewDecWithPrec(666666667, 9),
+					StakingRewards:  math.LegacyNewDecWithPrec(333333333, 9),
+					CommunityPool:   math.LegacyNewDecWithPrec(666666667, 9),
 					UsageIncentives: math.LegacyZeroDec(), // Deprecated
 				}
 				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
@@ -298,7 +297,7 @@ var _ = Describe("Inflation", Ordered, func() {
 						It("should recalculate the EpochMintProvision", func() {
 							provisionAfter := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
 							Expect(provisionAfter).ToNot(Equal(provision))
-							Expect(provisionAfter).To(Equal(sdk.MustNewDecFromStr("159375000000000000000000000")))
+							Expect(provisionAfter).To(Equal(math.LegacyMustNewDecFromStr("159375000000000000000000000")))
 						})
 					})
 				})

@@ -434,7 +434,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 				Expect(found).To(BeTrue(), "expected delegation to be found")
-				expShares := prevDelegation.GetShares().Add(sdk.NewDec(2))
+				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(2))
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected different delegation shares")
 			})
 
@@ -1601,7 +1601,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), valAddr)
 				Expect(found).To(BeTrue(), "expected delegation to be found")
-				expShares := prevDelegation.GetShares().Add(sdk.NewDec(1))
+				expShares := prevDelegation.GetShares().Add(math.LegacyNewDec(1))
 				Expect(delegation.GetShares()).To(Equal(expShares), "expected delegation shares to be 2")
 			})
 
@@ -1660,7 +1660,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 				delegation, _ := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), newValAddr)
-				Expect(delegation.GetShares()).To(Equal(sdk.NewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
+				Expect(delegation.GetShares()).To(Equal(math.LegacyNewDecFromInt(math.NewInt(100))), "expected only the delegation from creating the validator, no more")
 			})
 		})
 	})
@@ -2550,7 +2550,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				var delOut staking.DelegationOutput
 				err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 				Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
-				Expect(delOut.Shares).To(Equal(sdk.NewDec(1).BigInt()), "expected different delegation shares")
+				Expect(delOut.Shares).To(Equal(math.LegacyNewDec(1).BigInt()), "expected different delegation shares")
 				Expect(delOut.Balance.Amount).To(Equal(big.NewInt(1e18)), "expected different delegation balance")
 				if testcase.calltype != "callcode" { // having some trouble with returning the denom from inline assembly but that's a very special edge case which might never be used
 					Expect(delOut.Balance.Denom).To(Equal(s.bondDenom), "expected different denomination")

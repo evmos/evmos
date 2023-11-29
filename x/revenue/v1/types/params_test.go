@@ -3,12 +3,13 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestParamsValidate(t *testing.T) {
-	devShares := sdk.NewDecWithPrec(60, 2)
+	devShares := math.LegacyNewDecWithPrec(60, 2)
 	derivCostCreate := uint64(50)
 
 	testCases := []struct {
@@ -29,7 +30,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"valid: 100% devs",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(1)), derivCostCreate},
+			Params{true, math.LegacyNewDecFromInt(sdk.NewInt(1)), derivCostCreate},
 			false,
 		},
 		{
@@ -39,12 +40,12 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			"invalid: share > 1",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(2)), derivCostCreate},
+			Params{true, math.LegacyNewDecFromInt(sdk.NewInt(2)), derivCostCreate},
 			true,
 		},
 		{
 			"invalid: share < 0",
-			Params{true, sdk.NewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
+			Params{true, math.LegacyNewDecFromInt(sdk.NewInt(-1)), derivCostCreate},
 			true,
 		},
 		{
@@ -71,14 +72,14 @@ func TestParamsValidateShares(t *testing.T) {
 		expError bool
 	}{
 		{"default", DefaultDeveloperShares, false},
-		{"valid", sdk.NewDecFromInt(sdk.NewInt(1)), false},
+		{"valid", math.LegacyNewDecFromInt(sdk.NewInt(1)), false},
 		{"invalid - wrong type - bool", false, true},
 		{"invalid - wrong type - string", "", true},
 		{"invalid - wrong type - int64", int64(123), true},
 		{"invalid - wrong type - math.Int", sdk.NewInt(1), true},
 		{"invalid - is nil", nil, true},
-		{"invalid - is negative", sdk.NewDecFromInt(sdk.NewInt(-1)), true},
-		{"invalid - is > 1", sdk.NewDecFromInt(sdk.NewInt(2)), true},
+		{"invalid - is negative", math.LegacyNewDecFromInt(sdk.NewInt(-1)), true},
+		{"invalid - is > 1", math.LegacyNewDecFromInt(sdk.NewInt(2)), true},
 	}
 	for _, tc := range testCases {
 		err := validateShares(tc.value)
