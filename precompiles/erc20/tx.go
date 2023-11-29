@@ -5,7 +5,9 @@ package erc20
 import (
 	"math/big"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -75,17 +77,26 @@ func (p Precompile) transfer(
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 
-	if err := msg.ValidateBasic(); err != nil {
+	if err = msg.ValidateBasic(); err != nil {
 		return nil, err
 	}
 
-	sender := sdk.AccAddress(from.Bytes())
-	spender := sdk.AccAddress(contract.CallerAddress.Bytes()) // aka. grantee
+	isTransferFrom := method.Name == TransferFromMethod
+	owner := sdk.AccAddress(from.Bytes())
+	spenderAddr := contract.CallerAddress
+	spender := sdk.AccAddress(spenderAddr.Bytes()) // aka. grantee
+	ownerIsSpender := spender.Equals(owner)
 
-	if sender.Equals(spender) {
+	var prevAllowance *big.Int
+	if ownerIsSpender {
 		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
 		_, err = msgSrv.Send(sdk.WrapSDKContext(ctx), msg)
 	} else {
+		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
+		if err != nil {
+			return nil, ConvertErrToERC20Error(errorsmod.Wrapf(authz.ErrNoAuthorizationFound, err.Error()))
+		}
+
 		_, err = p.AuthzKeeper.DispatchActions(ctx, spender, []sdk.Msg{msg})
 	}
 
@@ -95,7 +106,26 @@ func (p Precompile) transfer(
 		return nil, err
 	}
 
-	if err := p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
+	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {
+		return nil, err
+	}
+
+	// NOTE: if it's a direct transfer, we return here but if used through transferFrom,
+	// we need to emit the approval event with the new allowance.
+	if !isTransferFrom {
+		return method.Outputs.Pack(true)
+	}
+
+	var newAllowance *big.Int
+	if ownerIsSpender {
+		// NOTE: in case the spender is the owner we emit an approval event with
+		// the maxUint256 value.
+		newAllowance = abi.MaxUint256
+	} else {
+		newAllowance = new(big.Int).Sub(prevAllowance, amount)
+	}
+
+	if err = p.EmitApprovalEvent(ctx, stateDB, from, spenderAddr, newAllowance); err != nil {
 		return nil, err
 	}
 
