@@ -313,10 +313,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -331,9 +330,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -641,10 +640,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to mint"))
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().MintCoins(mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to mint"))
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -664,10 +663,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().MintCoins(mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -688,10 +687,10 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: math.NewInt(int64(10))})
+				mockBankKeeper.EXPECT().MintCoins(mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: math.NewInt(int64(10))})
 			},
 			contractMinterBurner,
 			false,
@@ -1330,9 +1329,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -1348,9 +1347,9 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
-				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: ibcBase, Amount: math.OneInt()})
+				mockBankKeeper.EXPECT().SendCoinsFromModuleToAccount(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				mockBankKeeper.EXPECT().BlockedAddr(mock.Anything).Return(false)
+				mockBankKeeper.EXPECT().GetBalance(mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: ibcBase, Amount: math.OneInt()})
 			},
 			false,
 		},
