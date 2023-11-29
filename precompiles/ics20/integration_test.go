@@ -18,6 +18,7 @@ import (
 	evmostesting "github.com/evmos/evmos/v15/ibc/testing"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
@@ -43,8 +44,6 @@ var (
 
 	// defaultLogCheck instantiates a log check arguments struct with the precompile ABI events populated.
 	defaultLogCheck testutil.LogCheckArgs
-	// differentOriginCheck defines the arguments to check if the precompile returns different origin error
-	differentOriginCheck testutil.LogCheckArgs
 	// passCheck defines the arguments to check if the precompile returns no error
 	passCheck testutil.LogCheckArgs
 	// outOfGasCheck defines the arguments to check if the precompile returns out of gas error
@@ -55,8 +54,6 @@ var (
 
 	// array of allocations with only one allocation for 'aevmos' coin
 	defaultSingleAlloc []cmn.ICS20Allocation
-	// array of allocations with only two allocation for 'aevmos' and 'uatom' coins
-	defaultManyAllocs []cmn.ICS20Allocation
 )
 
 var _ = Describe("IBCTransfer Precompile", func() {
@@ -77,8 +74,6 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		defaultLogCheck = testutil.LogCheckArgs{
 			ABIEvents: s.precompile.ABI.Events,
 		}
-		// TODO update this check with corresponding error message when enforcing grantee != origin
-		differentOriginCheck = defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address, s.differentAddr)
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
 	})
@@ -677,7 +672,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 
 					mintCheck := testutil.LogCheckArgs{
 						ABIEvents: evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI.Events,
-						ExpEvents: []string{"Transfer"}, // upon minting the tokens are sent to the receiving address
+						ExpEvents: []string{erc20.EventTypeTransfer}, // upon minting the tokens are sent to the receiving address
 						ExpPass:   true,
 					}
 

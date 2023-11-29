@@ -109,6 +109,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	case authorization.DecreaseAllowanceMethod:
 		bz, err = p.DecreaseAllowance(ctx, evm.Origin, stateDB, method, args)
 	// Staking transactions
+	case CreateValidatorMethod:
+		bz, err = p.CreateValidator(ctx, evm.Origin, contract, stateDB, method, args)
 	case DelegateMethod:
 		bz, err = p.Delegate(ctx, evm.Origin, contract, stateDB, method, args)
 	case UndelegateMethod:
@@ -151,6 +153,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 // IsTransaction checks if the given method name corresponds to a transaction or query.
 //
 // Available staking transactions are:
+//   - CreateValidator
 //   - Delegate
 //   - Undelegate
 //   - Redelegate
@@ -163,7 +166,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 //   - DecreaseAllowance
 func (Precompile) IsTransaction(method string) bool {
 	switch method {
-	case DelegateMethod,
+	case CreateValidatorMethod,
+		DelegateMethod,
 		UndelegateMethod,
 		RedelegateMethod,
 		CancelUnbondingDelegationMethod,

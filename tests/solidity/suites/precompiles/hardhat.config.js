@@ -2,7 +2,9 @@ require('@nomicfoundation/hardhat-toolbox')
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: '0.8.18',
+  solidity: {
+    compilers: [{ version: '0.8.18' }]
+  },
   networks: {
     evmos: {
       url: 'http://127.0.0.1:8545',

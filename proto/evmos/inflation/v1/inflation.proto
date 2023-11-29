@@ -23,12 +23,16 @@ message InflationDistribution {
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];
-  // usage_incentives defines the proportion of the minted minted_denom that is
+
+  // protolint:disable FIELDS_HAVE_COMMENT
+
+  // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address
   string usage_incentives = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
-    (amino.dont_omitempty) = true
+    (amino.dont_omitempty) = true,
+    deprecated = true
   ];
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool

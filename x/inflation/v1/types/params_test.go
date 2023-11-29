@@ -26,8 +26,8 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 
 	validInflationDistribution := InflationDistribution{
 		StakingRewards:  math.LegacyNewDecWithPrec(533334, 6),
-		UsageIncentives: math.LegacyNewDecWithPrec(333333, 6),
-		CommunityPool:   math.LegacyNewDecWithPrec(133333, 6),
+		UsageIncentives: math.LegacyZeroDec(),
+		CommunityPool:   math.LegacyNewDecWithPrec(466666, 6),
 	}
 
 	testCases := []struct {

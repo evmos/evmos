@@ -26,9 +26,9 @@ var (
 		MaxVariance:   math.LegacyZeroDec(),             // 0%
 	}
 	DefaultInflationDistribution = InflationDistribution{
-		StakingRewards:  math.LegacyNewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
-		UsageIncentives: math.LegacyNewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
-		CommunityPool:   math.LegacyNewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
+		StakingRewards:  math.LegacyNewDecWithPrec(533333334, 9), // 0.53
+		CommunityPool:   math.LegacyNewDecWithPrec(466666666, 9), // 0.47
+		UsageIncentives: math.LegacyZeroDec(),             // Deprecated
 	}
 )
 
@@ -121,8 +121,8 @@ func validateInflationDistribution(i interface{}) error {
 		return errors.New("staking distribution ratio must not be negative")
 	}
 
-	if v.UsageIncentives.IsNegative() {
-		return errors.New("pool incentives distribution ratio must not be negative")
+	if !v.UsageIncentives.IsZero() {
+		return errors.New("incentives pool distribution is deprecated. UsageIncentives param should be zero")
 	}
 
 	if v.CommunityPool.IsNegative() {

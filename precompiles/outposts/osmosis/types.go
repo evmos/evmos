@@ -9,23 +9,21 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/evmos/evmos/v15/utils"
 	"golang.org/x/exp/slices"
 
 	cosmosbech32 "github.com/cosmos/cosmos-sdk/types/bech32"
 
-	"github.com/cosmos/btcutil/bech32"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 )
 
 const (
-	/// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
-	/// definition of the slippage for the swap.
+	// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
+	// definition of the slippage for the swap.
 	MaxSlippagePercentage uint8 = 20
-	/// MaxWindowSeconds is the maximum number of seconds that can be used in the
-	/// definition of the slippage for the swap.
+	// MaxWindowSeconds is the maximum number of seconds that can be used in the
+	// definition of the slippage for the swap.
 	MaxWindowSeconds uint64 = 60
 )
 
@@ -49,8 +47,8 @@ type EventSwap struct {
 	Receiver string
 }
 
-// Twap represents a Time-Weighted Average Price configuration.
-type Twap struct {
+// TWAP represents a Time-Weighted Average Price configuration.
+type TWAP struct {
 	// SlippagePercentage specifies the acceptable slippage percentage for a transaction.
 	SlippagePercentage uint8 `json:"slippage_percentage"`
 	// WindowSeconds defines the duration for which the TWAP is calculated.
@@ -60,7 +58,7 @@ type Twap struct {
 // Slippage specify how to compute the slippage of the swap. For this version of the outpost
 // only the TWAP is allowed.
 type Slippage struct {
-	Twap *Twap `json:"twap"`
+	TWAP *TWAP `json:"twap"`
 }
 
 // OsmosisSwap represents the details for a swap transaction on the Osmosis chain
@@ -71,7 +69,7 @@ type Slippage struct {
 type OsmosisSwap struct {
 	// OutputDenom specifies the desired output denomination for the swap.
 	OutputDenom string `json:"output_denom"`
-	// Twap represents the TWAP configuration for the swap.
+	// Slippage represents the TWAP configuration for the swap.
 	Slippage *Slippage `json:"slippage"`
 	// Receiver is the address of the entity receiving the swapped amount.
 	Receiver string `json:"receiver"`
@@ -98,6 +96,32 @@ type Memo struct {
 	Msg *Msg `json:"msg"`
 }
 
+// Validate performs basic validation of the IBC memo for the Osmosis outpost.
+// This function assumes that memo field is parsed with ParseSwapPacketData, which
+// performs data casting ensuring outputDenom cannot be an empty string.
+func (m Memo) Validate() error {
+	osmosisSwap := m.Msg.OsmosisSwap
+
+	if osmosisSwap.OnFailedDelivery == "" {
+		return fmt.Errorf(ErrEmptyOnFailedDelivery)
+	}
+
+	// Check if account is a valid bech32 address
+	if _, err := sdk.AccAddressFromBech32(osmosisSwap.Receiver); err != nil {
+		return fmt.Errorf(ErrReceiverAddress, "not a valid evmos address")
+	}
+
+	if osmosisSwap.Slippage.TWAP.SlippagePercentage == 0 || osmosisSwap.Slippage.TWAP.SlippagePercentage > MaxSlippagePercentage {
+		return fmt.Errorf(ErrSlippagePercentage)
+	}
+
+	if osmosisSwap.Slippage.TWAP.WindowSeconds == 0 || osmosisSwap.Slippage.TWAP.WindowSeconds > MaxWindowSeconds {
+		return fmt.Errorf(ErrWindowSeconds)
+	}
+
+	return nil
+}
+
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string.
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo.
@@ -119,7 +143,7 @@ func CreatePacketWithMemo(
 				OsmosisSwap: &OsmosisSwap{
 					OutputDenom: outputDenom,
 					Slippage: &Slippage{
-						&Twap{
+						&TWAP{
 							SlippagePercentage: slippagePercentage,
 							WindowSeconds:      windowSeconds,
 						},
@@ -145,44 +169,17 @@ func (r RawPacketMetadata) String() string {
 	return string(jsonBytes)
 }
 
-// Validate performs basic validation of the IBC memo for the Osmosis outpost.
-// This function assumes that memo field are parsed with ParseSwapPacketData, which
-// performs data casting ensuring outputDenom cannot be an empty string.
-func (m Memo) Validate() error {
-	osmosisSwap := m.Msg.OsmosisSwap
-
-	if osmosisSwap.OnFailedDelivery == "" {
-		return fmt.Errorf(ErrEmptyOnFailedDelivery)
-	}
-
-	// Check if account is a valid bech32 address
-	_, _, err := bech32.Decode(osmosisSwap.Receiver, address.MaxAddrLen)
-	if err != nil {
-		return err
-	}
-
-	if osmosisSwap.Slippage.Twap.SlippagePercentage == 0 || osmosisSwap.Slippage.Twap.SlippagePercentage > MaxSlippagePercentage {
-		return fmt.Errorf(ErrSlippagePercentage)
-	}
-
-	if osmosisSwap.Slippage.Twap.WindowSeconds == 0 || osmosisSwap.Slippage.Twap.WindowSeconds > MaxWindowSeconds {
-		return fmt.Errorf(ErrWindowSeconds)
-	}
-
-	return nil
-}
-
 // CreateOnFailedDeliveryField is an utility function to create the memo field
 // onFailedDelivery. The returned string is the bech32 of the receiver input
 // or "do_nothing".
 func CreateOnFailedDeliveryField(receiver string) string {
 	onFailedDelivery := receiver
-	bech32Prefix, address, err := cosmosbech32.DecodeAndConvert(receiver)
+	bech32Prefix, addressBytes, err := cosmosbech32.DecodeAndConvert(receiver)
 	if err != nil {
 		return DefaultOnFailedDelivery
 	}
 	if bech32Prefix != OsmosisPrefix {
-		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, address)
+		onFailedDelivery, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, addressBytes)
 		if err != nil {
 			return DefaultOnFailedDelivery
 		}
@@ -208,56 +205,75 @@ func ValidateInputOutput(
 	if !slices.Contains(validInputs, inputDenom) {
 		return fmt.Errorf(ErrInputTokenNotSupported, validInputs)
 	}
+
 	return nil
+}
+
+// SwapPacketData is an utility structure used to wrap args reiceived by the
+// Solidity interface of the Swap function.
+type SwapPacketData struct {
+	Sender             common.Address
+	Input              common.Address
+	Output             common.Address
+	Amount             *big.Int
+	SlippagePercentage uint8
+	WindowSeconds      uint64
+	SwapReceiver       string
 }
 
 // ParseSwapPacketData parses the packet data for the Osmosis swap function.
 func ParseSwapPacketData(args []interface{}) (
-	sender, input, output common.Address,
-	amount *big.Int,
-	slippagePercentage uint8,
-	windowSeconds uint64,
-	receiver string,
+	swapPacketData SwapPacketData,
 	err error,
 ) {
 	if len(args) != 7 {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
 	}
 
 	sender, ok := args[0].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
 	}
 
-	input, ok = args[1].(common.Address)
+	input, ok := args[1].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "input", common.Address{}, args[1])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "input", common.Address{}, args[1])
 	}
 
-	output, ok = args[2].(common.Address)
+	output, ok := args[2].(common.Address)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "output", common.Address{}, args[2])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "output", common.Address{}, args[2])
 	}
 
-	amount, ok = args[3].(*big.Int)
+	amount, ok := args[3].(*big.Int)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
 	}
 
-	slippagePercentage, ok = args[4].(uint8)
+	slippagePercentage, ok := args[4].(uint8)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "slippagePercentage", uint8(0), args[4])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "slippagePercentage", uint8(0), args[4])
 	}
 
-	windowSeconds, ok = args[5].(uint64)
+	windowSeconds, ok := args[5].(uint64)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[5])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[5])
 	}
 
-	receiver, ok = args[6].(string)
+	receiver, ok := args[6].(string)
 	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, nil, 0, 0, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[6])
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[6])
 	}
 
-	return sender, input, output, amount, slippagePercentage, windowSeconds, receiver, nil
+	swapPacketData = SwapPacketData{
+		Sender:             sender,
+		Input:              input,
+		Output:             output,
+		Amount:             amount,
+		SlippagePercentage: slippagePercentage,
+		WindowSeconds:      windowSeconds,
+		SwapReceiver:       receiver,
+	}
+
+	return swapPacketData, nil
 }

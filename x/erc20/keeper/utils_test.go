@@ -30,7 +30,6 @@ import (
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	teststypes "github.com/evmos/evmos/v15/types/tests"
 	"github.com/evmos/evmos/v15/utils"
-	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/evmos/evmos/v15/x/erc20/types"
 	"github.com/evmos/evmos/v15/x/evm/statedb"
 	evm "github.com/evmos/evmos/v15/x/evm/types"
@@ -216,12 +215,6 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	err = suite.IBCCosmosChain.GetSimApp().BankKeeper.SendCoinsFromModuleToAccount(suite.IBCCosmosChain.GetContext(), minttypes.ModuleName, suite.IBCCosmosChain.SenderAccount.GetAddress(), stkCoin)
 	suite.Require().NoError(err)
 
-	claimparams := claimstypes.DefaultParams()
-	claimparams.AirdropStartTime = suite.EvmosChain.GetContext().BlockTime()
-	claimparams.EnableClaims = true
-	err = s.app.ClaimsKeeper.SetParams(suite.EvmosChain.GetContext(), claimparams)
-	suite.Require().NoError(err)
-
 	params := types.DefaultParams()
 	params.EnableErc20 = true
 	err = s.app.Erc20Keeper.SetParams(suite.EvmosChain.GetContext(), params)
@@ -370,6 +363,15 @@ func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimal
 		suite.queryClientEvm,
 		contracts.ERC20MinterBurnerDecimalsContract,
 		name, symbol, decimals,
+	)
+}
+
+func (suite *KeeperTestSuite) requireActivePrecompiles(precompiles []string) {
+	params := suite.app.EvmKeeper.GetParams(suite.ctx)
+	suite.Require().Equal(
+		precompiles,
+		params.ActivePrecompiles,
+		"expected different active precompiles",
 	)
 }
 

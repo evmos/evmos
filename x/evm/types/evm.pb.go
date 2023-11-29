@@ -44,6 +44,8 @@ type Params struct {
 	// active_precompiles defines the slice of hex addresses of the precompiled
 	// contracts that are active
 	ActivePrecompiles []string `protobuf:"bytes,7,rep,name=active_precompiles,json=activePrecompiles,proto3" json:"active_precompiles,omitempty"`
+	// evm_channels is the list of channel identifiers from EVM compatible chains
+	EVMChannels []string `protobuf:"bytes,8,rep,name=evm_channels,json=evmChannels,proto3" json:"evm_channels,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -124,6 +126,13 @@ func (m *Params) GetAllowUnprotectedTxs() bool {
 func (m *Params) GetActivePrecompiles() []string {
 	if m != nil {
 		return m.ActivePrecompiles
+	}
+	return nil
+}
+
+func (m *Params) GetEVMChannels() []string {
+	if m != nil {
+		return m.EVMChannels
 	}
 	return nil
 }
@@ -828,6 +837,15 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.EVMChannels) > 0 {
+		for iNdEx := len(m.EVMChannels) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.EVMChannels[iNdEx])
+			copy(dAtA[i:], m.EVMChannels[iNdEx])
+			i = encodeVarintEvm(dAtA, i, uint64(len(m.EVMChannels[iNdEx])))
+			i--
+			dAtA[i] = 0x42
+		}
+	}
 	if len(m.ActivePrecompiles) > 0 {
 		for iNdEx := len(m.ActivePrecompiles) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.ActivePrecompiles[iNdEx])
@@ -1597,6 +1615,12 @@ func (m *Params) Size() (n int) {
 			n += 1 + l + sovEvm(uint64(l))
 		}
 	}
+	if len(m.EVMChannels) > 0 {
+		for _, s := range m.EVMChannels {
+			l = len(s)
+			n += 1 + l + sovEvm(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -2124,6 +2148,38 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ActivePrecompiles = append(m.ActivePrecompiles, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EVMChannels", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvm
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EVMChannels = append(m.EVMChannels, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

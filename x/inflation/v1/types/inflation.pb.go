@@ -36,7 +36,7 @@ type InflationDistribution struct {
 	// staking_rewards defines the proportion of the minted minted_denom that is
 	// to be allocated as staking rewards
 	StakingRewards cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=staking_rewards,json=stakingRewards,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"staking_rewards"`
-	// usage_incentives defines the proportion of the minted minted_denom that is
+	// Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
 	// to be allocated to the incentives module address
 	UsageIncentives cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=usage_incentives,json=usageIncentives,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"usage_incentives"`
 	// community_pool defines the proportion of the minted minted_denom that is to

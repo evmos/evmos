@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/ethereum/go-ethereum/params"
 	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
 	evmostypes "github.com/evmos/evmos/v15/types"
 	"github.com/evmos/evmos/v15/x/evm/types"
@@ -35,61 +36,72 @@ func NewDynamicFeeChecker(k DynamicFeeEVMKeeper) anteutils.TxFeeChecker {
 		denom := params.EvmDenom
 		ethCfg := params.ChainConfig.EthereumConfig(k.ChainID())
 
-		baseFee := k.GetBaseFee(ctx, ethCfg)
-		if baseFee == nil {
-			// london hardfork is not enabled: fallback to min-gas-prices logic
-			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
-		}
+		return FeeChecker(ctx, k, denom, ethCfg, feeTx)
+	}
+}
 
-		// default to `MaxInt64` when there's no extension option.
-		maxPriorityPrice := sdkmath.NewInt(math.MaxInt64)
+// FeeChecker returns the effective fee and priority for a given transaction.
+func FeeChecker(
+	ctx sdk.Context,
+	k DynamicFeeEVMKeeper,
+	denom string,
+	ethConfig *params.ChainConfig,
+	feeTx sdk.FeeTx,
+) (sdk.Coins, int64, error) {
+	baseFee := k.GetBaseFee(ctx, ethConfig)
+	if baseFee == nil {
+		// london hardfork is not enabled: fallback to min-gas-prices logic
+		return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
+	}
 
-		// get the priority tip cap from the extension option.
-		if hasExtOptsTx, ok := feeTx.(authante.HasExtensionOptionsTx); ok {
-			for _, opt := range hasExtOptsTx.GetExtensionOptions() {
-				if extOpt, ok := opt.GetCachedValue().(*evmostypes.ExtensionOptionDynamicFeeTx); ok {
-					maxPriorityPrice = extOpt.MaxPriorityPrice
-					break
-				}
+	// default to `MaxInt64` when there's no extension option.
+	maxPriorityPrice := sdkmath.NewInt(math.MaxInt64)
+
+	// get the priority tip cap from the extension option.
+	if hasExtOptsTx, ok := feeTx.(authante.HasExtensionOptionsTx); ok {
+		for _, opt := range hasExtOptsTx.GetExtensionOptions() {
+			if extOpt, ok := opt.GetCachedValue().(*evmostypes.ExtensionOptionDynamicFeeTx); ok {
+				maxPriorityPrice = extOpt.MaxPriorityPrice
+				break
 			}
 		}
-
-		// priority fee cannot be negative
-		if maxPriorityPrice.IsNegative() {
-			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "max priority price cannot be negative")
-		}
-
-		gas := feeTx.GetGas()
-		feeCoins := feeTx.GetFee()
-		fee := feeCoins.AmountOfNoDenomValidation(denom)
-
-		feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
-		baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
-
-		if feeCap.LT(baseFeeInt) {
-			return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFeeInt, denom)
-		}
-
-		// calculate the effective gas price using the EIP-1559 logic.
-		effectivePrice := sdkmath.NewIntFromBigInt(types.EffectiveGasPrice(baseFeeInt.BigInt(), feeCap.BigInt(), maxPriorityPrice.BigInt()))
-
-		// NOTE: create a new coins slice without having to validate the denom
-		effectiveFee := sdk.Coins{
-			{
-				Denom:  denom,
-				Amount: effectivePrice.Mul(sdkmath.NewIntFromUint64(gas)),
-			},
-		}
-
-		bigPriority := effectivePrice.Sub(baseFeeInt).Quo(types.DefaultPriorityReduction)
-		priority := int64(math.MaxInt64)
-
-		if bigPriority.IsInt64() {
-			priority = bigPriority.Int64()
-		}
-
-		return effectiveFee, priority, nil
 	}
+
+	// priority fee cannot be negative
+	if maxPriorityPrice.IsNegative() {
+		return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "max priority price cannot be negative")
+	}
+
+	gas := feeTx.GetGas()
+	feeCoins := feeTx.GetFee()
+	fee := feeCoins.AmountOfNoDenomValidation(denom)
+
+	feeCap := fee.Quo(sdkmath.NewIntFromUint64(gas))
+	baseFeeInt := sdkmath.NewIntFromBigInt(baseFee)
+
+	if feeCap.LT(baseFeeInt) {
+		return nil, 0, errorsmod.Wrapf(errortypes.ErrInsufficientFee, "gas prices too low, got: %s%s required: %s%s. Please retry using a higher gas price or a higher fee", feeCap, denom, baseFeeInt, denom)
+	}
+
+	// calculate the effective gas price using the EIP-1559 logic.
+	effectivePrice := sdkmath.NewIntFromBigInt(types.EffectiveGasPrice(baseFeeInt.BigInt(), feeCap.BigInt(), maxPriorityPrice.BigInt()))
+
+	// NOTE: create a new coins slice without having to validate the denom
+	effectiveFee := sdk.Coins{
+		{
+			Denom:  denom,
+			Amount: effectivePrice.Mul(sdkmath.NewIntFromUint64(gas)),
+		},
+	}
+
+	bigPriority := effectivePrice.Sub(baseFeeInt).Quo(types.DefaultPriorityReduction)
+	priority := int64(math.MaxInt64)
+
+	if bigPriority.IsInt64() {
+		priority = bigPriority.Int64()
+	}
+
+	return effectiveFee, priority, nil
 }
 
 // checkTxFeeWithValidatorMinGasPrices implements the default fee logic, where the minimum price per

@@ -10,6 +10,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -76,6 +77,28 @@ func UnwrapEthereumMsg(tx *sdk.Tx, ethHash common.Hash) (*MsgEthereumTx, error) 
 	}
 
 	return nil, fmt.Errorf("eth tx not found: %s", ethHash)
+}
+
+// UnpackEthMsg unpacks an Ethereum message from a Cosmos SDK message
+func UnpackEthMsg(msg sdk.Msg) (
+	ethMsg *MsgEthereumTx,
+	txData TxData,
+	from sdk.AccAddress,
+	err error,
+) {
+	msgEthTx, ok := msg.(*MsgEthereumTx)
+	if !ok {
+		return nil, nil, nil, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*MsgEthereumTx)(nil))
+	}
+
+	txData, err = UnpackTxData(msgEthTx.Data)
+	if err != nil {
+		return nil, nil, nil, errorsmod.Wrap(err, "failed to unpack tx data any for tx")
+	}
+
+	// sender address should be in the tx cache from the previous AnteHandle call
+	from = msgEthTx.GetFrom()
+	return msgEthTx, txData, from, nil
 }
 
 // BinSearch executes the binary search and hone in on an executable gas limit
