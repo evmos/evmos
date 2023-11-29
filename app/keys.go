@@ -22,7 +22,6 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	claimstypes "github.com/evmos/evmos/v15/x/claims/types"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -54,7 +53,7 @@ func StoreKeys() (
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
 		inflationtypes.StoreKey, erc20types.StoreKey,
-		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
+		epochstypes.StoreKey, vestingtypes.StoreKey,
 		revenuetypes.StoreKey,
 	}
 

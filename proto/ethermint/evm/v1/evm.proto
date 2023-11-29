@@ -26,6 +26,8 @@ message Params {
   // active_precompiles defines the slice of hex addresses of the precompiled
   // contracts that are active
   repeated string active_precompiles = 7;
+  // evm_channels is the list of channel identifiers from EVM compatible chains
+  repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
