@@ -4,13 +4,11 @@
 package bank
 
 import (
-	"bytes"
 	"embed"
 	"fmt"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
@@ -26,6 +24,9 @@ const (
 
 	// GasTotalSupply defines the gas cost for a single ERC-20 totalSupply query
 	GasTotalSupply uint64 = 100 // TODO: get actual estimated gas cost
+
+	// GasSupplyOf defines the gas cost for a single ERC-20 supplyOf query, taken from totalSupply of ERC20
+	GasSupplyOf uint64 = 2_477
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -48,12 +49,7 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 ) (*Precompile, error) {
-	abiBz, err := f.ReadFile("abi.json")
-	if err != nil {
-		return nil, err
-	}
-
-	newAbi, err := abi.JSON(bytes.NewReader(abiBz))
+	newABI, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +58,7 @@ func NewPrecompile(
 	// during the run execution
 	return &Precompile{
 		Precompile: cmn.Precompile{
-			ABI:                  newAbi,
+			ABI:                  newABI,
 			KvGasConfig:          storetypes.GasConfig{},
 			TransientKVGasConfig: storetypes.GasConfig{},
 		},
@@ -94,6 +90,8 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 		return GasBalanceOf
 	case TotalSupplyMethod:
 		return GasTotalSupply
+	case SupplyOfMethod:
+		return GasSupplyOf
 	}
 
 	return 0
@@ -116,6 +114,8 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 		bz, err = p.Balances(ctx, contract, method, args)
 	case TotalSupplyMethod:
 		bz, err = p.TotalSupply(ctx, contract, method, args)
+	case SupplyOfMethod:
+		bz, err = p.SupplyOf(ctx, contract, method, args)
 	default:
 		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}

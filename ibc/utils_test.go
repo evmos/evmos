@@ -3,7 +3,6 @@ package ibc
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/x/claims/types"
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -199,20 +198,6 @@ func TestGetTransferAmount(t *testing.T) {
 				),
 			},
 			"10000",
-			false,
-		},
-		{
-			"valid - IBCTriggerAmt",
-			channeltypes.Packet{
-				Data: transfertypes.ModuleCdc.MustMarshalJSON(
-					&transfertypes.FungibleTokenPacketData{
-						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
-						Receiver: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-						Amount:   types.IBCTriggerAmt,
-					},
-				),
-			},
-			types.IBCTriggerAmt,
 			false,
 		},
 	}

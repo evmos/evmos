@@ -6,11 +6,12 @@
 , appName
 , rev
 , vendorSha256
+, patches ? []
 }:
 buildGo119Module rec {
   # Use this nix file to build any cosmos chain you need,
   # e.g. Stride, Osmosis, etc.
-  inherit src version name appName rev vendorSha256;
+  inherit src version name appName rev vendorSha256 patches;
   tags = [ "netgo" ];
   ldflags = lib.concatStringsSep "\n" ([
     "-X github.com/cosmos/cosmos-sdk/version.Name=${name}"

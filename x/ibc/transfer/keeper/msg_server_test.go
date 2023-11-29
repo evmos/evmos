@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-	"github.com/evmos/evmos/v15/testutil"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	"github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
@@ -165,31 +164,6 @@ func (suite *KeeperTestSuite) TestTransfer() {
 
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, erc20types.ModuleName, senderAcc, sdk.NewCoins(coin))
 				suite.Require().NoError(err)
-				suite.Commit()
-
-				return transferMsg
-			},
-			true,
-		},
-		{
-			"no-op - sender is a module account",
-			func() *types.MsgTransfer {
-				contractAddr, err := suite.DeployContract("coin", "token", uint8(6))
-				suite.Require().NoError(err)
-				suite.Commit()
-
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
-				suite.Require().NoError(err)
-				suite.Commit()
-
-				// module account needs permission to send funds (perms set in allowedReceivingModAcc)
-				senderAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "incentives")
-
-				err = testutil.FundModuleAccount(suite.ctx, suite.app.BankKeeper, senderAcc.GetName(), sdk.NewCoins(sdk.NewCoin(pair.Denom, sdk.NewInt(10))))
-				suite.Require().NoError(err)
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(pair.Denom, sdk.NewInt(10)), senderAcc.GetAddress().String(), "", timeoutHeight, 0, "")
-
-				suite.MintERC20Token(contractAddr, suite.address, suite.address, big.NewInt(10))
 				suite.Commit()
 
 				return transferMsg

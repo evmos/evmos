@@ -26,6 +26,7 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
+ROCKSDB_VERSION ?= "8.5.3"
 
 export GO111MODULE = on
 
@@ -168,6 +169,18 @@ build-docker:
 	echo 'SCRIPT_PATH=$$(cd $$(dirname $$0) && pwd -P)' >> ./build/evmosd
 	echo 'docker run -it --rm -v $${SCRIPT_PATH}/.evmosd:/home/evmos/.evmosd $$IMAGE_NAME evmosd "$$@"' >> ./build/evmosd
 	chmod +x ./build/evmosd
+
+build-pebbledb:
+	@go mod edit -replace github.com/cometbft/cometbft-db=github.com/notional-labs/cometbft-db@pebble
+	@go mod tidy
+	COSMOS_BUILD_OPTIONS=pebbledb $(MAKE) build
+
+build-rocksdb:
+	# Make sure to run this command with root permission
+	./scripts/install_librocksdb.sh $(ROCKSDB_VERSION)
+	CGO_ENABLED=1 CGO_CFLAGS="-I/usr/include" \
+	CGO_LDFLAGS="-L/usr/lib -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl" \
+	COSMOS_BUILD_OPTIONS=rocksdb $(MAKE) build
 
 push-docker: build-docker
 	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
@@ -565,9 +578,9 @@ release:
 ###############################################################################
 
 CONTRACTS_DIR := contracts
-COMPILED_DIR := contracts/compiled_contracts
+COMPILED_DIR := $(CONTRACTS_DIR)/compiled_contracts
 TMP := tmp
-TMP_CONTRACTS := $(TMP).contracts
+TMP_CONTRACTS := $(TMP)/contracts
 TMP_COMPILED := $(TMP)/compiled.json
 TMP_JSON := $(TMP)/tmp.json
 
@@ -578,17 +591,16 @@ contracts-compile: contracts-clean openzeppelin create-contracts-json
 # Install openzeppelin solidity contracts
 openzeppelin:
 	@echo "Importing openzeppelin contracts..."
-	@cd $(CONTRACTS_DIR)
-	@npm install
-	@cd ../../../../
-	@mv node_modules $(TMP)
-	@mv package-lock.json $(TMP)
-	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
+	@cd $(CONTRACTS_DIR) && \
+	 npm install && \
+	 mv node_modules $(TMP) && \
+	 mv $(TMP)/@openzeppelin . && \
+	 rm -rf $(TMP)
 
 # Clean tmp files
 contracts-clean:
-	@rm -rf tmp
-	@rm -rf node_modules
+	@rm -rf $(CONTRACTS_DIR)/$(TMP)
+	@rm -rf $(CONTRACTS_DIR)/node_modules
 	@rm -rf $(COMPILED_DIR)
 	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
 
@@ -614,7 +626,7 @@ create-contracts-json:
 		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
 		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
 	done
-	@rm -rf tmp
+	@rm -rf $(TMP)
 
 ###############################################################################
 ###                                Licenses                                 ###

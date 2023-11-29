@@ -15,8 +15,10 @@ import (
 const receiver = "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0"
 
 func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
-	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, utils.BaseDenom)
-	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
+	ctx := s.network.GetContext()
+	stateDB := s.network.GetStateDB()
+	denomID := s.network.App.Erc20Keeper.GetDenomMap(ctx, utils.BaseDenom)
+	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
 	testCases := []struct {
@@ -26,17 +28,17 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 		{
 			"success",
 			func() {
-				liquidStakeLog := s.stateDB.Logs()[0]
+				liquidStakeLog := stateDB.Logs()[0]
 				s.Require().Equal(liquidStakeLog.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[stride.EventTypeLiquidStake]
 				s.Require().Equal(event.ID, common.HexToHash(liquidStakeLog.Topics[0].Hex()))
-				s.Require().Equal(liquidStakeLog.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(liquidStakeLog.BlockNumber, uint64(ctx.BlockHeight()))
 
 				var liquidStakeEvent stride.EventLiquidStake
 				err := cmn.UnpackLog(s.precompile.ABI, &liquidStakeEvent, stride.EventTypeLiquidStake, *liquidStakeLog)
 				s.Require().NoError(err)
-				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), liquidStakeEvent.Sender)
+				s.Require().Equal(common.BytesToAddress(s.keyring.GetAccAddr(0)), liquidStakeEvent.Sender)
 				s.Require().Equal(common.HexToAddress(tokenPair.Erc20Address), liquidStakeEvent.Token)
 				s.Require().Equal(big.NewInt(1e18), liquidStakeEvent.Amount)
 			},
@@ -47,7 +49,7 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			err := s.precompile.EmitLiquidStakeEvent(s.ctx, s.stateDB, s.address, common.HexToAddress(tokenPair.Erc20Address), big.NewInt(1e18))
+			err := s.precompile.EmitLiquidStakeEvent(ctx, stateDB, s.keyring.GetAddr(0), common.HexToAddress(tokenPair.Erc20Address), big.NewInt(1e18))
 			s.Require().NoError(err)
 			tc.postCheck()
 		})
@@ -55,7 +57,9 @@ func (s *PrecompileTestSuite) TestLiquidStakeEvent() {
 }
 
 func (s *PrecompileTestSuite) TestRedeemEvent() {
-	bondDenom := s.app.StakingKeeper.BondDenom(s.ctx)
+	ctx := s.network.GetContext()
+	stateDB := s.network.GetStateDB()
+	bondDenom := s.network.App.StakingKeeper.BondDenom(ctx)
 	denomTrace := transfertypes.DenomTrace{
 		Path:      fmt.Sprintf("%s/%s", portID, channelID),
 		BaseDenom: "st" + bondDenom,
@@ -63,8 +67,8 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 
 	stEvmos := denomTrace.IBCDenom()
 
-	denomID := s.app.Erc20Keeper.GetDenomMap(s.ctx, stEvmos)
-	tokenPair, ok := s.app.Erc20Keeper.GetTokenPair(s.ctx, denomID)
+	denomID := s.network.App.Erc20Keeper.GetDenomMap(ctx, stEvmos)
+	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(ctx, denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
 	testCases := []struct {
@@ -74,19 +78,19 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 		{
 			"success",
 			func() {
-				redeemLog := s.stateDB.Logs()[0]
+				redeemLog := stateDB.Logs()[0]
 				s.Require().Equal(redeemLog.Address, s.precompile.Address())
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[stride.EventTypeRedeemStake]
 				s.Require().Equal(event.ID, common.HexToHash(redeemLog.Topics[0].Hex()))
-				s.Require().Equal(redeemLog.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(redeemLog.BlockNumber, uint64(ctx.BlockHeight()))
 
 				var redeemEvent stride.EventRedeem
 				err := cmn.UnpackLog(s.precompile.ABI, &redeemEvent, stride.EventTypeRedeemStake, *redeemLog)
 				s.Require().NoError(err)
-				s.Require().Equal(common.BytesToAddress(s.address.Bytes()), redeemEvent.Sender)
+				s.Require().Equal(common.BytesToAddress(s.keyring.GetAccAddr(0)), redeemEvent.Sender)
 				s.Require().Equal(common.HexToAddress(tokenPair.Erc20Address), redeemEvent.Token)
-				s.Require().Equal(s.address, redeemEvent.Receiver)
+				s.Require().Equal(s.keyring.GetAddr(0), redeemEvent.Receiver)
 				s.Require().Equal(receiver, redeemEvent.StrideForwarder)
 				s.Require().Equal(big.NewInt(1e18), redeemEvent.Amount)
 			},
@@ -97,7 +101,15 @@ func (s *PrecompileTestSuite) TestRedeemEvent() {
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
-			err := s.precompile.EmitRedeemStakeEvent(s.ctx, s.stateDB, s.address, common.HexToAddress(tokenPair.Erc20Address), s.address, receiver, big.NewInt(1e18))
+			err := s.precompile.EmitRedeemStakeEvent(
+				ctx,
+				stateDB,
+				s.keyring.GetAddr(0),
+				common.HexToAddress(tokenPair.Erc20Address),
+				s.keyring.GetAddr(0),
+				receiver,
+				big.NewInt(1e18),
+			)
 			s.Require().NoError(err)
 			tc.postCheck()
 		})

@@ -4,13 +4,14 @@
 package erc20
 
 import (
-	"errors"
+	"bytes"
 	"fmt"
 	"math"
 	"math/big"
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -44,7 +45,7 @@ const (
 
 // Name returns the name of the token. If the token metadata is registered in the
 // bank module, it returns its name. Otherwise, it returns the base denomination of
-// the token capitalized (eg. uatom -> Atom).
+// the token capitalized (e.g. uatom -> Atom).
 func (p Precompile) Name(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -59,7 +60,7 @@ func (p Precompile) Name(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	name := strings.ToUpper(string(baseDenom[1])) + baseDenom[2:]
@@ -67,8 +68,8 @@ func (p Precompile) Name(
 }
 
 // Symbol returns the symbol of the token. If the token metadata is registered in the
-// bank module, it returns its symbol. Otherwise it returns the base denomination of
-// the token in uppercase (eg. uatom -> ATOM).
+// bank module, it returns its symbol. Otherwise, it returns the base denomination of
+// the token in uppercase (e.g. uatom -> ATOM).
 func (p Precompile) Symbol(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -83,7 +84,7 @@ func (p Precompile) Symbol(
 
 	baseDenom, err := p.getBaseDenomFromIBCVoucher(ctx, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		return nil, ConvertErrToERC20Error(err)
 	}
 
 	symbol := strings.ToUpper(baseDenom[1:])
@@ -91,8 +92,8 @@ func (p Precompile) Symbol(
 }
 
 // Decimals returns the decimals places of the token. If the token metadata is registered in the
-// bank module, it returns its the display denomination exponent. Otherwise it infers the decimal
-// value from the first character of the base denomination (eg. uatom -> 6).
+// bank module, it returns the display denomination exponent. Otherwise, it infers the decimal
+// value from the first character of the base denomination (e.g. uatom -> 6).
 func (p Precompile) Decimals(
 	ctx sdk.Context,
 	_ *vm.Contract,
@@ -104,8 +105,7 @@ func (p Precompile) Decimals(
 	if !found {
 		denomTrace, err := GetDenomTrace(p.transferKeeper, ctx, p.tokenPair.Denom)
 		if err != nil {
-			// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-			return nil, err
+			return nil, ConvertErrToERC20Error(err)
 		}
 
 		// we assume the decimal from the first character of the denomination
@@ -115,11 +115,10 @@ func (p Precompile) Decimals(
 		case "a": // atto (a) -> 18 decimals
 			return method.Outputs.Pack(uint8(18))
 		}
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, fmt.Errorf(
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
 			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
 			denomTrace.BaseDenom,
-		)
+		))
 	}
 
 	var (
@@ -135,12 +134,17 @@ func (p Precompile) Decimals(
 	}
 
 	if !displayFound {
-		// FIXME: return not supported (same error as when you call the method on an ERC20.sol)
-		return nil, fmt.Errorf("display denomination not found for denom: %q", p.tokenPair.Denom)
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
+			"display denomination not found for denom: %q",
+			p.tokenPair.Denom,
+		))
 	}
 
 	if decimals > math.MaxUint8 {
-		return nil, fmt.Errorf("uint8 overflow: invalid decimals: %d", decimals)
+		return nil, ConvertErrToERC20Error(fmt.Errorf(
+			"uint8 overflow: invalid decimals: %d",
+			decimals,
+		))
 	}
 
 	return method.Outputs.Pack(uint8(decimals)) //#nosec G701 // we are checking for overflow above
@@ -193,12 +197,17 @@ func (p Precompile) Allowance(
 		return nil, err
 	}
 
-	granter := owner
-	grantee := spender
+	// NOTE: In case the allowance is queried by the owner, we return the max uint256 value, which
+	// resembles an infinite allowance.
+	if bytes.Equal(owner.Bytes(), spender.Bytes()) {
+		return method.Outputs.Pack(abi.MaxUint256)
+	}
 
-	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spender, owner, p.tokenPair.Denom)
 	if err != nil {
-		return nil, err
+		// NOTE: We are not returning the error here, because we want to align the behavior with
+		// standard ERC20 smart contracts, which return zero if an allowance is not found.
+		allowance = common.Big0
 	}
 
 	return method.Outputs.Pack(allowance)
@@ -212,7 +221,7 @@ func GetDenomTrace(
 	denom string,
 ) (transfertypes.DenomTrace, error) {
 	if !strings.HasPrefix(denom, "ibc/") {
-		return transfertypes.DenomTrace{}, fmt.Errorf("denom is not an IBC voucher: %s", denom)
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
 	}
 
 	hash, err := transfertypes.ParseHexHash(denom[4:])
@@ -222,7 +231,7 @@ func GetDenomTrace(
 
 	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
 	if !found {
-		return transfertypes.DenomTrace{}, errors.New("denom trace not found")
+		return transfertypes.DenomTrace{}, ErrDenomTraceNotFound
 	}
 
 	return denomTrace, nil
@@ -237,15 +246,15 @@ func GetAuthzExpirationAndAllowance(
 	denom string,
 ) (authz.Authorization, *time.Time, *big.Int, error) {
 	authorization, expiration, err := auth.CheckAuthzExists(ctx, authzKeeper, grantee, granter, SendMsgURL)
-	// TODO: return error if doesn't exist?
 	if err != nil {
 		return nil, nil, common.Big0, err
 	}
 
 	sendAuth, ok := authorization.(*banktypes.SendAuthorization)
 	if !ok {
-		// TODO: return error if invalid authorization?
-		return nil, nil, common.Big0, nil
+		return nil, nil, common.Big0, fmt.Errorf(
+			"expected authorization to be a %T", banktypes.SendAuthorization{},
+		)
 	}
 
 	allowance := sendAuth.SpendLimit.AmountOfNoDenomValidation(denom)

@@ -35,7 +35,6 @@ type AnteTestSuite struct {
 	enableFeemarket          bool
 	enableLondonHF           bool
 	evmParamsOption          func(*evmtypes.Params)
-	useLegacyEIP712Extension bool
 	useLegacyEIP712TypedData bool
 }
 
@@ -123,13 +122,11 @@ func TestAnteTestSuite(t *testing.T) {
 	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF:           true,
-		useLegacyEIP712Extension: true,
 		useLegacyEIP712TypedData: true,
 	})
 
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF:           true,
-		useLegacyEIP712Extension: false,
 		useLegacyEIP712TypedData: true,
 	})
 }
