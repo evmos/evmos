@@ -28,7 +28,7 @@ var (
 	DefaultInflationDistribution = InflationDistribution{
 		StakingRewards:  math.LegacyNewDecWithPrec(533333334, 9), // 0.53
 		CommunityPool:   math.LegacyNewDecWithPrec(466666666, 9), // 0.47
-		UsageIncentives: math.LegacyZeroDec(),             // Deprecated
+		UsageIncentives: math.LegacyZeroDec(),                    // Deprecated
 	}
 )
 
