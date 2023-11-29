@@ -88,9 +88,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should return no balance for new account", func() {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
-
-				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
+				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, evmosutiltx.GenerateAddress())
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
@@ -163,10 +161,15 @@ var _ = Describe("Bank Extension -", func() {
 				Expect(out[0].(*big.Int)).To(Equal(amount))
 			})
 
-			It("should return an error for a non existing token", func() {
+			It("should return a supply of 0 for a non existing token", func() {
 				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, evmosutiltx.GenerateAddress())
-				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
-				Expect(err).To(HaveOccurred(), "unexpected result calling contract")
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				out, err := s.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				Expect(out[0].(*big.Int).Int64()).To(Equal(big.NewInt(0).Int64()))
 			})
 
 			It("should consume the correct amount of gas", func() {

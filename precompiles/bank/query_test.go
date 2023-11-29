@@ -3,8 +3,6 @@ package bank_test
 import (
 	"math/big"
 
-	"github.com/evmos/evmos/v15/x/erc20/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/evmos/evmos/v15/precompiles/bank"
@@ -198,15 +196,15 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			nil,
 		},
 		{
-			"fail - erc20 not registered",
+			"pass - erc20 not registered return 0 supply",
 			func() []interface{} {
 				return []interface{}{
 					evmosutiltx.GenerateAddress(),
 				}
 			},
-			true,
-			types.ErrTokenPairNotFound.Error(),
-			nil,
+			false,
+			"",
+			big.NewInt(0),
 		},
 		{
 			"pass - XMPL total supply",
@@ -255,7 +253,7 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 				supply, ok := out[0].(*big.Int)
 				s.Require().True(ok, "expected output to be a big.Int")
 				s.Require().NoError(err)
-				s.Require().Equal(supply, tc.expSupply)
+				s.Require().Equal(supply.Int64(), tc.expSupply.Int64())
 			}
 		})
 	}
