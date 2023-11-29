@@ -27,7 +27,6 @@ import (
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	revenuetypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
@@ -54,7 +53,7 @@ func StoreKeys() (
 		// ethermint keys
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// evmos keys
-		inflationtypes.StoreKey, erc20types.StoreKey, incentivestypes.StoreKey,
+		inflationtypes.StoreKey, erc20types.StoreKey,
 		epochstypes.StoreKey, claimstypes.StoreKey, vestingtypes.StoreKey,
 		revenuetypes.StoreKey,
 	}
