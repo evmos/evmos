@@ -354,73 +354,107 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
-				DescribeTable("it should transfer funds from the own account in case sufficient approval is set", func(callType CallType) {
-					owner := is.keyring.GetKey(0)
-					receiver := utiltx.GenerateAddress()
+				When("the spender is the same as the sender", func() {
+					It("should transfer funds without the need for an approval when calling the EVM extension", func() {
+						owner := is.keyring.GetKey(0)
+						spender := owner
+						receiver := utiltx.GenerateAddress()
 
-					fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
-					transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+						fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+						transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
-					// Fund account with some tokens
-					is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+						// Fund account with some tokens
+						is.fundWithTokens(directCall, contractsData, owner.Addr, fundCoins)
 
-					// NOTE: Here we set up the allowance using the contract calls instead of the helper utils,
-					// because the `MsgGrant` used there doesn't allow the sender to be the same as the spender,
-					// but the ERC20 contracts do.
-					txArgs, approveArgs := is.getTxAndCallArgs(
-						callType, contractsData,
-						auth.ApproveMethod,
-						owner.Addr, transferCoins[0].Amount.BigInt(),
+						// Transfer tokens
+						txArgs, transferArgs := is.getTxAndCallArgs(
+							directCall, contractsData,
+							erc20.TransferFromMethod,
+							owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+						)
+
+						transferCheck := passCheck.WithExpEvents(
+							erc20.EventTypeTransfer, auth.EventTypeApproval,
+						)
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(spender.Priv, txArgs, transferArgs, transferCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
+						is.ExpectBalancesForContract(
+							directCall, contractsData,
+							[]ExpectedBalance{
+								{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+								{address: receiver.Bytes(), expCoins: transferCoins},
+							},
+						)
+					})
+
+					DescribeTable("it should transfer funds from the own account in case sufficient approval is set", func(callType CallType) {
+						owner := is.keyring.GetKey(0)
+						receiver := utiltx.GenerateAddress()
+
+						fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
+						transferCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+						// Fund account with some tokens
+						is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+
+						// NOTE: Here we set up the allowance using the contract calls instead of the helper utils,
+						// because the `MsgGrant` used there doesn't allow the sender to be the same as the spender,
+						// but the ERC20 contracts do.
+						txArgs, approveArgs := is.getTxAndCallArgs(
+							callType, contractsData,
+							auth.ApproveMethod,
+							owner.Addr, transferCoins[0].Amount.BigInt(),
+						)
+
+						approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+						_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						is.ExpectSendAuthzForContract(
+							callType, contractsData,
+							owner.Addr, owner.Addr, transferCoins,
+						)
+
+						// Transfer tokens
+						txArgs, transferArgs := is.getTxAndCallArgs(
+							callType, contractsData,
+							erc20.TransferFromMethod,
+							owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
+						)
+
+						transferCheck := passCheck.WithExpEvents(
+							erc20.EventTypeTransfer,
+							auth.EventTypeApproval,
+						)
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
+						is.ExpectBalancesForContract(
+							callType, contractsData,
+							[]ExpectedBalance{
+								{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
+								{address: receiver.Bytes(), expCoins: transferCoins},
+							},
+						)
+
+						// Check that the allowance was removed since we authorized only the transferred amount
+						// FIXME: This is not working for the case where we transfer from the own account
+						// because the allowance is not removed on the SDK side.
+						is.ExpectNoSendAuthzForContract(
+							callType, contractsData,
+							owner.Addr, owner.Addr,
+						)
+					},
+						Entry(" - through erc20 contract", erc20Call),
+						Entry(" - through erc20 v5 contract", erc20V5Call),
 					)
-
-					approveCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-					_, _, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, approveArgs, approveCheck)
-					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					is.ExpectSendAuthzForContract(
-						callType, contractsData,
-						owner.Addr, owner.Addr, transferCoins,
-					)
-
-					// Transfer tokens
-					txArgs, transferArgs := is.getTxAndCallArgs(
-						callType, contractsData,
-						erc20.TransferFromMethod,
-						owner.Addr, receiver, transferCoins[0].Amount.BigInt(),
-					)
-
-					transferCheck := passCheck.WithExpEvents(
-						erc20.EventTypeTransfer,
-						auth.EventTypeApproval,
-					)
-
-					_, ethRes, err := is.factory.CallContractAndCheckLogs(owner.Priv, txArgs, transferArgs, transferCheck)
-					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					is.ExpectTrueToBeReturned(ethRes, erc20.TransferFromMethod)
-					is.ExpectBalancesForContract(
-						callType, contractsData,
-						[]ExpectedBalance{
-							{address: owner.AccAddr, expCoins: fundCoins.Sub(transferCoins...)},
-							{address: receiver.Bytes(), expCoins: transferCoins},
-						},
-					)
-
-					// Check that the allowance was removed since we authorized only the transferred amount
-					// FIXME: This is not working for the case where we transfer from the own account
-					// because the allowance is not removed on the SDK side.
-					is.ExpectNoSendAuthzForContract(
-						callType, contractsData,
-						owner.Addr, owner.Addr,
-					)
-				},
-					Entry(" - direct call", directCall),
-					// NOTE: we are not passing the contract call here because this test case only covers direct calls
-
-					Entry(" - through erc20 contract", erc20Call),
-					Entry(" - through erc20 v5 contract", erc20V5Call),
-				)
+				})
 
 				DescribeTable("it should return an error when the spender does not have enough allowance", func(callType CallType) {
 					owner := is.keyring.GetKey(0)
@@ -778,6 +812,50 @@ var _ = Describe("ERC20 Extension -", func() {
 				Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 			)
 
+			When("querying the allowance for the own address", func() {
+				// NOTE: We differ in behavior from the ERC20 calls here, because the full logic for approving,
+				// querying allowance and reducing allowance on a transferFrom transaction is not possible without
+				// changes to the Cosmos SDK.
+				//
+				// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+				It("should return the maxUint256 value when calling the EVM extension", func() {
+					grantee := is.keyring.GetAddr(0)
+					granter := is.keyring.GetKey(0)
+
+					txArgs, allowanceArgs := is.getTxAndCallArgs(directCall, contractsData, auth.AllowanceMethod, grantee, grantee)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var allowance *big.Int
+					err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(allowance).To(Equal(abi.MaxUint256), "expected different allowance")
+				})
+
+				// NOTE: Since it's possible to set an allowance for the own address with the Solidity ERC20 contracts,
+				// we describe this case here for completion purposes, to describe the difference in behavior.
+				DescribeTable("should return the actual allowance value when calling the ERC20 contract", func(callType CallType) {
+					granter := is.keyring.GetKey(0)
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					is.setupSendAuthzForContract(callType, contractsData, granter.Addr, granter.Priv, authzCoins)
+
+					txArgs, allowanceArgs := is.getTxAndCallArgs(callType, contractsData, auth.AllowanceMethod, granter.Addr, granter.Addr)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, allowanceArgs, passCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					var allowance *big.Int
+					err = is.precompile.UnpackIntoInterface(&allowance, auth.AllowanceMethod, ethRes.Ret)
+					Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
+					Expect(allowance).To(Equal(authzCoins.AmountOf(is.tokenDenom).BigInt()), "expected different allowance")
+				},
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+			})
+
 			DescribeTable("it should return zero if no allowance exists", func(callType CallType) {
 				grantee := is.keyring.GetAddr(1)
 				granter := is.keyring.GetKey(0)
@@ -892,7 +970,7 @@ var _ = Describe("ERC20 Extension -", func() {
 		})
 
 		When("approving an allowance", func() {
-			Context("in a direct call", func() {
+			Context("in a call to the token contract", func() {
 				DescribeTable("it should approve an allowance", func(callType CallType) {
 					grantee := is.keyring.GetKey(0)
 					granter := is.keyring.GetKey(1)
@@ -1044,33 +1122,63 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 contract", erc20V5Call),
 				)
 
-				DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType CallType) {
-					grantee := is.keyring.GetKey(0)
-					granter := is.keyring.GetKey(0)
-					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+				When("the grantee is the same as the granter", func() {
+					// NOTE: We differ in behavior from the ERC20 calls here, because the full logic for approving,
+					// querying allowance and reducing allowance on a transferFrom transaction is not possible without
+					// changes to the Cosmos SDK.
+					//
+					// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+					It("should return an error when calling the EVM extension", func() {
+						grantee := is.keyring.GetKey(0)
+						granter := is.keyring.GetKey(0)
+						authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
-					// Approve allowance
-					txArgs, approveArgs := is.getTxAndCallArgs(
-						callType, contractsData,
-						auth.ApproveMethod,
-						grantee.Addr, authzCoins[0].Amount.BigInt(),
+						// Approve allowance
+						txArgs, approveArgs := is.getTxAndCallArgs(
+							directCall, contractsData,
+							auth.ApproveMethod,
+							grantee.Addr, authzCoins[0].Amount.BigInt(),
+						)
+
+						spenderIsOwnerCheck := failCheck.WithErrContains(erc20.ErrSpenderIsOwner.Error())
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, spenderIsOwnerCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+						Expect(ethRes).To(BeNil(), "expected empty result")
+
+						is.ExpectNoSendAuthzForContract(
+							directCall, contractsData,
+							grantee.Addr, granter.Addr,
+						)
+					})
+
+					DescribeTable("it should create an allowance", func(callType CallType) {
+						grantee := is.keyring.GetKey(0)
+						granter := is.keyring.GetKey(0)
+						authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+						// Approve allowance
+						txArgs, approveArgs := is.getTxAndCallArgs(
+							callType, contractsData,
+							auth.ApproveMethod,
+							grantee.Addr, authzCoins[0].Amount.BigInt(),
+						)
+
+						approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
+						is.ExpectSendAuthzForContract(
+							callType, contractsData,
+							grantee.Addr, granter.Addr, authzCoins,
+						)
+					},
+						Entry(" - through erc20 contract", erc20Call),
+						Entry(" - through erc20 v5 contract", erc20V5Call),
 					)
-
-					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, approveArgs, approvalCheck)
-					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
-					is.ExpectSendAuthzForContract(
-						callType, contractsData,
-						grantee.Addr, granter.Addr, authzCoins,
-					)
-				},
-					Entry(" - direct call", directCall),
-					Entry(" - through erc20 contract", erc20Call),
-					Entry(" - through erc20 v5 contract", erc20V5Call),
-				)
+				})
 
 				DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
@@ -1210,33 +1318,63 @@ var _ = Describe("ERC20 Extension -", func() {
 					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 				)
 
-				DescribeTable("it should create an allowance if the grantee is the same as the granter", func(callType CallType) {
-					sender := is.keyring.GetKey(0)
-					granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
-					grantee := granter
-					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+				When("the grantee is the same as the granter", func() {
+					// NOTE: We differ in behavior from the ERC20 calls here, because the full logic for approving,
+					// querying allowance and reducing allowance on a transferFrom transaction is not possible without
+					// changes to the Cosmos SDK.
+					//
+					// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+					It("should return an error when calling the EVM extension", func() {
+						callType := contractCall
+						sender := is.keyring.GetKey(0)
+						granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+						grantee := granter
+						authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
-					// Approve allowance
-					txArgs, approveArgs := is.getTxAndCallArgs(
-						callType, contractsData,
-						auth.ApproveMethod,
-						grantee, authzCoins[0].Amount.BigInt(),
+						// Approve allowance
+						txArgs, approveArgs := is.getTxAndCallArgs(
+							callType, contractsData,
+							auth.ApproveMethod,
+							grantee, authzCoins[0].Amount.BigInt(),
+						)
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, execRevertedCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+						Expect(ethRes).To(BeNil(), "expected empty result")
+
+						is.ExpectNoSendAuthzForContract(
+							callType, contractsData,
+							grantee, granter,
+						)
+					})
+
+					DescribeTable("it should create an allowance when calling an ERC20 Solidity contract", func(callType CallType) {
+						sender := is.keyring.GetKey(0)
+						granter := contractsData.GetContractData(callType).Address // the granter will be the contract address
+						grantee := granter
+						authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+						// Approve allowance
+						txArgs, approveArgs := is.getTxAndCallArgs(
+							callType, contractsData,
+							auth.ApproveMethod,
+							grantee, authzCoins[0].Amount.BigInt(),
+						)
+
+						approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+						_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approvalCheck)
+						Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+						is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
+						is.ExpectSendAuthzForContract(
+							callType, contractsData,
+							grantee, granter, authzCoins,
+						)
+					},
+						Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
 					)
-
-					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
-
-					_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, txArgs, approveArgs, approvalCheck)
-					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
-
-					is.ExpectTrueToBeReturned(ethRes, auth.ApproveMethod)
-					is.ExpectSendAuthzForContract(
-						callType, contractsData,
-						grantee, granter, authzCoins,
-					)
-				},
-					Entry(" - through contract", contractCall),
-					Entry(" - through erc20 v5 caller contract", erc20V5CallerCall),
-				)
+				})
 			})
 		})
 	})
@@ -1427,6 +1565,125 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			grantee = is.keyring.GetKey(0)
 			granter = is.keyring.GetKey(1)
+		})
+
+		When("the grantee is the same as the granter", func() {
+			// NOTE: We differ in behavior from the ERC20 calls here, because the full logic for approving,
+			// querying allowance and reducing allowance on a transferFrom transaction is not possible without
+			// changes to the Cosmos SDK.
+			//
+			// For reference see this comment: https://github.com/evmos/evmos/pull/2088#discussion_r1407646217
+			Context("increasing allowance", func() {
+				It("should return an error when calling the EVM extension", func() {
+					granter := is.keyring.GetKey(0)
+					grantee := granter
+
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					txArgs, increaseArgs := is.getTxAndCallArgs(
+						directCall, contractsData,
+						auth.IncreaseAllowanceMethod,
+						grantee.Addr, authzCoins[0].Amount.BigInt(),
+					)
+
+					spenderIsOwnerCheck := failCheck.WithErrContains(erc20.ErrSpenderIsOwner.Error())
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, spenderIsOwnerCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					is.ExpectNoSendAuthzForContract(
+						directCall, contractsData,
+						grantee.Addr, granter.Addr,
+					)
+				})
+
+				DescribeTable("it should create an allowance if none existed before", func(callType CallType) {
+					granter := is.keyring.GetKey(0)
+					grantee := granter
+
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					txArgs, increaseArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						auth.IncreaseAllowanceMethod,
+						grantee.Addr, authzCoins[0].Amount.BigInt(),
+					)
+
+					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, approvalCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
+					is.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter.Addr, authzCoins,
+					)
+				},
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+			})
+
+			Context("decreasing allowance", func() {
+				It("should return an error when calling the EVM extension", func() {
+					granter := is.keyring.GetKey(0)
+					grantee := granter
+
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					txArgs, decreaseArgs := is.getTxAndCallArgs(
+						directCall, contractsData,
+						auth.DecreaseAllowanceMethod,
+						grantee.Addr, authzCoins[0].Amount.BigInt(),
+					)
+
+					spenderIsOwnerCheck := failCheck.WithErrContains(erc20.ErrSpenderIsOwner.Error())
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, spenderIsOwnerCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+					Expect(ethRes).To(BeNil(), "expected empty result")
+
+					is.ExpectNoSendAuthzForContract(
+						directCall, contractsData,
+						grantee.Addr, granter.Addr,
+					)
+				})
+
+				DescribeTable("it should decrease an existing allowance", func(callType CallType) {
+					granter := is.keyring.GetKey(0)
+					grantee := granter
+
+					authzCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 200)}
+					decreaseCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
+
+					is.setupSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter.Priv, authzCoins,
+					)
+
+					txArgs, decreaseArgs := is.getTxAndCallArgs(
+						callType, contractsData,
+						auth.DecreaseAllowanceMethod,
+						grantee.Addr, decreaseCoins[0].Amount.BigInt(),
+					)
+
+					approvalCheck := passCheck.WithExpEvents(auth.EventTypeApproval)
+
+					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, decreaseArgs, approvalCheck)
+					Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+					is.ExpectTrueToBeReturned(ethRes, auth.IncreaseAllowanceMethod)
+					is.ExpectSendAuthzForContract(
+						callType, contractsData,
+						grantee.Addr, granter.Addr, decreaseCoins,
+					)
+				},
+					Entry(" - through erc20 contract", erc20Call),
+					Entry(" - through erc20 v5 contract", erc20V5Call),
+				)
+			})
 		})
 
 		When("no allowance exists", func() {
