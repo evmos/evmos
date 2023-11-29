@@ -3,34 +3,33 @@
 //
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
-// chain, targeting the Cross-Chain Swap Contract V2 (XCS V2).
+// chain, targeting the Cross-Chain Swap Contract V1 (XCS V1)
 package osmosis
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	"github.com/evmos/evmos/v15/precompiles/ics20"
 )
 
 const (
-	// SwapMethod is the name of the swap method
+	// SwapMethod is the name of the swap method.
 	SwapMethod = "swap"
-	// SwapAction is the action name needed in the memo field
-	SwapAction = "Swap"
 )
 
 const (
 	// NextMemo is the memo to use after the swap of the token in the IBC packet
-	// built on the Osmosis chain. In the alpha version of the outpost this is
-	// an empty string that will not be included in the XCS V2 contract payload.
+	// built on the Osmosis chain.
 	NextMemo = ""
 )
 
-// Swap is a transaction that swap tokens on the Osmosis chain using
-// an ICS20 transfer with a custom memo field to trigger the XCS V2 contract.
+// Swap is a transaction that swap tokens on the Osmosis chain.
 func (p Precompile) Swap(
 	ctx sdk.Context,
 	origin common.Address,
@@ -59,6 +58,8 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
+	// We need to check if the input and output denom exist. If they exist we retrieve their denom
+	// otherwise error out.
 	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
 	if err != nil {
 		return nil, err
@@ -68,29 +69,42 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// We need the bonded denom just for the outpost alpha version where the
-	// the only two inputs allowed are aevmos and uosmo.
+	evmosChannel := NewIBCChannel(p.portID, p.channelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
-
-	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, p.portID, p.channelID)
+	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
 	}
 
-	// If the receiver doesn't have the prefix "osmo", we should compute its address
-	// in the Osmosis chain as a recovery address for the contract.
-	onFailedDelivery := CreateOnFailedDeliveryField(sender.String())
+	// Retrieve Osmosis channel and port associated with Evmos transfer app. We need these information
+	// to reconstruct the output denom in the Osmosis chain.
+	channel, found := p.channelKeeper.GetChannel(ctx, evmosChannel.PortID, evmosChannel.ChannelID)
+	if !found {
+		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosChannel.PortID, evmosChannel.ChannelID)
+	}
+	osmosisChannel := NewIBCChannel(
+		channel.GetCounterparty().GetPortID(),
+		channel.GetCounterparty().GetChannelID(),
+	)
+
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, bondDenom, evmosChannel, osmosisChannel)
+	if err != nil {
+		return nil, err
+	}
+
+	// We have to compute the receiver address on the Osmosis chain to have a recovery address.
+	onFailedDelivery := CreateOnFailedDeliveryField(sdk.AccAddress(sender.Bytes()).String())
 	packet := CreatePacketWithMemo(
-		outputDenom,
+		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
-		XCSContract,
+		p.osmosisXCSContract,
 		swapPacketData.SlippagePercentage,
 		swapPacketData.WindowSeconds,
 		onFailedDelivery,
 		NextMemo,
 	)
 
-	err = packet.Memo.Validate()
+	err = packet.Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -98,11 +112,11 @@ func (p Precompile) Swap(
 
 	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		evmosChannel.PortID,
+		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		XCSContract,
+		p.osmosisXCSContract,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,
@@ -112,7 +126,7 @@ func (p Precompile) Swap(
 	}
 
 	// No need to have authorization when the contract caller is the same as
-	// origin (owner of funds) and the sender is the origin
+	// origin (owner of funds) and the sender is the origin.
 	accept, expiration, err := ics20.CheckAndAcceptAuthorizationIfNeeded(
 		ctx,
 		contract,
@@ -124,18 +138,18 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Execute the ICS20 Transfer
+	// Execute the ICS20 Transfer.
 	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update grant only if is needed
+	// Update grant only if is needed.
 	if err := ics20.UpdateGrantIfNeeded(ctx, contract, p.AuthzKeeper, origin, expiration, accept); err != nil {
 		return nil, err
 	}
 
-	// Emit the IBC transfer Event
+	// Emit the IBC transfer Event.
 	if err := ics20.EmitIBCTransferEvent(
 		ctx,
 		stateDB,
@@ -151,7 +165,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Emit the custom Swap Event
+	// Emit the custom Swap Event.
 	if err := p.EmitSwapEvent(ctx, stateDB, sender, input, output, amount, swapReceiver); err != nil {
 		return nil, err
 	}

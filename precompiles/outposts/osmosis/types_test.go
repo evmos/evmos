@@ -6,16 +6,19 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/require"
 
+	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	osmosisoutpost "github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v15/utils"
-	"github.com/stretchr/testify/require"
 )
 
 func TestCreatePacketWithMemo(t *testing.T) {
 	t.Parallel()
 
+	contract := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
+	doNothing := "do_nothing"
 
 	testCases := []struct {
 		name               string
@@ -30,23 +33,23 @@ func TestCreatePacketWithMemo(t *testing.T) {
 	}{
 		{
 			name:               "pass - correct string without memo",
-			outputDenom:        "aevmos",
+			outputDenom:        utils.BaseDenom,
 			receiver:           receiver,
-			contract:           "contract",
+			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
-			onFailedDelivery:   "do_nothing",
+			onFailedDelivery:   doNothing,
 			nextMemo:           "",
 			expNextMemo:        false,
 		},
 		{
 			name:               "pass - correct string with memo",
-			outputDenom:        "aevmos",
+			outputDenom:        utils.BaseDenom,
 			receiver:           receiver,
-			contract:           "contract",
+			contract:           contract,
 			slippagePercentage: 10,
 			windowSeconds:      30,
-			onFailedDelivery:   "do_nothing",
+			onFailedDelivery:   doNothing,
 			nextMemo:           "a next memo",
 			expNextMemo:        true,
 		},
@@ -107,6 +110,11 @@ func TestParseSwapPacketData(t *testing.T) {
 				receiver,
 			},
 			expPass: true,
+		}, {
+			name:        "fail - invalid number of args",
+			args:        []interface{}{},
+			expPass:     false,
+			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 7, 0),
 		}, {
 			name: "fail - wrong sender type",
 			args: []interface{}{
@@ -223,13 +231,18 @@ func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
+	contract := osmosisoutpost.XCSContractTestnet
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
+	// Variable used for the memo that are not parameters for the tests.
+	output := "output"
+	nextMemo := ""
 
 	testCases := []struct {
 		name               string
 		receiver           string
+		contractAddress    string
 		onFailedDelivery   string
 		slippagePercentage uint8
 		windowSeconds      uint64
@@ -239,6 +252,7 @@ func TestValidateMemo(t *testing.T) {
 		{
 			name:               "success - valid packet",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -246,6 +260,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - not evmos bech32",
 			receiver:           "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -254,6 +269,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - not bech32",
 			receiver:           "cosmos",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -262,6 +278,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - empty receiver",
 			receiver:           "",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -270,6 +287,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   "",
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -278,6 +296,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - over max slippage percentage",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: osmosisoutpost.MaxSlippagePercentage + 1,
 			windowSeconds:      windowSeconds,
@@ -286,6 +305,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - zero slippage percentage",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: 0,
 			windowSeconds:      windowSeconds,
@@ -294,6 +314,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - over max window seconds",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      osmosisoutpost.MaxWindowSeconds + 1,
@@ -302,11 +323,21 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - zero window seconds",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      0,
 			expPass:            false,
 			errContains:        fmt.Sprintf(osmosisoutpost.ErrWindowSeconds),
+		}, {
+			name:               "fail - empty contract address",
+			receiver:           receiver,
+			contractAddress:    "",
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrEmptyContractAddress),
 		},
 	}
 
@@ -316,16 +347,11 @@ func TestValidateMemo(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			// Variable used for the memo that are not parameters for the tests.
-			output := "output"
-			nextMemo := ""
-			contract := "contract"
-
 			packet := osmosisoutpost.CreatePacketWithMemo(
-				output, tc.receiver, contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
+				output, tc.receiver, tc.contractAddress, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
 			)
 
-			err := packet.Memo.Validate()
+			err := packet.Validate()
 
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
@@ -340,12 +366,10 @@ func TestValidateMemo(t *testing.T) {
 func TestValidateInputOutput(t *testing.T) {
 	t.Parallel()
 
-	aevmosDenom := "aevmos"
-	stakingDenom := "aevmos"
 	portID := "transfer"
 	channelID := "channel-0"
 	uosmosDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
-	validInputs := []string{aevmosDenom, uosmosDenom}
+	validInputs := []string{utils.BaseDenom, uosmosDenom}
 
 	testCases := []struct {
 		name         string
@@ -359,28 +383,28 @@ func TestValidateInputOutput(t *testing.T) {
 	}{
 		{
 			name:         "pass - correct input and output",
-			inputDenom:   aevmosDenom,
+			inputDenom:   utils.BaseDenom,
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      true,
 		},
 		{
 			name:         "fail - input equal to output aevmos",
-			inputDenom:   aevmosDenom,
-			outputDenom:  aevmosDenom,
-			stakingDenom: stakingDenom,
+			inputDenom:   utils.BaseDenom,
+			outputDenom:  utils.BaseDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, aevmosDenom),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, utils.BaseDenom),
 		},
 		{
 			name:         "fail - input equal to output ibc osmo",
 			inputDenom:   uosmosDenom,
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
@@ -390,11 +414,11 @@ func TestValidateInputOutput(t *testing.T) {
 			name:         "fail - invalid input",
 			inputDenom:   "token",
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputTokenNotSupported, validInputs),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, validInputs),
 		},
 	}
 
@@ -404,7 +428,9 @@ func TestValidateInputOutput(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, tc.portID, tc.channelID)
+			evmosChannel := osmosisoutpost.NewIBCChannel(tc.portID, tc.channelID)
+
+			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, evmosChannel)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 			} else {
@@ -418,26 +444,26 @@ func TestValidateInputOutput(t *testing.T) {
 func TestCreateOnFailedDeliveryField(t *testing.T) {
 	t.Parallel()
 
-	receiver := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
+	address := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
 	testCases := []struct {
-		name     string
-		receiver string
-		expRes   string
+		name    string
+		address string
+		expRes  string
 	}{
 		{
-			name:     "pass - receiver osmo bech32",
-			receiver: receiver,
-			expRes:   receiver,
+			name:    "receiver osmo bech32",
+			address: address,
+			expRes:  address,
 		},
 		{
-			name:     "pass - receiver osmo bech32",
-			receiver: "receiver",
-			expRes:   osmosisoutpost.DefaultOnFailedDelivery,
+			name:    "use default do_nothing",
+			address: "not_bech_32",
+			expRes:  osmosisoutpost.DefaultOnFailedDelivery,
 		},
 		{
-			name:     "pass - convert receiver to osmo bech32",
-			receiver: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
-			expRes:   receiver,
+			name:    "convert receiver to osmo bech32",
+			address: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			expRes:  address,
 		},
 	}
 
@@ -447,9 +473,108 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.receiver)
-
+			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.address)
 			require.Contains(t, onFailedDelivery, tc.expRes)
 		})
+	}
+}
+
+func TestConvertToOsmosisRepresentation(t *testing.T) {
+	t.Parallel()
+
+	portID := "transfer"
+	channelID := "channel-0"
+	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
+	evmosChannel := osmosisoutpost.NewIBCChannel(portID, channelID)
+	osmosisChannel := osmosisoutpost.NewIBCChannel(portID, channelID)
+
+	testCases := []struct {
+		name        string
+		denom       string
+		expPass     bool
+		expDenom    string
+		errContains string
+	}{
+		{
+			name:     "pass - correct conversion of aevmos",
+			denom:    utils.BaseDenom,
+			expPass:  true,
+			expDenom: "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E",
+		}, {
+			name:     "pass - correct conversion of ibc uosmo",
+			denom:    osmoIBCDenom,
+			expPass:  true,
+			expDenom: "uosmo",
+		}, {
+			name:        "fail - not allowed token",
+			denom:       "token",
+			expPass:     false,
+			errContains: fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, []string{utils.BaseDenom, osmoIBCDenom}),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, utils.BaseDenom, evmosChannel, osmosisChannel)
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while creating memo")
+				require.Equal(t, denom, tc.expDenom)
+			} else {
+				require.Error(t, err, "expected error while validating the memo")
+				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+			}
+		})
+	}
+}
+
+func TestValidateOsmosisContractAddress(t *testing.T) {
+	testCases := []struct {
+		name            string
+		contractAddress string
+		expPass         bool
+		errContains     string
+	}{
+		{
+			name:            "fail - empty contract address",
+			contractAddress: "",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "pass - not contract address",
+			contractAddress: "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "fail - not osmosis smart contract",
+			contractAddress: "evmos18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "pass - valid contract address",
+			contractAddress: osmosisoutpost.XCSContractTestnet,
+			expPass:         true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			err := osmosisoutpost.ValidateOsmosisContractAddress(tc.contractAddress)
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while validating the contract address")
+			} else {
+				require.Error(t, err, "expected error while validating the contract address")
+				require.Contains(t, err.Error(), tc.errContains)
+			}
+		})
+
 	}
 }
