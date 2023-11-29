@@ -6,7 +6,6 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"sort"
 
 	"github.com/evmos/evmos/v15/precompiles/bech32"
@@ -81,11 +80,6 @@ func AvailablePrecompiles(
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
-	}
-
-	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to load bank precompile: %w", err))
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(transfertypes.PortID, "channel-25", transferKeeper, erc20Keeper, authzKeeper, stakingKeeper)
