@@ -42,6 +42,19 @@ func (s *PrecompileTestSuite) SetupTest() {
 		unitNetwork.App.AuthzKeeper,
 		portID,
 		channelID,
+		osmosis.XCSContractMainnet,
+		unitNetwork.App.BankKeeper,
+		unitNetwork.App.TransferKeeper,
+		unitNetwork.App.StakingKeeper,
+		unitNetwork.App.Erc20Keeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
+	)
+	s.Require().Error(err)
+
+	precompile, err = osmosis.NewPrecompile(
+		unitNetwork.App.AuthzKeeper,
+		portID,
+		channelID,
 		osmosis.XCSContractTestnet,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,

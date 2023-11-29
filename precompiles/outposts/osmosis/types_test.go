@@ -231,7 +231,7 @@ func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
-	contract := "contract"
+	contract := osmosisoutpost.XCSContractTestnet
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
@@ -528,5 +528,54 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 				require.Contains(t, err.Error(), tc.errContains, "expected different error")
 			}
 		})
+	}
+}
+
+func TestValidateOsmosisContractAddress(t *testing.T) {
+
+	testCases := []struct {
+		name            string
+		contractAddress string
+		expPass         bool
+		errContains     string
+	}{
+		{
+			name:            "fail - empty contract address",
+			contractAddress: "",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "pass - not contract address",
+			contractAddress: "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "fail - not osmosis smart contract",
+			contractAddress: "evmos18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz",
+			expPass:         false,
+			errContains:     fmt.Sprintf(osmosisoutpost.ErrInvalidContractAddress),
+		},
+		{
+			name:            "pass - valid contract address",
+			contractAddress: osmosisoutpost.XCSContractTestnet,
+			expPass:         true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			err := osmosisoutpost.ValidateOsmosisContractAddress(tc.contractAddress)
+			if tc.expPass {
+				require.NoError(t, err, "expected no error while validating the contract address")
+			} else {
+				require.Error(t, err, "expected error while validating the contract address")
+				require.Contains(t, err.Error(), tc.errContains)
+			}
+		})
+
 	}
 }
