@@ -87,7 +87,7 @@ func (p Precompile) Swap(
 		channel.GetCounterparty().GetChannelID(),
 	)
 
-	outputOnOsmosis, err := ConvertToOsmosisRepresentation(inputDenom, bondDenom, evmosChannel, osmosisChannel)
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, bondDenom, evmosChannel, osmosisChannel)
 	if err != nil {
 		return nil, err
 	}
