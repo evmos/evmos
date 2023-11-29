@@ -80,6 +80,11 @@ func NewPrecompile(
 		return nil, err
 	}
 
+	err = ValidateOsmosisContractAddress(osmosisXCSContract)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,

@@ -21,6 +21,14 @@ import (
 )
 
 const (
+	// WasmContractAddrLen defines the length of a wasm smart contract address.
+	//
+	// Reference:
+	// https://github.com/CosmWasm/wasmd/blob/e65480838a1ded147ef53d35fa3bd9709a61226f/x/wasm/types/types.go#L22-L23
+	WasmContractAddrLen = 32
+)
+
+const (
 	// MaxSlippagePercentage is the maximum slippage percentage that can be used in the
 	// definition of the slippage for the swap.
 	MaxSlippagePercentage uint8 = 20
@@ -258,6 +266,25 @@ func ConvertToOsmosisRepresentation(
 		err = fmt.Errorf(ErrDenomNotSupported, []string{stakingDenom, osmoIBCDenom})
 	}
 	return denomOsmosis, err
+}
+
+// ValidateOsmosisContractAddress validate the input to be an Osmosis CosmWasm contract address.
+func ValidateOsmosisContractAddress(contractAddress string) (err error) {
+	bech32Prefix, addressBytes, err := cosmosbech32.DecodeAndConvert(contractAddress)
+	if err != nil {
+		return fmt.Errorf(ErrInvalidContractAddress + ", error with bech32 decoding")
+	}
+	if bech32Prefix != OsmosisPrefix {
+		_, err = sdk.Bech32ifyAddressBytes(OsmosisPrefix, addressBytes)
+		if err != nil {
+			return fmt.Errorf(ErrInvalidContractAddress + ", not osmo bech32")
+		}
+	}
+
+	if len(addressBytes) != WasmContractAddrLen {
+		return fmt.Errorf(ErrInvalidContractAddress)
+	}
+	return err
 }
 
 // SwapPacketData is an utility structure used to wrap args received by the

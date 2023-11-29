@@ -11,6 +11,9 @@ var (
 	// ErrEmptyContractAddress is raised when the memo is created with an empty receiver contract
 	// address.
 	ErrEmptyContractAddress = "empty contract address"
+	// ErrInvalidContractAddress is raised when the xcs contract passed during the instantiation of
+	// the precompile is not a valid Osmosis CosmWasm contract address.
+	ErrInvalidContractAddress = "osmosis contract address is not valid"
 	// ErrInputEqualOutput is raised when input and output tokens are the same.
 	ErrInputEqualOutput = "input and output token cannot be the same: %s"
 	// ErrSlippagePercentage is raised when the requested slippage percentage is
