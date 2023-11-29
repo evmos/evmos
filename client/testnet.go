@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
 	tmconfig "github.com/cometbft/cometbft/config"
@@ -314,8 +315,8 @@ func initTestnetFiles(
 			valPubKeys[i],
 			sdk.NewCoin(evmostypes.AttoEvmos, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err

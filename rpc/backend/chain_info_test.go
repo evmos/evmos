@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 
@@ -22,7 +23,7 @@ import (
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {
-	baseFee := sdk.NewInt(1)
+	baseFee := math.NewInt(1)
 
 	testCases := []struct {
 		name         string
@@ -290,7 +291,7 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice sdk.Dec
+		expMinGasPrice math.LegacyDec
 		expPass        bool
 	}{
 		{
@@ -299,7 +300,7 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
 				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
 			},
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			false,
 		},
 	}
@@ -389,7 +390,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 		{
 			"fail - Invalid base fee",
 			func(validator sdk.AccAddress) {
-				// baseFee := sdk.NewInt(1)
+				// baseFee := math.NewInt(1)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
@@ -411,7 +412,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 			"pass - Valid FeeHistoryResults object",
 			func(validator sdk.AccAddress) {
 				var header metadata.MD
-				baseFee := sdk.NewInt(1)
+				baseFee := math.NewInt(1)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2

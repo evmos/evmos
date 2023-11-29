@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -161,10 +162,10 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 			suite.Commit()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -197,7 +198,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 					suite.Require().False(found)
 				} else {
 					suite.Require().Equal(expRes, res)
-					suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+					suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn).Int64())
 					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn).Int64())
 				}
 			} else {
@@ -315,7 +316,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				mockBankKeeper.On("GetAccountWithoutBalance", mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -332,7 +333,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "acoin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -346,14 +347,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			suite.Require().NotNil(pair)
 
 			// Precondition: Convert Coin to ERC20
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.Require().NoError(err, tc.name)
 			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			suite.Require().NoError(err, tc.name)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -364,14 +365,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			suite.Commit()
 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
-			suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+			suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn).Int64())
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
 			// Convert ERC20s back to Coins
 			ctx = sdk.WrapSDKContext(suite.ctx)
 			contractAddr := common.HexToAddress(pair.Erc20Address)
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(tc.reconvert),
+				math.NewInt(tc.reconvert),
 				sender,
 				contractAddr,
 				suite.address,
@@ -386,7 +387,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res)
-				suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn+tc.reconvert).Int64())
+				suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn+tc.reconvert).Int64())
 				suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn-tc.reconvert).Int64())
 			} else {
 				suite.Require().Error(err, tc.name)
@@ -643,7 +644,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to mint"))
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -666,7 +667,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			contractMinterBurner,
 			false,
@@ -690,7 +691,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				mockBankKeeper.On("MintCoins", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: sdk.NewInt(int64(10))})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: coinName, Amount: math.NewInt(int64(10))})
 			},
 			contractMinterBurner,
 			false,
@@ -711,7 +712,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			coinName = types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertERC20(
-				sdk.NewInt(tc.transfer),
+				math.NewInt(tc.transfer),
 				sender,
 				contractAddr,
 				suite.address,
@@ -744,7 +745,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 					suite.Require().False(found)
 				} else {
 					suite.Require().Equal(expRes, res)
-					suite.Require().Equal(cosmosBalance.Amount, sdk.NewInt(tc.transfer))
+					suite.Require().Equal(cosmosBalance.Amount, math.NewInt(tc.transfer))
 					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.mint-tc.transfer).Int64())
 				}
 			} else {
@@ -930,7 +931,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 
 			id := suite.app.Erc20Keeper.GetTokenPairID(suite.ctx, contractAddr.String())
 			pair, _ := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
-			coins := sdk.NewCoins(sdk.NewCoin(pair.Denom, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(pair.Denom, math.NewInt(tc.mint)))
 			coinName := types.CreateDenom(contractAddr.String())
 			sender := sdk.AccAddress(suite.address.Bytes())
 
@@ -940,7 +941,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			suite.Require().NoError(err)
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, coinName)
-			suite.Require().Equal(sdk.NewInt(tc.mint), cosmosBalance.Amount)
+			suite.Require().Equal(math.NewInt(tc.mint), cosmosBalance.Amount)
 
 			// Precondition: Mint escrow tokens on module account
 			suite.GrantERC20Token(contractAddr, suite.address, types.ModuleAddress, "MINTER_ROLE")
@@ -955,7 +956,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			receiver := suite.address
 			ctx := sdk.WrapSDKContext(suite.ctx)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(coinName, sdk.NewInt(tc.convert)),
+				sdk.NewCoin(coinName, math.NewInt(tc.convert)),
 				receiver,
 				sender,
 			)
@@ -970,7 +971,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res)
-				suite.Require().Equal(sdk.NewInt(tc.mint-tc.convert), cosmosBalance.Amount)
+				suite.Require().Equal(math.NewInt(tc.mint-tc.convert), cosmosBalance.Amount)
 				suite.Require().Equal(big.NewInt(tc.convert), tokenBalance.(*big.Int))
 			} else {
 				suite.Require().Error(err, tc.name)
@@ -999,14 +1000,14 @@ func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
 			suite.Require().NotNil(pair)
 
 			// Precondition: Convert Coin to ERC20
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.Require().NoError(err)
 			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			suite.Require().NoError(err)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenBase, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -1022,7 +1023,7 @@ func (suite *KeeperTestSuite) TestWrongPairOwnerERC20NativeCoin() {
 			ctx = sdk.WrapSDKContext(suite.ctx)
 			contractAddr := common.HexToAddress(pair.Erc20Address)
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(tc.reconvert),
+				math.NewInt(tc.reconvert),
 				sender,
 				contractAddr,
 				suite.address,
@@ -1179,10 +1180,10 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 			suite.Commit()
 
 			ctx := sdk.WrapSDKContext(suite.ctx)
-			coins := sdk.NewCoins(sdk.NewCoin(ibcBase, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(ibcBase, math.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(ibcBase, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(ibcBase, math.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -1213,7 +1214,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 					suite.Require().False(found)
 				} else {
 					suite.Require().Equal(expRes, res)
-					suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+					suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn).Int64())
 					suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn).Int64())
 				}
 			} else {
@@ -1331,7 +1332,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(fmt.Errorf("failed to unescrow"))
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: "coin", Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -1349,7 +1350,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 
 				mockBankKeeper.On("SendCoinsFromModuleToAccount", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 				mockBankKeeper.On("BlockedAddr", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(false)
-				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: ibcBase, Amount: sdk.OneInt()})
+				mockBankKeeper.On("GetBalance", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(sdk.Coin{Denom: ibcBase, Amount: math.OneInt()})
 			},
 			false,
 		},
@@ -1363,14 +1364,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			suite.Require().NotNil(pair)
 
 			// Precondition: Convert Coin to ERC20
-			coins := sdk.NewCoins(sdk.NewCoin(ibcBase, sdk.NewInt(tc.mint)))
+			coins := sdk.NewCoins(sdk.NewCoin(ibcBase, math.NewInt(tc.mint)))
 			sender := sdk.AccAddress(suite.address.Bytes())
 			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 			suite.Require().NoError(err, tc.name)
 			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
 			suite.Require().NoError(err, tc.name)
 			msg := types.NewMsgConvertCoin(
-				sdk.NewCoin(ibcBase, sdk.NewInt(tc.burn)),
+				sdk.NewCoin(ibcBase, math.NewInt(tc.burn)),
 				suite.address,
 				sender,
 			)
@@ -1381,14 +1382,14 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			suite.Commit()
 			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
 			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataIbc.Base)
-			suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn).Int64())
+			suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn).Int64())
 			suite.Require().Equal(balance, big.NewInt(tc.burn))
 
 			// Convert ERC20s back to Coins
 			ctx = sdk.WrapSDKContext(suite.ctx)
 			contractAddr := common.HexToAddress(pair.Erc20Address)
 			msgConvertERC20 := types.NewMsgConvertERC20(
-				sdk.NewInt(tc.reconvert),
+				math.NewInt(tc.reconvert),
 				sender,
 				contractAddr,
 				suite.address,
@@ -1403,7 +1404,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 				suite.Require().Equal(expRes, res)
-				suite.Require().Equal(cosmosBalance.Amount.Int64(), sdk.NewInt(tc.mint-tc.burn+tc.reconvert).Int64())
+				suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn+tc.reconvert).Int64())
 				suite.Require().Equal(balance.(*big.Int).Int64(), big.NewInt(tc.burn-tc.reconvert).Int64())
 			} else {
 				suite.Require().Error(err, tc.name)

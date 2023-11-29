@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -97,9 +98,9 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 
 	commission := stakingtypes.CommissionRates{}
 	if commissionInput, ok := args[1].(Commission); ok {
-		commission.Rate = sdk.NewDecFromBigIntWithPrec(commissionInput.Rate, sdk.Precision)
-		commission.MaxRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxRate, sdk.Precision)
-		commission.MaxChangeRate = sdk.NewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, sdk.Precision)
+		commission.Rate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.Rate, math.LegacyPrecision)
+		commission.MaxRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxRate, math.LegacyPrecision)
+		commission.MaxChangeRate = math.LegacyNewDecFromBigIntWithPrec(commissionInput.MaxChangeRate, math.LegacyPrecision)
 	} else {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidCommission, args[1])
 	}
@@ -143,11 +144,11 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	msg := &stakingtypes.MsgCreateValidator{
 		Description:       description,
 		Commission:        commission,
-		MinSelfDelegation: sdk.NewIntFromBigInt(minSelfDelegation),
+		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
 		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
 		ValidatorAddress:  validatorAddress,
 		Pubkey:            pubkey,
-		Value:             sdk.Coin{Denom: denom, Amount: sdk.NewIntFromBigInt(value)},
+		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
 	}
 
 	if err := msg.ValidateBasic(); err != nil {
@@ -170,7 +171,7 @@ func NewMsgDelegate(args []interface{}, denom string) (*stakingtypes.MsgDelegate
 		ValidatorAddress: validatorAddress,
 		Amount: sdk.Coin{
 			Denom:  denom,
-			Amount: sdk.NewIntFromBigInt(amount),
+			Amount: math.NewIntFromBigInt(amount),
 		},
 	}
 
@@ -194,7 +195,7 @@ func NewMsgUndelegate(args []interface{}, denom string) (*stakingtypes.MsgUndele
 		ValidatorAddress: validatorAddress,
 		Amount: sdk.Coin{
 			Denom:  denom,
-			Amount: sdk.NewIntFromBigInt(amount),
+			Amount: math.NewIntFromBigInt(amount),
 		},
 	}
 
@@ -238,7 +239,7 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		ValidatorDstAddress: validatorDstAddress,
 		Amount: sdk.Coin{
 			Denom:  denom,
-			Amount: sdk.NewIntFromBigInt(amount),
+			Amount: math.NewIntFromBigInt(amount),
 		},
 	}
 
@@ -281,7 +282,7 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 		ValidatorAddress: validatorAddress,
 		Amount: sdk.Coin{
 			Denom:  denom,
-			Amount: sdk.NewIntFromBigInt(amount),
+			Amount: math.NewIntFromBigInt(amount),
 		},
 		CreationHeight: creationHeight.Int64(),
 	}

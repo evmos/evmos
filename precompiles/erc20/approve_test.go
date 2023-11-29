@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -369,7 +370,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetPrivKey(0),
 					sdk.NewCoins(
 						sdk.NewInt64Coin(s.bondDenom, 1),
-						sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256)),
+						sdk.NewCoin(s.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256)),
 					),
 				)
 
@@ -385,7 +386,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					// NOTE: The amounts should not have been adjusted after failing the overflow check.
 					sdk.NewCoins(
 						sdk.NewInt64Coin(s.bondDenom, 1),
-						sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256)),
+						sdk.NewCoin(s.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256)),
 					),
 					[]string{},
 				)

@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	ethante "github.com/evmos/evmos/v15/app/ante/evm"
@@ -378,8 +379,8 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				return suite.prepareAccount(
 					ctx,
 					addr.Bytes(),
-					sdk.ZeroInt(),
-					sdk.NewInt(1e16),
+					sdkmath.ZeroInt(),
+					sdkmath.NewInt(1e16),
 				)
 			},
 			true, false,
@@ -404,8 +405,8 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				return suite.prepareAccount(
 					ctx,
 					addr.Bytes(),
-					sdk.NewInt(1e16),
-					sdk.NewInt(1e16),
+					sdkmath.NewInt(1e16),
+					sdkmath.NewInt(1e16),
 				)
 			},
 			true, false,
@@ -413,7 +414,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 			func(ctx sdk.Context) {
 				balance := suite.app.BankKeeper.GetBalance(ctx, sdk.AccAddress(addr.Bytes()), utils.BaseDenom)
 				suite.Require().True(
-					balance.Amount.LT(sdk.NewInt(1e16)),
+					balance.Amount.LT(sdkmath.NewInt(1e16)),
 					"the fees are paid using the available balance, so it should be lower than the initial balance",
 				)
 
@@ -423,7 +424,7 @@ func (suite *AnteTestSuite) TestEthGasConsumeDecorator() {
 				// NOTE: the total rewards should be the same as after the setup, since
 				// the fees are paid using the account balance
 				suite.Require().Equal(
-					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.NewInt(1e16))),
+					sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdkmath.NewInt(1e16))),
 					rewards,
 					"the total rewards should be the same as after the setup, since the fees are paid using the account balance",
 				)

@@ -3,6 +3,7 @@ package staking_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -252,9 +253,9 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 						Details:         "",
 					},
 					staking.Commission{
-						Rate:          sdk.OneDec().BigInt(),
-						MaxRate:       sdk.OneDec().BigInt(),
-						MaxChangeRate: sdk.OneDec().BigInt(),
+						Rate:          math.LegacyOneDec().BigInt(),
+						MaxRate:       math.LegacyOneDec().BigInt(),
+						MaxChangeRate: math.LegacyOneDec().BigInt(),
 					},
 					big.NewInt(1),
 					s.address,

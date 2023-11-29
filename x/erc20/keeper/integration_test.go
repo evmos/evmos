@@ -84,8 +84,8 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 })
 
 var _ = Describe("ERC20:", Ordered, func() {
-	amt := sdk.NewInt(100)
-	fundsAmt, _ := sdk.NewIntFromString("100000000000000000000000")
+	amt := math.NewInt(100)
+	fundsAmt, _ := math.NewIntFromString("100000000000000000000000")
 
 	privKey, _ := ethsecp256k1.GenerateKey()
 	addrBz := privKey.PubKey().Address().Bytes()
@@ -116,8 +116,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 				coins := sdk.NewCoins(
 					sdk.NewCoin("aevmos", fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
-					sdk.NewCoin(metadataIbc.Base, sdk.NewInt(1)),
-					sdk.NewCoin(metadataCoin.Base, sdk.NewInt(1)),
+					sdk.NewCoin(metadataIbc.Base, math.NewInt(1)),
+					sdk.NewCoin(metadataCoin.Base, math.NewInt(1)),
 				)
 				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
@@ -131,7 +131,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -157,7 +157,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -202,7 +202,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -228,7 +228,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", sdk.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)

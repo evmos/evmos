@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
@@ -110,11 +111,11 @@ func calculateFees(
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
-	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
+	feeDistribution := math.NewInt(res.GasUsed).Mul(math.NewIntFromBigInt(gasPrice))
+	developerFee := math.LegacyNewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
-	validatorShares := sdk.OneDec().Sub(params.DeveloperShares)
-	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(validatorShares)
+	validatorShares := math.LegacyOneDec().Sub(params.DeveloperShares)
+	validatorFee := math.LegacyNewDecFromInt(feeDistribution).Mul(validatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
 }

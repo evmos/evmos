@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -26,9 +27,9 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			Details:         "",
 		}
 		commission = staking.Commission{
-			Rate:          sdk.OneDec().BigInt(),
-			MaxRate:       sdk.OneDec().BigInt(),
-			MaxChangeRate: sdk.OneDec().BigInt(),
+			Rate:          math.LegacyOneDec().BigInt(),
+			MaxRate:       math.LegacyOneDec().BigInt(),
+			MaxChangeRate: math.LegacyOneDec().BigInt(),
 		}
 		minSelfDelegation = big.NewInt(1)
 		delegatorAddress  = s.address
@@ -449,7 +450,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and update the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e18)})
+		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
 		//			s.address,
@@ -463,7 +464,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		//		authorization, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, s.address.Bytes(), s.address.Bytes(), staking.DelegateMsg)
 		//		s.Require().NotNil(authorization)
 		//		stakeAuthorization := authorization.(*stakingtypes.StakeAuthorization)
-		//		s.Require().Equal(sdk.NewInt(1e18), stakeAuthorization.MaxTokens.Amount)
+		//		s.Require().Equal(math.NewInt(1e18), stakeAuthorization.MaxTokens.Amount)
 		//	},
 		//	false,
 		//	"",
@@ -471,7 +472,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 		// {
 		//	"success - delegate and delete the authorization for the delegator",
 		//	func(operatorAddress string) []interface{} {
-		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)})
+		//		err := s.CreateAuthorization(s.address, staking.DelegateAuthz, &sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})
 		//		s.Require().NoError(err)
 		//		return []interface{}{
 		//			s.address,
@@ -510,7 +511,7 @@ func (s *PrecompileTestSuite) TestDelegate() {
 				s.Require().NotNil(delegation, "expected delegation not to be nil")
 				tc.postCheck(bz)
 
-				expDelegationAmt := sdk.NewIntFromBigInt(tc.expDelegationShares)
+				expDelegationAmt := math.NewIntFromBigInt(tc.expDelegationShares)
 				delegationAmt := delegation.GetShares().TruncateInt()
 
 				s.Require().Equal(expDelegationAmt, delegationAmt, "expected delegation amount to be %d; got %d", expDelegationAmt, delegationAmt)
@@ -642,7 +643,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().NoError(err)
 				s.Require().Equal(undelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(undelegations[0].ValidatorAddress, s.validators[0].OperatorAddress)
-				s.Require().Equal(undelegations[0].Entries[0].Balance, sdk.NewIntFromBigInt(tc.expUndelegationShares))
+				s.Require().Equal(undelegations[0].Entries[0].Balance, math.NewIntFromBigInt(tc.expUndelegationShares))
 			}
 		})
 	}
@@ -788,7 +789,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().Equal(redelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.validators[0].OperatorAddress)
 				s.Require().Equal(redelegations[0].ValidatorDstAddress, s.validators[1].OperatorAddress)
-				s.Require().Equal(redelegations[0].Entries[0].SharesDst, sdk.NewDecFromBigInt(tc.expRedelegationShares))
+				s.Require().Equal(redelegations[0].Entries[0].SharesDst, math.LegacyNewDecFromBigInt(tc.expRedelegationShares))
 			}
 		})
 	}
@@ -963,7 +964,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				s.Require().NoError(err)
 				s.Require().Equal(delegation.DelegatorAddress, bech32Addr)
 				s.Require().Equal(delegation.ValidatorAddress, s.validators[0].OperatorAddress)
-				s.Require().Equal(delegation.Shares, sdk.NewDecFromBigInt(tc.expDelegatedShares))
+				s.Require().Equal(delegation.Shares, math.LegacyNewDecFromBigInt(tc.expDelegatedShares))
 
 			}
 		})

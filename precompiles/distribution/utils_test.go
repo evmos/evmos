@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -61,15 +61,15 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -186,9 +186,9 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 	s.precompile = precompile
 
-	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(5000000000000000000)))
-	inflCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(2000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(3000000000000000000)))
+	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
+	inflCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
+	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(3000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, inflCoins)
@@ -216,7 +216,7 @@ func (s *PrecompileTestSuite) DeployContract(contract evmtypes.CompiledContract)
 type stakingRewards struct {
 	Delegator sdk.AccAddress
 	Validator stakingtypes.Validator
-	RewardAmt sdkmath.Int
+	RewardAmt math.Int
 }
 
 // prepareStakingRewards prepares the test suite for testing delegation rewards.
@@ -245,7 +245,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 		// end block to bond validator and increase block height
 		sdkstaking.EndBlocker(s.ctx, &s.app.StakingKeeper)
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
-		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(sdk.NewInt(2))))
+		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(math.NewInt(2))))
 		s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, r.Validator, allocatedRewards)
 	}
 	s.NextBlock()
@@ -266,7 +266,7 @@ func (s *PrecompileTestSuite) setupValidatorSlashes(valAddr sdk.ValAddress, slas
 		initialPeriod uint64 = 1
 	)
 
-	slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: sdk.NewDec(5)}
+	slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)}
 
 	for i := uint64(0); i < slashesCount; i++ {
 		s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, valAddr, initialHeight+i, initialPeriod+i, slashEvent)

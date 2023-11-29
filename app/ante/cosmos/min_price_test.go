@@ -3,7 +3,7 @@ package cosmos_test
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -27,7 +27,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-		Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
+		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
 
 	testCases := []struct {
@@ -50,11 +50,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -65,11 +65,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice > 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -80,11 +80,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 10, gasPrice = 10",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -95,11 +95,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"invalid cosmos tx with MinGasPrices = 10, gasPrice = 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(0), denom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -110,11 +110,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"invalid cosmos tx with stake denom",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.NewDec(10)
+				params.MinGasPrice = math.LegacyNewDec(10)
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), sdk.DefaultBondDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), sdk.DefaultBondDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			false,
@@ -125,11 +125,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, valid fee",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}}, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{sdk.Coin{Amount: math.NewInt(0), Denom: denom}}, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -140,7 +140,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, nil fees, means len(fees) == 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -155,7 +155,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, empty fees, means len(fees) == 0",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
@@ -170,11 +170,11 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, invalid fees",
 			func() sdk.Tx {
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasPrice = sdk.ZeroDec()
+				params.MinGasPrice = math.LegacyZeroDec()
 				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 
-				fees := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(0), Denom: denom}, sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "stake"}}
+				fees := sdk.Coins{sdk.Coin{Amount: math.NewInt(0), Denom: denom}, sdk.Coin{Amount: math.NewInt(10), Denom: "stake"}}
 				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(fees, &testMsg)
 				return txBuilder.GetTx()
 			},

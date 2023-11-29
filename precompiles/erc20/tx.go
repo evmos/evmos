@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -73,7 +74,7 @@ func (p Precompile) transfer(
 	from, to common.Address,
 	amount *big.Int,
 ) (data []byte, err error) {
-	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}}
 
 	msg := banktypes.NewMsgSend(from.Bytes(), to.Bytes(), coins)
 

@@ -8,6 +8,7 @@ package osmosis
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -110,7 +111,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
-	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
 		evmosChannel.ChannelID,

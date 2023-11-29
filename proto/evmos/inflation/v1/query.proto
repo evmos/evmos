@@ -62,7 +62,7 @@ message QueryEpochMintProvisionRequest {}
 message QueryEpochMintProvisionResponse {
   // epoch_mint_provision is the current minting per epoch provision value.
   cosmos.base.v1beta1.DecCoin epoch_mint_provision = 1
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"];
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "cosmossdk.io/math.LegacyDecCoins"];
 }
 
 // QuerySkippedEpochsRequest is the request type for the Query/SkippedEpochs RPC
@@ -85,7 +85,7 @@ message QueryCirculatingSupplyRequest {}
 message QueryCirculatingSupplyResponse {
   // circulating_supply is the total amount of coins in circulation
   cosmos.base.v1beta1.DecCoin circulating_supply = 1
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"];
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "cosmossdk.io/math.LegacyDecCoins"];
 }
 
 // QueryInflationRateRequest is the request type for the Query/InflationRate RPC
@@ -96,8 +96,7 @@ message QueryInflationRateRequest {}
 // RPC method.
 message QueryInflationRateResponse {
   // inflation_rate by which the total supply increases within one period
-  string inflation_rate = 1
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string inflation_rate = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
