@@ -14,11 +14,6 @@ import (
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
 )
 
 var s *PrecompileTestSuite
@@ -28,8 +23,8 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom           string
-	evmosAddr, xmplAddr common.Address
+	bondDenom, tokenDenom string
+	evmosAddr, xmplAddr   common.Address
 
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
@@ -44,9 +39,6 @@ type PrecompileTestSuite struct {
 func TestPrecompileTestSuite(t *testing.T) {
 	s = new(PrecompileTestSuite)
 	suite.Run(t, s)
-
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Bank Extension Suite")
 }
 
 func (s *PrecompileTestSuite) SetupTest() {
@@ -63,6 +55,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
 
 	s.bondDenom = bondDenom
+	s.tokenDenom = "xmpl"
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
@@ -83,22 +76,22 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	xmplMetadata := banktypes.Metadata{
 		Description: "An exemplary token",
-		Base:        "xmpl",
+		Base:        s.tokenDenom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 0,
-				Aliases:  []string{"xmpl"},
+				Aliases:  []string{s.tokenDenom},
 			},
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 18,
 			},
 		},
 		Name:    "Exemplary",
 		Symbol:  "XMPL",
-		Display: "xmpl",
+		Display: s.tokenDenom,
 	}
 
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)

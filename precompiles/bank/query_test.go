@@ -69,7 +69,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		{
 			"pass - EVMOS and XMPL balances present",
 			func() []interface{} {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 				}
@@ -126,7 +126,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
 			},
 			[]bank.Balance{{
 				ContractAddress: s.evmosAddr,
