@@ -3,6 +3,7 @@ package types
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,8 +27,8 @@ func (suite *ParamsTestSuite) TestParamsValidate() {
 
 	validInflationDistribution := InflationDistribution{
 		StakingRewards:  sdk.NewDecWithPrec(533334, 6),
-		UsageIncentives: sdk.NewDecWithPrec(333333, 6),
-		CommunityPool:   sdk.NewDecWithPrec(133333, 6),
+		UsageIncentives: math.LegacyZeroDec(),
+		CommunityPool:   sdk.NewDecWithPrec(466666, 6),
 	}
 
 	testCases := []struct {
