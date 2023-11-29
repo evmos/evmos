@@ -42,7 +42,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 		unitNetwork.App.AuthzKeeper,
 		portID,
 		channelID,
-		osmosis.XCSContract,
+		osmosis.XCSContractTestnet,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,

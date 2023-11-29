@@ -231,13 +231,18 @@ func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
+	contract := "contract"
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
+	// Variable used for the memo that are not parameters for the tests.
+	output := "output"
+	nextMemo := ""
 
 	testCases := []struct {
 		name               string
 		receiver           string
+		contractAddress    string
 		onFailedDelivery   string
 		slippagePercentage uint8
 		windowSeconds      uint64
@@ -247,6 +252,7 @@ func TestValidateMemo(t *testing.T) {
 		{
 			name:               "success - valid packet",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -254,6 +260,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - not evmos bech32",
 			receiver:           "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -262,6 +269,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - not bech32",
 			receiver:           "cosmos",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -270,6 +278,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - empty receiver",
 			receiver:           "",
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -278,6 +287,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - on failed delivery empty",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   "",
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      windowSeconds,
@@ -286,6 +296,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - over max slippage percentage",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: osmosisoutpost.MaxSlippagePercentage + 1,
 			windowSeconds:      windowSeconds,
@@ -294,6 +305,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - zero slippage percentage",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: 0,
 			windowSeconds:      windowSeconds,
@@ -302,6 +314,7 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - over max window seconds",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      osmosisoutpost.MaxWindowSeconds + 1,
@@ -310,11 +323,21 @@ func TestValidateMemo(t *testing.T) {
 		}, {
 			name:               "fail - zero window seconds",
 			receiver:           receiver,
+			contractAddress:    contract,
 			onFailedDelivery:   onFailedDelivery,
 			slippagePercentage: slippagePercentage,
 			windowSeconds:      0,
 			expPass:            false,
 			errContains:        fmt.Sprintf(osmosisoutpost.ErrWindowSeconds),
+		}, {
+			name:               "fail - empty contract address",
+			receiver:           receiver,
+			contractAddress:    "",
+			onFailedDelivery:   onFailedDelivery,
+			slippagePercentage: slippagePercentage,
+			windowSeconds:      windowSeconds,
+			expPass:            false,
+			errContains:        fmt.Sprintf(osmosisoutpost.ErrEmptyContractAddress),
 		},
 	}
 
@@ -324,13 +347,8 @@ func TestValidateMemo(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			// Variable used for the memo that are not parameters for the tests.
-			output := "output"
-			nextMemo := ""
-			contract := "contract"
-
 			packet := osmosisoutpost.CreatePacketWithMemo(
-				output, tc.receiver, contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
+				output, tc.receiver, tc.contractAddress, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, nextMemo,
 			)
 
 			err := packet.Validate()

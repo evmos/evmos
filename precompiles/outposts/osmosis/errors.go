@@ -8,6 +8,9 @@ var (
 	// ErrEmptyOnFailedDelivery is raised when the onFailedDelivery field of the
 	// IBC memo is an empty string.
 	ErrEmptyOnFailedDelivery = "onFailedDelivery cannot be empty"
+	// ErrEmptyContractAddress is raised when the memo is created with an empty receiver contract
+	// address.
+	ErrEmptyContractAddress = "empty contract address"
 	// ErrInputEqualOutput is raised when input and output tokens are the same.
 	ErrInputEqualOutput = "input and output token cannot be the same: %s"
 	// ErrSlippagePercentage is raised when the requested slippage percentage is

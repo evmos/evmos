@@ -121,6 +121,10 @@ type RawPacketMetadata struct {
 func (r RawPacketMetadata) Validate() error {
 	osmosisSwap := r.Wasm.Msg.OsmosisSwap
 
+	if r.Wasm.Contract == "" {
+		return fmt.Errorf(ErrEmptyContractAddress)
+	}
+
 	if osmosisSwap.OnFailedDelivery == "" {
 		return fmt.Errorf(ErrEmptyOnFailedDelivery)
 	}

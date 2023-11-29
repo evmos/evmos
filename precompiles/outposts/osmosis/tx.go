@@ -97,7 +97,7 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
-		XCSContract,
+		p.osmosisXCSContract,
 		swapPacketData.SlippagePercentage,
 		swapPacketData.WindowSeconds,
 		onFailedDelivery,
@@ -116,7 +116,7 @@ func (p Precompile) Swap(
 		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		XCSContract,
+		p.osmosisXCSContract,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,
