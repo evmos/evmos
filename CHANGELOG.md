@@ -123,6 +123,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2086](https://github.com/evmos/evmos/pull/2086) Add ERC20 metadata query integration tests.
 - (erc20) [#2088](https://github.com/evmos/evmos/pull/2088) Emit additional approval event in case of `transferFrom`.
 - (erc20) [#2097](https://github.com/evmos/evmos/pull/2097) Adjust ERC20 allowance behavior for same spender.
+- (bank) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
 
 ### Bug Fixes
 

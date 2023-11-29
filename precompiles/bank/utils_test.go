@@ -26,6 +26,8 @@ func (s *PrecompileTestSuite) setupBankPrecompile() *bank.Precompile {
 }
 
 // mintAndSendCoin is a helper function to mint and send a coin to a given address.
+//
+//nolint:unparam
 func (s *PrecompileTestSuite) mintAndSendCoin(denom string, addr sdk.AccAddress, amount math.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(denom, amount))
 	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, coins)
