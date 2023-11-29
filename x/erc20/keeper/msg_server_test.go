@@ -94,7 +94,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -113,7 +113,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -138,7 +138,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -236,7 +236,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -256,7 +256,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -282,7 +282,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -308,7 +308,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -326,7 +326,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeCoin() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -533,7 +533,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -558,7 +558,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -584,7 +584,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -610,7 +610,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -636,7 +636,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -659,7 +659,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -683,7 +683,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -834,7 +834,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -858,7 +858,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -882,7 +882,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -907,7 +907,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1112,7 +1112,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1131,7 +1131,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1156,7 +1156,7 @@ func (suite *KeeperTestSuite) TestConvertCoinNativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1252,7 +1252,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1272,7 +1272,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1298,7 +1298,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1325,7 +1325,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -1343,7 +1343,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeIBCVoucher() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
