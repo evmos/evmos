@@ -9,7 +9,6 @@ import (
 	evmostypes "github.com/evmos/evmos/v15/types"
 
 	utils "github.com/evmos/evmos/v15/utils"
-	incentivestypes "github.com/evmos/evmos/v15/x/incentives/types"
 	"github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
@@ -22,17 +21,17 @@ func (k Keeper) MintAndAllocateInflation(
 	coin sdk.Coin,
 	params types.Params,
 ) (
-	staking, incentives, communityPool sdk.Coins,
+	staking, communityPool sdk.Coins,
 	err error,
 ) {
 	// skip as no coins need to be minted
 	if coin.Amount.IsNil() || !coin.Amount.IsPositive() {
-		return nil, nil, nil, nil
+		return nil, nil, nil
 	}
 
 	// Mint coins for distribution
 	if err := k.MintCoins(ctx, coin); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	// Allocate minted coins according to allocation proportions (staking, usage
@@ -57,7 +56,7 @@ func (k Keeper) AllocateExponentialInflation(
 	mintedCoin sdk.Coin,
 	params types.Params,
 ) (
-	staking, incentives, communityPool sdk.Coins,
+	staking, communityPool sdk.Coins,
 	err error,
 ) {
 	distribution := params.InflationDistribution
@@ -71,19 +70,7 @@ func (k Keeper) AllocateExponentialInflation(
 		k.feeCollectorName,
 		staking,
 	); err != nil {
-		return nil, nil, nil, err
-	}
-
-	// Allocate usage incentives to incentives module account
-	incentives = sdk.Coins{k.GetProportions(ctx, mintedCoin, distribution.UsageIncentives)}
-
-	if err = k.bankKeeper.SendCoinsFromModuleToModule(
-		ctx,
-		types.ModuleName,
-		incentivestypes.ModuleName,
-		incentives,
-	); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	// Allocate community pool amount (remaining module balance) to community
@@ -97,10 +84,10 @@ func (k Keeper) AllocateExponentialInflation(
 		moduleAddr,
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	return staking, incentives, communityPool, nil
+	return staking, communityPool, nil
 }
 
 // GetAllocationProportion calculates the proportion of coins that is to be

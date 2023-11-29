@@ -30,13 +30,13 @@ require (
 	github.com/hashicorp/go-version v1.6.0
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/linxGnu/grocksdb v1.8.5
-	github.com/onsi/ginkgo/v2 v2.13.1
+	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.30.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.10.1
-	github.com/spf13/cast v1.5.1
+	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
@@ -47,7 +47,7 @@ require (
 	go.opencensus.io v0.24.0
 	golang.org/x/crypto v0.16.0
 	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
-	golang.org/x/net v0.18.0
+	golang.org/x/net v0.19.0
 	golang.org/x/text v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
 	google.golang.org/grpc v1.59.0
