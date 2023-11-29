@@ -32,6 +32,7 @@ var (
 	ErrIncreaseNonPositiveValue = errors.New("cannot increase allowance with non-positive values")
 	ErrNegativeAmount           = errors.New("cannot approve negative values")
 	ErrNoIBCVoucherDenom        = errors.New("denom is not an IBC voucher")
+	ErrSpenderIsOwner           = errors.New("spender cannot be the owner")
 
 	// ERC20 errors
 	ErrDecreasedAllowanceBelowZero  = errors.New("ERC20: decreased allowance below zero")
