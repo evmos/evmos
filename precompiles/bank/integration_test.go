@@ -3,6 +3,8 @@ package bank_test
 import (
 	"math/big"
 
+	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/precompiles/bank"
 
@@ -30,7 +32,9 @@ var _ = Describe("Bank Extension -", func() {
 	BeforeEach(func() {
 		s.SetupTest()
 
+		// Default sender and amount
 		sender = s.keyring.GetKey(0)
+		amount = big.NewInt(1e18)
 
 		contractData = ContractData{
 			ownerPriv:      sender.Priv,
@@ -42,10 +46,6 @@ var _ = Describe("Bank Extension -", func() {
 
 		err = s.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to advance block")
-
-		// Default sender and amount
-		sender = s.keyring.GetKey(0)
-		amount = big.NewInt(1e18)
 	})
 
 	Context("Direct precompile queries", func() {
@@ -70,6 +70,51 @@ var _ = Describe("Bank Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+			})
+
+			It("should return a single token balance", func() {
+				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balances []bank.Balance
+				err = s.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				balanceAfter, err := s.grpcHandler.GetBalance(sender.AccAddr, "aevmos")
+				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+
+				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+			})
+
+			It("should return no balance for new account", func() {
+				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+
+				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balances []bank.Balance
+				err = s.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				Expect(balances).To(BeEmpty())
+			})
+
+			It("should consume the correct amount of gas", func() {
+				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+
+				queryArgs, balancesArgs := s.getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				var balances []bank.Balance
+				err = s.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
+				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
+
+				gasUsed := Max(bank.GasBalanceOf, len(balances)*bank.GasBalanceOf)
+				// Here increasing the GasBalanceOf will increase the use of gas so they will never be equal
+				Expect(gasUsed).To(BeNumerically("<=", ethRes.GasUsed))
 			})
 		})
 
@@ -116,6 +161,21 @@ var _ = Describe("Bank Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
 				Expect(out[0].(*big.Int)).To(Equal(amount))
+			})
+
+			It("should return an error for a non existing token", func() {
+				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, evmosutiltx.GenerateAddress())
+				_, _, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
+				Expect(err).To(HaveOccurred(), "unexpected result calling contract")
+			})
+
+			It("should consume the correct amount of gas", func() {
+				queryArgs, supplyArgs := s.getTxAndCallArgs(directCall, contractData, bank.SupplyOfMethod, s.xmplAddr)
+				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, supplyArgs, passCheck)
+				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
+
+				// Here increasing the GasSupplyOf will increase the use of gas so they will never be equal
+				Expect(bank.GasSupplyOf).To(BeNumerically("<=", ethRes.GasUsed))
 			})
 		})
 	})

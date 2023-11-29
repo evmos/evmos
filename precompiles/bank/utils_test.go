@@ -77,3 +77,10 @@ func (s *PrecompileTestSuite) getTxAndCallArgs(
 
 	return txArgs, callArgs
 }
+
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}

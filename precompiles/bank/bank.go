@@ -26,7 +26,7 @@ const (
 	GasTotalSupply = 2_477
 
 	// GasSupplyOf defines the gas cost for a single ERC-20 supplyOf query, taken from totalSupply of ERC20
-	GasSupplyOf uint64 = 2_477
+	GasSupplyOf = 2_477
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
