@@ -4,6 +4,7 @@
 package erc20
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"math/big"
@@ -196,10 +197,13 @@ func (p Precompile) Allowance(
 		return nil, err
 	}
 
-	granter := owner
-	grantee := spender
+	// NOTE: In case the allowance is queried by the owner, we return the max uint256 value, which
+	// resembles an infinite allowance.
+	if bytes.Equal(owner.Bytes(), spender.Bytes()) {
+		return method.Outputs.Pack(abi.MaxUint256)
+	}
 
-	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
+	_, _, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spender, owner, p.tokenPair.Denom)
 	if err != nil {
 		// NOTE: We are not returning the error here, because we want to align the behavior with
 		// standard ERC20 smart contracts, which return zero if an allowance is not found.
