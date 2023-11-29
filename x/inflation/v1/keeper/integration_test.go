@@ -40,7 +40,9 @@ var _ = Describe("Inflation", Ordered, func() {
 					BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
 					MaxVariance:   sdk.ZeroDec(),             // 0%
 				}
-				_ = s.app.InflationKeeper.SetParams(s.ctx, params)
+				params.InflationDistribution = types.DefaultInflationDistribution
+				err := s.app.InflationKeeper.SetParams(s.ctx, params)
+				Expect(err).ToNot(HaveOccurred(), "error while setting params")
 			})
 
 			Context("before an epoch ends", func() {
@@ -51,7 +53,7 @@ var _ = Describe("Inflation", Ordered, func() {
 
 				It("should not allocate funds to usage incentives (Deprecated)", func() {
 					balance := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
-					Expect(balance.IsZero()).To(BeTrue())
+					Expect(balance.IsZero()).To(BeTrue(), "balance should be zero")
 				})
 				It("should not allocate funds to the community pool", func() {
 					balance := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
@@ -73,7 +75,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
 					expected := (provision.Mul(distribution)).TruncateInt()
 
-					Expect(actual).To(BeZero())
+					Expect(actual.IsZero()).To(BeTrue())
 					Expect(actual.Amount).To(Equal(expected))
 				})
 
