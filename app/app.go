@@ -752,7 +752,6 @@ func NewEvmos(
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		distrtypes.ModuleName,
-		// NOTE: staking requires the claiming hook
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,

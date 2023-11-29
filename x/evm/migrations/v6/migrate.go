@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v15/utils"
 	"github.com/evmos/evmos/v15/x/evm/types"
 
 	v5types "github.com/evmos/evmos/v15/x/evm/migrations/v6/types"
@@ -59,7 +60,7 @@ func MigrateStore(
 
 	// DefaultEVMChannels are for Evmos mainnet
 	// leave empty for testnet
-	if ctx.ChainID() == "evmos_9000-4" {
+	if ctx.ChainID() == utils.TestnetChainID+"-4" {
 		params.EVMChannels = []string{}
 	}
 

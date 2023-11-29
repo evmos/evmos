@@ -26,6 +26,7 @@ import (
 
 	"github.com/evmos/evmos/v15/contracts"
 	"github.com/evmos/evmos/v15/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
 )
@@ -603,7 +604,7 @@ func (suite *KeeperTestSuite) TestOnTimeoutPacket() {
 			name: "no-op - sender is module account",
 			malleate: func() transfertypes.FungibleTokenPacketData {
 				// any module account can be passed here
-				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "evm")
+				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, evmtypes.ModuleName)
 
 				return transfertypes.NewFungibleTokenPacketData("", "10", moduleAcc.GetAddress().String(), "", "")
 			},
