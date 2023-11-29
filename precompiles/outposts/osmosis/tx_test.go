@@ -316,7 +316,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			errContains: fmt.Sprintf("port ID (%s) channel ID (%s)", PortID, ChannelID),
 		},
 		{
-			name:   "pass - correct swap output uosmo",
+			name:   "pass - correct swap output ibc evmos",
 			sender: senderAddress,
 			origin: senderAddress,
 			malleate: func() []interface{} {
@@ -341,7 +341,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			ibcSetup: true,
 		},
 		{
-			name:   "pass - correct swap output ibc aevmos",
+			name:   "pass - correct swap output osmo",
 			sender: senderAddress,
 			origin: senderAddress,
 			malleate: func() []interface{} {
