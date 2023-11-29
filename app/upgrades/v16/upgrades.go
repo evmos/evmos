@@ -43,6 +43,8 @@ func CreateUpgradeHandler(
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
 		delete(vm, "recovery")
+		logger.Debug("deleting claims module from version map...")
+		delete(vm, "claims")
 		logger.Debug("deleting incentives module from version map...")
 		delete(vm, "incentives")
 

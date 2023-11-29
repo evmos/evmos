@@ -8,7 +8,11 @@ import (
 	"sort"
 	"strings"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
@@ -39,7 +43,12 @@ var (
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
-	DefaultExtraEIPs = []int64{3855}
+	DefaultExtraEIPs   = []int64{3855}
+	DefaultEVMChannels = []string{
+		"channel-10", // Injective
+		"channel-31", // Cronos
+		"channel-83", // Kava
+	}
 )
 
 // NewParams creates a new Params instance
@@ -50,7 +59,8 @@ func NewParams(
 	enableCall bool,
 	config ChainConfig,
 	extraEIPs []int64,
-	activePrecompiles ...string,
+	activePrecompiles,
+	evmChannels []string,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -60,6 +70,7 @@ func NewParams(
 		ExtraEIPs:           extraEIPs,
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
+		EVMChannels:         evmChannels,
 	}
 }
 
@@ -76,7 +87,26 @@ func DefaultParams() Params {
 		ExtraEIPs:           DefaultExtraEIPs,
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
+		EVMChannels:         DefaultEVMChannels,
 	}
+}
+
+// validateChannels checks if channels ids are valid
+func validateChannels(i interface{}) error {
+	channels, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	for _, channel := range channels {
+		if err := host.ChannelIdentifierValidator(channel); err != nil {
+			return errorsmod.Wrap(
+				channeltypes.ErrInvalidChannelIdentifier, err.Error(),
+			)
+		}
+	}
+
+	return nil
 }
 
 // Validate performs basic validation on evm parameters.
@@ -105,7 +135,11 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	return ValidatePrecompiles(p.ActivePrecompiles)
+	if err := ValidatePrecompiles(p.ActivePrecompiles); err != nil {
+		return err
+	}
+
+	return validateChannels(p.EVMChannels)
 }
 
 // EIPs returns the ExtraEIPS as a int slice
@@ -130,6 +164,12 @@ func (p Params) GetActivePrecompilesAddrs() []common.Address {
 		precompiles[i] = common.HexToAddress(precompile)
 	}
 	return precompiles
+}
+
+// IsEVMChannel returns true if the channel provided is in the list of
+// EVM channels
+func (p Params) IsEVMChannel(channel string) bool {
+	return slices.Contains(p.EVMChannels, channel)
 }
 
 // IsActivePrecompile returns true if the given precompile address is
