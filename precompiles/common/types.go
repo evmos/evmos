@@ -29,7 +29,7 @@ var (
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqpgshrm7", // Distribution precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqzxrz44p", // ICS20 transfer precompile
 		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqrm4kqgn", // Vesting precompile
-		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqy6vpsfk", // Bank Precompile
+		"evmos1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqy6vpsfk", // Bank precompile
 	}
 )
 
