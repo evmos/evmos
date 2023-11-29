@@ -532,7 +532,6 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 }
 
 func TestValidateOsmosisContractAddress(t *testing.T) {
-
 	testCases := []struct {
 		name            string
 		contractAddress string

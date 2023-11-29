@@ -2,8 +2,9 @@ package osmosis_test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
 	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
@@ -11,9 +12,8 @@ import (
 )
 
 func TestNewPrecompile(t *testing.T) {
-
-	portID := "transfer"
-	channelID := "channel-0"
+	portID := "transfer"     //nolint:goconst
+	channelID := "channel-0" //nolint:goconst
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
@@ -54,7 +54,6 @@ func TestNewPrecompile(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			_, err := osmosis.NewPrecompile(
 				unitNetwork.App.AuthzKeeper,
 				portID,
