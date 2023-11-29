@@ -212,6 +212,12 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 		{
 			"pass - spend on behalf of own account",
 			func() []interface{} {
+				// Mint some coins to the module account and then send to the spender address
+				err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), erc20types.ModuleName, XMPLCoin)
+				s.Require().NoError(err, "failed to mint coins")
+				err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), erc20types.ModuleName, spender.AccAddr, XMPLCoin)
+				s.Require().NoError(err, "failed to send coins from module to account")
+
 				// NOTE: no authorization is necessary to spend on behalf of the same account
 				return []interface{}{spender.Addr, toAddr, big.NewInt(100)}
 			},
