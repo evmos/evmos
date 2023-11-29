@@ -90,7 +90,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -219,7 +219,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}{
 		{
 			"success",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())

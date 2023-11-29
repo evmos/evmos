@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -63,7 +64,7 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 		if amount.Cmp(abi.MaxUint256) != 0 {
 			coin = &sdk.Coin{
 				Denom:  denom,
-				Amount: sdk.NewIntFromBigInt(amount),
+				Amount: math.NewIntFromBigInt(amount),
 			}
 		}
 	}

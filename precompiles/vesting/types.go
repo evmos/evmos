@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -254,7 +255,7 @@ func createCosmosPeriodsFromPeriod(inputPeriods []Period) cosmosvestingtypes.Per
 	for i, period := range inputPeriods {
 		amount := make([]sdk.Coin, len(period.Amount))
 		for j, coin := range period.Amount {
-			amount[j] = sdk.NewCoin(coin.Denom, sdk.NewIntFromBigInt(coin.Amount))
+			amount[j] = sdk.NewCoin(coin.Denom, math.NewIntFromBigInt(coin.Amount))
 		}
 
 		periods[i] = cosmosvestingtypes.Period{

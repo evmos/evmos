@@ -666,7 +666,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 }
 
 func (s *PrecompileTestSuite) TestAllowance() {
-	approvedCoin := sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)}
+	approvedCoin := sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)}
 	granteeAddr := testutiltx.GenerateAddress()
 	method := s.precompile.Methods[authorization.AllowanceMethod]
 

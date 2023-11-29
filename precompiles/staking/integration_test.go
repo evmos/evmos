@@ -53,9 +53,9 @@ var (
 var _ = Describe("Calling staking precompile directly", func() {
 	var (
 		// oneE18Coin is a sdk.Coin with an amount of 1e18 in the test suite's bonding denomination
-		oneE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(1e18))
+		oneE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(1e18))
 		// twoE18Coin is a sdk.Coin with an amount of 2e18 in the test suite's bonding denomination
-		twoE18Coin = sdk.NewCoin(s.bondDenom, sdk.NewInt(2e18))
+		twoE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(2e18))
 	)
 
 	BeforeEach(func() {
@@ -441,7 +441,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			It("should not delegate if the account has no sufficient balance", func() {
 				// send funds away from account to only have target balance remaining
 				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-				targetBalance := sdk.NewInt(1e17)
+				targetBalance := math.NewInt(1e17)
 				sentBalance := balance.Amount.Sub(targetBalance)
 				newAddr, _ := testutiltx.NewAccAddressAndKey()
 				err := s.app.BankKeeper.SendCoins(s.ctx, s.address.Bytes(), newAddr,
@@ -679,7 +679,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("as the token owner", func() {
@@ -1365,7 +1365,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				Expect(authorization).ToNot(BeNil(), "expected authorization to not be nil")
 				Expect(expirationTime).ToNot(BeNil(), "expected expiration time to not be nil")
 				Expect(authorization.MsgTypeURL()).To(Equal(staking.DelegateMsg), "expected authorization msg type url to be %s", staking.DelegateMsg)
-				Expect(authorization.MaxTokens.Amount).To(Equal(sdk.NewInt(2e18)), "expected different max tokens after updated approval")
+				Expect(authorization.MaxTokens.Amount).To(Equal(math.NewInt(2e18)), "expected different max tokens after updated approval")
 			})
 
 			It("should remove approval when setting amount to zero", func() {
@@ -1486,7 +1486,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				valAddrs,
 				nil,
 				createdAuthz,
-				&sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: sdk.NewInt(1e18)},
+				&sdk.Coin{Denom: sdk.DefaultBondDenom, Amount: math.NewInt(1e18)},
 			)
 			Expect(err).To(BeNil(), "failed to create authorization")
 
@@ -1536,7 +1536,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 				staking.DelegateAuthz,
 				contractAddr,
 				s.address,
-				&sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)},
+				&sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)},
 			)
 		})
 	})
@@ -1923,7 +1923,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(expCreationHeight), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		Context("without approval set", func() {
@@ -2408,7 +2408,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			Expect(unbondingDelegations[0].ValidatorAddress).To(Equal(valAddr.String()), "expected validator address to be %s", valAddr)
 			Expect(unbondingDelegations[0].Entries).To(HaveLen(1), "expected one unbonding delegation entry to be found")
 			Expect(unbondingDelegations[0].Entries[0].CreationHeight).To(Equal(int64(4)), "expected different creation height")
-			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(sdk.NewInt(1e18)), "expected different balance")
+			Expect(unbondingDelegations[0].Entries[0].Balance).To(Equal(math.NewInt(1e18)), "expected different balance")
 		})
 
 		It("which does not exist should return an empty unbonding delegation", func() {

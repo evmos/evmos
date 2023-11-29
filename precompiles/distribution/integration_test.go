@@ -176,7 +176,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expRewardAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(sdk.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
+			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
 
@@ -239,7 +239,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should withdraw validator commission", func() {
 			// initial balance should be the initial amount minus the staked amount used to create the validator
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(sdk.NewInt(4999999999999999900)))
+			Expect(initialBalance.Amount).To(Equal(math.NewInt(4999999999999999900)))
 
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
 				WithArgs(valAddr.String()).
@@ -261,7 +261,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expCommAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(sdk.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to the final balance after withdrawing commission")
+			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to the final balance after withdrawing commission")
 		})
 	})
 
@@ -270,8 +270,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		//
 		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
 		var defaultClaimRewardsArgs contracts.CallArgs
-		startingBalance := sdk.NewInt(5e18)
-		expectedBalance := sdk.NewInt(8999665039062500000)
+		startingBalance := math.NewInt(5e18)
+		expectedBalance := math.NewInt(8999665039062500000)
 
 		BeforeEach(func() {
 			// set the default call arguments
@@ -853,7 +853,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expValAmount - fees
-			Expect(finalBalance.Amount).To(Equal(sdk.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
+			Expect(finalBalance.Amount).To(Equal(math.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
 		})
 	})
 
@@ -940,7 +940,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				},
 			}...)
 
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e18)}
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}
 
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
@@ -962,7 +962,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(6997329929187000000)}
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(6997329929187000000)}
 			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil())
 

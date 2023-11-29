@@ -164,8 +164,8 @@ Example:
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
 			var ok bool
-			args.baseFee, ok = sdk.NewIntFromString(baseFee)
-			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
+			args.baseFee, ok = math.NewIntFromString(baseFee)
+			if !ok || args.baseFee.LT(math.ZeroInt()) {
 				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
 			}
 
@@ -341,7 +341,7 @@ func initTestnetFiles(
 			sdk.NewCoin(cmdcfg.BaseDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
 			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-			sdk.OneInt(),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err

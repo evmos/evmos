@@ -11,7 +11,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v15/testutil"
@@ -32,7 +31,7 @@ var _ = Describe("Feemarket", func() {
 	Describe("Performing Cosmos transactions", func() {
 		Context("with min-gas-prices (local) < MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "1", math.LegacyNewDec(3), sdk.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "1", math.LegacyNewDec(3), math.ZeroInt())
 			})
 
 			Context("during CheckTx", func() {
@@ -76,7 +75,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with min-gas-prices (local) == MinGasPrices (feemarket param)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "3", math.LegacyNewDec(3), sdk.ZeroInt())
+				privKey, msg = setupTestWithContext(chainID, "3", math.LegacyNewDec(3), math.ZeroInt())
 			})
 
 			Context("during CheckTx", func() {
@@ -120,7 +119,7 @@ var _ = Describe("Feemarket", func() {
 
 		Context("with MinGasPrices (feemarket param) < min-gas-prices (local)", func() {
 			BeforeEach(func() {
-				privKey, msg = setupTestWithContext(chainID, "5", math.LegacyNewDec(3), sdk.NewInt(5))
+				privKey, msg = setupTestWithContext(chainID, "5", math.LegacyNewDec(3), math.NewInt(5))
 			})
 
 			//nolint

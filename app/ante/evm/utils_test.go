@@ -213,10 +213,10 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr,
 		privEd.PubKey(),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20)),
+		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
 		stakingtypes.NewDescription("moniker", "indentity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-		sdk.OneInt(),
+		math.OneInt(),
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)
@@ -229,11 +229,11 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator2(from sdk.AccAddr
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr,
 		privEd.PubKey(),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(20)),
+		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20)),
 		// Ensure optional fields can be left blank
 		stakingtypes.NewDescription("moniker", "indentity", "", "", ""),
 		stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
-		sdk.OneInt(),
+		math.OneInt(),
 	)
 	suite.Require().NoError(err)
 	return suite.CreateTestEIP712SingleMessageTxBuilder(priv, chainID, gas, gasAmount, msgCreate)
@@ -386,7 +386,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgTransferWithoutMemo(from sdk.AccA
 
 func (suite *AnteTestSuite) createMsgTransfer(from sdk.AccAddress, memo string) *ibctypes.MsgTransfer {
 	recipient := sdk.AccAddress(common.Address{}.Bytes())
-	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, memo)
+	msgTransfer := ibctypes.NewMsgTransfer("transfer", "channel-25", sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(100000)), from.String(), recipient.String(), ibcclienttypes.NewHeight(1000, 1000), 1000, memo)
 	return msgTransfer
 }
 
@@ -576,7 +576,7 @@ func (suite *AnteTestSuite) createBaseTxBuilder(msg sdk.Msg, gas uint64) client.
 
 	txBuilder.SetGasLimit(gas)
 	txBuilder.SetFeeAmount(sdk.NewCoins(
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdk.NewInt(10000)),
+		sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10000)),
 	))
 
 	err := txBuilder.SetMsgs(msg)
@@ -678,7 +678,7 @@ func (suite *AnteTestSuite) disableBaseFee(ctx sdk.Context) {
 // makeZeroFeeTx is a helper function that sets
 // the GasPrice field to zero on the provided evmTxArgs
 func makeZeroFeeTx(from common.Address, args evmtypes.EvmTxArgs) *evmtypes.MsgEthereumTx {
-	args.GasPrice = sdk.ZeroInt().BigInt()
+	args.GasPrice = math.ZeroInt().BigInt()
 	tx := evmtypes.NewTx(&args)
 	tx.From = from.Hex()
 	return tx

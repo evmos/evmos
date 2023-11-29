@@ -111,7 +111,7 @@ func calculateFees(
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
-	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
+	feeDistribution := math.NewInt(res.GasUsed).Mul(math.NewIntFromBigInt(gasPrice))
 	developerFee := math.LegacyNewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
 	validatorShares := math.LegacyOneDec().Sub(params.DeveloperShares)

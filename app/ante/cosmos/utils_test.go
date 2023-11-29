@@ -164,7 +164,7 @@ func (suite *AnteTestSuite) setupDeductFeeDecoratorTestCase(addr sdk.AccAddress,
 	}
 }
 
-// intSlice creates a slice of sdk.Int with the specified size and same value
+// intSlice creates a slice of sdkmath.Int with the specified size and same value
 func intSlice(size int, value sdkmath.Int) []sdkmath.Int {
 	slc := make([]sdkmath.Int, size)
 	for i := 0; i < len(slc); i++ {

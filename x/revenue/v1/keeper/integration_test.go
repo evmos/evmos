@@ -41,7 +41,7 @@ var _ = Describe("Fee distribution:", Ordered, func() {
 	denom := s.denom
 
 	// account initial balances
-	initAmount := sdk.NewInt(int64(math.Pow10(18) * 4))
+	initAmount := sdkmath.NewInt(int64(math.Pow10(18) * 4))
 	initBalance := sdk.NewCoins(sdk.NewCoin(denom, initAmount))
 
 	var (

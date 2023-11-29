@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -59,7 +60,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	Expect(params).ToNot(BeNil(), "returned gov params are nil")
 
 	updatedParams := params.Params
-	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), sdk.NewInt(1e18)))
+	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), math.NewInt(1e18)))
 	err = nw.UpdateGovParams(*updatedParams)
 	Expect(err).ToNot(HaveOccurred(), "failed to update the min deposit")
 
@@ -1853,7 +1854,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
-				maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+				maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 				txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
@@ -1986,7 +1987,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 
 				DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
-					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 					txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
@@ -2052,7 +2053,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
-					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 					txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, increaseArgs, execRevertedCheck)

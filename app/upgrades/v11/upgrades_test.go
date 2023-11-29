@@ -157,10 +157,10 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	fundingAcc := sdk.MustAccAddressFromBech32(v11.FundingAccount)
 
 	// checks on reward amounts
-	balance, ok := sdk.NewIntFromString("7399998994000000000000000")
+	balance, ok := math.NewIntFromString("7399998994000000000000000")
 	suite.Require().True(ok, "error converting rewards account balance")
 
-	expRewards, ok := sdk.NewIntFromString("5624999999983399933050880")
+	expRewards, ok := math.NewIntFromString("5624999999983399933050880")
 	suite.Require().True(ok, "error converting rewards")
 
 	var validatorAddresses []string
@@ -168,7 +168,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 	actualRewards := math.ZeroInt()
 
 	for _, allocation := range v11.Allocations {
-		amt, ok := sdk.NewIntFromString(allocation[1])
+		amt, ok := math.NewIntFromString(allocation[1])
 		suite.Require().True(ok, "failed to convert allocation")
 
 		actualRewards = actualRewards.Add(amt)
@@ -271,7 +271,7 @@ func (suite *UpgradeTestSuite) TestDistributeRewards() {
 			// do allocations
 			for i := range v11.Allocations {
 				addr := sdk.MustAccAddressFromBech32(v11.Allocations[i][0])
-				valShare, _ := sdk.NewIntFromString(v11.Allocations[i][1])
+				valShare, _ := math.NewIntFromString(v11.Allocations[i][1])
 
 				balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)
 				suite.Require().Equal(math.ZeroInt(), balance.Amount)
