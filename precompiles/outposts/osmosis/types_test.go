@@ -18,7 +18,6 @@ func TestCreatePacketWithMemo(t *testing.T) {
 
 	contract := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
-	aevmosDenom := "aevmos"
 	doNothing := "do_nothing"
 
 	testCases := []struct {
@@ -34,7 +33,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 	}{
 		{
 			name:               "pass - correct string without memo",
-			outputDenom:        aevmosDenom,
+			outputDenom:        utils.BaseDenom,
 			receiver:           receiver,
 			contract:           contract,
 			slippagePercentage: 10,
@@ -45,7 +44,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		},
 		{
 			name:               "pass - correct string with memo",
-			outputDenom:        aevmosDenom,
+			outputDenom:        utils.BaseDenom,
 			receiver:           receiver,
 			contract:           contract,
 			slippagePercentage: 10,
@@ -349,11 +348,10 @@ func TestValidateMemo(t *testing.T) {
 func TestValidateInputOutput(t *testing.T) {
 	t.Parallel()
 
-	stakingDenom := aevmosDenom
 	portID := "transfer"
 	channelID := "channel-0"
 	uosmosDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
-	validInputs := []string{aevmosDenom, uosmosDenom}
+	validInputs := []string{utils.BaseDenom, uosmosDenom}
 
 	testCases := []struct {
 		name         string
@@ -367,28 +365,28 @@ func TestValidateInputOutput(t *testing.T) {
 	}{
 		{
 			name:         "pass - correct input and output",
-			inputDenom:   aevmosDenom,
+			inputDenom:   utils.BaseDenom,
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      true,
 		},
 		{
 			name:         "fail - input equal to output aevmos",
-			inputDenom:   aevmosDenom,
-			outputDenom:  aevmosDenom,
-			stakingDenom: stakingDenom,
+			inputDenom:   utils.BaseDenom,
+			outputDenom:  utils.BaseDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
-			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, aevmosDenom),
+			errContains:  fmt.Sprintf(osmosisoutpost.ErrInputEqualOutput, utils.BaseDenom),
 		},
 		{
 			name:         "fail - input equal to output ibc osmo",
 			inputDenom:   uosmosDenom,
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
@@ -398,7 +396,7 @@ func TestValidateInputOutput(t *testing.T) {
 			name:         "fail - invalid input",
 			inputDenom:   "token",
 			outputDenom:  uosmosDenom,
-			stakingDenom: stakingDenom,
+			stakingDenom: utils.BaseDenom,
 			portID:       portID,
 			channelID:    channelID,
 			expPass:      false,
@@ -412,7 +410,7 @@ func TestValidateInputOutput(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			evmosConnection := osmosisoutpost.NewIBCConnection(tc.portID, tc.channelID)
+			evmosConnection := osmosisoutpost.NewIBCChannel(tc.portID, tc.channelID)
 
 			err := osmosisoutpost.ValidateInputOutput(tc.inputDenom, tc.outputDenom, tc.stakingDenom, evmosConnection)
 			if tc.expPass {
@@ -468,10 +466,9 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 
 	portID := "transfer"
 	channelID := "channel-0"
-	stakingDenom := aevmosDenom
 	osmoIBCDenom := utils.ComputeIBCDenom(portID, channelID, osmosisoutpost.OsmosisDenom)
-	evmosConnection := osmosisoutpost.NewIBCConnection(portID, channelID)
-	osmosisConnection := osmosisoutpost.NewIBCConnection(portID, channelID)
+	evmosConnection := osmosisoutpost.NewIBCChannel(portID, channelID)
+	osmosisConnection := osmosisoutpost.NewIBCChannel(portID, channelID)
 
 	testCases := []struct {
 		name        string
@@ -482,7 +479,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 	}{
 		{
 			name:     "pass - correct conversion of aevmos",
-			denom:    stakingDenom,
+			denom:    utils.BaseDenom,
 			expPass:  true,
 			expDenom: "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E",
 		}, {
@@ -494,7 +491,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 			name:        "fail - not allowed token",
 			denom:       "token",
 			expPass:     false,
-			errContains: fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, []string{stakingDenom, osmoIBCDenom}),
+			errContains: fmt.Sprintf(osmosisoutpost.ErrDenomNotSupported, []string{utils.BaseDenom, osmoIBCDenom}),
 		},
 	}
 
@@ -504,7 +501,7 @@ func TestConvertToOsmosisRepresentation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, stakingDenom, evmosConnection, osmosisConnection)
+			denom, err := osmosisoutpost.ConvertToOsmosisRepresentation(tc.denom, utils.BaseDenom, evmosConnection, osmosisConnection)
 			if tc.expPass {
 				require.NoError(t, err, "expected no error while creating memo")
 				require.Equal(t, denom, tc.expDenom)

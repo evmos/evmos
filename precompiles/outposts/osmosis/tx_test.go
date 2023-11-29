@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"math/big"
 
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/evmos/evmos/v15/precompiles/authorization"
 	cmn "github.com/evmos/evmos/v15/precompiles/common"
 	"github.com/evmos/evmos/v15/precompiles/ics20"
@@ -16,10 +18,6 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
 	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/utils"
-)
-
-const (
-	aevmosDenom = "aevmos"
 )
 
 func (s *PrecompileTestSuite) TestSwap() {
@@ -162,7 +160,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{aevmosDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{utils.BaseDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		},
 		{
 			name:   "fail - input equal to denom",
@@ -183,7 +181,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				}
 			},
 			expError:    true,
-			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput, aevmosDenom),
+			errContains: fmt.Sprintf(osmosis.ErrInputEqualOutput, utils.BaseDenom),
 		},
 		{
 			name:   "fail - invalid input",
@@ -209,7 +207,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			},
 			expError: true,
 			// Probably there is a better way than hardcoding the expected string
-			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{aevmosDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
+			errContains: fmt.Sprintf(osmosis.ErrDenomNotSupported, []string{utils.BaseDenom, "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"}),
 		},
 		// All tests below requires the ibcSetup equal to true because run the query GetChannel
 		// that fails if the IBC connection is not open.

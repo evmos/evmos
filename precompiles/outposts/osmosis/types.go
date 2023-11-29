@@ -49,16 +49,16 @@ type EventSwap struct {
 }
 
 // IBCConnction contains information of port and channel of an IBC connection.
-type IBCConnection struct {
+type IBCChannel struct {
 	PortID    string
 	ChannelID string
 }
 
 // NewIBCConnection return a new instance of IBCConnection.
-func NewIBCConnection(
+func NewIBCChannel(
 	portID, channelID string,
-) IBCConnection {
-	return IBCConnection{
+) IBCChannel {
+	return IBCChannel{
 		PortID:    portID,
 		ChannelID: channelID,
 	}
@@ -101,8 +101,8 @@ type Msg struct {
 	OsmosisSwap *OsmosisSwap `json:"osmosis_swap"`
 }
 
-// Wasm wraps the message details required for the IBC packet to be valid for the Wasm router.
-type Wasm struct {
+// WasmMemo wraps the message details required for the IBC packet to be valid for the Wasm router.
+type WasmMemo struct {
 	// Contract represents the address or identifier of the contract to be called.
 	Contract string `json:"contract"`
 	// Msg contains the details of the operation to be executed on the contract.
@@ -112,7 +112,7 @@ type Wasm struct {
 // RawPacketMetadata is the raw packet metadata used to construct a JSON string.
 type RawPacketMetadata struct {
 	// The Osmosis outpost IBC memo content.
-	Wasm *Wasm `json:"wasm"`
+	Wasm *WasmMemo `json:"wasm"`
 }
 
 // Validate performs basic validation of the IBC memo for the Osmosis outpost.
@@ -150,7 +150,7 @@ func CreatePacketWithMemo(
 	onFailedDelivery, nextMemo string,
 ) *RawPacketMetadata {
 	return &RawPacketMetadata{
-		&Wasm{
+		&WasmMemo{
 			Contract: contract,
 			Msg: &Msg{
 				OsmosisSwap: &OsmosisSwap{
@@ -203,7 +203,7 @@ func CreateOnFailedDeliveryField(address string) string {
 // ValidateInputOutput validates the input and output tokens used in the Osmosis swap.
 func ValidateInputOutput(
 	inputDenom, outputDenom, stakingDenom string,
-	evmosConnection IBCConnection,
+	evmosConnection IBCChannel,
 ) error {
 	if outputDenom == inputDenom {
 		return fmt.Errorf(ErrInputEqualOutput, inputDenom)
@@ -231,7 +231,7 @@ func ValidateInputOutput(
 // representation of aevmos and uosmo. Return an error if the denom is different from one these two.
 func ConvertToOsmosisRepresentation(
 	denom, stakingDenom string,
-	evmosConnection, osmosisConnection IBCConnection,
+	evmosConnection, osmosisConnection IBCChannel,
 ) (denomOsmosis string, err error) {
 	osmoIBCDenom := utils.ComputeIBCDenom(
 		evmosConnection.PortID,

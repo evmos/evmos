@@ -69,7 +69,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	evmosConnection := NewIBCConnection(p.portID, p.channelID)
+	evmosConnection := NewIBCChannel(p.portID, p.channelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosConnection)
 	if err != nil {
@@ -82,7 +82,7 @@ func (p Precompile) Swap(
 	if !found {
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosConnection.PortID, evmosConnection.ChannelID)
 	}
-	osmosisConnection := NewIBCConnection(
+	osmosisConnection := NewIBCChannel(
 		channel.GetCounterparty().GetPortID(),
 		channel.GetCounterparty().GetChannelID(),
 	)
