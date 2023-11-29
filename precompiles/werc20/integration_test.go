@@ -577,7 +577,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
-				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer, auth.EventTypeApproval)
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
