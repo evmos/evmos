@@ -61,11 +61,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	}
 
 	sender := sdk.MustAccAddressFromBech32(msg.Sender)
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
-
-	if erc20types.IsModuleAccount(senderAcc) {
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
 
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {
 		// no-op: continue with regular transfer
