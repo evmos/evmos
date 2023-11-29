@@ -158,14 +158,16 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	consnsusParams := app.DefaultConsensusParams
-	evmosApp.InitChain(
+	if _, err := evmosApp.InitChain(
 		&abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
 			Validators:      []abcitypes.ValidatorUpdate{},
 			ConsensusParams: app.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
-	)
+	); err != nil {
+		return err
+	}
 	// Commit genesis changes
 	evmosApp.Commit()
 

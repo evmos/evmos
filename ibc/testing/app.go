@@ -106,11 +106,14 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	)
 
 	// commit genesis changes
-	app.Commit()
-	app.FinalizeBlock(&abci.RequestFinalizeBlock{
+	_, err = app.Commit()
+	require.NoError(t, err)
+	
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
 		Height:             app.LastBlockHeight(),
 		NextValidatorsHash: valSet.Hash(),
 	})
+	require.NoError(t, err)
 
 	return app
 }

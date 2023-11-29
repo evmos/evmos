@@ -61,14 +61,17 @@ func TestEvmosExport(t *testing.T) {
 	require.NoError(t, err)
 
 	// Initialize the chain
-	app.InitChain(
+	_, err = app.InitChain(
 		&abci.RequestInitChain{
 			ChainId:       chainID,
 			Validators:    []abci.ValidatorUpdate{},
 			AppStateBytes: stateBytes,
 		},
 	)
-	app.Commit()
+	require.NoError(t, err)
+
+	_, err = app.Commit()
+	require.NoError(t, err)
 
 	// Making a new app object with the db, so that initchain hasn't been called
 	app2 := NewEvmos(

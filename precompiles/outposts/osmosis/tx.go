@@ -126,7 +126,7 @@ func (p Precompile) Swap(
 	}
 
 	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	res, err := p.transferKeeper.Transfer(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

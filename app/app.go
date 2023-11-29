@@ -992,7 +992,9 @@ func (app *Evmos) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abc
 		panic(err)
 	}
 
-	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
+		panic(err)
+	}
 
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }

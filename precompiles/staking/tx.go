@@ -81,7 +81,7 @@ func (p Precompile) CreateValidator(
 
 	// Execute the transaction using the message server
 	msgSrv := stakingkeeper.NewMsgServerImpl(&p.stakingKeeper)
-	if _, err = msgSrv.CreateValidator(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.CreateValidator(ctx, msg); err != nil {
 		return nil, err
 	}
 

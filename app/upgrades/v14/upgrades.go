@@ -137,7 +137,9 @@ func CreateUpgradeHandler(
 
 		baseAppLegacySS := pk.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
 
-		baseapp.MigrateParams(ctx, baseAppLegacySS, ck.ParamsStore)
+		if err := baseapp.MigrateParams(ctx, baseAppLegacySS, ck.ParamsStore); err != nil {
+			return nil, err
+		}
 
 		// Include this when migrating to ibc-go v7 (optional)
 		// source: https://github.com/cosmos/ibc-go/blob/v7.2.0/docs/migrations/v6-to-v7.md

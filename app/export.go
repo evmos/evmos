@@ -92,10 +92,12 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
-	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
+	if err := app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		_, _ = app.DistrKeeper.WithdrawValidatorCommission(ctx, sdk.ValAddress(val.GetOperator()))
 		return false
-	})
+	}); err != nil {
+		return err
+	}
 
 	// withdraw all delegator rewards
 	dels, err := app.StakingKeeper.GetAllDelegations(ctx)
@@ -137,7 +139,10 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 			return true
 		}
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		app.DistrKeeper.FeePool.Set(ctx, feePool)
+		err = app.DistrKeeper.FeePool.Set(ctx, feePool)
+		if err != nil {
+			return true
+		}
 
 		err = app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, sdk.ValAddress(val.GetOperator()))
 		// this lets us stop in case there's an error
@@ -174,22 +179,26 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 	/* Handle staking state. */
 
 	// iterate through redelegations, reset creation height
-	app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
+	if err := app.StakingKeeper.IterateRedelegations(ctx, func(_ int64, red stakingtypes.Redelegation) (stop bool) {
 		for i := range red.Entries {
 			red.Entries[i].CreationHeight = 0
 		}
 		app.StakingKeeper.SetRedelegation(ctx, red)
 		return false
-	})
+	}); err != nil {
+		return err
+	}
 
 	// iterate through unbonding delegations, reset creation height
-	app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) (stop bool) {
+	if err := app.StakingKeeper.IterateUnbondingDelegations(ctx, func(_ int64, ubd stakingtypes.UnbondingDelegation) (stop bool) {
 		for i := range ubd.Entries {
 			ubd.Entries[i].CreationHeight = 0
 		}
 		app.StakingKeeper.SetUnbondingDelegation(ctx, ubd)
 		return false
-	})
+	}); err != nil {
+		return err
+	}
 
 	// Iterate through validators by power descending, reset bond heights, and
 	// update bond intra-tx counters.
@@ -224,13 +233,15 @@ func (app *Evmos) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []s
 	/* Handle slashing state. */
 
 	// reset start height on signing infos
-	app.SlashingKeeper.IterateValidatorSigningInfos(
+	if err := app.SlashingKeeper.IterateValidatorSigningInfos(
 		ctx,
 		func(addr sdk.ConsAddress, info slashingtypes.ValidatorSigningInfo) (stop bool) {
 			info.StartHeight = 0
 			app.SlashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
 			return false
 		},
-	)
+	); err != nil {
+		return err
+	}
 	return nil
 }

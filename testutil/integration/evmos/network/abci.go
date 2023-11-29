@@ -19,7 +19,10 @@ func (n *IntegrationNetwork) NextBlock() error {
 func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	// End block and commit
 	header := n.ctx.BlockHeader()
-	n.app.EndBlocker(n.ctx)
+	if _, err := n.app.EndBlocker(n.ctx); err != nil {
+		return err
+	}
+
 	n.app.Commit()
 
 	// Calculate new block time after duration
@@ -40,7 +43,9 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	// This might have to be changed with time if we want to test gas limits
 	newCtx = newCtx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
-	n.app.BeginBlocker(newCtx)
+	if _, err := n.app.BeginBlocker(newCtx); err != nil {
+		return err
+	}
 
 	n.ctx = newCtx
 	return nil

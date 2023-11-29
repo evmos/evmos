@@ -80,7 +80,7 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Evmos, evmostypes.Genesis
 		}
 
 		// Initialize the chain
-		app.InitChain(
+		_, err = app.InitChain(
 			&abci.RequestInitChain{
 				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
@@ -88,6 +88,9 @@ func EthSetupWithDB(isCheckTx bool, patchGenesis func(*Evmos, evmostypes.Genesis
 				AppStateBytes:   stateBytes,
 			},
 		)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return app

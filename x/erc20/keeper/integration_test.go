@@ -167,7 +167,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 					// Make proposal pass in EndBlocker
 					duration := proposal.VotingEndTime.Sub(s.ctx.BlockTime()) + 1
 					s.CommitAndBeginBlockAfter(duration)
-					s.app.EndBlocker(s.ctx)
+					_, err = s.app.EndBlocker(s.ctx)
+					s.Require().NoError(err)
 					s.Commit()
 				})
 				It("should create a token pairs owned by the erc20 module", func() {
