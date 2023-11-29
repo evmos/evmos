@@ -4,6 +4,7 @@
 package erc20
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"math/big"
@@ -45,6 +46,14 @@ func (p Precompile) Approve(
 
 	grantee := spender
 	granter := contract.CallerAddress
+
+	// NOTE: We do not support approvals if the grantee is the granter.
+	// This is different from the ERC20 standard but there is no reason to
+	// do so, since in that case the grantee can just transfer the tokens
+	// without authorization.
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
 
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
@@ -105,6 +114,10 @@ func (p Precompile) IncreaseAllowance(
 	grantee := spender
 	granter := contract.CallerAddress
 
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
+
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
@@ -163,6 +176,9 @@ func (p Precompile) DecreaseAllowance(
 	grantee := spender
 	granter := contract.CallerAddress
 
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
 	// TODO: owner should be the owner of the contract
 
 	authorization, expiration, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
