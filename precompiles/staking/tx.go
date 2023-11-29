@@ -54,7 +54,11 @@ func (p Precompile) CreateValidator(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, delegatorHexAddr, err := NewMsgCreateValidator(args, p.stakingKeeper.BondDenom(ctx))
+	bondDenom, err := p.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
+	}
+	msg, delegatorHexAddr, err := NewMsgCreateValidator(args, bondDenom)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/evmos/v15/app"
@@ -128,7 +129,7 @@ func (s *benchmarkSuite) generateTxType(txType string) (sdktypes.Tx, error) {
 			sdktypes.NewCoins(
 				sdktypes.NewCoin(
 					s.network.GetDenom(),
-					sdktypes.NewInt(1000),
+					math.NewInt(1000),
 				),
 			),
 		)

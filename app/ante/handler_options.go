@@ -8,7 +8,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	txsigning "cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"

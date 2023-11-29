@@ -37,7 +37,7 @@ type TxFactory interface {
 	//
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
-	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error)
+	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error)
 	// DeployContract deploys a contract with the provided private key,
 	// compiled contract data and constructor arguments
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
@@ -102,18 +102,18 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	txArgs evmtypes.EvmTxArgs,
 	callArgs CallArgs,
 	logCheckArgs testutil.LogCheckArgs,
-) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
+) (abcitypes.ExecTxResult, *evmtypes.MsgEthereumTxResponse, error) {
 	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
 	logCheckArgs.Res = res
 	if err != nil {
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
-		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
+		return abcitypes.ExecTxResult{}, nil, CheckError(err, logCheckArgs)
 	}
 
 	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, nil, err
+		return abcitypes.ExecTxResult{}, nil, err
 	}
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)

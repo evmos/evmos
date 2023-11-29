@@ -27,9 +27,9 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			Details:         "",
 		}
 		commission = staking.Commission{
-			Rate:          sdk.OneDec().BigInt(),
-			MaxRate:       sdk.OneDec().BigInt(),
-			MaxChangeRate: sdk.OneDec().BigInt(),
+			Rate:          math.LegacyOneDec().BigInt(),
+			MaxRate:       math.LegacyOneDec().BigInt(),
+			MaxChangeRate: math.LegacyOneDec().BigInt(),
 		}
 		minSelfDelegation = big.NewInt(1)
 		delegatorAddress  = s.address
@@ -273,7 +273,8 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			bz, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
 			// query the validator in the staking keeper
-			validator := s.app.StakingKeeper.Validator(s.ctx, s.address.Bytes())
+			validator, err := s.app.StakingKeeper.Validator(s.ctx, s.address.Bytes())
+			s.Require().NoError(err)
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
 				s.Require().Empty(bz)
@@ -291,7 +292,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				consPubKeyBase64 := base64.StdEncoding.EncodeToString(consPubKey.Bytes())
 				s.Require().Equal(pubkey, consPubKeyBase64, "expected validator pubkey to be %s; got %s", pubkey, consPubKeyBase64)
 
-				operator := validator.GetOperator().String()
+				operator := validator.GetOperator()
 				s.Require().Equal(validatorAddress, operator, "expected validator operator to be %s; got %s", validatorAddress, operator)
 
 				commissionRate := validator.GetCommission()

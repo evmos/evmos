@@ -7,6 +7,7 @@
 package osmosis
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -70,9 +71,9 @@ func (p Precompile) Swap(
 
 	// We need the bonded denom just for the outpost alpha version where the
 	// the only two inputs allowed are aevmos and uosmo.
-	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+	params, err := p.stakingKeeper.GetParams(ctx)
 
-	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, p.portID, p.channelID)
+	err = ValidateInputOutput(inputDenom, outputDenom, params.BondDenom, p.portID, p.channelID)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +97,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
-	coin := sdk.Coin{Denom: inputDenom, Amount: sdk.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		p.portID,
 		p.channelID,

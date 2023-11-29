@@ -10,6 +10,7 @@ import (
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/evmos/evmos/v15/app"
@@ -183,8 +184,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.app = evmosApp
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
-	n.ctx = n.ctx.WithConsensusParams(consnsusParams)
-	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
+	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
+	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
 	n.validators = validators
 	n.valSet = valSet

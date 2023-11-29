@@ -222,7 +222,7 @@ func (p Precompile) DecreaseAllowance(
 }
 
 func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int) error {
-	if amount.BitLen() > sdkmath.MaxBitLen {
+	if amount.BitLen() > math.MaxBitLen {
 		return fmt.Errorf(ErrIntegerOverflow, amount)
 	}
 
@@ -290,7 +290,7 @@ func (p Precompile) increaseAllowance(
 	}
 
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
-	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
+	sdkAddedValue := math.NewIntFromBigInt(addedValue)
 	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
 	if overflow {
 		return nil, ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow))

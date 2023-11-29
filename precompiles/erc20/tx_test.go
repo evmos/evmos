@@ -177,7 +177,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 					s.network.GetContext(),
 					spender.AccAddr,
 					owner.AccAddr,
-					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewInt(5e18)}}},
+					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: s.tokenDenom, Amount: math.NewInt(5e18)}}},
 					&expiration,
 				)
 				s.Require().NoError(err, "failed to save grant")
@@ -196,7 +196,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 					s.network.GetContext(),
 					spender.AccAddr,
 					owner.AccAddr,
-					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: sdk.NewInt(300)}}},
+					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: math.NewInt(300)}}},
 					&expiration,
 				)
 				s.Require().NoError(err, "failed to save grant")

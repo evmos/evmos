@@ -167,7 +167,7 @@ func CheckTxFee(txFeeInfo *tx.Fee, txFee sdk.Coins, txGasLimit uint64) error {
 		return nil
 	}
 
-	if !txFeeInfo.Amount.IsEqual(txFee) {
+	if !txFeeInfo.Amount.Equal(txFee) {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid AuthInfo Fee Amount (%s != %s)", txFeeInfo.Amount, txFee)
 	}
 

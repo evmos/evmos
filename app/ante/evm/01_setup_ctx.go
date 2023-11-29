@@ -40,7 +40,7 @@ func SetupContext(ctx sdk.Context, tx sdk.Tx, evmKeeper EVMKeeper) (sdk.Context,
 	}
 
 	// We need to setup an empty gas config so that the gas is consistent with Ethereum.
-	newCtx := ctx.WithGasMeter(sdk.NewInfiniteGasMeter()).
+	newCtx := ctx.WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 

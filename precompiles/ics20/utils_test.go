@@ -67,7 +67,7 @@ var (
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
+	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
 		Name:     "TestCoin",

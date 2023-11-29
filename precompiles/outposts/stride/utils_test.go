@@ -25,12 +25,13 @@ const (
 func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	// Register EVMOS ERC20 equivalent
 	ctx := s.network.GetContext()
-	bondDenom := s.network.App.StakingKeeper.BondDenom(ctx)
+	bondDenom, err := s.network.App.StakingKeeper.BondDenom(ctx)
+	s.Require().NoError(err)
 	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, bondDenom)
 	s.Require().True(found, "expected evmos denom metadata")
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(2e18))
-	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
+	coin := sdk.NewCoin(evmosMetadata.Base, math.NewInt(2e18))
+	err = s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
 	// Register some Token Pairs
