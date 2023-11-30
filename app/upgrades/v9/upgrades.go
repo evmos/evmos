@@ -39,12 +39,12 @@ func CreateUpgradeHandler(
 
 // ReturnFundsFromCommunityPool handles the return of funds from the community pool to accounts affected during the claims clawback
 func ReturnFundsFromCommunityPool(ctx sdk.Context, dk distrKeeper.Keeper) error {
-	availableCoins, ok := sdk.NewIntFromString(MaxRecover)
+	availableCoins, ok := sdkmath.NewIntFromString(MaxRecover)
 	if !ok || availableCoins.IsNegative() {
 		return fmt.Errorf("failed to read maximum amount to recover from community funds")
 	}
 	for i := range Accounts {
-		refund, _ := sdk.NewIntFromString(Accounts[i][1])
+		refund, _ := sdkmath.NewIntFromString(Accounts[i][1])
 		if availableCoins.LT(refund) {
 			return fmt.Errorf("refund exceeds the total available coins: %s > %s", Accounts[i][1], availableCoins)
 		}

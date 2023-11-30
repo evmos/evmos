@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -125,7 +126,7 @@ func (k Keeper) PostTxProcessing(
 		}
 
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: math.NewIntFromBigInt(tokens)}}
 
 		// Perform token conversion. We can now assume that the sender of a
 		// registered token wants to mint a Cosmos coin.

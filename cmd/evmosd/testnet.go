@@ -23,7 +23,7 @@ import (
 	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/spf13/cobra"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -77,8 +77,8 @@ type initArgs struct {
 	numValidators     int
 	outputDir         string
 	startingIPAddress string
-	baseFee           sdkmath.Int
-	minGasPrice       sdkmath.LegacyDec
+	baseFee           math.Int
+	minGasPrice       math.LegacyDec
 }
 
 type startArgs struct {
@@ -164,16 +164,16 @@ Example:
 			minGasPrice, _ := cmd.Flags().GetString(flagMinGasPrice)
 
 			var ok bool
-			args.baseFee, ok = sdk.NewIntFromString(baseFee)
-			if !ok || args.baseFee.LT(sdk.ZeroInt()) {
+			args.baseFee, ok = math.NewIntFromString(baseFee)
+			if !ok || args.baseFee.LT(math.ZeroInt()) {
 				return fmt.Errorf("invalid value for --base-fee. expected a int number greater than or equal to 0 but got %s", baseFee)
 			}
 
-			args.minGasPrice, err = sdk.NewDecFromStr(minGasPrice)
+			args.minGasPrice, err = math.LegacyNewDecFromStr(minGasPrice)
 			if err != nil {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got %s and err %s", minGasPrice, err.Error())
 			}
-			if args.minGasPrice.LT(sdk.ZeroDec()) {
+			if args.minGasPrice.LT(math.LegacyZeroDec()) {
 				return fmt.Errorf("invalid value for --min-gas-price. expected a int or decimal greater than or equal to 0 but got an negative number %s", minGasPrice)
 			}
 
@@ -340,8 +340,8 @@ func initTestnetFiles(
 			valPubKeys[i],
 			sdk.NewCoin(cmdcfg.BaseDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err
@@ -353,8 +353,8 @@ func initTestnetFiles(
 		}
 
 		minGasPrice := args.minGasPrice
-		if sdkmath.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
-			minGasPrice = sdkmath.LegacyNewDecFromInt(args.baseFee)
+		if math.LegacyNewDecFromInt(args.baseFee).GT(args.minGasPrice) {
+			minGasPrice = math.LegacyNewDecFromInt(args.baseFee)
 		}
 
 		txBuilder.SetMemo(memo)
@@ -417,8 +417,8 @@ func initGenFiles(
 	genBalances []banktypes.Balance,
 	genFiles []string,
 	numValidators int,
-	baseFee sdkmath.Int,
-	minGasPrice sdkmath.LegacyDec,
+	baseFee math.Int,
+	minGasPrice math.LegacyDec,
 ) error {
 	appGenState := mbm.DefaultGenesis(clientCtx.Codec)
 	// set the accounts in the genesis state

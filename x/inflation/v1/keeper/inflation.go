@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	evmostypes "github.com/evmos/evmos/v15/types"
@@ -13,7 +14,7 @@ import (
 )
 
 // 200M token at year 4 allocated to the team
-var teamAlloc = sdk.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
+var teamAlloc = math.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
 
 // MintAndAllocateInflation performs inflation minting and allocation
 func (k Keeper) MintAndAllocateInflation(
@@ -95,23 +96,23 @@ func (k Keeper) AllocateExponentialInflation(
 func (k Keeper) GetProportions(
 	_ sdk.Context,
 	coin sdk.Coin,
-	distribution sdk.Dec,
+	distribution math.LegacyDec,
 ) sdk.Coin {
 	return sdk.Coin{
 		Denom:  coin.Denom,
-		Amount: sdk.NewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
+		Amount: math.LegacyNewDecFromInt(coin.Amount).Mul(distribution).TruncateInt(),
 	}
 }
 
 // BondedRatio the fraction of the staking tokens which are currently bonded
 // It doesn't consider team allocation for inflation
-func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
+func (k Keeper) BondedRatio(ctx sdk.Context) math.LegacyDec {
 	stakeSupply := k.stakingKeeper.StakingTokenSupply(ctx)
 
 	isMainnet := utils.IsMainnet(ctx.ChainID())
 
 	if !stakeSupply.IsPositive() || (isMainnet && stakeSupply.LTE(teamAlloc)) {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 
 	// don't count team allocation in bonded ratio's stake supple
@@ -119,14 +120,14 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 		stakeSupply = stakeSupply.Sub(teamAlloc)
 	}
 
-	return sdk.NewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx)).QuoInt(stakeSupply)
+	return math.LegacyNewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx)).QuoInt(stakeSupply)
 }
 
 // GetCirculatingSupply returns the bank supply of the mintDenom excluding the
 // team allocation in the first year
-func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec {
-	circulatingSupply := sdk.NewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
-	teamAllocation := sdk.NewDecFromInt(teamAlloc)
+func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) math.LegacyDec {
+	circulatingSupply := math.LegacyNewDecFromInt(k.bankKeeper.GetSupply(ctx, mintDenom).Amount)
+	teamAllocation := math.LegacyNewDecFromInt(teamAlloc)
 
 	// Consider team allocation only on mainnet chain id
 	if utils.IsMainnet(ctx.ChainID()) {
@@ -137,31 +138,31 @@ func (k Keeper) GetCirculatingSupply(ctx sdk.Context, mintDenom string) sdk.Dec 
 }
 
 // GetInflationRate returns the inflation rate for the current period.
-func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) sdk.Dec {
+func (k Keeper) GetInflationRate(ctx sdk.Context, mintDenom string) math.LegacyDec {
 	epp := k.GetEpochsPerPeriod(ctx)
 	if epp == 0 {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 
 	epochMintProvision := k.GetEpochMintProvision(ctx)
 	if epochMintProvision.IsZero() {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 
-	epochsPerPeriod := sdk.NewDec(epp)
+	epochsPerPeriod := math.LegacyNewDec(epp)
 
 	circulatingSupply := k.GetCirculatingSupply(ctx, mintDenom)
 	if circulatingSupply.IsZero() {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 
 	// EpochMintProvision * 365 / circulatingSupply * 100
-	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(sdk.NewDec(100))
+	return epochMintProvision.Mul(epochsPerPeriod).Quo(circulatingSupply).Mul(math.LegacyNewDec(100))
 }
 
 // GetEpochMintProvision retrieves necessary params KV storage
 // and calculate EpochMintProvision
-func (k Keeper) GetEpochMintProvision(ctx sdk.Context) sdk.Dec {
+func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
 	return types.CalculateEpochMintProvision(
 		k.GetParams(ctx),
 		k.GetPeriod(ctx),

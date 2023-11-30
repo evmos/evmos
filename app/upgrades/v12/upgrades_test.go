@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -66,7 +67,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.Require().NoError(err)
 	sender := sdk.AccAddress(priv.PubKey().Address().Bytes())
 
-	res, ok := sdk.NewIntFromString(v12.MaxRecover)
+	res, ok := math.NewIntFromString(v12.MaxRecover)
 	suite.Require().True(ok)
 
 	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, res))
@@ -76,7 +77,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 	suite.Require().NoError(err)
 
 	balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-	suite.Require().Equal(balanceBefore.AmountOf(utils.BaseDenom), sdk.NewDecFromInt(res))
+	suite.Require().Equal(balanceBefore.AmountOf(utils.BaseDenom), math.LegacyNewDecFromInt(res))
 
 	// return funds to accounts affected
 	err = v12.ReturnFundsFromCommunityPool(suite.ctx, suite.app.DistrKeeper)
@@ -93,7 +94,7 @@ func (suite *UpgradeTestSuite) TestReturnFundsFromCommunityPool() {
 		suite.Require().False(found, "found account %s duplicated", v12.Accounts[i][0])
 		uniqueAddrs[v12.Accounts[i][0]] = true
 
-		res, ok := sdk.NewIntFromString(v12.Accounts[i][1])
+		res, ok := math.NewIntFromString(v12.Accounts[i][1])
 		suite.Require().True(ok)
 		suite.Require().True(res.IsPositive())
 		balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, utils.BaseDenom)

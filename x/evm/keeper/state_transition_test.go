@@ -5,6 +5,7 @@ import (
 	"math"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -647,7 +648,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				)
 				suite.Require().NoError(err)
 				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
-				params.MinGasMultiplier = sdk.NewDec(math.MaxInt64).MulInt64(100)
+				params.MinGasMultiplier = sdkmath.LegacyNewDec(math.MaxInt64).MulInt64(100)
 				err = suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},

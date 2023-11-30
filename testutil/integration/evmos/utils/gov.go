@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,7 +28,7 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 
 	msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
 		proposal,
-		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), sdk.NewInt(1e18))),
+		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e18))),
 		proposerAccAddr,
 	)
 	if err != nil {

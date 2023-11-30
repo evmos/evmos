@@ -6,9 +6,9 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/x/revenue/v1/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -17,7 +17,7 @@ var _ types.LegacyParams = &V2Params{}
 // Parameter store key
 var (
 	DefaultEnableRevenue   = true
-	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultDeveloperShares = math.LegacyNewDecWithPrec(50, 2) // 50%
 	// DefaultAddrDerivationCostCreate Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
 	// contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate = uint64(50)
@@ -38,7 +38,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params object
 func NewParams(
 	enableRevenue bool,
-	developerShares sdk.Dec,
+	developerShares math.LegacyDec,
 	addrDerivationCostCreate uint64,
 ) V2Params {
 	return V2Params{
@@ -84,7 +84,7 @@ func validateBool(i interface{}) error {
 }
 
 func validateShares(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -98,7 +98,7 @@ func validateShares(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %T", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 

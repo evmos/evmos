@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -358,7 +359,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			},
 			func(data []byte, inputArgs []interface{}) {
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
-				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Amount, sdk.NewInt(2e18))
+				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Amount, math.NewInt(2e18))
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Denom, utils.BaseDenom)
 			},
 			200000,
@@ -384,7 +385,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			},
 			func(data []byte, inputArgs []interface{}) {
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
-				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Amount, sdk.NewInt(2e18))
+				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Amount, math.NewInt(2e18))
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Denom, "uatom")
 			},
 			200000,
@@ -426,7 +427,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 			func(data []byte, inputArgs []interface{}) {
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
-				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Amount, sdk.NewInt(2e18))
+				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Amount, math.NewInt(2e18))
 				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Denom, utils.BaseDenom)
 			},
 			200000,
@@ -508,7 +509,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				s.Require().Len(transferAuthz.Allocations, 1, "should have at least one allocation", transferAuthz)
 				s.Require().Len(transferAuthz.Allocations[0].SpendLimit, 1, "should have at least one coin; allocation %s", transferAuthz.Allocations[0])
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Denom, utils.BaseDenom)
-				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Amount, sdk.NewInt(500000000000000000))
+				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0].Amount, math.NewInt(500000000000000000))
 			},
 			200000,
 			false,
@@ -536,7 +537,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 				s.Require().NotNil(transferAuthz)
 				s.Require().Len(transferAuthz.Allocations, 1, "should have at least one allocation")
 				s.Require().Len(transferAuthz.Allocations[0].SpendLimit, len(mutliSpendLimit), "should have two coins; allocation %s", transferAuthz.Allocations[0])
-				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Amount, sdk.NewInt(500000000000000000))
+				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Amount, math.NewInt(500000000000000000))
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[1].Denom, "uatom")
 				// other denom should remain unchanged
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit[0], defaultCoins[0])
@@ -579,7 +580,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 			},
 			func(_ []byte, _ []interface{}) {
 				transferAuthz := s.GetTransferAuthorization(s.ctx, differentAddress, s.address)
-				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Amount, sdk.NewInt(1e18/2))
+				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Amount, math.NewInt(1e18/2))
 				s.Require().Equal(transferAuthz.Allocations[1].SpendLimit[0].Denom, utils.BaseDenom)
 			},
 			200000,

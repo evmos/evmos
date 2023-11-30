@@ -40,13 +40,13 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	}{
 		{
 			"legacy tx - enough funds to pay for fees",
-			sdk.NewInt(1e16),
-			sdk.ZeroInt(),
+			sdkmath.NewInt(1e16),
+			sdkmath.ZeroInt(),
 		},
 		{
 			"legacy tx - insufficient funds but enough staking rewards to pay for fees",
-			sdk.ZeroInt(),
-			sdk.NewInt(1e16),
+			sdkmath.ZeroInt(),
+			sdkmath.NewInt(1e16),
 		},
 	}
 	b.ResetTimer()

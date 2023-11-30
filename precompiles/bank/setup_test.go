@@ -3,6 +3,7 @@ package bank_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 
@@ -70,7 +71,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
-	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: sdk.NewInt(1e18)}})
+	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
 	xmplMetadata := banktypes.Metadata{

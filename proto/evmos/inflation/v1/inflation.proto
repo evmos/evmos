@@ -17,23 +17,18 @@ option go_package = "github.com/evmos/evmos/v15/x/inflation/v1/types";
 message InflationDistribution {
   // staking_rewards defines the proportion of the minted minted_denom that is
   // to be allocated as staking rewards
-  string staking_rewards = 1
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string staking_rewards = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 
   // protolint:disable FIELDS_HAVE_COMMENT
 
   // Deprecated: usage_incentives defines the proportion of the minted minted_denom that is
   // to be allocated to the incentives module address
-  string usage_incentives = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false,
-    deprecated = true
-  ];
+  string usage_incentives = 2
+      [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false, deprecated = true];
 
   // community_pool defines the proportion of the minted minted_denom that is to
   // be allocated to the community pool
-  string community_pool = 3
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string community_pool = 3 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 }
 
 // ExponentialCalculation holds factors to calculate exponential inflation on
@@ -43,15 +38,13 @@ message InflationDistribution {
 // (max_variance / bonding_target))
 message ExponentialCalculation {
   // a defines the initial value
-  string a = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string a = 1 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
   // r defines the reduction factor
-  string r = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string r = 2 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
   // c defines the parameter for long term inflation
-  string c = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string c = 3 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
   // bonding_target
-  string bonding_target = 4
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string bonding_target = 4 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
   // max_variance
-  string max_variance = 5
-      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string max_variance = 5 [(gogoproto.customtype) = "cosmossdk.io/math.LegacyDec", (gogoproto.nullable) = false];
 }

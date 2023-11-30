@@ -150,7 +150,7 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 	// Use instance to prevent errors on denom or amount
 	token := sdk.Coin{
 		Denom:  denom,
-		Amount: sdk.NewIntFromBigInt(amount),
+		Amount: math.NewIntFromBigInt(amount),
 	}
 
 	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
@@ -329,7 +329,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 // CheckAllocationExists checks if the given authorization allocation matches the given arguments.
 func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
 	var found bool
-	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
+	spendLimit = sdk.Coin{Denom: denom, Amount: math.ZeroInt()}
 
 	for i, allocation := range allocations {
 		if allocation.SourcePort != sourcePort || allocation.SourceChannel != sourceChannel {
