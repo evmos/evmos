@@ -4,10 +4,11 @@
 package bank
 
 import (
+	"math/big"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
 const (
@@ -116,7 +117,7 @@ func (p Precompile) SupplyOf(
 	tokenPairID := p.erc20Keeper.GetERC20Map(ctx, erc20ContractAddress)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	if !found {
-		return nil, types.ErrTokenPairNotFound
+		return method.Outputs.Pack(big.NewInt(0))
 	}
 
 	supply := p.bankKeeper.GetSupply(ctx, tokenPair.Denom)

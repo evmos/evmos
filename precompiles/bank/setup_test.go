@@ -24,8 +24,8 @@ var s *PrecompileTestSuite
 type PrecompileTestSuite struct {
 	suite.Suite
 
-	bondDenom           string
-	evmosAddr, xmplAddr common.Address
+	bondDenom, tokenDenom string
+	evmosAddr, xmplAddr   common.Address
 
 	// tokenDenom is the specific token denomination used in testing the ERC20 precompile.
 	// This denomination is used to instantiate the precompile.
@@ -56,6 +56,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.Require().NotEmpty(bondDenom, "bond denom cannot be empty")
 
 	s.bondDenom = bondDenom
+	s.tokenDenom = "xmpl"
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler
 	s.keyring = keyring
@@ -76,23 +77,24 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	xmplMetadata := banktypes.Metadata{
 		Description: "An exemplary token",
-		Base:        "xmpl",
+		Base:        s.tokenDenom,
 		// NOTE: Denom units MUST be increasing
 		DenomUnits: []*banktypes.DenomUnit{
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 0,
-				Aliases:  []string{"xmpl"},
+				Aliases:  []string{s.tokenDenom},
 			},
 			{
-				Denom:    "xmpl",
+				Denom:    s.tokenDenom,
 				Exponent: 18,
 			},
 		},
 		Name:    "Exemplary",
 		Symbol:  "XMPL",
-		Display: "xmpl",
+		Display: s.tokenDenom,
 	}
+
 	tokenPair, err = s.network.App.Erc20Keeper.RegisterCoin(s.network.GetContext(), xmplMetadata)
 	s.Require().NoError(err, "failed to register coin")
 

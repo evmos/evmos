@@ -3,9 +3,7 @@ package bank_test
 import (
 	"math/big"
 
-	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v15/x/erc20/types"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v15/precompiles/bank"
 	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
 )
@@ -70,7 +68,7 @@ func (s *PrecompileTestSuite) TestBalances() {
 		{
 			"pass - EVMOS and XMPL balances present",
 			func() []interface{} {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), math.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
 				return []interface{}{
 					s.keyring.GetAddr(0),
 				}
@@ -127,7 +125,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 		{
 			"pass - EVMOS and XMPL total supply",
 			func() {
-				s.mintAndSendCoin("xmpl", s.keyring.GetAccAddr(0), math.NewInt(1e18))
+				s.mintAndSendXMPLCoin(s.keyring.GetAccAddr(0), sdk.NewInt(1e18))
 			},
 			[]bank.Balance{{
 				ContractAddress: s.evmosAddr,
@@ -197,15 +195,15 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 			nil,
 		},
 		{
-			"fail - erc20 not registered",
+			"pass - erc20 not registered return 0 supply",
 			func() []interface{} {
 				return []interface{}{
 					evmosutiltx.GenerateAddress(),
 				}
 			},
-			true,
-			types.ErrTokenPairNotFound.Error(),
-			nil,
+			false,
+			"",
+			big.NewInt(0),
 		},
 		{
 			"pass - XMPL total supply",
@@ -254,7 +252,7 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 				supply, ok := out[0].(*big.Int)
 				s.Require().True(ok, "expected output to be a big.Int")
 				s.Require().NoError(err)
-				s.Require().Equal(supply, tc.expSupply)
+				s.Require().Equal(supply.Int64(), tc.expSupply.Int64())
 			}
 		})
 	}
