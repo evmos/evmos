@@ -1,4 +1,4 @@
-// Copyright Tharsis Labs Ltd.(Evmosii)
+// Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
 package post_test
@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/evmos/v15/app/post"
 )
 
-func (s *PostTestSuite) TestBurnDecorator() {
+func (s *PostTestSuite) TestPostHandlerOptions() {
 	validBankKeeper := s.unitNetwork.App.BankKeeper
 	validFeeCollector := authtypes.FeeCollectorName
 

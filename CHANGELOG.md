@@ -39,7 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler`` to burn cosmos transaction fees.
+- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 
 ### API Breaking
 

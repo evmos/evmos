@@ -28,7 +28,7 @@ func (h HandlerOptions) Validate() error {
 	return nil
 }
 
-// NewPostHandler returns an empty PostHandler decorators chain.
+// NewPostHandler returns a new PostHandler decorators chain.
 func NewPostHandler(ho HandlerOptions) sdk.PostHandler {
 	postDecorators := []sdk.PostDecorator{
 		NewBurnDecorator(ho.FeeCollectorName, ho.BankKeeper),
