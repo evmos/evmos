@@ -1462,7 +1462,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
 
 				// overwrite the other precompile with this one, so that the test utils like is.getTxAndCallArgs still work.
-				is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+				is.precompile, err = setupERC20PrecompileForTokenPair(is.network, tokenPair)
 				Expect(err).ToNot(HaveOccurred(), "failed to set up erc20 precompile")
 
 				// update this in the global contractsData

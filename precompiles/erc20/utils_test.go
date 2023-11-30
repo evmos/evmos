@@ -212,7 +212,7 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	s.network.App.Erc20Keeper.SetTokenPair(s.network.GetContext(), tokenPair)
 
-	precompile, err := setupERC20PrecompileForTokenPair(*s.network, tokenPair)
+	precompile, err := setupERC20PrecompileForTokenPair(s.network, tokenPair)
 	s.Require().NoError(err, "failed to set up %q erc20 precompile", tokenPair.Denom)
 
 	return precompile
@@ -227,7 +227,7 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precom
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	is.network.App.Erc20Keeper.SetTokenPair(is.network.GetContext(), tokenPair)
 
-	precompile, err := setupERC20PrecompileForTokenPair(*is.network, tokenPair)
+	precompile, err := setupERC20PrecompileForTokenPair(is.network, tokenPair)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up %q erc20 precompile", tokenPair.Denom)
 
 	return precompile
@@ -236,7 +236,7 @@ func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precom
 // setupERC20PrecompileForTokenPair is a helper function to set up an instance of the ERC20 precompile for
 // a given token pair and adds the precompile to the available and active precompiles.
 func setupERC20PrecompileForTokenPair(
-	unitNetwork network.UnitTestNetwork, tokenPair erc20types.TokenPair,
+	unitNetwork *network.UnitTestNetwork, tokenPair erc20types.TokenPair,
 ) (*erc20.Precompile, error) {
 	precompile, err := erc20.NewPrecompile(
 		tokenPair,

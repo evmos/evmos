@@ -2,18 +2,23 @@ package erc20_test
 
 import (
 	"fmt"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	"math/big"
 	"os"
+	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v15/contracts"
+	auth "github.com/evmos/evmos/v15/precompiles/authorization"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v15/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -22,39 +27,109 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
-	var (
-		contractsData ContractsData
-		usedGasTable  map[string]map[string]map[CallType]int64
+// gs is the instance of the integration test suite used for testing the gas consumption
+var gs *IntegrationTestSuite
+
+func TestGasSuite(t *testing.T) {
+	gs = new(IntegrationTestSuite)
+
+	// Run Ginkgo integration tests
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "ERC20 Extension Gas Usage Test Suite")
+}
+
+// SetupGasTest runs the specific setup used for the gas usage tests.
+func (is *IntegrationTestSuite) SetupGasTest() {
+	keys := keyring.New(2)
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 	)
+	gh := grpc.NewIntegrationHandler(nw)
+	tf := factory.New(nw, gh)
+
+	// Set up min deposit in Evmos
+	params, err := gh.GetGovParams("deposit")
+	Expect(err).ToNot(HaveOccurred(), "failed to get gov params")
+	Expect(params).ToNot(BeNil(), "returned gov params are nil")
+
+	updatedParams := params.Params
+	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), sdk.NewInt(1e18)))
+	err = nw.UpdateGovParams(*updatedParams)
+	Expect(err).ToNot(HaveOccurred(), "failed to update the min deposit")
+
+	is.network = nw
+	is.factory = tf
+	is.handler = gh
+	is.keyring = keys
+
+	is.tokenDenom = "xmpl"
+
+	is.network.NextBlock()
+
+	// NOTE: here we deploy an ERC20 contract and register it, which is then used to deploy the ERC20 precompile
+	// for the registered token pair.
+	regERC20Addr, err := is.factory.DeployContract(
+		is.keyring.GetPrivKey(0),
+		evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
+		factory.ContractDeploymentData{
+			Contract: contracts.ERC20MinterBurnerDecimalsContract,
+			ConstructorArgs: []interface{}{
+				"Evmos", "EVMOS", uint8(18),
+			},
+		},
+	)
+	Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
+
+	is.network.NextBlock()
+
+	// Register ERC20 token pair for this test
+	tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+		Address:      regERC20Addr,
+		Denom:        "aevmos",
+		ProposerPriv: is.keyring.GetPrivKey(0),
+	})
+	Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
+
+	is.network.NextBlock()
+
+	// Create precompile for registered token pair
+	is.precompile, err = setupERC20PrecompileForTokenPair(is.network, tokenPair)
+	Expect(err).ToNot(HaveOccurred(), "failed to setup ERC20 precompile")
+
+	is.network.NextBlock()
+}
+
+var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
+	var contractsData ContractsData
 
 	minVal := common.Big0
 	maxVal := new(big.Int).Div(abi.MaxUint256, big.NewInt(10))
 	tokenAmounts := getNExponentValuesBetween(minVal, maxVal, 10)
+	usedGasTable := map[string]map[string]map[CallType]int64{}
 
 	BeforeAll(func() {
-		is.SetupTest()
+		// FIXME: this is breaking the tests somehow??
+		//gs.SetupGasTest()
+		gs.SetupTest()
 
-		err := is.network.NextBlock()
+		err := gs.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "failed to produce block")
 
-		usedGasTable = map[string]map[string]map[CallType]int64{}
+		deployer := gs.keyring.GetKey(0)
 
-		deployer := is.keyring.GetKey(0)
-
-		extCallerAddr, err := is.factory.DeployContract(
+		extCallerAddr, err := gs.factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
 				Contract: testdata.ERC20AllowanceCallerContract,
 				// NOTE: we're passing the precompile address to the constructor because that initiates the contract
 				// to make calls to the correct ERC20 precompile.
-				ConstructorArgs: []interface{}{is.precompile.Address()},
+				ConstructorArgs: []interface{}{gs.precompile.Address()},
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy contract")
 
-		erc20MinterBurnerAddr, err := is.factory.DeployContract(
+		erc20MinterBurnerAddr, err := gs.factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -66,7 +141,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter burner contract")
 
-		ERC20MinterV5Addr, err := is.factory.DeployContract(
+		ERC20MinterV5Addr, err := gs.factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -78,7 +153,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter contract")
 
-		erc20MinterV5CallerAddr, err := is.factory.DeployContract(
+		erc20MinterV5CallerAddr, err := gs.factory.DeployContract(
 			deployer.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
 			factory.ContractDeploymentData{
@@ -90,25 +165,13 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC20 minter caller contract")
 
-		// FIXME: Somehow this breaks all test?
-		//// Create precompile here for registered token pair so that metadata queries work
-		//tokenPair, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
-		//	Address:      erc20MinterBurnerAddr,
-		//	Denom:        "XMPL",
-		//	ProposerPriv: deployer.Priv,
-		//})
-		//Expect(err).ToNot(HaveOccurred(), "failed to register ERC20 token")
-		//
-		//is.precompile, err = setupERC20PrecompileForTokenPair(*is.network, tokenPair)
-		//Expect(err).ToNot(HaveOccurred(), "failed to setup ERC20 precompile")
-
 		// Store the data of the deployed contracts
 		contractsData = ContractsData{
 			ownerPriv: deployer.Priv,
 			contractData: map[CallType]ContractData{
 				directCall: {
-					Address: is.precompile.Address(),
-					ABI:     is.precompile.ABI,
+					Address: gs.precompile.Address(),
+					ABI:     gs.precompile.ABI,
 				},
 				contractCall: {
 					Address: extCallerAddr,
@@ -139,22 +202,31 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(erc20.TransferMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should transfer %s tokens", tokens.String()), func(callType CallType) {
-				sender := is.keyring.GetKey(0)
-				receiver := is.keyring.GetKey(1)
+				sender := gs.keyring.GetKey(0)
+				receiver := gs.keyring.GetKey(1)
 
 				fmt.Println("Sending tokens: ", tokens.String())
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, sender.Addr, fundCoins)
 
-				txArgs, transferArgs := is.getTxAndCallArgs(
+				gs.network.NextBlock()
+
+				//gs.ExpectBalancesForContract(
+				//	callType, contractsData,
+				//	[]ExpectedBalance{
+				//		{sender.AccAddr, fundCoins},
+				//	},
+				//)
+
+				txArgs, transferArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					erc20.TransferMethod,
 					receiver.Addr, transferCoins[0].Amount.BigInt(),
 				)
 
-				res, err := is.factory.ExecuteContractCall(sender.Priv, txArgs, transferArgs)
+				res, err := gs.factory.ExecuteContractCall(sender.Priv, txArgs, transferArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -168,31 +240,31 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(erc20.TransferFromMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf(" - it should transfer %s tokens from other account", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
-				spender := is.keyring.GetKey(1)
+				owner := gs.keyring.GetKey(0)
+				spender := gs.keyring.GetKey(1)
 				receiverAddr := utiltx.GenerateAddress()
 
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
 
 				// approve transfer
-				txArgs, approveArgs := is.getTxAndCallArgs(
+				txArgs, approveArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.ApproveMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				_, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
+				_, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				// execute transfer
-				txArgs, transferArgs := is.getTxAndCallArgs(
+				txArgs, transferArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					erc20.TransferFromMethod,
 					owner.Addr, receiverAddr, transferCoins[0].Amount.BigInt(),
 				)
-				res, err := is.factory.ExecuteContractCall(spender.Priv, txArgs, transferArgs)
+				res, err := gs.factory.ExecuteContractCall(spender.Priv, txArgs, transferArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -206,20 +278,20 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(auth.ApproveMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should approve %s tokens", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
-				spender := is.keyring.GetKey(1)
+				owner := gs.keyring.GetKey(0)
+				spender := gs.keyring.GetKey(1)
 
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
 
-				txArgs, transferArgs := is.getTxAndCallArgs(
+				txArgs, transferArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.ApproveMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, transferArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, transferArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -233,29 +305,29 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(auth.AllowanceMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should return %s allowance", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
-				spender := is.keyring.GetKey(1)
+				owner := gs.keyring.GetKey(0)
+				spender := gs.keyring.GetKey(1)
 
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
 
 				// approve transfer
-				txArgs, approveArgs := is.getTxAndCallArgs(
+				txArgs, approveArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.ApproveMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				_, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
+				_, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				txArgs, allowanceArgs := is.getTxAndCallArgs(
+				txArgs, allowanceArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.AllowanceMethod,
 					owner.Addr, spender.Addr,
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, allowanceArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, allowanceArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -263,20 +335,20 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 			},
 				Entry(" - EVM extension", directCall),
 				Entry(" - ERC20 contract", erc20Call),
-				// NOTE: The OpenZeppelin v5 contracts don't include this
+				Entry(" - ERC20 v5 contract", erc20V5Call),
 			)
 		})
 
 		// FIXME: This is still failing
 		//Context(erc20.NameMethod, Ordered, func() {
 		//	DescribeTable(fmt.Sprintf("should return the name of the token"), func(callType CallType) {
-		//		owner := is.keyring.GetKey(0)
+		//		owner := gs.keyring.GetKey(0)
 		//
-		//		txArgs, nameArgs := is.getTxAndCallArgs(
+		//		txArgs, nameArgs := gs.getTxAndCallArgs(
 		//			callType, contractsData,
 		//			erc20.NameMethod,
 		//		)
-		//		res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, nameArgs)
+		//		res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, nameArgs)
 		//		Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		//
 		//		fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -290,13 +362,13 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		//
 		//Context(erc20.SymbolMethod, Ordered, func() {
 		//	DescribeTable(fmt.Sprintf("should return the symbol of the token"), func(callType CallType) {
-		//		owner := is.keyring.GetKey(0)
+		//		owner := gs.keyring.GetKey(0)
 		//
-		//		txArgs, symbolArgs := is.getTxAndCallArgs(
+		//		txArgs, symbolArgs := gs.getTxAndCallArgs(
 		//			callType, contractsData,
 		//			erc20.SymbolMethod,
 		//		)
-		//		res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, symbolArgs)
+		//		res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, symbolArgs)
 		//		Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		//
 		//		fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -310,13 +382,13 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		//
 		//Context(erc20.DecimalsMethod, Ordered, func() {
 		//	DescribeTable(fmt.Sprintf("should return the decimals of the token"), func(callType CallType) {
-		//		owner := is.keyring.GetKey(0)
+		//		owner := gs.keyring.GetKey(0)
 		//
-		//		txArgs, decimalsArgs := is.getTxAndCallArgs(
+		//		txArgs, decimalsArgs := gs.getTxAndCallArgs(
 		//			callType, contractsData,
 		//			erc20.DecimalsMethod,
 		//		)
-		//		res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, decimalsArgs)
+		//		res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, decimalsArgs)
 		//		Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 		//
 		//		fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -330,13 +402,13 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(erc20.TotalSupplyMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should return the total supply of the token"), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
+				owner := gs.keyring.GetKey(0)
 
-				txArgs, totalSupplyArgs := is.getTxAndCallArgs(
+				txArgs, totalSupplyArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					erc20.TotalSupplyMethod,
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, totalSupplyArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, totalSupplyArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -350,14 +422,14 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(erc20.BalanceOfMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should return %s token", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
+				owner := gs.keyring.GetKey(0)
 
-				txArgs, balanceOfArgs := is.getTxAndCallArgs(
+				txArgs, balanceOfArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					erc20.BalanceOfMethod,
 					owner.Addr,
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, balanceOfArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, balanceOfArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -371,20 +443,20 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(auth.IncreaseAllowanceMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should increase allowance by %s tokens", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
-				spender := is.keyring.GetKey(1)
+				owner := gs.keyring.GetKey(0)
+				spender := gs.keyring.GetKey(1)
 
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
 
-				txArgs, increaseAllowanceArgs := is.getTxAndCallArgs(
+				txArgs, increaseAllowanceArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.IncreaseAllowanceMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, increaseAllowanceArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, increaseAllowanceArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -398,29 +470,29 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 		Context(auth.DecreaseAllowanceMethod, Ordered, func() {
 			DescribeTable(fmt.Sprintf("should decrease allowance by %s tokens", tokens.String()), func(callType CallType) {
-				owner := is.keyring.GetKey(0)
-				spender := is.keyring.GetKey(1)
+				owner := gs.keyring.GetKey(0)
+				spender := gs.keyring.GetKey(1)
 
-				fundCoins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(tokens))}
+				fundCoins := sdk.Coins{sdk.NewCoin(gs.tokenDenom, sdk.NewIntFromBigInt(tokens))}
 				transferCoins := fundCoins
 
-				is.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
+				gs.fundWithTokens(callType, contractsData, owner.Addr, fundCoins)
 
 				// approve transfer with sufficient amount before decreasing it afterwards
-				txArgs, approveArgs := is.getTxAndCallArgs(
+				txArgs, approveArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.ApproveMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				_, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
+				_, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, approveArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
-				txArgs, decreaseAllowanceArgs := is.getTxAndCallArgs(
+				txArgs, decreaseAllowanceArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
 					auth.DecreaseAllowanceMethod,
 					spender.Addr, transferCoins[0].Amount.BigInt(),
 				)
-				res, err := is.factory.ExecuteContractCall(owner.Priv, txArgs, decreaseAllowanceArgs)
+				res, err := gs.factory.ExecuteContractCall(owner.Priv, txArgs, decreaseAllowanceArgs)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 
 				fmt.Printf("Adding gas consumption for: callType: %d, tokens: %s, gas used: %d", callType, tokens.String(), res.GasUsed)
@@ -506,9 +578,7 @@ func getNExponentValuesBetween(min, max *big.Int, n int) []*big.Int {
 
 	var numbers []*big.Int
 	for _, point := range points {
-		println("point", point.String())
 		numberString := fmt.Sprintf("1%0*s", int(point.Int64()), "0")
-		println("numberString", numberString)
 		number, ok := new(big.Int).SetString(numberString, 10)
 		if !ok {
 			panic("could not convert string to big.Int")
@@ -520,7 +590,13 @@ func getNExponentValuesBetween(min, max *big.Int, n int) []*big.Int {
 	return numbers
 }
 
-func insertIntoGasTable(usedGas map[string]map[string]map[CallType]int64, callType CallType, transaction, tokens string, gas int64) {
+func insertIntoGasTable(
+	usedGas map[string]map[string]map[CallType]int64,
+	callType CallType,
+	transaction,
+	tokens string,
+	gas int64,
+) {
 	if _, ok := usedGas[transaction]; !ok {
 		usedGas[transaction] = map[string]map[CallType]int64{}
 	}
