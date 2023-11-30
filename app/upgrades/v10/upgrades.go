@@ -4,6 +4,7 @@
 package v10
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -39,7 +40,7 @@ func setMinCommissionRate(ctx sdk.Context, sk stakingkeeper.Keeper) error {
 		MaxEntries:        sk.MaxEntries(ctx),
 		HistoricalEntries: sk.HistoricalEntries(ctx),
 		BondDenom:         sk.BondDenom(ctx),
-		MinCommissionRate: sdk.NewDecWithPrec(5, 2), // 5%
+		MinCommissionRate: math.LegacyNewDecWithPrec(5, 2), // 5%
 	}
 
 	return sk.SetParams(ctx, stakingParams)

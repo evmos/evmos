@@ -176,7 +176,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expRewardAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(sdk.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
+			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to initial balance + rewards - fees")
 		})
 	})
 
@@ -190,7 +190,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// expCommAmt is the expected commission amount
 			expCommAmt = big.NewInt(1)
 			// commDec is the commission rate
-			commDec  = sdk.NewDec(1)
+			commDec  = math.LegacyNewDec(1)
 			valAddr  sdk.ValAddress
 			stakeAmt math.Int
 		)
@@ -239,7 +239,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should withdraw validator commission", func() {
 			// initial balance should be the initial amount minus the staked amount used to create the validator
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(initialBalance.Amount).To(Equal(sdk.NewInt(4999999999999999900)))
+			Expect(initialBalance.Amount).To(Equal(math.NewInt(4999999999999999900)))
 
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
 				WithArgs(valAddr.String()).
@@ -261,7 +261,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expCommAmt.Int64() - fees
-			Expect(finalBalance.Amount.Equal(sdk.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to the final balance after withdrawing commission")
+			Expect(finalBalance.Amount.Equal(math.NewInt(expFinal))).To(BeTrue(), "expected final balance to be equal to the final balance after withdrawing commission")
 		})
 	})
 
@@ -270,8 +270,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		//
 		// NOTE: this has to be populated in the BeforeEach block because the private key otherwise is not yet initialized.
 		var defaultClaimRewardsArgs contracts.CallArgs
-		startingBalance := sdk.NewInt(5e18)
-		expectedBalance := sdk.NewInt(8999665039062500000)
+		startingBalance := math.NewInt(5e18)
+		expectedBalance := math.NewInt(8999665039062500000)
 
 		BeforeEach(func() {
 			// set the default call arguments
@@ -337,7 +337,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() { //nolint:dupl
-			valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+			valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 			// set outstanding rewards
 			s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
 
@@ -359,7 +359,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should get validator commission - validatorCommission query", func() { //nolint:dupl
 			// set commission
-			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 			s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
 
 			valCommArgs := defaultCallArgs.
@@ -381,7 +381,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		Context("validatorSlashes query query", func() {
 			It("should get validator slashing events (default pagination)", func() {
 				// set slash event
-				slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: sdk.NewDec(5)}
+				slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)}
 				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, slashEvent)
 
 				valSlashArgs := defaultCallArgs.
@@ -487,7 +487,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// only validator[i] has rewards
 			Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 			Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-			Expect(uint8(sdk.Precision)).To(Equal(out.Rewards[i].Reward[0].Precision))
+			Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
 			Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 			Expect(1).To(Equal(len(out.Total)))
@@ -781,7 +781,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// NOTE: this has to be populated in a BeforeEach block because the contractAddr would otherwise be a nil address.
 			defaultWithdrawValCommArgs contracts.CallArgs
 			// commDec is the commission rate of the validator
-			commDec = sdk.NewDec(1)
+			commDec = math.LegacyNewDec(1)
 			// valAddr is the address of the validator
 			valAddr sdk.ValAddress
 			// initialBalance is the initial balance of the delegator
@@ -853,7 +853,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			fees := gasPrice.Int64() * res.GasUsed
 			expFinal := initialBalance.Amount.Int64() + expValAmount - fees
-			Expect(finalBalance.Amount).To(Equal(sdk.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
+			Expect(finalBalance.Amount).To(Equal(math.NewInt(expFinal)), "expected final balance to be equal to initial balance + validator commission - fees")
 		})
 	})
 
@@ -940,7 +940,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				},
 			}...)
 
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(2e18)}
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}
 
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
@@ -962,7 +962,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(6997329929187000000)}
+			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(6997329929187000000)}
 			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil())
 
@@ -1094,7 +1094,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			})
 
 			It("should get rewards - validator with outstanding rewards", func() {
-				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
 
@@ -1135,7 +1135,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			It("should get commission - validator with commission", func() {
 				// set commission
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, sdk.NewDec(1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, defaultValCommArgs, passCheck)
@@ -1311,7 +1311,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				// only validator[i] has rewards
 				Expect(1).To(Equal(len(out.Rewards[i].Reward)))
 				Expect(s.bondDenom).To(Equal(out.Rewards[i].Reward[0].Denom))
-				Expect(uint8(sdk.Precision)).To(Equal(out.Rewards[i].Reward[0].Precision))
+				Expect(uint8(math.LegacyPrecision)).To(Equal(out.Rewards[i].Reward[0].Precision))
 				Expect(expDelegationRewards).To(Equal(out.Rewards[i].Reward[0].Amount.Int64()))
 
 				Expect(1).To(Equal(len(out.Total)))

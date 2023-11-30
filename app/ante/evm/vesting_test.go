@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
@@ -26,7 +27,7 @@ var (
 		{Length: 2000, Amount: quarter},
 		{Length: 2000, Amount: quarter},
 	}
-	vestingCoins = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(1000000000)))
+	vestingCoins = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(1000000000)))
 )
 
 // TestEthVestingTransactionDecorator tests the EthVestingTransactionDecorator ante handler.
@@ -87,7 +88,7 @@ func (suite *AnteTestSuite) TestEthVestingTransactionDecorator() {
 				suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 				denom := suite.app.EvmKeeper.GetParams(suite.ctx).EvmDenom
-				coins := sdk.NewCoins(sdk.NewCoin(denom, sdk.NewInt(1000000000)))
+				coins := sdk.NewCoins(sdk.NewCoin(denom, math.NewInt(1000000000)))
 				err := testutil.FundAccount(suite.ctx, suite.app.BankKeeper, addr.Bytes(), coins)
 				suite.Require().NoError(err, "failed to fund account")
 			},

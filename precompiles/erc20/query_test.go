@@ -7,6 +7,7 @@ import (
 	"math"
 	"math/big"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -376,7 +377,7 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 			name: "pass - some coins",
 			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) {
 				// NOTE: we mint some coins to the inflation module address to be able to set denom metadata
-				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewCoin(validMetadata.Base, sdk.NewIntFromBigInt(amount))})
+				err := app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.Coins{sdk.NewCoin(validMetadata.Base, sdkmath.NewIntFromBigInt(amount))})
 				s.Require().NoError(err)
 			},
 			expPass:  true,
@@ -453,7 +454,7 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 			malleate: func(ctx sdk.Context, app *app.Evmos, amount *big.Int) []interface{} {
 				// NOTE: we fund the account with some coins of the token denomination that was used for the precompile
 				err := testutil.FundAccount(
-					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(amount))),
+					ctx, app.BankKeeper, s.keyring.GetAccAddr(0), sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdkmath.NewIntFromBigInt(amount))),
 				)
 				s.Require().NoError(err, "expected no error funding account")
 
@@ -556,7 +557,7 @@ func (s *PrecompileTestSuite) TestAllowance() {
 				s.setupSendAuthz(
 					s.keyring.GetAccAddr(granteeIdx),
 					s.keyring.GetPrivKey(granterIdx),
-					sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(amount))),
+					sdk.NewCoins(sdk.NewCoin(s.tokenDenom, sdkmath.NewIntFromBigInt(amount))),
 				)
 
 				return []interface{}{s.keyring.GetAddr(granterIdx), s.keyring.GetAddr(granteeIdx)}

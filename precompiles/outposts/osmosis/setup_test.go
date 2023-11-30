@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	portID    = "transfer"
-	channelID = "channel-0"
+	PortID    = "transfer"
+	ChannelID = "channel-0"
 )
 
 type PrecompileTestSuite struct {
@@ -39,14 +39,15 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-		portID,
-		channelID,
-		osmosis.XCSContract,
+		unitNetwork.App.AuthzKeeper,
+		PortID,
+		ChannelID,
+		osmosis.XCSContractTestnet,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
-		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 

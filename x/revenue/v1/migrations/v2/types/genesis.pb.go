@@ -9,7 +9,7 @@ import (
 	math "math"
 	math_bits "math/bits"
 
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	cosmossdk_io_math "cosmossdk.io/math"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	"github.com/evmos/evmos/v15/x/revenue/v1/types"
@@ -94,7 +94,7 @@ type V2Params struct {
 	EnableRevenue bool `protobuf:"varint,1,opt,name=enable_revenue,json=enableRevenue,proto3" json:"enable_revenue,omitempty"`
 	// developer_shares defines the proportion of the transaction fees to be
 	// distributed to the registered contract owner
-	DeveloperShares github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=developer_shares,json=developerShares,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"developer_shares"`
+	DeveloperShares cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=developer_shares,json=developerShares,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"developer_shares"`
 	// addr_derivation_cost_create defines the cost of address derivation for
 	// verifying the contract deployer at fee registration
 	AddrDerivationCostCreate uint64 `protobuf:"varint,3,opt,name=addr_derivation_cost_create,json=addrDerivationCostCreate,proto3" json:"addr_derivation_cost_create,omitempty"`

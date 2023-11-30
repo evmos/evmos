@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -57,8 +57,8 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			feeAmt = txData.EffectiveFee(baseFee)
 		}
 
-		gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
-		fee := sdkmath.LegacyNewDecFromBigInt(feeAmt)
+		gasLimit := math.LegacyNewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
+		fee := math.LegacyNewDecFromBigInt(feeAmt)
 
 		if err := CheckGlobalFee(fee, minGasPrice, gasLimit); err != nil {
 			return ctx, err
@@ -76,7 +76,7 @@ func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 // increase the GasTipCap (priority fee) until EffectivePrice > MinGasPrices.
 // Transactions with MinGasPrices * gasUsed < tx fees < EffectiveFee are rejected
 // by the feemarket AnteHandle
-func CheckGlobalFee(fee, globalMinGasPrice, gasLimit sdkmath.LegacyDec) error {
+func CheckGlobalFee(fee, globalMinGasPrice, gasLimit math.LegacyDec) error {
 	if globalMinGasPrice.IsZero() {
 		return nil
 	}

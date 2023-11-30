@@ -19,16 +19,16 @@ var (
 	DefaultInflationDenom         = evm.DefaultEVMDenom
 	DefaultInflation              = true
 	DefaultExponentialCalculation = ExponentialCalculation{
-		A:             sdk.NewDec(int64(300_000_000)),
-		R:             sdk.NewDecWithPrec(50, 2), // 50%
-		C:             sdk.NewDec(int64(9_375_000)),
-		BondingTarget: sdk.NewDecWithPrec(66, 2), // 66%
-		MaxVariance:   sdk.ZeroDec(),             // 0%
+		A:             math.LegacyNewDec(int64(300_000_000)),
+		R:             math.LegacyNewDecWithPrec(50, 2), // 50%
+		C:             math.LegacyNewDec(int64(9_375_000)),
+		BondingTarget: math.LegacyNewDecWithPrec(66, 2), // 66%
+		MaxVariance:   math.LegacyZeroDec(),             // 0%
 	}
 	DefaultInflationDistribution = InflationDistribution{
-		StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53
-		CommunityPool:   sdk.NewDecWithPrec(466666666, 9), // 0.47
-		UsageIncentives: math.LegacyZeroDec(),             // Deprecated
+		StakingRewards:  math.LegacyNewDecWithPrec(533333334, 9), // 0.53
+		CommunityPool:   math.LegacyNewDecWithPrec(466666666, 9), // 0.47
+		UsageIncentives: math.LegacyZeroDec(),                    // Deprecated
 	}
 )
 
@@ -81,7 +81,7 @@ func validateExponentialCalculation(i interface{}) error {
 	}
 
 	// validate reduction factor
-	if v.R.GT(sdk.NewDec(1)) {
+	if v.R.GT(math.LegacyNewDec(1)) {
 		return fmt.Errorf("reduction factor cannot be greater than 1")
 	}
 
@@ -95,7 +95,7 @@ func validateExponentialCalculation(i interface{}) error {
 	}
 
 	// validate bonded target
-	if v.BondingTarget.GT(sdk.NewDec(1)) {
+	if v.BondingTarget.GT(math.LegacyNewDec(1)) {
 		return fmt.Errorf("bonded target cannot be greater than 1")
 	}
 
@@ -130,7 +130,7 @@ func validateInflationDistribution(i interface{}) error {
 	}
 
 	totalProportions := v.StakingRewards.Add(v.UsageIncentives).Add(v.CommunityPool)
-	if !totalProportions.Equal(sdk.NewDec(1)) {
+	if !totalProportions.Equal(math.LegacyNewDec(1)) {
 		return errors.New("total distributions ratio should be 1")
 	}
 

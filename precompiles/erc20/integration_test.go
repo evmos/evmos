@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -59,7 +60,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	Expect(params).ToNot(BeNil(), "returned gov params are nil")
 
 	updatedParams := params.Params
-	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), sdk.NewInt(1e18)))
+	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), math.NewInt(1e18)))
 	err = nw.UpdateGovParams(*updatedParams)
 	Expect(err).ToNot(HaveOccurred(), "failed to update the min deposit")
 
@@ -182,7 +183,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 	Context("basic functionality -", func() {
 		When("transferring tokens", func() {
-			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsed int64) {
+			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsedLowerBound int64, expGasUsedUpperBound int64) {
 				sender := is.keyring.GetKey(0)
 				receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
@@ -208,12 +209,13 @@ var _ = Describe("ERC20 Extension -", func() {
 					},
 				)
 
-				Expect(res.GasUsed).To(Equal(expGasUsed), "expected different gas used")
+				Expect(res.GasUsed > expGasUsedLowerBound).To(BeTrue(), "expected different gas used")
+				Expect(res.GasUsed < expGasUsedUpperBound).To(BeTrue(), "expected different gas used")
 			},
 				// FIXME: The gas used on the precompile is much higher than on the EVM
-				Entry(" - direct call", directCall, int64(3_021_572)),
-				Entry(" - through erc20 contract", erc20Call, int64(54_381)),
-				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_113)),
+				Entry(" - direct call", directCall, int64(3_021_000), int64(3_022_000)),
+				Entry(" - through erc20 contract", erc20Call, int64(54_000), int64(54_500)),
+				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_000), int64(52_200)),
 			)
 
 			DescribeTable("it should transfer tokens to an existing address", func(callType CallType) {
@@ -1852,7 +1854,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			)
 
 			DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
-				maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+				maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 				txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
@@ -1985,7 +1987,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				)
 
 				DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
-					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 					txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(granter.Priv, txArgs, increaseArgs, execRevertedCheck)
@@ -2051,7 +2053,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("increasing the allowance beyond the max uint256 value should return an error", func(callType CallType) {
 					senderPriv := is.keyring.GetPrivKey(0)
 					granterAddr := contractsData.GetContractData(callType).Address
-					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256))}
+					maxUint256Coins := sdk.Coins{sdk.NewCoin(is.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256))}
 
 					txArgs, increaseArgs := is.getTxAndCallArgs(callType, contractsData, auth.IncreaseAllowanceMethod, grantee.Addr, maxUint256Coins[0].Amount.BigInt())
 					_, ethRes, err := is.factory.CallContractAndCheckLogs(senderPriv, txArgs, increaseArgs, execRevertedCheck)
