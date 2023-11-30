@@ -12,7 +12,6 @@ import (
 	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
-	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
 
