@@ -7,6 +7,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v15/app/post"
+
 	// "github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -26,7 +27,8 @@ func (s *PostTestSuite) TestPostHandle() {
 			},
 			expPass:    true,
 			postChecks: func() {},
-		}, {
+		},
+		{
 			name: "pass - burn fees of a single token with empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "btc"}}
@@ -41,7 +43,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		}, {
+		},
+		{
 			name: "pass - burn fees of a single token with non-empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: "evmos"}}
@@ -56,7 +59,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		}, {
+		},
+		{
 			name: "pass - burn fees of multiple tokens with empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
@@ -73,7 +77,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(sdk.Coins{}, balance)
 			},
-		}, { //nolint:dupl
+		},
+		{ //nolint:dupl
 			name: "pass - burn fees of multiple tokens with non-empty end balance",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
@@ -98,7 +103,8 @@ func (s *PostTestSuite) TestPostHandle() {
 				balance := s.GetFeeCollectorBalance()
 				s.Require().Equal(expected, balance)
 			},
-		}, { //nolint:dupl
+		},
+		{ //nolint:dupl
 			name: "pass - burn fees of multiple tokens, non-empty end balance, and multiple messages",
 			tx: func() sdk.Tx {
 				feeAmount := sdk.Coins{
