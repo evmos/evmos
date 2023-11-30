@@ -42,9 +42,16 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 		}
 	}
 
+	fees := feeTx.GetFee()
+
+	// safety check: ensure the fees are positive before burning
+	if !fees.IsAllPositive() {
+		return next(ctx, tx, simulate, success)
+	}
+
 	// NOTE: since all Cosmos tx fees are pooled by the fee collector module account,
 	// we burn them directly from it
-	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, feeTx.GetFee()); err != nil {
+	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, fees); err != nil {
 		return ctx, err
 	}
 
