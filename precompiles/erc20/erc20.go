@@ -25,16 +25,17 @@ const (
 	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
 	abiPath = "abi.json"
 
-	GasTransfer          = 3_000_000
-	GasApprove           = 30_956
-	GasIncreaseAllowance = 34_605
-	GasDecreaseAllowance = 34_519
+	GasTransfer          = 14_000
+	GasTransferFrom      = 35_000
+	GasApprove           = 25_300
+	GasIncreaseAllowance = 8_580
+	GasDecreaseAllowance = 3_620
 	GasName              = 3_421
 	GasSymbol            = 3_464
 	GasDecimals          = 427
-	GasTotalSupply       = 2_477
-	GasBalanceOf         = 2_851
-	GasAllowance         = 3_246
+	GasTotalSupply       = 2_480
+	GasBalanceOf         = 2_870
+	GasAllowance         = 3_225
 )
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
@@ -105,7 +106,7 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	case TransferMethod:
 		return GasTransfer
 	case TransferFromMethod:
-		return GasTransfer
+		return GasTransferFrom
 	case auth.ApproveMethod:
 		return GasApprove
 	case auth.IncreaseAllowanceMethod:
