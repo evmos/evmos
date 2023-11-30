@@ -29,6 +29,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/evmos/evmos/v15/utils"
@@ -167,7 +168,7 @@ func DistributeRewards(ctx sdk.Context, bk bankkeeper.Keeper, sk stakingkeeper.K
 		// send reward to receiver
 		receiver := sdk.MustAccAddressFromBech32(allocation[0])
 
-		amount, ok := sdk.NewIntFromString(allocation[1])
+		amount, ok := math.NewIntFromString(allocation[1])
 		if !ok {
 			return errorsmod.Wrapf(
 				errortypes.ErrInvalidType,

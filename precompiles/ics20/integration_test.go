@@ -273,7 +273,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(1), "expected one authorization")
 			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: sdk.NewInt(1e18)})))
+			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})))
 		})
 	})
 
@@ -413,7 +413,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 				// check the sender balance was deducted
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees).Sub(defaultCoins[0].Amount)))
 			})
@@ -447,7 +447,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(sequence).To(Equal(uint64(1)))
 
 				// check the sender balance was deducted
-				fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees).Sub(defaultCoins[0].Amount)))
 
@@ -519,7 +519,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// check the sender only paid for the fees
 				// and funds were not transferred
 				// TODO: fees are not calculated correctly with this logic
-				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -586,7 +586,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// check the sender only paid for the fees
 				// and funds from the other account were not transferred
 				// TODO: fees are not calculated correctly with this logic
-				// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 				// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 				// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -642,7 +642,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -738,7 +738,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -816,7 +816,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.chainA.NextBlock()
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
 
@@ -1248,7 +1248,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(authz).To(BeNil())
 
 					// check sent tokens were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(defaultCoins.AmountOf(s.bondDenom)).Sub(fees)))
 				})
@@ -1258,8 +1258,8 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		Context("IBC coin", func() {
 			var (
 				ibcDenom                   = teststypes.UosmoIbcdenom
-				amt, _                     = sdk.NewIntFromString("1000000000000000000000")
-				sentAmt, _                 = sdk.NewIntFromString("100000000000000000000")
+				amt, _                     = math.NewIntFromString("1000000000000000000000")
+				sentAmt, _                 = math.NewIntFromString("100000000000000000000")
 				coinOsmo                   = sdk.NewCoin(ibcDenom, amt)
 				coins                      = sdk.NewCoins(coinOsmo)
 				initialOsmoBalance         sdk.Coin
@@ -1305,7 +1305,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 					// check only fees were deducted from sending account
 					// TODO: fees are not calculated correctly with this logic
-					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					// Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
 
@@ -1352,7 +1352,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(ibcDenom)).To(Equal(amt.Sub(sentAmt)))
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialEvmosBalance.Amount.Sub(fees)))
 
@@ -1404,7 +1404,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 					// check only fees were deducted from sending account
 					// TODO: fees are not calculated correctly with this logic
-					// fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					// fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					// finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					// Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -1476,7 +1476,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(authz).To(BeNil())
 
 					// check only fees were deducted from sending account
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
@@ -1566,7 +1566,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 					Expect(finalBalance.Amount).To(Equal(math.ZeroInt()))
 
 					// tx fees are paid by the tx signer
-					fees := sdk.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 					finalSignerBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 					Expect(finalSignerBalance.Amount).To(Equal(initialSignerBalance.Amount.Sub(fees)))
 				})

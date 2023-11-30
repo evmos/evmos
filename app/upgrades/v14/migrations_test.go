@@ -14,17 +14,17 @@ import (
 func (s *UpgradesTestSuite) TestUpdateMigrateNativeMultisigs() {
 	s.SetupTest()
 
-	amountPremint, ok := sdk.NewIntFromString("64699999994000000000000000")
+	amountPremint, ok := math.NewIntFromString("64699999994000000000000000")
 	s.Require().True(ok, "failed to parse premint amount")
-	amount1, ok := sdk.NewIntFromString("13824747333293928482487986")
+	amount1, ok := math.NewIntFromString("13824747333293928482487986")
 	s.Require().True(ok, "failed to parse amount1")
-	amount1IBC, ok := sdk.NewIntFromString("421720500000000000000")
+	amount1IBC, ok := math.NewIntFromString("421720500000000000000")
 	s.Require().True(ok, "failed to parse amount2")
-	amount2, ok := sdk.NewIntFromString("494000000000000000")
+	amount2, ok := math.NewIntFromString("494000000000000000")
 	s.Require().True(ok, "failed to parse amount3")
 	amount3 := amount2
 	amount4 := amount2
-	amount5, ok := sdk.NewIntFromString("1013699976000000000000000")
+	amount5, ok := math.NewIntFromString("1013699976000000000000000")
 	s.Require().True(ok, "failed to parse amount6")
 
 	var (
@@ -192,7 +192,7 @@ func (s *UpgradesTestSuite) TestCreateDelegationWithZeroTokens() {
 
 	delegation, err := CreateDelegationWithZeroTokens(s.ctx, s.app, priv, addr, targetValidator, 1)
 	s.Require().NoError(err, "failed to create delegation with zero tokens")
-	s.Require().NotEqual(sdk.ZeroDec(), delegation.Shares, "delegation shares should not be zero")
+	s.Require().NotEqual(math.LegacyZeroDec(), delegation.Shares, "delegation shares should not be zero")
 
 	// Check that the validators tokenFromShares method returns zero tokens when truncated to an int
 	valAfterSlashing := s.app.StakingKeeper.Validator(s.ctx, targetValidator.GetOperator())

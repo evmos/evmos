@@ -8,6 +8,7 @@ package utils
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v15/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,7 +33,7 @@ func RegisterEvmosERC20Coins(
 ) (erc20types.TokenPair, error) {
 	bondDenom := network.App.StakingKeeper.BondDenom(network.GetContext())
 
-	coin := sdk.NewCoin(utils.BaseDenom, sdk.NewInt(TokenToMint))
+	coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(TokenToMint))
 	err := network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,
@@ -100,7 +101,7 @@ func RegisterIBCERC20Coins(
 		Base:    ibcDenom,
 	}
 
-	coin := sdk.NewCoin(ibcMetadata.Base, sdk.NewInt(TokenToMint))
+	coin := sdk.NewCoin(ibcMetadata.Base, math.NewInt(TokenToMint))
 	err := network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,

@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
 
@@ -153,7 +154,7 @@ func (s *PrecompileTestSuite) TestFundVestingAccount() {
 			"success",
 			func() []interface{} {
 				s.CreateTestClawbackVestingAccount(s.address, toAddr)
-				err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100))))
+				err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, toAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 				return []interface{}{
 					s.address,
 					toAddr,

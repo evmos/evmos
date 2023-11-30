@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -337,7 +338,7 @@ func (vs *ValidatorSlashesOutput) FromResponse(res *distributiontypes.QueryValid
 			ValidatorPeriod: s.ValidatorPeriod,
 			Fraction: cmn.Dec{
 				Value:     s.Fraction.BigInt(),
-				Precision: sdk.Precision,
+				Precision: math.LegacyPrecision,
 			},
 		}
 	}

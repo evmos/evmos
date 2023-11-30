@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -563,7 +564,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 
 			It(fmt.Sprintf("should claw back from the vesting when sending as the funder (%s)", callType.name), func() {
 				balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
-				Expect(balancePre.Amount).To(Equal(sdk.NewInt(1100)), "expected different balance after setup")
+				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				clawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.ClawbackMethod).
@@ -587,7 +588,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				balancePost := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
 				Expect(balancePost.Amount.Int64()).To(Equal(int64(100)), "expected only initial balance after clawback")
 				balanceReceiver := s.app.BankKeeper.GetBalance(s.ctx, differentAddr.Bytes(), s.bondDenom)
-				Expect(balanceReceiver.Amount).To(Equal(sdk.NewInt(1000)), "expected receiver to show different balance after clawback")
+				Expect(balanceReceiver.Amount).To(Equal(math.NewInt(1000)), "expected receiver to show different balance after clawback")
 			})
 
 			It(fmt.Sprintf("should return an error when not sending as the funder (%s)", callType.name), func() {
@@ -597,7 +598,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				Expect(err).ToNot(HaveOccurred(), "error while funding the account: %v", err)
 
 				balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
-				Expect(balancePre.Amount).To(Equal(sdk.NewInt(1100)), "expected different balance after setup")
+				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				clawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.ClawbackMethod).
@@ -660,7 +661,7 @@ var _ = Describe("Interacting with the vesting extension", func() {
 				s.ctx = ctx
 
 				balancePre := s.app.BankKeeper.GetBalance(s.ctx, toAddr.Bytes(), s.bondDenom)
-				Expect(balancePre.Amount).To(Equal(sdk.NewInt(1100)), "expected different balance after setup")
+				Expect(balancePre.Amount).To(Equal(math.NewInt(1100)), "expected different balance after setup")
 
 				clawbackArgs := s.BuildCallArgs(callType, contractAddr).
 					WithMethodName(vesting.ClawbackMethod).

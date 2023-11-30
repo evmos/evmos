@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
@@ -95,7 +96,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 				sender := sdk.AccAddress(address.Bytes())
-				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				res, _ := math.NewIntFromString(v9.MaxRecover)
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
 				err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -105,7 +106,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 
 				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 			},
 			true,
 		},
@@ -118,7 +119,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 				sender := sdk.AccAddress(address.Bytes())
-				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				res, _ := math.NewIntFromString(v9.MaxRecover)
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
 				err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -128,7 +129,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 
 				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 
 				v9.Accounts[0][1] = v9.MaxRecover
 			},
@@ -143,7 +144,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 				address := common.BytesToAddress(priv.PubKey().Address().Bytes())
 				sender := sdk.AccAddress(address.Bytes())
-				res, _ := sdk.NewIntFromString(v9.MaxRecover)
+				res, _ := math.NewIntFromString(v9.MaxRecover)
 				coins := sdk.NewCoins(sdk.NewCoin("aevmos", res))
 				err = suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
 				suite.Require().NoError(err)
@@ -153,7 +154,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				suite.Require().NoError(err)
 
 				balanceBefore := suite.app.DistrKeeper.GetFeePoolCommunityCoins(suite.ctx)
-				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), sdk.NewDecFromInt(res))
+				suite.Require().Equal(balanceBefore.AmountOf("aevmos"), math.LegacyNewDecFromInt(res))
 
 				v9.Accounts[1000][1] = v9.MaxRecover
 			},
@@ -181,7 +182,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 			if tc.expectedSuccess {
 				for i := range v9.Accounts {
 					addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
-					res, _ := sdk.NewIntFromString(v9.Accounts[i][1])
+					res, _ := math.NewIntFromString(v9.Accounts[i][1])
 					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
 					suite.Require().Equal(balance.Amount, res)
 				}
@@ -192,7 +193,7 @@ func (suite *UpgradeTestSuite) TestMigrateFaucetBalance() {
 				for i := range v9.Accounts {
 					addr := sdk.MustAccAddressFromBech32(v9.Accounts[i][0])
 					balance := suite.app.BankKeeper.GetBalance(suite.ctx, addr, "aevmos")
-					suite.Require().Equal(balance.Amount, sdk.NewInt(0))
+					suite.Require().Equal(balance.Amount, math.NewInt(0))
 				}
 			}
 			v9.Accounts[0][1] = firstAccountAmount
