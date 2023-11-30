@@ -44,8 +44,9 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 
 	fees := feeTx.GetFee()
 
-	// safety check: ensure the fees are positive before burning
-	if !fees.IsAllPositive() {
+	// safety check: ensure the fees are not empty and with positive amounts
+	// before burning
+	if len(fees) == 0 || !fees.IsAllPositive() {
 		return next(ctx, tx, simulate, success)
 	}
 
