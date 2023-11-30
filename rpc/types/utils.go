@@ -278,6 +278,7 @@ func TxStateDBCommitError(res *abci.ResponseDeliverTx) bool {
 
 // TxSucessOrExpectedFailure returns true if the transaction was successful
 // or if it failed with an ExceedBlockGasLimit error or TxStateDBCommitError error
+// code 111222 handle panic
 func TxSucessOrExpectedFailure(res *abci.ResponseDeliverTx) bool {
-	return res.Code == 0 || TxExceedBlockGasLimit(res) || TxStateDBCommitError(res)
+	return res.Code == 0 || res.Code == 111222 || TxExceedBlockGasLimit(res) || TxStateDBCommitError(res)
 }
