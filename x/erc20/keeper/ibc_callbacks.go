@@ -14,10 +14,9 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/ibc"
 	"github.com/evmos/evmos/v15/precompiles/erc20"
 	"github.com/evmos/evmos/v15/utils"
-
-	"github.com/evmos/evmos/v15/ibc"
 	"github.com/evmos/evmos/v15/x/erc20/types"
 )
 
@@ -45,7 +44,6 @@ func (k Keeper) OnRecvPacket(
 		err = errorsmod.Wrapf(errortypes.ErrInvalidType, "cannot unmarshal ICS-20 transfer packet data")
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
-
 	// use a zero gas config to avoid extra costs for the relayers
 	ctx = ctx.
 		WithKVGasConfig(storetypes.GasConfig{}).
@@ -83,6 +81,11 @@ func (k Keeper) OnRecvPacket(
 		data.Denom, data.Amount,
 	)
 
+	// short-circuit: if the denom is not a single hop voucher
+	if !ibc.IsSingleHop(data.Denom) {
+		return ack
+	}
+
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	if len(pairID) == 0 {
 		// short-circuit: if the denom is not registered, conversion will fail
@@ -102,11 +105,6 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// Truncate to 20 bytes (40 hex characters)
-	// TODO: Could we sha256 here and then truncate ?
-	// Hash the bytes using SHA-256
-	// sha256Hash := sha256.Sum256(ibcBytes)
-	// ethAddress := hex.EncodeToString(sha256Hash[:20])
-
 	truncatedAddr := denomAddr[:20]
 	params := k.evmKeeper.GetParams(ctx)
 	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())

@@ -5,8 +5,10 @@ package ibc
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"strings"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -76,6 +78,7 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 	// NOTE: Denom and amount are already validated
 	amount, _ := sdk.NewIntFromString(rawAmt)
 
+	fmt.Println(srcPort, srcChannel)
 	if transfertypes.ReceiverChainIsSource(srcPort, srcChannel, rawDenom) {
 		// remove prefix added by sender chain
 		voucherPrefix := transfertypes.GetDenomPrefix(srcPort, srcChannel)
@@ -122,4 +125,18 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 		Denom:  trace.IBCDenom(),
 		Amount: amount,
 	}
+}
+
+// IsSingleHop checks if the given denom has only made a single hop.
+// It returns true if the denomination is single-hop, false otherwise.
+func IsSingleHop(rawDenom string) bool {
+	// Parse the raw denomination to get its DenomTrace
+	denomTrace := transfertypes.ParseDenomTrace(rawDenom)
+
+	// Split the path of the DenomTrace into its components
+	pathComponents := strings.Split(denomTrace.Path, "/")
+
+	// Each hop in the path is represented by a pair of port and channel ids
+	// If the number of components in the path is more than 2, it has hopped multiple chains
+	return len(pathComponents) <= 2
 }
