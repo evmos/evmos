@@ -50,6 +50,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -124,7 +125,6 @@ import (
 
 	"github.com/evmos/evmos/v16/app/ante"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
-	"github.com/evmos/evmos/v16/app/post"
 	v10 "github.com/evmos/evmos/v16/app/upgrades/v10"
 	v11 "github.com/evmos/evmos/v16/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v16/app/upgrades/v12"
@@ -873,16 +873,14 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 }
 
 func (app *Evmos) setPostHandler() {
-	options := post.HandlerOptions{
-		FeeCollectorName: authtypes.FeeCollectorName,
-		BankKeeper:       app.BankKeeper,
-	}
-
-	if err := options.Validate(); err != nil {
+	postHandler, err := posthandler.NewPostHandler(
+		posthandler.HandlerOptions{},
+	)
+	if err != nil {
 		panic(err)
 	}
 
-	app.SetPostHandler(post.NewPostHandler(options))
+	app.SetPostHandler(postHandler)
 }
 
 // BeginBlocker runs the Tendermint ABCI BeginBlock logic. It executes state changes at the beginning
