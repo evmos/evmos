@@ -25,6 +25,7 @@ import (
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
+	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
@@ -87,6 +88,15 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
 	}
 
+	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+		transfertypes.PortID, "channel-215",
+		osmosisoutpost.XCSContractTestnet,
+		authzKeeper, bankKeeper, transferKeeper, stakingKeeper, erc20Keeper, channelKeeper,
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate osmosis outpost: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -100,6 +110,8 @@ func AvailablePrecompiles(
 
 	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
+	precompiles[osmosisOutpost.Address()] = osmosisOutpost
+
 	return precompiles
 }
 
