@@ -9,6 +9,7 @@ from .ibc_utils import (
     get_balance,
     prepare_network,
 )
+from .network import Evmos, CosmosChain
 from .utils import (
     ADDRS,
     KEYS,
@@ -25,7 +26,6 @@ from .utils import (
     wait_for_fn,
     wrap_evmos,
 )
-from .network import Evmos, CosmosChain
 
 
 @pytest.fixture(scope="module", params=["evmos"])
