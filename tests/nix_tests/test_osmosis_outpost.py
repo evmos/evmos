@@ -161,10 +161,6 @@ def setup_osmos_chains(ibc):
     # =================================
 
     # in the router one execute function `set_route` to have a route for evmos within the swap router contract
-    # # set input 'uosmo', output 'aevmos' route
-    # set_swap_route(
-    #     osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, "uosmo", EVMOS_IBC_DENOM
-    # )
     # set input 'aevmos', output 'uosmo' route
     set_swap_route(
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
@@ -237,8 +233,6 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
     )
     assert rsp["code"] == 0
 
-    # TODO: This needs to be changed to the osmosis ibc denom
-    # old_dst_balance = get_balance(dst_chain, dst_addr, EVMOS_IBC_DENOM)
     new_dst_balance = 0
 
     def check_balance_change():
@@ -247,10 +241,6 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
-
-    # TODO: This needs to be changed to the osmosis ibc denom
-    # new_dst_balance = get_balance(dst_chain, dst_addr, OSMO_IBC_DENOM)
-    # assert new_dst_balance == amt
 
 
 def register_osmo_token(evmos):

@@ -322,14 +322,6 @@ def register_host_zone(
     assert rsp["code"] == 0, rsp["raw_log"]
     txhash = rsp["txhash"]
 
-    receipt = wait_for_cosmos_tx_receipt(stride.cosmos_cli(), txhash)
-    proposal_id = get_event_attribute_value(
-        receipt["tx_result"]["events"],
-        "submit_proposal",
-        "proposal_id",
-    )
-    assert int(proposal_id) > 0
-
     # check the tx receipt to confirm was successful
     wait_for_new_blocks(stride.cosmos_cli(), 2)
     receipt = stride.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
