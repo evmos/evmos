@@ -39,29 +39,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
+- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
+- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
+- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
 - (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
+- (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
 
 ### API Breaking
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
-- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) depecrate legacy EIP712 ante handler
-
-### State Machine Breaking
-
-- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
+- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) deprecate legacy EIP712 ante handler
 
 ### Features
-
-- (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
-- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
-- (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
-- (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
-- (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
-- (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
-- (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
-- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
 
 ### Improvements
 
@@ -86,9 +77,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
 - (erc20) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
+- (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
 - (werc20) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
+- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
 - (distribution) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
+- (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
 - (erc20) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
+- (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
+- (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
 - (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Only allow user to pass in aevmos native token as transaction fees.
 - (erc20) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC20 precompile approvals.
 - (bin) [#2007](https://github.com/evmos/evmos/pull/2007) Add commands in Makefile for building binary with rocksDB and pebbleDB
