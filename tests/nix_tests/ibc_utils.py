@@ -225,6 +225,7 @@ def get_balance(chain, addr, denom):
     print("balance", balance, addr, denom)
     return balance
 
+
 def get_balances(chain, addr):
     print("Addr: ", addr)
     balance = chain.cosmos_cli().balances(addr)

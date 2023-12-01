@@ -1,5 +1,6 @@
-import pytest
 import json
+
+import pytest
 
 from .ibc_utils import (
     EVMOS_IBC_DENOM,

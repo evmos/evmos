@@ -1342,5 +1342,3 @@ class CosmosCLI:
                 **kwargs,
             )
         )
-        # "osmosisd tx gamm create-pool --pool-file=$1 --from pools --chain-id=$CHAIN_ID --home $OSMOSIS_HOME --keyring-backend=test -b block --fees 5000uosmo --yes" "create two asset pool: successful"
-        #
