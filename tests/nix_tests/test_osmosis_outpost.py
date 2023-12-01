@@ -9,7 +9,7 @@ from .ibc_utils import (
     get_balance,
     prepare_network,
 )
-from .network import Evmos, CosmosChain
+from .network import CosmosChain, Evmos
 from .utils import (
     ADDRS,
     KEYS,
