@@ -16,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
 	"golang.org/x/exp/slices"
@@ -32,7 +33,7 @@ var (
 	DefaultEnableCall = true
 	// AvailableEVMExtensions defines the default active precompiles
 	AvailableEVMExtensions = []string{
-		"0x0000000000000000000000000000000000000013", // P256 precompile
+		p256.PrecompileAddress,                       // P256 precompile
 		"0x0000000000000000000000000000000000000400", // Bech32 precompile
 		"0x0000000000000000000000000000000000000800", // Staking precompile
 		"0x0000000000000000000000000000000000000801", // Distribution precompile
