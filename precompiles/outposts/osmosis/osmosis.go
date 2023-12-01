@@ -66,9 +66,9 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	authzKeeper authzkeeper.Keeper,
 	portID, channelID string,
 	osmosisXCSContract string,
+	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
