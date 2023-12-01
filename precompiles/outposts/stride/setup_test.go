@@ -6,10 +6,10 @@ package stride_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/precompiles/outposts/stride"
-	"github.com/evmos/evmos/v15/testutil/integration/common/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 

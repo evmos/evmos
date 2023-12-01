@@ -6,8 +6,8 @@ package keeper_test
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	stakingprecompile "github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/x/evm/types"
+	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestIsAvailablePrecompile() {

@@ -4,13 +4,14 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var (
@@ -176,7 +177,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 					s.network.GetContext(),
 					spender.AccAddr,
 					owner.AccAddr,
-					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: s.tokenDenom, Amount: sdk.NewInt(5e18)}}},
+					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: s.tokenDenom, Amount: math.NewInt(5e18)}}},
 					&expiration,
 				)
 				s.Require().NoError(err, "failed to save grant")
@@ -195,7 +196,7 @@ func (s *PrecompileTestSuite) TestTransferFrom() {
 					s.network.GetContext(),
 					spender.AccAddr,
 					owner.AccAddr,
-					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: sdk.NewInt(300)}}},
+					&banktypes.SendAuthorization{SpendLimit: sdk.Coins{sdk.Coin{Denom: tokenDenom, Amount: math.NewInt(300)}}},
 					&expiration,
 				)
 				s.Require().NoError(err, "failed to save grant")

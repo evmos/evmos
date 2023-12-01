@@ -9,15 +9,16 @@ import (
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 )
 
 // SubmitProposal is a helper function to submit a governance proposal and
@@ -27,7 +28,7 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 
 	msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
 		proposal,
-		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), sdk.NewInt(1e18))),
+		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e18))),
 		proposerAccAddr,
 	)
 	if err != nil {

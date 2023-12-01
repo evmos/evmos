@@ -6,13 +6,13 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 // Parameter store key
 var (
 	DefaultEnableRevenue   = true
-	DefaultDeveloperShares = sdk.NewDecWithPrec(50, 2) // 50%
+	DefaultDeveloperShares = math.LegacyNewDecWithPrec(50, 2) // 50%
 	// DefaultAddrDerivationCostCreate Cost for executing `crypto.CreateAddress` must be at least 36 gas for the
 	// contained keccak256(word) operation
 	DefaultAddrDerivationCostCreate = uint64(50)
@@ -28,7 +28,7 @@ var (
 // NewParams creates a new Params object
 func NewParams(
 	enableRevenue bool,
-	developerShares sdk.Dec,
+	developerShares math.LegacyDec,
 	addrDerivationCostCreate uint64,
 ) Params {
 	return Params{
@@ -65,7 +65,7 @@ func validateBool(i interface{}) error {
 }
 
 func validateShares(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -79,7 +79,7 @@ func validateShares(i interface{}) error {
 		return fmt.Errorf("value cannot be negative: %T", i)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("value cannot be greater than 1: %T", i)
 	}
 

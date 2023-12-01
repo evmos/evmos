@@ -6,15 +6,16 @@ package v16_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 type IntegrationTestSuite struct {
@@ -30,9 +31,9 @@ type IntegrationTestSuite struct {
 
 // Initial inflation distribution is the previous default configuration
 var initialInflDistr = inflationtypes.InflationDistribution{
-	StakingRewards:  sdk.NewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
-	UsageIncentives: sdk.NewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
-	CommunityPool:   sdk.NewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
+	StakingRewards:  math.LegacyNewDecWithPrec(533333334, 9), // 0.53 = 40% / (1 - 25%)
+	UsageIncentives: math.LegacyNewDecWithPrec(333333333, 9), // 0.33 = 25% / (1 - 25%)
+	CommunityPool:   math.LegacyNewDecWithPrec(133333333, 9), // 0.13 = 10% / (1 - 25%)
 }
 
 func (its *IntegrationTestSuite) SetupTest() {

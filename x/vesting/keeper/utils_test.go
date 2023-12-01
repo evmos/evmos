@@ -19,19 +19,19 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v15/app"
-	cosmosante "github.com/evmos/evmos/v15/app/ante/cosmos"
-	evmante "github.com/evmos/evmos/v15/app/ante/evm"
-	"github.com/evmos/evmos/v15/contracts"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/testutil"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/utils"
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	"github.com/evmos/evmos/v15/x/vesting/types"
+	"github.com/evmos/evmos/v16/app"
+	cosmosante "github.com/evmos/evmos/v16/app/ante/cosmos"
+	evmante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/testutil"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v16/x/vesting/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -89,7 +89,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
 
 	// fund signer acc to pay for tx fees
-	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	amt := sdkmath.NewInt(int64(math.Pow10(18) * 2))
 	err = testutil.FundAccount(
 		suite.ctx,
 		suite.app.BankKeeper,
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// Set correct denom in govKeeper
 	govParams := suite.app.GovKeeper.GetParams(suite.ctx)
-	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e6)))
+	govParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdkmath.NewInt(1e6)))
 	votingPeriod := time.Second
 	govParams.VotingPeriod = &votingPeriod
 	err = suite.app.GovKeeper.SetParams(suite.ctx, govParams)

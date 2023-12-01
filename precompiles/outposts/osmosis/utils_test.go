@@ -7,24 +7,33 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ParseStringAsJSON parses the given string into a JSON object. Returns an error if the string is
-// empty or if it is not a valid JSON formatted string.
+// jsonStringHasKey parses the memo as a json object and checks if it contains the key.
 //
-// This function is a readjustment of the Osmosis' Wasm hook:
+// This function comes from the Osmosis' Wasm hook:
 // https://github.com/osmosis-labs/osmosis/blob/6a28004ab7bf98f21ec22ad9f5e4dcbba78dfa76/x/ibc-hooks/wasm_hook.go#L158-L182
-func parseStringAsJSON(memo string) (jsonObject map[string]interface{}, err error) {
+func jsonStringHasKey(memo, key string) (found bool, jsonObject map[string]interface{}) {
 	jsonObject = make(map[string]interface{})
 
+	// If there is no memo, the packet was either sent with an earlier version of IBC, or the memo was
+	// intentionally left blank. Nothing to do here. Ignore the packet and pass it down the stack.
 	if len(memo) == 0 {
-		return nil, fmt.Errorf("string cannot be empty")
+		return false, jsonObject
 	}
 
 	// the jsonObject must be a valid JSON object
-	if err := json.Unmarshal([]byte(memo), &jsonObject); err != nil {
-		return nil, err
+	err := json.Unmarshal([]byte(memo), &jsonObject)
+	if err != nil {
+		return false, jsonObject
 	}
 
-	return jsonObject, nil
+	// If the key doesn't exist, there's nothing to do on this hook. Continue by passing the packet
+	// down the stack
+	_, ok := jsonObject[key]
+	if !ok {
+		return false, jsonObject
+	}
+
+	return true, jsonObject
 }
 
 // ValidateAndParseWasmRoutedMemo check that the given memo is a JSON formatted string and that it
@@ -33,30 +42,23 @@ func parseStringAsJSON(memo string) (jsonObject map[string]interface{}, err erro
 // This function is a readjustment of the Osmosis' Wasm hook:
 // https://github.com/osmosis-labs/osmosis/blob/6a28004ab7bf98f21ec22ad9f5e4dcbba78dfa76/x/ibc-hooks/wasm_hook.go#L184-L241
 func ValidateAndParseWasmRoutedMemo(
-	memo string,
+	packet string,
 	receiver string,
 ) (err error) {
-	metadata, err := parseStringAsJSON(memo)
-	if err != nil {
-		return err
-	}
-
-	_, ok := metadata["wasm"]
-	if !ok {
-		return nil
+	isWasm, metadata := jsonStringHasKey(packet, "wasm")
+	if !isWasm {
+		return fmt.Errorf("string is not a valid wasm targeted memo")
 	}
 
 	wasmRaw := metadata["wasm"]
-
-	// Make sure the wasm key is a map.
 	wasm, ok := wasmRaw.(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("wasm metadata is not a valid JSON map object")
+		return fmt.Errorf("error in getting the wasm field")
 	}
 
 	contract, ok := wasm["contract"].(string)
 	if !ok {
-		return fmt.Errorf(`Could not find key wasm["contract"]`)
+		return fmt.Errorf(`could not find key wasm["contract"]`)
 	}
 
 	_, err = sdk.AccAddressFromBech32(contract)
@@ -71,7 +73,7 @@ func ValidateAndParseWasmRoutedMemo(
 
 	// Ensure the message key is provided
 	if wasm["msg"] == nil {
-		return fmt.Errorf(`Could not find key wasm["msg"]`)
+		return fmt.Errorf(`could not find key wasm["msg"]`)
 	}
 
 	// Make sure the msg key is a map. If it isn't, return an error

@@ -6,16 +6,16 @@ package osmosis_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
 const (
-	portID    = "transfer"
-	channelID = "channel-0"
+	PortID    = "transfer"
+	ChannelID = "channel-0"
 )
 
 type PrecompileTestSuite struct {
@@ -39,14 +39,15 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-		portID,
-		channelID,
-		osmosis.XCSContract,
+		unitNetwork.App.AuthzKeeper,
+		PortID,
+		ChannelID,
+		osmosis.XCSContractTestnet,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,
 		unitNetwork.App.Erc20Keeper,
-		unitNetwork.App.AuthzKeeper,
+		unitNetwork.App.IBCKeeper.ChannelKeeper,
 	)
 	s.Require().NoError(err, "expected no error during precompile creation")
 

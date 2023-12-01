@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 // Approve sets the given amount as the allowance of the spender address over
@@ -225,7 +225,7 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 		return fmt.Errorf(ErrIntegerOverflow, amount)
 	}
 
-	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(amount)}}
 	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
 
 	// NOTE: we leave the allowed arg empty as all recipients are allowed (per ERC20 standard)
@@ -238,7 +238,7 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 }
 
 func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
-	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
+	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
 		return err
 	}
@@ -289,7 +289,7 @@ func (p Precompile) increaseAllowance(
 	}
 
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
-	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
+	sdkAddedValue := sdkmath.NewIntFromBigInt(addedValue)
 	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
 	if overflow {
 		return nil, ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow))

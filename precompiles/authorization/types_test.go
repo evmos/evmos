@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/evmos/evmos/v15/utils"
+	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v16/utils"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,7 +26,7 @@ func TestCheckApprovalArgs(t *testing.T) {
 	}{
 		{
 			name:        "invalid number of arguments",
-			args:        []interface{}{addr, common.Address{}, sdk.NewInt(100), "abc"},
+			args:        []interface{}{addr, common.Address{}, math.NewInt(100), "abc"},
 			expErr:      true,
 			ErrContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 3, 4),
 		},

@@ -9,9 +9,10 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/evmos/v15/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -22,7 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 // TransferMsgURL is the ICS20 transfer message URL string.
@@ -128,7 +129,7 @@ func IncreaseAllowance(
 		return err
 	}
 
-	allowance := sdk.NewIntFromBigInt(amount)
+	allowance := math.NewIntFromBigInt(amount)
 	if _, overflow := cmn.SafeAdd(spendLimit.Amount, allowance); overflow {
 		return errors.New(cmn.ErrIntegerOverflow)
 	}
@@ -181,7 +182,7 @@ func DecreaseAllowance(
 		return err
 	}
 
-	expense := sdk.NewIntFromBigInt(amount)
+	expense := math.NewIntFromBigInt(amount)
 	if spendLimit.Amount.LT(expense) {
 		return fmt.Errorf(cmn.ErrNegativeAmount)
 	}
