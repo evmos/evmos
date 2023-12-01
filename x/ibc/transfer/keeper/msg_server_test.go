@@ -10,8 +10,8 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	"github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
 

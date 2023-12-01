@@ -18,7 +18,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.

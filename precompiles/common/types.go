@@ -11,7 +11,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "github.com/evmos/evmos/v15/utils"
+	evmosutils "github.com/evmos/evmos/v16/utils"
 )
 
 var (

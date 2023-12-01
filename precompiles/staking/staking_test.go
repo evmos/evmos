@@ -5,18 +5,18 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v15/app"
+	"github.com/evmos/evmos/v16/app"
 
-	"github.com/evmos/evmos/v15/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {

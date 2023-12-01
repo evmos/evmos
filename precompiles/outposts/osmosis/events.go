@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 const (

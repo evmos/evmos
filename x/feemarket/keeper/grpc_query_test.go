@@ -3,7 +3,7 @@ package keeper_test
 import (
 	sdkmath "cosmossdk.io/math"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryParams() {

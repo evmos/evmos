@@ -14,11 +14,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
-	evmante "github.com/evmos/evmos/v15/app/ante/evm"
-	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmante "github.com/evmos/evmos/v16/app/ante/evm"
+	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
-	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
+	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos

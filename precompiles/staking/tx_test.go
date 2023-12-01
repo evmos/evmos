@@ -10,10 +10,10 @@ import (
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestCreateValidator() {

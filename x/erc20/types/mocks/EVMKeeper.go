@@ -9,11 +9,11 @@ import (
 
 	core "github.com/ethereum/go-ethereum/core"
 
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	mock "github.com/stretchr/testify/mock"
 
-	statedb "github.com/evmos/evmos/v15/x/evm/statedb"
+	statedb "github.com/evmos/evmos/v16/x/evm/statedb"
 
 	types "github.com/cosmos/cosmos-sdk/types"
 
