@@ -42,6 +42,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
+- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Only allow user to pass in aevmos native token as transaction fees.
+- (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
+- (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
 - (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
 - (bank-precompile) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
 - (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
@@ -85,7 +89,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20-precompile) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
 - (erc20-precompile) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
 - (erc20-precompile) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
-- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Only allow user to pass in aevmos native token as transaction fees.
 - (erc20-precompile) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC20 precompile approvals.
 - (bin) [#2007](https://github.com/evmos/evmos/pull/2007) Add commands in Makefile for building binary with rocksDB and pebbleDB
 - (erc20-precompile) [#2009](https://github.com/evmos/evmos/pull/2009) Add ERC20 precompile transaction unit tests.
@@ -96,7 +99,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20-precompile) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
 - (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
-- (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (erc20-precompile) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
 - (bank-precompile) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
 - (bank-precompile) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
@@ -105,8 +107,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test
 - (staking-precompile) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
 - (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
-- (distribution-precompile) [#2054](https://github.com/evmos/evmos/pull/2054) Change the validator address in the events from string type to address type.
-- (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
 - (werc20-precompile) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
 - (werc20-precompile) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC20 base integration tests.
 - (werc20-precompile) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
