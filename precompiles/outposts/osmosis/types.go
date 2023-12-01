@@ -126,7 +126,7 @@ type RawPacketMetadata struct {
 
 // RecoveryAddress is the address to send the funds in case of failed delivery.
 type RecoveryAddress struct {
-	// The Osmosis outpost IBC memo content.
+	// The recovery address in Osmosis chain.
 	Address string `json:"local_recovery_addr"`
 }
 
