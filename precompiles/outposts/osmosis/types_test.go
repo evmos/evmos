@@ -27,7 +27,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		contract           string
 		slippagePercentage uint8
 		windowSeconds      uint64
-		onFailedDelivery   string
+		onFailedDelivery   interface{}
 		nextMemo           string
 		expMemo            string
 	}{
@@ -40,7 +40,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   doNothing,
 			nextMemo:           "",
-			expMemo:            "{\"wasm\":{\"contract\":\"contract\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":10,\"window_seconds\":30}},\"receiver\":\"receiver\",\"on_failed_delivery\":\"do_nothing\"}}}}",
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":\"do_nothing\"}}}}",
 		},
 		{
 			name:               "pass - correct string with memo",
@@ -51,7 +51,18 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   doNothing,
 			nextMemo:           "a next memo",
-			expMemo:            "{\"wasm\":{\"contract\":\"contract\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":10,\"window_seconds\":30}},\"receiver\":\"receiver\",\"on_failed_delivery\":\"do_nothing\",\"next_memo\":\"a next memo\"}}}}",
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":\"do_nothing\",\"next_memo\":\"a next memo\"}}}}",
+		},
+		{
+			name:               "pass - correct string with memo and recovery address",
+			outputDenom:        utils.BaseDenom,
+			receiver:           receiver,
+			contract:           contract,
+			slippagePercentage: 10,
+			windowSeconds:      30,
+			onFailedDelivery:   osmosisoutpost.RecoveryAddress{"osmo1g8j7tgfam7kmj86zks5rcfxruf9lzp87u8mwdf"},
+			nextMemo:           "a next memo",
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":{\"local_recovery_addr\":\"osmo1g8j7tgfam7kmj86zks5rcfxruf9lzp87u8mwdf\"},\"next_memo\":\"a next memo\"}}}}",
 		},
 	}
 
@@ -68,7 +79,6 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			require.Equal(t, tc.expMemo, memo)
 			err := ValidateAndParseWasmRoutedMemo(memo, tc.receiver)
 			require.NoError(t, err, "memo is not a valid wasm routed JSON formatted string")
-
 		})
 
 	}

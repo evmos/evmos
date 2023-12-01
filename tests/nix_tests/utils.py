@@ -55,7 +55,6 @@ OSMOSIS_POOLS = {
 # you can use the compile-cosmwasm-contracts.sh
 # script located in the 'scripts' directory
 WASM_BINARIES = {
-    "CrosschainRegistry": "crosschain_registry.wasm",
     "CrosschainSwap": "crosschain_swaps.wasm",
     "Swaprouter": "swaprouter.wasm",
 }
@@ -279,19 +278,16 @@ def wait_for_cosmos_tx_receipt(cli, tx_hash):
 
 
 def wait_for_ack(cli, chain):
+    """
+    Helper function to wait for acknoledgment
+    of an IBC transfer
+    """
     print(f"{chain} waiting ack...")
     block_results = cli.block_results_rpc()
     txs_res = block_results["txs_results"]
     if txs_res is None:
         wait_for_new_blocks(cli, 1)
         return wait_for_ack(cli, chain)
-    print(txs_res)
-    height = int((cli.status())["SyncInfo"]["latest_block_height"])
-    receipt_file_path = f"/tmp/tx_res_{chain}_{height}.json"
-    # TODO remove
-    with open(receipt_file_path, "w") as receipt_file:
-        json.dump(txs_res, receipt_file, indent=2)
-    # TODO remove ^^^^
 
 
 def register_host_zone(

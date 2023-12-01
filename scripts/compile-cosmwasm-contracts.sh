@@ -2,7 +2,9 @@
 
 echo "Compiling CosmWasm contracts"
 
-OSMOSIS_VERSION=v20.2.1
+# For the osmosis outpost we're using the v1 of the
+# crosschain swap contract. This is available in v15.x
+OSMOSIS_VERSION=v15.2.0
 # For this script to work properly
 # We need to copy the contents of the cosmwasm folder of the
 # Osmosis repo (https://github.com/osmosis-labs/osmosis/tree/v20.2.1/cosmwasm)

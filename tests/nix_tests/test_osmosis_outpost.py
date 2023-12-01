@@ -54,6 +54,9 @@ def test_osmosis_swap(ibc):
     osmosis_cli = osmosis.cosmos_cli()
     osmosis_addr = osmosis_cli.address("signer2")
     amt = 100
+    # the expected amount to get after swapping
+    # 100aevmos is 98uosmo
+    exp_swap_amount = 98
 
     setup_osmos_chains(ibc)
 
@@ -93,26 +96,23 @@ def test_osmosis_swap(ibc):
     print(f"outpost tx gas estimation: {gas_estimation}")
     receipt = send_transaction(w3, tx, KEYS["signer2"])
 
-    print(receipt)
     assert receipt.status == 1
-    # check gas estimation is accurate
-    # assert receipt.gasUsed == gas_estimation
 
-    # check if osmos was received
-    new_src_balance = 0
-    wait_for_ack(osmosis_cli, "osmois")
-
-    wait_for_new_blocks(evmos.cosmos_cli(), 1)
-    wait_for_ack(evmos.cosmos_cli(), "evmos")
+    # check balance increase after swap
+    new_erc20_balance = 0
 
     def check_erc20_balance_change():
-        nonlocal new_src_balance
-        new_src_balance = erc20_balance(w3, osmo_erc20_addr, evmos_addr)
-        print(f"erc20 balance: {new_src_balance}")
-        return new_src_balance > 0
+        nonlocal new_erc20_balance
+        new_erc20_balance = erc20_balance(w3, osmo_erc20_addr, evmos_addr)
+        print(f"uosmo erc20 balance: {new_erc20_balance}")
+        return new_erc20_balance > 0
 
     wait_for_fn("balance change", check_erc20_balance_change)
-    assert new_src_balance == amt
+
+    # the account has 200 uosmo IBC coins from the setup
+    # previous to registering the uosmo token pair
+    exp_final_balance = 200 + exp_swap_amount
+    assert new_erc20_balance == exp_final_balance
 
 
 def setup_osmos_chains(ibc):
@@ -129,28 +129,13 @@ def setup_osmos_chains(ibc):
     )
 
     contracts_to_store = {
-        "CrosschainRegistry": {
-            "get_instantiate_params": lambda x: f'\'{{"owner":"{x}"}}\'',
-        },
         "Swaprouter": {
             "get_instantiate_params": lambda x: f'\'{{"owner":"{x}"}}\'',
         },
         "CrosschainSwap": {
-            "get_instantiate_params": lambda x, y, z: f'{{"governor":"{x}", "swap_contract": "{y}", "registry_contract": "{z}"}}',
+            "get_instantiate_params": lambda x, y, z: f'{{"governor":"{x}", "swap_contract": "{y}", "channels": [["evmos","{z}"]]}}',
         },
     }
-
-    # ===== Deploy CrosschainRegistry =====
-    registry_contract = WASM_CONTRACTS["CrosschainRegistry"]
-    registry_contract_addr = deploy_wasm_contract(
-        osmosis_cli,
-        osmosis_addr,
-        registry_contract,
-        contracts_to_store["CrosschainRegistry"]["get_instantiate_params"](
-            osmosis_addr
-        ),
-        "xcregistry1.0",
-    )
 
     # ===== Deploy Swaprouter =====
     swap_contract = WASM_CONTRACTS["Swaprouter"]
@@ -169,7 +154,7 @@ def setup_osmos_chains(ibc):
         osmosis_addr,
         cross_swap_contract,
         contracts_to_store["CrosschainSwap"]["get_instantiate_params"](
-            osmosis_addr, swap_contract_addr, registry_contract_addr
+            osmosis_addr, swap_contract_addr, "channel-0"
         ),
         "xcswap1.0",
     )
