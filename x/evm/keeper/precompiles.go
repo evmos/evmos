@@ -88,9 +88,14 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
 	}
 
-	osmosisOutpost, err := osmosisoutpost.NewPrecompile(authzKeeper, transfertypes.PortID, "channel-0", osmosisoutpost.XCSContractTestnet, bankKeeper, transferKeeper, stakingKeeper, erc20Keeper, channelKeeper)
+
+	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+		transfertypes.PortID, "channel-215",
+		osmosisoutpost.XCSContractTestnet,
+		authzKeeper, bankKeeper, transferKeeper, stakingKeeper, erc20Keeper, channelKeeper,
+	)
 	if err != nil {
-		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
+		panic(fmt.Errorf("failed to instantiate osmosis outpost: %w", err))
 	}
 
 	// Stateless precompiles
@@ -107,6 +112,7 @@ func AvailablePrecompiles(
 	// Outposts
 	precompiles[strideOutpost.Address()] = strideOutpost
 	precompiles[osmosisOutpost.Address()] = osmosisOutpost
+
 	return precompiles
 }
 
