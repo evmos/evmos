@@ -132,6 +132,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
 - (osmosis-outpost) [#2077](https://github.com/evmos/evmos/pull/2077) Update Osmosis outpost to use cross-chain swap contract V1.
 - (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types
+- (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
 
 ### Bug Fixes
 
