@@ -43,7 +43,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
 - (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
-- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Only allow user to pass in aevmos native token as transaction fees.
+- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Restrict transaction fee tokens.
 - (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
 - (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
 - (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
@@ -56,8 +56,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
 - (ante) [#2078](https://github.com/evmos/evmos/pull/2078) deprecate legacy EIP712 ante handler
-
-### Features
 
 ### Improvements
 
