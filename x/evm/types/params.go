@@ -4,7 +4,6 @@ package types
 
 import (
 	"fmt"
-	"github.com/evmos/evmos/v16/precompiles/p256"
 	"math/big"
 	"sort"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
 	"golang.org/x/exp/slices"
