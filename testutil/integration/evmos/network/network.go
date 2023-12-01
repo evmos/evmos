@@ -181,7 +181,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Commit genesis changes
 	if _, err := evmosApp.Commit(); err != nil {
-	 	return err
+		return err
 	}
 
 	if _, err := evmosApp.FinalizeBlock(&abcitypes.RequestFinalizeBlock{
