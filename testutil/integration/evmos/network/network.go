@@ -4,13 +4,13 @@
 package network
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/evmos/evmos/v15/app"
@@ -151,8 +151,18 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
 
+	genesisState, err = setFeemarketGenesisState(evmosApp, genesisState, n.cfg.customGenesis)
+	if err != nil {
+		return err
+	}
+
+	genesisState, err = setEvmGenesisState(evmosApp, genesisState, n.cfg.customGenesis)
+	if err != nil {
+		return err
+	}
+
 	// Init chain
-	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
 	if err != nil {
 		return err
 	}
@@ -168,8 +178,20 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	); err != nil {
 		return err
 	}
+
 	// Commit genesis changes
-	evmosApp.Commit()
+	if _, err := evmosApp.Commit(); err != nil {
+	 	return err
+	}
+
+	if _, err := evmosApp.FinalizeBlock(&abcitypes.RequestFinalizeBlock{
+		Height:             evmosApp.LastBlockHeight() + 1,
+		Hash:               evmosApp.LastCommitID().Hash,
+		NextValidatorsHash: valSet.Hash(),
+		ProposerAddress:    valSet.Proposer.Address,
+	}); err != nil {
+		return err
+	}
 
 	header := cmtproto.Header{
 		ChainID:            n.cfg.chainID,
@@ -179,13 +201,12 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
+	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
-	evmosApp.BeginBlocker(n.ctx)
+	// evmosApp.BeginBlocker(n.ctx)
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initilize the context
-	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
 	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
@@ -268,4 +289,25 @@ func (n *IntegrationNetwork) Simulate(txBytes []byte) (*txtypes.SimulateResponse
 		GasInfo: &gas,
 		Result:  result,
 	}, nil
+}
+
+// WithCheckTxContext sets the context checkTx flag to true
+func (n *IntegrationNetwork) WithCheckTxContext() sdktypes.Context {
+	n.ctx = n.ctx.WithIsCheckTx(true)
+	return n.ctx
+}
+
+// WithValSet sets the provided validator set for the network.
+func (n *IntegrationNetwork) WithValSet(valSet *cmttypes.ValidatorSet) {
+	n.valSet = valSet
+}
+
+// WithValSigners sets the provided validator signers for the network.
+func (n *IntegrationNetwork) WithValSigners(valSigners map[string]cmttypes.PrivValidator) {
+	n.valSigners = valSigners
+}
+
+// WithContext sets the provided validator signers for the network.
+func (n *IntegrationNetwork) WithContext(ctx sdktypes.Context) {
+	n.ctx = ctx
 }

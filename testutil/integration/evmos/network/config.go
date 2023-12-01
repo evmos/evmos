@@ -21,6 +21,7 @@ type Config struct {
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	denom              string
+	customGenesis      map[string]interface{}
 }
 
 // DefaultConfig returns the default configuration for a chain.
@@ -71,5 +72,13 @@ func WithPreFundedAccounts(accounts ...sdktypes.AccAddress) ConfigOption {
 func WithDenom(denom string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.denom = denom
+	}
+}
+
+// WithCustomGenesis sets the custom genesis for the network.
+// Add only the differences with the default genesis
+func WithCustomGenesis(genesis map[string]interface{}) ConfigOption {
+	return func(cfg *Config) {
+		cfg.customGenesis = genesis
 	}
 }

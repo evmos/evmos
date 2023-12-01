@@ -27,6 +27,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/tendermint/go-amino"
 )
 
 type TxFactory interface {
@@ -50,6 +51,8 @@ type TxFactory interface {
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ExecTxResult, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// WithCustomInterfaces registers the provided interfaces in the codec.
+	WithCustomInterfaces(interfaces []CustomInterface)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -61,6 +64,12 @@ type IntegrationTxFactory struct {
 	grpcHandler grpc.Handler
 	network     network.Network
 	ec          *testutiltypes.TestEncodingConfig
+}
+
+type CustomInterface struct {
+	Intfce interface{}
+	Name   string
+	Copts  *amino.ConcreteOptions
 }
 
 // New creates a new IntegrationTxFactory instance
@@ -90,6 +99,15 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 	}
 
 	return tf.buildSignedTx(signedMsg)
+}
+
+// WithCustomInterfaces registers the provided interfaces in the codec.
+func (tf *IntegrationTxFactory) WithCustomInterfaces(interfaces []CustomInterface) {
+	for _, i := range interfaces {
+		protoMsg := (i.Intfce).(proto.Message)
+		tf.ec.Amino.RegisterConcrete(i.Intfce, i.Name, i.Copts)
+		tf.ec.InterfaceRegistry.RegisterImplementations((*sdktypes.Msg)(nil), protoMsg)
+	}
 }
 
 // CallContractAndCheckLogs is a helper function to call a contract and check the logs using

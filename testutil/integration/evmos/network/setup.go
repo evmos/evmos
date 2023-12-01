@@ -3,6 +3,7 @@
 package network
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/evmos/evmos/v15/app"
@@ -24,6 +25,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v15/types"
 	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
+	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	feemkttypes "github.com/evmos/evmos/v15/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
 )
 
@@ -148,7 +151,7 @@ func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.
 	amountOfValidators := len(tmValidators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
 	for _, val := range tmValidators {
-		delegation := stakingtypes.NewDelegation(fromAccount.String(), val.Address.String(), sdkmath.LegacyOneDec())
+		delegation := stakingtypes.NewDelegation(fromAccount.String(), sdktypes.ValAddress(val.Address).String(), sdkmath.LegacyOneDec())
 		delegations = append(delegations, delegation)
 	}
 	return delegations
@@ -206,6 +209,46 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, o
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
+}
+
+// setFeemarketGenesisState sets the feemarket genesis state
+func setFeemarketGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis map[string]interface{}) (types.GenesisState, error) {
+	feemktGenesis := feemkttypes.DefaultGenesisState()
+	// check for custom genesis provided for this module
+	if gen, ok := customGenesis[feemkttypes.ModuleName]; ok {
+		parsedGen, ok := gen.(feemkttypes.GenesisState)
+		if !ok {
+			return nil, fmt.Errorf("invalid type %T provided for feemarket custom genesis", gen)
+		}
+		feemktGenesis = &parsedGen
+	}
+
+	if err := feemktGenesis.Validate(); err != nil {
+		return nil, err
+	}
+
+	genesisState[feemkttypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(feemktGenesis)
+	return genesisState, nil
+}
+
+// setEvmGenesisState sets the evm module genesis state
+func setEvmGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis map[string]interface{}) (types.GenesisState, error) {
+	evmGenesis := evmtypes.DefaultGenesisState()
+	// check for custom genesis provided for this module
+	if gen, ok := customGenesis[evmtypes.ModuleName]; ok {
+		parsedGen, ok := gen.(evmtypes.GenesisState)
+		if !ok {
+			return nil, fmt.Errorf("invalid type %T provided for evm module custom genesis", gen)
+		}
+		evmGenesis = &parsedGen
+	}
+
+	if err := evmGenesis.Validate(); err != nil {
+		return nil, err
+	}
+
+	genesisState[evmtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
+	return genesisState, nil
 }
 
 // calculateTotalSupply calculates the total supply from the given balances

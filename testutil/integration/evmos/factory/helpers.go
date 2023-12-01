@@ -4,17 +4,14 @@ package factory
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/evmos/evmos/v15/encoding"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 
 	errorsmod "cosmossdk.io/errors"
-	amino "github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	enccodec "github.com/evmos/evmos/v15/encoding/codec"
 	"github.com/evmos/evmos/v15/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v15/types"
 )
@@ -48,20 +45,5 @@ func signMsgEthereumTx(msgEthereumTx evmtypes.MsgEthereumTx, privKey cryptotypes
 
 // makeConfig creates an EncodingConfig for testing
 func makeConfig(mb module.BasicManager) testutiltypes.TestEncodingConfig {
-	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	codec := amino.NewProtoCodec(interfaceRegistry)
-
-	encodingConfig := testutiltypes.TestEncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
-		TxConfig:          authtx.NewTxConfig(codec, authtx.DefaultSignModes),
-		Amino:             cdc,
-	}
-
-	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	return encodingConfig
+	return encoding.MakeConfig(mb)
 }

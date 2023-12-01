@@ -289,7 +289,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 		ChainID:   big.NewInt(9000),
 		Nonce:     0,
 		GasLimit:  1000000,
-		GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+		GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},
@@ -419,32 +419,32 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
 				cosmosTxArgs := utiltx.CosmosTxArgs{
-					TxCfg:   suite.clientCtx.TxConfig,
-					Priv:    suite.priv,
-					ChainID: suite.ctx.ChainID(),
+					TxCfg:   suite.network.App.GetTxConfig(),
+					Priv:    suite.keyring.GetPrivKey(0),
+					ChainID: suite.network.GetChainID(),
 					Gas:     200000,
 					Fees:    fees,
 					Msgs:    tc.msgs,
 				}
 
 				tx, err = utiltx.CreateEIP712CosmosTx(
-					suite.ctx,
-					suite.app,
+					suite.network.GetContext(),
+					suite.network.App,
 					utiltx.EIP712TxArgs{
 						CosmosTxArgs:       cosmosTxArgs,
 						UseLegacyTypedData: true,
 					},
 				)
 			} else {
-				tx, err = createTx(suite.ctx, suite.priv, tc.msgs...)
+				tx, err = createTx(suite.network.GetContext(), suite.keyring.GetPrivKey(0), tc.msgs...)
 			}
 			suite.Require().NoError(err)
 
-			txEncoder := suite.clientCtx.TxConfig.TxEncoder()
+			txEncoder := suite.network.App.GetTxConfig().TxEncoder()
 			bz, err := txEncoder(tx)
 			suite.Require().NoError(err)
 
-			resCheckTx, err := suite.app.CheckTx(
+			resCheckTx, err := suite.network.App.CheckTx(
 				&abci.RequestCheckTx{
 					Tx:   bz,
 					Type: abci.CheckTxType_New,
@@ -453,7 +453,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			suite.Require().NoError(err)
 			suite.Require().Equal(resCheckTx.Code, tc.expectedCode, resCheckTx.Log)
 
-			blockRes, err := suite.app.FinalizeBlock(
+			blockRes, err := suite.network.App.FinalizeBlock(
 				&abci.RequestFinalizeBlock{
 					Txs: [][]byte{bz},
 				},

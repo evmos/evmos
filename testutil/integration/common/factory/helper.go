@@ -45,6 +45,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 		AccountNumber: account.GetAccountNumber(),
 		Sequence:      sequence,
 		Address:       senderAddress.String(),
+		PubKey:        privKey.PubKey(),
 	}
 	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
 	if err != nil {
@@ -122,7 +123,7 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 	}
 
 	var gasLimit uint64
-	if txArgs.Gas == 0 {
+	if txArgs.Gas == nil {
 		simulateRes, err := tf.network.Simulate(simulateBytes)
 		if err != nil {
 			return 0, errorsmod.Wrap(err, "failed to simulate tx")
@@ -132,7 +133,7 @@ func (tf *IntegrationTxFactory) estimateGas(txArgs CosmosTxArgs, txBuilder clien
 		gasUsed := new(big.Float).SetUint64(simulateRes.GasInfo.GasUsed)
 		gasLimit, _ = gasAdj.Mul(gasAdj, gasUsed).Uint64()
 	} else {
-		gasLimit = txArgs.Gas
+		gasLimit = *txArgs.Gas
 	}
 	return gasLimit, nil
 }
