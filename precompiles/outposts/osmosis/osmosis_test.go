@@ -55,10 +55,10 @@ func TestNewPrecompile(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := osmosis.NewPrecompile(
-				unitNetwork.App.AuthzKeeper,
 				portID,
 				channelID,
 				tc.contractAddress,
+				unitNetwork.App.AuthzKeeper,
 				unitNetwork.App.BankKeeper,
 				unitNetwork.App.TransferKeeper,
 				unitNetwork.App.StakingKeeper,
