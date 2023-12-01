@@ -88,7 +88,6 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
 	}
 
-
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
 		transfertypes.PortID, "channel-215",
 		osmosisoutpost.XCSContractTestnet,
