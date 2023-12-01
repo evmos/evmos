@@ -22,13 +22,13 @@ import (
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	revenuetypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
-	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	revenuetypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
 // StoreKeys returns the application store keys,

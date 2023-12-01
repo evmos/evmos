@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/feemarket/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -5,9 +5,9 @@ package network
 
 import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 func (n *IntegrationNetwork) UpdateEvmParams(params evmtypes.Params) error {

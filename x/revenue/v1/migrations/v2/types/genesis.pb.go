@@ -12,7 +12,7 @@ import (
 	cosmossdk_io_math "cosmossdk.io/math"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

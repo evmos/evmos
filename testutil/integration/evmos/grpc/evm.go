@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // GetEvmAccount returns the EVM account for the given address.
