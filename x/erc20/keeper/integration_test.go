@@ -18,12 +18,12 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/utils"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/testutil"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var _ = Describe("Performing EVM transactions", Ordered, func() {

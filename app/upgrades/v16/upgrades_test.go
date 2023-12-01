@@ -7,9 +7,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v16 "github.com/evmos/evmos/v15/app/upgrades/v16"
-	testnetwork "github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v15/utils"
+	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {

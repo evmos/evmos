@@ -6,15 +6,15 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
-	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
+	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
 
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 const (

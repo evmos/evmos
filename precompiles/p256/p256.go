@@ -20,7 +20,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/crypto/secp256r1"
+	"github.com/evmos/evmos/v16/crypto/secp256r1"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

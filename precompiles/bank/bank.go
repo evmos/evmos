@@ -11,8 +11,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 )
 
 const (

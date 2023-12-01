@@ -5,7 +5,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -13,9 +13,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/testutil"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 var _ = Describe("when sending a Cosmos transaction", func() {

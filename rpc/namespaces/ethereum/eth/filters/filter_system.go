@@ -24,8 +24,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v15/rpc/ethereum/pubsub"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/rpc/ethereum/pubsub"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 var (

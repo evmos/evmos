@@ -11,12 +11,12 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/contracts"
-	ibctesting "github.com/evmos/evmos/v15/ibc/testing"
-	teststypes "github.com/evmos/evmos/v15/types/tests"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/contracts"
+	ibctesting "github.com/evmos/evmos/v16/ibc/testing"
+	teststypes "github.com/evmos/evmos/v16/types/tests"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
