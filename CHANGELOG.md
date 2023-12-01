@@ -40,12 +40,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
-- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
-- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 - (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
-- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
+- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
+- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
+- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
+- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
+- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 
 ### API Breaking
 
