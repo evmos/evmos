@@ -8,11 +8,12 @@ import (
 	"math"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
+	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
 )
 
 // DeductFeeDecorator deducts fees from the first signer of the tx.
@@ -189,7 +190,7 @@ func checkFeeCoinsAgainstMinGasPrices(ctx sdk.Context, feeCoins sdk.Coins, gas u
 
 	// Determine the required fees by multiplying each required minimum gas
 	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-	glDec := sdk.NewDec(int64(gas)) //#nosec G701 -- gosec warning about integer overflow is not relevant here
+	glDec := sdkmath.LegacyNewDec(int64(gas)) //#nosec G701 -- gosec warning about integer overflow is not relevant here
 	for i, gp := range minGasPrices {
 		fee := gp.Amount.Mul(glDec)
 		requiredFees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())

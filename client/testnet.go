@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
 	tmconfig "github.com/cometbft/cometbft/config"
@@ -39,13 +40,13 @@ import (
 	mintypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v15/crypto/hd"
-	"github.com/evmos/evmos/v15/server/config"
-	srvflags "github.com/evmos/evmos/v15/server/flags"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/crypto/hd"
+	"github.com/evmos/evmos/v16/server/config"
+	srvflags "github.com/evmos/evmos/v16/server/flags"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
-	"github.com/evmos/evmos/v15/testutil/network"
+	"github.com/evmos/evmos/v16/testutil/network"
 )
 
 var (
@@ -314,8 +315,8 @@ func initTestnetFiles(
 			valPubKeys[i],
 			sdk.NewCoin(evmostypes.AttoEvmos, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+			stakingtypes.NewCommissionRates(math.LegacyOneDec(), math.LegacyOneDec(), math.LegacyOneDec()),
+			math.OneInt(),
 		)
 		if err != nil {
 			return err

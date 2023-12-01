@@ -15,14 +15,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/app/ante"
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	"github.com/evmos/evmos/v15/testutil"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/app/ante"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 type AnteTestSuite struct {
@@ -71,7 +71,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	})
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
-	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
+	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdkmath.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
 

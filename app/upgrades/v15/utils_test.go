@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -18,14 +19,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 	"github.com/ethereum/go-ethereum/common"
-	evmosapp "github.com/evmos/evmos/v15/app"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	evmosapp "github.com/evmos/evmos/v16/app"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -57,15 +58,15 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -76,7 +77,7 @@ func (s *UpgradesTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet,
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	totalBondAmt := sdk.ZeroInt()
+	totalBondAmt := math.ZeroInt()
 	for range validators {
 		totalBondAmt = totalBondAmt.Add(bondAmt)
 	}
@@ -171,13 +172,13 @@ func (s *UpgradesTestSuite) DoSetupTest() {
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
 	stakingParams.BondDenom = utils.BaseDenom
-	stakingParams.MinCommissionRate = sdk.ZeroDec()
+	stakingParams.MinCommissionRate = math.LegacyZeroDec()
 	s.bondDenom = stakingParams.BondDenom
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err, "failed to set params")
 
-	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(5000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(2000000000000000000)))
+	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
+	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)

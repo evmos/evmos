@@ -10,8 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 type MsgsTestSuite struct {

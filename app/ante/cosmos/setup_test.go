@@ -19,18 +19,18 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/app/ante"
-	evmante "github.com/evmos/evmos/v15/app/ante/evm"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	"github.com/evmos/evmos/v15/testutil"
-	"github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/app/ante"
+	evmante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v16/testutil"
+	"github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 type AnteTestSuite struct {
@@ -91,7 +91,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	})
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: chainID, Time: time.Now().UTC()})
-	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdk.OneInt())))
+	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(utils.BaseDenom, sdkmath.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 
 	stakingParams := suite.app.StakingKeeper.GetParams(suite.ctx)
@@ -128,7 +128,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
 
 	// fund signer acc to pay for tx fees
-	amt := sdk.NewInt(int64(math.Pow10(18) * 2))
+	amt := sdkmath.NewInt(int64(math.Pow10(18) * 2))
 	err = testutil.FundAccount(
 		suite.ctx,
 		suite.app.BankKeeper,

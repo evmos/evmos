@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -7,22 +8,24 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	revtypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
+	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -35,16 +38,19 @@ type Network interface {
 	GetEIP155ChainID() *big.Int
 
 	// Clients
+	GetERC20Client() erc20types.QueryClient
 	GetEvmClient() evmtypes.QueryClient
+	GetGovClient() govtypes.QueryClient
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
-	// would be require, we should provide an easier way to update the params
-	UpdateRevenueParams(params revtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
+	// would be required, we should provide an easier way to update the params
 	UpdateEvmParams(params evmtypes.Params) error
+	UpdateGovParams(params govtypes.Params) error
+	UpdateInflationParams(params infltypes.Params) error
+	UpdateRevenueParams(params revtypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -148,6 +154,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
+	consnsusParams := app.DefaultConsensusParams
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -173,9 +180,35 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	n.app = evmosApp
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
+	n.ctx = n.ctx.WithConsensusParams(consnsusParams)
+	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
+
 	n.validators = validators
 	n.valSet = valSet
 	n.valSigners = valSigners
+
+	// Register EVMOS in denom metadata
+	evmosMetadata := banktypes.Metadata{
+		Description: "The native token of Evmos",
+		Base:        n.cfg.denom,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 0,
+				Aliases:  []string{n.cfg.denom},
+			},
+			{
+				Denom:    n.cfg.denom,
+				Exponent: 18,
+			},
+		},
+		Name:    "Evmos",
+		Symbol:  "EVMOS",
+		Display: n.cfg.denom,
+	}
+	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
+
 	return nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -19,10 +20,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	rpctypes "github.com/evmos/evmos/v15/rpc/types"
-	"github.com/evmos/evmos/v15/server/config"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	rpctypes "github.com/evmos/evmos/v16/rpc/types"
+	"github.com/evmos/evmos/v16/server/config"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // BackendI implements the Cosmos and EVM backend.
@@ -92,7 +93,7 @@ type EVMBackend interface {
 	// Chain Info
 	ChainID() (*hexutil.Big, error)
 	ChainConfig() *params.ChainConfig
-	GlobalMinGasPrice() (sdk.Dec, error)
+	GlobalMinGasPrice() (math.LegacyDec, error)
 	BaseFee(blockRes *tmrpctypes.ResultBlockResults) (*big.Int, error)
 	CurrentHeader() (*ethtypes.Header, error)
 	PendingTransactions() ([]*sdk.Tx, error)

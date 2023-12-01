@@ -15,20 +15,20 @@ import (
 	ethlogger "github.com/ethereum/go-ethereum/eth/tracers/logger"
 	ethparams "github.com/ethereum/go-ethereum/params"
 
-	"github.com/evmos/evmos/v15/server/config"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	"github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/server/config"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // Not valid Ethereum address
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7196
+const expGasConsumed = 7568
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7190
+const expGasConsumedWithFeeMkt = 7562
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -937,7 +937,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   23660, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   28124, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
@@ -1243,7 +1243,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - non-nil Base Fee",
 			func() {
-				baseFee := sdk.OneInt().BigInt()
+				baseFee := sdkmath.OneInt().BigInt()
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
 				aux = sdkmath.NewIntFromBigInt(baseFee)
@@ -1254,7 +1254,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - nil Base Fee when london hardfork not activated",
 			func() {
-				baseFee := sdk.OneInt().BigInt()
+				baseFee := sdkmath.OneInt().BigInt()
 				suite.app.FeeMarketKeeper.SetBaseFee(suite.ctx, baseFee)
 
 				expRes = &types.QueryBaseFeeResponse{}
@@ -1264,7 +1264,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 		{
 			"pass - zero Base Fee when feemarket not activated",
 			func() {
-				baseFee := sdk.ZeroInt()
+				baseFee := sdkmath.ZeroInt()
 				expRes = &types.QueryBaseFeeResponse{BaseFee: &baseFee}
 			},
 			true, false, true,

@@ -5,9 +5,9 @@ package v15_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
-	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	v15 "github.com/evmos/evmos/v16/app/upgrades/v15"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (s *UpgradesTestSuite) TestEnableEIPs() {
@@ -54,7 +54,7 @@ func (s *UpgradesTestSuite) TestEnableEIPs() {
 			extraEIPs:   []int64{3860},
 			expEIPs:     []int64{},
 			expPass:     false,
-			errContains: "is not activateable, valid EIPS are",
+			errContains: "is not activateable, valid EIPs are",
 		},
 	}
 

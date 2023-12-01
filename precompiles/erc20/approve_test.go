@@ -1,15 +1,19 @@
 package erc20_test
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
 )
 
 //nolint:dupl // tests are not duplicate between the functions
@@ -63,7 +67,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot approve non-positive values",
+			errContains: erc20.ErrNegativeAmount.Error(),
 		},
 		{
 			name: "fail - approve uint256 overflow",
@@ -91,7 +95,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 					s.keyring.GetAddr(1), common.Big0,
 				}
 			},
-			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			errContains: fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization was not adjusted
 				s.requireSendAuthz(
@@ -314,7 +318,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot increase allowance with non-positive values",
+			errContains: erc20.ErrIncreaseNonPositiveValue.Error(),
 		},
 		{
 			name: "pass - increase allowance without existing authorization",
@@ -366,7 +370,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetPrivKey(0),
 					sdk.NewCoins(
 						sdk.NewInt64Coin(s.bondDenom, 1),
-						sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256)),
+						sdk.NewCoin(s.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256)),
 					),
 				)
 
@@ -374,7 +378,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount),
 				}
 			},
-			errContains: "integer overflow when increasing allowance",
+			errContains: erc20.ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow)).Error(),
 			postCheck: func() {
 				s.requireSendAuthz(
 					s.keyring.GetAccAddr(1),
@@ -382,7 +386,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowance() {
 					// NOTE: The amounts should not have been adjusted after failing the overflow check.
 					sdk.NewCoins(
 						sdk.NewInt64Coin(s.bondDenom, 1),
-						sdk.NewCoin(s.tokenDenom, sdk.NewIntFromBigInt(abi.MaxUint256)),
+						sdk.NewCoin(s.tokenDenom, math.NewIntFromBigInt(abi.MaxUint256)),
 					),
 					[]string{},
 				)
@@ -512,7 +516,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(-1),
 				}
 			},
-			errContains: "cannot decrease allowance with non-positive values",
+			errContains: erc20.ErrDecreaseNonPositiveValue.Error(),
 		},
 		{
 			name: "fail - decrease allowance without existing authorization",
@@ -662,7 +666,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(amount + 1),
 				}
 			},
-			errContains: "subtracted value cannot be greater than existing allowance",
+			errContains: erc20.ConvertErrToERC20Error(errors.New("subtracted value cannot be greater than existing allowance")).Error(),
 		},
 		{
 			name: "fail - decrease allowance with existing authorization in different denomination",
@@ -677,7 +681,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			errContains: fmt.Sprintf("allowance for token %s does not exist", s.tokenDenom),
+			errContains: fmt.Sprintf(erc20.ErrNoAllowanceForToken, s.tokenDenom),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization for the other denom was not deleted
 				s.requireSendAuthz(
@@ -701,8 +705,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowance() {
 					s.keyring.GetAddr(1), big.NewInt(decreaseAmount),
 				}
 			},
-			// TODO: have more verbose error message here like "authorization for different denomination found"?
-			errContains: "subtracted value cannot be greater than existing allowance",
+			errContains: erc20.ConvertErrToERC20Error(errors.New("subtracted value cannot be greater than existing allowance")).Error(),
 			postCheck: func() {
 				// NOTE: Here we check that the authorization was not adjusted
 				s.requireSendAuthz(

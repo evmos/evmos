@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
@@ -24,7 +25,7 @@ type EventSetWithdrawAddress struct {
 // EventWithdrawDelegatorRewards defines the event data for the WithdrawDelegatorRewards transaction.
 type EventWithdrawDelegatorRewards struct {
 	DelegatorAddress common.Address
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Amount           *big.Int
 }
 
@@ -337,7 +338,7 @@ func (vs *ValidatorSlashesOutput) FromResponse(res *distributiontypes.QueryValid
 			ValidatorPeriod: s.ValidatorPeriod,
 			Fraction: cmn.Dec{
 				Value:     s.Fraction.BigInt(),
-				Precision: sdk.Precision,
+				Precision: math.LegacyPrecision,
 			},
 		}
 	}

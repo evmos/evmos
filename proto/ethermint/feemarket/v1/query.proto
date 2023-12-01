@@ -7,7 +7,7 @@ import "ethermint/feemarket/v1/feemarket.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/evmos/evmos/v15/x/feemarket/types";
+option go_package = "github.com/evmos/evmos/v16/x/feemarket/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -43,7 +43,7 @@ message QueryBaseFeeRequest {}
 // QueryBaseFeeResponse returns the EIP1559 base fee.
 message QueryBaseFeeResponse {
   // base_fee is the EIP1559 base fee
-  string base_fee = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int"];
+  string base_fee = 1 [(gogoproto.customtype) = "cosmossdk.io/math.Int"];
 }
 
 // QueryBlockGasRequest defines the request type for querying the EIP1559 base

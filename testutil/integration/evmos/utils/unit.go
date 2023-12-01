@@ -8,12 +8,15 @@ package utils
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v16/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 const (
@@ -29,26 +32,8 @@ func RegisterEvmosERC20Coins(
 	tokenReceiver sdk.AccAddress,
 ) (erc20types.TokenPair, error) {
 	bondDenom := network.App.StakingKeeper.BondDenom(network.GetContext())
-	evmosMetadata := banktypes.Metadata{
-		Name:        "Evmos token",
-		Symbol:      "EVMOS",
-		Description: "The native token of Evmos",
-		Base:        bondDenom,
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    bondDenom,
-				Exponent: 0,
-				Aliases:  []string{"aevmos"},
-			},
-			{
-				Denom:    "aevmos",
-				Exponent: 18,
-			},
-		},
-		Display: "evmos",
-	}
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(TokenToMint))
+	coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(TokenToMint))
 	err := network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,
@@ -65,6 +50,11 @@ func RegisterEvmosERC20Coins(
 	)
 	if err != nil {
 		return erc20types.TokenPair{}, err
+	}
+
+	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), utils.BaseDenom)
+	if !found {
+		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
 
 	_, err = network.App.Erc20Keeper.RegisterCoin(network.GetContext(), evmosMetadata)
@@ -111,7 +101,7 @@ func RegisterIBCERC20Coins(
 		Base:    ibcDenom,
 	}
 
-	coin := sdk.NewCoin(ibcMetadata.Base, sdk.NewInt(TokenToMint))
+	coin := sdk.NewCoin(ibcMetadata.Base, math.NewInt(TokenToMint))
 	err := network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		inflationtypes.ModuleName,

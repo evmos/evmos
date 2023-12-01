@@ -4,7 +4,7 @@
   "author": "Evmos team",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "get-contracts": "rm -rf ./contracts/evmos && mkdir -p ./contracts/evmos && rsync -avm --include='*/' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/evmos/",
+    "get-contracts": "rm -rf ./contracts/evmos && mkdir -p ./contracts/evmos && rsync -avm --include='*/' --exclude='**/ERC20Minter_OpenZeppelinV5.sol' --exclude='**/WEVMOS.sol' --exclude='**/ERC20NoMetadata.sol' --include='*.sol' --exclude='*' ../../../precompiles/ ./contracts/evmos/",
     "typechain": "npm run get-contracts && npx hardhat typechain"
   },
   "devDependencies": {

@@ -34,7 +34,7 @@ func (app *Evmos) setupVersionDB(
 	memKeys map[string]*storetypes.MemoryStoreKey,
 ) (sdk.MultiStore, error) {
 	dataDir := filepath.Join(homePath, "data", versionDB)
-	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return nil, err
 	}
 	store, err := tsrocksdb.NewStore(dataDir)

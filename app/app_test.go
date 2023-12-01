@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -20,8 +21,8 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 func TestEvmosExport(t *testing.T) {
@@ -39,7 +40,7 @@ func TestEvmosExport(t *testing.T) {
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100000000000000))),
 	}
 
 	db := dbm.NewMemDB()

@@ -15,13 +15,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v15/app"
-	ante "github.com/evmos/evmos/v15/app/ante"
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/app"
+	ante "github.com/evmos/evmos/v16/app/ante"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 type AnteTestSuite struct {
@@ -35,7 +35,6 @@ type AnteTestSuite struct {
 	enableFeemarket          bool
 	enableLondonHF           bool
 	evmParamsOption          func(*evmtypes.Params)
-	useLegacyEIP712Extension bool
 	useLegacyEIP712TypedData bool
 }
 
@@ -74,7 +73,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	})
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 2, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
-	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdk.OneInt())))
+	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdkmath.OneInt())))
 	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
 
 	// set staking denomination to Evmos denom
@@ -123,13 +122,11 @@ func TestAnteTestSuite(t *testing.T) {
 	// LegacyEIP712Extension should not be run with current TypedData encodings, since they are not compatible.
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF:           true,
-		useLegacyEIP712Extension: true,
 		useLegacyEIP712TypedData: true,
 	})
 
 	suite.Run(t, &AnteTestSuite{
 		enableLondonHF:           true,
-		useLegacyEIP712Extension: false,
 		useLegacyEIP712TypedData: true,
 	})
 }
