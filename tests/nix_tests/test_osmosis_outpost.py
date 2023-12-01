@@ -14,18 +14,16 @@ from .utils import (
     KEYS,
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
+    approve_proposal,
+    erc20_balance,
     eth_to_bech32,
     get_event_attribute_value,
     get_precompile_contract,
+    register_ibc_coin,
     send_transaction,
+    wait_for_cosmos_tx_receipt,
     wait_for_fn,
     wrap_evmos,
-    register_ibc_coin,
-    approve_proposal,
-    erc20_balance,
-    wait_for_ack,
-    wait_for_cosmos_tx_receipt,
-    wait_for_new_blocks,
 )
 from .network import Evmos, CosmosChain
 
@@ -134,7 +132,7 @@ def setup_osmos_chains(ibc):
             "get_instantiate_params": lambda x: f'\'{{"owner":"{x}"}}\'',
         },
         "CrosschainSwap": {
-            "get_instantiate_params": lambda x, y, z: f'{{"governor":"{x}", "swap_contract": "{y}", "channels": [["evmos","{z}"]]}}',
+            "get_instantiate_params": lambda x, y, z: f'{{"governor":"{x}", "swap_contract": "{y}", "channels": [["evmos","{z}"]]}}',  # noqa: 501 - ignore line length lint
         },
     }
 
@@ -331,7 +329,7 @@ def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, l
 def set_swap_route(
     osmosis_cli, signer_addr, swap_contract_addr, pool_id, input_denom, output_denom
 ):
-    execute_args = f'{{"set_route":{{"input_denom": "{input_denom}","output_denom":"{output_denom}","pool_route":[{{"pool_id": "{pool_id}","token_out_denom":"{output_denom}"}}]}}}}'
+    execute_args = f'{{"set_route":{{"input_denom": "{input_denom}","output_denom":"{output_denom}","pool_route":[{{"pool_id": "{pool_id}","token_out_denom":"{output_denom}"}}]}}}}'  # noqa: 501 - ignore line length lint
 
     rsp = osmosis_cli.wasm_execute(signer_addr, swap_contract_addr, execute_args)
     assert rsp["code"] == 0

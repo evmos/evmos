@@ -15,7 +15,7 @@ git clone -b $OSMOSIS_VERSION --single-branch https://github.com/osmosis-labs/os
 cp -r /tmp/osmosis/cosmwasm/* ./tests/nix_tests/cosmwasm
 rm -rf /tmp/osmosis
 
-cd ./tests/nix_tests/cosmwasm
+cd ./tests/nix_tests/cosmwasm || exit
 docker run --rm -v "$(pwd)":/code \
     --mount type=volume,source="$(basename "$(pwd)")_cache",target=/target \
     --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
