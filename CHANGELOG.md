@@ -143,6 +143,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
 - (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
+- (staking) [#2076](https://github.com/evmos/evmos/pull/2076) Replace bech32 address with evm hex address for query validator.
 
 ### State Machine Breaking
 

@@ -4,6 +4,7 @@
 package staking
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -324,10 +325,12 @@ func NewValidatorRequest(args []interface{}) (*stakingtypes.QueryValidatorReques
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, ok := args[0].(string)
-	if !ok {
-		return nil, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[0])
+	validatorHexAddr, ok := args[0].(common.Address)
+	if !ok || validatorHexAddr == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
 	}
+
+	validatorAddress := sdk.ValAddress(validatorHexAddr.Bytes()).String()
 
 	return &stakingtypes.QueryValidatorRequest{ValidatorAddr: validatorAddress}, nil
 }
@@ -342,6 +345,10 @@ func NewValidatorsRequest(method *abi.Method, args []interface{}) (*stakingtypes
 	var input ValidatorsInput
 	if err := method.Inputs.Copy(&input, args); err != nil {
 		return nil, fmt.Errorf("error while unpacking args to ValidatorsInput struct: %s", err)
+	}
+
+	if bytes.Equal(input.PageRequest.Key, []byte{0}) {
+		input.PageRequest.Key = nil
 	}
 
 	return &stakingtypes.QueryValidatorsRequest{
@@ -545,9 +552,14 @@ func DefaultValidatorOutput() ValidatorOutput {
 
 // FromResponse populates the ValidatorOutput from a QueryValidatorResponse.
 func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse) ValidatorOutput {
+	operatorAddress, err := sdk.ValAddressFromBech32(res.Validator.OperatorAddress)
+	if err != nil {
+		return DefaultValidatorOutput()
+	}
+
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
-			OperatorAddress: res.Validator.OperatorAddress,
+			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()).String(),
 			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
@@ -581,18 +593,23 @@ type ValidatorsOutput struct {
 func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsResponse) *ValidatorsOutput {
 	vo.Validators = make([]ValidatorInfo, len(res.Validators))
 	for i, v := range res.Validators {
-		vo.Validators[i] = ValidatorInfo{
-			OperatorAddress:   v.OperatorAddress,
-			ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
-			Jailed:            v.Jailed,
-			Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
-			Tokens:            v.Tokens.BigInt(),
-			DelegatorShares:   v.DelegatorShares.BigInt(),
-			Description:       v.Description.Details,
-			UnbondingHeight:   v.UnbondingHeight,
-			UnbondingTime:     v.UnbondingTime.UTC().Unix(),
-			Commission:        v.Commission.CommissionRates.Rate.BigInt(),
-			MinSelfDelegation: v.MinSelfDelegation.BigInt(),
+		operatorAddress, err := sdk.ValAddressFromBech32(v.OperatorAddress)
+		if err != nil {
+			vo.Validators[i] = DefaultValidatorOutput().Validator
+		} else {
+			vo.Validators[i] = ValidatorInfo{
+				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
+				ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
+				Jailed:            v.Jailed,
+				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
+				Tokens:            v.Tokens.BigInt(),
+				DelegatorShares:   v.DelegatorShares.BigInt(),
+				Description:       v.Description.Details,
+				UnbondingHeight:   v.UnbondingHeight,
+				UnbondingTime:     v.UnbondingTime.UTC().Unix(),
+				Commission:        v.Commission.CommissionRates.Rate.BigInt(),
+				MinSelfDelegation: v.MinSelfDelegation.BigInt(),
+			}
 		}
 	}
 
