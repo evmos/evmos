@@ -118,7 +118,7 @@ contract StakingCaller {
     /// @param _validatorAddr The validator address to query.
     /// @return validator The validator.
     function getValidator(
-        string memory _validatorAddr
+        address _validatorAddr
     ) public view returns (staking.Validator memory validator) {
         return staking.STAKING_CONTRACT.validator(_validatorAddr);
     }
