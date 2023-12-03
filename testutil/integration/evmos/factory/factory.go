@@ -50,6 +50,11 @@ type TxFactory interface {
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// // PopulateEvmTxArgs populates the missing fields in the provided EvmTxArgs with gas simulations and BaseFee from grpc query.
+	PopulateEvmTxArgs(
+		fromAddr common.Address,
+		txArgs evmtypes.EvmTxArgs,
+	) (evmtypes.EvmTxArgs, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -237,7 +242,7 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 ) (evmtypes.MsgEthereumTx, error) {
 	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
 	// Fill TxArgs with default values
-	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
+	txArgs, err := tf.PopulateEvmTxArgs(fromAddr, txArgs)
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
@@ -246,9 +251,9 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	return msg, nil
 }
 
-// populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
+// PopulateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
-func (tf *IntegrationTxFactory) populateEvmTxArgs(
+func (tf *IntegrationTxFactory) PopulateEvmTxArgs(
 	fromAddr common.Address,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {

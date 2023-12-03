@@ -126,6 +126,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 							Address:     s.keyring.GetAddr(1),
 							StorageKeys: []common.Hash{{0}},
 						}},
+						GasPrice: big.NewInt(1e9),
 					}
 				},
 			),

@@ -3,12 +3,47 @@
 package evm
 
 import (
+	"math/big"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/evmos/evmos/v15/types"
 )
 
+// GasWantedDecorator keeps track of the gasWanted amount on the current block in transient store
+// for BaseFee calculation.
+// NOTE: This decorator does not perform any validation
+type GasWantedDecorator struct {
+	evmKeeper       EVMKeeper
+	feeMarketKeeper FeeMarketKeeper
+}
+
+// NewGasWantedDecorator creates a new NewGasWantedDecorator
+func NewGasWantedDecorator(
+	evmKeeper EVMKeeper,
+	feeMarketKeeper FeeMarketKeeper,
+) GasWantedDecorator {
+	return GasWantedDecorator{
+		evmKeeper,
+		feeMarketKeeper,
+	}
+}
+
+func (gwd GasWantedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	evmParams := gwd.evmKeeper.GetParams(ctx)
+	chainCfg := evmParams.GetChainConfig()
+	ethCfg := chainCfg.EthereumConfig(gwd.evmKeeper.ChainID())
+
+	blockHeight := big.NewInt(ctx.BlockHeight())
+	isLondon := ethCfg.IsLondon(blockHeight)
+
+	if err := CheckGasWanted(ctx, gwd.feeMarketKeeper, tx, isLondon); err != nil {
+		return ctx, err
+	}
+
+	return next(ctx, tx, simulate)
+}
 // CheckGasWanted keeps track of the gasWanted amount on the current block in transient store
 // for BaseFee calculation.
 func CheckGasWanted(ctx sdk.Context, feeMarketKeeper FeeMarketKeeper, tx sdk.Tx, isLondon bool) error {
