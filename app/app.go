@@ -124,7 +124,7 @@ import (
 
 	"github.com/evmos/evmos/v16/app/ante"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
-  "github.com/evmos/evmos/v16/app/post"
+	"github.com/evmos/evmos/v16/app/post"
 	v10 "github.com/evmos/evmos/v16/app/upgrades/v10"
 	v11 "github.com/evmos/evmos/v16/app/upgrades/v11"
 	v12 "github.com/evmos/evmos/v16/app/upgrades/v12"
