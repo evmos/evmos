@@ -41,6 +41,7 @@ var (
 		"0x0000000000000000000000000000000000000803", // Vesting precompile
 		"0x0000000000000000000000000000000000000804", // Bank precompile
 		"0x0000000000000000000000000000000000000900", // Stride outpost
+		"0x0000000000000000000000000000000000000901", // Osmosis outpost
 	}
 	// DefaultExtraEIPs defines the default extra EIPs to be included
 	// On v15, EIP 3855 was enabled
