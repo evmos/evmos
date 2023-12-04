@@ -3,6 +3,7 @@
 package evm
 
 import (
+	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -46,8 +47,10 @@ func CanTransfer(
 	stateDB := statedb.New(ctx, evmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())))
 	evm := evmKeeper.NewEVM(ctx, msg, cfg, evmtypes.NewNoOpTracer(), stateDB)
 
+    fmt.Println("msg.Value().Sign(): ", msg.Value().Sign())
 	// check that caller has enough balance to cover asset transfer for **topmost** call
 	// NOTE: here the gas consumed is from the context with the infinite gas meter
+    // TODO: should we reject txs with negative value?
 	if msg.Value().Sign() > 0 && !evm.Context.CanTransfer(stateDB, msg.From(), msg.Value()) {
 		return errorsmod.Wrapf(
 			errortypes.ErrInsufficientFunds,

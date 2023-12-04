@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v15/app/ante/evm"
@@ -23,25 +24,37 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
+	senderKey := keyring.GetKey(0)
 
 	testCases := []struct {
 		name          string
 		expectedError error
-        isLondon      bool
+		isLondon      bool
 		malleate      func(txArgs *evmtypes.EvmTxArgs)
 	}{
 		{
 			name:          "fail: isLondon and insufficient fee",
 			expectedError: errortypes.ErrInsufficientFee,
-            isLondon:      true,
+			isLondon:      true,
 			malleate: func(txArgs *evmtypes.EvmTxArgs) {
 				txArgs.GasFeeCap = big.NewInt(0)
 			},
 		},
 		{
+			name:          "fail: invalid tx with insufficient balance",
+			expectedError: errortypes.ErrInsufficientFunds,
+			isLondon:      true,
+			malleate: func(txArgs *evmtypes.EvmTxArgs) {
+				balanceResp, err := grpcHandler.GetBalance(senderKey.AccAddr, unitNetwork.GetDenom())
+				suite.Require().NoError(err)
+				invalidAmount := balanceResp.Balance.Amount.Add(math.NewInt(1)).BigInt()
+				txArgs.Amount = invalidAmount
+			},
+		},
+		{
 			name:          "success: valid tx and sufficient balance",
 			expectedError: nil,
-            isLondon:      true,
+			isLondon:      true,
 			malleate: func(txArgs *evmtypes.EvmTxArgs) {
 			},
 		},
@@ -49,7 +62,6 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("%v_%v", suite.getTxTypeTestName(), tc.name), func() {
-			senderKey := keyring.GetKey(0)
 			baseFeeResp, err := grpcHandler.GetBaseFee()
 			suite.Require().NoError(err)
 			ethCfg := unitNetwork.GetEVMChainConfig()
@@ -58,7 +70,7 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 			ctx := unitNetwork.GetContext()
 			signer := gethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
 			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
-			txArgs.Amount = big.NewInt(1000)
+			txArgs.Amount = big.NewInt(100)
 
 			tc.malleate(&txArgs)
 
