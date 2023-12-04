@@ -20,6 +20,7 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/params"
 	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
 	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
@@ -36,6 +37,7 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
+	GetEVMChainConfig() *params.ChainConfig
 
 	// Clients
 	GetERC20Client() erc20types.QueryClient
@@ -225,6 +227,12 @@ func (n *IntegrationNetwork) GetChainID() string {
 // GetEIP155ChainID returns the network EIp-155 chainID number
 func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 	return n.cfg.eip155ChainID
+}
+
+// GetChainConfig returns the network's chain config
+func (n *IntegrationNetwork) GetEVMChainConfig() *params.ChainConfig {
+	params := n.app.EvmKeeper.GetParams(n.ctx)
+	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 
 // GetDenom returns the network's denom

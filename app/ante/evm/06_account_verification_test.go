@@ -172,6 +172,5 @@ func (tt *TestTools) getTransactionArgs(txType uint8) (evmtypes.EvmTxArgs, error
 
 func getTxDataFromArgs(args *evmtypes.EvmTxArgs) (evmtypes.TxData, error) {
 	ethTx := evmtypes.NewTx(args).AsTransaction()
-	ethTx.Type()
 	return evmtypes.NewTxDataFromTx(ethTx)
 }

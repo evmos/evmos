@@ -26,6 +26,7 @@ func CanTransfer(
 	params evmtypes.Params,
 	isLondon bool,
 ) error {
+	// TODO - this forbids any LegacyTx to be broadcast, that should be changed.
 	if isLondon && msg.GasFeeCap().Cmp(baseFee) < 0 {
 		return errorsmod.Wrapf(
 			errortypes.ErrInsufficientFee,
