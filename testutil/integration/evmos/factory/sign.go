@@ -10,6 +10,7 @@ import (
 	"github.com/evmos/evmos/v15/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
+
 // SignMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.
 func (tf *IntegrationTxFactory) SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error) {
 	ethChainID := tf.network.GetEIP155ChainID()
@@ -20,4 +21,3 @@ func (tf *IntegrationTxFactory) SignMsgEthereumTx(privKey cryptotypes.PrivKey, m
 	}
 	return msgEthereumTx, nil
 }
-

@@ -49,7 +49,6 @@ func CheckVesting(
 	// Check to make sure that the account does not exceed its spendable balances.
 	// This transaction would fail in processing, so we should prevent it from
 	// moving past the AnteHandler.
-
 	expenses, err := UpdateAccountExpenses(ctx, bankKeeper, accountExpenses, clawbackAccount, addedExpense, denom)
 	if err != nil {
 		return err
