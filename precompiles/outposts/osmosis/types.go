@@ -153,7 +153,7 @@ func (r RawPacketMetadata) Validate() error {
 	if err != nil {
 		return fmt.Errorf(ErrSlippagePercentage, "not valid slippage percentage")
 	}
-	if slippagePercNum == 0 || uint8(slippagePercNum) > MaxSlippagePercentage {
+	if slippagePercNum == 0 || slippagePercNum > uint64(MaxSlippagePercentage) {
 		return fmt.Errorf(ErrSlippagePercentage)
 	}
 
@@ -173,7 +173,7 @@ func CreatePacketWithMemo(
 	onFailedDelivery interface{}, nextMemo string,
 ) *RawPacketMetadata {
 	// slippage percentage is a string in the memo field
-	slippagePercStr := strconv.Itoa(int(slippagePercentage))
+	slippagePercStr := strconv.FormatUint(uint64(slippagePercentage), 10)
 	return &RawPacketMetadata{
 		&WasmMemo{
 			Contract: contract,
