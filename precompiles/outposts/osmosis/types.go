@@ -222,7 +222,7 @@ func CreateOnFailedDeliveryField(address string) interface{} {
 		}
 	}
 
-	return RecoveryAddress{recoveryAddress}
+	return RecoveryAddress{Address: recoveryAddress}
 }
 
 // ValidateInputOutput validates the input and output tokens used in the Osmosis swap.
