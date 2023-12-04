@@ -33,7 +33,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 		}
 		minSelfDelegation = big.NewInt(1)
 		delegatorAddress  = s.address
-		validatorAddress  = sdk.ValAddress(s.address.Bytes()).String()
+		validatorAddress  = s.address
 		pubkey            = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 		value             = big.NewInt(1205000000000000000)
 	)
@@ -65,7 +65,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					commission,
 					minSelfDelegation,
 					differentAddr,
-					sdk.ValAddress(differentAddr.Bytes()).String(),
+					differentAddr,
 					pubkey,
 					value,
 				}
@@ -163,7 +163,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			200000,
 			func(data []byte) {},
 			true,
-			"invalid type for",
+			"invalid validator address",
 		},
 		{
 			"fail - invalid pubkey",
@@ -283,7 +283,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 
 			// reset sender
 			delegatorAddress = s.address
-			validatorAddress = sdk.ValAddress(s.address.Bytes()).String()
+			validatorAddress = s.address
 
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
@@ -310,7 +310,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				s.Require().Equal(pubkey, consPubKeyBase64, "expected validator pubkey to be %s; got %s", pubkey, consPubKeyBase64)
 
 				operator := validator.GetOperator().String()
-				s.Require().Equal(validatorAddress, operator, "expected validator operator to be %s; got %s", validatorAddress, operator)
+				s.Require().Equal(sdk.ValAddress(validatorAddress.Bytes()).String(), operator, "expected validator operator to be %s; got %s", validatorAddress, operator)
 
 				commissionRate := validator.GetCommission()
 				s.Require().Equal(commission.Rate.String(), commissionRate.BigInt().String(), "expected validator commission rate to be %s; got %s", commission.Rate.String(), commissionRate.String())

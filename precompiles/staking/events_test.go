@@ -230,7 +230,7 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 	var (
 		delegationValue = big.NewInt(1205000000000000000)
 		method          = s.precompile.Methods[staking.CreateValidatorMethod]
-		operatorAddress = sdk.ValAddress(s.address.Bytes()).String()
+		operatorAddress = s.address
 		pubkey          = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 	)
 
@@ -287,7 +287,7 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
 			s.SetupTest() // reset
-			operatorAddress = sdk.ValAddress(s.address.Bytes()).String()
+			operatorAddress = s.address
 
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), 200000)
 			_, err := s.precompile.CreateValidator(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())

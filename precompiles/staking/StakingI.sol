@@ -139,7 +139,7 @@ interface StakingI is authorization.AuthorizationI {
         CommissionRates calldata commissionRates,
         uint256 minSelfDelegation,
         address delegatorAddress,
-        string memory validatorAddress,
+        address validatorAddress,
         string memory pubkey,
         uint256 value
     ) external returns (bool success);
