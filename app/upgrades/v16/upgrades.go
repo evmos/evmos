@@ -46,7 +46,9 @@ func CreateUpgradeHandler(
 		}
 
 		// Migrate the FeeCollector module account to include the Burner permission.
-		MigrateFeeCollector(ak, ctx, logger)
+		if err := MigrateFeeCollector(ak, ctx); err != nil {
+			logger.Error("failed to migrate the fee collector", "error", err.Error())
+		}
 
 		if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
 			logger.Error("failed to burn inflation pool", "error", err.Error())

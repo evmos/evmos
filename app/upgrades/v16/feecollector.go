@@ -4,22 +4,23 @@
 package v16
 
 import (
-	"github.com/cometbft/cometbft/libs/log"
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 // MigrateFeeCollector migrates the fee collector module account to include the `Burner` permission.
-func MigrateFeeCollector(ak authkeeper.AccountKeeper, ctx sdk.Context, logger log.Logger) {
+func MigrateFeeCollector(ak authkeeper.AccountKeeper, ctx sdk.Context) error {
 	feeCollectorModuleAccount := ak.GetModuleAccount(ctx, types.FeeCollectorName)
 	if feeCollectorModuleAccount == nil {
-		logger.Error("fee collector module account not found")
+		return fmt.Errorf("fee collector module account not found")
 	}
 
 	modAcc, ok := feeCollectorModuleAccount.(*types.ModuleAccount)
 	if !ok {
-		logger.Error("fee collector module account is not a module account")
+		return fmt.Errorf("fee collector module account is not a module account")
 	}
 
 	// Create a new FeeCollector module account with the same address and balance as the old one.
@@ -27,4 +28,6 @@ func MigrateFeeCollector(ak authkeeper.AccountKeeper, ctx sdk.Context, logger lo
 
 	// Override the FeeCollector module account in the auth keeper.
 	ak.SetModuleAccount(ctx, newFeeCollectorModuleAccount)
+
+	return nil
 }
