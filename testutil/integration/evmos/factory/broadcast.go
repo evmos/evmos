@@ -4,25 +4,12 @@
 package factory
 
 import (
-	"fmt"
-	"math/big"
-	"strings"
-
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
-	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
@@ -96,7 +83,6 @@ func (tf *IntegrationTxFactory) DeployContract(
 	}
 	return crypto.CreateAddress(from, nonce), nil
 }
-
 
 // CallContractAndCheckLogs is a helper function to call a contract and check the logs using
 // the integration test utilities.
