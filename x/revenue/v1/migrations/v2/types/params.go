@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )

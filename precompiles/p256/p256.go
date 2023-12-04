@@ -20,7 +20,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/crypto/secp256r1"
+	"github.com/evmos/evmos/v16/crypto/secp256r1"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -33,7 +33,7 @@ const (
 )
 
 // PrecompileAddress defines the hex address of the p256 precompiled contract.
-const PrecompileAddress = "0x0000000000000000000000000000000000000013"
+const PrecompileAddress = "0x000000000000000000000000000000000000000b"
 
 // Precompile secp256r1 (P256) signature verification
 // implemented as a native contract as per EIP-7212.
@@ -41,9 +41,8 @@ const PrecompileAddress = "0x0000000000000000000000000000000000000013"
 type Precompile struct{}
 
 // Address defines the address of the p256 precompiled contract.
-// address: 0x0000000000000000000000000000000000000013
 func (Precompile) Address() common.Address {
-	return common.BytesToAddress([]byte{19})
+	return common.HexToAddress(PrecompileAddress)
 }
 
 // RequiredGas returns the static gas required to execute the precompiled contract.

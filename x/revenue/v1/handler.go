@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // NewHandler defines the fees module handler instance

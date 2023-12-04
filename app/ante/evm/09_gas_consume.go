@@ -10,10 +10,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	anteutils "github.com/evmos/evmos/v15/app/ante/utils"
-	"github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
+	"github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // EthGasConsumeDecorator validates enough intrinsic gas for the transaction and

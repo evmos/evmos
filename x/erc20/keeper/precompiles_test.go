@@ -4,11 +4,11 @@
 package keeper_test
 
 import (
-	erc20precompile "github.com/evmos/evmos/v15/precompiles/erc20"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	"golang.org/x/exp/slices"
 )
 

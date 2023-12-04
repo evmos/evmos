@@ -6,10 +6,10 @@ package osmosis_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -39,10 +39,10 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-		unitNetwork.App.AuthzKeeper,
 		PortID,
 		ChannelID,
 		osmosis.XCSContractTestnet,
+		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
 		unitNetwork.App.StakingKeeper,

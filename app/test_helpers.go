@@ -27,11 +27,11 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v15/encoding"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/encoding"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 
-	"github.com/evmos/evmos/v15/cmd/config"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/cmd/config"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 func init() {

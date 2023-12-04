@@ -25,19 +25,19 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	evmosapp "github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"golang.org/x/exp/slices"
 )
 
@@ -403,12 +403,14 @@ func (s *PrecompileTestSuite) ExpectAuthorization(authorizationType stakingtypes
 func (s *PrecompileTestSuite) assertValidatorsResponse(validators []staking.ValidatorInfo, expLen int) {
 	// returning order can change
 	valOrder := []int{0, 1}
-	if validators[0].OperatorAddress != s.validators[0].OperatorAddress {
+	varAddr := sdk.ValAddress(common.HexToAddress(validators[0].OperatorAddress).Bytes()).String()
+	if varAddr != s.validators[0].OperatorAddress {
 		valOrder = []int{1, 0}
 	}
 	for i := 0; i < expLen; i++ {
 		j := valOrder[i]
-		s.Require().Equal(s.validators[j].OperatorAddress, validators[i].OperatorAddress)
+
+		s.Require().Equal(s.validators[j].OperatorAddress, sdk.ValAddress(common.HexToAddress(validators[i].OperatorAddress).Bytes()).String())
 		s.Require().Equal(uint8(s.validators[j].Status), validators[i].Status)
 		s.Require().Equal(s.validators[j].Tokens.Uint64(), validators[i].Tokens.Uint64())
 		s.Require().Equal(s.validators[j].DelegatorShares.BigInt(), validators[i].DelegatorShares)
@@ -511,6 +513,9 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 	for i, v := range s.validators {
 		validatorAddrs[i] = v.OperatorAddress
 	}
-	Expect(slices.Contains(validatorAddrs, valOut.OperatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
+
+	operatorAddress := sdk.ValAddress(common.HexToAddress(valOut.OperatorAddress).Bytes()).String()
+
+	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 }

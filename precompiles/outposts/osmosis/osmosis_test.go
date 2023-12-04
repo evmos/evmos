@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/evmos/evmos/v15/precompiles/outposts/osmosis"
-	testkeyring "github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 )
 
 func TestNewPrecompile(t *testing.T) {
@@ -55,10 +55,10 @@ func TestNewPrecompile(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := osmosis.NewPrecompile(
-				unitNetwork.App.AuthzKeeper,
 				portID,
 				channelID,
 				tc.contractAddress,
+				unitNetwork.App.AuthzKeeper,
 				unitNetwork.App.BankKeeper,
 				unitNetwork.App.TransferKeeper,
 				unitNetwork.App.StakingKeeper,

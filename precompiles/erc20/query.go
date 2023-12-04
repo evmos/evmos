@@ -17,8 +17,8 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"

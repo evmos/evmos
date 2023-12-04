@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 3 to

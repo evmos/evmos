@@ -16,10 +16,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 const (
@@ -66,9 +66,9 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	authzKeeper authzkeeper.Keeper,
 	portID, channelID string,
 	osmosisXCSContract string,
+	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,

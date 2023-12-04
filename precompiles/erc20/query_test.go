@@ -13,11 +13,11 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/app"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/testutil"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/evmos/evmos/v16/app"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/testutil"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // Define useful variables for tests here.
