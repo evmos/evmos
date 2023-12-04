@@ -202,6 +202,24 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			"illegal base64 data",
 		},
 		{
+			"fail - consensus pubkey len is invalid",
+			func() []interface{} {
+				return []interface{}{
+					description,
+					commission,
+					minSelfDelegation,
+					delegatorAddress,
+					validatorAddress,
+					"bHVrZQ==",
+					value,
+				}
+			},
+			200000,
+			func(data []byte) {},
+			true,
+			"consensus pubkey len is invalid",
+		},
+		{
 			"fail - invalid value",
 			func() []interface{} {
 				return []interface{}{

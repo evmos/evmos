@@ -131,6 +131,11 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, err
 	}
 
+	// more details see https://github.com/cosmos/cosmos-sdk/pull/18506
+	if len(pubkeyBytes) != ed25519.PubKeySize {
+		return nil, common.Address{}, fmt.Errorf("consensus pubkey len is invalid, got: %d, expected: %d", len(pubkeyBytes), ed25519.PubKeySize)
+	}
+
 	var ed25519pk cryptotypes.PubKey = &ed25519.PubKey{Key: pubkeyBytes}
 	pubkey, err := codectypes.NewAnyWithValue(ed25519pk)
 	if err != nil {
