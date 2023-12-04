@@ -35,7 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
+## [v16.0.0-rc1] - 2023-12-04
 
 ### State Machine Breaking
 
@@ -49,9 +49,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
 - (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
 - (bank-precompile) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
+- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance (burning reverted in [#2131](https://github.com/evmos/evmos/pull/2131)).
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 
 ### API Breaking
 
