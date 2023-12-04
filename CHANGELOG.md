@@ -37,28 +37,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
-<<<<<<< HEAD
-### API Breaking
-
-- (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
-
-### State Machine Breaking
-
-- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
-
-### Features
-
-- (p256) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile
-- (werc20) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
-- (erc20) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
-- (erc20) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
-- (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
-- (erc20) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
-- (bech32) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
-- (bank) [#2095](https://github.com/evmos/evmos/pull/2095) Add 'bank' precompile.
-=======
 ### State Machine Breaking
 
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
@@ -78,7 +56,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
 - (ante) [#2078](https://github.com/evmos/evmos/pull/2078) deprecate legacy EIP712 ante handler
->>>>>>> 5de9abfa (imp(changelog): Changelog clean up (#2107))
 
 ### Improvements
 
