@@ -42,6 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (bech32-precompile) [#2124](https://github.com/evmos/evmos/pull/2124) Activate `bech32` precompile.
 - (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Restrict transaction fee tokens.
 - (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
@@ -126,6 +127,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank-precompile) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
 - (osmosis-outpost) [#2077](https://github.com/evmos/evmos/pull/2077) Update Osmosis outpost to use cross-chain swap contract V1.
 - (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types
+- (staking) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile CreateValidator to prevent panic.
 - (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
 - (upgrade) [#2117](https://github.com/evmos/evmos/pull/2117) Enable Stride and Osmosis outposts in v16 upgrade handler.
 - (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
@@ -143,6 +145,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
 - (ics20) [#1848](https://github.com/evmos/evmos/pull/1848) Refactor ICS20 Authorization and remove Revoke Event.
+- (staking) [#2076](https://github.com/evmos/evmos/pull/2076) Replace bech32 address with evm hex address for query validator.
 
 ### State Machine Breaking
 

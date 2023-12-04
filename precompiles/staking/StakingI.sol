@@ -218,7 +218,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @param validatorAddress The address of the validator.
     /// @return validator The validator info for the given validator address.
     function validator(
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (Validator calldata validator);
 
     /// @dev Queries all validators that match the given status.
