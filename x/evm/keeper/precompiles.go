@@ -165,6 +165,9 @@ func (k *Keeper) AddEVMExtensions(ctx sdk.Context, precompiles ...vm.Precompiled
 
 	// update the pointer to the map with the newly added EVM Extensions
 	k.precompiles = precompilesMap
+
+	ctx.Logger().Info("successfully added EVM extensions", "addresses", addresses)
+
 	return nil
 }
 

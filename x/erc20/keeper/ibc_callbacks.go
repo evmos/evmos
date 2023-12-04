@@ -49,26 +49,13 @@ func (k Keeper) OnRecvPacket(
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
-	if !k.IsERC20Enabled(ctx) {
-		return ack
-	}
-
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, receiver, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
-	claimsParams := k.claimsKeeper.GetParams(ctx)
-
-	// if sender == recipient, and is not from an EVM Channel recovery was executed
-	if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
-		// Continue to the next IBC middleware by returning the original ACK.
-		return ack
-	}
-
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
-
 	// return acknowledgement without conversion if sender is a module account
 	if types.IsModuleAccount(senderAcc) {
 		return ack
@@ -81,21 +68,33 @@ func (k Keeper) OnRecvPacket(
 		data.Denom, data.Amount,
 	)
 
-	// short-circuit: if the denom is not a single hop voucher
-	if !ibc.IsSingleHop(data.Denom) {
-		return ack
-	}
-
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
-	if len(pairID) == 0 {
-		// short-circuit: if the denom is not registered, conversion will fail
-		// so we can continue with the rest of the stack
-		return ack
-	}
-
 	pair, _ := k.GetTokenPair(ctx, pairID)
+	// Case 1 - Coin is native EVMOS
 	if !pair.Enabled || pair.IsNativeCoin() {
 		// no-op: continue with the rest of the stack without registration
+		return ack
+	}
+
+	// Case 2 - native ERC20 token
+	if pair.IsNativeERC20() {
+		// ERC20 module or token pair is disabled -> return
+		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
+			return ack
+		}
+
+		msgConvert := types.NewMsgConvertERC20(coin.Amount, receiver, pair.GetERC20Contract(), common.BytesToAddress(sender))
+		// Convert from Coin to ERC20
+		_, err := k.ConvertERC20(ctx, msgConvert)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+	}
+
+	// Case 3 - IBC Voucher
+	// short-circuit: if the denom is not a single hop voucher
+	// TODO: Consider how it integrates with PFM.
+	if !ibc.IsSingleHop(data.Denom) {
 		return ack
 	}
 
