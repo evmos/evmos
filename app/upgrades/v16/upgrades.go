@@ -30,7 +30,6 @@ func CreateUpgradeHandler(
 		// enable secp256r1 and bech32 precompile on testnet
 		if utils.IsTestnet(ctx.ChainID()) {
 			p256Address := p256.Precompile{}.Address()
-
 			if err := ek.EnablePrecompiles(ctx, p256Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
