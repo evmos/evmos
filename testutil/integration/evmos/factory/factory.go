@@ -14,7 +14,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -43,8 +42,6 @@ type TxFactory interface {
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
-	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
 	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -75,21 +72,6 @@ func New(
 		network:              network,
 		ec:                   &ec,
 	}
-}
-
-// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
-	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
-	}
-
-	signedMsg, err := signMsgEthereumTx(msgEthereumTx, privKey, tf.network.GetChainID())
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
-	}
-
-	return tf.buildSignedTx(signedMsg)
 }
 
 // CallContractAndCheckLogs is a helper function to call a contract and check the logs using
@@ -188,14 +170,19 @@ func (tf *IntegrationTxFactory) ExecuteEthTx(
 	priv cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
 ) (abcitypes.ResponseDeliverTx, error) {
-	signedMsg, err := tf.GenerateSignedEthTx(priv, txArgs)
+	msgEthereumTx, err := tf.createMsgEthereumTx(priv, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate signed ethereum tx")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
 
-	txBytes, err := tf.encodeTx(signedMsg)
+	signedMsg, err := signMsgEthereumTx(msgEthereumTx, priv, tf.network.GetChainID())
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode ethereum tx")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to sign ethereum tx")
+	}
+
+	txBytes, err := tf.buildAndEncodeEthTx(signedMsg)
+	if err != nil {
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build and encode ethereum tx")
 	}
 
 	res, err := tf.network.BroadcastTxSync(txBytes)
@@ -296,19 +283,19 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	return txArgs, nil
 }
 
-func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
+func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
-	txBytes, err := txConfig.TxEncoder()(tx)
+	txBuilder := txConfig.NewTxBuilder()
+	signingTx, err := msg.BuildTx(txBuilder, tf.network.GetDenom())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to build tx")
+	}
+
+	txBytes, err := txConfig.TxEncoder()(signingTx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}
 	return txBytes, nil
-}
-
-func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signing.Tx, error) {
-	txConfig := tf.ec.TxConfig
-	txBuilder := txConfig.NewTxBuilder()
-	return msg.BuildTx(txBuilder, tf.network.GetDenom())
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse

@@ -6,7 +6,6 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
@@ -20,8 +19,6 @@ const (
 // TxFactory is the interface that wraps the common methods to build and broadcast transactions
 // within cosmos chains
 type TxFactory interface {
-	// BuildCosmosTx builds a Cosmos tx with the provided private key and txArgs
-	BuildCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (signing.Tx, error)
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
 }
@@ -49,22 +46,14 @@ func New(
 	}
 }
 
-func (tf *IntegrationTxFactory) BuildCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (signing.Tx, error) {
-	txBuilder, err := tf.buildTx(privKey, txArgs)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to build tx")
-	}
-	return txBuilder.GetTx(), nil
-}
-
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
 func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
-	signedTx, err := tf.BuildCosmosTx(privKey, txArgs)
+	txBuilder, err := tf.buildTx(privKey, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate tx")
+		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to build tx")
 	}
 
-	txBytes, err := tf.encodeTx(signedTx)
+	txBytes, err := tf.encodeTx(txBuilder)
 	if err != nil {
 		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
