@@ -5,8 +5,11 @@ package post
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -50,9 +53,22 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 		return next(ctx, tx, simulate, success)
 	}
 
+	// burn min(balance, fee)
+	var burnedCoins sdk.Coins
+	for _, fee := range fees {
+		balance := bd.bankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(bd.feeCollectorName), fee.Denom)
+		if !balance.IsPositive() {
+			continue
+		}
+
+		amount := sdkmath.MinInt(fee.Amount, balance.Amount)
+
+		burnedCoins = append(burnedCoins, sdk.Coin{Denom: fee.Denom, Amount: amount})
+	}
+
 	// NOTE: since all Cosmos tx fees are pooled by the fee collector module account,
 	// we burn them directly from it
-	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, fees); err != nil {
+	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burnedCoins); err != nil {
 		return ctx, err
 	}
 
