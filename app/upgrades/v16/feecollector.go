@@ -1,3 +1,6 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v16
 
 import (
@@ -24,5 +27,4 @@ func MigrateFeeCollector(ak authkeeper.AccountKeeper, ctx sdk.Context, logger lo
 
 	// Override the FeeCollector module account in the auth keeper.
 	ak.SetModuleAccount(ctx, newFeeCollectorModuleAccount)
-
 }
