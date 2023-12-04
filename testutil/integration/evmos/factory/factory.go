@@ -5,6 +5,7 @@ package factory
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -18,6 +19,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v15/app"
 	"github.com/evmos/evmos/v15/precompiles/testutil"
@@ -25,36 +27,39 @@ import (
 	commonfactory "github.com/evmos/evmos/v15/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v15/testutil/tx"
 	"github.com/evmos/evmos/v15/types"
 	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
 )
 
+// TxFactory defines a struct that can build and broadcast transactions for the Evmos
+// network.
+// Methods are organized from lower to higher complexity.
 type TxFactory interface {
 	commonfactory.TxFactory
 
+	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
+	GenerateDefaultTxTypeArgs(sender common.Address, txType uint8) (evmtypes.EvmTxArgs, error)
+	// SignMsgEthereumTx signs a MsgEthereumTx with the provided private key.
+	SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error)
+	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
+	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
+	// If the txArgs are not provided, they will be populated with default values or gas estimations.
+	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
+	// ExecuteContractCall executes a contract call with the provided private key
+	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	// DeployContract deploys a contract with the provided private key,
+	// compiled contract data and constructor arguments
+	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// CallContractAndCheckLogs is a helper function to call a contract and check the logs using
 	// the integration test utilities.
 	//
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
 	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error)
-	// DeployContract deploys a contract with the provided private key,
-	// compiled contract data and constructor arguments
-	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
-	// ExecuteContractCall executes a contract call with the provided private key
-	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
-	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
-	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
-	// If the txArgs are not provided, they will be populated with default values or gas estimations.
-	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
-	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
-	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
-	// // PopulateEvmTxArgs populates the missing fields in the provided EvmTxArgs with gas simulations and BaseFee from grpc query.
-	PopulateEvmTxArgs(
-		fromAddr common.Address,
-		txArgs evmtypes.EvmTxArgs,
-	) (evmtypes.EvmTxArgs, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -89,9 +94,14 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
 
-	signedMsg, err := signMsgEthereumTx(msgEthereumTx, privKey, tf.network.GetChainID())
+	signedMsg, err := tf.SignMsgEthereumTx(privKey, msgEthereumTx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
+	}
+
+	// Validate the transaction to avoid unrealistic behavior
+	if err = msgEthereumTx.ValidateBasic(); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to validate transaction")
 	}
 
 	return tf.buildSignedTx(signedMsg)
@@ -242,7 +252,7 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 ) (evmtypes.MsgEthereumTx, error) {
 	fromAddr := common.BytesToAddress(privKey.PubKey().Address().Bytes())
 	// Fill TxArgs with default values
-	txArgs, err := tf.PopulateEvmTxArgs(fromAddr, txArgs)
+	txArgs, err := tf.populateEvmTxArgs(fromAddr, txArgs)
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to populate tx args")
 	}
@@ -251,9 +261,29 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	return msg, nil
 }
 
-// PopulateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
+func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address, txType uint8) (evmtypes.EvmTxArgs, error) {
+	defaultArgs := evmtypes.EvmTxArgs{}
+	switch txType {
+	case gethtypes.DynamicFeeTxType:
+		return tf.populateEvmTxArgs(sender, defaultArgs)
+	case gethtypes.AccessListTxType:
+		defaultArgs.Accesses = &gethtypes.AccessList{{
+			Address:     sender,
+			StorageKeys: []common.Hash{{0}},
+		}}
+		defaultArgs.GasPrice = big.NewInt(1e9)
+		return tf.populateEvmTxArgs(sender, defaultArgs)
+	case gethtypes.LegacyTxType:
+		defaultArgs.GasPrice = big.NewInt(1e9)
+		return tf.populateEvmTxArgs(sender, defaultArgs)
+	default:
+		return evmtypes.EvmTxArgs{}, errors.New("tx type not supported")
+	}
+}
+
+// populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
-func (tf *IntegrationTxFactory) PopulateEvmTxArgs(
+func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	fromAddr common.Address,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
@@ -299,6 +329,17 @@ func (tf *IntegrationTxFactory) PopulateEvmTxArgs(
 	}
 
 	return txArgs, nil
+}
+
+// SignMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.
+func (tf *IntegrationTxFactory) SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error) {
+	ethChainID := tf.network.GetEIP155ChainID()
+	signer := gethtypes.LatestSignerForChainID(ethChainID)
+	err := msgEthereumTx.Sign(signer, tx.NewSigner(privKey))
+	if err != nil {
+		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to sign transaction")
+	}
+	return msgEthereumTx, nil
 }
 
 func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {

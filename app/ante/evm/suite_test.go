@@ -25,3 +25,16 @@ func TestEvmAnteTestSuite(t *testing.T) {
 		ethTxType: gethtypes.AccessListTxType,
 	})
 }
+
+func (suite *EvmAnteTestSuite) getTxTypeTestName() string {
+	switch suite.ethTxType {
+	case gethtypes.DynamicFeeTxType:
+		return "DynamicFeeTxType"
+	case gethtypes.LegacyTxType:
+		return "LegacyTxType"
+	case gethtypes.AccessListTxType:
+		return "AccessListTxType"
+	default:
+		panic("unknown tx type")
+	}
+}

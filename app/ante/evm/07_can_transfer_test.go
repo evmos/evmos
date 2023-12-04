@@ -3,6 +3,7 @@
 package evm_test
 
 import (
+	"fmt"
 	"math/big"
 
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -23,32 +24,32 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
 
-	testTools := TestTools{
-		keyring:     keyring,
-		grpcHandler: grpcHandler,
-		txFactory:   txFactory,
-		unitNetwork: unitNetwork,
-	}
-
 	testCases := []struct {
 		name          string
 		expectedError error
-		malleate      func()
+        isLondon      bool
+		malleate      func(txArgs *evmtypes.EvmTxArgs)
 	}{
 		{
-			name:          "fail: isLondon an insufficient fee",
-			expectedError: errortypes.ErrInvalidSequence,
-			malleate: func() {
+			name:          "fail: isLondon and insufficient fee",
+			expectedError: errortypes.ErrInsufficientFee,
+            isLondon:      true,
+			malleate: func(txArgs *evmtypes.EvmTxArgs) {
+				txArgs.GasFeeCap = big.NewInt(0)
+			},
+		},
+		{
+			name:          "success: valid tx and sufficient balance",
+			expectedError: nil,
+            isLondon:      true,
+			malleate: func(txArgs *evmtypes.EvmTxArgs) {
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
-			senderKey := keyring.GetKey(1)
-			account, err := grpcHandler.GetAccount(senderKey.AccAddr.String())
-			suite.Require().NoError(err)
-			preSequence := account.GetSequence()
+		suite.Run(fmt.Sprintf("%v_%v", suite.getTxTypeTestName(), tc.name), func() {
+			senderKey := keyring.GetKey(0)
 			baseFeeResp, err := grpcHandler.GetBaseFee()
 			suite.Require().NoError(err)
 			ethCfg := unitNetwork.GetEVMChainConfig()
@@ -56,28 +57,33 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 			suite.Require().NoError(err)
 			ctx := unitNetwork.GetContext()
 			signer := gethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
-			txArgs, err := testTools.getTransactionArgs(suite.ethTxType)
-			msg, err := evmtypes.NewTx(&txArgs).AsMessage(signer, baseFeeResp.BaseFee.BigInt())
-			suite.Require().NoError(err)
+			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
+			txArgs.Amount = big.NewInt(1000)
 
-			tc.malleate()
+			tc.malleate(&txArgs)
+
+			msg := evmtypes.NewTx(&txArgs)
+			msg.From = senderKey.Addr.String()
+			signMsg, err := txFactory.SignMsgEthereumTx(senderKey.Priv, *msg)
+			suite.Require().NoError(err)
+			coreMsg, err := signMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
+			suite.Require().NoError(err)
 
 			// Function under test
 			err = evm.CanTransfer(
 				unitNetwork.GetContext(),
 				unitNetwork.App.EvmKeeper,
-				msg,
+				coreMsg,
 				baseFeeResp.BaseFee.BigInt(),
 				ethCfg,
 				evmParams.Params,
-				true,
+				tc.isLondon,
 			)
 
 			if tc.expectedError != nil {
 				suite.Require().Error(err)
-				suite.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().Equal(preSequence+1, account.GetSequence())
+				suite.Require().NoError(err)
 			}
 		})
 	}

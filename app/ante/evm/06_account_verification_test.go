@@ -1,13 +1,10 @@
 package evm_test
 
 import (
-	"errors"
 	"math/big"
 
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
-	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v15/app/ante/evm"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
@@ -19,13 +16,6 @@ import (
 
 const SENDER_KEYRING_KEY = 1
 
-type TestTools struct {
-	keyring     testkeyring.Keyring
-	grpcHandler grpc.Handler
-	txFactory   factory.TxFactory
-	unitNetwork network.Network
-}
-
 func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	// Setup
 	keyring := testkeyring.New(2)
@@ -34,12 +24,6 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
-	testTools := TestTools{
-		keyring:     keyring,
-		grpcHandler: grpcHandler,
-		txFactory:   txFactory,
-		unitNetwork: unitNetwork,
-	}
 
 	testCases := []struct {
 		name          string
@@ -108,9 +92,10 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			// Variable data
+			sender := keyring.GetKey(SENDER_KEYRING_KEY)
 			statedb := unitNetwork.GetStateDB()
-			statedbAccount := statedb.Keeper().GetAccount(unitNetwork.GetContext(), keyring.GetAddr(SENDER_KEYRING_KEY))
-			txArgs, err := testTools.getTransactionArgs(suite.ethTxType)
+			statedbAccount := statedb.Keeper().GetAccount(unitNetwork.GetContext(), sender.Addr)
+			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(sender.Addr, suite.ethTxType)
 			suite.Require().NoError(err)
 
 			// Perform test logic
@@ -135,7 +120,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Require().NoError(err)
 
 				// Make sure the account is created
-				acc, err := testTools.grpcHandler.GetAccount(keyring.GetAccAddr(SENDER_KEYRING_KEY).String())
+				acc, err := grpcHandler.GetAccount(sender.AccAddr.String())
 				suite.Require().NoError(err)
 				suite.Require().NotEmpty(acc)
 			}
@@ -144,29 +129,6 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
 		})
-	}
-}
-
-func (tt *TestTools) getTransactionArgs(txType uint8) (evmtypes.EvmTxArgs, error) {
-	sender := tt.keyring.GetAddr(SENDER_KEYRING_KEY)
-	defaultArgs := evmtypes.EvmTxArgs{
-		Amount: big.NewInt(100),
-	}
-	switch txType {
-	case gethtypes.DynamicFeeTxType:
-		return tt.txFactory.PopulateEvmTxArgs(sender, defaultArgs)
-	case gethtypes.AccessListTxType:
-		defaultArgs.Accesses = &gethtypes.AccessList{{
-			Address:     sender,
-			StorageKeys: []common.Hash{{0}},
-		}}
-		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tt.txFactory.PopulateEvmTxArgs(sender, defaultArgs)
-	case gethtypes.LegacyTxType:
-		defaultArgs.GasPrice = big.NewInt(1e9)
-		return tt.txFactory.PopulateEvmTxArgs(sender, defaultArgs)
-	default:
-		return evmtypes.EvmTxArgs{}, errors.New("tx type not supported")
 	}
 }
 

@@ -17,6 +17,7 @@ import (
 
 // CanTransfer creates an EVM from the message and calls the BlockContext CanTransfer function to
 // see if the address can execute the transaction.
+// TODO: Divide between multiple functions. A function should not have this many parameters.
 func CanTransfer(
 	ctx sdk.Context,
 	evmKeeper EVMKeeper,
@@ -26,7 +27,6 @@ func CanTransfer(
 	params evmtypes.Params,
 	isLondon bool,
 ) error {
-	// TODO - this forbids any LegacyTx to be broadcast, that should be changed.
 	if isLondon && msg.GasFeeCap().Cmp(baseFee) < 0 {
 		return errorsmod.Wrapf(
 			errortypes.ErrInsufficientFee,
