@@ -454,12 +454,12 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 	testCases := []struct {
 		name    string
 		address string
-		expRes  string
+		expRes  interface{}
 	}{
 		{
 			name:    "receiver osmo bech32",
 			address: address,
-			expRes:  address,
+			expRes:  osmosisoutpost.RecoveryAddress{address},
 		},
 		{
 			name:    "use default do_nothing",
@@ -469,7 +469,7 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 		{
 			name:    "convert receiver to osmo bech32",
 			address: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
-			expRes:  address,
+			expRes:  osmosisoutpost.RecoveryAddress{address},
 		},
 	}
 
@@ -480,7 +480,7 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 			t.Parallel()
 
 			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.address)
-			require.Contains(t, onFailedDelivery, tc.expRes)
+			require.Equal(t, onFailedDelivery, tc.expRes)
 		})
 	}
 }
