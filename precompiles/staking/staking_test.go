@@ -5,15 +5,15 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v16/app"
 
-	"github.com/evmos/evmos/v16/precompiles/authorization"
-
+	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
 	"github.com/evmos/evmos/v16/precompiles/staking"
 	"github.com/evmos/evmos/v16/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -281,9 +281,12 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			"pass - validator query",
 			func() []byte {
+				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				input, err := s.precompile.Pack(
 					staking.ValidatorMethod,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(valAddr.Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
