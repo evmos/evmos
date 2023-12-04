@@ -69,8 +69,6 @@ def test_osmosis_swap(ibc):
     osmo_erc20_addr = register_osmo_token(evmos)
     print(f"osmo_erc20_addr: {osmo_erc20_addr}")
 
-    # --------- Register contract on osmosis ??
-
     # define TWAP parameters
     testSlippagePercentage = 20
     testWindowSeconds = 10
@@ -243,11 +241,12 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
 
 
 def register_osmo_token(evmos):
+    """
+    Register Osmo token as ERC20 token pair.
+    Helper function that creates the corresponding
+    gov proposal, votes for it, and waits till it passes
+    """
     evmos_cli = evmos.cosmos_cli()
-
-    # --------- Register Osmosis ERC20 token
-    # > For that I need the denom trace taken from the ibc info
-    # >
 
     # TODO - generate the osmos ibc denom
     osmos_ibc_denom = OSMO_IBC_DENOM

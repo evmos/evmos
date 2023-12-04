@@ -16,6 +16,7 @@ cp -r /tmp/osmosis/cosmwasm/* ./tests/nix_tests/cosmwasm
 rm -rf /tmp/osmosis
 
 cd ./tests/nix_tests/cosmwasm || exit
+# This command compiles the contracts for x86-64 (amd64) arch
 docker run --rm -v "$(pwd)":/code \
     --mount type=volume,source="$(basename "$(pwd)")_cache",target=/target \
     --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \

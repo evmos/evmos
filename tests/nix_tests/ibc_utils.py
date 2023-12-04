@@ -21,7 +21,7 @@ from .utils import (
     wait_for_port,
 )
 
-# aevmos IBC representation on the Osmosis chain.
+# aevmos IBC representation on another chain connected via channel-0.
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
 # uosmo IBC representation on the Evmos chain.
 OSMO_IBC_DENOM = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
