@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -90,7 +91,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	}
 
 	for _, tc := range testCases {
-		suite.Run(tc.name, func() {
+		suite.Run(fmt.Sprintf("%v_%v", suite.getTxTypeTestName(), tc.name), func() {
 			// Variable data
 			sender := keyring.GetKey(SENDER_KEYRING_KEY)
 			statedb := unitNetwork.GetStateDB()

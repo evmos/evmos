@@ -7,6 +7,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+// EvmAnteTestSuite aims to test all EVM ante handler unit functions.
+// NOTE: the suite only holds properties related to global execution parameters
+// (what type of tx to run the tests with) not independent tests values.
 type EvmAnteTestSuite struct {
 	suite.Suite
 
