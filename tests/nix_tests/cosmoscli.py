@@ -1219,7 +1219,7 @@ class CosmosCLI:
         """
         Store instantiate wasm contract with reproducible address.
         """
-        # This is could be any constant number.
+        # This could be any constant number.
         # Its only meant to guarantee determinism.
         salt = 74657374
         return json.loads(
@@ -1255,10 +1255,9 @@ class CosmosCLI:
         **kwargs,
     ):
         """
-        Store instantiate wasm contract with reproducible address.
+        Execute a wasm contract.
         """
-        # This is could be any constant number.
-        # Its only meant to guarantee determinism.
+        # This could be any constant number.
         return json.loads(
             self.raw(
                 "tx",
@@ -1281,7 +1280,7 @@ class CosmosCLI:
 
     def get_wasm_contract_by_code(self, code, **kwargs):
         """
-        Queries the host zones on the Stride chain.
+        Queries all wasm instances associated with a code ID.
         """
         default_kwargs = {"output": "json", "home": self.data_dir}
         res = json.loads(
@@ -1297,7 +1296,7 @@ class CosmosCLI:
 
     def get_wasm_contract_state(self, contract_addr, query_args, **kwargs):
         """
-        Queries the host zones on the Stride chain.
+        Queries the wasm contract state.
         """
         default_kwargs = {"output": "json", "home": self.data_dir}
         res = json.loads(
@@ -1320,10 +1319,8 @@ class CosmosCLI:
         **kwargs,
     ):
         """
-        Create osmosis pools in gamm.
+        Create Osmosis pools in gamm.
         """
-        # This is could be any constant number.
-        # Its only meant to guarantee determinism.
         return json.loads(
             self.raw(
                 "tx",

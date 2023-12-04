@@ -71,7 +71,7 @@ def test_osmosis_swap(ibc):
 
     # --------- Register contract on osmosis ??
 
-    # define arguments
+    # define TWAP parameters
     testSlippagePercentage = 20
     testWindowSeconds = 10
 
@@ -146,7 +146,7 @@ def setup_osmos_chains(ibc):
         "swaprouter1.0",
     )
 
-    # ===== Deploy CrosschainSwap =====
+    # ===== Deploy CrosschainSwap V1=====
     cross_swap_contract = WASM_CONTRACTS["CrosschainSwap"]
     deploy_wasm_contract(
         osmosis_cli,

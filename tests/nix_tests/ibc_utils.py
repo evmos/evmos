@@ -21,8 +21,9 @@ from .utils import (
     wait_for_port,
 )
 
-# EVMOS_IBC_DENOM IBC denom of aevmos in crypto-org-chain
+# aevmos IBC representation on the Osmosis chain.
 EVMOS_IBC_DENOM = "ibc/8EAC8061F4499F03D2D1419A3E73D346289AE9DB89CAB1486B72539572B1915E"
+# uosmo IBC representation on the Evmos chain.
 OSMO_IBC_DENOM = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
 
 RATIO = 10**10
