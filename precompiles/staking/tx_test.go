@@ -32,7 +32,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			MaxChangeRate: math.LegacyOneDec().BigInt(),
 		}
 		minSelfDelegation = big.NewInt(1)
-		delegatorAddress  = s.address
 		validatorAddress  = s.address
 		pubkey            = "nfJ0axJC9dhta1MAE1EBFaVdxxkYzxYrBaHuJVjG//M="
 		value             = big.NewInt(1205000000000000000)
@@ -54,7 +53,7 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			200000,
 			func(data []byte) {},
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 7, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 6, 0),
 		},
 		{
 			"fail - different origin than delegator",
@@ -64,7 +63,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					differentAddr,
 					differentAddr,
 					pubkey,
 					value,
@@ -82,7 +80,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					"",
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					pubkey,
 					value,
@@ -100,7 +97,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					"",
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					pubkey,
 					value,
@@ -118,7 +114,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					"",
-					delegatorAddress,
 					validatorAddress,
 					pubkey,
 					value,
@@ -130,31 +125,12 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			"invalid amount",
 		},
 		{
-			"fail - invalid delegator address",
-			func() []interface{} {
-				return []interface{}{
-					description,
-					commission,
-					minSelfDelegation,
-					"",
-					validatorAddress,
-					pubkey,
-					value,
-				}
-			},
-			200000,
-			func(data []byte) {},
-			true,
-			"invalid delegator address",
-		},
-		{
 			"fail - invalid validator address",
 			func() []interface{} {
 				return []interface{}{
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					1205,
 					pubkey,
 					value,
@@ -172,7 +148,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					1205,
 					value,
@@ -190,7 +165,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					"bHVrZQ=", // base64.StdEncoding.DecodeString error
 					value,
@@ -208,7 +182,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					"bHVrZQ==",
 					value,
@@ -226,7 +199,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					pubkey,
 					"",
@@ -244,7 +216,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 					description,
 					commission,
 					minSelfDelegation,
-					delegatorAddress,
 					validatorAddress,
 					pubkey,
 					value,
@@ -268,7 +239,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 				var createValidatorEvent staking.EventCreateValidator
 				err = cmn.UnpackLog(s.precompile.ABI, &createValidatorEvent, staking.EventTypeCreateValidator, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(s.address, createValidatorEvent.DelegatorAddress)
 				s.Require().Equal(s.address, createValidatorEvent.ValidatorAddress)
 				s.Require().Equal(value, createValidatorEvent.Value)
 			},
@@ -282,7 +252,6 @@ func (s *PrecompileTestSuite) TestCreateValidator() {
 			s.SetupTest()
 
 			// reset sender
-			delegatorAddress = s.address
 			validatorAddress = s.address
 
 			var contract *vm.Contract

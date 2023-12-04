@@ -125,16 +125,11 @@ func (p Precompile) EmitAllowanceChangeEvent(ctx sdk.Context, stateDB vm.StateDB
 }
 
 // EmitCreateValidatorEvent creates a new create validator event emitted on a CreateValidator transaction.
-func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgCreateValidator, delegatorAddr common.Address) error {
+func (p Precompile) EmitCreateValidatorEvent(ctx sdk.Context, stateDB vm.StateDB, msg *stakingtypes.MsgCreateValidator, validatorAddr common.Address) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeCreateValidator]
 
-	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	if err != nil {
-		return err
-	}
-
-	topics, err := p.createStakingTxTopics(3, event, delegatorAddr, common.BytesToAddress(valAddr.Bytes()))
+	topics, err := p.createValidatorTxTopics(2, event, validatorAddr)
 	if err != nil {
 		return err
 	}
@@ -305,6 +300,24 @@ func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, del
 	}
 
 	topics[2], err = cmn.MakeTopic(validatorAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return topics, nil
+}
+
+// createValidatorTxTopics creates the topics for staking transaction CreateValidator.
+func (p Precompile) createValidatorTxTopics(topicsLen uint64, event abi.Event, validatorAddr common.Address) ([]common.Hash, error) {
+	topics := make([]common.Hash, topicsLen)
+	// NOTE: If your solidity event contains indexed event types, then they become a topic rather than part of the data property of the log.
+	// In solidity you may only have up to 4 topics but only 3 indexed event types. The first topic is always the signature of the event.
+
+	// The first topic is always the signature of the event.
+	topics[0] = event.ID
+
+	var err error
+	topics[1], err = cmn.MakeTopic(validatorAddr)
 	if err != nil {
 		return nil, err
 	}

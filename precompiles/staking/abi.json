@@ -98,12 +98,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "delegatorAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "validatorAddress",
         "type": "address"
       },
@@ -393,11 +387,6 @@
         "internalType": "uint256",
         "name": "minSelfDelegation",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "delegatorAddress",
-        "type": "address"
       },
       {
         "internalType": "address",
