@@ -1,0 +1,16 @@
+diff --git a/x/evm/keeper/precompiles.go b/x/evm/keeper/precompiles.go
+index b0aa3202..39668025 100644
+--- a/x/evm/keeper/precompiles.go
++++ b/x/evm/keeper/precompiles.go
+@@ -88,8 +88,10 @@ func AvailablePrecompiles(
+ 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
+ 	}
+ 
++	// Update the channel for the corresponding one in the
++	// Nix testing setup
+ 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+-		transfertypes.PortID, "channel-215",
++		transfertypes.PortID, "channel-0",
+ 		osmosisoutpost.XCSContractTestnet,
+ 		authzKeeper, bankKeeper, transferKeeper, stakingKeeper, erc20Keeper, channelKeeper,
+ 	)

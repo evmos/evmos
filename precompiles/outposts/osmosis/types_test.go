@@ -27,9 +27,9 @@ func TestCreatePacketWithMemo(t *testing.T) {
 		contract           string
 		slippagePercentage uint8
 		windowSeconds      uint64
-		onFailedDelivery   string
+		onFailedDelivery   interface{}
 		nextMemo           string
-		expNextMemo        bool
+		expMemo            string
 	}{
 		{
 			name:               "pass - correct string without memo",
@@ -40,7 +40,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   doNothing,
 			nextMemo:           "",
-			expNextMemo:        false,
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":\"do_nothing\"}}}}",
 		},
 		{
 			name:               "pass - correct string with memo",
@@ -51,7 +51,18 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			windowSeconds:      30,
 			onFailedDelivery:   doNothing,
 			nextMemo:           "a next memo",
-			expNextMemo:        true,
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":\"do_nothing\",\"next_memo\":\"a next memo\"}}}}",
+		},
+		{
+			name:               "pass - correct string with memo and recovery address",
+			outputDenom:        utils.BaseDenom,
+			receiver:           receiver,
+			contract:           contract,
+			slippagePercentage: 10,
+			windowSeconds:      30,
+			onFailedDelivery:   osmosisoutpost.RecoveryAddress{"osmo1g8j7tgfam7kmj86zks5rcfxruf9lzp87u8mwdf"},
+			nextMemo:           "a next memo",
+			expMemo:            "{\"wasm\":{\"contract\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"msg\":{\"osmosis_swap\":{\"output_denom\":\"aevmos\",\"slippage\":{\"twap\":{\"slippage_percentage\":\"10\",\"window_seconds\":30}},\"receiver\":\"evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7\",\"on_failed_delivery\":{\"local_recovery_addr\":\"osmo1g8j7tgfam7kmj86zks5rcfxruf9lzp87u8mwdf\"},\"next_memo\":\"a next memo\"}}}}",
 		},
 	}
 
@@ -64,15 +75,10 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			packet := osmosisoutpost.CreatePacketWithMemo(
 				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
 			)
-			packetString := packet.String()
-			err := ValidateAndParseWasmRoutedMemo(packetString, tc.receiver)
+			memo := packet.String()
+			require.Equal(t, tc.expMemo, memo)
+			err := ValidateAndParseWasmRoutedMemo(memo, tc.receiver)
 			require.NoError(t, err, "memo is not a valid wasm routed JSON formatted string")
-
-			if tc.expNextMemo {
-				require.Contains(t, packetString, fmt.Sprintf("\"next_memo\": \"%s\"", tc.nextMemo))
-			} else {
-				require.NotContains(t, packetString, fmt.Sprintf("next_memo: %s", tc.nextMemo))
-			}
 		})
 
 	}
@@ -448,12 +454,12 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 	testCases := []struct {
 		name    string
 		address string
-		expRes  string
+		expRes  interface{}
 	}{
 		{
 			name:    "receiver osmo bech32",
 			address: address,
-			expRes:  address,
+			expRes:  osmosisoutpost.RecoveryAddress{address},
 		},
 		{
 			name:    "use default do_nothing",
@@ -463,7 +469,7 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 		{
 			name:    "convert receiver to osmo bech32",
 			address: "cosmos1c2m73hdt6f37w9jqpqps5t3ha3st99dcsp7lf5",
-			expRes:  address,
+			expRes:  osmosisoutpost.RecoveryAddress{address},
 		},
 	}
 
@@ -474,7 +480,7 @@ func TestCreateOnFailedDeliveryField(t *testing.T) {
 			t.Parallel()
 
 			onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(tc.address)
-			require.Contains(t, onFailedDelivery, tc.expRes)
+			require.Equal(t, onFailedDelivery, tc.expRes)
 		})
 	}
 }

@@ -131,6 +131,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
 - (upgrade) [#2117](https://github.com/evmos/evmos/pull/2117) Enable Stride and Osmosis outposts in v16 upgrade handler.
 - (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
+- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
 - (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
 
 ### Bug Fixes
