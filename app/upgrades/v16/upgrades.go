@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
@@ -46,21 +45,8 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-		feeCollectorModuleAccount := ak.GetModuleAccount(ctx, types.FeeCollectorName)
-		if feeCollectorModuleAccount == nil {
-			logger.Error("fee collector module account not found")
-		}
-
-		modAcc, ok := feeCollectorModuleAccount.(*types.ModuleAccount)
-		if !ok {
-			logger.Error("fee collector module account is not a module account")
-		}
-
-		// Create a new FeeCollector module account with the same address and balance as the old one.
-		newFeeCollectorModuleAccount := types.NewModuleAccount(modAcc.BaseAccount, types.FeeCollectorName, types.Burner)
-
-		// Override the FeeCollector module account in the auth keeper.
-		ak.SetModuleAccount(ctx, newFeeCollectorModuleAccount)
+		// Migrate the FeeCollector module account to include the Burner permission.
+		MigrateFeeCollector(ak, ctx, logger)
 
 		if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
 			logger.Error("failed to burn inflation pool", "error", err.Error())
