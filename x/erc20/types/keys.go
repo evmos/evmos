@@ -10,7 +10,7 @@ import (
 
 // constants
 const (
-	// module name
+	// ModuleName module name
 	ModuleName = "erc20"
 
 	// StoreKey to be used when creating the KVStore

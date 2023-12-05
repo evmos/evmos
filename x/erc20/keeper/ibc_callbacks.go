@@ -50,7 +50,7 @@ func (k Keeper) OnRecvPacket(
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, receiver, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
@@ -69,13 +69,16 @@ func (k Keeper) OnRecvPacket(
 	)
 
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
-	pair, _ := k.GetTokenPair(ctx, pairID)
+	pair, found := k.GetTokenPair(ctx, pairID)
+
 	// Case 1 - Coin is native EVMOS
-	if !pair.Enabled || pair.IsNativeCoin() {
+	if !found || !pair.Enabled || pair.Denom == utils.BaseDenom {
 		// no-op: continue with the rest of the stack without registration
 		return ack
 	}
 
+	// TODO: Do we really need this case? A native ERC20 received from IBC
+	// TODO: should always have a registered token pair and precompile?
 	// Case 2 - native ERC20 token
 	if pair.IsNativeERC20() {
 		// ERC20 module or token pair is disabled -> return
@@ -83,12 +86,12 @@ func (k Keeper) OnRecvPacket(
 			return ack
 		}
 
-		msgConvert := types.NewMsgConvertERC20(coin.Amount, receiver, pair.GetERC20Contract(), common.BytesToAddress(sender))
-		// Convert from Coin to ERC20
-		_, err := k.ConvertERC20(ctx, msgConvert)
-		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(err)
-		}
+		//msgConvert := types.NewMsgConvertERC20(coin.Amount, receiver, pair.GetERC20Contract(), common.BytesToAddress(sender))
+		//// Convert from Coin to ERC20
+		//_, err := k.ConvertERC20(ctx, msgConvert)
+		//if err != nil {
+		//	return channeltypes.NewErrorAcknowledgement(err)
+		//}
 	}
 
 	// Case 3 - IBC Voucher
@@ -106,7 +109,7 @@ func (k Keeper) OnRecvPacket(
 	// Truncate to 20 bytes (40 hex characters)
 	truncatedAddr := denomAddr[:20]
 	params := k.evmKeeper.GetParams(ctx)
-	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
+	found = params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
 	if !found {
 		// TODO: Should we use the new RegisterCoin method here instead?
 		// Register a new precompile address
@@ -138,17 +141,16 @@ func (k Keeper) OnRecvPacket(
 
 // OnAcknowledgementPacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain. If the acknowledgement was a
-// success then nothing occurs. If the acknowledgement failed, then the sender
-// is refunded and then the IBC Coins are converted to ERC20.
+// success then nothing occurs.
 func (k Keeper) OnAcknowledgementPacket(
-	ctx sdk.Context, _ channeltypes.Packet,
-	data transfertypes.FungibleTokenPacketData,
+	_ sdk.Context, _ channeltypes.Packet,
+	_ transfertypes.FungibleTokenPacketData,
 	ack channeltypes.Acknowledgement,
 ) error {
 	switch ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
-		// convert the token from Cosmos Coin to its ERC20 representation
-		return k.ConvertCoinToERC20FromPacket(ctx, data)
+		// TODO: We dont need to do anything here because there is no minting and burning happening ?
+		return nil
 	default:
 		// the acknowledgement succeeded on the receiving chain so nothing needs to
 		// be executed and no error needs to be returned
@@ -158,60 +160,7 @@ func (k Keeper) OnAcknowledgementPacket(
 
 // OnTimeoutPacket converts the IBC coin to ERC20 after refunding the sender
 // since the original packet sent was never received and has been timed out.
-func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data transfertypes.FungibleTokenPacketData) error {
-	return k.ConvertCoinToERC20FromPacket(ctx, data)
-}
-
-// ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
-func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
-	if err != nil {
-		return err
-	}
-
-	// use a zero gas config to avoid extra costs for the relayers
-	ctx = ctx.
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
-
-	if !k.IsERC20Enabled(ctx) {
-		return nil
-	}
-
-	// assume that all module accounts on Evmos need to have their tokens in the
-	// IBC representation as opposed to ERC20
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
-	if types.IsModuleAccount(senderAcc) {
-		return nil
-	}
-
-	pairID := k.GetTokenPairID(ctx, data.Denom)
-	if len(pairID) == 0 {
-		// short-circuit: if the denom is not registered, conversion will fail
-		// so we can continue with the rest of the stack
-		return nil
-	}
-
-	pair, _ := k.GetTokenPair(ctx, pairID)
-	if !pair.Enabled || pair.IsNativeCoin() {
-		// no-op: continue with the rest of the stack without conversion
-		return nil
-	}
-
-	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
-
-	// NOTE: we don't use ValidateBasic the msg since we've already validated the
-	// fields from the packet data
-
-	// convert Coin to ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
-		return err
-	}
-
-	defer func() {
-		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
-	}()
-
+func (k Keeper) OnTimeoutPacket(_ sdk.Context, _ channeltypes.Packet, _ transfertypes.FungibleTokenPacketData) error {
+	// TODO: We do nothing here because there is no burning / minting mechanism ?
 	return nil
 }

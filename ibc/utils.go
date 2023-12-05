@@ -4,6 +4,7 @@
 package ibc
 
 import (
+	"cosmossdk.io/math"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -62,7 +63,7 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 		return "", errorsmod.Wrapf(errortypes.ErrInvalidCoins, "empty amount")
 	}
 
-	if _, ok := sdk.NewIntFromString(data.Amount); !ok {
+	if _, ok := math.NewIntFromString(data.Amount); !ok {
 		return "", errorsmod.Wrapf(errortypes.ErrInvalidCoins, "invalid amount")
 	}
 

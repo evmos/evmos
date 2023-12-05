@@ -44,7 +44,12 @@ func (k Keeper) RegisterCoin(
 		)
 	}
 
-	hexBz, err := hex.DecodeString(coinMetadata.Base[len(transfertypes.DenomPrefix+"/"):])
+	prefix := transfertypes.DenomPrefix + "/"
+	if len(coinMetadata.Base) < len(prefix) {
+		return nil, errorsmod.Wrapf(transfertypes.ErrInvalidDenomForTransfer, "invalid denom %s", coinMetadata.Base)
+	}
+
+	hexBz, err := hex.DecodeString(coinMetadata.Base[len(prefix):])
 	if err != nil {
 		return nil, errorsmod.Wrapf(transfertypes.ErrInvalidDenomForTransfer, "invalid hex %s", coinMetadata.Base)
 	}
