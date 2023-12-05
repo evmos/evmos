@@ -22,9 +22,9 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-	bankKeeper bankkeeper.Keeper,
+	_ bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
-	ak authkeeper.AccountKeeper,
+	_ authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -45,14 +45,15 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
+		// TODO: uncomment when ready
 		// Migrate the FeeCollector module account to include the Burner permission.
-		if err := MigrateFeeCollector(ak, ctx); err != nil {
-			logger.Error("failed to migrate the fee collector", "error", err.Error())
-		}
-
-		if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
-			logger.Error("failed to burn inflation pool", "error", err.Error())
-		}
+		// if err := MigrateFeeCollector(ak, ctx); err != nil {
+		//	logger.Error("failed to migrate the fee collector", "error", err.Error())
+		// }
+		//
+		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
+		//	logger.Error("failed to burn inflation pool", "error", err.Error())
+		// }
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
