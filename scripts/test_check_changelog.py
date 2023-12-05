@@ -52,8 +52,8 @@ def test_parse_changelog_invalid_pr_link():
         os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_entry_pr_not_in_link.md"),
     )
     assert failed_entries == [
-        'Invalid PR link in Unreleased - State Machine Breaking - 1948: "- (distribution-precompile) [#1948]('
-        'https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction."',
+        'PR link is not matching PR number in Unreleased - State Machine Breaking: "- (distribution-precompile)'
+        ' [#1948](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction."',
     ]
     assert releases == expected_result
 
@@ -70,8 +70,10 @@ def test_parse_changelog_malformed_description():
         os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_entry_misformatted_description.md"),
     )
     assert failed_entries == [
-        'Invalid PR description in Unreleased - State Machine Breaking - 1949: "- (distribution-precompile) [#1949]('
-        'https://github.com/evmos/evmos/pull/1949) add `ClaimRewards` custom transaction"',
+        'PR description should start with capital letter in Unreleased - State Machine Breaking: "- (distribution-'
+        'precompile) [#1949](https://github.com/evmos/evmos/pull/1949) add `ClaimRewards` custom transaction"',
+        'PR description should end with a dot in Unreleased - State Machine Breaking: "- (distribution-precompile)'
+        ' [#1949](https://github.com/evmos/evmos/pull/1949) add `ClaimRewards` custom transaction"',
     ]
     assert releases == expected_result
 

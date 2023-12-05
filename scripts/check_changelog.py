@@ -69,10 +69,13 @@ def parse_changelog(file_path) -> Tuple[Dict[str, Dict[str, Dict[int, str]]], Li
         pr_description = entry_match.group("desc")
 
         if pr_number not in pr_link:
-            failed_entries.append(f'Invalid PR link in {current_release} - {current_category} - {pr_number}: "{line}"')
+            failed_entries.append(f'PR link is not matching PR number in {current_release} - {current_category}: "{line}"')
 
-        if pr_description[0].islower() or pr_description[-1] != '.':
-            failed_entries.append(f'Invalid PR description in {current_release} - {current_category} - {pr_number}: "{line}"')
+        if not pr_description[0].isupper():
+            failed_entries.append(f'PR description should start with capital letter in {current_release} - {current_category}: "{line}"')
+
+        if pr_description[-1] != '.':
+            failed_entries.append(f'PR description should end with a dot in {current_release} - {current_category}: "{line}"')
 
         releases[current_release][current_category][int(pr_number)] = {
             'description': pr_description
