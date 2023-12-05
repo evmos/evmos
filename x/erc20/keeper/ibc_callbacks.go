@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/ibc"
-	"github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/utils"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
@@ -50,7 +49,7 @@ func (k Keeper) OnRecvPacket(
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
 	// Get addresses in `evmos1` and the original bech32 format
-	sender, _, _, _, err := ibc.GetTransferSenderRecipient(packet)
+	sender, receiver, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
@@ -71,54 +70,42 @@ func (k Keeper) OnRecvPacket(
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	pair, found := k.GetTokenPair(ctx, pairID)
 
-	// Case 1 - Coin is native EVMOS
-	if !found || !pair.Enabled || pair.Denom == utils.BaseDenom {
+	// TODO: Consider how it integrates with PFM.
+	// Case 1 - token pair is not registered
+	// Case 1.1 - token pair is not a native chain voucher
+	if !found && !ibc.IsSingleHop(data.Denom) {
+		// return acknowledgement without conversion
+		return ack
+	}
+
+	// Case 1.2 - token pair is a native chain voucher
+	if !found && ibc.IsSingleHop(data.Denom) {
+		// TODO: Should we register the token pair and precompile
+		// if err := k.RegisterTokenPairForNativeCoin(ctx, coinMetadata); err != nil {
+		// 	return channeltypes.NewErrorAcknowledgement(err)
+		//	}
+		// if err := k.RegisterPrecompileForCoin(ctx, coin, pair); err != nil {
+		//	return channeltypes.NewErrorAcknowledgement(err)
+		// }
+		return ack
+	}
+
+	// Case 2 - Coin is native EVMOS
+	if pair.Denom == utils.BaseDenom {
 		// no-op: continue with the rest of the stack without registration
 		return ack
 	}
 
-	// TODO: Do we really need this case? A native ERC20 received from IBC
-	// TODO: should always have a registered token pair and precompile?
-	// Case 2 - native ERC20 token
+	// Case 3 - native ERC20 token
 	if pair.IsNativeERC20() {
 		// ERC20 module or token pair is disabled -> return
 		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
 			return ack
 		}
 
-		//msgConvert := types.NewMsgConvertERC20(coin.Amount, receiver, pair.GetERC20Contract(), common.BytesToAddress(sender))
-		//// Convert from Coin to ERC20
-		//_, err := k.ConvertERC20(ctx, msgConvert)
-		//if err != nil {
-		//	return channeltypes.NewErrorAcknowledgement(err)
-		//}
-	}
-
-	// Case 3 - IBC Voucher
-	// short-circuit: if the denom is not a single hop voucher
-	// TODO: Consider how it integrates with PFM.
-	if !ibc.IsSingleHop(data.Denom) {
-		return ack
-	}
-
-	denomAddr, err := utils.GetIBCDenomAddress(coin.Denom)
-	if err != nil {
-		return channeltypes.NewErrorAcknowledgement(err)
-	}
-
-	// Truncate to 20 bytes (40 hex characters)
-	truncatedAddr := denomAddr[:20]
-	params := k.evmKeeper.GetParams(ctx)
-	found = params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
-	if !found {
-		// TODO: Should we use the new RegisterCoin method here instead?
-		// Register a new precompile address
-		newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-		if err != nil {
-			return channeltypes.NewErrorAcknowledgement(err)
-		}
-
-		err = k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
+		msgConvert := types.NewMsgConvertERC20(coin.Amount, receiver, pair.GetERC20Contract(), common.BytesToAddress(sender))
+		// Convert from Coin to ERC20
+		_, err := k.ConvertERC20(ctx, msgConvert)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}

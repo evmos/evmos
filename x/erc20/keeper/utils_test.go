@@ -38,25 +38,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreatePacket(amount, denom, sender, receiver, srcPort, srcChannel, dstPort, dstChannel string, seq, timeout uint64) channeltypes.Packet {
-	transfer := transfertypes.FungibleTokenPacketData{
-		Amount:   amount,
-		Denom:    denom,
-		Receiver: sender,
-		Sender:   receiver,
-	}
-	return channeltypes.NewPacket(
-		transfer.GetBytes(),
-		seq,
-		srcPort,
-		srcChannel,
-		dstPort,
-		dstChannel,
-		clienttypes.ZeroHeight(), // timeout height disabled
-		timeout,
-	)
-}
-
 func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 	// account key
 	priv, err := ethsecp256k1.GenerateKey()

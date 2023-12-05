@@ -26,18 +26,17 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx              sdk.Context
-	app              *app.Evmos
-	queryClientEvm   evm.QueryClient
-	queryClient      types.QueryClient
-	address          common.Address
-	consAddress      sdk.ConsAddress
-	clientCtx        client.Context //nolint:unused
-	ethSigner        ethtypes.Signer
-	priv             cryptotypes.PrivKey
-	validator        stakingtypes.Validator
-	signer           keyring.Signer
-	mintFeeCollector bool
+	ctx            sdk.Context
+	app            *app.Evmos
+	queryClientEvm evm.QueryClient
+	queryClient    types.QueryClient
+	address        common.Address
+	consAddress    sdk.ConsAddress
+	clientCtx      client.Context //nolint:unused
+	ethSigner      ethtypes.Signer
+	priv           cryptotypes.PrivKey
+	validator      stakingtypes.Validator
+	signer         keyring.Signer
 
 	coordinator *ibcgotesting.Coordinator
 

@@ -7,15 +7,37 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "evmos/erc20/v1/genesis.proto";
 import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/evmos/evmos/v16/x/erc20/types";
 
 // Msg defines the erc20 Msg service.
 service Msg {
+  // ConvertERC20 mints a native Cosmos coin representation of the ERC20 token
+  // contract that is registered on the token mapping.
+  rpc ConvertERC20(MsgConvertERC20) returns (MsgConvertERC20Response) {
+    option (google.api.http).get = "/evmos/erc20/v1/tx/convert_erc20";
+  };
   // UpdateParams defined a governance operation for updating the x/erc20 module parameters.
   // The authority is hard-coded to the Cosmos SDK x/gov module account
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
+
+// MsgConvertERC20 defines a Msg to convert a ERC20 token to a native Cosmos
+// coin.
+message MsgConvertERC20 {
+  // contract_address of an ERC20 token contract, that is registered in a token pair
+  string contract_address = 1;
+  // amount of ERC20 tokens to convert
+  string amount = 2 [(gogoproto.customtype) = "cosmossdk.io/math.Int", (gogoproto.nullable) = false];
+  // receiver is the bech32 address to receive native Cosmos coins
+  string receiver = 3;
+  // sender is the hex address from the owner of the given ERC20 tokens
+  string sender = 4;
+}
+
+// MsgConvertERC20Response returns no fields
+message MsgConvertERC20Response {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type for Erc20 parameters.
 // Since: cosmos-sdk 0.47

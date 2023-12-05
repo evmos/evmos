@@ -20,7 +20,8 @@ var (
 
 const (
 	// Amino names
-	updateParams = "evmos/erc20/MsgUpdateParams"
+	convertERC20Name = "evmos/MsgConvertERC20"
+	updateParams     = "evmos/erc20/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -33,6 +34,7 @@ func init() {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
+		&MsgConvertERC20{},
 		&MsgUpdateParams{},
 	)
 	registry.RegisterImplementations(
@@ -49,4 +51,5 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 // Amino JSON serialization and EIP-712 compatibility.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, updateParams, nil)
+	cdc.RegisterConcrete(&MsgConvertERC20{}, convertERC20Name, nil)
 }

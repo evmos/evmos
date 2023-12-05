@@ -4,8 +4,9 @@
 package ibc
 
 import (
-	"cosmossdk.io/math"
 	"strings"
+
+	"cosmossdk.io/math"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
