@@ -847,7 +847,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [\#107](https://github.com/evmos/evmos/pull/107) Add IBC validation
 - (cmd) [\#105](https://github.com/evmos/evmos/pull/105) Improve testnet command to include JSON-RPC client.
 
-## Bug Fixes
+### Bug Fixes
 
 - (erc20) [\#109](https://github.com/evmos/evmos/pull/109) Fix hardcoded erc20 nonce and `UpdateTokenPairERC20` proposal to support ERC20s with 0 decimals.
 - (erc20) [\#102](https://github.com/evmos/evmos/pull/102) Add `convert-erc20` cmd
