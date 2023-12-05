@@ -72,14 +72,8 @@ func (k Keeper) OnRecvPacket(
 
 	// TODO: Consider how it integrates with PFM.
 	// Case 1 - token pair is not registered
-	// Case 1.1 - voucher is not a native chain voucher
-	if !ibc.IsSingleHop(data.Denom) {
-		// return acknowledgement without conversion
-		return ack
-	}
-
-	// Case 1.2 - coin is a native chain voucher and the token pair is not registered
-	if !found {
+	// Case 1.1 - coin is a native chain voucher and the token pair is not registered
+	if !found && ibc.IsSingleHop(data.Denom) {
 		// TODO: Should we register the token pair and precompile
 		// if err := k.RegisterTokenPairForNativeCoin(ctx, coinMetadata); err != nil {
 		// 	return channeltypes.NewErrorAcknowledgement(err)
@@ -87,6 +81,12 @@ func (k Keeper) OnRecvPacket(
 		// if err := k.RegisterPrecompileForCoin(ctx, coin, pair); err != nil {
 		//	return channeltypes.NewErrorAcknowledgement(err)
 		// }
+		return ack
+	}
+
+	// Case 1.2 - pair is found and the voucher is not a native chain voucher
+	if !ibc.IsSingleHop(data.Denom) {
+		// return acknowledgement without conversion
 		return ack
 	}
 
