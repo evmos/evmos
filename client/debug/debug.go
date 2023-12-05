@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	evmos "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	evmos "github.com/evmos/evmos/v16/types"
 	"github.com/pkg/errors"
 
 	"github.com/cometbft/cometbft/libs/bytes"

@@ -9,9 +9,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
-	"github.com/evmos/evmos/v15/utils"
-	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
+	v14 "github.com/evmos/evmos/v16/app/upgrades/v14"
+	"github.com/evmos/evmos/v16/utils"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0

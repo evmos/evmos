@@ -9,7 +9,8 @@ import (
 	"golang.org/x/exp/slices"
 
 	errorsmod "cosmossdk.io/errors"
-	evmante "github.com/evmos/evmos/v15/app/ante/evm"
+	"cosmossdk.io/math"
+	evmante "github.com/evmos/evmos/v16/app/ante/evm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -68,7 +69,7 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	// Determine the required fees by multiplying each required minimum gas
 	// price by the gas limit, where fee = ceil(minGasPrice * gasLimit).
-	gasLimit := sdk.NewDecFromBigInt(new(big.Int).SetUint64(gas))
+	gasLimit := math.LegacyNewDecFromBigInt(new(big.Int).SetUint64(gas))
 
 	for _, gp := range minGasPrices {
 		fee := gp.Amount.Mul(gasLimit).Ceil().RoundInt()

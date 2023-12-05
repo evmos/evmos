@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 
@@ -14,15 +15,15 @@ import (
 	"github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 
-	"github.com/evmos/evmos/v15/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v15/rpc/types"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v16/rpc/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {
-	baseFee := sdk.NewInt(1)
+	baseFee := math.NewInt(1)
 
 	testCases := []struct {
 		name         string
@@ -290,7 +291,7 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice sdk.Dec
+		expMinGasPrice math.LegacyDec
 		expPass        bool
 	}{
 		{
@@ -299,7 +300,7 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
 				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
 			},
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			false,
 		},
 	}
@@ -389,7 +390,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 		{
 			"fail - Invalid base fee",
 			func(validator sdk.AccAddress) {
-				// baseFee := sdk.NewInt(1)
+				// baseFee := math.NewInt(1)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2
@@ -411,7 +412,7 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 			"pass - Valid FeeHistoryResults object",
 			func(validator sdk.AccAddress) {
 				var header metadata.MD
-				baseFee := sdk.NewInt(1)
+				baseFee := math.NewInt(1)
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
 				suite.backend.cfg.JSONRPC.FeeHistoryCap = 2

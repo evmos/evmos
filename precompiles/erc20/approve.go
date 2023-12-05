@@ -4,6 +4,7 @@
 package erc20
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"math/big"
@@ -17,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 // Approve sets the given amount as the allowance of the spender address over
@@ -45,6 +46,14 @@ func (p Precompile) Approve(
 
 	grantee := spender
 	granter := contract.CallerAddress
+
+	// NOTE: We do not support approvals if the grantee is the granter.
+	// This is different from the ERC20 standard but there is no reason to
+	// do so, since in that case the grantee can just transfer the tokens
+	// without authorization.
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
 
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
@@ -105,6 +114,10 @@ func (p Precompile) IncreaseAllowance(
 	grantee := spender
 	granter := contract.CallerAddress
 
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
+
 	// TODO: owner should be the owner of the contract
 	authorization, expiration, _ := auth.CheckAuthzExists(ctx, p.AuthzKeeper, grantee, granter, SendMsgURL) //#nosec:G703 -- we are handling the error case (authorization == nil) in the switch statement below
 
@@ -163,6 +176,9 @@ func (p Precompile) DecreaseAllowance(
 	grantee := spender
 	granter := contract.CallerAddress
 
+	if bytes.Equal(grantee.Bytes(), granter.Bytes()) {
+		return nil, ErrSpenderIsOwner
+	}
 	// TODO: owner should be the owner of the contract
 
 	authorization, expiration, allowance, err := GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, grantee, granter, p.tokenPair.Denom)
@@ -209,7 +225,7 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 		return fmt.Errorf(ErrIntegerOverflow, amount)
 	}
 
-	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}}
+	coins := sdk.Coins{{Denom: p.tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(amount)}}
 	expiration := ctx.BlockTime().Add(p.ApprovalExpiration)
 
 	// NOTE: we leave the allowed arg empty as all recipients are allowed (per ERC20 standard)
@@ -222,7 +238,7 @@ func (p Precompile) createAuthorization(ctx sdk.Context, grantee, granter common
 }
 
 func (p Precompile) updateAuthorization(ctx sdk.Context, grantee, granter common.Address, amount *big.Int, authorization *banktypes.SendAuthorization, expiration *time.Time) error {
-	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)})
+	authorization.SpendLimit = updateOrAddCoin(authorization.SpendLimit, sdk.Coin{Denom: p.tokenPair.Denom, Amount: sdkmath.NewIntFromBigInt(amount)})
 	if err := authorization.ValidateBasic(); err != nil {
 		return err
 	}
@@ -273,7 +289,7 @@ func (p Precompile) increaseAllowance(
 	}
 
 	allowance := sendAuthz.SpendLimit.AmountOfNoDenomValidation(p.tokenPair.Denom)
-	sdkAddedValue := sdk.NewIntFromBigInt(addedValue)
+	sdkAddedValue := sdkmath.NewIntFromBigInt(addedValue)
 	amount, overflow := cmn.SafeAdd(allowance, sdkAddedValue)
 	if overflow {
 		return nil, ConvertErrToERC20Error(errors.New(cmn.ErrIntegerOverflow))

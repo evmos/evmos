@@ -8,12 +8,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/erc20/keeper"
-	"github.com/evmos/evmos/v15/x/erc20/types"
-	erc20mocks "github.com/evmos/evmos/v15/x/erc20/types/mocks"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/erc20/keeper"
+	"github.com/evmos/evmos/v16/x/erc20/types"
+	erc20mocks "github.com/evmos/evmos/v16/x/erc20/types/mocks"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -203,7 +203,7 @@ func (suite KeeperTestSuite) TestRegisterCoin() { //nolint:govet // we can copy 
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -295,7 +295,7 @@ func (suite KeeperTestSuite) TestRegisterERC20() { //nolint:govet // we can copy
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper, suite.app.ClaimsKeeper,
+					suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 

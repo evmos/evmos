@@ -4,18 +4,18 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/werc20"
-	"github.com/evmos/evmos/v15/precompiles/werc20/testdata"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/werc20"
+	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -577,7 +577,7 @@ var _ = Describe("WEVMOS Extension -", func() {
 
 				transferCoins := sdk.Coins{sdk.NewInt64Coin(s.tokenDenom, amount.Int64())}
 
-				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer)
+				transferCheck := passCheck.WithExpEvents(erc20.EventTypeTransfer, auth.EventTypeApproval)
 				_, ethRes, err := s.factory.CallContractAndCheckLogs(sender.Priv, txArgs, transferArgs, transferCheck)
 				Expect(err).ToNot(HaveOccurred(), "unexpected result calling contract")
 

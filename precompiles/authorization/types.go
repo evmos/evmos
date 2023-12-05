@@ -8,13 +8,14 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"golang.org/x/exp/slices"
 )
 
@@ -63,7 +64,7 @@ func CheckApprovalArgs(args []interface{}, denom string) (common.Address, *sdk.C
 		if amount.Cmp(abi.MaxUint256) != 0 {
 			coin = &sdk.Coin{
 				Denom:  denom,
-				Amount: sdk.NewIntFromBigInt(amount),
+				Amount: math.NewIntFromBigInt(amount),
 			}
 		}
 	}

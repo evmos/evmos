@@ -5,15 +5,16 @@ package stride_test
 import (
 	"fmt"
 
-	commonnetwork "github.com/evmos/evmos/v15/testutil/integration/common/network"
-	"github.com/evmos/evmos/v15/testutil/integration/ibc/coordinator"
+	"cosmossdk.io/math"
+	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	"github.com/evmos/evmos/v16/testutil/integration/ibc/coordinator"
 
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 const (
@@ -29,7 +30,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 	evmosMetadata, found := s.network.App.BankKeeper.GetDenomMetaData(ctx, bondDenom)
 	s.Require().True(found, "expected evmos denom metadata")
 
-	coin := sdk.NewCoin(evmosMetadata.Base, sdk.NewInt(2e18))
+	coin := sdk.NewCoin(evmosMetadata.Base, math.NewInt(2e18))
 	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(coin))
 	s.Require().NoError(err)
 
@@ -63,7 +64,7 @@ func (s *PrecompileTestSuite) registerStrideCoinERC20() {
 		Display: denomTrace.BaseDenom,
 	}
 
-	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, sdk.NewInt(9e18))
+	stEvmos := sdk.NewCoin(stEvmosMetadata.Base, math.NewInt(9e18))
 	err = s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, sdk.NewCoins(stEvmos))
 	s.Require().NoError(err)
 	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, s.keyring.GetAccAddr(0), sdk.NewCoins(stEvmos))

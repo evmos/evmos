@@ -3,15 +3,16 @@ package distribution_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -69,7 +70,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 
 				input, err := s.precompile.Pack(
@@ -91,7 +92,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				s.Require().NoError(err)
 				caller := common.BytesToAddress(valAddr)
 
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -113,7 +114,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 
 				input, err := s.precompile.Pack(
@@ -134,7 +135,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				valAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 
 				input, err := s.precompile.Pack(

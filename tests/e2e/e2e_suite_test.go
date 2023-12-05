@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/evmos/evmos/v15/tests/e2e/upgrade"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/tests/e2e/upgrade"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 const (
@@ -281,9 +281,6 @@ func (s *IntegrationTestSuite) executeQueries() {
 		{"feemarket: block-gas", "feemarket", "block-gas"},
 		{"revenue: params", "revenue", "params"},
 		{"revenue: contracts", "revenue", "contracts"},
-		{"incentives: params", "incentives", "params"},
-		{"incentives: allocation-meters", "incentives", "allocation-meters"},
-		{"incentives: incentives", "incentives", "incentives"},
 	}
 
 	for _, tc := range testCases {

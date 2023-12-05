@@ -9,7 +9,6 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
@@ -47,23 +46,23 @@ func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
 
 // DefaultChainConfig returns default evm parameters.
 func DefaultChainConfig() ChainConfig {
-	homesteadBlock := sdk.ZeroInt()
-	daoForkBlock := sdk.ZeroInt()
-	eip150Block := sdk.ZeroInt()
-	eip155Block := sdk.ZeroInt()
-	eip158Block := sdk.ZeroInt()
-	byzantiumBlock := sdk.ZeroInt()
-	constantinopleBlock := sdk.ZeroInt()
-	petersburgBlock := sdk.ZeroInt()
-	istanbulBlock := sdk.ZeroInt()
-	muirGlacierBlock := sdk.ZeroInt()
-	berlinBlock := sdk.ZeroInt()
-	londonBlock := sdk.ZeroInt()
-	arrowGlacierBlock := sdk.ZeroInt()
-	grayGlacierBlock := sdk.ZeroInt()
-	mergeNetsplitBlock := sdk.ZeroInt()
-	shanghaiBlock := sdk.ZeroInt()
-	cancunBlock := sdk.ZeroInt()
+	homesteadBlock := sdkmath.ZeroInt()
+	daoForkBlock := sdkmath.ZeroInt()
+	eip150Block := sdkmath.ZeroInt()
+	eip155Block := sdkmath.ZeroInt()
+	eip158Block := sdkmath.ZeroInt()
+	byzantiumBlock := sdkmath.ZeroInt()
+	constantinopleBlock := sdkmath.ZeroInt()
+	petersburgBlock := sdkmath.ZeroInt()
+	istanbulBlock := sdkmath.ZeroInt()
+	muirGlacierBlock := sdkmath.ZeroInt()
+	berlinBlock := sdkmath.ZeroInt()
+	londonBlock := sdkmath.ZeroInt()
+	arrowGlacierBlock := sdkmath.ZeroInt()
+	grayGlacierBlock := sdkmath.ZeroInt()
+	mergeNetsplitBlock := sdkmath.ZeroInt()
+	shanghaiBlock := sdkmath.ZeroInt()
+	cancunBlock := sdkmath.ZeroInt()
 
 	return ChainConfig{
 		HomesteadBlock:      &homesteadBlock,

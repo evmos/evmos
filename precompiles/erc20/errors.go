@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // Errors that have formatted information are defined here as a string.
@@ -32,6 +32,7 @@ var (
 	ErrIncreaseNonPositiveValue = errors.New("cannot increase allowance with non-positive values")
 	ErrNegativeAmount           = errors.New("cannot approve negative values")
 	ErrNoIBCVoucherDenom        = errors.New("denom is not an IBC voucher")
+	ErrSpenderIsOwner           = errors.New("spender cannot be the owner")
 
 	// ERC20 errors
 	ErrDecreasedAllowanceBelowZero  = errors.New("ERC20: decreased allowance below zero")

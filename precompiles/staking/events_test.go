@@ -3,15 +3,16 @@ package staking_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
 )
 
 func (s *PrecompileTestSuite) TestApprovalEvent() {
@@ -252,9 +253,9 @@ func (s *PrecompileTestSuite) TestCreateValidatorEvent() {
 						Details:         "",
 					},
 					staking.Commission{
-						Rate:          sdk.OneDec().BigInt(),
-						MaxRate:       sdk.OneDec().BigInt(),
-						MaxChangeRate: sdk.OneDec().BigInt(),
+						Rate:          math.LegacyOneDec().BigInt(),
+						MaxRate:       math.LegacyOneDec().BigInt(),
+						MaxChangeRate: math.LegacyOneDec().BigInt(),
 					},
 					big.NewInt(1),
 					s.address,

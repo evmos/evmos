@@ -1,10 +1,13 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
 	"testing"
+	"time"
 
+	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -26,6 +29,7 @@ type Network interface {
 	GetValidators() []stakingtypes.Validator
 
 	NextBlock() error
+	NextBlockAfter(duration time.Duration) error
 
 	// Clients
 	GetAuthClient() authtypes.QueryClient
@@ -38,6 +42,12 @@ type Network interface {
 
 	// GetIBCChain returns the IBC test chain.
 	// NOTE: this is only used for testing IBC related functionality.
-	// The idea is to depecrate this eventually.
+	// The idea is to deprecate this eventually.
 	GetIBCChain(t *testing.T, coord *ibctesting.Coordinator) *ibctesting.TestChain
+
+	// FundAccount funds the given account with the given amount.
+	FundAccount(address sdktypes.AccAddress, amount sdktypes.Coins) error
+	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
+	// base denomination.
+	FundAccountWithBaseDenom(address sdktypes.AccAddress, amount sdkmath.Int) error
 }

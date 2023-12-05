@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/keeper"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/keeper"
 
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
@@ -19,7 +19,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -33,13 +33,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/evm"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	"github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/evm"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"github.com/evmos/evmos/v16/x/evm/types"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"

@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 const (
@@ -28,7 +28,7 @@ func (p Precompile) EmitSwapEvent(
 	amount *big.Int,
 	receiver string,
 ) error {
-	// Prepare the event topics
+	// Prepare the event topics.
 	event := p.ABI.Events[EventTypeSwap]
 	topics := make([]common.Hash, 4)
 
@@ -36,7 +36,7 @@ func (p Precompile) EmitSwapEvent(
 	topics[0] = event.ID
 
 	var err error
-	// sender, input, and output are indexed
+	// sender, input, and output are indexed.
 	topics[1], err = cmn.MakeTopic(sender)
 	if err != nil {
 		return err
@@ -52,7 +52,6 @@ func (p Precompile) EmitSwapEvent(
 		return err
 	}
 
-	// Prepare the event data: amount, receiver
 	arguments := abi.Arguments{event.Inputs[3], event.Inputs[4]}
 	packed, err := arguments.Pack(amount, receiver)
 	if err != nil {

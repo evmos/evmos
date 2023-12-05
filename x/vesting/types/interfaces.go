@@ -59,7 +59,7 @@ type StakingKeeper interface {
 	SetDelegation(ctx sdk.Context, delegation stakingtypes.Delegation)
 	RemoveDelegation(ctx sdk.Context, delegation stakingtypes.Delegation) error
 	GetRedelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) []stakingtypes.Redelegation
-	SetRedelegationEntry(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorSrcAddr, validatorDstAddr sdk.ValAddress, creationHeight int64, minTime time.Time, balance math.Int, sharesSrc, sharesDst sdk.Dec) stakingtypes.Redelegation
+	SetRedelegationEntry(ctx sdk.Context, delegatorAddr sdk.AccAddress, validatorSrcAddr, validatorDstAddr sdk.ValAddress, creationHeight int64, minTime time.Time, balance math.Int, sharesSrc, sharesDst math.LegacyDec) stakingtypes.Redelegation
 	InsertRedelegationQueue(ctx sdk.Context, red stakingtypes.Redelegation, completionTime time.Time)
 	SetRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)
 	RemoveRedelegation(ctx sdk.Context, red stakingtypes.Redelegation)

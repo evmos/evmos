@@ -12,25 +12,27 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
 const (
-	// OsmosisPrefix represents the human readable part of a bech32 address
-	// on the Osmosis chain.
+	// OsmosisPrefix represents the human readable part for bech32 addresses on the Osmosis chain.
 	OsmosisPrefix = "osmo"
 
-	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile
+	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile.
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 
-	// XCSContract placeholder until the XCS contract is deployed on the Osmosis test chain
-	XCSContract = "placeholder"
+	// XCSContract address for Osmosis testnet.
+	XCSContractTestnet = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
+	// XCSContract address for Osmosis mainnet.
+	XCSContractMainnet = ""
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -40,7 +42,7 @@ var _ vm.PrecompiledContract = &Precompile{}
 //go:embed abi.json
 var f embed.FS
 
-// Precompile is the structure that define the Osmosis outpost precompile extending
+// Precompile is the structure that defines the Osmosis outpost precompile extending
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
@@ -58,6 +60,7 @@ type Precompile struct {
 	transferKeeper transferkeeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
+	channelKeeper  channelkeeper.Keeper
 }
 
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
@@ -65,13 +68,19 @@ type Precompile struct {
 func NewPrecompile(
 	portID, channelID string,
 	osmosisXCSContract string,
+	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
-	authzKeeper authzkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := LoadABI()
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateOsmosisContractAddress(osmosisXCSContract)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +90,7 @@ func NewPrecompile(
 			ABI:                  newAbi,
 			KvGasConfig:          storetypes.KVGasConfig(),
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
-			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
+			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
 		portID:             portID,
@@ -89,10 +98,11 @@ func NewPrecompile(
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
 		osmosisXCSContract: osmosisXCSContract,
-		transferKeeper:     transferKeeper,
 		bankKeeper:         bankKeeper,
+		transferKeeper:     transferKeeper,
 		stakingKeeper:      stakingKeeper,
 		erc20Keeper:        erc20Keeper,
+		channelKeeper:      channelKeeper,
 	}, nil
 }
 
@@ -136,7 +146,7 @@ func (Precompile) IsTransaction(method string) bool {
 	}
 }
 
-// Run executes the precompiled contract IBC transfer methods defined in the ABI.
+// Run executes the precompiled contract Swap method.
 func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz []byte, err error) {
 	ctx, stateDB, method, initialGas, args, err := p.RunSetup(evm, contract, readOnly, p.IsTransaction)
 	if err != nil {
@@ -148,7 +158,6 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	defer cmn.HandleGasError(ctx, contract, initialGas, &err)()
 
 	switch method.Name {
-	// Osmosis Outpost Methods:
 	case SwapMethod:
 		bz, err = p.Swap(ctx, evm.Origin, stateDB, contract, method, args)
 	default:

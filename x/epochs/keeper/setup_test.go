@@ -11,10 +11,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	evm "github.com/evmos/evmos/v15/x/evm/types"
+	evm "github.com/evmos/evmos/v16/x/evm/types"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/x/epochs/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/x/epochs/types"
 )
 
 type KeeperTestSuite struct {

@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {

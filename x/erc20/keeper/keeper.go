@@ -12,9 +12,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // Keeper of this module maintains collections of erc20.
@@ -28,7 +28,6 @@ type Keeper struct {
 	bankKeeper     bankkeeper.Keeper
 	evmKeeper      types.EVMKeeper
 	stakingKeeper  types.StakingKeeper
-	claimsKeeper   types.ClaimsKeeper
 	authzKeeper    authzkeeper.Keeper
 	transferKeeper *transferkeeper.Keeper
 }
@@ -42,7 +41,6 @@ func NewKeeper(
 	bk bankkeeper.Keeper,
 	evmKeeper types.EVMKeeper,
 	sk types.StakingKeeper,
-	ck types.ClaimsKeeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper *transferkeeper.Keeper,
 ) Keeper {
@@ -59,7 +57,6 @@ func NewKeeper(
 		bankKeeper:     bk,
 		evmKeeper:      evmKeeper,
 		stakingKeeper:  sk,
-		claimsKeeper:   ck,
 		authzKeeper:    authzKeeper,
 		transferKeeper: transferKeeper,
 	}

@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"time"
 
+	"cosmossdk.io/math"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
@@ -14,12 +15,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/testutil"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/utils"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/testutil"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -110,11 +111,11 @@ func calculateFees(
 	res abci.ResponseDeliverTx,
 	gasPrice *big.Int,
 ) (sdk.Coin, sdk.Coin) {
-	feeDistribution := sdk.NewInt(res.GasUsed).Mul(sdk.NewIntFromBigInt(gasPrice))
-	developerFee := sdk.NewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
+	feeDistribution := math.NewInt(res.GasUsed).Mul(math.NewIntFromBigInt(gasPrice))
+	developerFee := math.LegacyNewDecFromInt(feeDistribution).Mul(params.DeveloperShares)
 	developerCoins := sdk.NewCoin(denom, developerFee.TruncateInt())
-	validatorShares := sdk.OneDec().Sub(params.DeveloperShares)
-	validatorFee := sdk.NewDecFromInt(feeDistribution).Mul(validatorShares)
+	validatorShares := math.LegacyOneDec().Sub(params.DeveloperShares)
+	validatorFee := math.LegacyNewDecFromInt(feeDistribution).Mul(validatorShares)
 	validatorCoins := sdk.NewCoin(denom, validatorFee.TruncateInt())
 	return developerCoins, validatorCoins
 }

@@ -9,7 +9,7 @@ import (
 	math "math"
 	math_bits "math/bits"
 
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	cosmossdk_io_math "cosmossdk.io/math"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 )
@@ -37,13 +37,13 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type V2InflationDistribution struct {
 	// staking_rewards defines the proportion of the minted minted_denom that is
 	// to be allocated as staking rewards
-	StakingRewards github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=staking_rewards,json=stakingRewards,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"staking_rewards"`
+	StakingRewards cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=staking_rewards,json=stakingRewards,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"staking_rewards"`
 	// usage_incentives defines the proportion of the minted minted_denom that is
 	// to be allocated to the incentives module address
-	UsageIncentives github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=usage_incentives,json=usageIncentives,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"usage_incentives"`
+	UsageIncentives cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=usage_incentives,json=usageIncentives,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"usage_incentives"`
 	// community_pool defines the proportion of the minted minted_denom that is to
 	// be allocated to the community pool
-	CommunityPool github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=community_pool,json=communityPool,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"community_pool"`
+	CommunityPool cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=community_pool,json=communityPool,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"community_pool"`
 }
 
 func (m *V2InflationDistribution) Reset()         { *m = V2InflationDistribution{} }
@@ -91,15 +91,15 @@ var xxx_messageInfo_V2InflationDistribution proto.InternalMessageInfo
 // (max_variance / bonding_target))
 type V2ExponentialCalculation struct {
 	// a defines the initial value
-	A github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=a,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"a"`
+	A cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=a,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"a"`
 	// r defines the reduction factor
-	R github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=r,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"r"`
+	R cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=r,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"r"`
 	// c defines the parameter for long term inflation
-	C github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=c,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"c"`
+	C cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=c,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"c"`
 	// bonding_target
-	BondingTarget github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=bonding_target,json=bondingTarget,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"bonding_target"`
+	BondingTarget cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=bonding_target,json=bondingTarget,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"bonding_target"`
 	// max_variance
-	MaxVariance github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=max_variance,json=maxVariance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"max_variance"`
+	MaxVariance cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=max_variance,json=maxVariance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"max_variance"`
 }
 
 func (m *V2ExponentialCalculation) Reset()         { *m = V2ExponentialCalculation{} }

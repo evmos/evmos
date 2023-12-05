@@ -15,7 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/cometbft/cometbft/crypto"
-	"github.com/evmos/evmos/v15/precompiles/p256"
+	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/cryptobyte/asn1"
