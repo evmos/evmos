@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -70,8 +71,8 @@ func NewPrecompile(
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
-			KvGasConfig:          sdk.GasConfig{},
-			TransientKVGasConfig: sdk.GasConfig{},
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,

@@ -129,7 +129,6 @@ interface StakingI is authorization.AuthorizationI {
     /// @param description The initial description
     /// @param commissionRates The initial commissionRates
     /// @param minSelfDelegation The validator's self declared minimum self delegation
-    /// @param delegatorAddress The delegator address
     /// @param validatorAddress The validator address
     /// @param pubkey The consensus public key of the validator
     /// @param value The amount of the coin to be self delegated to the validator
@@ -138,8 +137,7 @@ interface StakingI is authorization.AuthorizationI {
         Description calldata description,
         CommissionRates calldata commissionRates,
         uint256 minSelfDelegation,
-        address delegatorAddress,
-        string memory validatorAddress,
+        address validatorAddress,
         string memory pubkey,
         uint256 value
     ) external returns (bool success);
@@ -269,11 +267,9 @@ interface StakingI is authorization.AuthorizationI {
         );
 
     /// @dev CreateValidator defines an Event emitted when a create a new validator.
-    /// @param delegatorAddress The address of the delegator
     /// @param validatorAddress The address of the validator
     /// @param value The amount of coin being self delegated
     event CreateValidator(
-        address indexed delegatorAddress,
         address indexed validatorAddress,
         uint256 value
     );
