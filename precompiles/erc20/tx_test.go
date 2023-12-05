@@ -8,10 +8,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var (

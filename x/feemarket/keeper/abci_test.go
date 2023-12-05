@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 
+	"github.com/cometbft/cometbft/abci/types"
 	storetypes "cosmossdk.io/store/types"
 )
 

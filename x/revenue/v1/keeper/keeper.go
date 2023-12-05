@@ -11,7 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // Keeper of this module maintains collections of revenues for contracts

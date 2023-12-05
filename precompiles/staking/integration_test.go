@@ -19,16 +19,16 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	compiledcontracts "github.com/evmos/evmos/v15/contracts"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/staking/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	compiledcontracts "github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/staking/testdata"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 // General variables used for integration tests
@@ -802,8 +802,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -812,14 +813,14 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
 		It("should return an empty validator if the validator is not found", func() {
-			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
+			newValHexAddr := testutiltx.GenerateAddress()
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				newValAddr.String(),
+				newValHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2107,7 +2108,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("with non-existing address should return an empty validator", func() {
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				nonExistingVal.String(),
+				nonExistingAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2121,8 +2122,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		})
 
 		It("with existing address should return the validator", func() {
+			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				valAddr.String(),
+				varHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2131,7 +2133,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(valAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 

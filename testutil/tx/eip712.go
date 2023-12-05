@@ -17,10 +17,11 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	"github.com/evmos/evmos/v15/app"
-	cryptocodec "github.com/evmos/evmos/v15/crypto/codec"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	"github.com/evmos/evmos/v15/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/evmos/evmos/v16/app"
+	cryptocodec "github.com/evmos/evmos/v16/crypto/codec"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v16/types"
 )
 
 type EIP712TxArgs struct {

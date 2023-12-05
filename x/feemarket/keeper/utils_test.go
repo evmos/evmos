@@ -5,10 +5,10 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/utils"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	simutils "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -22,14 +22,14 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v15/encoding"
-	"github.com/evmos/evmos/v15/testutil"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	"github.com/evmos/evmos/v15/x/feemarket/types"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/encoding"
+	"github.com/evmos/evmos/v16/testutil"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v16/x/feemarket/types"
 
 	"github.com/stretchr/testify/require"
 
@@ -110,7 +110,7 @@ func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 // given a local (validator config) and a global (feemarket param) minGasPrice
 //
 //nolint:unparam
-func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice math.LegacyDec, baseFee sdkmath.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
+func setupTestWithContext(chainID, valMinGasPrice string, minGasPrice math.LegacyDec, baseFee math.Int) (*ethsecp256k1.PrivKey, banktypes.MsgSend) {
 	privKey, msg := setupTest(valMinGasPrice+s.denom, chainID)
 	params := types.DefaultParams()
 	params.MinGasPrice = minGasPrice
@@ -126,7 +126,7 @@ func setupTest(localMinGasPrices, chainID string) (*ethsecp256k1.PrivKey, bankty
 	setupChain(localMinGasPrices, chainID)
 
 	address, privKey := utiltx.NewAccAddressAndKey()
-	amount, ok := sdkmath.NewIntFromString("10000000000000000000")
+	amount, ok := math.NewIntFromString("10000000000000000000")
 	s.Require().True(ok)
 	initBalance := sdk.Coins{sdk.Coin{
 		Denom:  s.denom,
@@ -140,7 +140,7 @@ func setupTest(localMinGasPrices, chainID string) (*ethsecp256k1.PrivKey, bankty
 		ToAddress:   address.String(),
 		Amount: sdk.Coins{sdk.Coin{
 			Denom:  s.denom,
-			Amount: sdkmath.NewInt(10000),
+			Amount: math.NewInt(10000),
 		}},
 	}
 	s.Commit()

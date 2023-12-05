@@ -7,13 +7,13 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
 )
 
 const (

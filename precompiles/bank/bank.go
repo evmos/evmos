@@ -11,8 +11,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 )
 
 const (
@@ -20,13 +20,13 @@ const (
 	PrecompileAddress string = "0x0000000000000000000000000000000000000804"
 
 	// GasBalanceOf defines the gas cost for a single ERC-20 balanceOf query
-	GasBalanceOf uint64 = 100 // TODO: get actual estimated gas cost
+	GasBalanceOf = 2_851
 
 	// GasTotalSupply defines the gas cost for a single ERC-20 totalSupply query
-	GasTotalSupply uint64 = 100 // TODO: get actual estimated gas cost
+	GasTotalSupply = 2_477
 
 	// GasSupplyOf defines the gas cost for a single ERC-20 supplyOf query, taken from totalSupply of ERC20
-	GasSupplyOf uint64 = 2_477
+	GasSupplyOf = 2_477
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

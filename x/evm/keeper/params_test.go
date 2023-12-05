@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"reflect"
 
-	"github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {

@@ -7,8 +7,8 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	v2types "github.com/evmos/evmos/v15/x/revenue/v1/migrations/v2/types"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	v2types "github.com/evmos/evmos/v16/x/revenue/v1/migrations/v2/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // MigrateStore migrates the x/revenue module state from the consensus version 1 to

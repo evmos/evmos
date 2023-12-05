@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
+	
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
@@ -77,12 +77,12 @@ func (suite *KeeperTestSuite) TestMintAndAllocateInflation() {
 
 func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 	// the total bonded tokens for the 2 accounts initialized on the setup
-	bondedAmt := sdkmath.NewInt(1000100000000000000)
+	bondedAmt := math.NewInt(1000100000000000000)
 	bondedCoins := sdk.NewDecCoin(evmostypes.AttoEvmos, bondedAmt)
 
 	testCases := []struct {
 		name             string
-		bankSupply       sdkmath.Int
+		bankSupply       math.Int
 		malleate         func()
 		expInflationRate math.LegacyDec
 	}{

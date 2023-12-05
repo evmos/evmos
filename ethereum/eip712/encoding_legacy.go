@@ -13,7 +13,7 @@ import (
 	txTypes "github.com/cosmos/cosmos-sdk/types/tx"
 
 	apitypes "github.com/ethereum/go-ethereum/signer/core/apitypes"
-	evmos "github.com/evmos/evmos/v15/types"
+	evmos "github.com/evmos/evmos/v16/types"
 )
 
 type aminoMessage struct {

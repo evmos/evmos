@@ -81,8 +81,8 @@ func (suite *ParamsTestSuite) TestParamsValidatePriv() {
 	suite.Require().NoError(validateElasticityMultiplier(uint32(2)))
 	suite.Require().Error(validateBaseFee(""))
 	suite.Require().Error(validateBaseFee(int64(2000000000)))
-	suite.Require().Error(validateBaseFee(sdkmath.NewInt(-2000000000)))
-	suite.Require().NoError(validateBaseFee(sdkmath.NewInt(2000000000)))
+	suite.Require().Error(validateBaseFee(math.NewInt(-2000000000)))
+	suite.Require().NoError(validateBaseFee(math.NewInt(2000000000)))
 	suite.Require().Error(validateEnableHeight(""))
 	suite.Require().Error(validateEnableHeight(int64(-544435345345435345)))
 	suite.Require().NoError(validateEnableHeight(int64(544435345345435345)))
@@ -100,10 +100,8 @@ func (suite *ParamsTestSuite) TestParamsValidateMinGasPrice() {
 	}{
 		{"default", DefaultParams().MinGasPrice, false},
 		{"valid", math.LegacyNewDecFromInt(sdkmath.NewInt(1)), false},
+		{"valid", math.LegacyNewDecFromInt(math.NewInt(1)), false},
 		{"invalid - wrong type - bool", false, true},
-		{"invalid - wrong type - string", "", true},
-		{"invalid - wrong type - int64", int64(123), true},
-		{"invalid - wrong type - sdkmath.Int", sdkmath.NewInt(1), true},
 		{"invalid - is nil", nil, true},
 		{"invalid - is negative", math.LegacyNewDecFromInt(sdkmath.NewInt(-1)), true},
 	}

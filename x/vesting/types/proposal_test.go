@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/evmos/evmos/v15/x/vesting/types"
+	"github.com/evmos/evmos/v16/x/vesting/types"
 	"github.com/stretchr/testify/suite"
 )
 

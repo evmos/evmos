@@ -4,15 +4,14 @@ import (
 	"math/big"
 	"testing"
 
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/evm/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/evm/types"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -42,7 +41,7 @@ func (suite *TxDataTestSuite) SetupTest() {
 	suite.bigInt = big.NewInt(1)
 	suite.hexBigInt = hexutil.Big(*big.NewInt(1))
 	suite.overflowBigInt = big.NewInt(0).Exp(big.NewInt(10), big.NewInt(256), nil)
-	suite.sdkZeroInt = math.ZeroInt()
+	suite.sdkZeroInt = sdkmath.ZeroInt()
 	suite.sdkMinusOneInt = sdkmath.NewInt(-1)
 	suite.invalidAddr = "123456"
 	suite.addr = utiltx.GenerateAddress()

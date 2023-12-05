@@ -8,11 +8,15 @@ import (
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/evmos/v15/precompiles/p256"
-	"github.com/evmos/evmos/v15/utils"
-	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
-	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v16/precompiles/bech32"
+	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
+	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
+	"github.com/evmos/evmos/v16/precompiles/p256"
+	"github.com/evmos/evmos/v16/utils"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 )
 
 // CreateUpgradeHandler creates an SDK upgrade handler for v16.0.0
@@ -20,24 +24,39 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-	bankKeeper bankkeeper.Keeper,
+	_ bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
+	_ authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		ctx := sdk.UnwrapSDKContext(c)
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		p256Address := p256.Precompile{}.Address()
-		// enable secp256r1 precompile on testnet
+		// enable secp256r1 and bech32 precompile on testnet
 		if utils.IsTestnet(ctx.ChainID()) {
-			if err := ek.EnablePrecompiles(ctx, p256Address); err != nil {
+			p256Address := p256.Precompile{}.Address()
+			bech32Address := bech32.Precompile{}.Address()
+			if err := ek.EnablePrecompiles(ctx, p256Address, bech32Address); err != nil {
 				logger.Error("failed to enable precompiles", "error", err.Error())
 			}
 		}
 
-		if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
-			logger.Error("failed to burn inflation pool", "error", err.Error())
+		// enable stride and osmosis outposts
+		strideAddress := strideoutpost.Precompile{}.Address()
+		osmosisAddress := osmosisoutpost.Precompile{}.Address()
+		if err := ek.EnablePrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
+			logger.Error("failed to enable outposts", "error", err.Error())
 		}
+
+		// TODO: uncomment when ready
+		// Migrate the FeeCollector module account to include the Burner permission.
+		// if err := MigrateFeeCollector(ak, ctx); err != nil {
+		//	logger.Error("failed to migrate the fee collector", "error", err.Error())
+		// }
+		//
+		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
+		//	logger.Error("failed to burn inflation pool", "error", err.Error())
+		// }
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())

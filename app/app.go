@@ -62,7 +62,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -75,7 +74,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -122,53 +120,43 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/evmos/evmos/v15/client/docs/statik"
+	_ "github.com/evmos/evmos/v16/client/docs/statik"
 
-	"github.com/evmos/evmos/v15/app/ante"
-	ethante "github.com/evmos/evmos/v15/app/ante/evm"
-	v10 "github.com/evmos/evmos/v15/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v15/app/upgrades/v11"
-	v12 "github.com/evmos/evmos/v15/app/upgrades/v12"
-	v13 "github.com/evmos/evmos/v15/app/upgrades/v13"
-	v14 "github.com/evmos/evmos/v15/app/upgrades/v14"
-	v15 "github.com/evmos/evmos/v15/app/upgrades/v15"
-	v16 "github.com/evmos/evmos/v15/app/upgrades/v16"
-	v8 "github.com/evmos/evmos/v15/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v15/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v15/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v15/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v15/app/upgrades/v9_1"
-	"github.com/evmos/evmos/v15/ethereum/eip712"
-	"github.com/evmos/evmos/v15/precompiles/common"
-	srvflags "github.com/evmos/evmos/v15/server/flags"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/x/epochs"
-	epochskeeper "github.com/evmos/evmos/v15/x/epochs/keeper"
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	"github.com/evmos/evmos/v15/x/erc20"
-	erc20client "github.com/evmos/evmos/v15/x/erc20/client"
-	erc20keeper "github.com/evmos/evmos/v15/x/erc20/keeper"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	"github.com/evmos/evmos/v15/x/evm"
-	evmkeeper "github.com/evmos/evmos/v15/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	"github.com/evmos/evmos/v15/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v15/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v15/x/feemarket/types"
-	inflation "github.com/evmos/evmos/v15/x/inflation/v1"
-	inflationkeeper "github.com/evmos/evmos/v15/x/inflation/v1/keeper"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/v1/types"
-	revenue "github.com/evmos/evmos/v15/x/revenue/v1"
-	revenuekeeper "github.com/evmos/evmos/v15/x/revenue/v1/keeper"
-	revenuetypes "github.com/evmos/evmos/v15/x/revenue/v1/types"
-	"github.com/evmos/evmos/v15/x/vesting"
-	vestingclient "github.com/evmos/evmos/v15/x/vesting/client"
-	vestingkeeper "github.com/evmos/evmos/v15/x/vesting/keeper"
-	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
+	"github.com/evmos/evmos/v16/app/ante"
+	ethante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/app/post"
+	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	"github.com/evmos/evmos/v16/ethereum/eip712"
+	"github.com/evmos/evmos/v16/precompiles/common"
+	srvflags "github.com/evmos/evmos/v16/server/flags"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/x/epochs"
+	epochskeeper "github.com/evmos/evmos/v16/x/epochs/keeper"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	"github.com/evmos/evmos/v16/x/erc20"
+	erc20client "github.com/evmos/evmos/v16/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	"github.com/evmos/evmos/v16/x/evm"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	"github.com/evmos/evmos/v16/x/feemarket"
+	feemarketkeeper "github.com/evmos/evmos/v16/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
+	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	revenue "github.com/evmos/evmos/v16/x/revenue/v1"
+	revenuekeeper "github.com/evmos/evmos/v16/x/revenue/v1/keeper"
+	revenuetypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/vesting"
+	vestingclient "github.com/evmos/evmos/v16/x/vesting/client"
+	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
+	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 
 	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
-	"github.com/evmos/evmos/v15/x/ibc/transfer"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	"github.com/evmos/evmos/v16/x/ibc/transfer"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 
 	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
 	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
@@ -944,23 +932,23 @@ func (app *Evmos) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) 
 }
 
 func (app *Evmos) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
-	app.SetPostHandler(postHandler)
+	app.SetPostHandler(post.NewPostHandler(options))
 }
 
 // BeginBlocker runs the Tendermint ABCI BeginBlock logic. It executes state changes at the beginning
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
-func (app *Evmos) BeginBlocker(ctx sdk.Context) (sdk.BeginBlock, error) {
-	// Perform any scheduled forks before executing the modules logic
-	app.ScheduleForkUpgrade(ctx)
-	return app.mm.BeginBlock(ctx)
+func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker updates every end block
@@ -1235,114 +1223,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v8 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v8.UpgradeName,
-		v8.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v8.1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v81.UpgradeName,
-		v81.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v8.2 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v82.UpgradeName,
-		v82.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v9 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v9.UpgradeName,
-		v9.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v9.1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v91.UpgradeName,
-		v91.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v10 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v10.UpgradeName,
-		v10.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.StakingKeeper,
-		),
-	)
-
-	// v11 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v11.UpgradeName,
-		v11.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.DistrKeeper,
-		),
-	)
-
-	// v12 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v12.UpgradeName,
-		v12.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v13 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v13.UpgradeName,
-		v13.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			*app.EvmKeeper,
-		),
-	)
-
-	// !! ATTENTION !!
-	// v14 upgrade handler
-	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
-	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14.UpgradeName,
-		v14.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.EvmKeeper,
-			app.ConsensusParamsKeeper,
-			app.IBCKeeper.ClientKeeper,
-			app.ParamsKeeper,
-			app.appCodec,
-		),
-	)
-
-	// v15 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v15.UpgradeName,
-		v15.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.BankKeeper,
-			app.EvmKeeper,
-			app.StakingKeeper,
-		),
-	)
-
 	// v16 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v16.UpgradeName,
@@ -1351,6 +1231,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.EvmKeeper,
 			app.BankKeeper,
 			app.InflationKeeper,
+			app.AccountKeeper,
 		),
 	)
 
@@ -1369,55 +1250,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v8.UpgradeName:
-		// add revenue module for testnet (v7 -> v8)
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{"feesplit"},
-		}
-	case v81.UpgradeName:
-		// NOTE: store upgrade for mainnet was not registered and was replaced by
-		// the v8.2 upgrade.
-	case v82.UpgradeName:
-		// add  missing revenue module for mainnet (v8.1 -> v8.2)
-		// IMPORTANT: this upgrade CANNOT be executed for testnet!
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added:   []string{revenuetypes.ModuleName},
-			Deleted: []string{"feesplit"},
-		}
-	case v9.UpgradeName, v91.UpgradeName:
-		// no store upgrade in v9 or v9.1
-	case v10.UpgradeName:
-		// no store upgrades in v10
-	case v11.UpgradeName:
-		// add ica host submodule in v11
-		// initialize recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{icahosttypes.SubModuleName, "recoveryv1"},
-		}
-	case v12.UpgradeName:
-		// no store upgrades
-	case v13.UpgradeName:
-		// no store upgrades
-	case v14.UpgradeName:
-		// !! ATTENTION !!
-		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
-		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{
-				consensusparamtypes.StoreKey,
-				crisistypes.ModuleName,
-			},
-		}
-	case v15.UpgradeName:
-		// crisis module is deprecated in v15
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{crisistypes.ModuleName},
-		}
 	case v16.UpgradeName:
 		// recovery and incentives modules are deprecated in v16
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
+	default:
+		// no-op
 	}
 
 	if storeUpgrades != nil {

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/evmos/evmos/v15/x/epochs/types"
+	"github.com/evmos/evmos/v16/x/epochs/types"
 )
 
 func (suite *KeeperTestSuite) TestEpochInfo() {

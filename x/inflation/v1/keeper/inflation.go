@@ -7,10 +7,10 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	evmostypes "github.com/evmos/evmos/v15/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
 
-	utils "github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	utils "github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // 200M token at year 4 allocated to the team

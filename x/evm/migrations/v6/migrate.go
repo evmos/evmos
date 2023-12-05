@@ -6,10 +6,10 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/types"
 
-	v5types "github.com/evmos/evmos/v15/x/evm/migrations/v6/types"
+	v5types "github.com/evmos/evmos/v16/x/evm/migrations/v6/types"
 )
 
 // MigrateStore migrates the x/evm module state from the consensus version 5 to

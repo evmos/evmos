@@ -9,10 +9,9 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "github.com/evmos/evmos/v15/utils"
+	evmosutils "github.com/evmos/evmos/v16/utils"
 )
 
 var (
@@ -35,7 +34,7 @@ var (
 )
 
 // ICS20Allocation defines the spend limit for a particular port and channel.
-// We need this to be able to unpack to big.Int instead of sdkmath.Int.
+// We need this to be able to unpack to big.Int instead of math.Int.
 type ICS20Allocation struct {
 	SourcePort    string
 	SourceChannel string
@@ -111,7 +110,7 @@ func HexAddressFromBech32String(addr string) (res common.Address, err error) {
 
 // SafeAdd adds two integers and returns a boolean if an overflow occurs to avoid panic.
 // TODO: Upstream this to the SDK math package.
-func SafeAdd(a, b sdkmath.Int) (res *big.Int, overflow bool) {
+func SafeAdd(a, b math.Int) (res *big.Int, overflow bool) {
 	res = a.BigInt().Add(a.BigInt(), b.BigInt())
-	return res, res.BitLen() > sdkmath.MaxBitLen
+	return res, res.BitLen() > math.MaxBitLen
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/gogoproto/proto"
 
-	enccodec "github.com/evmos/evmos/v15/encoding/codec"
+	enccodec "github.com/evmos/evmos/v16/encoding/codec"
 )
 
 // MakeConfig creates an EncodingConfig for testing

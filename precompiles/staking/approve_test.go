@@ -7,17 +7,17 @@ import (
 
 	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	evmosutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	evmosutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
 )
 
 func (s *PrecompileTestSuite) TestApprove() {
@@ -229,7 +229,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				// Thus, validators with this status should be considered for the authorization
 
 				// Unbond another validator
-				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[1].GetOperator()), math.LegacyOneDec())
+				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
 				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 

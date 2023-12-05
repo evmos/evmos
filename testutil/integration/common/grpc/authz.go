@@ -7,8 +7,8 @@ import (
 	"context"
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/encoding"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 )
 
 // GetGrants returns the grants for the given grantee and granter combination.

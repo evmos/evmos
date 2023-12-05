@@ -127,7 +127,7 @@ func (m *V5Params) GetActivePrecompiles() []string {
 	return nil
 }
 
-// ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
+// ChainConfig defines the Ethereum ChainConfig parameters using *sdkmath.Int values
 // instead of *big.Int.
 type V5ChainConfig struct {
 	// homestead_block switch (nil no fork, 0 = already homestead)

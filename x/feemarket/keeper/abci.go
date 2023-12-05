@@ -6,10 +6,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/evmos/evmos/v15/x/feemarket/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/evmos/evmos/v16/x/feemarket/types"
 
 	"cosmossdk.io/math"
-	sdkmath "cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -49,8 +50,8 @@ func (k *Keeper) EndBlock(ctx sdk.Context) error {
 		return err
 	}
 
-	gasWanted := sdkmath.NewIntFromUint64(k.GetTransientGasWanted(ctx))
-	gasUsed := sdkmath.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
+	gasWanted := math.NewIntFromUint64(k.GetTransientGasWanted(ctx))
+	gasUsed := math.NewIntFromUint64(ctx.BlockGasMeter().GasConsumedToLimit())
 
 	if !gasWanted.IsInt64() {
 		err := fmt.Errorf("integer overflow by integer type conversion. Gas wanted > MaxInt64", "gas wanted", gasWanted.String())
@@ -70,7 +71,7 @@ func (k *Keeper) EndBlock(ctx sdk.Context) error {
 	// more info here https://github.com/evmos/ethermint/pull/1105#discussion_r888798925
 	minGasMultiplier := k.GetParams(ctx).MinGasMultiplier
 	limitedGasWanted := math.LegacyNewDec(gasWanted.Int64()).Mul(minGasMultiplier)
-	updatedGasWanted := sdkmath.LegacyMaxDec(limitedGasWanted, math.LegacyNewDec(gasUsed.Int64())).TruncateInt().Uint64()
+	updatedGasWanted := math.LegacyMaxDec(limitedGasWanted, math.LegacyNewDec(gasUsed.Int64())).TruncateInt().Uint64()
 	k.SetBlockGasWanted(ctx, updatedGasWanted)
 
 	defer func() {

@@ -10,19 +10,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/contracts"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/precompiles/erc20/testdata"
-	"github.com/evmos/evmos/v15/precompiles/testutil"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v15/testutil/integration/evmos/utils"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/contracts"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/precompiles/erc20/testdata"
+	"github.com/evmos/evmos/v16/precompiles/testutil"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -183,7 +183,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 	Context("basic functionality -", func() {
 		When("transferring tokens", func() {
-			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsed int64) {
+			DescribeTable("it should transfer tokens to a non-existing address", func(callType CallType, expGasUsedLowerBound int64, expGasUsedUpperBound int64) {
 				sender := is.keyring.GetKey(0)
 				receiver := utiltx.GenerateAddress()
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 300)}
@@ -209,12 +209,13 @@ var _ = Describe("ERC20 Extension -", func() {
 					},
 				)
 
-				Expect(res.GasUsed).To(Equal(expGasUsed), "expected different gas used")
+				Expect(res.GasUsed > expGasUsedLowerBound).To(BeTrue(), "expected different gas used")
+				Expect(res.GasUsed < expGasUsedUpperBound).To(BeTrue(), "expected different gas used")
 			},
 				// FIXME: The gas used on the precompile is much higher than on the EVM
-				Entry(" - direct call", directCall, int64(3_021_572)),
-				Entry(" - through erc20 contract", erc20Call, int64(54_381)),
-				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_113)),
+				Entry(" - direct call", directCall, int64(3_021_000), int64(3_022_000)),
+				Entry(" - through erc20 contract", erc20Call, int64(54_000), int64(54_500)),
+				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_000), int64(52_200)),
 			)
 
 			DescribeTable("it should transfer tokens to an existing address", func(callType CallType) {

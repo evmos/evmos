@@ -64,6 +64,7 @@ type StakingKeeper interface {
 	RemoveRedelegation(ctx context.Context, red stakingtypes.Redelegation) error
 	GetDelegatorUnbonding(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
 	GetDelegatorBonded(ctx context.Context, delegator sdk.AccAddress) (math.Int, error)
+
 	// Hooks
 	// Commented this out because go throws compiling error that a Hook is not implemented
 	// even though it is implemented

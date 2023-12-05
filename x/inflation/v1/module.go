@@ -20,8 +20,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	"github.com/evmos/evmos/v15/x/inflation/v1/keeper"
-	"github.com/evmos/evmos/v15/x/inflation/v1/types"
+	"github.com/evmos/evmos/v16/x/inflation/v1/client/cli"
+	"github.com/evmos/evmos/v16/x/inflation/v1/keeper"
+	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // consensusVersion defines the current x/inflation module consensus version.

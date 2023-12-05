@@ -16,8 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/evmos/evmos/v15/encoding"
-	evmostypes "github.com/evmos/evmos/v15/types"
+	"github.com/evmos/evmos/v16/encoding"
+	evmostypes "github.com/evmos/evmos/v16/types"
 )
 
 // NewDefaultGenesisState generates the default state for the application.

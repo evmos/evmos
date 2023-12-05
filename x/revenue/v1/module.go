@@ -21,8 +21,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	"github.com/evmos/evmos/v15/x/revenue/v1/keeper"
-	"github.com/evmos/evmos/v15/x/revenue/v1/types"
+	"github.com/evmos/evmos/v16/x/revenue/v1/client/cli"
+	"github.com/evmos/evmos/v16/x/revenue/v1/keeper"
+	"github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 // consensusVersion defines the current x/v1/revenue module consensus version.

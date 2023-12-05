@@ -6,7 +6,7 @@ package types
 import (
 	"cosmossdk.io/math"
 
-	evmostypes "github.com/evmos/evmos/v15/types"
+	evmostypes "github.com/evmos/evmos/v16/types"
 )
 
 // CalculateEpochProvisions returns mint provision per epoch
