@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -661,7 +662,7 @@ func (suite *AnteTestSuite) prepareAccount(ctx sdk.Context, addr sdk.AccAddress,
 	)
 	suite.Require().NoError(err, "error while preparing accounts for delegation rewards")
 	return ctx.
-		WithBlockGasMeter(sdk.NewGasMeter(1e19)).
+		WithBlockGasMeter(storetypes.NewGasMeter(1e19)).
 		WithBlockHeight(ctx.BlockHeight() + 1)
 }
 
