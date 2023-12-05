@@ -11,7 +11,7 @@ import (
 
 // NOTE: we're only keeping this logic for the upgrade tests
 // This is not the original upgrade logic.
-// Look into the previous version to if want to know what the upgrade logic was
+// Look into the previous version if want to know what the upgrade logic was
 // CreateUpgradeHandler creates an SDK upgrade handler for v15.0.0
 func CreateUpgradeHandler(
 	mm *module.Manager,
