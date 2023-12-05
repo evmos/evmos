@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/ibc-go/v8/testing/mock"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"

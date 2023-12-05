@@ -5,7 +5,6 @@ import (
 
 	"cosmossdk.io/math"
 	//nolint:revive // dot imports are fine for Ginkgo
-	"cosmossdk.io/math"
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"

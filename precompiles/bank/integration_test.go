@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v16/precompiles/bank/testdata"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -22,6 +23,7 @@ import (
 
 	"github.com/evmos/evmos/v16/precompiles/testutil"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -56,7 +58,8 @@ func (is *IntegrationTestSuite) SetupTest() {
 
 	ctx := integrationNetwork.GetContext()
 	sk := integrationNetwork.App.StakingKeeper
-	bondDenom := sk.BondDenom(ctx)
+	bondDenom, err := sk.BondDenom(ctx)
+	Expect(err).ToNot(HaveOccurred())
 	Expect(bondDenom).ToNot(BeEmpty(), "bond denom cannot be empty")
 
 	is.bondDenom = bondDenom
@@ -76,7 +79,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
-	err = is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
+	err = is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: math.NewInt(1e18)}})
 	Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
 
 	xmplMetadata := banktypes.Metadata{
@@ -162,10 +165,10 @@ var _ = Describe("Bank Extension -", func() {
 			It("should return the correct balance", func() {
 				balanceBefore, err := is.grpcHandler.GetBalance(sender.AccAddr, is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
-				Expect(balanceBefore.Balance.Amount).To(Equal(sdk.NewInt(0)))
+				Expect(balanceBefore.Balance.Amount).To(Equal(math.NewInt(0)))
 				Expect(balanceBefore.Balance.Denom).To(Equal(is.tokenDenom))
 
-				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), math.NewInt(amount.Int64()))
 
 				queryArgs, balancesArgs := getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
@@ -178,7 +181,7 @@ var _ = Describe("Bank Extension -", func() {
 				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
-				Expect(sdk.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+				Expect(math.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
 
 			It("should return a single token balance", func() {
@@ -193,7 +196,7 @@ var _ = Describe("Bank Extension -", func() {
 				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, utils.BaseDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
-				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
 
 			It("should return no balance for new account", func() {
@@ -209,7 +212,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should consume the correct amount of gas", func() {
-				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), math.NewInt(amount.Int64()))
 
 				queryArgs, balancesArgs := getTxAndCallArgs(directCall, contractData, bank.BalancesMethod, sender.Addr)
 				res, err := is.factory.ExecuteContractCall(sender.Priv, queryArgs, balancesArgs)
@@ -306,10 +309,10 @@ var _ = Describe("Bank Extension -", func() {
 			It("should return the correct balance", func() {
 				balanceBefore, err := is.grpcHandler.GetBalance(sender.AccAddr, is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
-				Expect(balanceBefore.Balance.Amount).To(Equal(sdk.NewInt(0)))
+				Expect(balanceBefore.Balance.Amount).To(Equal(math.NewInt(0)))
 				Expect(balanceBefore.Balance.Denom).To(Equal(is.tokenDenom))
 
-				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), math.NewInt(amount.Int64()))
 
 				queryArgs, balancesArgs := getTxAndCallArgs(contractCall, contractData, BalancesFunction, sender.Addr)
 				_, ethRes, err := is.factory.CallContractAndCheckLogs(sender.Priv, queryArgs, balancesArgs, passCheck)
@@ -322,7 +325,7 @@ var _ = Describe("Bank Extension -", func() {
 				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
-				Expect(sdk.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+				Expect(math.NewInt(balances[1].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
 
 			It("should return a single token balance", func() {
@@ -337,7 +340,7 @@ var _ = Describe("Bank Extension -", func() {
 				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, utils.BaseDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
-				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
+				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
 			})
 
 			It("should return no balance for new account", func() {
@@ -353,7 +356,7 @@ var _ = Describe("Bank Extension -", func() {
 			})
 
 			It("should consume the correct amount of gas", func() {
-				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), sdk.NewInt(amount.Int64()))
+				is.mintAndSendXMPLCoin(is.keyring.GetAccAddr(0), math.NewInt(amount.Int64()))
 
 				queryArgs, balancesArgs := getTxAndCallArgs(contractCall, contractData, BalancesFunction, sender.Addr)
 				res, err := is.factory.ExecuteContractCall(sender.Priv, queryArgs, balancesArgs)

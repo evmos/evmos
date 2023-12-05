@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/evmos/evmos/v16/x/feemarket/types"
 
 	"cosmossdk.io/math"

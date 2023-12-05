@@ -201,7 +201,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), math.LegacyNewDec(1))
+			_, _, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[0].GetOperator()), math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
 			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))

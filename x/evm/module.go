@@ -20,7 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/evmos/evmos/v16/x/evm/client/cli"
 	"github.com/evmos/evmos/v16/x/evm/keeper"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )

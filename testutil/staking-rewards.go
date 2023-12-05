@@ -23,7 +23,7 @@ import (
 )
 
 // CreateValidator creates a validator with the provided public key and stake amount
-func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt sdkmath.Int) {
+func CreateValidator(ctx sdk.Context, t *testing.T, pubKey cryptotypes.PubKey, sk stakingkeeper.Keeper, stakeAmt math.Int) {
 	zeroDec := math.LegacyZeroDec()
 	stakingParams, err := sk.GetParams(ctx)
 	require.NoError(t, err)

@@ -6,7 +6,6 @@ import (
 
 	"cosmossdk.io/math"
 	//nolint:revive // dot imports are fine for Ginkgo
-	"cosmossdk.io/math"
 	. "github.com/onsi/gomega"
 
 	abci "github.com/cometbft/cometbft/abci/types"

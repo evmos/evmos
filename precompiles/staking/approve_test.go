@@ -229,7 +229,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				// Thus, validators with this status should be considered for the authorization
 
 				// Unbond another validator
-				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), s.validators[1].GetOperator(), math.LegacyOneDec())
+				amount, err := s.app.StakingKeeper.Unbond(s.ctx, s.address.Bytes(), sdk.ValAddress(s.validators[1].GetOperator()), math.LegacyOneDec())
 				s.Require().NoError(err, "expected no error unbonding validator")
 				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 
