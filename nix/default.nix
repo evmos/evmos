@@ -34,9 +34,9 @@ import sources.nixpkgs {
       # cause it is faster than building from source
       osmosisd = pkgs.callPackage ./bin.nix {
         appName = "osmosisd";
-        version = "v19.2.0";
-        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
-        sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
+        version = "v20.2.1";
+        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v20.2.1/osmosisd-20.2.1-linux-amd64";
+        sha256 = "sha256-TmCocIYcoXgZ+8tJ//mBtXMewRIdfLq0OYfF8E/wmfo=";
       };
       # Using gaia v11 (includes the PFM) cause after this version the '--min-self-delegation' flag is removed
       # from the 'gentx' cmd. 

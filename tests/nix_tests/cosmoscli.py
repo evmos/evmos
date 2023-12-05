@@ -167,6 +167,10 @@ class CosmosCLI:
     # ==========================
     #        TX utils
     # ==========================
+    def block_results_rpc(self):
+        rsp = requests.get(f"{self.node_rpc_http}/block_results").json()
+        assert "error" not in rsp, rsp["error"]
+        return rsp["result"]
 
     def tx_search(self, events: str):
         "/tx_search"
@@ -836,6 +840,7 @@ class CosmosCLI:
         channel,  # src channel
         target_version,  # chain version number of target chain
         i=0,
+        fees="0aevmos",
     ):
         return json.loads(
             self.raw(
@@ -856,6 +861,7 @@ class CosmosCLI:
                 chain_id=self.chain_id,
                 packet_timeout_height=f"{target_version}-10000000000",
                 packet_timeout_timestamp=0,
+                fees=fees,
             )
         )
 
@@ -1169,3 +1175,167 @@ class CosmosCLI:
             )
         )
         return res["host_zone"]
+
+    #   TODO: create different classes for each chains CLI
+    # ==========================
+    #       Osmosis specific
+    # ==========================
+    def wasm_store_binary(
+        self,
+        from_,
+        contract_path,
+        **kwargs,
+    ):
+        """
+        Store wasm binary contract.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "wasm",
+                "store",
+                contract_path,
+                "-y",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=4000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def wasm_instante2(
+        self,
+        from_,
+        contract_code,
+        init_args,
+        label,
+        **kwargs,
+    ):
+        """
+        Store instantiate wasm contract with reproducible address.
+        """
+        # This could be any constant number.
+        # Its only meant to guarantee determinism.
+        salt = 74657374
+        return json.loads(
+            self.raw(
+                "tx",
+                "wasm",
+                "instantiate2",
+                contract_code,
+                init_args,
+                salt,
+                "--label",
+                label,
+                "--no-admin",
+                "-y",
+                "--fix-msg",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def wasm_execute(
+        self,
+        from_,
+        contract_address,
+        execute_args,
+        **kwargs,
+    ):
+        """
+        Execute a wasm contract.
+        """
+        # This could be any constant number.
+        return json.loads(
+            self.raw(
+                "tx",
+                "wasm",
+                "execute",
+                contract_address,
+                execute_args,
+                "-y",
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
+
+    def get_wasm_contract_by_code(self, code, **kwargs):
+        """
+        Queries all wasm instances associated with a code ID.
+        """
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "wasm",
+                "list-contract-by-code",
+                code,
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["contracts"]
+
+    def get_wasm_contract_state(self, contract_addr, query_args, **kwargs):
+        """
+        Queries the wasm contract state.
+        """
+        default_kwargs = {"output": "json", "home": self.data_dir}
+        res = json.loads(
+            self.raw(
+                "q",
+                "wasm",
+                "contract-state",
+                "smart",
+                contract_addr,
+                query_args,
+                **(default_kwargs | kwargs),
+            )
+        )
+        return res["contracts"]
+
+    def gamm_create_pool(
+        self,
+        from_,
+        pool_file_path,
+        **kwargs,
+    ):
+        """
+        Create Osmosis pools in gamm.
+        """
+        return json.loads(
+            self.raw(
+                "tx",
+                "gamm",
+                "create-pool",
+                "-y",
+                pool_file=pool_file_path,
+                from_=from_,
+                home=self.data_dir,
+                node=self.node_rpc,
+                gas_adjustment=1.3,
+                gas=2000000,
+                gas_prices="0.25uosmo",
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                **kwargs,
+            )
+        )
