@@ -6,11 +6,36 @@ package v16_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
 )
+
+func (its *IntegrationTestSuite) TestMigrateFeeCollector() {
+	its.SetupTest()
+
+	feeCollectorModuleAccount := its.network.App.AccountKeeper.GetModuleAccount(its.network.GetContext(), types.FeeCollectorName)
+	modAcc, ok := feeCollectorModuleAccount.(*types.ModuleAccount)
+	its.Require().True(ok)
+
+	oldFeeCollector := types.NewModuleAccount(modAcc.BaseAccount, types.FeeCollectorName)
+
+	its.Require().NotNil(oldFeeCollector)
+	its.Require().Len(oldFeeCollector.GetPermissions(), 0)
+
+	// Create a new FeeCollector module account with the same address and the new permissions.
+	newFeeCollectorModuleAccount := types.NewModuleAccount(modAcc.BaseAccount, types.FeeCollectorName, types.Burner)
+	its.network.App.AccountKeeper.SetModuleAccount(its.network.GetContext(), newFeeCollectorModuleAccount)
+
+	newFeeCollector := its.network.App.AccountKeeper.GetModuleAccount(its.network.GetContext(), types.FeeCollectorName)
+	its.Require().True(ok)
+	its.Require().Equal(feeCollectorModuleAccount.GetAccountNumber(), newFeeCollector.GetAccountNumber())
+	its.Require().Equal(feeCollectorModuleAccount.GetAddress(), newFeeCollector.GetAddress())
+	its.Require().Equal(feeCollectorModuleAccount.GetName(), newFeeCollector.GetName())
+	its.Require().Equal(feeCollectorModuleAccount.GetPermissions(), newFeeCollector.GetPermissions())
+}
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {
 	its.SetupTest()

@@ -5,6 +5,8 @@ package v16
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
@@ -20,7 +22,9 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
+	_ bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
+	_ authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -40,6 +44,16 @@ func CreateUpgradeHandler(
 		if err := ek.EnablePrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
+
+		// TODO: uncomment when ready
+		// Migrate the FeeCollector module account to include the Burner permission.
+		// if err := MigrateFeeCollector(ak, ctx); err != nil {
+		//	logger.Error("failed to migrate the fee collector", "error", err.Error())
+		// }
+		//
+		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
+		//	logger.Error("failed to burn inflation pool", "error", err.Error())
+		// }
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
