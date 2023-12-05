@@ -5,7 +5,6 @@ package ibc
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"strings"
@@ -13,7 +12,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
-	"github.com/evmos/evmos/v15/utils"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // GetTransferSenderRecipient returns the sender and recipient sdk.AccAddresses
@@ -78,7 +77,6 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 	// NOTE: Denom and amount are already validated
 	amount, _ := sdk.NewIntFromString(rawAmt)
 
-	fmt.Println(srcPort, srcChannel)
 	if transfertypes.ReceiverChainIsSource(srcPort, srcChannel, rawDenom) {
 		// remove prefix added by sender chain
 		voucherPrefix := transfertypes.GetDenomPrefix(srcPort, srcChannel)

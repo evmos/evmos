@@ -14,10 +14,10 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/ibc"
-	"github.com/evmos/evmos/v15/precompiles/erc20"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/ibc"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -108,6 +108,7 @@ func (k Keeper) OnRecvPacket(
 	params := k.evmKeeper.GetParams(ctx)
 	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
 	if !found {
+		// TODO: Should we use the new RegisterCoin method here instead?
 		// Register a new precompile address
 		newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 		if err != nil {
