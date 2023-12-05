@@ -629,9 +629,13 @@ create-contracts-json:
 	@rm -rf $(TMP)
 
 ###############################################################################
-###                                Licenses                                 ###
+###                           Miscellaneous Checks                          ###
 ###############################################################################
 
 check-licenses:
 	@echo "Checking licenses..."
 	@python3 scripts/check_licenses.py .
+
+check-changelog:
+	@echo "Checking changelog..."
+	@python3 scripts/check_changelog.py ./CHANGELOG.md
