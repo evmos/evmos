@@ -6,6 +6,7 @@ import (
 	"time"
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/suite"
 
 	sdkmath "cosmossdk.io/math"
@@ -72,7 +73,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.ctx = suite.app.BaseApp.NewContext(checkTx, tmproto.Header{Height: 1, ChainID: utils.TestnetChainID + "-1", Time: time.Now().UTC()})
 	suite.ctx = suite.ctx.WithMinGasPrices(sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, sdkmath.OneInt())))
-	suite.ctx = suite.ctx.WithBlockGasMeter(sdk.NewGasMeter(1000000000000000000))
+	suite.ctx = suite.ctx.WithBlockGasMeter(storetypes.NewGasMeter(1000000000000000000))
 	suite.app.EvmKeeper.WithChainID(suite.ctx)
 
 	// set staking denomination to Evmos denom
