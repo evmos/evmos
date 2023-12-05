@@ -284,7 +284,7 @@ func (p Precompile) EmitCancelUnbondingDelegationEvent(ctx sdk.Context, stateDB 
 	return nil
 }
 
-// createStakingTxTopics creates the topics for staking transactions CreateValidator, Delegate, Undelegate, Redelegate and CancelUnbondingDelegation.
+// createStakingTxTopics creates the topics for staking transactions Delegate, Undelegate, Redelegate and CancelUnbondingDelegation.
 func (p Precompile) createStakingTxTopics(topicsLen uint64, event abi.Event, delegatorAddr common.Address, validatorAddr common.Address) ([]common.Hash, error) {
 	topics := make([]common.Hash, topicsLen)
 	// NOTE: If your solidity event contains indexed event types, then they become a topic rather than part of the data property of the log.
