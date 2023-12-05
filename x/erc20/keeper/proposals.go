@@ -89,6 +89,7 @@ func (k Keeper) RegisterERC20(
 		)
 	}
 
+	// TODO: This should probably also convert the ERC20 to a precompile and change the owner ?
 	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL)
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
