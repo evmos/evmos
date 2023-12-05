@@ -7,7 +7,7 @@ Some comments at head of file...
 
 ### State Machine Breaking
 
-- (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
+- (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) Add `secp256r1` curve precompile.
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 
 ## [v15.0.0] - 2023-10-31-93

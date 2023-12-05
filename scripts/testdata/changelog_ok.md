@@ -17,7 +17,7 @@ Some comments at head of file...
 
 ### Improvements
 
-- (testnet) [\#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags to the command `evmosd testnet init-files`.
+- (testnet) [\#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags.
 - (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABI.
 
 ### Bug Fixes

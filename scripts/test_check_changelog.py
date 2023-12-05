@@ -20,7 +20,7 @@ def test_parse_changelog_ok():
             'Improvements': {
                 1864: {
                     'description':
-                        'Add `--base-fee` and `--min-gas-price` flags to the command `evmosd testnet init-files`.',
+                        'Add `--base-fee` and `--min-gas-price` flags.',
                 },
                 1912: {'description': 'Add Stride Outpost interface and ABI.'},
             },
