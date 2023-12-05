@@ -2,52 +2,103 @@ import os
 import pytest
 from check_changelog import parse_changelog
 
-@pytest.fixture
-def sample_changelog_path(tmp_path):
-    content = """
-## Release 1.0.0
+# Get the directory of this script
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-### Feature Changes
-- [#1](https://github.com/example/repo/pull/1) Add new feature.
 
-### Bug Fixes
-- [#2](https://github.com/example/repo/pull/2) Fix a bug.
-
-## Release 0.1.0
-
-### Documentation
-- [#3](https://github.com/example/repo/pull/3) Update documentation.
-
-- This is not a valid entry and should be ignored.
-"""
-
-    file_path = tmp_path / "test_changelog.md"
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(content)
-
-    return file_path
-
-def test_parse_changelog(sample_changelog_path):
+def test_parse_changelog_ok():
     expected_result = {
-        'Release 1.0.0': {
-            'Feature Changes': {
-                '1': {'link': 'https://github.com/example/repo/pull/1', 'description': 'Add new feature.'},
+        'Unreleased': {
+            'State Machine Breaking': {
+                1922: {'description': 'Add `secp256r1` curve precompile.'},
+                1949: {'description': 'Add `ClaimRewards` custom transaction.'},
+            },
+            'API Breaking': {
+                2015: {'description': 'Rename `inflation` module to `inflation/v1`.'},
+                2078: {'description': 'Deprecate legacy EIP712 ante handler.'},
+            },
+            'Improvements': {
+                1864: {
+                    'description':
+                        'Add `--base-fee` and `--min-gas-price` flags to the command `evmosd testnet init-files`.',
+                },
+                1912: {'description': 'Add Stride Outpost interface and ABI.'},
             },
             'Bug Fixes': {
-                '2': {'link': 'https://github.com/example/repo/pull/2', 'description': 'Fix a bug.'},
+                1801: {'description': 'Fixed the problem gas_used is 0.'},
             },
         },
-        'Release 0.1.0': {
-            'Documentation': {
-                '3': {'link': 'https://github.com/example/repo/pull/3', 'description': 'Update documentation.'},
+        'v15.0.0': {
+            'API Breaking': {
+                1862: {'description': 'Add Authorization Grants to the Vesting extension.'},
             },
         },
     }
 
-    result = parse_changelog(sample_changelog_path)
-    assert result == expected_result
+    releases, failed_entries = parse_changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_ok.md"))
+    assert failed_entries == []
+    assert releases == expected_result
+
+
+def test_parse_changelog_invalid_pr_link():
+    expected_result = {
+        'Unreleased': {
+            'State Machine Breaking': {
+                1948: {'description': 'Add `ClaimRewards` custom transaction.'},
+            },
+        },
+    }
+    releases, failed_entries = parse_changelog(
+        os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_entry_pr_not_in_link.md"),
+    )
+    assert failed_entries == [
+        'Invalid PR link in Unreleased - State Machine Breaking - 1948: "- (distribution-precompile) [#1948]('
+        'https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction."',
+    ]
+    assert releases == expected_result
+
+
+def test_parse_changelog_malformed_description():
+    expected_result = {
+        'Unreleased': {
+            'State Machine Breaking': {
+                1949: {'description': 'add `ClaimRewards` custom transaction'},
+            },
+        },
+    }
+    releases, failed_entries = parse_changelog(
+        os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_entry_misformatted_description.md"),
+    )
+    assert failed_entries == [
+        'Invalid PR description in Unreleased - State Machine Breaking - 1949: "- (distribution-precompile) [#1949]('
+        'https://github.com/evmos/evmos/pull/1949) add `ClaimRewards` custom transaction"',
+    ]
+    assert releases == expected_result
+
+
+def test_parse_changelog_invalid_category():
+    expected_result = {
+        'Unreleased': {
+            'Invalid Category': {
+                1949: {'description': 'Add `ClaimRewards` custom transaction.'},
+            },
+        },
+    }
+    releases, failed_entries = parse_changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_category.md"))
+    assert failed_entries == ["Invalid change category in Unreleased: \"Invalid Category\""]
+    assert releases == expected_result
+
+
+def test_parse_changelog_invalid_header():
+    with pytest.raises(ValueError):
+        parse_changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_version.md"))
+
+
+def test_parse_changelog_invalid_date():
+    with pytest.raises(ValueError):
+        parse_changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_invalid_date.md"))
+
 
 def test_parse_changelog_nonexistent_file():
     with pytest.raises(FileNotFoundError):
         parse_changelog("nonexistent_file.md")
-

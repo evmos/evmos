@@ -1,22 +1,27 @@
 import os
 import re
 import sys
+from typing import Dict, List, Tuple
 
+# Allowed entry pattern: `- (module) [#PR](link) - description`
+ENTRY_PATTERN = re.compile(
+    r'^-\s+\([a-zA-Z0-9\-]+\) \[\\?#(?P<pr>\d+)\]\((?P<link>.+)\) (?P<desc>.+)$',
+)
 
 # Allowed release pattern: vX.Y.Z(-rcN) (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
-    r'^## (v\d+\.\d+\.\d+(-rc\d+){0,1})[.\s]*\((\d{4}-\d{2}-\d{2})\)([.\s]*\((\d{4}-\d{2}-\d{2})',
+    r'^## (Unreleased|\[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)\] - \d{4}-\d{2}-\d{2})$',
 )
 
 ALLOWED_CATEGORIES = [
     'API Breaking',
-    'Bug-Fixes',
+    'Bug Fixes',
     'Improvements',
-    'State-Machine Breaking',
+    'State Machine Breaking',
 ]
 
 
-def parse_changelog(file_path) -> bool:
+def parse_changelog(file_path) -> Tuple[Dict[str, Dict[str, Dict[int, str]]], List[str]]:
     """
     This function parses the changelog and checks if the structure is as expected.
     """
@@ -25,6 +30,7 @@ def parse_changelog(file_path) -> bool:
         content = file.read()
 
     releases = {}
+    failed_entries = []
     current_release = None
     current_category = None
 
@@ -34,9 +40,9 @@ def parse_changelog(file_path) -> bool:
         if stripped_line [:3] == '## ':
             release_match = RELEASE_PATTERN.match(line)
             if not release_match:
-                raise ValueError("Header 2 should be used for releases - invalid release pattern.")
+                raise ValueError("Header 2 should be used for releases - invalid release pattern: " + line)
 
-            current_release = release_match.group("version")
+            current_release = release_match.group("version") if release_match.group("version") is not None else "Unreleased"
             releases[current_release] = {}
             continue
 
@@ -44,21 +50,35 @@ def parse_changelog(file_path) -> bool:
         category_match = re.match(r'^###\s+(.+)$', line)
         if category_match:
             current_category = category_match.group(1)
+            if current_category not in ALLOWED_CATEGORIES:
+                failed_entries.append(f'Invalid change category in {current_release}: "{current_category}"')
             releases[current_release][current_category] = {}
             continue
 
         # Check for individual entries
-        entry_match = re.match(r'^-\s+\[#(\d+)\]\((.+)\)\s+(.+)$', line)
-        if entry_match and current_category:
-            pr_number = entry_match.group(1)
-            pr_link = entry_match.group(2)
-            pr_description = entry_match.group(3)
-            releases[current_release][current_category][pr_number] = {
-                'link': pr_link,
-                'description': pr_description
-            }
+        if stripped_line[:2] != '- ':
+            continue
 
-    return releases
+        entry_match = ENTRY_PATTERN.match(line)
+        if not entry_match:
+            failed_entries.append(f'Invalid entry in {current_release} - {current_category}: "{line}"')
+            continue
+
+        pr_number = entry_match.group("pr")
+        pr_link = entry_match.group("link")
+        pr_description = entry_match.group("desc")
+
+        if pr_number not in pr_link:
+            failed_entries.append(f'Invalid PR link in {current_release} - {current_category} - {pr_number}: "{line}"')
+
+        if pr_description[0].islower() or pr_description[-1] != '.':
+            failed_entries.append(f'Invalid PR description in {current_release} - {current_category} - {pr_number}: "{line}"')
+
+        releases[current_release][current_category][int(pr_number)] = {
+            'description': pr_description
+        }
+
+    return releases, failed_entries
 
 
 if __name__ == "__main__":
@@ -67,7 +87,8 @@ if __name__ == "__main__":
         print('Changelog file not found')
         sys.exit(1)
 
-    ok = parse_changelog(changelog_file_path)
-    if not ok:
-        print('Changelog file is not valid')
+    _, fails = parse_changelog(changelog_file_path)
+    if len(fails) > 0:
+        print(f'Changelog file is not valid - check the following {len(fails)} problems:\n')
+        print('\n'.join(fails))
         sys.exit(1)
