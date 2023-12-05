@@ -3,7 +3,24 @@ import re
 import sys
 
 
+# Allowed release pattern: vX.Y.Z(-rcN) (YYYY-MM-DD)
+RELEASE_PATTERN = re.compile(
+    r'^## (v\d+\.\d+\.\d+(-rc\d+){0,1})[.\s]*\((\d{4}-\d{2}-\d{2})\)([.\s]*\((\d{4}-\d{2}-\d{2})',
+)
+
+ALLOWED_CATEGORIES = [
+    'API Breaking',
+    'Bug-Fixes',
+    'Improvements',
+    'State-Machine Breaking',
+]
+
+
 def parse_changelog(file_path) -> bool:
+    """
+    This function parses the changelog and checks if the structure is as expected.
+    """
+
     with open(file_path, 'r') as file:
         content = file.read()
 
@@ -13,9 +30,13 @@ def parse_changelog(file_path) -> bool:
 
     for line in content.split('\n'):
         # Check for Header 2 (##) to identify releases
-        release_match = re.match(r'^##\s+(.+)$', line)
-        if release_match:
-            current_release = release_match.group(1)
+        stripped_line = line.strip()
+        if stripped_line [:3] == '## ':
+            release_match = RELEASE_PATTERN.match(line)
+            if not release_match:
+                raise ValueError("Header 2 should be used for releases - invalid release pattern.")
+
+            current_release = release_match.group("version")
             releases[current_release] = {}
             continue
 
