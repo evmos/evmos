@@ -24,7 +24,6 @@ import (
 
 // EventCreateValidator defines the event data for the staking CreateValidator transaction.
 type EventCreateValidator struct {
-	DelegatorAddress common.Address
 	ValidatorAddress common.Address
 	Value            *big.Int
 }
@@ -82,8 +81,8 @@ type Commission = struct {
 // NewMsgCreateValidator creates a new MsgCreateValidator instance and does sanity checks
 // on the given arguments before populating the message.
 func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgCreateValidator, common.Address, error) {
-	if len(args) != 7 {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+	if len(args) != 6 {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 6, len(args))
 	}
 
 	description := stakingtypes.Description{}
@@ -111,18 +110,13 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
-	delegatorAddress, ok := args[3].(common.Address)
-	if !ok || delegatorAddress == (common.Address{}) {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[3])
-	}
-
-	validatorAddress, ok := args[4].(string)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[4])
+	validatorAddress, ok := args[3].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[4])
 	}
 
 	// use cli `evmosd tendermint show-validator` get pubkey
-	pubkeyBase64Str, ok := args[5].(string)
+	pubkeyBase64Str, ok := args[4].(string)
 	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "pubkey", "string", args[5])
 	}
@@ -142,17 +136,17 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, err
 	}
 
-	value, ok := args[6].(*big.Int)
+	value, ok := args[5].(*big.Int)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[6])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[5])
 	}
 
 	msg := &stakingtypes.MsgCreateValidator{
 		Description:       description,
 		Commission:        commission,
 		MinSelfDelegation: math.NewIntFromBigInt(minSelfDelegation),
-		DelegatorAddress:  sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress:  validatorAddress,
+		DelegatorAddress:  sdk.AccAddress(validatorAddress.Bytes()).String(),
+		ValidatorAddress:  sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Pubkey:            pubkey,
 		Value:             sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(value)},
 	}
@@ -161,7 +155,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, err
 	}
 
-	return msg, delegatorAddress, nil
+	return msg, validatorAddress, nil
 }
 
 // NewMsgDelegate creates a new MsgDelegate instance and does sanity checks
