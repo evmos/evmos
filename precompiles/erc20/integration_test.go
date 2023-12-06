@@ -209,11 +209,12 @@ var _ = Describe("ERC20 Extension -", func() {
 					},
 				)
 
-				Expect(res.GasUsed > expGasUsedLowerBound).To(BeTrue(), "expected different gas used")
-				Expect(res.GasUsed < expGasUsedUpperBound).To(BeTrue(), "expected different gas used")
+				Expect(res.GasUsed > expGasUsedLowerBound).To(BeTrue(), "expected gas used to be more than %d; got: %d", expGasUsedLowerBound, res.GasUsed)
+				Expect(res.GasUsed < expGasUsedUpperBound).To(BeTrue(), "expected gas used to be lower than %d; got: %d", expGasUsedUpperBound, res.GasUsed)
 			},
-				// FIXME: The gas used on the precompile is much higher than on the EVM
-				Entry(" - direct call", directCall, int64(3_021_000), int64(3_022_000)),
+				// FIXME: Interestingly, on these tests the gas used is not in the same range, but on the specific gas consumption tests it's shown that it fits quite good
+				// The gas values consumed here are in line with the ones consumed by the ERC20 Solidity contracts on the first call, but on follow up calls it will be cheaper.
+				Entry(" - direct call", directCall, int64(30_000), int64(31_000)),
 				Entry(" - through erc20 contract", erc20Call, int64(54_000), int64(54_500)),
 				Entry(" - through erc20 v5 contract", erc20V5Call, int64(52_000), int64(52_200)),
 			)
