@@ -73,26 +73,39 @@ func (k Keeper) OnRecvPacket(
 	// TODO: Consider how it integrates with PFM.
 	// Case 1 - token pair is not registered
 	// Case 1.1 - coin is a native chain voucher and the token pair is not registered
-	if !found && ibc.IsSingleHop(data.Denom) {
-		// TODO: Should we register the token pair and precompile
-		// if err := k.RegisterTokenPairForNativeCoin(ctx, coinMetadata); err != nil {
-		// 	return channeltypes.NewErrorAcknowledgement(err)
-		//	}
-		// if err := k.RegisterPrecompileForCoin(ctx, coin, pair); err != nil {
-		//	return channeltypes.NewErrorAcknowledgement(err)
-		// }
-		return ack
-	}
+	if !found && ibc.IsSingleHop(coin.Denom) {
+		denomAddr, err := utils.GetIBCDenomAddress(coin.Denom)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
 
-	// Case 1.2 - pair is found and the voucher is not a native chain voucher
-	if !ibc.IsSingleHop(data.Denom) {
-		// return acknowledgement without conversion
+		// TODO: Where are we populating the name, symbol and decimals for the metadata ?
+		// For an IBC voucher will there be metadata already available in the bank ?
+		// coinMetadata, found := k.bankKeeper.GetDenomMetaData(ctx, coin.Denom)
+		coinMetadata, err := k.CreateERC20Metadata(ctx, coin.Denom, "", "", 0)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
+		// Truncate the base denom to 20 characters
+		truncatedAddr := denomAddr[:20]
+		coinMetadata.Base = common.BytesToAddress(truncatedAddr).String()
+
+		tokenPair, err := k.RegisterTokenPairForNativeCoin(ctx, *coinMetadata)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
+		if err := k.RegisterPrecompileForCoin(ctx, *tokenPair); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
 		return ack
 	}
 
 	// Case 2 - Coin is native EVMOS
 	if pair.Denom == utils.BaseDenom {
-		// no-op: continue with the rest of the stack without registration
+		// no-op: continue with the rest of the stack
 		return ack
 	}
 

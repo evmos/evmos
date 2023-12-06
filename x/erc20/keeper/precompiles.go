@@ -16,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
 	"github.com/evmos/evmos/v16/precompiles/werc20"
-	"github.com/evmos/evmos/v16/utils"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
@@ -74,39 +73,6 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	return k.evmKeeper.AddEVMExtensions(ctx, precompiles...)
 }
 
-// RegisterPrecompileForCoin deploys an erc20 precompile contract for an IBC voucher that is
-// and creates the token pair for the existing Cosmos coin
-func (k Keeper) RegisterPrecompileForCoin(
-	ctx sdk.Context,
-	coin sdk.Coin,
-	pair types.TokenPair,
-) error {
-	denomAddr, err := utils.GetIBCDenomAddress(coin.Denom)
-	if err != nil {
-		return err
-	}
-
-	// Truncate to 20 bytes (40 hex characters)
-	truncatedAddr := denomAddr[:20]
-	params := k.evmKeeper.GetParams(ctx)
-	found := params.IsPrecompileRegistered(common.BytesToAddress(truncatedAddr).String())
-	if !found {
-		// Register a new precompile address
-		newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-		if err != nil {
-			return err
-		}
-
-		err = k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// TODO: Are we going to use this to register a token pair automatically for newly seen native vouchers ?
 // RegisterTokenPairForNativeCoin creates a token pair for the native coin for a newly seen denom together with a
 // precompile instance for the token pair.
 func (k Keeper) RegisterTokenPairForNativeCoin(
@@ -145,20 +111,35 @@ func (k Keeper) RegisterTokenPairForNativeCoin(
 
 	addr := common.BytesToAddress(hexBz)
 
+	// TODO: Here we need to move the truncation to 20 ?
 	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
-
-	precompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := k.evmKeeper.AddEVMExtensions(ctx, precompile); err != nil {
-		return nil, err
-	}
 
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
 
 	return &pair, nil
+}
+
+// RegisterPrecompileForCoin Adds an erc20 precompile interface for an IBC Coin.
+// It truncates the denom address to 20 bytes and registers the precompile if it is not already registered
+func (k Keeper) RegisterPrecompileForCoin(ctx sdk.Context, pair types.TokenPair) error {
+	params := k.evmKeeper.GetParams(ctx)
+	found := params.IsPrecompileRegistered(pair.Erc20Address[:20])
+	if found {
+		return nil
+	}
+
+	// Register a new precompile address
+	newPrecompile, err := erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+	if err != nil {
+		return err
+	}
+
+	err = k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

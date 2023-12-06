@@ -5,8 +5,9 @@ package keeper
 
 import (
 	"encoding/json"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math/big"
+
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"

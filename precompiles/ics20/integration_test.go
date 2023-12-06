@@ -708,164 +708,166 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					Expect(balance).To(Equal(defaultCmnCoins[0].Amount), "address does not have the expected amount of tokens")
 				})
 
-				It("should succeed in transfer transaction but should error on packet destination if the receiver address is wrong", func() {
-					preBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-					invalidReceiverAddr := "invalid_address"
-					transferArgs := defaultTransferArgs.WithArgs(
-						s.transferPath.EndpointA.ChannelConfig.PortID,
-						s.transferPath.EndpointA.ChannelID,
-						tokenPair.Denom,
-						sentAmount,
-						s.address,
-						invalidReceiverAddr, // invalid receiver
-						s.chainB.GetTimeoutHeight(),
-						uint64(0), // disable timeout timestamp
-						"memo",
-					)
+				// TODO: This case won't be applicable anymore because we are not escrowing ERC20s anymore?
+				// It("should succeed in transfer transaction but should error on packet destination if the receiver address is wrong", func() {
+				//	preBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				//	invalidReceiverAddr := "invalid_address"
+				//	transferArgs := defaultTransferArgs.WithArgs(
+				//		s.transferPath.EndpointA.ChannelConfig.PortID,
+				//		s.transferPath.EndpointA.ChannelID,
+				//		tokenPair.Denom,
+				//		sentAmount,
+				//		s.address,
+				//		invalidReceiverAddr, // invalid receiver
+				//		s.chainB.GetTimeoutHeight(),
+				//		uint64(0), // disable timeout timestamp
+				//		"memo",
+				//	)
+				//
+				//	logCheckArgs := passCheck.WithExpEvents(ics20.EventTypeIBCTransfer)
+				//
+				//	res, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
+				//	Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				//
+				//	out, err := s.precompile.Unpack(ics20.TransferMethod, ethRes.Ret)
+				//	Expect(err).To(BeNil(), "error while unpacking response: %v", err)
+				//	// check sequence in returned data
+				//	sequence, ok := out[0].(uint64)
+				//	Expect(ok).To(BeTrue())
+				//	Expect(sequence).To(Equal(uint64(1)))
+				//
+				//	s.chainA.NextBlock()
+				//
+				//	// check only fees were deducted from sending account
+				//	fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				//	finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				//	Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
+				//
+				//	// check Erc20 balance was reduced by sent amount (escrowed on ibc escrow account)
+				//	balance := s.app.Erc20Keeper.BalanceOf(
+				//		s.chainA.GetContext(),
+				//		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				//		erc20Addr,
+				//		s.address,
+				//	)
+				//	Expect(balance.Int64()).To(BeZero(), "address does not have the expected amount of tokens")
+				//
+				//	// the transfer is reverted because fails checks on the receiving chain
+				//	// this is the packet sent
+				//	packet := s.makePacket(
+				//		sdk.AccAddress(s.address.Bytes()).String(),
+				//		invalidReceiverAddr,
+				//		tokenPair.Denom,
+				//		"memo",
+				//		sentAmount,
+				//		sequence,
+				//		s.chainB.GetTimeoutHeight(),
+				//	)
+				//
+				//	// increment sequence for successful transaction execution
+				//	err = s.chainA.SenderAccount.SetSequence(s.chainA.SenderAccount.GetSequence() + 3)
+				//	s.Require().NoError(err)
+				//
+				//	err = s.transferPath.EndpointA.UpdateClient()
+				//	Expect(err).To(BeNil())
+				//
+				//	// Relay packet
+				//	err = s.transferPath.RelayPacket(packet)
+				//	Expect(err).To(BeNil())
+				//
+				//	// check escrowed funds are refunded to sender
+				//	finalERC20balance := s.app.Erc20Keeper.BalanceOf(
+				//		s.chainA.GetContext(),
+				//		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				//		erc20Addr,
+				//		s.address,
+				//	)
+				//	Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
+				// })
 
-					logCheckArgs := passCheck.WithExpEvents(ics20.EventTypeIBCTransfer)
-
-					res, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-					out, err := s.precompile.Unpack(ics20.TransferMethod, ethRes.Ret)
-					Expect(err).To(BeNil(), "error while unpacking response: %v", err)
-					// check sequence in returned data
-					sequence, ok := out[0].(uint64)
-					Expect(ok).To(BeTrue())
-					Expect(sequence).To(Equal(uint64(1)))
-
-					s.chainA.NextBlock()
-
-					// check only fees were deducted from sending account
-					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
-
-					// check Erc20 balance was reduced by sent amount (escrowed on ibc escrow account)
-					balance := s.app.Erc20Keeper.BalanceOf(
-						s.chainA.GetContext(),
-						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-						erc20Addr,
-						s.address,
-					)
-					Expect(balance.Int64()).To(BeZero(), "address does not have the expected amount of tokens")
-
-					// the transfer is reverted because fails checks on the receiving chain
-					// this is the packet sent
-					packet := s.makePacket(
-						sdk.AccAddress(s.address.Bytes()).String(),
-						invalidReceiverAddr,
-						tokenPair.Denom,
-						"memo",
-						sentAmount,
-						sequence,
-						s.chainB.GetTimeoutHeight(),
-					)
-
-					// increment sequence for successful transaction execution
-					err = s.chainA.SenderAccount.SetSequence(s.chainA.SenderAccount.GetSequence() + 3)
-					s.Require().NoError(err)
-
-					err = s.transferPath.EndpointA.UpdateClient()
-					Expect(err).To(BeNil())
-
-					// Relay packet
-					err = s.transferPath.RelayPacket(packet)
-					Expect(err).To(BeNil())
-
-					// check escrowed funds are refunded to sender
-					finalERC20balance := s.app.Erc20Keeper.BalanceOf(
-						s.chainA.GetContext(),
-						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-						erc20Addr,
-						s.address,
-					)
-					Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
-				})
-
-				It("should succeed in transfer transaction but should timeout", func() {
-					preBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-
-					logCheckArgs := passCheck.WithExpEvents(ics20.EventTypeIBCTransfer)
-
-					timeoutHeight := clienttypes.NewHeight(clienttypes.ParseChainID(s.chainB.ChainID), uint64(s.chainB.GetContext().BlockHeight())+1)
-
-					transferArgs := defaultTransferArgs.WithArgs(
-						s.transferPath.EndpointA.ChannelConfig.PortID,
-						s.transferPath.EndpointA.ChannelID,
-						tokenPair.Denom,
-						sentAmount,
-						s.address,
-						s.chainB.SenderAccount.GetAddress().String(), // receiver
-						timeoutHeight,
-						uint64(0), // disable timeout timestamp
-						"memo",
-					)
-
-					res, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
-					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
-
-					out, err := s.precompile.Unpack(ics20.TransferMethod, ethRes.Ret)
-					Expect(err).To(BeNil(), "error while unpacking response: %v", err)
-					// check sequence in returned data
-					sequence, ok := out[0].(uint64)
-					Expect(ok).To(BeTrue())
-					Expect(sequence).To(Equal(uint64(1)))
-
-					s.chainA.NextBlock()
-
-					// check only fees were deducted from sending account
-					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
-					finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
-					Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
-
-					// check Erc20 balance was reduced by sent amount
-					balance := s.app.Erc20Keeper.BalanceOf(
-						s.chainA.GetContext(),
-						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-						erc20Addr,
-						s.address,
-					)
-					Expect(balance.Int64()).To(BeZero(), "address does not have the expected amount of tokens")
-
-					// the transfer is reverted because the packet times out
-					// this is the packet sent
-					packet := s.makePacket(
-						sdk.AccAddress(s.address.Bytes()).String(),
-						s.chainB.SenderAccount.GetAddress().String(),
-						tokenPair.Denom,
-						"memo",
-						sentAmount,
-						sequence,
-						timeoutHeight,
-					)
-
-					// packet times out and the OnTimeoutPacket callback is executed
-					s.chainA.NextBlock()
-					// increment block height on chainB to make the packet timeout
-					s.chainB.NextBlock()
-
-					// increment sequence for successful transaction execution
-					err = s.chainA.SenderAccount.SetSequence(s.chainA.SenderAccount.GetSequence() + 3)
-					s.Require().NoError(err)
-
-					err = s.transferPath.EndpointA.UpdateClient()
-					Expect(err).To(BeNil())
-
-					// Receive timeout
-					err = s.transferPath.EndpointA.TimeoutPacket(packet)
-					Expect(err).To(BeNil())
-
-					// check escrowed funds are refunded to sender
-					finalERC20balance := s.app.Erc20Keeper.BalanceOf(
-						s.chainA.GetContext(),
-						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
-						erc20Addr,
-						s.address,
-					)
-					Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
-				})
+				// TODO: This case won't be applicable anymore because we are not escrowing ERC20s anymore?
+				// It("should succeed in transfer transaction but should timeout", func() {
+				//	preBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				//
+				//	logCheckArgs := passCheck.WithExpEvents(ics20.EventTypeIBCTransfer)
+				//
+				//	timeoutHeight := clienttypes.NewHeight(clienttypes.ParseChainID(s.chainB.ChainID), uint64(s.chainB.GetContext().BlockHeight())+1)
+				//
+				//	transferArgs := defaultTransferArgs.WithArgs(
+				//		s.transferPath.EndpointA.ChannelConfig.PortID,
+				//		s.transferPath.EndpointA.ChannelID,
+				//		tokenPair.Denom,
+				//		sentAmount,
+				//		s.address,
+				//		s.chainB.SenderAccount.GetAddress().String(), // receiver
+				//		timeoutHeight,
+				//		uint64(0), // disable timeout timestamp
+				//		"memo",
+				//	)
+				//
+				//	res, ethRes, err := contracts.CallContractAndCheckLogs(s.chainA.GetContext(), s.app, transferArgs, logCheckArgs)
+				//	Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
+				//
+				//	out, err := s.precompile.Unpack(ics20.TransferMethod, ethRes.Ret)
+				//	Expect(err).To(BeNil(), "error while unpacking response: %v", err)
+				//	// check sequence in returned data
+				//	sequence, ok := out[0].(uint64)
+				//	Expect(ok).To(BeTrue())
+				//	Expect(sequence).To(Equal(uint64(1)))
+				//
+				//	s.chainA.NextBlock()
+				//
+				//	// check only fees were deducted from sending account
+				//	fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+				//	finalBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
+				//	Expect(finalBalance.Amount).To(Equal(preBalance.Amount.Sub(fees)))
+				//
+				//	// check Erc20 balance was reduced by sent amount
+				//	balance := s.app.Erc20Keeper.BalanceOf(
+				//		s.chainA.GetContext(),
+				//		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				//		erc20Addr,
+				//		s.address,
+				//	)
+				//	Expect(balance.Int64()).To(BeZero(), "address does not have the expected amount of tokens")
+				//
+				//	// the transfer is reverted because the packet times out
+				//	// this is the packet sent
+				//	packet := s.makePacket(
+				//		sdk.AccAddress(s.address.Bytes()).String(),
+				//		s.chainB.SenderAccount.GetAddress().String(),
+				//		tokenPair.Denom,
+				//		"memo",
+				//		sentAmount,
+				//		sequence,
+				//		timeoutHeight,
+				//	)
+				//
+				//	// packet times out and the OnTimeoutPacket callback is executed
+				//	s.chainA.NextBlock()
+				//	// increment block height on chainB to make the packet timeout
+				//	s.chainB.NextBlock()
+				//
+				//	// increment sequence for successful transaction execution
+				//	err = s.chainA.SenderAccount.SetSequence(s.chainA.SenderAccount.GetSequence() + 3)
+				//	s.Require().NoError(err)
+				//
+				//	err = s.transferPath.EndpointA.UpdateClient()
+				//	Expect(err).To(BeNil())
+				//
+				//	// Receive timeout
+				//	err = s.transferPath.EndpointA.TimeoutPacket(packet)
+				//	Expect(err).To(BeNil())
+				//
+				//	// check escrowed funds are refunded to sender
+				//	finalERC20balance := s.app.Erc20Keeper.BalanceOf(
+				//		s.chainA.GetContext(),
+				//		evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+				//		erc20Addr,
+				//		s.address,
+				//	)
+				//	Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
+				// })
 			})
 		})
 	})

@@ -83,6 +83,8 @@ func (k Keeper) RegisterCoin(
 
 // CreateCoinMetadata generates the metadata to represent the ERC20 token on
 // evmos.
+//
+// Deprecated: This will no longer be used
 func (k Keeper) CreateCoinMetadata(
 	ctx sdk.Context,
 	contract common.Address,
@@ -146,6 +148,39 @@ func (k Keeper) CreateCoinMetadata(
 		return nil, errorsmod.Wrapf(
 			err, "ERC20 token data is invalid for contract %s", strContract,
 		)
+	}
+
+	k.bankKeeper.SetDenomMetaData(ctx, metadata)
+
+	return &metadata, nil
+}
+
+// CreateERC20Metadata generates the metadata to represent the ERC20 token.
+func (k Keeper) CreateERC20Metadata(
+	ctx sdk.Context,
+	base, name, symbol string,
+	decimals uint32,
+) (*banktypes.Metadata, error) {
+	// create a bank denom metadata based on the ERC20 token ABI details
+	// metadata name is should always be the contract since it's the key
+	// to the bank store
+	metadata := banktypes.Metadata{
+		Description: types.CreateDenomDescription(""), // TODO: what description do we add here
+		Base:        base,
+		// NOTE: Denom units MUST be increasing
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    base,
+				Exponent: 0,
+			},
+			{
+				Denom:    name,
+				Exponent: decimals,
+			},
+		},
+		Name:    name,
+		Symbol:  symbol,
+		Display: base,
 	}
 
 	k.bankKeeper.SetDenomMetaData(ctx, metadata)
