@@ -68,7 +68,7 @@ func (k Keeper) OnRecvPacket(
 	)
 
 	// If native coin just return sooner
-	if coin.Denom == k.evmKeeper.GetParams(ctx).EvmDenom {
+	if coin.Denom == k.stakingKeeper.BondDenom(ctx) {
 		return ack
 	}
 
