@@ -148,7 +148,7 @@ func createDelegations(tmValidators []*cmttypes.Validator, fromAccount sdktypes.
 	amountOfValidators := len(tmValidators)
 	delegations := make([]stakingtypes.Delegation, 0, amountOfValidators)
 	for _, val := range tmValidators {
-		delegation := stakingtypes.NewDelegation(fromAccount.String(), val.Address.String(), sdkmath.LegacyOneDec())
+		delegation := stakingtypes.NewDelegation(fromAccount.String(), sdktypes.ValAddress(val.Address).String(), sdkmath.LegacyOneDec())
 		delegations = append(delegations, delegation)
 	}
 	return delegations
