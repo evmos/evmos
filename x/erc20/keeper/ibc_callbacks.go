@@ -16,8 +16,8 @@ import (
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/evmos/evmos/v15/ibc"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/ibc"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -60,10 +60,10 @@ func (k Keeper) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
-	claimsParams := k.claimsKeeper.GetParams(ctx)
+	evmParams := k.evmKeeper.GetParams(ctx)
 
 	// if sender == recipient, and is not from an EVM Channel recovery was executed
-	if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
+	if sender.Equals(recipient) && !evmParams.IsEVMChannel(packet.DestinationChannel) {
 		// Continue to the next IBC middleware by returning the original ACK.
 		return ack
 	}

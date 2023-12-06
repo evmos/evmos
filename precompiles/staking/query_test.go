@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/staking"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/staking"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestDelegation() {
@@ -200,7 +201,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), sdk.NewDec(1))
+			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
 			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))
@@ -222,7 +223,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func(bz []byte)
 		gas         uint64
 		expErr      bool
@@ -230,7 +231,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(_ []byte) {},
@@ -240,7 +241,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 		},
 		{
 			"success",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					operatorAddress,
 				}
@@ -249,7 +250,11 @@ func (s *PrecompileTestSuite) TestValidator() {
 				var valOut staking.ValidatorOutput
 				err := s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Equal(valOut.Validator.OperatorAddress, s.validators[0].OperatorAddress)
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				s.Require().Equal(common.HexToAddress(valOut.Validator.OperatorAddress), common.BytesToAddress(operatorAddress.Bytes()))
 			},
 			100000,
 			false,
@@ -257,11 +262,11 @@ func (s *PrecompileTestSuite) TestValidator() {
 		},
 		{
 			name: "success - empty validator",
-			malleate: func(operatorAddress string) []interface{} {
+			malleate: func(_ common.Address) []interface{} {
 				newAddr, _ := testutiltx.NewAccAddressAndKey()
 				newValAddr := sdk.ValAddress(newAddr)
 				return []interface{}{
-					newValAddr.String(),
+					common.BytesToAddress(newValAddr.Bytes()),
 				}
 			},
 			postCheck: func(data []byte) {
@@ -280,7 +285,10 @@ func (s *PrecompileTestSuite) TestValidator() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.Validator(s.ctx, &method, contract, tc.malleate(s.validators[0].OperatorAddress))
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
+			bz, err := s.precompile.Validator(s.ctx, &method, contract, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -333,6 +341,34 @@ func (s *PrecompileTestSuite) TestValidators() {
 				return []interface{}{
 					stakingtypes.Bonded.String(),
 					query.PageRequest{
+						Limit:      1,
+						CountTotal: true,
+					},
+				}
+			},
+			func(data []byte) {
+				const expLen = 1
+				var valOut staking.ValidatorsOutput
+				err := s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorsMethod, data)
+				s.Require().NoError(err, "failed to unpack output")
+
+				s.Require().Len(valOut.Validators, expLen)
+				// passed CountTotal = true
+				s.Require().Equal(len(s.validators), int(valOut.PageResponse.Total))
+				s.Require().NotEmpty(valOut.PageResponse.NextKey)
+				s.assertValidatorsResponse(valOut.Validators, expLen)
+			},
+			100000,
+			false,
+			"",
+		},
+		{
+			"success - bonded status & pagination w/countTotal & key is []byte{0}",
+			func() []interface{} {
+				return []interface{}{
+					stakingtypes.Bonded.String(),
+					query.PageRequest{
+						Key:        []byte{0},
 						Limit:      1,
 						CountTotal: true,
 					},
@@ -665,7 +701,7 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 }
 
 func (s *PrecompileTestSuite) TestAllowance() {
-	approvedCoin := sdk.Coin{Denom: s.bondDenom, Amount: sdk.NewInt(1e18)}
+	approvedCoin := sdk.Coin{Denom: s.bondDenom, Amount: math.NewInt(1e18)}
 	granteeAddr := testutiltx.GenerateAddress()
 	method := s.precompile.Methods[authorization.AllowanceMethod]
 

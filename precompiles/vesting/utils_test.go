@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -19,19 +20,19 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v15/app"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/testutil/contracts"
-	"github.com/evmos/evmos/v15/precompiles/vesting"
-	"github.com/evmos/evmos/v15/precompiles/vesting/testdata"
-	evmosutil "github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v15/types"
-	"github.com/evmos/evmos/v15/utils"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v15/x/inflation/types"
-	vestingtypes "github.com/evmos/evmos/v15/x/vesting/types"
+	evmosapp "github.com/evmos/evmos/v16/app"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
+	"github.com/evmos/evmos/v16/precompiles/vesting"
+	"github.com/evmos/evmos/v16/precompiles/vesting/testdata"
+	evmosutil "github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmostypes "github.com/evmos/evmos/v16/types"
+	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -66,15 +67,15 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), sdk.OneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
 	}
 	s.validators = validators
 
@@ -85,7 +86,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
-	totalBondAmt := sdk.ZeroInt()
+	totalBondAmt := math.ZeroInt()
 	for range validators {
 		totalBondAmt = totalBondAmt.Add(bondAmt)
 	}
@@ -191,8 +192,8 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 	s.precompile = precompile
 
-	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(5000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(2000000000000000000)))
+	coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(5000000000000000000)))
+	distrCoins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(2000000000000000000)))
 	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)
 	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
@@ -251,7 +252,7 @@ func (s *PrecompileTestSuite) CreateTestClawbackVestingAccount(funder, vestingAd
 	msgArgs := []interface{}{funder, vestingAddr, false}
 	//nolint
 	msg, _, _, err := vesting.NewMsgCreateClawbackVestingAccount(msgArgs)
-	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(100))))
+	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, vestingAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(100))))
 	s.Require().NoError(err)
 	_, err = s.app.VestingKeeper.CreateClawbackVestingAccount(s.ctx, msg)
 	s.Require().NoError(err)

@@ -8,12 +8,12 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ethante "github.com/evmos/evmos/v15/app/ante/evm"
-	"github.com/evmos/evmos/v15/server/config"
-	"github.com/evmos/evmos/v15/testutil"
-	testutiltx "github.com/evmos/evmos/v15/testutil/tx"
-	"github.com/evmos/evmos/v15/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	ethante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/server/config"
+	"github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 func BenchmarkEthGasConsumeDecorator(b *testing.B) {
@@ -40,13 +40,13 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	}{
 		{
 			"legacy tx - enough funds to pay for fees",
-			sdk.NewInt(1e16),
-			sdk.ZeroInt(),
+			sdkmath.NewInt(1e16),
+			sdkmath.ZeroInt(),
 		},
 		{
 			"legacy tx - insufficient funds but enough staking rewards to pay for fees",
-			sdk.ZeroInt(),
-			sdk.NewInt(1e16),
+			sdkmath.ZeroInt(),
+			sdkmath.NewInt(1e16),
 		},
 	}
 	b.ResetTimer()

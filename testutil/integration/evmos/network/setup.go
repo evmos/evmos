@@ -5,8 +5,8 @@ package network
 import (
 	"time"
 
-	"github.com/evmos/evmos/v15/app"
-	"github.com/evmos/evmos/v15/encoding"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -23,23 +23,26 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	epochstypes "github.com/evmos/evmos/v15/x/epochs/types"
-	infltypes "github.com/evmos/evmos/v15/x/inflation/types"
+	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
-// createValidatorSet creates validator set with the amount of validators specified
+// createValidatorSetAndSigners creates validator set with the amount of validators specified
 // with the default power of 1.
-func createValidatorSet(numberOfValidators int) *tmtypes.ValidatorSet {
+func createValidatorSetAndSigners(numberOfValidators int) (*tmtypes.ValidatorSet, map[string]tmtypes.PrivValidator) {
 	// Create validator set
 	tmValidators := make([]*tmtypes.Validator, 0, numberOfValidators)
+	signers := make(map[string]tmtypes.PrivValidator, numberOfValidators)
+
 	for i := 0; i < numberOfValidators; i++ {
 		privVal := mock.NewPV()
 		pubKey, _ := privVal.GetPubKey()
 		validator := tmtypes.NewValidator(pubKey, 1)
 		tmValidators = append(tmValidators, validator)
+		signers[pubKey.Address().String()] = privVal
 	}
 
-	return tmtypes.NewValidatorSet(tmValidators)
+	return tmtypes.NewValidatorSet(tmValidators), signers
 }
 
 // createGenesisAccounts returns a slice of genesis accounts from the given

@@ -25,17 +25,18 @@ import sources.nixpkgs {
         src = sources.stride; 
         name = "stride";
         appName = "strided";
-        version = "v11.0.0";
-        rev = "4b5d80ac5cafb418debc8a860959d4a6c6797cfb";
-        vendorSha256 = "sha256-x3jAEsq/eWkPdyoDwFwARa7XeLxUj7t6hjScxeGoP/0=";
+        version = "v16.0.0";
+        rev = "e0c02910e036f4f2894a96c5222aebacc3ce0a4a";
+        vendorSha256 = "sha256-vktJQOnnr/QcxiReMnCrlKEFqarMMFzfMjoB3LQ27vk=";
+        patches = [ ../tests/nix_tests/configs/stride-admins.patch ]; # patch stride to allow tests addresses perform transactions that would need a gov proposal instead
       };
       # In case of osmosis & gaia, they provide the compiled binary. We'll use this
       # cause it is faster than building from source
       osmosisd = pkgs.callPackage ./bin.nix {
         appName = "osmosisd";
-        version = "v19.2.0";
-        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v19.2.0/osmosisd-19.2.0-linux-amd64";
-        sha256 = "sha256-cj/xxTSes8A5w9xfVYlbveLhSZ/nwKlpYMxvre7IFMQ=";
+        version = "v20.2.1";
+        binUrl = "https://github.com/osmosis-labs/osmosis/releases/download/v20.2.1/osmosisd-20.2.1-linux-amd64";
+        sha256 = "sha256-TmCocIYcoXgZ+8tJ//mBtXMewRIdfLq0OYfF8E/wmfo=";
       };
       # Using gaia v11 (includes the PFM) cause after this version the '--min-self-delegation' flag is removed
       # from the 'gentx' cmd. 

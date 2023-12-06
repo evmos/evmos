@@ -20,14 +20,18 @@ import (
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/authorization"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
 
 const (
 	// TimeoutHeight is the default value used in the IBC timeout height for
 	// the client.
 	DefaultTimeoutHeight = 100
+
+	// DefaultTimeoutTimestamp is the default value used in the IBC timeout
+	// timestamp for the client.
+	DefaultTimeoutTimestamp = 0
 )
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.
@@ -146,7 +150,7 @@ func NewMsgTransfer(method *abi.Method, args []interface{}) (*transfertypes.MsgT
 	// Use instance to prevent errors on denom or amount
 	token := sdk.Coin{
 		Denom:  denom,
-		Amount: sdk.NewIntFromBigInt(amount),
+		Amount: math.NewIntFromBigInt(amount),
 	}
 
 	msg, err := CreateAndValidateMsgTransfer(sourcePort, sourceChannel, token, sdk.AccAddress(sender.Bytes()).String(), receiver, input.TimeoutHeight, timeoutTimestamp, memo)
@@ -325,7 +329,7 @@ func checkTransferAuthzArgs(method *abi.Method, args []interface{}) (common.Addr
 // CheckAllocationExists checks if the given authorization allocation matches the given arguments.
 func checkAllocationExists(allocations []transfertypes.Allocation, sourcePort, sourceChannel, denom string) (spendLimit sdk.Coin, allocationIdx int, err error) {
 	var found bool
-	spendLimit = sdk.Coin{Denom: denom, Amount: sdk.ZeroInt()}
+	spendLimit = sdk.Coin{Denom: denom, Amount: math.ZeroInt()}
 
 	for i, allocation := range allocations {
 		if allocation.SourcePort != sourcePort || allocation.SourceChannel != sourceChannel {

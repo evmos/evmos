@@ -5,23 +5,38 @@ package erc20
 
 import (
 	"embed"
+	"fmt"
 
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	auth "github.com/evmos/evmos/v15/precompiles/authorization"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
-	transferkeeper "github.com/evmos/evmos/v15/x/ibc/transfer/keeper"
+	auth "github.com/evmos/evmos/v16/precompiles/authorization"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
 
-// abiPath defines the path to the ERC-20 precompile ABI JSON file.
-const abiPath = "./abi.json"
+const (
+	// abiPath defines the path to the ERC-20 precompile ABI JSON file.
+	abiPath = "abi.json"
+
+	GasTransfer          = 3_000_000
+	GasApprove           = 30_956
+	GasIncreaseAllowance = 34_605
+	GasDecreaseAllowance = 34_519
+	GasName              = 3_421
+	GasSymbol            = 3_464
+	GasDecimals          = 427
+	GasTotalSupply       = 2_477
+	GasBalanceOf         = 2_851
+	GasAllowance         = 3_246
+)
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.
 //
@@ -56,8 +71,8 @@ func NewPrecompile(
 			ABI:                  newABI,
 			AuthzKeeper:          authzKeeper,
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
-			KvGasConfig:          sdk.GasConfig{},
-			TransientKVGasConfig: sdk.GasConfig{},
+			KvGasConfig:          storetypes.GasConfig{},
+			TransientKVGasConfig: storetypes.GasConfig{},
 		},
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
@@ -89,28 +104,28 @@ func (p Precompile) RequiredGas(input []byte) uint64 {
 	switch method.Name {
 	// ERC-20 transactions
 	case TransferMethod:
-		return 3_000_000
+		return GasTransfer
 	case TransferFromMethod:
-		return 3_000_000
+		return GasTransfer
 	case auth.ApproveMethod:
-		return 30_956
+		return GasApprove
 	case auth.IncreaseAllowanceMethod:
-		return 34_605
+		return GasIncreaseAllowance
 	case auth.DecreaseAllowanceMethod:
-		return 34_519
+		return GasDecreaseAllowance
 	// ERC-20 queries
 	case NameMethod:
-		return 3_421
+		return GasName
 	case SymbolMethod:
-		return 3_464
+		return GasSymbol
 	case DecimalsMethod:
-		return 427
+		return GasDecimals
 	case TotalSupplyMethod:
-		return 2_477
+		return GasTotalSupply
 	case BalanceOfMethod:
-		return 2_851
+		return GasBalanceOf
 	case auth.AllowanceMethod:
-		return 3_246
+		return GasAllowance
 	default:
 		return 0
 	}
@@ -141,9 +156,9 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 	return bz, nil
 }
 
-// IsTransaction checks if the given methodID corresponds to a transaction or query.
-func (Precompile) IsTransaction(methodID string) bool {
-	switch methodID {
+// IsTransaction checks if the given method name corresponds to a transaction or query.
+func (Precompile) IsTransaction(methodName string) bool {
+	switch methodName {
 	case TransferMethod,
 		TransferFromMethod,
 		auth.ApproveMethod,
@@ -157,37 +172,39 @@ func (Precompile) IsTransaction(methodID string) bool {
 
 // HandleMethod handles the execution of each of the ERC-20 methods.
 func (p Precompile) HandleMethod(
-	_ sdk.Context,
-	_ *vm.Contract,
-	_ vm.StateDB,
+	ctx sdk.Context,
+	contract *vm.Contract,
+	stateDB vm.StateDB,
 	method *abi.Method,
-	_ []interface{},
+	args []interface{},
 ) (bz []byte, err error) {
 	switch method.Name {
 	// ERC-20 transactions
 	case TransferMethod:
-		// bz, err = p.Transfer(ctx, contract, stateDB, method, args)
+		bz, err = p.Transfer(ctx, contract, stateDB, method, args)
 	case TransferFromMethod:
-		// bz, err = p.TransferFrom(ctx, contract, stateDB, method, args)
+		bz, err = p.TransferFrom(ctx, contract, stateDB, method, args)
 	case auth.ApproveMethod:
-		// bz, err = p.Approve(ctx, contract, stateDB, method, args)
+		bz, err = p.Approve(ctx, contract, stateDB, method, args)
 	case auth.IncreaseAllowanceMethod:
-		// bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.IncreaseAllowance(ctx, contract, stateDB, method, args)
 	case auth.DecreaseAllowanceMethod:
-		// bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
+		bz, err = p.DecreaseAllowance(ctx, contract, stateDB, method, args)
 	// ERC-20 queries
 	case NameMethod:
-		// bz, err = p.Name(ctx, contract, stateDB, method, args)
+		bz, err = p.Name(ctx, contract, stateDB, method, args)
 	case SymbolMethod:
-		// bz, err = p.Symbol(ctx, contract, stateDB, method, args)
+		bz, err = p.Symbol(ctx, contract, stateDB, method, args)
 	case DecimalsMethod:
-		// bz, err = p.Decimals(ctx, contract, stateDB, method, args)
+		bz, err = p.Decimals(ctx, contract, stateDB, method, args)
 	case TotalSupplyMethod:
-		// bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
+		bz, err = p.TotalSupply(ctx, contract, stateDB, method, args)
 	case BalanceOfMethod:
-		// bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
+		bz, err = p.BalanceOf(ctx, contract, stateDB, method, args)
 	case auth.AllowanceMethod:
-		// bz, err = p.Allowance(ctx, contract, stateDB, method, args)
+		bz, err = p.Allowance(ctx, contract, stateDB, method, args)
+	default:
+		return nil, fmt.Errorf(cmn.ErrUnknownMethod, method.Name)
 	}
 
 	return bz, err

@@ -10,7 +10,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 func BenchmarkCreateAccountNew(b *testing.B) {

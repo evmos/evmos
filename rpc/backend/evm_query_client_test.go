@@ -13,10 +13,10 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v15/rpc/backend/mocks"
-	rpc "github.com/evmos/evmos/v15/rpc/types"
-	utiltx "github.com/evmos/evmos/v15/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/rpc/backend/mocks"
+	rpc "github.com/evmos/evmos/v16/rpc/types"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -177,7 +177,7 @@ func RegisterBaseFeeDisabled(queryClient *mocks.EVMQueryClient) {
 }
 
 func TestRegisterBaseFee(t *testing.T) {
-	baseFee := sdk.NewInt(1)
+	baseFee := math.NewInt(1)
 	queryClient := mocks.NewEVMQueryClient(t)
 	RegisterBaseFee(queryClient, baseFee)
 	res, err := queryClient.BaseFee(rpc.ContextWithHeight(1), &evmtypes.QueryBaseFeeRequest{})

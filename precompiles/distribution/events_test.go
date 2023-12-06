@@ -3,14 +3,15 @@ package distribution_test
 import (
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
-	cmn "github.com/evmos/evmos/v15/precompiles/common"
-	"github.com/evmos/evmos/v15/precompiles/distribution"
-	"github.com/evmos/evmos/v15/utils"
+	cmn "github.com/evmos/evmos/v16/precompiles/common"
+	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
@@ -89,7 +90,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -105,12 +106,16 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
 
+				optAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				optHexAddr := common.BytesToAddress(optAddr)
+
 				// Check the fully unpacked event matches the one emitted
 				var delegatorRewards distribution.EventWithdrawDelegatorRewards
-				err := cmn.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
+				err = cmn.UnpackLog(s.precompile.ABI, &delegatorRewards, distribution.EventTypeWithdrawDelegatorRewards, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, delegatorRewards.DelegatorAddress)
-				s.Require().Equal(crypto.Keccak256Hash([]byte(s.validators[0].OperatorAddress)), delegatorRewards.ValidatorAddress)
+				s.Require().Equal(optHexAddr, delegatorRewards.ValidatorAddress)
 				s.Require().Equal(big.NewInt(1000000000000000000), delegatorRewards.Amount)
 			},
 			20000,
@@ -154,7 +159,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, sdk.NewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -214,7 +219,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}{
 		{
 			"success",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, sdk.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())

@@ -6,13 +6,14 @@ package stride
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v15/utils"
+	"cosmossdk.io/math"
+	"github.com/evmos/evmos/v16/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v15/precompiles/ics20"
+	"github.com/evmos/evmos/v16/precompiles/ics20"
 )
 
 const (
@@ -68,7 +69,7 @@ func (p Precompile) LiquidStake(
 		return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
 	}
 
-	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
 	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)
@@ -174,7 +175,7 @@ func (p Precompile) RedeemStake(
 		return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
 	}
 
-	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: sdk.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer
 	memo, err := CreateMemo(RedeemStakeAction, strideForwarder, sdk.AccAddress(receiver.Bytes()).String())

@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	erc20types "github.com/evmos/evmos/v15/x/erc20/types"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var _ types.MsgServer = Keeper{}
@@ -61,11 +61,6 @@ func (k Keeper) Transfer(goCtx context.Context, msg *types.MsgTransfer) (*types.
 	}
 
 	sender := sdk.MustAccAddressFromBech32(msg.Sender)
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
-
-	if erc20types.IsModuleAccount(senderAcc) {
-		return k.Keeper.Transfer(sdk.WrapSDKContext(ctx), msg)
-	}
 
 	if !k.erc20Keeper.IsERC20Enabled(ctx) {
 		// no-op: continue with regular transfer

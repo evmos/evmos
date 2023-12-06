@@ -41,9 +41,24 @@ TEST_CONTRACTS = {
     "ICS20I": "evmos/ics20/ICS20I.sol",
     "DistributionI": "evmos/distribution/DistributionI.sol",
     "StakingI": "evmos/staking/StakingI.sol",
+    "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
+    "IOsmosisOutpost": "evmos/outposts/osmosis/IOsmosisOutpost.sol",
     "IERC20": "evmos/erc20/IERC20.sol",
 }
+
+OSMOSIS_POOLS = {
+    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
+}
+
+# If need to update these binaries
+# you can use the compile-cosmwasm-contracts.sh
+# script located in the 'scripts' directory
+WASM_BINARIES = {
+    "CrosschainSwap": "crosschain_swaps.wasm",
+    "Swaprouter": "swaprouter.wasm",
+}
+
 WEVMOS_META = {
     "description": "The native staking and governance token of the Evmos chain",
     "denom_units": [
@@ -57,6 +72,10 @@ WEVMOS_META = {
 }
 
 
+def wasm_binaries_path(filename):
+    return Path(__file__).parent / "cosmwasm/artifacts/" / filename
+
+
 def contract_path(name, filename):
     return (
         Path(__file__).parent
@@ -64,6 +83,11 @@ def contract_path(name, filename):
         / filename
         / (name + ".json")
     )
+
+
+WASM_CONTRACTS = {
+    **{name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()},
+}
 
 
 CONTRACTS = {
@@ -194,19 +218,28 @@ def get_precompile_contract(w3, name):
         addr = "0x0000000000000000000000000000000000000802"
     elif name == "IStrideOutpost":
         addr = "0x0000000000000000000000000000000000000900"
+    elif name == "IOsmosisOutpost":
+        addr = "0x0000000000000000000000000000000000000901"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
+
+
+def build_deploy_contract_tx(w3, info, args=(), key=KEYS["validator"]):
+    """
+    builds a tx to deploy contract without signature and returns it
+    """
+    acct = Account.from_key(key)
+    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
+    return contract.constructor(*args).build_transaction({"from": acct.address})
 
 
 def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     """
     deploy contract and return the deployed contract instance
     """
-    acct = Account.from_key(key)
     info = json.loads(jsonfile.read_text())
-    contract = w3.eth.contract(abi=info["abi"], bytecode=info["bytecode"])
-    tx = contract.constructor(*args).build_transaction({"from": acct.address})
+    tx = build_deploy_contract_tx(w3, info, args, key)
     txreceipt = send_transaction(w3, tx, key)
     assert txreceipt.status == 1
     address = txreceipt.contractAddress
@@ -235,6 +268,28 @@ def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
         )
 
 
+def wait_for_cosmos_tx_receipt(cli, tx_hash):
+    print(f"waiting receipt for tx_hash: {tx_hash}...")
+    wait_for_new_blocks(cli, 1)
+    res = cli.tx_search_rpc(f"tx.hash='{tx_hash}'")
+    if len(res) == 0:
+        return wait_for_cosmos_tx_receipt(cli, tx_hash)
+    return res[0]
+
+
+def wait_for_ack(cli, chain):
+    """
+    Helper function to wait for acknoledgment
+    of an IBC transfer
+    """
+    print(f"{chain} waiting ack...")
+    block_results = cli.block_results_rpc()
+    txs_res = block_results["txs_results"]
+    if txs_res is None:
+        wait_for_new_blocks(cli, 1)
+        return wait_for_ack(cli, chain)
+
+
 def register_host_zone(
     stride,
     proposer,
@@ -248,44 +303,30 @@ def register_host_zone(
     """
     Register a Host Zone in Stride Chain.
     This helper function submits the corresponding
-    governance proposal, votes it, wait till it passes
-    and checks that the host zone was registered successfully
+    transaction and checks that the host zone
+    was registered successfully
     """
     prev_registered_zones = len(stride.cosmos_cli().get_host_zones())
 
-    msg = stride.cosmos_cli().register_host_zone_msg(
+    rsp = stride.cosmos_cli().register_host_zone_msg(
+        proposer,
         connection_id,
         host_denom,
         bech32_prefix,
         ibc_denom,
         channel_id,
         unbonding_frequency,
+        0,
+        gas=700000,
     )
-    proposal = {
-        "messages": [msg],
-        "deposit": "1ustrd",
-        "title": f"Register {bech32_prefix} zone",
-        "summary": f"Proposal to register {bech32_prefix} zone",
-    }
-    with tempfile.NamedTemporaryFile("w") as proposal_file:
-        json.dump(proposal, proposal_file)
-        proposal_file.flush()
-        rsp = stride.cosmos_cli().gov_proposal(proposer, proposal_file.name)
-        assert rsp["code"] == 0, rsp["raw_log"]
-        txhash = rsp["txhash"]
+    assert rsp["code"] == 0, rsp["raw_log"]
+    txhash = rsp["txhash"]
 
+    # check the tx receipt to confirm was successful
     wait_for_new_blocks(stride.cosmos_cli(), 2)
     receipt = stride.cosmos_cli().tx_search_rpc(f"tx.hash='{txhash}'")[0]
-    proposal_id = get_event_attribute_value(
-        receipt["tx_result"]["events"],
-        "submit_proposal",
-        "proposal_id",
-    )
-    assert int(proposal_id) > 0
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(stride, proposal_id, gas_prices="2000000ustrd")
+    assert receipt["tx_result"]["code"] == 0
 
-    # query token pairs and get WEVMOS address
     updated_registered_zones = stride.cosmos_cli().get_host_zones()
     assert len(updated_registered_zones) == prev_registered_zones + 1
     return updated_registered_zones
@@ -465,6 +506,14 @@ def update_node_cmd(path, cmd, i):
         ini.write(fp)
 
 
+def update_evmosd_and_setup_stride(modified_bin):
+    def inner(path, base_port, config):
+        update_evmos_bin(modified_bin)(path, base_port, config)
+        setup_stride()(path, base_port, config)
+
+    return inner
+
+
 def update_evmos_bin(modified_bin, nodes=[0, 1]):
     """
     updates the evmos binary with a patched binary.
@@ -481,6 +530,17 @@ def update_evmos_bin(modified_bin, nodes=[0, 1]):
         # need to update the bin in all these
         for i in nodes:
             update_node_cmd(path / chain_id, modified_bin, i)
+
+    return inner
+
+
+def setup_stride():
+    def inner(path, base_port, config):
+        chain_id = "stride-1"
+        base_dir = Path(path / chain_id)
+        os.environ["BASE_DIR"] = str(base_dir)
+        os.environ["BASE_PORT"] = str(base_port)
+        subprocess.run(["../../scripts/setup-stride.sh"], check=True)
 
     return inner
 

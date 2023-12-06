@@ -16,11 +16,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v15/server/config"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	"github.com/evmos/evmos/v16/server/config"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
-	"github.com/evmos/evmos/v15/contracts"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 // DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
@@ -186,10 +186,10 @@ func (k Keeper) CallEVMWithData(
 			return nil, errorsmod.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
 		}
 
-		gasRes, err := k.evmKeeper.EstimateGas(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
+		gasRes, err := k.evmKeeper.EstimateGasInternal(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
 			Args:   args,
 			GasCap: config.DefaultGasCap,
-		})
+		}, evmtypes.Internal)
 		if err != nil {
 			return nil, err
 		}

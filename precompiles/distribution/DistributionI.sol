@@ -59,7 +59,7 @@ interface DistributionI {
     /// @param amount the amount being withdrawn from the delegation
     event WithdrawDelegatorRewards(
         address indexed delegatorAddress,
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 amount
     );
 

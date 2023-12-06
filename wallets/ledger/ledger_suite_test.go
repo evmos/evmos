@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -20,9 +21,9 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/evmos/v15/wallets/ledger"
-	"github.com/evmos/evmos/v15/wallets/ledger/mocks"
-	"github.com/evmos/evmos/v15/wallets/usbwallet"
+	"github.com/evmos/evmos/v16/wallets/ledger"
+	"github.com/evmos/evmos/v16/wallets/ledger/mocks"
+	"github.com/evmos/evmos/v16/wallets/usbwallet"
 )
 
 type LedgerTestSuite struct {
@@ -98,7 +99,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 		[]sdk.Coin{
 			{
 				Denom:  "atom",
-				Amount: sdk.NewIntFromUint64(150),
+				Amount: math.NewIntFromUint64(150),
 			},
 		},
 	)

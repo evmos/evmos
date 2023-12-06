@@ -7,8 +7,24 @@ import (
 	"fmt"
 	"math/big"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/ethereum/go-ethereum/common"
 )
+
+// EventTransfer defines the event data for the ERC20 Transfer events.
+type EventTransfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+}
+
+// EventApproval defines the event data for the ERC20 Approval events.
+type EventApproval struct {
+	Owner   common.Address
+	Spender common.Address
+	Value   *big.Int
+}
 
 // ParseTransferArgs parses the arguments from the transfer method and returns
 // the destination address (to) and amount.
@@ -101,4 +117,36 @@ func ParseAllowanceArgs(args []interface{}) (
 	}
 
 	return owner, spender, nil
+}
+
+// ParseBalanceOfArgs parses the balanceOf arguments and returns the account address.
+func ParseBalanceOfArgs(args []interface{}) (common.Address, error) {
+	if len(args) != 1 {
+		return common.Address{}, fmt.Errorf("invalid number of arguments; expected 1; got: %d", len(args))
+	}
+
+	account, ok := args[0].(common.Address)
+	if !ok {
+		return common.Address{}, fmt.Errorf("invalid account address: %v", args[0])
+	}
+
+	return account, nil
+}
+
+// updateOrAddCoin replaces the coin of the given denomination in the coins slice or adds it if it
+// does not exist yet.
+//
+// CONTRACT: Requires the coins struct to contain at most one coin of the given
+// denom.
+func updateOrAddCoin(coins sdk.Coins, coin sdk.Coin) sdk.Coins {
+	for idx, c := range coins {
+		if c.Denom == coin.Denom {
+			coins[idx] = coin
+			return coins
+		}
+	}
+
+	// NOTE: if no coin with the correct denomination is in the coins slice, we
+	// add it here.
+	return coins.Add(coin)
 }

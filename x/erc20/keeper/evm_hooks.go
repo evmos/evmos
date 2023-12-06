@@ -7,14 +7,15 @@ import (
 	"bytes"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
-	"github.com/evmos/evmos/v15/contracts"
-	"github.com/evmos/evmos/v15/x/erc20/types"
+	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/x/erc20/types"
 )
 
 var _ evmtypes.EvmHooks = Hooks{}
@@ -125,7 +126,7 @@ func (k Keeper) PostTxProcessing(
 		}
 
 		// create the corresponding sdk.Coin that is paired with ERC20
-		coins := sdk.Coins{{Denom: pair.Denom, Amount: sdk.NewIntFromBigInt(tokens)}}
+		coins := sdk.Coins{{Denom: pair.Denom, Amount: math.NewIntFromBigInt(tokens)}}
 
 		// Perform token conversion. We can now assume that the sender of a
 		// registered token wants to mint a Cosmos coin.
