@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"encoding/json"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -21,6 +22,45 @@ import (
 	"github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
+
+// DeployERC20Contract creates and deploys an ERC20 contract on the EVM with the
+// erc20 module account as owner.
+func (k Keeper) DeployERC20Contract(
+	ctx sdk.Context,
+	coinMetadata banktypes.Metadata,
+) (common.Address, error) {
+	decimals := uint8(0)
+	if len(coinMetadata.DenomUnits) > 0 {
+		decimalsIdx := len(coinMetadata.DenomUnits) - 1
+		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+	}
+	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
+		"",
+		coinMetadata.Name,
+		coinMetadata.Symbol,
+		decimals,
+	)
+	if err != nil {
+		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+	}
+
+	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
+	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
+	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], ctorArgs)
+
+	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	contractAddr := crypto.CreateAddress(types.ModuleAddress, nonce)
+	_, err = k.CallEVMWithData(ctx, types.ModuleAddress, nil, data, true)
+	if err != nil {
+		return common.Address{}, errorsmod.Wrapf(err, "failed to deploy contract for %s", coinMetadata.Name)
+	}
+
+	return contractAddr, nil
+}
 
 // QueryERC20 returns the data of a deployed ERC20 contract
 func (k Keeper) QueryERC20(

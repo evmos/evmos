@@ -5,6 +5,7 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -32,11 +33,51 @@ func (k Keeper) RegisterERC20(
 		)
 	}
 
-	// TODO: This should probably also convert the ERC20 to a precompile and change the owner ?
 	pair := types.NewTokenPair(contract, metadata.Name, types.OWNER_EXTERNAL)
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
 	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+	return &pair, nil
+}
+
+// RegisterCoin deploys an erc20 contract and creates the token pair for the
+// existing cosmos coin
+func (k Keeper) RegisterCoin(
+	ctx sdk.Context,
+	coinMetadata banktypes.Metadata,
+) (*types.TokenPair, error) {
+	// Check if denomination is already registered
+	if k.IsDenomRegistered(ctx, coinMetadata.Name) {
+		return nil, errorsmod.Wrapf(
+			types.ErrTokenPairAlreadyExists, "coin denomination already registered: %s", coinMetadata.Name,
+		)
+	}
+
+	// Check if the coin exists by ensuring the supply is set
+	if !k.bankKeeper.HasSupply(ctx, coinMetadata.Base) {
+		return nil, errorsmod.Wrapf(
+			errortypes.ErrInvalidCoins, "base denomination '%s' cannot have a supply of 0", coinMetadata.Base,
+		)
+	}
+
+	if err := k.verifyMetadata(ctx, coinMetadata); err != nil {
+		return nil, errorsmod.Wrapf(
+			types.ErrInternalTokenPair, "coin metadata is invalid %s", coinMetadata.Name,
+		)
+	}
+
+	addr, err := k.DeployERC20Contract(ctx, coinMetadata)
+	if err != nil {
+		return nil, errorsmod.Wrap(
+			err, "failed to create wrapped coin denom metadata for ERC20",
+		)
+	}
+
+	pair := types.NewTokenPair(addr, coinMetadata.Base, types.OWNER_MODULE)
+	k.SetTokenPair(ctx, pair)
+	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
+	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+
 	return &pair, nil
 }
 
