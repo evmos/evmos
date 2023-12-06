@@ -4,7 +4,6 @@
 package network
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"math/big"
@@ -12,11 +11,11 @@ import (
 	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/types"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
@@ -152,7 +151,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
 
 	// Init chain
-	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
 	if err != nil {
 		return err
 	}
@@ -168,24 +167,36 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	); err != nil {
 		return err
 	}
-	// Commit genesis changes
-	evmosApp.Commit()
 
-	header := cmtproto.Header{
-		ChainID:            n.cfg.chainID,
+	req := &abcitypes.RequestFinalizeBlock{
 		Height:             evmosApp.LastBlockHeight() + 1,
-		AppHash:            evmosApp.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
+		Hash:               evmosApp.LastCommitID().Hash,
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
+
+	if _, err := evmosApp.FinalizeBlock(req); err != nil {
+		return err
+	}
+
+	header := cmtproto.Header{
+		ChainID:            n.cfg.chainID,
+		Height:             req.Height,
+		AppHash:            req.Hash,
+		ValidatorsHash:     req.NextValidatorsHash,
+		NextValidatorsHash: req.NextValidatorsHash,
+		ProposerAddress:    req.ProposerAddress,
+	}
+	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
-	evmosApp.BeginBlocker(n.ctx)
+
+	// Commit genesis changes
+	if _, err := evmosApp.Commit(); err != nil {
+		return err
+	}
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initilize the context
-	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
 	n.ctx = n.ctx.WithConsensusParams(*consnsusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
@@ -246,7 +257,13 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
 // TODO - this should be change to gRPC
 func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
-	req := abcitypes.RequestFinalizeBlock{Txs: [][]byte{txBytes}}
+	req := abcitypes.RequestFinalizeBlock{
+		Height:             n.app.LastBlockHeight() + 1,
+		Hash:               n.app.LastCommitID().Hash,
+		NextValidatorsHash: n.valSet.Hash(),
+		ProposerAddress:    n.valSet.Proposer.Address,
+		Txs:                [][]byte{txBytes},
+	}
 	blockRes, err := n.app.BaseApp.FinalizeBlock(&req)
 	if err != nil {
 		return abcitypes.ExecTxResult{}, err

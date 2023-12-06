@@ -6,6 +6,7 @@ import (
 	"time"
 
 	storetypes "cosmossdk.io/store/types"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
 )
 
 // NextBlock is a private helper function that runs the EndBlocker logic, commits the changes,
@@ -14,27 +15,32 @@ func (n *IntegrationNetwork) NextBlock() error {
 	return n.NextBlockAfter(time.Second)
 }
 
-// NextBlockAfter is a private helper function that runs the EndBlocker logic, commits the changes,
-// updates the header to have a block time after the given duration and runs the BeginBlocker.
+// NextBlockAfter is a private helper function that runs the FinalizeBlock logic, updates the context and
+//
+//	commits the changes to have a block time after the given duration.
 func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
-	// End block and commit
-	header := n.ctx.BlockHeader()
-	if _, err := n.app.EndBlocker(n.ctx); err != nil {
-		return err
+	// FinalizeBlock to run endBlock, deliverTx & beginBlock logic
+	req := &abcitypes.RequestFinalizeBlock{
+		Height:             n.app.LastBlockHeight() + 1,
+		Hash:               n.app.LastCommitID().Hash,
+		NextValidatorsHash: n.valSet.Hash(),
+		ProposerAddress:    n.valSet.Proposer.Address,
 	}
 
-	n.app.Commit()
-
-	// Calculate new block time after duration
-	newBlockTime := header.Time.Add(duration)
-
+	if _, err := n.app.FinalizeBlock(req); err != nil {
+		return err
+	}
+	
+	header := n.ctx.BlockHeader()
 	// Update block header and BeginBlock
 	header.Height++
 	header.AppHash = n.app.LastCommitID().Hash
+	// Calculate new block time after duration
+	newBlockTime := header.Time.Add(duration)
 	header.Time = newBlockTime
+	newCtx := n.app.BaseApp.NewContextLegacy(false, header)
 
 	// Update context header
-	newCtx := n.app.BaseApp.NewContextLegacy(false, header)
 	newCtx = newCtx.WithMinGasPrices(n.ctx.MinGasPrices())
 	newCtx = newCtx.WithEventManager(n.ctx.EventManager())
 	newCtx = newCtx.WithKVGasConfig(n.ctx.KVGasConfig())
@@ -43,10 +49,10 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	// This might have to be changed with time if we want to test gas limits
 	newCtx = newCtx.WithBlockGasMeter(storetypes.NewInfiniteGasMeter())
 
-	if _, err := n.app.BeginBlocker(newCtx); err != nil {
-		return err
-	}
-
 	n.ctx = newCtx
-	return nil
+
+	// commit changes
+	_, err := n.app.Commit()
+
+	return err
 }

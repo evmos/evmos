@@ -45,6 +45,7 @@ func (tf *IntegrationTxFactory) buildTx(privKey cryptotypes.PrivKey, txArgs Cosm
 		AccountNumber: account.GetAccountNumber(),
 		Sequence:      sequence,
 		Address:       senderAddress.String(),
+		PubKey:        privKey.PubKey(),
 	}
 	signMode, err := authsigning.APISignModeToInternal(txConfig.SignModeHandler().DefaultMode())
 	if err != nil {
