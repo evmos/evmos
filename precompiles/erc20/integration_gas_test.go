@@ -202,7 +202,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 
 	})
 
-	Context(erc20.TransferMethod, Ordered, func() {
+	Context("transfer", Ordered, func() {
 		DescribeTable("should transfer tokens", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -219,13 +219,10 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 				Expect(err).ToNot(HaveOccurred(), "failed to produce block")
 
 				fmt.Println("Checking balances before transfer")
-				gs.ExpectBalancesForContract(
-					callType, contractsData,
-					[]ExpectedBalance{
-						{sender.AccAddr, fundCoins},
-						{receiver.AccAddr, sdk.Coins{}},
-					},
-				)
+				senderBalPre, err := gs.GetBalanceForContract(callType, contractsData, sender.AccAddr, gs.tokenDenom)
+				Expect(err).ToNot(HaveOccurred(), "failed to get balances for sender")
+				receiverBalPre, err := gs.GetBalanceForContract(callType, contractsData, receiver.AccAddr, gs.tokenDenom)
+				Expect(err).ToNot(HaveOccurred(), "failed to get balances for receiver")
 
 				txArgs, transferArgs := gs.getTxAndCallArgs(
 					callType, contractsData,
@@ -243,8 +240,8 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 				gs.ExpectBalancesForContract(
 					callType, contractsData,
 					[]ExpectedBalance{
-						{sender.AccAddr, sdk.Coins{}},
-						{receiver.AccAddr, transferCoins},
+						{sender.AccAddr, senderBalPre.Sub(transferCoins...)},
+						{receiver.AccAddr, receiverBalPre.Add(transferCoins...)},
 					},
 				)
 
@@ -257,7 +254,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(erc20.TransferFromMethod, Ordered, func() {
+	Context("transferFrom", Ordered, func() {
 		DescribeTable(" - it should transfer tokens from other account", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -307,7 +304,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(auth.ApproveMethod, Ordered, func() {
+	Context("approve", Ordered, func() {
 		DescribeTable("should approve tokens", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -343,7 +340,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(auth.AllowanceMethod, Ordered, func() {
+	Context("allowance", Ordered, func() {
 		DescribeTable("should return allowance", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -452,7 +449,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 	//	)
 	//})
 
-	Context(erc20.TotalSupplyMethod, Ordered, func() {
+	Context("totalSupply", Ordered, func() {
 		DescribeTable("should return the total supply of the token", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -480,7 +477,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(erc20.BalanceOfMethod, Ordered, func() {
+	Context("balanceOf", Ordered, func() {
 		DescribeTable("should return token", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -508,7 +505,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(auth.IncreaseAllowanceMethod, Ordered, func() {
+	Context("increaseAllowance", Ordered, func() {
 		DescribeTable("should increase allowance by tokens", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -543,7 +540,7 @@ var _ = Describe("ERC20 Extension Gas Tests - ", Ordered, func() {
 		)
 	})
 
-	Context(auth.DecreaseAllowanceMethod, Ordered, func() {
+	Context("decreaseAllowance", Ordered, func() {
 		DescribeTable("should decrease allowance by tokens", func(callType CallType) {
 			for _, tokens := range tokenAmounts {
 				tokens := tokens
@@ -606,16 +603,11 @@ func exportToFile(entries map[string]map[CallType]int64, filename string) {
 	}
 	defer f.Close()
 
-	// Write header
-	//if _, err := f.WriteString("callType,tokens,gas\n"); err != nil {
-	//	panic(err)
-	//}
-
 	callTypes := []CallType{directCall, erc20Call, erc20V5Call}
 
 	// Write entries
 	for sentTokens, gasConsumptions := range entries {
-		line := fmt.Sprintf("%s", sentTokens)
+		line := sentTokens
 		for _, ct := range callTypes {
 			line += fmt.Sprintf(",%d", gasConsumptions[ct])
 		}

@@ -17,3 +17,11 @@ func (gqh *IntegrationHandler) GetBalance(address sdktypes.AccAddress, denom str
 		Denom:   denom,
 	})
 }
+
+// GetAllBalances returns all the balances for the given address.
+func (gqh *IntegrationHandler) GetAllBalances(address sdktypes.AccAddress) (*banktypes.QueryAllBalancesResponse, error) {
+	bankClient := gqh.network.GetBankClient()
+	return bankClient.AllBalances(context.Background(), &banktypes.QueryAllBalancesRequest{
+		Address: address.String(),
+	})
+}

@@ -311,7 +311,12 @@ func (is *IntegrationTestSuite) ExpectBalances(expBalances []ExpectedBalance) {
 		for _, expCoin := range expBalance.expCoins {
 			coinBalance, err := is.handler.GetBalance(expBalance.address, expCoin.Denom)
 			Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
-			Expect(coinBalance.Balance.Amount.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
+			if coinBalance.Balance.Amount.IsInt64() && expCoin.Amount.IsInt64() {
+				// NOTE: If the amounts can be represented as int64 this is better to look at as a user
+				Expect(coinBalance.Balance.Amount.Int64()).To(Equal(expCoin.Amount.Int64()), "expected different balance")
+			} else {
+				Expect(coinBalance.Balance.Amount).To(Equal(expCoin.Amount), "expected different balance")
+			}
 		}
 	}
 }
@@ -335,6 +340,7 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 	contractABI := contractData.GetContractData(callType).ABI
 
 	for _, expBalance := range expBalances {
+		expAmount := expBalance.expCoins.AmountOf(is.tokenDenom)
 		addr := common.BytesToAddress(expBalance.address.Bytes())
 		txArgs, callArgs := is.getTxAndCallArgs(callType, contractData, "balanceOf", addr)
 
@@ -346,8 +352,58 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 		var balance *big.Int
 		err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
 		Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")
-		Expect(balance.Int64()).To(Equal(expBalance.expCoins.AmountOf(is.tokenDenom).Int64()), "expected different balance")
+
+		if balance.IsInt64() && expAmount.IsInt64() {
+			// NOTE: If the amounts can be represented as int64 this is better to look at as a user
+			Expect(balance.Int64()).To(Equal(expBalance.expCoins.AmountOf(is.tokenDenom).Int64()), "expected different balance")
+		} else {
+			Expect(balance).To(Equal(expAmount.BigInt()), "expected different balance")
+		}
 	}
+}
+
+// GetBalancesForContract is helper function to get the balance of the given account for the
+// given token denomination depending on the call type.
+func (is *IntegrationTestSuite) GetBalanceForContract(callType CallType, contractData ContractsData, address sdk.AccAddress, denom string) (sdk.Coins, error) {
+	switch {
+	case slices.Contains(nativeCallTypes, callType):
+		balancesRes, err := is.handler.GetBalance(address, denom)
+		if err != nil {
+			return nil, err
+		}
+		return sdk.Coins{*balancesRes.Balance}, nil
+	case slices.Contains(erc20CallTypes, callType):
+		balance, err := is.GetBalanceForERC20(callType, contractData, address)
+		if err != nil {
+			return nil, err
+		}
+		balances := sdk.Coins{sdk.NewCoin(denom, sdk.NewIntFromBigInt(balance))}
+		return balances, nil
+	default:
+		panic(fmt.Sprintf("unknown contract call type: %v", callType))
+	}
+}
+
+// GetBalanceForERC20 is a helper function to retrieve the balance of the given account when using an ERC20 contract.
+func (is *IntegrationTestSuite) GetBalanceForERC20(callType CallType, contractData ContractsData, address sdk.AccAddress) (*big.Int, error) {
+	contractABI := contractData.GetContractData(callType).ABI
+
+	txArgs, callArgs := is.getTxAndCallArgs(callType, contractData, "balanceOf", common.BytesToAddress(address.Bytes()))
+	passCheck := testutil.LogCheckArgs{ExpPass: true}
+
+	// TODO: refactor to use EthCall instead of calling as a transactions
+	_, ethRes, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, passCheck)
+	if err != nil {
+		return nil, err
+	}
+
+	var balance *big.Int
+	err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
+	if err != nil {
+		return nil, err
+	}
+
+	return balance, nil
 }
 
 // expectSendAuthz is a helper function to check that a SendAuthorization
