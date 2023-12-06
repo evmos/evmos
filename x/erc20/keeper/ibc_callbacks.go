@@ -67,6 +67,11 @@ func (k Keeper) OnRecvPacket(
 		data.Denom, data.Amount,
 	)
 
+	// If native coin just return sooner
+	if coin.Denom == k.evmKeeper.GetParams(ctx).EvmDenom {
+		return ack
+	}
+
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	pair, found := k.GetTokenPair(ctx, pairID)
 
@@ -103,13 +108,7 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Case 2 - Coin is native EVMOS
-	if pair.Denom == utils.BaseDenom {
-		// no-op: continue with the rest of the stack
-		return ack
-	}
-
-	// Case 3 - native ERC20 token
+	// Case 2 - native ERC20 token
 	if pair.IsNativeERC20() {
 		// ERC20 module or token pair is disabled -> return
 		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
