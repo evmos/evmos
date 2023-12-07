@@ -266,3 +266,12 @@ func ValidatePrecompiles(i interface{}) error {
 func IsLondon(ethConfig *params.ChainConfig, height int64) bool {
 	return ethConfig.IsLondon(big.NewInt(height))
 }
+
+// IsPrecompileRegistered returns true if the given precompile address is registered in the params.
+func (p Params) IsPrecompileRegistered(address string) bool {
+	_, found := sort.Find(len(p.ActivePrecompiles), func(i int) int {
+		return strings.Compare(address, p.ActivePrecompiles[i])
+	})
+
+	return found
+}

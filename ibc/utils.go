@@ -5,9 +5,9 @@ package ibc
 
 import (
 	errorsmod "cosmossdk.io/errors"
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"strings"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -61,7 +61,7 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 		return "", errorsmod.Wrapf(errortypes.ErrInvalidCoins, "empty amount")
 	}
 
-	if _, ok := math.NewIntFromString(data.Amount); !ok {
+	if _, ok := sdk.NewIntFromString(data.Amount); !ok {
 		return "", errorsmod.Wrapf(errortypes.ErrInvalidCoins, "invalid amount")
 	}
 
@@ -75,7 +75,7 @@ func GetTransferAmount(packet channeltypes.Packet) (string, error) {
 // prefix path from the destination chain to the denom.
 func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt string) sdk.Coin {
 	// NOTE: Denom and amount are already validated
-	amount, _ := math.NewIntFromString(rawAmt)
+	amount, _ := sdk.NewIntFromString(rawAmt)
 
 	if transfertypes.ReceiverChainIsSource(srcPort, srcChannel, rawDenom) {
 		// remove prefix added by sender chain
@@ -116,11 +116,25 @@ func GetReceivedCoin(srcPort, srcChannel, dstPort, dstChannel, rawDenom, rawAmt 
 // GetSentCoin returns the sent coin from an ICS20 FungibleTokenPacketData.
 func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 	// NOTE: Denom and amount are already validated
-	amount, _ := math.NewIntFromString(rawAmt)
+	amount, _ := sdk.NewIntFromString(rawAmt)
 	trace := transfertypes.ParseDenomTrace(rawDenom)
 
 	return sdk.Coin{
 		Denom:  trace.IBCDenom(),
 		Amount: amount,
 	}
+}
+
+// IsSingleHop checks if the given denom has only made a single hop.
+// It returns true if the denomination is single-hop, false otherwise.
+func IsSingleHop(rawDenom string) bool {
+	// Parse the raw denomination to get its DenomTrace
+	denomTrace := transfertypes.ParseDenomTrace(rawDenom)
+
+	// Split the path of the DenomTrace into its components
+	pathComponents := strings.Split(denomTrace.Path, "/")
+
+	// Each hop in the path is represented by a pair of port and channel ids
+	// If the number of components in the path is more than 2, it has hopped multiple chains
+	return len(pathComponents) <= 2
 }

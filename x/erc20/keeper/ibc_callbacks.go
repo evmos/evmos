@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/evmos/evmos/v16/utils"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -50,10 +51,6 @@ func (k Keeper) OnRecvPacket(
 		WithKVGasConfig(storetypes.GasConfig{}).
 		WithTransientKVGasConfig(storetypes.GasConfig{})
 
-	if !k.IsERC20Enabled(ctx) {
-		return ack
-	}
-
 	// Get addresses in `evmos1` and the original bech32 format
 	sender, recipient, _, _, err := ibc.GetTransferSenderRecipient(packet)
 	if err != nil {
@@ -83,38 +80,48 @@ func (k Keeper) OnRecvPacket(
 	)
 
 	// check if the coin is a native staking token
-	bondDenom := k.stakingKeeper.BondDenom(ctx)
-	if coin.Denom == bondDenom {
+	if coin.Denom == evmParams.EvmDenom {
 		// no-op, received coin is the staking denomination
 		return ack
 	}
 
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
-	if len(pairID) == 0 {
-		// short-circuit: if the denom is not registered, conversion will fail
-		// so we can continue with the rest of the stack
+	pair, found := k.GetTokenPair(ctx, pairID)
+	switch {
+	// Case 1. token pair is not registered and is a single hop IBC Coin
+	case !found && ibc.IsSingleHop(coin.Denom):
+		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
+		found := evmParams.IsPrecompileRegistered(contractAddr.String())
+		if found {
+			return ack
+		}
+
+		if err := k.RegisterPrecompileForCoin(ctx, coin.Denom, contractAddr); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
 		return ack
-	}
 
-	pair, _ := k.GetTokenPair(ctx, pairID)
-	if !pair.Enabled {
-		// no-op: continue with the rest of the stack without conversion
+	// Case 2. native ERC20 token
+	case pair.IsNativeERC20():
+		// ERC20 module or token pair is disabled -> return
+		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
+			return ack
+		}
+
+		msgConvert := types.NewMsgConvertERC20(coin.Amount, recipient, pair.GetERC20Contract(), common.BytesToAddress(sender))
+		// Convert from Coin to ERC20
+		_, err := k.ConvertERC20(ctx, msgConvert)
+		if err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+
+	// TODO: Is the default just an ack or an error ?
+	default:
 		return ack
-	}
-
-	// Instead of converting just the received coins, convert the whole user balance
-	// which includes the received coins.
-	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
-
-	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
-	msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
-
-	// NOTE: we don't use ValidateBasic the msg since we've already validated
-	// the ICS20 packet data
-
-	// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
-		return channeltypes.NewErrorAcknowledgement(err)
 	}
 
 	defer func() {
@@ -160,46 +167,62 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
-	sender, err := sdk.AccAddressFromBech32(data.Sender)
-	if err != nil {
-		return err
-	}
-
-	// use a zero gas config to avoid extra costs for the relayers
-	ctx = ctx.
-		WithKVGasConfig(storetypes.GasConfig{}).
-		WithTransientKVGasConfig(storetypes.GasConfig{})
-
-	// assume that all module accounts on Evmos need to have their tokens in the
-	// IBC representation as opposed to ERC20
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
-	if types.IsModuleAccount(senderAcc) {
+	pairID := k.GetTokenPairID(ctx, data.Denom)
+	pair, found := k.GetTokenPair(ctx, pairID)
+	if !found {
+		// no-op, token pair is not registered
 		return nil
 	}
 
 	coin := ibc.GetSentCoin(data.Denom, data.Amount)
-
 	// check if the coin is a native staking token
 	bondDenom := k.stakingKeeper.BondDenom(ctx)
-	if coin.Denom == bondDenom {
+
+	switch {
+	// Case 1. if pair is native denomination -> no-op
+	case coin.Denom == bondDenom:
 		// no-op, received coin is the staking denomination
 		return nil
-	}
-
-	params := k.GetParams(ctx)
-	if !params.EnableErc20 || !k.IsDenomRegistered(ctx, coin.Denom) {
-		// no-op, ERC20s are disabled or the denom is not registered
+	// Case 2. if pair is native coin -> no-op
+	case pair.IsNativeCoin():
+		// no-op, received coin is the native denomination
 		return nil
-	}
 
-	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
+	// Case 3. if pair is native ERC20 -> unescrow
+	case pair.IsNativeERC20():
+		// use a zero gas config to avoid extra costs for the relayers
+		ctx = ctx.
+			WithKVGasConfig(storetypes.GasConfig{}).
+			WithTransientKVGasConfig(storetypes.GasConfig{})
 
-	// NOTE: we don't use ValidateBasic the msg since we've already validated the
-	// fields from the packet data
+		params := k.GetParams(ctx)
+		if !params.EnableErc20 || !k.IsDenomRegistered(ctx, coin.Denom) {
+			// no-op, ERC20s are disabled or the denom is not registered
+			return nil
+		}
 
-	// convert Coin to ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
-		return err
+		receiver, err := sdk.AccAddressFromBech32(data.Receiver)
+		if err != nil {
+			return err
+		}
+
+		sender, err := sdk.AccAddressFromBech32(data.Sender)
+		if err != nil {
+			return err
+		}
+
+		// assume that all module accounts on Evmos need to have their tokens in the
+		// IBC representation as opposed to ERC20
+		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+		if types.IsModuleAccount(senderAcc) {
+			return nil
+		}
+
+		msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
+		_, err = k.convertCoinNativeERC20(ctx, pair, msg, common.BytesToAddress(receiver), sender)
+		if err != nil {
+			return err
+		}
 	}
 
 	defer func() {
