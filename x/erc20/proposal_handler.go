@@ -24,6 +24,7 @@ func NewErc20ProposalHandler(k *keeper.Keeper) govv1beta1.Handler {
 			)
 		}
 
+		// TODO: Add new Proposals for register metadata for ERC20
 		switch c := content.(type) {
 		case *types.RegisterERC20Proposal:
 			return handleRegisterERC20Proposal(ctx, k, c)
