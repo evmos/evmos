@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	length "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
@@ -22,8 +21,6 @@ func TestProposalTestSuite(t *testing.T) {
 }
 
 func (suite *ProposalTestSuite) TestKeysTypes() {
-	suite.Require().Equal("erc20", (&types.RegisterCoinProposal{}).ProposalRoute())
-	suite.Require().Equal("RegisterCoin", (&types.RegisterCoinProposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&types.RegisterERC20Proposal{}).ProposalRoute())
 	suite.Require().Equal("RegisterERC20", (&types.RegisterERC20Proposal{}).ProposalType())
 	suite.Require().Equal("erc20", (&types.ToggleTokenConversionProposal{}).ProposalRoute())
@@ -142,95 +139,6 @@ func (suite *ProposalTestSuite) TestRegisterERC20Proposal() {
 
 	for i, tc := range testCases {
 		tx := types.NewRegisterERC20Proposal(tc.title, tc.description, tc.pair.Erc20Address)
-		err := tx.ValidateBasic()
-
-		if tc.expectPass {
-			suite.Require().NoError(err, "valid test %d failed: %s, %v", i, tc.msg)
-		} else {
-			suite.Require().Error(err, "invalid test %d passed: %s, %v", i, tc.msg)
-		}
-	}
-}
-
-func createFullMetadata(denom, symbol, name string) banktypes.Metadata {
-	return banktypes.Metadata{
-		Description: "desc",
-		Base:        denom,
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    denom,
-				Exponent: 0,
-			},
-			{
-				Denom:    symbol,
-				Exponent: uint32(18),
-			},
-		},
-		Name:    name,
-		Symbol:  symbol,
-		Display: denom,
-	}
-}
-
-func createMetadata(denom, symbol string) banktypes.Metadata { //nolint:unparam
-	return createFullMetadata(denom, symbol, denom)
-}
-
-func (suite *ProposalTestSuite) TestRegisterCoinProposal() {
-	validMetadata := banktypes.Metadata{
-		Description: "desc",
-		Base:        "coin",
-		// NOTE: Denom units MUST be increasing
-		DenomUnits: []*banktypes.DenomUnit{
-			{
-				Denom:    "coin",
-				Exponent: 0,
-			},
-			{
-				Denom:    "coin2",
-				Exponent: uint32(18),
-			},
-		},
-		Name:    "coin",
-		Symbol:  "token",
-		Display: "coin",
-	}
-
-	validIBCDenom := "ibc/7F1D3FCF4AE79E1554D670D1AD949A9BA4E4A3C76C63093E17E446A46061A7A2"
-	validIBCSymbol := "ATOM"
-	validIBCName := "Atom"
-
-	testCases := []struct {
-		msg         string
-		title       string
-		description string
-		metadata    banktypes.Metadata
-		expectPass  bool
-	}{
-		// Valid tests
-		{msg: "Register token pair - valid pair enabled", title: "test", description: "test desc", metadata: validMetadata, expectPass: true},
-		{msg: "Register token pair - valid pair dissabled", title: "test", description: "test desc", metadata: validMetadata, expectPass: true},
-
-		// Invalid Regex (denom)
-		{msg: "Register token pair - invalid starts with number", title: "test", description: "test desc", metadata: createMetadata("1test", "test"), expectPass: false},
-		{msg: "Register token pair - invalid char '('", title: "test", description: "test desc", metadata: createMetadata("(test", "test"), expectPass: false},
-		{msg: "Register token pair - invalid char '^'", title: "test", description: "test desc", metadata: createMetadata("^test", "test"), expectPass: false},
-		// Invalid length
-		{msg: "Register token pair - invalid length token (0)", title: "test", description: "test desc", metadata: createMetadata("", "test"), expectPass: false},
-		{msg: "Register token pair - invalid length token (1)", title: "test", description: "test desc", metadata: createMetadata("a", "test"), expectPass: false},
-		{msg: "Register token pair - invalid length token (128)", title: "test", description: "test desc", metadata: createMetadata(strings.Repeat("a", 129), "test"), expectPass: false},
-		{msg: "Register token pair - invalid length title (140)", title: strings.Repeat("a", length.MaxTitleLength+1), description: "test desc", metadata: validMetadata, expectPass: false},
-		{msg: "Register token pair - invalid length description (5000)", title: "title", description: strings.Repeat("a", length.MaxDescriptionLength+1), metadata: validMetadata, expectPass: false},
-		// Invalid denom
-		{msg: "Register token pair - invalid EVM denom", title: "test", description: "test desc", metadata: createFullMetadata("evm", "EVM", "evm"), expectPass: false},
-		// IBC
-		{msg: "Register token pair - ibc", title: "test", description: "test desc", metadata: createFullMetadata(validIBCDenom, validIBCSymbol, validIBCName), expectPass: true},
-		{msg: "Register token pair - ibc invalid denom", title: "test", description: "test desc", metadata: createFullMetadata("ibc/", validIBCSymbol, validIBCName), expectPass: false},
-	}
-
-	for i, tc := range testCases {
-		tx := types.NewRegisterCoinProposal(tc.title, tc.description, tc.metadata)
 		err := tx.ValidateBasic()
 
 		if tc.expectPass {
