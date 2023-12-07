@@ -56,8 +56,9 @@ func (k Keeper) ConvertCoin(
 	switch {
 	case pair.IsNativeCoin():
 		return k.convertCoinNativeCoin(ctx, pair, msg, receiver, sender) // case 1.1
-	case pair.IsNativeERC20():
-		return k.convertCoinNativeERC20(ctx, pair, msg, receiver, sender) // case 2.2
+	// TODO: This is deleted in another PR
+	// case pair.IsNativeERC20():
+	// return k.convertCoinNativeERC20(ctx, pair, msg, receiver, sender) // case 2.2
 	default:
 		return nil, types.ErrUndefinedOwner
 	}
@@ -423,52 +424,52 @@ func (k Keeper) convertERC20NativeToken(
 func (k Keeper) convertCoinNativeERC20(
 	ctx sdk.Context,
 	pair types.TokenPair,
-	msg *types.MsgConvertCoin,
+	coin sdk.Coin,
 	receiver common.Address,
 	sender sdk.AccAddress,
-) (*types.MsgConvertCoinResponse, error) {
+) error {
 	// NOTE: ignore validation from NewCoin constructor
-	coins := sdk.Coins{msg.Coin}
+	coins := sdk.Coins{coin}
 
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
 	contract := pair.GetERC20Contract()
 	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceToken == nil {
-		return nil, errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	// Escrow Coins on module account
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
-		return nil, errorsmod.Wrap(err, "failed to escrow coins")
+		return errorsmod.Wrap(err, "failed to escrow coins")
 	}
 
 	// Unescrow Tokens and send to receiver
-	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, msg.Coin.Amount.BigInt())
+	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, coin.Amount.BigInt())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Check unpackedRet execution
 	var unpackedRet types.ERC20BoolResponse
 	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", res.Ret); err != nil {
-		return nil, err
+		return err
 	}
 
 	if !unpackedRet.Value {
-		return nil, errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
+		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
 	}
 
 	// Check expected Receiver balance after transfer execution
-	tokens := msg.Coin.Amount.BigInt()
+	tokens := coin.Amount.BigInt()
 	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
 	if balanceTokenAfter == nil {
-		return nil, errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
 	}
 
 	exp := big.NewInt(0).Add(balanceToken, tokens)
 
 	if r := balanceTokenAfter.Cmp(exp); r != 0 {
-		return nil, errorsmod.Wrapf(
+		return errorsmod.Wrapf(
 			types.ErrBalanceInvariance,
 			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
 		)
@@ -477,12 +478,12 @@ func (k Keeper) convertCoinNativeERC20(
 	// Burn escrowed Coins
 	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
 	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to burn coins")
+		return errorsmod.Wrap(err, "failed to burn coins")
 	}
 
 	// Check for unexpected `Approval` event in logs
 	if err := k.monitorApprovalEvent(res); err != nil {
-		return nil, err
+		return err
 	}
 
 	defer func() {
@@ -494,10 +495,10 @@ func (k Keeper) convertCoinNativeERC20(
 			},
 		)
 
-		if msg.Coin.Amount.IsInt64() {
+		if coin.Amount.IsInt64() {
 			telemetry.IncrCounterWithLabels(
 				[]string{"tx", "msg", "convert", "coin", "amount", "total"},
-				float32(msg.Coin.Amount.Int64()),
+				float32(coin.Amount.Int64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", pair.Denom),
 				},
@@ -505,19 +506,7 @@ func (k Keeper) convertCoinNativeERC20(
 		}
 	}()
 
-	ctx.EventManager().EmitEvents(
-		sdk.Events{
-			sdk.NewEvent(
-				types.EventTypeConvertCoin,
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.Sender),
-				sdk.NewAttribute(types.AttributeKeyReceiver, msg.Receiver),
-				sdk.NewAttribute(sdk.AttributeKeyAmount, msg.Coin.Amount.String()),
-				sdk.NewAttribute(types.AttributeKeyCosmosCoin, msg.Coin.Denom),
-				sdk.NewAttribute(types.AttributeKeyERC20Token, pair.Erc20Address),
-			),
-		},
-	)
-	return &types.MsgConvertCoinResponse{}, nil
+	return nil
 }
 
 // UpdateParams implements the gRPC MsgServer interface. After a successful governance vote

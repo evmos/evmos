@@ -218,9 +218,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return nil
 		}
 
-		msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
-		_, err = k.convertCoinNativeERC20(ctx, pair, msg, common.BytesToAddress(receiver), sender)
-		if err != nil {
+		if err := k.convertCoinNativeERC20(ctx, pair, coin, common.BytesToAddress(receiver), sender); err != nil {
 			return err
 		}
 	}
