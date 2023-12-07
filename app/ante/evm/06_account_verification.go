@@ -14,6 +14,10 @@ import (
 )
 
 // VerifyAccountBalance checks that the sender balance is greater than the total transaction cost.
+// The account will be set to store if it doesn't exist, i.e. cannot be found on store.
+// This AnteHandler decorator will fail if:
+// - from address is NOT an EOA
+// - account balance is lower than the transaction cost
 func VerifyAccountBalance(
 	ctx sdk.Context,
 	accountKeeper evmtypes.AccountKeeper,
