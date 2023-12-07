@@ -36,6 +36,7 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
+	GetEVMChainConfig() *params.ChainConfig
 
 	// Clients
 	GetERC20Client() erc20types.QueryClient
@@ -225,6 +226,12 @@ func (n *IntegrationNetwork) GetChainID() string {
 // GetEIP155ChainID returns the network EIp-155 chainID number
 func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 	return n.cfg.eip155ChainID
+}
+
+// GetChainConfig returns the network's chain config
+func (n *IntegrationNetwork) GetEVMChainConfig() *params.ChainConfig {
+	params := n.app.EvmKeeper.GetParams(n.ctx)
+	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 
 // GetDenom returns the network's denom
