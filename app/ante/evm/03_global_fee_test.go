@@ -10,33 +10,33 @@ import (
 
 func (suite *EvmAnteTestSuite) TestGlobalFee() {
 	testCases := []struct {
-		name          string
-		expectedError error
-		txFee         sdkmath.LegacyDec
-		globalMinGasPrice   sdkmath.LegacyDec
-		gasLimit      sdkmath.LegacyDec
+		name              string
+		expectedError     error
+		txFee             sdkmath.LegacyDec
+		globalMinGasPrice sdkmath.LegacyDec
+		gasLimit          sdkmath.LegacyDec
 	}{
 		{
 			name:          "success: if globalMinGasPrice is 0, skip check",
 			expectedError: nil,
 			// values are not used because isLondon is true
-			txFee:       sdkmath.LegacyOneDec(),
+			txFee:             sdkmath.LegacyOneDec(),
 			globalMinGasPrice: sdkmath.LegacyZeroDec(),
-			gasLimit:    sdkmath.LegacyOneDec(),
+			gasLimit:          sdkmath.LegacyOneDec(),
 		},
 		{
-			name:          "success: fee is greater than global gas price * gas limit",
-			expectedError: nil,
-			txFee:         sdkmath.LegacyNewDec(100),
-			globalMinGasPrice:   sdkmath.LegacyOneDec(),
-			gasLimit:      sdkmath.LegacyOneDec(),
+			name:              "success: fee is greater than global gas price * gas limit",
+			expectedError:     nil,
+			txFee:             sdkmath.LegacyNewDec(100),
+			globalMinGasPrice: sdkmath.LegacyOneDec(),
+			gasLimit:          sdkmath.LegacyOneDec(),
 		},
 		{
-			name:          "fail: fee is less than global gas price * gas limit",
-			expectedError: errortypes.ErrInsufficientFee,
-			txFee:         sdkmath.LegacyOneDec(),
-			globalMinGasPrice:   sdkmath.LegacyNewDec(100),
-			gasLimit:      sdkmath.LegacyOneDec(),
+			name:              "fail: fee is less than global gas price * gas limit",
+			expectedError:     errortypes.ErrInsufficientFee,
+			txFee:             sdkmath.LegacyOneDec(),
+			globalMinGasPrice: sdkmath.LegacyNewDec(100),
+			gasLimit:          sdkmath.LegacyOneDec(),
 		},
 	}
 
@@ -58,4 +58,3 @@ func (suite *EvmAnteTestSuite) TestGlobalFee() {
 		})
 	}
 }
-
