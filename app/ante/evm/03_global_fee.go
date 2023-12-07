@@ -3,70 +3,10 @@
 package evm
 
 import (
-	"math/big"
-
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
-
-// EthMinGasPriceDecorator will check if the transaction's fee is at least as large
-// as the MinGasPrices param. If fee is too low, decorator returns error and tx
-// is rejected. This applies to both CheckTx and DeliverTx and regardless
-// if London hard fork or fee market params (EIP-1559) are enabled.
-// If fee is high enough, then call next AnteHandler
-type EthMinGasPriceDecorator struct {
-	feesKeeper FeeMarketKeeper
-	evmKeeper  EVMKeeper
-}
-
-// NewEthMinGasPriceDecorator creates a new MinGasPriceDecorator instance used only for
-// Ethereum transactions.
-func NewEthMinGasPriceDecorator(fk FeeMarketKeeper, ek EVMKeeper) EthMinGasPriceDecorator {
-	return EthMinGasPriceDecorator{feesKeeper: fk, evmKeeper: ek}
-}
-
-// AnteHandle ensures that the effective fee from the transaction is greater than the
-// minimum global fee, which is defined by the  MinGasPrice (parameter) * GasLimit (tx argument).
-func (empd EthMinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	minGasPrice := empd.feesKeeper.GetParams(ctx).MinGasPrice
-
-	// short-circuit if min gas price is 0
-	if minGasPrice.IsZero() {
-		return next(ctx, tx, simulate)
-	}
-
-	evmParams := empd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(empd.evmKeeper.ChainID())
-	baseFee := empd.evmKeeper.GetBaseFee(ctx, ethCfg)
-
-	for _, msg := range tx.GetMsgs() {
-		_, txData, _, err := evmtypes.UnpackEthMsg(msg)
-		if err != nil {
-			return ctx, err
-		}
-
-		feeAmt := txData.Fee()
-
-		if txData.TxType() != ethtypes.LegacyTxType {
-			feeAmt = txData.EffectiveFee(baseFee)
-		}
-
-		gasLimit := math.LegacyNewDecFromBigInt(new(big.Int).SetUint64(txData.GetGas()))
-		fee := math.LegacyNewDecFromBigInt(feeAmt)
-
-		if err := CheckGlobalFee(fee, minGasPrice, gasLimit); err != nil {
-			return ctx, err
-		}
-	}
-
-	return next(ctx, tx, simulate)
-}
 
 // For dynamic transactions, GetFee() uses the GasFeeCap value, which
 // is the maximum gas price that the signer can pay. In practice, the
