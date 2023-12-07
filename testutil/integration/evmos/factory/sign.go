@@ -7,7 +7,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v15/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // SignMsgEthereumTx signs a MsgEthereumTx with the provided private key and chainID.

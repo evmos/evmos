@@ -189,4 +189,3 @@ func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ResponseDelive
 	}
 	return nil
 }
-
