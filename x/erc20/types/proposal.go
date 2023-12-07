@@ -9,32 +9,26 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	v1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	evmostypes "github.com/evmos/evmos/v16/types"
 )
 
 // constants
 const (
-	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 )
 
 // Implements Proposal Interface
 var (
-	_ v1beta1.Content = &RegisterCoinProposal{}
 	_ v1beta1.Content = &RegisterERC20Proposal{}
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}
 )
 
 func init() {
-	v1beta1.RegisterProposalType(ProposalTypeRegisterCoin)
 	v1beta1.RegisterProposalType(ProposalTypeRegisterERC20)
 	v1beta1.RegisterProposalType(ProposalTypeToggleTokenConversion)
-	govcdc.ModuleCdc.Amino.RegisterConcrete(&RegisterCoinProposal{}, "erc20/RegisterCoinProposal", nil)
 	govcdc.ModuleCdc.Amino.RegisterConcrete(&RegisterERC20Proposal{}, "erc20/RegisterERC20Proposal", nil)
 	govcdc.ModuleCdc.Amino.RegisterConcrete(&ToggleTokenConversionProposal{}, "erc20/ToggleTokenConversionProposal", nil)
 }
@@ -47,68 +41,6 @@ func CreateDenomDescription(address string) string {
 // CreateDenom generates a string the module name plus the address to avoid conflicts with names staring with a number
 func CreateDenom(address string) string {
 	return fmt.Sprintf("%s/%s", ModuleName, address)
-}
-
-// NewRegisterCoinProposal returns new instance of RegisterCoinProposal
-func NewRegisterCoinProposal(title, description string, coinMetadata ...banktypes.Metadata) v1beta1.Content {
-	return &RegisterCoinProposal{
-		Title:       title,
-		Description: description,
-		Metadata:    coinMetadata,
-	}
-}
-
-// ProposalRoute returns router key for this proposal
-func (*RegisterCoinProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type for this proposal
-func (*RegisterCoinProposal) ProposalType() string {
-	return ProposalTypeRegisterCoin
-}
-
-// ValidateBasic performs a stateless check of the proposal fields
-func (rtbp *RegisterCoinProposal) ValidateBasic() error {
-	for _, metadata := range rtbp.Metadata {
-		if err := metadata.Validate(); err != nil {
-			return err
-		}
-
-		// Prohibit denominations that contain the evm denom
-		if strings.Contains(metadata.Base, "evm") {
-			return errorsmod.Wrapf(
-				ErrEVMDenom, "cannot register the EVM denomination %s", metadata.Base,
-			)
-		}
-
-		if err := ibctransfertypes.ValidateIBCDenom(metadata.Base); err != nil {
-			return err
-		}
-
-		if err := validateIBCVoucherMetadata(metadata); err != nil {
-			return err
-		}
-	}
-
-	return v1beta1.ValidateAbstract(rtbp)
-}
-
-// validateIBCVoucherMetadata checks that the coin metadata fields are consistent
-// with an IBC voucher denomination.
-func validateIBCVoucherMetadata(metadata banktypes.Metadata) error {
-	// Check ibc/ denom
-	denomSplit := strings.SplitN(metadata.Base, "/", 2)
-
-	if denomSplit[0] == metadata.Base && strings.TrimSpace(metadata.Base) != "" {
-		// Not IBC
-		return nil
-	}
-
-	if len(denomSplit) != 2 || denomSplit[0] != ibctransfertypes.DenomPrefix {
-		// NOTE: should be unaccessible (covered on ValidateIBCDenom)
-		return fmt.Errorf("invalid metadata. %s denomination should be prefixed with the format 'ibc/", metadata.Base)
-	}
-
-	return nil
 }
 
 // ValidateErc20Denom checks if a denom is a valid erc20/
