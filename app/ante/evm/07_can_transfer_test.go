@@ -95,6 +95,8 @@ func (suite *EvmAnteTestSuite) TestCanTransfer() {
 
 			if tc.expectedError != nil {
 				suite.Require().Error(err)
+				suite.Contains(err.Error(), tc.expectedError.Error())
+
 			} else {
 				suite.Require().NoError(err)
 			}
