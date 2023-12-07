@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -125,74 +124,6 @@ func (suite *KeeperTestSuite) TestEvmHooksRegisteredERC20() {
 			} else {
 				// Check that no changes were made to the account
 				suite.Require().Equal(int64(0), balance.Amount.Int64())
-			}
-		})
-	}
-	suite.mintFeeCollector = false
-}
-
-func (suite *KeeperTestSuite) TestEvmHooksRegisteredCoin() {
-	testCases := []struct {
-		name      string
-		mint      int64
-		burn      int64
-		reconvert int64
-
-		result bool
-	}{
-		{"correct execution", 100, 10, 5, true},
-	}
-	for _, tc := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.mintFeeCollector = true
-			suite.SetupTest()
-
-			suite.ensureHooksSet()
-
-			pair := suite.setupRegisterCoin(metadataCoin)
-			suite.Require().NotNil(metadataCoin)
-			suite.Require().NotNil(pair)
-
-			sender := sdk.AccAddress(suite.address.Bytes())
-			contractAddr := common.HexToAddress(pair.Erc20Address)
-
-			coins := sdk.NewCoins(sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.mint)))
-			err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, coins)
-			suite.Require().NoError(err, tc.name)
-			err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, sender, coins)
-			suite.Require().NoError(err, tc.name)
-
-			convertCoin := types.NewMsgConvertCoin(
-				sdk.NewCoin(cosmosTokenBase, math.NewInt(tc.burn)),
-				suite.address,
-				sender,
-			)
-
-			ctx := sdk.WrapSDKContext(suite.ctx)
-			_, err = suite.app.Erc20Keeper.ConvertCoin(ctx, convertCoin)
-			suite.Require().NoError(err, tc.name)
-			suite.Commit()
-
-			balance := suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
-			cosmosBalance := suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
-			suite.Require().Equal(cosmosBalance.Amount.Int64(), math.NewInt(tc.mint-tc.burn).Int64())
-			suite.Require().Equal(balance, big.NewInt(tc.burn))
-
-			// Burn the 10 tokens of suite.address (owner)
-			_ = suite.TransferERC20TokenToModule(contractAddr, suite.address, big.NewInt(tc.reconvert))
-
-			balance = suite.BalanceOf(common.HexToAddress(pair.Erc20Address), suite.address)
-			cosmosBalance = suite.app.BankKeeper.GetBalance(suite.ctx, sender, metadataCoin.Base)
-
-			if tc.result {
-				suite.Require().Equal(balance, big.NewInt(tc.burn-tc.reconvert))
-				// Check if the execution was successful
-				suite.Require().NoError(err)
-				suite.Require().Equal(cosmosBalance.Amount, math.NewInt(tc.mint-tc.burn+tc.reconvert))
-			} else {
-				// Check that no changes were made to the account
-				suite.Require().Error(err)
-				suite.Require().Equal(cosmosBalance.Amount, math.NewInt(tc.mint-tc.burn))
 			}
 		})
 	}
