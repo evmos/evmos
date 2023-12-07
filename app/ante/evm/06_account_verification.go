@@ -13,7 +13,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-// VerifyAccountBalance checks that the sender balance is greater than the total transaction cost.
+// VerifyAccountBalance checks that the account balance is greater than the total transaction cost.
 // The account will be set to store if it doesn't exist, i.e. cannot be found on store.
 // This AnteHandler decorator will fail if:
 // - from address is NOT an EOA
