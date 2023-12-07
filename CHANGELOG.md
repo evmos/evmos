@@ -42,6 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
+- (bech32-precompile) [#2124](https://github.com/evmos/evmos/pull/2124) Activate `bech32` precompile.
 - (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
 - (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Restrict transaction fee tokens.
 - (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
@@ -50,7 +51,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank-precompile) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
 - (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (post) [#2013](https://github.com/evmos/evmos/pull/2013) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
+- (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
+- (fee-collector) [#2129] (https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
+- (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
+- (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
+- (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
 
 ### API Breaking
 
@@ -126,10 +131,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank-precompile) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
 - (osmosis-outpost) [#2077](https://github.com/evmos/evmos/pull/2077) Update Osmosis outpost to use cross-chain swap contract V1.
 - (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types
-- (staking) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile CreateValidator to prevent panic.
+- (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
 - (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
 - (upgrade) [#2117](https://github.com/evmos/evmos/pull/2117) Enable Stride and Osmosis outposts in v16 upgrade handler.
 - (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
+- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
+- (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
+- (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
+- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
 
 ### Bug Fixes
 
