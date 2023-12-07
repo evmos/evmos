@@ -53,6 +53,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
 - (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
 - (fee-collector) [#2129] (https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
+- (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 
 ### API Breaking
 
