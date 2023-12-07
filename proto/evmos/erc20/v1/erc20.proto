@@ -3,7 +3,6 @@
 syntax = "proto3";
 package evmos.erc20.v1;
 
-import "cosmos/bank/v1beta1/bank.proto";
 import "gogoproto/gogo.proto";
 option go_package = "github.com/evmos/evmos/v16/x/erc20/types";
 
@@ -32,18 +31,6 @@ message TokenPair {
   Owner contract_owner = 4;
 }
 
-// RegisterCoinProposal is a gov Content type to register a token pair for a
-// native Cosmos coin.
-message RegisterCoinProposal {
-  option (gogoproto.equal) = false;
-  // title of the proposal
-  string title = 1;
-  // description of the proposal
-  string description = 2;
-  // metadata slice of the native Cosmos coins
-  repeated cosmos.bank.v1beta1.Metadata metadata = 3 [(gogoproto.nullable) = false];
-}
-
 // RegisterERC20Proposal is a gov Content type to register a token pair for an
 // ERC20 token
 message RegisterERC20Proposal {
@@ -67,11 +54,4 @@ message ToggleTokenConversionProposal {
   // token identifier can be either the hex contract address of the ERC20 or the
   // Cosmos base denomination
   string token = 3;
-}
-
-// ProposalMetadata is used to parse a slice of denom metadata and generate
-// the RegisterCoinProposal content.
-message ProposalMetadata {
-  // metadata slice of the native Cosmos coins
-  repeated cosmos.bank.v1beta1.Metadata metadata = 1 [(gogoproto.nullable) = false];
 }
