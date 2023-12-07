@@ -79,12 +79,7 @@ func (k Keeper) RegisterPrecompileForCoin(ctx sdk.Context, denom string, contrac
 	}
 
 	// Add to existing EVM extensions
-	err = k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.evmKeeper.AddEVMExtensions(ctx, newPrecompile)
 }
 
 // newTokenPair - Registers a new token pair for an IBC Coin with an ERC20 precompile contract
