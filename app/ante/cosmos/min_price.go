@@ -86,6 +86,10 @@ func (mpd MinGasPriceDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	}
 
 	if !feeCoins.IsAnyGTE(requiredFees) {
+		// If the gasPrice set by the user is less than feemarket.params.min_gas_price at this time,
+		// it means that the validator is doing evil. Put the validator in jail
+		// slashingKeep.Jail(ctx, consAddr)
+
 		return ctx, errorsmod.Wrapf(errortypes.ErrInsufficientFee,
 			"provided fee < minimum global fee (%s < %s). Please increase the gas price.",
 			feeCoins,

@@ -37,6 +37,10 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 					)
 				}
 
+				if ctx.IsCheckTx() {
+					newCtx, _ := anteHandler(ctx, tx, sim)
+					return newCtx, nil
+				}
 				return anteHandler(ctx, tx, sim)
 			}
 		}
@@ -49,6 +53,13 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid transaction type: %T", tx)
 		}
 
+		// The validator do evil passed some illegal transactions when run CheckTx,
+		// and then packaged them into the block when he propose the block.
+		// forcing other validators to agree to these illegal transactions.
+		if ctx.IsCheckTx() {
+			newCtx, _ := anteHandler(ctx, tx, sim)
+			return newCtx, nil
+		}
 		return anteHandler(ctx, tx, sim)
 	}
 }
