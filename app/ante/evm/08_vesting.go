@@ -25,7 +25,7 @@ type EthVestingTransactionDecorator struct {
 // EthVestingExpenseTracker tracks both the total transaction value to be sent across Ethereum
 // messages and the maximum spendable value for a given account.
 type EthVestingExpenseTracker struct {
-	// Total is the Total value to be spent across a transaction with one or more Ethereum message calls
+	// Total is the total value to be spent across a transaction with one or more Ethereum message calls
 	Total *big.Int
 	// Spendable is the maximum value that can be spent
 	Spendable *big.Int
