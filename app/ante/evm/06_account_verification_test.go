@@ -97,7 +97,7 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			// Perform test logic
 			tc.malleate(statedbAccount, &txArgs)
 
-			txData, err := getTxDataFromArgs(&txArgs)
+			txData, err := txArgs.ToTxData()
 			suite.Require().NoError(err)
 
 			//  Function to be tested
@@ -126,9 +126,4 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			suite.Require().NoError(err)
 		})
 	}
-}
-
-func getTxDataFromArgs(args *evmtypes.EvmTxArgs) (evmtypes.TxData, error) {
-	ethTx := evmtypes.NewTx(args).AsTransaction()
-	return evmtypes.NewTxDataFromTx(ethTx)
 }
