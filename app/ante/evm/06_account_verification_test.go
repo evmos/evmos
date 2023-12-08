@@ -6,6 +6,7 @@ import (
 
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -28,32 +29,27 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	testCases := []struct {
 		name          string
 		expectedError error
-		malleate      func(statedbAccount *statedb.Account, args *evmtypes.EvmTxArgs)
+		generateAccountAndArgs      func() (*statedb.Account, evmtypes.EvmTxArgs)
 	}{
 		{
 			name:          "fail: sender is not EOA",
 			expectedError: errortypes.ErrInvalidType,
-			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
-				statedbAccount.CodeHash = []byte("test")
-				err := unitNetwork.App.EvmKeeper.SetAccount(
-					unitNetwork.GetContext(),
-					senderKey.Addr,
-					*statedbAccount,
-				)
+			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
+				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
+
+				statedbAccount.CodeHash = []byte("test")
+				suite.Require().NoError(err)
+				return statedbAccount, txArgs
 			},
 		},
 		{
 			name:          "fail: sender balance is lower than the transaction cost",
 			expectedError: errortypes.ErrInsufficientFunds,
-			malleate: func(statedbAccount *statedb.Account, args *evmtypes.EvmTxArgs) {
-				// Make sure the account has no code hash
-				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(
-					unitNetwork.GetContext(),
-					senderKey.Addr,
-					*statedbAccount,
-				)
+			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
+				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
 
 				// Make tx cost greater than balance
@@ -61,61 +57,53 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Require().NoError(err)
 
 				invalidaAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))
-				args.Amount = invalidaAmount.BigInt()
+				txArgs.Amount = invalidaAmount.BigInt()
+				return statedbAccount, txArgs
 			},
 		},
 		{
 			name:          "fail: tx cost is negative",
 			expectedError: errortypes.ErrInvalidCoins,
-			malleate: func(statedbAccount *statedb.Account, args *evmtypes.EvmTxArgs) {
-				// Make sure the account has no code hash
-				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(
-					unitNetwork.GetContext(),
-					senderKey.Addr,
-					*statedbAccount,
-				)
+			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
+				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
 
 				// Make tx cost is negative. This has to be a big value because the
 				// it has to be bigger than the fee for the full cost to be negative
 				invalidaAmount := big.NewInt(-1e18)
-				args.Amount = invalidaAmount
+				txArgs.Amount = invalidaAmount
+				return statedbAccount, txArgs
 			},
 		},
 		{
 			name:          "success: tx is succesfull and account is created if its nil",
-			expectedError: nil,
-			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
-				statedbAccount = nil
+			expectedError: errortypes.ErrInsufficientFunds,
+			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
+				suite.Require().NoError(err)
+				return nil, txArgs
 			},
 		},
 		{
 			name:          "success: tx is succesfull if account is EOA and exists",
 			expectedError: nil,
-			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
-				// Make sure the account has no code hash
-				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(
-					unitNetwork.GetContext(),
-					senderKey.Addr,
-					*statedbAccount,
-				)
+			generateAccountAndArgs: func() (*statedb.Account, evmtypes.EvmTxArgs) {
+				statedbAccount := getDefaultStateDBAccount(unitNetwork, senderKey.Addr)
+				txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
 				suite.Require().NoError(err)
+				return statedbAccount, txArgs
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("%v_%v", suite.getTxTypeTestName(), tc.name), func() {
-			// Variable data
-			statedb := unitNetwork.GetStateDB()
-			statedbAccount := statedb.Keeper().GetAccount(unitNetwork.GetContext(), senderKey.Addr)
-			txArgs, err := txFactory.GenerateDefaultTxTypeArgs(senderKey.Addr, suite.ethTxType)
-			suite.Require().NoError(err)
-
 			// Perform test logic
-			tc.malleate(statedbAccount, &txArgs)
+			statedbAccount, txArgs := tc.generateAccountAndArgs()
+			if statedbAccount == nil {
+				fmt.Println("statedbAccount is nil")
+			}
 
 			txData, err := txArgs.ToTxData()
 			suite.Require().NoError(err)
@@ -134,16 +122,20 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				suite.Contains(err.Error(), tc.expectedError.Error())
 			} else {
 				suite.Require().NoError(err)
-
-				// Make sure the account is created
-				acc, err := grpcHandler.GetAccount(senderKey.AccAddr.String())
-				suite.Require().NoError(err)
-				suite.Require().NotEmpty(acc)
 			}
+			// Make sure the account is created either wa
+			acc, err := grpcHandler.GetAccount(senderKey.AccAddr.String())
+			suite.Require().NoError(err)
+			suite.Require().NotEmpty(acc)
 
 			// Clean block for next test
 			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
 		})
 	}
+}
+
+func getDefaultStateDBAccount(unitNetwork *network.UnitTestNetwork, addr common.Address) *statedb.Account {
+	statedb := unitNetwork.GetStateDB()
+	return statedb.Keeper().GetAccount(unitNetwork.GetContext(), addr)
 }
