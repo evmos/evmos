@@ -35,16 +35,25 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 			expectedError: errortypes.ErrInvalidType,
 			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
 				statedbAccount.CodeHash = []byte("test")
-				err := unitNetwork.App.EvmKeeper.SetAccount(unitNetwork.GetContext(), senderKey.Addr, *statedbAccount)
+				err := unitNetwork.App.EvmKeeper.SetAccount(
+					unitNetwork.GetContext(),
+					senderKey.Addr,
+					*statedbAccount,
+				)
 				suite.Require().NoError(err)
 			},
-		}, {
+		},
+		{
 			name:          "fail: sender balance is lower than the transaction cost",
 			expectedError: errortypes.ErrInsufficientFunds,
 			malleate: func(statedbAccount *statedb.Account, args *evmtypes.EvmTxArgs) {
 				// Make sure the account has no code hash
 				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(unitNetwork.GetContext(), senderKey.Addr, *statedbAccount)
+				err := unitNetwork.App.EvmKeeper.SetAccount(
+					unitNetwork.GetContext(),
+					senderKey.Addr,
+					*statedbAccount,
+				)
 				suite.Require().NoError(err)
 
 				// Make tx cost greater than balance
@@ -54,13 +63,18 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				invalidaAmount := balanceResp.Balance.Amount.Add(math.NewInt(100))
 				args.Amount = invalidaAmount.BigInt()
 			},
-		}, {
+		},
+		{
 			name:          "fail: tx cost is negative",
 			expectedError: errortypes.ErrInvalidCoins,
 			malleate: func(statedbAccount *statedb.Account, args *evmtypes.EvmTxArgs) {
 				// Make sure the account has no code hash
 				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(unitNetwork.GetContext(), senderKey.Addr, *statedbAccount)
+				err := unitNetwork.App.EvmKeeper.SetAccount(
+					unitNetwork.GetContext(),
+					senderKey.Addr,
+					*statedbAccount,
+				)
 				suite.Require().NoError(err)
 
 				// Make tx cost is negative. This has to be a big value because the
@@ -68,19 +82,25 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 				invalidaAmount := big.NewInt(-1e18)
 				args.Amount = invalidaAmount
 			},
-		}, {
+		},
+		{
 			name:          "success: tx is succesfull and account is created if its nil",
 			expectedError: nil,
 			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
 				statedbAccount = nil
 			},
-		}, {
+		},
+		{
 			name:          "success: tx is succesfull if account is EOA and exists",
 			expectedError: nil,
 			malleate: func(statedbAccount *statedb.Account, _ *evmtypes.EvmTxArgs) {
 				// Make sure the account has no code hash
 				statedbAccount.CodeHash = evmtypes.EmptyCodeHash
-				err := unitNetwork.App.EvmKeeper.SetAccount(unitNetwork.GetContext(), senderKey.Addr, *statedbAccount)
+				err := unitNetwork.App.EvmKeeper.SetAccount(
+					unitNetwork.GetContext(),
+					senderKey.Addr,
+					*statedbAccount,
+				)
 				suite.Require().NoError(err)
 			},
 		},
