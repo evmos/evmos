@@ -27,9 +27,9 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 	senderKey := keyring.GetKey(1)
 
 	testCases := []struct {
-		name          string
-		expectedError error
-		generateAccountAndArgs      func() (*statedb.Account, evmtypes.EvmTxArgs)
+		name                   string
+		expectedError          error
+		generateAccountAndArgs func() (*statedb.Account, evmtypes.EvmTxArgs)
 	}{
 		{
 			name:          "fail: sender is not EOA",
