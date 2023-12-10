@@ -70,7 +70,7 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 	}
 
 	// Validate the transaction to avoid unrealistic behavior
-	if err = msgEthereumTx.ValidateBasic(); err != nil {
+	if err = signedMsg.ValidateBasic(); err != nil {
 		return nil, errorsmod.Wrap(err, "failed to validate transaction")
 	}
 
