@@ -8,19 +8,17 @@ import (
 	"math"
 	"math/big"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/types"
-
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/evmos/v16/app"
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	"github.com/evmos/evmos/v16/types"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
@@ -105,9 +103,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -154,7 +150,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	consnsusParams := app.DefaultConsensusParams
+	consensusParams := app.DefaultConsensusParams
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -178,9 +174,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initilize the context
+	// TODO - this might not be the best way to initialize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
-	n.ctx = n.ctx.WithConsensusParams(consnsusParams)
+	n.ctx = n.ctx.WithConsensusParams(consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
 
 	n.validators = validators
