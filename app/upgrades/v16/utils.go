@@ -14,7 +14,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
-	evmostypes "github.com/evmos/evmos/v16/types"
 	"github.com/evmos/evmos/v16/utils"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
@@ -46,18 +45,19 @@ func ConvertERC20Coins(
 
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
-		ethAccount, ok := account.(*evmostypes.EthAccount)
+		// FIXME: the accounts created with the keyring are not EthAccounts? Is asserting for BaseAccount good enough?
+		baseAccount, ok := account.(*authtypes.BaseAccount)
+		//baseAccount, ok := account.(*evmostypes.EthAccount)
 		if !ok {
 			return false
 		}
 
-		ethAddress := ethAccount.EthAddress()
+		cosmosAddress := baseAccount.GetAddress()
+		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		ethHexAddr := ethAddress.String()
-		cosmosAddress := sdk.AccAddress(ethAddress.Bytes())
 
 		balance, res, err := WithdrawWEVMOS(ctx, ethAddress, wrappedContractAddr, erc20Keeper)
 		if err != nil {
-			fmt.Println("Error withdrawing WEVMOS", err)
 			logger.Debug(
 				"failed to withdraw WEVMOS",
 				"account", ethHexAddr,
@@ -65,15 +65,12 @@ func ConvertERC20Coins(
 				"error", err.Error(),
 			)
 		} else if res != nil && res.VmError != "" {
-			fmt.Println("VM error while withdrawing WEVMOS", err)
 			logger.Debug(
 				"withdraw WEVMOS reverted",
 				"account", ethHexAddr,
 				"balance", balance.String(),
 				"vm-error", res.VmError,
 			)
-		} else {
-			fmt.Println("no error occurred")
 		}
 
 		erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
