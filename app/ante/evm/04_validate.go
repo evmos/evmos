@@ -4,10 +4,8 @@ package evm
 
 import (
 	"errors"
-	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx"
@@ -67,27 +65,6 @@ func checkValidFrom(
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "invalid from address %s, expect empty string", from)
 	}
 	return nil
-}
-
-// UpdateTxFee updates the cumulative transaction fee
-func UpdateTxFee(
-	cumulativeTxFee sdktypes.Coins,
-	msgFee *big.Int,
-	denom string,
-) sdktypes.Coins {
-	return cumulativeTxFee.Add(
-		sdktypes.Coin{
-			Denom:  denom,
-			Amount: sdkmath.NewIntFromBigInt(msgFee),
-		},
-	)
-}
-
-// UpdateGasLimit updates the cumulative gas limit
-func UpdateGasLimit(
-	txGasLimit, gasLimit uint64,
-) uint64 {
-	return txGasLimit + gasLimit
 }
 
 // FIXME: this shouldn't be required if the tx was an Ethereum transaction type

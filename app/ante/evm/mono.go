@@ -185,18 +185,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		txFee := UpdateTxFee(
-			decUtils.TxFee,
-			txData.Fee(),
-			decUtils.EvmDenom,
-		)
-		decUtils.TxFee = txFee
-
-		txGasLimit := UpdateGasLimit(
-			decUtils.TxGasLimit,
-			gas,
-		)
-		decUtils.TxGasLimit = txGasLimit
 
 		// 5. signature verification
 		if err := SignatureVerification(
@@ -267,6 +255,19 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		decUtils.GasWanted = gasWanted
 		decUtils.MinPriority = minPriority
+
+		txFee := UpdateTxFee(
+			decUtils.TxFee,
+			txData.Fee(),
+			decUtils.EvmDenom,
+		)
+		decUtils.TxFee = txFee
+
+		txGasLimit := UpdateGasLimit(
+			decUtils.TxGasLimit,
+			gas,
+		)
+		decUtils.TxGasLimit = txGasLimit
 
 		// 10. increment sequence
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
