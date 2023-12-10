@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package v16
 
 import (
@@ -13,6 +14,7 @@ import (
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/evmos/evmos/v16/utils"
+	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 )
@@ -22,12 +24,29 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-	_ bankkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
-	_ authkeeper.AccountKeeper,
+	accountKeeper authkeeper.AccountKeeper,
+	erc20Keeper erc20keeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		// NOTE (@fedekunze): first we must convert the all the registered tokens.
+		// If we do it the other way around, the conversion will fail since there won't
+		// be any contract code due to the selfdestruct.
+		if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+			logger.Error("failed to convert native coins", "error", err.Error())
+		}
+
+		// Instantiate the (W)ERC20 Precompile for each registered IBC Coin
+
+		// IMPORTANT (@fedekunze): This logic needs to be included on EVERY UPGRADE
+		// from now on because the AvailablePrecompiles function does not have access
+		// to the state (in this case, the registered token pairs).
+		if err := erc20Keeper.RegisterERC20Extensions(ctx); err != nil {
+			logger.Error("failed to register ERC-20 Extensions", "error", err.Error())
+		}
 
 		// enable secp256r1 and bech32 precompile on testnet
 		if utils.IsTestnet(ctx.ChainID()) {
