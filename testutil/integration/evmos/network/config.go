@@ -45,7 +45,7 @@ func DefaultConfig() Config {
 // NOTE: If the balances are set, the pre-funded accounts are ignored.
 func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
 	if len(cfg.balances) > 0 {
-		accounts := make([]sdktypes.AccAddress, len(cfg.balances))
+		accounts := make([]sdktypes.AccAddress, 0, len(cfg.balances))
 		for _, balance := range cfg.balances {
 			accounts = append(accounts, balance.GetAddress())
 			balances = append(balances, balance)
