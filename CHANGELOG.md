@@ -130,13 +130,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
 - (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
 - (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
-<<<<<<< HEAD
-=======
 - (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
 - (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
 - (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
 - (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
->>>>>>> f9754afc (Add channel selector from chainID (#2172))
 
 ### Bug Fixes
 
