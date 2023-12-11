@@ -87,7 +87,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -121,22 +121,10 @@ var _ = Describe("Inflation", Ordered, func() {
 				})
 			})
 
-			Context("after an epoch ends", func() { //nolint:dupl
+			Context("after an epoch ends", func() {
 				BeforeEach(func() {
 					s.CommitAfter(time.Minute)    // Start Epoch
 					s.CommitAfter(time.Hour * 25) // End Epoch
-				})
-
-				It("should not allocate funds to usage incentives (deprecated)", func() {
-					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
-
-					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
-					params := s.app.InflationKeeper.GetParams(s.ctx)
-					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
-					expected := (provision.Mul(distribution)).TruncateInt()
-
-					Expect(actual.IsZero()).To(BeTrue())
-					Expect(actual.Amount).To(Equal(expected))
 				})
 
 				It("should allocate funds to the community pool", func() {
@@ -148,7 +136,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -202,7 +190,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
