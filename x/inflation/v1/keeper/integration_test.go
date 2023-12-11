@@ -127,6 +127,18 @@ var _ = Describe("Inflation", Ordered, func() {
 					s.CommitAfter(time.Hour * 25) // End Epoch
 				})
 
+				It("should not allocate funds to usage incentives (deprecated)", func() {
+					actual := s.app.BankKeeper.GetBalance(s.ctx, addr, denomMint)
+
+					provision := s.app.InflationKeeper.GetEpochMintProvision(s.ctx)
+					params := s.app.InflationKeeper.GetParams(s.ctx)
+					distribution := params.InflationDistribution.UsageIncentives //nolint:staticcheck
+					expected := (provision.Mul(distribution)).TruncateInt()
+
+					Expect(actual.IsZero()).To(BeTrue())
+					Expect(actual.Amount).To(Equal(expected))
+				})
+
 				It("should allocate funds to the community pool", func() {
 					balanceCommunityPool := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 
