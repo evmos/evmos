@@ -26,6 +26,8 @@ type Handler interface {
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
 
 	// Gov methods
+	//
+	// TODO: This should be moved to commongrpc.Handler
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
 	GetGovParams(paramsType string) (*govtypes.QueryParamsResponse, error)
 
