@@ -256,10 +256,3 @@ func UpdateTxFee(
 		},
 	)
 }
-
-// UpdateGasLimit updates the cumulative gas limi
-func UpdateGasLimit(
-	txGasLimit, gasLimit uint64,
-) uint64 {
-	return txGasLimit + gasLimit
-}
