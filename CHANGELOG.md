@@ -41,6 +41,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
 - (evm) [#2172] (https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
 - (inflation) [#2137] (https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
+- (post-handler) [#2128] (https://github.com/evmos/evmos/pull/2128) Burn cosmos transaction fees.
 
 ## [v16.0.0-rc1] - 2023-12-04
 
