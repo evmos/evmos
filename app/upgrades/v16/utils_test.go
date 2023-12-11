@@ -1,7 +1,6 @@
 package v16_test
 
 import (
-	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"math/big"
 	"testing"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"

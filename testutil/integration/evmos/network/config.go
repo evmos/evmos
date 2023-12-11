@@ -4,10 +4,10 @@
 package network
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"math/big"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	testtx "github.com/evmos/evmos/v16/testutil/tx"
 	evmostypes "github.com/evmos/evmos/v16/types"
@@ -93,11 +93,9 @@ func WithPreFundedAccounts(accounts ...sdktypes.AccAddress) ConfigOption {
 
 // WithBalances sets the specific balances for the pre-funded accounts, that
 // are being set up for the network.
-func WithBalances(balance ...banktypes.Balance) ConfigOption {
+func WithBalances(balances ...banktypes.Balance) ConfigOption {
 	return func(cfg *Config) {
-		for _, b := range balance {
-			cfg.balances = append(cfg.balances, b)
-		}
+		cfg.balances = append(cfg.balances, balances...)
 	}
 }
 

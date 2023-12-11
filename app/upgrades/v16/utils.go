@@ -47,7 +47,7 @@ func ConvertERC20Coins(
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		// FIXME: the accounts created with the keyring are not EthAccounts? Is asserting for BaseAccount good enough?
 		baseAccount, ok := account.(*authtypes.BaseAccount)
-		//baseAccount, ok := account.(*evmostypes.EthAccount)
+		// baseAccount, ok := account.(*evmostypes.EthAccount)
 		if !ok {
 			return false
 		}
