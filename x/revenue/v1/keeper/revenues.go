@@ -5,6 +5,7 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -16,7 +17,7 @@ func (k Keeper) GetRevenues(ctx sdk.Context) []types.Revenue {
 	revenues := []types.Revenue{}
 
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -36,7 +37,7 @@ func (k Keeper) IterateRevenues(
 	handlerFn func(fee types.Revenue) (stop bool),
 ) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
+	iterator := storetypes.KVStorePrefixIterator(store, types.KeyPrefixRevenue)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
