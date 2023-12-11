@@ -5,7 +5,7 @@ package v16
 
 const (
 	// UpgradeName is the shared upgrade plan name for mainnet
-	UpgradeName = "v16.0.0-rc1"
+	UpgradeName = "v16.0.0-rc2"
 	// UpgradeInfo defines the binaries that will be used for the upgrade
-	UpgradeInfo = `'{"binaries":{"darwin/amd64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc1/evmos_16.0.0-rc1_Darwin_arm64.tar.gz","darwin/x86_64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc1/evmos_16.0.0-rc1_Darwin_x86_64.tar.gz","linux/arm64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc1/evmos_16.0.0-rc1_Linux_arm64.tar.gz","linux/amd64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc1/evmos_16.0.0-rc1_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc1/evmos_16.0.0-rc1_Windows_x86_64.zip"}}'`
+	UpgradeInfo = `'{"binaries":{"darwin/amd64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc2/evmos_16.0.0-rc2_Darwin_arm64.tar.gz","darwin/x86_64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc2/evmos_16.0.0-rc2_Darwin_x86_64.tar.gz","linux/arm64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc2/evmos_16.0.0-rc2_Linux_arm64.tar.gz","linux/amd64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc2/evmos_16.0.0-rc2_Linux_amd64.tar.gz","windows/x86_64":"https://github.com/evmos/evmos/releases/download/v16.0.0-rc2/evmos_16.0.0-rc2_Windows_x86_64.zip"}}'`
 )
