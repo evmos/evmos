@@ -64,6 +64,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 			packet := osmosisoutpost.CreatePacketWithMemo(
 				tc.outputDenom, tc.receiver, tc.contract, tc.slippagePercentage, tc.windowSeconds, tc.onFailedDelivery, tc.nextMemo,
 			)
+			fmt.Println(packet)
 			packetString := packet.String()
 			err := ValidateAndParseWasmRoutedMemo(packetString, tc.receiver)
 			require.NoError(t, err, "memo is not a valid wasm routed JSON formatted string")

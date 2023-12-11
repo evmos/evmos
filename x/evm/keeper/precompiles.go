@@ -40,6 +40,7 @@ import (
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
+	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -88,9 +89,11 @@ func AvailablePrecompiles(
 	var strideChannelID, osmosisChannelID, xcsv1Contract string
 	if utils.IsMainnet(chainID) {
 		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
+		strideChannelID = evmostransfertypes.StrideMainnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
 		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
+		strideChannelID = evmostransfertypes.StrideTestnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	}
 
