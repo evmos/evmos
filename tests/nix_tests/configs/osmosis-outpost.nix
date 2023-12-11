@@ -8,8 +8,7 @@ evmosd.overrideAttrs (oldAttrs: {
   # - update the corresponding IBC channel to match the tests setup
   patches = oldAttrs.patches or [ ] ++ [
     ./allow-wevmos-register.patch
-    ./xcs-osmosis-contract.patch
-    ./osmosis-channel.patch
+    ./osmosis-outpost.patch
   ];
 })
 
