@@ -109,12 +109,12 @@ func ConvertERC20Coins(
 func WithdrawWEVMOS(ctx sdk.Context, from, wevmosContract common.Address, erc20Keeper erc20keeper.Keeper) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
 	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, wevmosContract, from)
 	if balance == nil {
-		return nil, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())
+		return common.Big0, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())
 	}
 
 	// only execute the withdrawal if balance is positive
 	if balance.Cmp(common.Big0) < 1 {
-		return nil, nil, nil
+		return common.Big0, nil, nil
 	}
 
 	// call withdraw method from the account
