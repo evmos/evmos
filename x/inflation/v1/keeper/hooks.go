@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/armon/go-metrics"
+
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
@@ -60,11 +62,14 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 
 	if !epochMintProvision.IsPositive() {
 		k.Logger(ctx).Error(
-			"SKIPPING INFLATION: negative epoch mint provision",
+			"SKIPPING INFLATION: zero or negative epoch mint provision",
 			"value", epochMintProvision.String(),
 		)
 		return
 	}
+
+	// per proposal 258, subtract 2/3 of the prev issuance
+	epochMintProvision = epochMintProvision.Quo(sdkmath.LegacyNewDec(3))
 
 	mintedCoin := sdk.Coin{
 		Denom:  params.MintDenom,
@@ -95,21 +100,21 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epochIdentifier string, epochNumb
 		stakingAmt := staking.AmountOfNoDenomValidation(mintedCoin.Denom)
 		cpAmt := communityPool.AmountOfNoDenomValidation(mintedCoin.Denom)
 
-		if mintedCoin.Amount.IsInt64() {
+		if mintedCoin.Amount.IsInt64() && mintedCoin.Amount.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "total"},
 				float32(mintedCoin.Amount.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if stakingAmt.IsInt64() {
+		if stakingAmt.IsInt64() && stakingAmt.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "staking", "total"},
 				float32(stakingAmt.Int64()),
 				[]metrics.Label{telemetry.NewLabel("denom", mintedCoin.Denom)},
 			)
 		}
-		if cpAmt.IsInt64() {
+		if cpAmt.IsInt64() && cpAmt.IsPositive() {
 			telemetry.IncrCounterWithLabels(
 				[]string{types.ModuleName, "allocate", "community_pool", "total"},
 				float32(cpAmt.Int64()),
