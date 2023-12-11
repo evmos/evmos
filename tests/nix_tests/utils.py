@@ -43,8 +43,22 @@ TEST_CONTRACTS = {
     "StakingI": "evmos/staking/StakingI.sol",
     "StakingCaller": "evmos/staking/testdata/StakingCaller.sol",
     "IStrideOutpost": "evmos/outposts/stride/IStrideOutpost.sol",
+    "IOsmosisOutpost": "evmos/outposts/osmosis/IOsmosisOutpost.sol",
     "IERC20": "evmos/erc20/IERC20.sol",
 }
+
+OSMOSIS_POOLS = {
+    "Evmos_Osmo": Path(__file__).parent / "osmosis/evmosOsmosisPool.json",
+}
+
+# If need to update these binaries
+# you can use the compile-cosmwasm-contracts.sh
+# script located in the 'scripts' directory
+WASM_BINARIES = {
+    "CrosschainSwap": "crosschain_swaps.wasm",
+    "Swaprouter": "swaprouter.wasm",
+}
+
 WEVMOS_META = {
     "description": "The native staking and governance token of the Evmos chain",
     "denom_units": [
@@ -58,6 +72,10 @@ WEVMOS_META = {
 }
 
 
+def wasm_binaries_path(filename):
+    return Path(__file__).parent / "cosmwasm/artifacts/" / filename
+
+
 def contract_path(name, filename):
     return (
         Path(__file__).parent
@@ -65,6 +83,11 @@ def contract_path(name, filename):
         / filename
         / (name + ".json")
     )
+
+
+WASM_CONTRACTS = {
+    **{name: wasm_binaries_path(filename) for name, filename in WASM_BINARIES.items()},
+}
 
 
 CONTRACTS = {
@@ -195,6 +218,8 @@ def get_precompile_contract(w3, name):
         addr = "0x0000000000000000000000000000000000000802"
     elif name == "IStrideOutpost":
         addr = "0x0000000000000000000000000000000000000900"
+    elif name == "IOsmosisOutpost":
+        addr = "0x0000000000000000000000000000000000000901"
     else:
         raise ValueError(f"invalid precompile contract name: {name}")
     return w3.eth.contract(addr, abi=info["abi"])
@@ -241,6 +266,28 @@ def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
             "submit_proposal",
             "proposal_id",
         )
+
+
+def wait_for_cosmos_tx_receipt(cli, tx_hash):
+    print(f"waiting receipt for tx_hash: {tx_hash}...")
+    wait_for_new_blocks(cli, 1)
+    res = cli.tx_search_rpc(f"tx.hash='{tx_hash}'")
+    if len(res) == 0:
+        return wait_for_cosmos_tx_receipt(cli, tx_hash)
+    return res[0]
+
+
+def wait_for_ack(cli, chain):
+    """
+    Helper function to wait for acknoledgment
+    of an IBC transfer
+    """
+    print(f"{chain} waiting ack...")
+    block_results = cli.block_results_rpc()
+    txs_res = block_results["txs_results"]
+    if txs_res is None:
+        wait_for_new_blocks(cli, 1)
+        return wait_for_ack(cli, chain)
 
 
 def register_host_zone(
