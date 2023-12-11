@@ -30,7 +30,7 @@ const (
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
 
 	// XCSContract address for Osmosis testnet.
-	XCSContractTestnet = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
+	XCSContractTestnet = "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 	//
 	// TODO: change it with the correct mainnet one
 	XCSContractMainnet = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
