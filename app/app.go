@@ -1324,6 +1324,9 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
+
+	case v16.UpgradeNameTestnet:
+
 	}
 
 	if storeUpgrades != nil {

@@ -55,6 +55,7 @@ func CreateUpgradeHandler(
 
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
+
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
