@@ -1318,6 +1318,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Deleted: []string{crisistypes.ModuleName},
 		}
 	case v16.UpgradeName:
+		// recovery and incentives modules are deprecated in v16
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Deleted: []string{"recoveryv1", "incentives", "claims"},
+		}
+
+	case v16.UpgradeNameTestnet:
+
 	}
 
 	if storeUpgrades != nil {
