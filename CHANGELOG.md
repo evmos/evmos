@@ -38,10 +38,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## [v16.0.0-rc2] - 2023-12-11
 
 ### State Machine Breaking
-- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
 - (evm) [#2172] (https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
 - (inflation) [#2137] (https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
 - (post-handler) [#2128] (https://github.com/evmos/evmos/pull/2128) Burn cosmos transaction fees.
+
+### Improvements
+- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
 
 ## [v16.0.0-rc1] - 2023-12-04
 
