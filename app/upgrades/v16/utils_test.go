@@ -1,12 +1,12 @@
 package v16_test
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"math/big"
 	"testing"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
