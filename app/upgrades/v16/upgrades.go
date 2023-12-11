@@ -18,7 +18,6 @@ func CreateUpgradeHandler(
 	_ inflationkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
