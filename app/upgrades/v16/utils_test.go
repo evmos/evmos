@@ -6,6 +6,7 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
@@ -35,6 +36,36 @@ const (
 	AEVMOS = "aevmos"
 	XMPL   = "xmpl"
 )
+
+func TestConvertERC20Coins(t *testing.T) {
+	ts, err := SetupConvertERC20CoinsTest(t)
+	require.NoError(t, err, "failed to setup test")
+
+	logger := ts.network.GetContext().Logger().With("upgrade")
+
+	// Convert the coins back using the upgrade util
+	err = v16.ConvertERC20Coins(ts.network.GetContext(), logger, ts.network.App.AccountKeeper, ts.network.App.BankKeeper, ts.network.App.Erc20Keeper)
+	require.NoError(t, err, "failed to convert coins")
+
+	err = ts.network.NextBlock()
+	require.NoError(t, err, "failed to execute block")
+
+	// NOTE: Here we check that the ERC20 converted coins have been added back to the bank balance.
+	err = utils.CheckBalances(ts.handler, utils.ExpectedBalances{
+		{Address: ts.keyring.GetAccAddr(0), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
+		{Address: ts.keyring.GetAccAddr(1), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
+	})
+	require.NoError(t, err, "failed to check balances")
+
+	// NOTE: We check that the ERC20 contract for the token pair has been removed
+	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(0), ts.tokenPair.GetERC20Contract())
+	require.NoError(t, err, "failed to execute contract call")
+	require.Equal(t, int64(0), balance.Int64(), "expected different balance after converting ERC20")
+
+	// NOTE: We check that the balance of the module address is empty
+	balances := ts.network.App.BankKeeper.GetAllBalances(ts.network.GetContext(), authtypes.NewModuleAddress(erc20types.ModuleName))
+	require.True(t, balances.IsZero(), "expected different balance for module account")
+}
 
 // SetupConvertERC20CoinsTest sets up a test suite to test the conversion of ERC20 coins to native coins.
 //
@@ -125,32 +156,6 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 		expectedBalances: fundedBalances,
 		tokenPair:        tokenPair,
 	}, nil
-}
-
-func TestConvertERC20Coins(t *testing.T) {
-	ts, err := SetupConvertERC20CoinsTest(t)
-	require.NoError(t, err, "failed to setup test")
-
-	logger := ts.network.GetContext().Logger().With("upgrade")
-
-	// Convert the coins back using the upgrade util
-	err = v16.ConvertERC20Coins(ts.network.GetContext(), logger, ts.network.App.AccountKeeper, ts.network.App.BankKeeper, ts.network.App.Erc20Keeper)
-	require.NoError(t, err, "failed to convert coins")
-
-	err = ts.network.NextBlock()
-	require.NoError(t, err, "failed to execute block")
-
-	// NOTE: Here we check that the ERC20 converted coins have been added back to the bank balance.
-	err = utils.CheckBalances(ts.handler, utils.ExpectedBalances{
-		{Address: ts.keyring.GetAccAddr(0), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
-		{Address: ts.keyring.GetAccAddr(1), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	})
-	require.NoError(t, err, "failed to check balances")
-
-	// NOTE: We check that the ERC20 contract for the token pair has been removed
-	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(0), ts.tokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to execute contract call")
-	require.Equal(t, int64(0), balance.Int64(), "expected different balance after converting ERC20")
 }
 
 // GetERC20Balance is a helper method to return the balance of the given ERC20 contract for the given address.
