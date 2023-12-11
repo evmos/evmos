@@ -1,6 +1,7 @@
 package v16_test
 
 import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"math/big"
 	"testing"
 
@@ -69,14 +70,17 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.tokenPair.GetERC20Contract().String(),
 		"expected token pair precompile to be active",
 	)
+	require.NotContains(t, evmParams.Params.ActivePrecompiles, ts.nonNativeTokenPair.GetERC20Contract().String(),
+		"expected non-native token pair not to be a precompile",
+	)
 
 	// NOTE: We check that the ERC20 contract for the token pair can still be called (now as an EVM extension)
 	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.tokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to execute contract call")
-	require.Equal(t, int64(0), balance.Int64(), "expected different balance after converting ERC20")
+	require.Equal(t, int64(300), balance.Int64(), "expected different balance after converting ERC20")
 
 	// NOTE: We check that the balance of the module address is empty after converting native ERC20s
-	balancesRes, err := ts.handler.GetAllBalances(ts.keyring.GetAccAddr(erc20Deployer))
+	balancesRes, err := ts.handler.GetAllBalances(authtypes.NewModuleAddress(erc20types.ModuleName))
 	require.NoError(t, err, "failed to get balances")
 	require.True(t, balancesRes.Balances.IsZero(), "expected different balance for module account")
 
