@@ -35,57 +35,9 @@ func NewTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(
-		NewConvertCoinCmd(),
 		NewConvertERC20Cmd(),
 	)
 	return txCmd
-}
-
-// NewConvertCoinCmd returns a CLI command handler for converting a Cosmos coin
-func NewConvertCoinCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "convert-coin COIN [RECEIVER_HEX]",
-		Short: "Convert a Cosmos coin to ERC20. When the receiver [optional] is omitted, the ERC20 tokens are transferred to the sender.",
-		Args:  cobra.RangeArgs(1, 2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			coin, err := sdk.ParseCoinNormalized(args[0])
-			if err != nil {
-				return err
-			}
-
-			var receiver string
-			sender := cliCtx.GetFromAddress()
-
-			if len(args) == 2 {
-				receiver = args[1]
-				if err := evmostypes.ValidateAddress(receiver); err != nil {
-					return fmt.Errorf("invalid receiver hex address %w", err)
-				}
-			} else {
-				receiver = common.BytesToAddress(sender).Hex()
-			}
-
-			msg := &types.MsgConvertCoin{
-				Coin:     coin,
-				Receiver: receiver,
-				Sender:   sender.String(),
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-	return cmd
 }
 
 // NewConvertERC20Cmd returns a CLI command handler for converting an ERC20
@@ -136,103 +88,6 @@ func NewConvertERC20Cmd() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-// NewRegisterCoinProposalCmd implements the command to submit a community-pool-spend proposal
-func NewRegisterCoinProposalCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "register-coin METADATA_FILE",
-		Args:  cobra.ExactArgs(1),
-		Short: "Submit a register coin proposal",
-		Long:  `Submit a proposal to register a Cosmos coin to the erc20 along with an initial deposit. The proposal details must be supplied via a JSON file.`,
-		Example: fmt.Sprintf(`$ %s tx gov submit-legacy-proposal register-coin metadata.json --from=<key_or_address>
-
-Where metadata.json contains (example):
-
-{
-  "metadata": [
-    {
-			"description": "The native staking and governance token of the Osmosis chain",
-			"denom_units": [
-				{
-						"denom": "ibc/<HASH>",
-						"exponent": 0,
-						"aliases": ["ibcuosmo"]
-				},
-				{
-						"denom": "OSMO",
-						"exponent": 6
-				}
-			],
-			"base": "ibc/<HASH>",
-			"display": "OSMO",
-			"name": "Osmo",
-			"symbol": "OSMO"
-		}
-	]
-}`, version.AppName,
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			title, err := cmd.Flags().GetString(cli.FlagTitle)
-			if err != nil {
-				return err
-			}
-
-			description, err := cmd.Flags().GetString(cli.FlagDescription) //nolint:staticcheck,nolintlint
-			if err != nil {
-				return err
-			}
-
-			depositStr, err := cmd.Flags().GetString(cli.FlagDeposit)
-			if err != nil {
-				return err
-			}
-
-			deposit, err := sdk.ParseCoinsNormalized(depositStr)
-			if err != nil {
-				return err
-			}
-
-			metadata, err := ParseMetadata(clientCtx.Codec, args[0])
-			if err != nil {
-				return err
-			}
-
-			from := clientCtx.GetFromAddress()
-
-			content := types.NewRegisterCoinProposal(title, description, metadata...)
-
-			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
-			if err != nil {
-				return err
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	cmd.Flags().String(cli.FlagTitle, "", "title of proposal")
-	cmd.Flags().String(cli.FlagDescription, "", "description of proposal") //nolint:staticcheck,nolintlint
-	cmd.Flags().String(cli.FlagDeposit, "1aevmos", "deposit of proposal")
-	if err := cmd.MarkFlagRequired(cli.FlagTitle); err != nil {
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDescription); err != nil { //nolint:staticcheck,nolintlint
-		panic(err)
-	}
-	if err := cmd.MarkFlagRequired(cli.FlagDeposit); err != nil {
-		panic(err)
-	}
 	return cmd
 }
 
