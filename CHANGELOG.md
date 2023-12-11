@@ -141,6 +141,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce daily inflation by 2/3s.
 - (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
 - (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
 
 ### Bug Fixes
 
