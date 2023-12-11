@@ -4,6 +4,7 @@
 package v16
 
 import (
+	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -32,20 +33,9 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
-		// NOTE (@fedekunze): first we must convert the all the registered tokens.
-		// If we do it the other way around, the conversion will fail since there won't
-		// be any contract code due to the selfdestruct.
-		if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
-			logger.Error("failed to convert native coins", "error", err.Error())
-		}
-
-		// Instantiate the (W)ERC20 Precompile for each registered IBC Coin
-
-		// IMPORTANT (@fedekunze): This logic needs to be included on EVERY UPGRADE
-		// from now on because the AvailablePrecompiles function does not have access
-		// to the state (in this case, the registered token pairs).
-		if err := erc20Keeper.RegisterERC20Extensions(ctx); err != nil {
-			logger.Error("failed to register ERC-20 Extensions", "error", err.Error())
+		// Execute the conversion for all Cosmos native ERC20 token pairs to use the ERC20 EVM extension.
+		if err := ConvertToNativeCoinExtensions(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+			logger.Error("failed to convert erc20s to native coins", "error", err.Error())
 		}
 
 		// enable secp256r1 and bech32 precompile on testnet
@@ -90,4 +80,39 @@ func CreateUpgradeHandler(
 		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
+}
+
+// ConvertToNativeCoinExtensions converts all the registered ERC20 tokens of Cosmos native token pairs
+// back to the native representation and registers the (W)ERC20 precompiles for each token pair.
+func ConvertToNativeCoinExtensions(
+	ctx sdk.Context,
+	logger log.Logger,
+	accountKeeper authkeeper.AccountKeeper,
+	bankKeeper bankkeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
+) error {
+	// NOTE (@fedekunze): first we must convert the all the registered tokens.
+	// If we do it the other way around, the conversion will fail since there won't
+	// be any contract code due to the selfdestruct.
+	if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+		logger.Error("failed to convert native coins", "error", err.Error())
+		// TODO: return error here?
+		// return errorsmod.Wrap(err, "failed to convert native coins")
+	}
+
+	// Instantiate the (W)ERC20 Precompile for each registered IBC Coin
+
+	// IMPORTANT (@fedekunze): This logic needs to be included on EVERY UPGRADE
+	// from now on because the AvailablePrecompiles function does not have access
+	// to the state (in this case, the registered token pairs).
+	//
+	// FIXME: Do we want to run both if the convert coins failed? I think that could be dangerous if a coin
+	// was not fully converted and we overwrite the contract address with the Extension? Or maybe not?
+	if err := erc20Keeper.RegisterERC20Extensions(ctx); err != nil {
+		logger.Error("failed to register ERC-20 Extensions", "error", err.Error())
+		// TODO: return error here?
+		// return errorsmod.Wrap(err, "failed to convert native coins")
+	}
+
+	return nil
 }

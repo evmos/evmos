@@ -6,7 +6,6 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
@@ -44,14 +43,14 @@ const (
 // mintAmount is the amount of tokens to be minted for a non-native ERC20 contract.
 var mintAmount = big.NewInt(5e18)
 
-func TestConvertERC20Coins(t *testing.T) {
+func TestConvertToNativeCoinExtensions(t *testing.T) {
 	ts, err := SetupConvertERC20CoinsTest(t)
 	require.NoError(t, err, "failed to setup test")
 
 	logger := ts.network.GetContext().Logger().With("upgrade")
 
 	// Convert the coins back using the upgrade util
-	err = v16.ConvertERC20Coins(ts.network.GetContext(), logger, ts.network.App.AccountKeeper, ts.network.App.BankKeeper, ts.network.App.Erc20Keeper)
+	err = v16.ConvertToNativeCoinExtensions(ts.network.GetContext(), logger, ts.network.App.AccountKeeper, ts.network.App.BankKeeper, ts.network.App.Erc20Keeper)
 	require.NoError(t, err, "failed to convert coins")
 
 	err = ts.network.NextBlock()
@@ -64,14 +63,22 @@ func TestConvertERC20Coins(t *testing.T) {
 	})
 	require.NoError(t, err, "failed to check balances")
 
-	// NOTE: We check that the ERC20 contract for the token pair has been removed
+	// NOTE: we check that the token pair was registered as an active precompile
+	evmParams, err := ts.handler.GetEvmParams()
+	require.NoError(t, err, "failed to get evm params")
+	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.tokenPair.GetERC20Contract().String(),
+		"expected token pair precompile to be active",
+	)
+
+	// NOTE: We check that the ERC20 contract for the token pair can still be called (now as an EVM extension)
 	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.tokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to execute contract call")
 	require.Equal(t, int64(0), balance.Int64(), "expected different balance after converting ERC20")
 
 	// NOTE: We check that the balance of the module address is empty after converting native ERC20s
-	balances := ts.network.App.BankKeeper.GetAllBalances(ts.network.GetContext(), authtypes.NewModuleAddress(erc20types.ModuleName))
-	require.True(t, balances.IsZero(), "expected different balance for module account")
+	balancesRes, err := ts.handler.GetAllBalances(ts.keyring.GetAccAddr(erc20Deployer))
+	require.NoError(t, err, "failed to get balances")
+	require.True(t, balancesRes.Balances.IsZero(), "expected different balance for module account")
 
 	// NOTE: We check that the erc20deployer account still has the minted balance after converting the native ERC20s only.
 	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
