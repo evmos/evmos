@@ -1331,6 +1331,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
 
+	}
 	if storeUpgrades != nil {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
