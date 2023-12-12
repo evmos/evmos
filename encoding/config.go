@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 
 	enccodec "github.com/evmos/evmos/v16/encoding/codec"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // MakeConfig creates an EncodingConfig for testing
@@ -30,16 +31,22 @@ func MakeConfig(mb module.BasicManager) sdktestutil.TestEncodingConfig {
 // encodingConfig creates a new EncodingConfig and returns it
 func encodingConfig() sdktestutil.TestEncodingConfig {
 	cdc := amino.NewLegacyAmino()
-	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
-		ProtoFiles: proto.HybridResolver,
-		SigningOptions: signing.Options{
-			AddressCodec: address.Bech32Codec{
-				Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
-			},
-			ValidatorAddressCodec: address.Bech32Codec{
-				Bech32Prefix: sdk.GetConfig().GetBech32ValidatorAddrPrefix(),
-			},
+	signingOptions := signing.Options{
+		AddressCodec: address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
 		},
+		ValidatorAddressCodec: address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32ValidatorAddrPrefix(),
+		},
+	}
+	signingOptions.DefineCustomGetSigners(
+		evmtypes.MsgEthereumTxCustomGetSigner.MsgType,
+		evmtypes.MsgEthereumTxCustomGetSigner.Fn,
+	)
+
+	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles:     proto.HybridResolver,
+		SigningOptions: signingOptions,
 	})
 	codec := amino.NewProtoCodec(interfaceRegistry)
 

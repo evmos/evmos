@@ -11,6 +11,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+	txsigning "cosmossdk.io/x/tx/signing"
 	"github.com/cosmos/cosmos-sdk/client"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -22,6 +23,7 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
 	"github.com/evmos/evmos/v16/types"
+	evmapi "github.com/evmos/evmos/v16/api/ethermint/evm/v1"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -42,6 +44,11 @@ const (
 	// TypeMsgEthereumTx defines the type string of an Ethereum transaction
 	TypeMsgEthereumTx = "ethereum_tx"
 )
+
+var MsgEthereumTxCustomGetSigner = txsigning.CustomGetSigner{
+	MsgType: protov2.MessageName(&evmapi.MsgEthereumTx{}),
+	Fn:      evmapi.GetSigners,
+}
 
 // NewTx returns a reference to a new Ethereum transaction message.
 func NewTx(
