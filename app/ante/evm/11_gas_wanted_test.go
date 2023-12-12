@@ -3,7 +3,8 @@
 package evm_test
 
 import (
-	// errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
@@ -32,7 +33,9 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 			name:          "success: if isLondon false it should not error",
 			expectedError: nil,
 			getCtx: func() sdktypes.Context {
-				return unitNetwork.GetContext()
+				// Even if the gasWanted is more than the blockGasLimit, it should not error
+				blockMeter := sdktypes.NewGasMeter(commonGasLimit - 10000)
+				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
 			isLondon:                   false,
 			expectedTransientGasWanted: 0,
@@ -44,8 +47,35 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 				blockMeter := sdktypes.NewGasMeter(commonGasLimit + 10000)
 				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
 			},
-			isLondon:                   false,
+			isLondon:                   true,
 			expectedTransientGasWanted: commonGasLimit,
+		},
+		{
+			name:          "fail: gasWanted is more than blockGasLimit",
+			expectedError: errortypes.ErrOutOfGas,
+			getCtx: func() sdktypes.Context {
+				blockMeter := sdktypes.NewGasMeter(commonGasLimit - 10000)
+				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
+			},
+			isLondon:                   true,
+			expectedTransientGasWanted: 0,
+		},
+		{
+			name:          "success: gasWanted is less than blockGasLimit and basefee param is disabled",
+			expectedError: nil,
+			getCtx: func() sdktypes.Context {
+				// Set basefee param to false
+				feeMarketParams, err := grpcHandler.GetFeeMarketParams()
+				suite.Require().NoError(err)
+				feeMarketParams.Params.NoBaseFee = true
+				err = unitNetwork.UpdateFeeMarketParams(feeMarketParams.Params)
+				suite.Require().NoError(err)
+
+				blockMeter := sdktypes.NewGasMeter(commonGasLimit + 10000)
+				return unitNetwork.GetContext().WithBlockGasMeter(blockMeter)
+			},
+			isLondon:                   true,
+			expectedTransientGasWanted: 0,
 		},
 	}
 
@@ -77,7 +107,7 @@ func (suite *EvmAnteTestSuite) TestCheckGasWanted() {
 			} else {
 				suite.Require().NoError(err)
 				transientGasWanted := unitNetwork.App.FeeMarketKeeper.GetTransientGasWanted(
-					ctx,
+					unitNetwork.GetContext(),
 				)
 				suite.Require().Equal(tc.expectedTransientGasWanted, transientGasWanted)
 			}

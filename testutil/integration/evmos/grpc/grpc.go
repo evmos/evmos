@@ -24,6 +24,7 @@ type Handler interface {
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)
+	GetFeeMarketParams() (*feemarkettypes.QueryParamsResponse, error)
 
 	// Gov methods
 	GetProposal(proposalID uint64) (*govtypes.QueryProposalResponse, error)
@@ -32,6 +33,7 @@ type Handler interface {
 	// Revenue methods
 	GetRevenue(address common.Address) (*revtypes.QueryRevenueResponse, error)
 	GetRevenueParams() (*revtypes.QueryParamsResponse, error)
+
 }
 
 var _ Handler = (*IntegrationHandler)(nil)

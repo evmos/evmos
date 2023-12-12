@@ -60,8 +60,12 @@ func (suite *EvmAnteTestSuite) TestIncrementSequence() {
 				suite.Require().Error(err)
 				suite.Contains(err.Error(), tc.expectedError.Error())
 			} else {
-				suite.Require().Equal(preSequence+1, account.GetSequence())
 				suite.Require().NoError(err)
+
+				suite.Require().Equal(preSequence+1, account.GetSequence())
+				updatedAccount, err := grpcHandler.GetAccount(accAddr.String())
+				suite.Require().NoError(err)
+				suite.Require().Equal(preSequence+1, updatedAccount.GetSequence())
 			}
 		})
 	}
