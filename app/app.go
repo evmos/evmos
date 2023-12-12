@@ -1262,7 +1262,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	// v16-rc2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnet,
+		v16.UpgradeNameTestnetRC2,
+		v16.CreateUpgradeHandlerRC2(app.mm, app.configurator),
+	)
+
+	// v16-rc3 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v16.UpgradeNameTestnetRC3,
 		v16.CreateUpgradeHandlerRC3(app.mm, app.configurator, app.AccountKeeper),
 	)
 
