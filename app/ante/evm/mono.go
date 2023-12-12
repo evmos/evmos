@@ -157,28 +157,40 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		// 4. validate basic
-		txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
-			txData.GetTo(),
+		// 4. validate basic and updates gas
+		// txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
+		// 	txData.GetTo(),
+		// 	from,
+		// 	decUtils.TxGasLimit,
+		// 	gas,
+		// 	decUtils.EvmParams.EnableCreate,
+		// 	decUtils.EvmParams.EnableCall,
+		// 	decUtils.BaseFee,
+		// 	txData.Fee(),
+		// 	txData.TxType(),
+		// 	decUtils.EvmDenom,
+		// 	decUtils.TxFee,
+		// )
+		// if err != nil {
+		// 	return ctx, err
+		// }
+
+		// 4. validate basic and updates gas
+		err = ValidateMsg(
+			decUtils.EvmParams,
+			txData,
 			from,
-			decUtils.TxGasLimit,
-			gas,
-			decUtils.EvmParams.EnableCreate,
-			decUtils.EvmParams.EnableCall,
-			decUtils.BaseFee,
-			txData.Fee(),
-			txData.TxType(),
-			decUtils.EvmDenom,
-			decUtils.TxFee,
 		)
 		if err != nil {
 			return ctx, err
 		}
-		decUtils.TxFee = txFee
-		decUtils.TxGasLimit = txGasLimit
 
 		// 5. signature verification
-		if err := SignatureVerification(ethMsg, decUtils.Signer, decUtils.EvmParams.AllowUnprotectedTxs); err != nil {
+		if err := SignatureVerification(
+			ethMsg,
+			decUtils.Signer,
+			decUtils.EvmParams.AllowUnprotectedTxs,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -187,7 +199,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 6. account balance verification
 		fromAddr := common.HexToAddress(ethMsg.From)
-		// // TODO: Use account from AccountKeeper instead
+		// TODO: Use account from AccountKeeper instead
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(ctx, md.accountKeeper, account, fromAddr, txData); err != nil {
 			return ctx, err
@@ -242,6 +254,14 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		decUtils.GasWanted = gasWanted
 		decUtils.MinPriority = minPriority
+
+		txFee := UpdateTxFee(
+			decUtils.TxFee,
+			txData.Fee(),
+			decUtils.EvmDenom,
+		)
+		decUtils.TxFee = txFee
+		decUtils.TxGasLimit += gas
 
 		// 10. increment sequence
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
