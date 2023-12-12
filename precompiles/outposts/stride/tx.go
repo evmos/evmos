@@ -56,20 +56,21 @@ func (p Precompile) LiquidStake(
 
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 
-	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
+	// TODO: Uncomment this once we register WEVMOS pair with a precompile
+	//tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
 
-	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
+	//tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
 	// NOTE this should always exist
-	if !found {
-		return nil, fmt.Errorf(ErrTokenPairNotFound, tokenPairID)
-	}
+	//if !found {
+	//	return nil, fmt.Errorf(ErrTokenPairNotFound, tokenPairID)
+	//}
 
 	// NOTE: for v1 we only support the native EVM (and staking) denomination (WEVMOS/WTEVMOS).
-	if token != tokenPair.GetERC20Contract() {
-		return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
-	}
+	//if token != tokenPair.GetERC20Contract() {
+	//	return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
+	//}
 
-	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
 	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)

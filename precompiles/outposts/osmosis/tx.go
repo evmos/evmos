@@ -59,12 +59,14 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
+	// TODO: Uncomment this once we register WEVMOS pair with a precompile
 	// We need to check if the input and output denom exist. If they exist we retrieve their denom
 	// otherwise error out.
-	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
-	if err != nil {
-		return nil, err
-	}
+	//inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
 	if err != nil {
 		return nil, err
@@ -72,7 +74,7 @@ func (p Precompile) Swap(
 
 	evmosChannel := NewIBCChannel(p.portID, p.channelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
-	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
+	err = ValidateInputOutput(bondDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +113,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
-	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
 		evmosChannel.ChannelID,
