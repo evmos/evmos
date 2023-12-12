@@ -62,10 +62,10 @@ func (p Precompile) Swap(
 	// TODO: Uncomment this once we register WEVMOS pair with a precompile
 	// We need to check if the input and output denom exist. If they exist we retrieve their denom
 	// otherwise error out.
-	//inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
-	//if err != nil {
+	// inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
+	// if err != nil {
 	//	return nil, err
-	//}
+	// }
 
 	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
 	if err != nil {
