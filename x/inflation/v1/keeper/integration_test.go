@@ -91,7 +91,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -156,7 +156,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
@@ -214,7 +214,7 @@ var _ = Describe("Inflation", Ordered, func() {
 					expected := provision.Mul(distribution)
 
 					Expect(balanceCommunityPool.IsZero()).ToNot(BeTrue())
-					Expect(balanceCommunityPool.AmountOf(denomMint).GT(expected)).To(BeTrue())
+					Expect(balanceCommunityPool.AmountOf(denomMint).LT(expected)).To(BeTrue())
 				})
 			})
 		})
