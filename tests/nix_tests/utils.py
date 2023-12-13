@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from eth_account import Account
 from hexbytes import HexBytes
 from pystarport.cluster import SUPERVISOR_CONFIG_FILE
+from web3 import Web3
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
 from web3.exceptions import TimeExhausted
 
@@ -31,6 +32,7 @@ KEYS = {name: account.key for name, account in ACCOUNTS.items()}
 ADDRS = {name: account.address for name, account in ACCOUNTS.items()}
 EVMOS_ADDRESS_PREFIX = "evmos"
 DEFAULT_DENOM = "aevmos"
+WEVMOS_ADDRESS = Web3.toChecksumAddress("0xcc491f589b45d4a3c679016195b3fb87d7848210")
 TEST_CONTRACTS = {
     "TestERC20A": "TestERC20A.sol",
     "Greeter": "Greeter.sol",
@@ -57,18 +59,6 @@ OSMOSIS_POOLS = {
 WASM_BINARIES = {
     "CrosschainSwap": "crosschain_swaps.wasm",
     "Swaprouter": "swaprouter.wasm",
-}
-
-WEVMOS_META = {
-    "description": "The native staking and governance token of the Evmos chain",
-    "denom_units": [
-        {"denom": "aevmos", "exponent": 0, "aliases": ["aevmos"]},
-        {"denom": "WEVMOS", "exponent": 18},
-    ],
-    "base": "aevmos",
-    "display": "WEVMOS",
-    "name": "Wrapped EVMOS",
-    "symbol": "WEVMOS",
 }
 
 
@@ -543,61 +533,6 @@ def setup_stride():
         subprocess.run(["../../scripts/setup-stride.sh"], check=True)
 
     return inner
-
-
-def register_wevmos(evmos):
-    """
-    this helper function registers the WEVMOS
-    token in the ERC20 module and returns the contract address.
-    Make sure to patch the evmosd binary with the allow-wevmos-register patch
-    for this to be successful
-    """
-    cli = evmos.cosmos_cli()
-    proposal = {
-        "title": "Register WEVMOS",
-        "description": "EVMOS erc20 representation",
-        "metadata": [WEVMOS_META],
-        "deposit": "1aevmos",
-    }
-    proposal_id = register_ibc_coin(cli, proposal)
-    assert (
-        int(proposal_id) > 0
-    ), "expected a non-zero proposal ID for the registration of the WEVMOS token."
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(evmos, proposal_id)
-
-    # query token pairs and get WEVMOS address
-    pairs = cli.get_token_pairs()
-    assert len(pairs) == 1
-    assert pairs[0]["denom"] == "aevmos"
-
-    return pairs[0]["erc20_address"]
-
-
-def wrap_evmos(evmos, addr, amt):
-    """
-    Helper function that registers WEVMOS token
-    and wraps the specified amount
-    for the provided Ethereum address
-    Returns the WEVMOS contract address
-    """
-    cli = evmos.cosmos_cli()
-    # submit proposal to register WEVMOS
-    wevmos_addr = register_wevmos(evmos)
-
-    # convert 'aevmos' to WEVMOS (wrap)
-    rsp = cli.convert_coin(f"{amt}aevmos", eth_to_bech32(addr), gas=2000000)
-    assert rsp["code"] == 0, rsp["raw_log"]
-    wait_for_new_blocks(cli, 2)
-    txhash = rsp["txhash"]
-    receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
-    assert receipt["tx_result"]["code"] == 0
-
-    # check the desired amt was wrapped
-    wevmos_balance = erc20_balance(evmos.w3, wevmos_addr, addr)
-    assert wevmos_balance == amt
-
-    return wevmos_addr
 
 
 def erc20_balance(w3, erc20_contract_addr, addr):

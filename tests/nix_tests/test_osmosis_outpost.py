@@ -15,6 +15,7 @@ from .utils import (
     KEYS,
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
+    WEVMOS_ADDRESS,
     approve_proposal,
     erc20_balance,
     eth_to_bech32,
@@ -24,7 +25,6 @@ from .utils import (
     send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
-    wrap_evmos,
 )
 
 
@@ -59,9 +59,6 @@ def test_osmosis_swap(ibc):
 
     setup_osmos_chains(ibc)
 
-    # --------- Register Evmos token (this could be wrapevmos I think)
-    wevmos_addr = wrap_evmos(ibc.chains["evmos"], evmos_addr, amt)
-
     # --------- Transfer Osmo to Evmos
     transfer_osmo_to_evmos(ibc, osmosis_addr, evmos_addr)
 
@@ -80,7 +77,7 @@ def test_osmosis_swap(ibc):
 
     tx = pc.functions.swap(
         evmos_addr,
-        wevmos_addr,
+        WEVMOS_ADDRESS,
         osmo_erc20_addr,
         amt,
         testSlippagePercentage,
@@ -279,11 +276,11 @@ def register_osmo_token(evmos):
     print("proposal id: ", proposal_id)
     # vote 'yes' on proposal and wait it to pass
     approve_proposal(evmos, proposal_id)
-    # query token pairs and get WEVMOS address
+    # query token pairs and get contract address
     pairs = evmos_cli.get_token_pairs()
-    assert len(pairs) == 2
-    assert pairs[1]["denom"] == osmos_ibc_denom
-    return pairs[1]["erc20_address"]
+    assert len(pairs) == 1
+    assert pairs[0]["denom"] == osmos_ibc_denom
+    return pairs[0]["erc20_address"]
 
 
 def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, label):
