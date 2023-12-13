@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/testutil"
@@ -56,6 +57,33 @@ func (its *IntegrationTestSuite) TestProposalDeletion() {
 
 	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
 	its.Require().Len(allProposalsAfter, 0)
+}
+
+func (its *IntegrationTestSuite) TestFeeCollectorMigration() {
+	its.SetupTest()
+	context := its.network.GetContext()
+
+	// get current fee collector
+	feeCollectorModuleAccount := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+
+	modAcc, ok := feeCollectorModuleAccount.(*authtypes.ModuleAccount)
+	its.Require().Equal(true, ok)
+
+	// save fee collector without burner auth
+	feeCollectorModuleAccountNoBurner := authtypes.NewModuleAccount(modAcc.BaseAccount, authtypes.FeeCollectorName)
+	its.network.App.AccountKeeper.SetModuleAccount(context, feeCollectorModuleAccountNoBurner)
+
+	// check fee collector is without burner auth
+	feeCollectorNoBurner := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+	hasBurnerPermission := feeCollectorNoBurner.HasPermission(authtypes.Burner)
+	its.Require().True(!hasBurnerPermission)
+
+	v16.MigrateFeeCollector(its.network.App.AccountKeeper, context)
+	// check fee collector is without burner auth
+	feeCollectorAfterMigration := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+	hasBurnerPermission = feeCollectorAfterMigration.HasPermission(authtypes.Burner)
+	its.Require().True(hasBurnerPermission)
+>>>>>>> f8cc2686 (add fee collector migration test)
 }
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {
