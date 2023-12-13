@@ -88,7 +88,7 @@ func CreateUpgradeHandlerRC4(
 	ak authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
+		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC4)
 
 		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
