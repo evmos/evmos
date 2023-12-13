@@ -13,7 +13,7 @@ import (
 )
 
 // TODO: Uncomment this test when RegisterIncentives is re-enabled
-//func (its *IntegrationTestSuite) TestProposalDeletion() {
+// func (its *IntegrationTestSuite) TestProposalDeletion() {
 //	its.SetupTest()
 //	incentives.RegisterInterfaces(its.network.App.InterfaceRegistry())
 //
@@ -50,7 +50,7 @@ import (
 //
 //	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
 //	its.Require().Len(allProposalsAfter, 0)
-//}
+// }
 
 func (its *IntegrationTestSuite) TestFeeCollectorMigration() {
 	its.SetupTest()

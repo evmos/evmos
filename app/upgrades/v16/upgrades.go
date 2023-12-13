@@ -81,7 +81,7 @@ func CreateUpgradeHandlerRC3(
 		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
 
 		// Delete all RegisterIncentiveProposal types from the store
-		//DeleteRegisterIncentivesProposals(ctx, gk, logger)
+		// DeleteRegisterIncentivesProposals(ctx, gk, logger)
 
 		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
