@@ -69,3 +69,13 @@ func CreateUpgradeHandlerRC2(
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
+
+// CreateUpgradeHandlerRC3 creates an SDK upgrade handler for v16.0.0-rc3
+func CreateUpgradeHandlerRC3(
+	mm *module.Manager,
+	configurator module.Configurator,
+) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return mm.RunMigrations(ctx, configurator, vm)
+	}
+}
