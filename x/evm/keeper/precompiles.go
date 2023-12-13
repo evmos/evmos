@@ -36,6 +36,13 @@ import (
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
 
+const (
+	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
+	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
+)
+
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
@@ -86,17 +93,21 @@ func AvailablePrecompiles(
 	}
 
 	var strideChannelID, osmosisChannelID, xcsv1Contract string
+	var WEVMOSAddress common.Address
 	if utils.IsMainnet(chainID) {
+		WEVMOSAddress = common.HexToAddress(WEVMOSContractMainnet)
 		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
 		strideChannelID = evmostransfertypes.StrideMainnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
+		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
 		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
 		strideChannelID = evmostransfertypes.StrideTestnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
+		WEVMOSAddress,
 		transfertypes.PortID,
 		strideChannelID,
 		transferKeeper,
@@ -109,6 +120,7 @@ func AvailablePrecompiles(
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+		WEVMOSAddress,
 		transfertypes.PortID,
 		osmosisChannelID,
 		xcsv1Contract,
