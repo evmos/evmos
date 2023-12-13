@@ -59,7 +59,6 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	var inputDenom, outputDenom string
 
