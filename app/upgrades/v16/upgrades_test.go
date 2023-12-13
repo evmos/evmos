@@ -78,7 +78,9 @@ func (its *IntegrationTestSuite) TestFeeCollectorMigration() {
 	hasBurnerPermission := feeCollectorNoBurner.HasPermission(authtypes.Burner)
 	its.Require().True(!hasBurnerPermission)
 
-	v16.MigrateFeeCollector(its.network.App.AccountKeeper, context)
+	err := v16.MigrateFeeCollector(its.network.App.AccountKeeper, context)
+	its.Require().NoError(err)
+
 	// check fee collector is without burner auth
 	feeCollectorAfterMigration := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
 	hasBurnerPermission = feeCollectorAfterMigration.HasPermission(authtypes.Burner)
