@@ -4,6 +4,8 @@
 package stride_test
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	"testing"
 
 	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
@@ -36,6 +38,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := stride.NewPrecompile(
+		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
 		portID,
 		channelID,
 		network.App.TransferKeeper,

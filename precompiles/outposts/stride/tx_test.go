@@ -5,6 +5,7 @@ package stride_test
 
 import (
 	"fmt"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	"math/big"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -101,7 +102,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			func() []interface{} {
 				return []interface{}{
 					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
+					common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
 					big.NewInt(1e18),
 					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 				}
