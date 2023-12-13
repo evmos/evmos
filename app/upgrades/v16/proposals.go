@@ -11,6 +11,7 @@ import (
 	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
 )
 
+// DeleteRegisterIncentivesProposals deletes the RegisterIncentives proposals from the store
 func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
 	// Delete the only RegisterIncentives proposal
 	gk.IterateProposals(ctx, func(proposal govtypes.Proposal) bool {
