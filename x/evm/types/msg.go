@@ -209,24 +209,6 @@ func (msg *MsgEthereumTx) GetMsgsV2() ([]protov2.Message, error) {
 	return nil, errors.New("not implemented")
 }
 
-// GetSigners returns the expected signers for an Ethereum transaction message.
-// For such a message, there should exist only a single 'signer'.
-//
-// NOTE: This method panics if 'Sign' hasn't been called first.
-func (msg *MsgEthereumTx) GetSigners() []sdk.AccAddress {
-	data, err := UnpackTxData(msg.Data)
-	if err != nil {
-		panic(err)
-	}
-
-	sender, err := msg.GetSender(data.GetChainID())
-	if err != nil {
-		panic(err)
-	}
-
-	signer := sdk.AccAddress(sender.Bytes())
-	return []sdk.AccAddress{signer}
-}
 
 // GetSignBytes returns the Amino bytes of an Ethereum transaction message used
 // for signing.
@@ -379,13 +361,6 @@ func (msg *MsgEthereumTx) BuildTx(b client.TxBuilder, evmDenom string) (signing.
 	builder.SetGasLimit(msg.GetGas())
 	tx := builder.GetTx()
 	return tx, nil
-}
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	//#nosec G703 -- gosec raises a warning about a non-handled error which we deliberately ignore here
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
-	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check of the provided data

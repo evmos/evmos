@@ -5,20 +5,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethutils "github.com/evmos/evmos/v16/utils/eth"
 )
 
 // GetChainID returns the chain id field from the DynamicFeeTx
 func (tx *DynamicFeeTx) GetChainID() *big.Int {
 	return stringToBigInt(tx.GetChainId())
-}
-
-func (tx *DynamicFeeTx) GetToAddress() *common.Address {
-	toAddrStr := tx.GetTo()
-	if toAddrStr == "" {
-		return nil
-	}
-	addr := common.BytesToAddress([]byte(tx.GetTo()))
-	return &addr
 }
 
 // AsEthereumData returns an DynamicFeeTx transaction tx from the proto-formatted
@@ -31,7 +23,7 @@ func (tx *DynamicFeeTx) AsEthereumData() ethtypes.TxData {
 		GasTipCap:  stringToBigInt(tx.GetGasTipCap()),
 		GasFeeCap:  stringToBigInt(tx.GetGasFeeCap()),
 		Gas:        tx.GetGas(),
-		To:         tx.GetToAddress(),
+		To:         stringToAddress(tx.GetTo()),
 		Value:      stringToBigInt(tx.GetValue()),
 		Data:       tx.GetData(),
 		AccessList: tx.GetAccessList(),
@@ -67,5 +59,5 @@ func (tx *DynamicFeeTx) GetAccessList() ethtypes.AccessList {
 // GetRawSignatureValues returns the V, R, S signature values of the transaction.
 // The return values should not be modified by the caller.
 func (tx *DynamicFeeTx) GetRawSignatureValues() (v, r, s *big.Int) {
-	return rawSignatureValues(tx.V, tx.R, tx.S)
+	return ethutils.RawSignatureValues(tx.V, tx.R, tx.S)
 }

@@ -13,6 +13,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/evmos/evmos/v16/types"
+	ethutils "github.com/evmos/evmos/v16/utils/eth"
+
 )
 
 func newAccessListTx(tx *ethtypes.Transaction) (*AccessListTx, error) {
@@ -162,7 +164,7 @@ func (tx *AccessListTx) AsEthereumData() ethtypes.TxData {
 // GetRawSignatureValues returns the V, R, S signature values of the transaction.
 // The return values should not be modified by the caller.
 func (tx *AccessListTx) GetRawSignatureValues() (v, r, s *big.Int) {
-	return rawSignatureValues(tx.V, tx.R, tx.S)
+	return ethutils.RawSignatureValues(tx.V, tx.R, tx.S)
 }
 
 // SetSignatureValues sets the signature values to the transaction.

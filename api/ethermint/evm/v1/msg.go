@@ -8,6 +8,14 @@ import (
 	protov2 "google.golang.org/protobuf/proto"
 )
 
+// supportedTxs holds the Ethereum transaction types
+// supported by Evmos
+var supportedTxs = map[string]TxDataV2{
+	"/ethermint.evm.v1.DynamicFeeTx": &DynamicFeeTx{},
+	"/ethermint.evm.v1.AccessListTx": &AccessListTx{},
+	"/ethermint.evm.v1.LegacyTx":     &LegacyTx{},
+}
+
 // getSender extracts the sender address from the signature values using the latest signer for the given chainID.
 func getSender(txData TxDataV2) (common.Address, error) {
 	signer := ethtypes.LatestSignerForChainID(txData.GetChainID())
@@ -18,32 +26,21 @@ func getSender(txData TxDataV2) (common.Address, error) {
 	return from, nil
 }
 
+// GetSigners is the custom function to get signers on Ethereum transactions
+// Gets the signer's address from the Ethereum tx signature
 func GetSigners(msg protov2.Message) ([][]byte, error) {
 	msgEthTx, ok := msg.(*MsgEthereumTx)
 	if !ok {
 		return nil, fmt.Errorf("invalid type, expected MsgEthereumTx and got %T", msg)
 	}
-	var (
-		txData TxDataV2
-		err    error
-	)
 
-	// msgEthTx.Data is a message (DynamicFeeTx, LegacyTx or AccessListTx)
-	switch msgEthTx.Data.TypeUrl {
-	case "/ethermint.evm.v1.DynamicFeeTx":
-		txData = &DynamicFeeTx{}
-		err = msgEthTx.Data.UnmarshalTo(txData)
-	case "/ethermint.evm.v1.LegacyTx":
-		data := LegacyTx{}
-		err = msgEthTx.Data.UnmarshalTo(&data)
-	case "/ethermint.evm.v1.AccessListTx":
-		data := AccessListTx{}
-		err = msgEthTx.Data.UnmarshalTo(&data)
-	default:
+	txData, found := supportedTxs[msgEthTx.Data.TypeUrl]
+	if !found {
 		return nil, fmt.Errorf("invalid TypeUrl %s", msgEthTx.Data.TypeUrl)
 	}
 
-	if err != nil {
+	// msgEthTx.Data is a message (DynamicFeeTx, LegacyTx or AccessListTx)
+	if err := msgEthTx.Data.UnmarshalTo(txData); err != nil {
 		return nil, err
 	}
 
