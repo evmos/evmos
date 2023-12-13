@@ -6,9 +6,11 @@ package app
 import (
 	"fmt"
 
+	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+
 	"github.com/evmos/evmos/v16/utils"
 )
 
@@ -21,7 +23,7 @@ import (
 //  1. Release a non-breaking patch version so that the chain can set the scheduled upgrade plan at upgrade-height.
 //  2. Release the software defined in the upgrade-info
 func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
-	// NOTE: there are no pending mainnet hard forks
+	// NOTE: there are no mainnet forks for the existing versions
 	if utils.IsMainnet(ctx.ChainID()) {
 		return
 	}
@@ -33,7 +35,7 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 	// handle mainnet forks with their corresponding upgrade name and info
 	switch ctx.BlockHeight() {
 	case v16.TestnetUpgradeHeight:
-		upgradePlan.Name = v16.UpgradeNameTestnetRC3
+		upgradePlan.Name = v16.UpgradeNameTestnetRC4
 		upgradePlan.Info = v16.UpgradeInfo
 	default:
 		// No-op

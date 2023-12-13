@@ -75,13 +75,20 @@ func CreateUpgradeHandlerRC2(
 func CreateUpgradeHandlerRC3(
 	mm *module.Manager,
 	configurator module.Configurator,
+) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		return mm.RunMigrations(ctx, configurator, vm)
+	}
+}
+
+// CreateUpgradeHandlerRC4 creates an SDK upgrade handler for v16.0.0-rc4
+func CreateUpgradeHandlerRC4(
+	mm *module.Manager,
+	configurator module.Configurator,
 	ak authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
-
-		// Delete all RegisterIncentiveProposal types from the store
-		// DeleteRegisterIncentivesProposals(ctx, gk, logger)
+		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC4)
 
 		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
