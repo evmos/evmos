@@ -5,6 +5,7 @@ package app
 
 import (
 	"fmt"
+
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
