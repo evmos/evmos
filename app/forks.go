@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	v82 "github.com/evmos/evmos/v16/app/upgrades/v8_2"
 	"github.com/evmos/evmos/v16/utils"
 )
 
@@ -33,6 +33,9 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 
 	// handle mainnet forks with their corresponding upgrade name and info
 	switch ctx.BlockHeight() {
+	case v82.MainnetUpgradeHeight:
+		upgradePlan.Name = v82.UpgradeName
+		upgradePlan.Info = v82.UpgradeInfo
 	case v16.TestnetUpgradeHeight:
 		upgradePlan.Name = v16.UpgradeNameTestnetRC3
 		upgradePlan.Info = v16.UpgradeInfo

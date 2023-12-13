@@ -78,7 +78,7 @@ func CreateUpgradeHandlerRC3(
 	ak authkeeper.AccountKeeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeName)
+		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
 
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
