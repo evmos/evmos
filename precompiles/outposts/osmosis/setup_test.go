@@ -43,7 +43,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	precompile, err := osmosis.NewPrecompile(
 		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
-		common.HexToAddress(evmkeeper.OsmosisERC20AddressTestnet),
 		PortID,
 		ChannelID,
 		osmosis.XCSContractTestnet,

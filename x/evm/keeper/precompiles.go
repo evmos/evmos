@@ -41,10 +41,6 @@ const (
 	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
 	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
 	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
-	// OsmosisERC20AddressTestnet is the Osmosis token pair erc20 address for testnet
-	OsmosisERC20AddressTestnet = "0x3452e23F9c4cC62c70B7ADAd699B264AF3549C19"
-	// OsmosisERC20AddressMainnet is the Osmosis token pair erc20 address for mainnet
-	OsmosisERC20AddressMainnet = "0xFA3C22C069B9556A4B2f7EcE1Ee3B467909f4864"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -97,16 +93,14 @@ func AvailablePrecompiles(
 	}
 
 	var strideChannelID, osmosisChannelID, xcsv1Contract string
-	var WEVMOSAddress, OsmosisAddress common.Address
+	var WEVMOSAddress common.Address
 	if utils.IsMainnet(chainID) {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractMainnet)
-		OsmosisAddress = common.HexToAddress(OsmosisERC20AddressMainnet)
 		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
 		strideChannelID = evmostransfertypes.StrideMainnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
-		OsmosisAddress = common.HexToAddress(OsmosisERC20AddressTestnet)
 		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
 		strideChannelID = evmostransfertypes.StrideTestnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
@@ -127,7 +121,6 @@ func AvailablePrecompiles(
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
 		WEVMOSAddress,
-		OsmosisAddress,
 		transfertypes.PortID,
 		osmosisChannelID,
 		xcsv1Contract,

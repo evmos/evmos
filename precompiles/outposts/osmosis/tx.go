@@ -7,14 +7,10 @@
 package osmosis
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v16/utils"
-
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -63,49 +59,33 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// TODO: Uncomment this once we register WEVMOS pair with a precompile
-	// We need to check if the input and output denom exist. If they exist we retrieve their denom
-	// otherwise error out.
-	// inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
-	// if err != nil {
-	//	return nil, err
-	// }
-	// outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	// if err != nil {
-	//	return nil, err
-	// }
-
 	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	var inputDenom, outputDenom string
 
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
-	osmoIBCDenom := utils.ComputeIBCDenom(
-		evmosChannel.PortID,
-		evmosChannel.ChannelID,
-		OsmosisDenom,
-	)
-
 	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	switch input {
-	case p.OsmosisAddress:
-		inputDenom = osmoIBCDenom
 	case p.WevmosAddress:
 		inputDenom = bondDenom
 	default:
-		return nil, fmt.Errorf(ErrUnsupportedToken, input.String())
+		inputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, input)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Case 2. Output has to be either the address of Osmosis or WEVMOS
 	switch output {
-	case p.OsmosisAddress:
-		outputDenom = osmoIBCDenom
 	case p.WevmosAddress:
 		outputDenom = bondDenom
 	default:
-		return nil, fmt.Errorf(ErrUnsupportedToken, output.String())
+		outputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, output)
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	evmosChannel := NewIBCChannel(p.portID, p.channelID)
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
