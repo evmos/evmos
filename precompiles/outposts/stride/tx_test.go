@@ -5,8 +5,9 @@ package stride_test
 
 import (
 	"fmt"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	"math/big"
+
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v16/utils"

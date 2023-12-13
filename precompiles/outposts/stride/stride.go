@@ -30,7 +30,7 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	WEVMOSAddress  common.Address
+	WevmosAddress  common.Address
 	portID         string
 	channelID      string
 	timeoutHeight  clienttypes.Height
@@ -42,7 +42,7 @@ type Precompile struct {
 // NewPrecompile creates a new Stride outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	WEVMOSAddress common.Address,
+	wevmosAddress common.Address,
 	portID, channelID string,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
@@ -62,7 +62,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		WEVMOSAddress:  WEVMOSAddress,
+		WevmosAddress:  wevmosAddress,
 		portID:         portID,
 		channelID:      channelID,
 		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),

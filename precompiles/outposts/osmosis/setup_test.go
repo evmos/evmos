@@ -4,9 +4,10 @@
 package osmosis_test
 
 import (
+	"testing"
+
 	"github.com/ethereum/go-ethereum/common"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	"testing"
 
 	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"

@@ -55,8 +55,8 @@ func (p Precompile) LiquidStake(
 	}
 
 	// WEVMOS address is the only supported token for liquid staking
-	if token != p.WEVMOSAddress {
-		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.WEVMOSAddress)
+	if token != p.WevmosAddress {
+		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.WevmosAddress)
 	}
 
 	// TODO: Uncomment this once we register WEVMOS pair with a precompile

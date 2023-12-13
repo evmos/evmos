@@ -2,9 +2,10 @@ package osmosis_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/ethereum/go-ethereum/common"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
-	"testing"
 
 	"github.com/stretchr/testify/require"
 

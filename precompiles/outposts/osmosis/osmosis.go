@@ -47,7 +47,7 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
-	WEVMOSAddress, OsmosisAddress common.Address
+	WevmosAddress, OsmosisAddress common.Address
 	// IBC
 	portID           string
 	channelID        string
@@ -68,7 +68,7 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	WEVMOSAddress, OsmosisAddress common.Address,
+	wevmosAddress, osmosisAddress common.Address,
 	portID, channelID string,
 	osmosisXCSContract string,
 	authzKeeper authzkeeper.Keeper,
@@ -96,8 +96,8 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		WEVMOSAddress:      WEVMOSAddress,
-		OsmosisAddress:     OsmosisAddress,
+		WevmosAddress:      wevmosAddress,
+		OsmosisAddress:     osmosisAddress,
 		portID:             portID,
 		channelID:          channelID,
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),

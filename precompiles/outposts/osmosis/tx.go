@@ -70,10 +70,10 @@ func (p Precompile) Swap(
 	// if err != nil {
 	//	return nil, err
 	// }
-	//outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	//if err != nil {
+	// outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
+	// if err != nil {
 	//	return nil, err
-	//}
+	// }
 
 	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
@@ -86,10 +86,11 @@ func (p Precompile) Swap(
 		OsmosisDenom,
 	)
 
+	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	switch input {
 	case p.OsmosisAddress:
 		inputDenom = osmoIBCDenom
-	case p.WEVMOSAddress:
+	case p.WevmosAddress:
 		inputDenom = bondDenom
 	default:
 		return nil, fmt.Errorf(ErrUnsupportedToken, input.String())
@@ -99,7 +100,7 @@ func (p Precompile) Swap(
 	switch output {
 	case p.OsmosisAddress:
 		outputDenom = osmoIBCDenom
-	case p.WEVMOSAddress:
+	case p.WevmosAddress:
 		outputDenom = bondDenom
 	default:
 		return nil, fmt.Errorf(ErrUnsupportedToken, output.String())
@@ -112,6 +113,7 @@ func (p Precompile) Swap(
 
 	// Retrieve Osmosis channel and port associated with Evmos transfer app. We need these information
 	// to reconstruct the output denom in the Osmosis chain.
+
 	channel, found := p.channelKeeper.GetChannel(ctx, evmosChannel.PortID, evmosChannel.ChannelID)
 	if !found {
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosChannel.PortID, evmosChannel.ChannelID)
@@ -121,7 +123,7 @@ func (p Precompile) Swap(
 		channel.GetCounterparty().GetChannelID(),
 	)
 
-	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, inputDenom, evmosChannel, osmosisChannel)
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, bondDenom, evmosChannel, osmosisChannel)
 	if err != nil {
 		return nil, err
 	}
