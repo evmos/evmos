@@ -35,9 +35,23 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v16.0.0-rc4] - 2023-12-14
+
+### State Machine Breaking
+
+- (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
+- (fee_collector) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
+- (upgrade) [#2188](https://github.com/evmos/evmos/pull/2188) Prepare v16-rc4 upgrade handler.
+
+## [v16.0.0-rc3] - 2023-12-13
+
+### Bug Fixes
+- (upgrade) [#v16.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v16.0.0-rc3) Included hardfork preparation for v16.0.0-rc4.
+
 ## [v16.0.0-rc2] - 2023-12-11
 
 ### State Machine Breaking
+
 - (evm) [#2172] (https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
 - (inflation) [#2137] (https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
 - (post-handler) [#2128] (https://github.com/evmos/evmos/pull/2128) Burn cosmos transaction fees.
