@@ -8,8 +8,8 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/testutil"
@@ -83,7 +83,6 @@ func (its *IntegrationTestSuite) TestFeeCollectorMigration() {
 	feeCollectorAfterMigration := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
 	hasBurnerPermission = feeCollectorAfterMigration.HasPermission(authtypes.Burner)
 	its.Require().True(hasBurnerPermission)
->>>>>>> f8cc2686 (add fee collector migration test)
 }
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {
