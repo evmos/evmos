@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math/big"
 
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v16/utils"
 
@@ -45,6 +47,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
+<<<<<<< HEAD
 			"fail - token not found",
 			func() []interface{} {
 				err := s.network.App.StakingKeeper.SetParams(s.network.GetContext(), stakingtypes.DefaultParams())
@@ -83,6 +86,8 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
 		},
 		{
+=======
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 			"fail - invalid strideForwarder address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
@@ -122,6 +127,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"success",
 			func() []interface{} {
 				return []interface{}{
+<<<<<<< HEAD
 					stride.AutopilotArgs{
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
@@ -130,6 +136,12 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 					},
+=======
+					s.keyring.GetAddr(0),
+					common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+					big.NewInt(1e18),
+					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 				}
 			},
 			200000,
@@ -205,6 +217,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"token pair not found",
 		},
 		{
+<<<<<<< HEAD
 			"fail - unsupported token",
 			func() []interface{} {
 				return []interface{}{
@@ -224,6 +237,9 @@ func (s *PrecompileTestSuite) TestRedeem() {
 		},
 		{
 			"fail - invalid stride forwarder address (not a stride address)",
+=======
+			"fail - invalid receiver address (not a stride address)",
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 			func() []interface{} {
 				return []interface{}{
 					stride.AutopilotArgs{

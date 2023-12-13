@@ -6,6 +6,9 @@ package osmosis_test
 import (
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+
 	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -40,6 +43,13 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
+<<<<<<< HEAD
+=======
+		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+		PortID,
+		ChannelID,
+		osmosis.XCSContractTestnet,
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,

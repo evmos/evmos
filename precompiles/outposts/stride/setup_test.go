@@ -6,6 +6,9 @@ package stride_test
 import (
 	"testing"
 
+	"github.com/ethereum/go-ethereum/common"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+
 	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -36,6 +39,12 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := stride.NewPrecompile(
+<<<<<<< HEAD
+=======
+		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+		portID,
+		channelID,
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 		network.App.TransferKeeper,
 		network.App.Erc20Keeper,
 		network.App.AuthzKeeper,

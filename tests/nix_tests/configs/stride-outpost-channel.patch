@@ -1,0 +1,15 @@
+diff --git a/x/evm/keeper/precompiles.go b/x/evm/keeper/precompiles.go
+index e50fbd2b..b0101768 100644
+--- a/x/evm/keeper/precompiles.go
++++ b/x/evm/keeper/precompiles.go
+@@ -106,6 +106,10 @@ func AvailablePrecompiles(
+ 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
+ 	}
+ 
++	// Update the stride outpost channel to channel-0
++	// This patch is useful for e2e tests that setup
++	// a connection with Stride chain on channel-0
++	strideChannelID = "channel-0"
+ 	strideOutpost, err := strideoutpost.NewPrecompile(
+ 		WEVMOSAddress,
+ 		transfertypes.PortID,

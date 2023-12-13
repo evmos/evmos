@@ -10,9 +10,13 @@ package osmosis
 import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+=======
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -61,19 +65,37 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	// We need to check if the input and output denom exist. If they exist we retrieve their denom
-	// otherwise error out.
-	inputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	if err != nil {
-		return nil, err
+	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+	var inputDenom, outputDenom string
+
+	// Case 1. Input has to be either the address of Osmosis or WEVMOS
+	switch input {
+	case p.wevmosAddress:
+		inputDenom = bondDenom
+	default:
+		inputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, input)
+		if err != nil {
+			return nil, err
+		}
 	}
 
+	// Case 2. Output has to be either the address of Osmosis or WEVMOS
+	switch output {
+	case p.wevmosAddress:
+		outputDenom = bondDenom
+	default:
+		outputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, output)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+<<<<<<< HEAD
 	evmosChannel := NewIBCChannel(transfertypes.PortID, swapPacketData.ChannelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+=======
+	evmosChannel := NewIBCChannel(p.portID, p.channelID)
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
@@ -81,6 +103,7 @@ func (p Precompile) Swap(
 
 	// Retrieve Osmosis channel and port associated with Evmos transfer app. We need these information
 	// to reconstruct the output denom in the Osmosis chain.
+
 	channel, found := p.channelKeeper.GetChannel(ctx, evmosChannel.PortID, evmosChannel.ChannelID)
 	if !found {
 		return nil, errorsmod.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", evmosChannel.PortID, evmosChannel.ChannelID)

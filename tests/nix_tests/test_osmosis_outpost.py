@@ -15,6 +15,7 @@ from .utils import (
     KEYS,
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
+    WEVMOS_ADDRESS,
     approve_proposal,
     erc20_balance,
     eth_to_bech32,
@@ -24,7 +25,6 @@ from .utils import (
     send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
-    wrap_evmos,
 )
 
 
@@ -57,9 +57,6 @@ def test_osmosis_swap(ibc):
 
     xcs_contract = setup_osmos_chains(ibc)
 
-    # --------- Register Evmos token (this could be wrapevmos I think)
-    wevmos_addr = wrap_evmos(ibc.chains["evmos"], evmos_addr, amt)
-
     # --------- Transfer Osmo to Evmos
     transfer_osmo_to_evmos(ibc, osmosis_addr, evmos_addr)
 
@@ -75,6 +72,7 @@ def test_osmosis_swap(ibc):
     w3 = evmos.w3
     pc = get_precompile_contract(w3, "IOsmosisOutpost")
     evmos_gas_price = w3.eth.gas_price
+<<<<<<< HEAD
     swap_params = {
         "channelID": "channel-0",
         "xcsContract": xcs_contract,
@@ -87,6 +85,18 @@ def test_osmosis_swap(ibc):
         "swapReceiver": eth_to_bech32(evmos_addr),
     }
     tx = pc.functions.swap(swap_params).build_transaction(
+=======
+
+    tx = pc.functions.swap(
+        evmos_addr,
+        WEVMOS_ADDRESS,
+        osmo_erc20_addr,
+        amt,
+        testSlippagePercentage,
+        testWindowSeconds,
+        eth_to_bech32(evmos_addr),
+    ).build_transaction(
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
         {"from": evmos_addr, "gasPrice": evmos_gas_price, "gas": 30000000}
     )
     gas_estimation = evmos.w3.eth.estimate_gas(tx)
@@ -281,11 +291,11 @@ def register_osmo_token(evmos):
     print("proposal id: ", proposal_id)
     # vote 'yes' on proposal and wait it to pass
     approve_proposal(evmos, proposal_id)
-    # query token pairs and get WEVMOS address
+    # query token pairs and get contract address
     pairs = evmos_cli.get_token_pairs()
-    assert len(pairs) == 2
-    assert pairs[1]["denom"] == osmos_ibc_denom
-    return pairs[1]["erc20_address"]
+    assert len(pairs) == 1
+    assert pairs[0]["denom"] == osmos_ibc_denom
+    return pairs[0]["erc20_address"]
 
 
 def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, label):

@@ -40,6 +40,7 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
+	wevmosAddress common.Address
 	// IBC
 	timeoutHeight    clienttypes.Height
 	timeoutTimestamp uint64
@@ -55,6 +56,12 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+<<<<<<< HEAD
+=======
+	wevmosAddress common.Address,
+	portID, channelID string,
+	osmosisXCSContract string,
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -75,6 +82,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
+<<<<<<< HEAD
 		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
 		bankKeeper:       bankKeeper,
@@ -82,6 +90,19 @@ func NewPrecompile(
 		stakingKeeper:    stakingKeeper,
 		erc20Keeper:      erc20Keeper,
 		channelKeeper:    channelKeeper,
+=======
+		wevmosAddress:      wevmosAddress,
+		portID:             portID,
+		channelID:          channelID,
+		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
+		osmosisXCSContract: osmosisXCSContract,
+		bankKeeper:         bankKeeper,
+		transferKeeper:     transferKeeper,
+		stakingKeeper:      stakingKeeper,
+		erc20Keeper:        erc20Keeper,
+		channelKeeper:      channelKeeper,
+>>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 	}, nil
 }
 

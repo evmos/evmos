@@ -1,0 +1,15 @@
+diff --git a/x/evm/keeper/precompiles.go b/x/evm/keeper/precompiles.go
+index e50fbd2b..aff791e6 100644
+--- a/x/evm/keeper/precompiles.go
++++ b/x/evm/keeper/precompiles.go
+@@ -119,6 +119,10 @@ func AvailablePrecompiles(
+ 		panic(fmt.Errorf("failed to instantiate stride outpost: %w", err))
+ 	}
+ 
++	// Update the xcsv1Contract and osmosisChannelID to match the contract
++	// address and channel in the testing setup
++	xcsv1Contract = "osmo14sfz9e7t6nfxlfyqtdq3zngn5aryn9900gwzdjsp4u334pn089hs9lqdwx"
++	osmosisChannelID = "channel-0"
+ 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+ 		WEVMOSAddress,
+ 		transfertypes.PortID,
