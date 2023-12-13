@@ -40,36 +40,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			true,
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
 		},
-		// {
-		//	"fail - token not found",
-		//	func() []interface{} {
-		//		err := s.network.App.StakingKeeper.SetParams(s.network.GetContext(), stakingtypes.DefaultParams())
-		//		s.Require().NoError(err)
-		//		return []interface{}{
-		//			s.keyring.GetAddr(0),
-		//			common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-		//			big.NewInt(1e18),
-		//			"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
-		//		}
-		//	},
-		//	200000,
-		//	true,
-		//	"token pair not found",
-		// },
-		// {
-		//	"fail - unsupported token",
-		//	func() []interface{} {
-		//		return []interface{}{
-		//			s.keyring.GetAddr(0),
-		//			common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-		//			big.NewInt(1e18),
-		//			"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
-		//		}
-		//	},
-		//	200000,
-		//	true,
-		//	"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
-		// },
 		{
 			"fail - invalid strideForwarder address (not a stride address)",
 			func() []interface{} {
@@ -176,21 +146,6 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			true,
 			"token pair not found",
 		},
-		// {
-		//	"fail - unsupported token",
-		//	func() []interface{} {
-		//		return []interface{}{
-		//			s.keyring.GetAddr(0),
-		//			s.keyring.GetAddr(0),
-		//			common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-		//			big.NewInt(1e18),
-		//			"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
-		//		}
-		//	},
-		//	200000,
-		//	true,
-		//	"The only supported token contract for Stride Outpost v1 is 0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75",
-		// },
 		{
 			"fail - invalid receiver address (not a stride address)",
 			func() []interface{} {
