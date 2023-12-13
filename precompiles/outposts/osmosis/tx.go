@@ -7,9 +7,11 @@
 package osmosis
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/evmos/v16/utils"
 
@@ -73,7 +75,7 @@ func (p Precompile) Swap(
 	//	return nil, err
 	//}
 
-	// Case 1. Input has to be either Osmosis or WEVMOS
+	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	var inputDenom, outputDenom string
 
@@ -93,7 +95,7 @@ func (p Precompile) Swap(
 		return nil, fmt.Errorf(ErrUnsupportedToken, input.String())
 	}
 
-	// Case 2. Output has to be either Osmosis or WEVMOS
+	// Case 2. Output has to be either the address of Osmosis or WEVMOS
 	switch output {
 	case p.OsmosisAddress:
 		outputDenom = osmoIBCDenom
