@@ -9,6 +9,7 @@ package osmosis
 import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -66,15 +67,36 @@ func (p Precompile) Swap(
 	// if err != nil {
 	//	return nil, err
 	// }
+	// outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
+	// if err != nil {
+	//	return nil, err
+	// }
 
-	outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	if err != nil {
-		return nil, err
+	// Case 1. Input has to be either Osmosis or WEVMOS
+	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
+	var inputDenom, outputDenom string
+
+	switch input {
+	case p.OsmosisAddress:
+		inputDenom = p.OsmosisAddress.String()
+	case p.WEVMOSAddress:
+		inputDenom = bondDenom
+	default:
+		return nil, fmt.Errorf(ErrUnsupportedToken, input.String())
+	}
+
+	// Case 2. Output has to be either Osmosis or WEVMOS
+	switch output {
+	case p.OsmosisAddress:
+		outputDenom = OsmosisDenom
+	case p.WEVMOSAddress:
+		outputDenom = bondDenom
+	default:
+		return nil, fmt.Errorf(ErrUnsupportedToken, output.String())
 	}
 
 	evmosChannel := NewIBCChannel(p.portID, p.channelID)
-	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
-	err = ValidateInputOutput(bondDenom, outputDenom, bondDenom, evmosChannel)
+	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +112,7 @@ func (p Precompile) Swap(
 		channel.GetCounterparty().GetChannelID(),
 	)
 
-	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, bondDenom, evmosChannel, osmosisChannel)
+	outputOnOsmosis, err := ConvertToOsmosisRepresentation(outputDenom, inputDenom, evmosChannel, osmosisChannel)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +135,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
-	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
+	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
 		evmosChannel.ChannelID,

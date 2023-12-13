@@ -27,4 +27,6 @@ var (
 	ErrDenomNotSupported = "denom not supported, supported denoms are: %v" //#nosec G101 -- no hardcoded credentials here
 	// ErrReceiverAddress is raised when an error occurs during the validation of the swap receiver address.
 	ErrReceiverAddress = "error during receiver address validation: %s"
+	// ErrUnsupportedToken is the error returned when a token is not supported
+	ErrUnsupportedToken = "unsupported token %s. The only supported tokens for Osmosis Outpost v1 are evmos and uosmo"
 )
