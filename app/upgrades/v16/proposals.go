@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
 )
 
 func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
@@ -23,7 +24,7 @@ func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, log
 				continue
 			}
 
-			_, ok = legacyContentMsg.Content.GetCachedValue().(*RegisterIncentiveProposal)
+			_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.RegisterIncentiveProposal)
 			if ok {
 				gk.DeleteProposal(ctx, proposal.Id)
 				return true
@@ -31,5 +32,4 @@ func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, log
 		}
 		return true
 	})
-
 }

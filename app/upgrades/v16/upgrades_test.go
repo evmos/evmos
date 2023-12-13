@@ -6,11 +6,36 @@ package v16_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/testutil"
 
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
 )
+
+func (its *IntegrationTestSuite) TestProposalDeletion() {
+	its.SetupTest()
+
+	proposal := &incentives.RegisterIncentiveProposal{
+		Title:       "Test",
+		Description: "Test Incentive Proposal",
+		Contract:    "",
+		Allocations: nil,
+		Epochs:      100,
+	}
+	privKey, _ := ethsecp256k1.GenerateKey()
+	addrBz := privKey.PubKey().Address().Bytes()
+	accAddr := sdk.AccAddress(addrBz)
+	coins := sdk.NewCoins(sdk.NewCoin(its.network.GetDenom(), math.NewInt(100000000)))
+	err := testutil.FundAccount(its.network.GetContext(), its.network.App.BankKeeper, accAddr, coins)
+	its.Require().NoError(err)
+
+	_, err = testutil.SubmitProposal(its.network.GetContext(), its.network.App, privKey, proposal, 0)
+	its.Require().NoError(err)
+
+}
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {
 	its.SetupTest()
