@@ -2,6 +2,8 @@ package osmosis_test
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -55,6 +57,8 @@ func TestNewPrecompile(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := osmosis.NewPrecompile(
+				common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+				common.HexToAddress(evmkeeper.OsmosisERC20AddressTestnet),
 				portID,
 				channelID,
 				tc.contractAddress,
