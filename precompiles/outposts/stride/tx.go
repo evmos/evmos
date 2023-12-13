@@ -55,23 +55,9 @@ func (p Precompile) LiquidStake(
 	}
 
 	// WEVMOS address is the only supported token for liquid staking
-	if token != p.WevmosAddress {
-		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.WevmosAddress)
+	if token != p.wevmosAddress {
+		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.wevmosAddress)
 	}
-
-	// TODO: Uncomment this once we register WEVMOS pair with a precompile
-	// tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
-
-	// tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
-	// NOTE this should always exist
-	// if !found {
-	//	return nil, fmt.Errorf(ErrTokenPairNotFound, tokenPairID)
-	// }
-
-	// NOTE: for v1 we only support the native EVM (and staking) denomination (WEVMOS/WTEVMOS).
-	// if token != tokenPair.GetERC20Contract() {
-	//	return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
-	// }
 
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}

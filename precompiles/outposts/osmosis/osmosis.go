@@ -47,7 +47,7 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
-	WevmosAddress common.Address
+	wevmosAddress common.Address
 	// IBC
 	portID           string
 	channelID        string
@@ -96,7 +96,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		WevmosAddress:      wevmosAddress,
+		wevmosAddress:      wevmosAddress,
 		portID:             portID,
 		channelID:          channelID,
 		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),

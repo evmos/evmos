@@ -64,7 +64,7 @@ func (p Precompile) Swap(
 
 	// Case 1. Input has to be either the address of Osmosis or WEVMOS
 	switch input {
-	case p.WevmosAddress:
+	case p.wevmosAddress:
 		inputDenom = bondDenom
 	default:
 		inputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, input)
@@ -75,7 +75,7 @@ func (p Precompile) Swap(
 
 	// Case 2. Output has to be either the address of Osmosis or WEVMOS
 	switch output {
-	case p.WevmosAddress:
+	case p.wevmosAddress:
 		outputDenom = bondDenom
 	default:
 		outputDenom, err = p.erc20Keeper.GetTokenDenom(ctx, output)

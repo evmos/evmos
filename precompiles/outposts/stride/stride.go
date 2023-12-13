@@ -30,7 +30,7 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	WevmosAddress  common.Address
+	wevmosAddress  common.Address
 	portID         string
 	channelID      string
 	timeoutHeight  clienttypes.Height
@@ -62,7 +62,7 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		WevmosAddress:  wevmosAddress,
+		wevmosAddress:  wevmosAddress,
 		portID:         portID,
 		channelID:      channelID,
 		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
