@@ -1262,8 +1262,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 
 	// v16-rc2 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnet,
+		v16.UpgradeNameTestnetRC2,
 		v16.CreateUpgradeHandlerRC2(app.mm, app.configurator),
+	)
+
+	// v16-rc3 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v16.UpgradeNameTestnetRC3,
+		v16.CreateUpgradeHandlerRC3(app.mm, app.configurator, app.AccountKeeper),
 	)
 
 	// When a planned update height is reached, the old binary will panic
@@ -1330,8 +1336,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
-
 	}
+
 	if storeUpgrades != nil {
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))

@@ -6,11 +6,79 @@ package v16_test
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
 )
+
+// TODO: Uncomment this test when RegisterIncentives is re-enabled
+// func (its *IntegrationTestSuite) TestProposalDeletion() {
+//	its.SetupTest()
+//	incentives.RegisterInterfaces(its.network.App.InterfaceRegistry())
+//
+//	proposal := &incentives.RegisterIncentiveProposal{
+//		Title:       "Test",
+//		Description: "Test Incentive Proposal",
+//		Contract:    utiltx.GenerateAddress().String(),
+//		Allocations: sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+//		Epochs:      100,
+//	}
+//	privKey, _ := ethsecp256k1.GenerateKey()
+//	addrBz := privKey.PubKey().Address().Bytes()
+//	accAddr := sdk.AccAddress(addrBz)
+//	coins := sdk.NewCoins(sdk.NewCoin(its.network.GetDenom(), math.NewInt(5e18)))
+//	err := testutil.FundAccount(its.network.GetContext(), its.network.App.BankKeeper, accAddr, coins)
+//	its.Require().NoError(err)
+//
+//	content, err := govtypesv1.NewLegacyContent(
+//		proposal,
+//		sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), accAddr),
+//	)
+//	its.Require().NoError(err)
+//
+//	proposalMsgs := []sdk.Msg{content}
+//	newProposal, err := govtypesv1.NewProposal(proposalMsgs, 1, time.Now(), time.Now().Add(time.Hour*5), "", "Test", "Test", accAddr)
+//	its.Require().NoError(err)
+//	its.network.App.GovKeeper.SetProposal(its.network.GetContext(), newProposal)
+//
+//	allProposalsBefore := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
+//	its.Require().Len(allProposalsBefore, 1)
+//
+//	logger := its.network.GetContext().Logger()
+//	v16.DeleteRegisterIncentivesProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
+//
+//	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
+//	its.Require().Len(allProposalsAfter, 0)
+// }
+
+func (its *IntegrationTestSuite) TestFeeCollectorMigration() {
+	its.SetupTest()
+	context := its.network.GetContext()
+
+	// get current fee collector
+	feeCollectorModuleAccount := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+
+	modAcc, ok := feeCollectorModuleAccount.(*authtypes.ModuleAccount)
+	its.Require().Equal(true, ok)
+
+	// save fee collector without burner auth
+	feeCollectorModuleAccountNoBurner := authtypes.NewModuleAccount(modAcc.BaseAccount, authtypes.FeeCollectorName)
+	its.network.App.AccountKeeper.SetModuleAccount(context, feeCollectorModuleAccountNoBurner)
+
+	// check fee collector is without burner auth
+	feeCollectorNoBurner := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+	hasBurnerPermission := feeCollectorNoBurner.HasPermission(authtypes.Burner)
+	its.Require().True(!hasBurnerPermission)
+
+	err := v16.MigrateFeeCollector(its.network.App.AccountKeeper, context)
+	its.Require().NoError(err)
+
+	// check fee collector has burner permission
+	feeCollectorAfterMigration := its.network.App.AccountKeeper.GetModuleAccount(context, authtypes.FeeCollectorName)
+	hasBurnerPermission = feeCollectorAfterMigration.HasPermission(authtypes.Burner)
+	its.Require().True(hasBurnerPermission)
+}
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {
 	its.SetupTest()
