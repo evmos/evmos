@@ -26,7 +26,7 @@ DOCKER_TAG := $(COMMIT_HASH)
 # e2e env
 MOUNT_PATH := $(shell pwd)/build/:/root/
 E2E_SKIP_CLEANUP := false
-ROCKSDB_VERSION ?= "8.5.3"
+ROCKSDB_VERSION ?= "8.8.1"
 
 export GO111MODULE = on
 
