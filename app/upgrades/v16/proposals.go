@@ -8,7 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v16/app/upgrades/v16/incentives"
 )
 
 // DeleteRegisterIncentivesProposals deletes the RegisterIncentives proposals from the store
@@ -23,16 +22,17 @@ func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, log
 		}
 
 		for _, msg := range msgs {
-			legacyContentMsg, ok := msg.(*govtypes.MsgExecLegacyContent)
+			_, ok := msg.(*govtypes.MsgExecLegacyContent)
 			if !ok {
 				continue
 			}
 
-			_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.RegisterIncentiveProposal)
-			if ok {
-				gk.DeleteProposal(ctx, proposal.Id)
-				return true
-			}
+			// NOTE: Uncomment this code when RegisterIncentives is re-enabled
+			//_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.RegisterIncentiveProposal)
+			//if ok {
+			//	gk.DeleteProposal(ctx, proposal.Id)
+			//	return true
+			//}
 		}
 		return true
 	})

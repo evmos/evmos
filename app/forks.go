@@ -32,7 +32,7 @@ func (app *Evmos) ScheduleForkUpgrade(ctx sdk.Context) {
 
 	// handle mainnet forks with their corresponding upgrade name and info
 	switch ctx.BlockHeight() {
-	case v16.TestnetUpgradeHeight:
+	case 121:
 		upgradePlan.Name = v16.UpgradeNameTestnetRC3
 		upgradePlan.Info = v16.UpgradeInfo
 	default:

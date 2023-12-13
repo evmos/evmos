@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
@@ -77,13 +76,12 @@ func CreateUpgradeHandlerRC3(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ak authkeeper.AccountKeeper,
-	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
 
 		// Delete all RegisterIncentiveProposal types from the store
-		DeleteRegisterIncentivesProposals(ctx, gk, logger)
+		//DeleteRegisterIncentivesProposals(ctx, gk, logger)
 
 		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
