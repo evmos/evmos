@@ -54,7 +54,10 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	bondDenom := p.stakingKeeper.BondDenom(ctx)
+	// WEVMOS address is the only supported token for liquid staking
+	if token != p.WEVMOSAddress {
+		return nil, fmt.Errorf(ErrUnsupportedToken, token, p.WEVMOSAddress)
+	}
 
 	// TODO: Uncomment this once we register WEVMOS pair with a precompile
 	// tokenPairID := p.erc20Keeper.GetDenomMap(ctx, bondDenom)
@@ -70,6 +73,7 @@ func (p Precompile) LiquidStake(
 	//	return nil, fmt.Errorf(ErrUnsupportedToken, token, tokenPair.Erc20Address)
 	// }
 
+	bondDenom := p.stakingKeeper.BondDenom(ctx)
 	coin := sdk.Coin{Denom: bondDenom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
