@@ -19,5 +19,4 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*govv1beta1.Content)(nil),
 		&RegisterIncentiveProposal{},
 	)
-
 }

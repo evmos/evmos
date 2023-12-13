@@ -4,6 +4,8 @@
 package v16_test
 
 import (
+	"time"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -11,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v16/testutil"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"time"
 
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
@@ -40,6 +41,7 @@ func (its *IntegrationTestSuite) TestProposalDeletion() {
 		proposal,
 		sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), accAddr),
 	)
+	its.Require().NoError(err)
 
 	proposalMsgs := []sdk.Msg{content}
 	newProposal, err := govtypesv1.NewProposal(proposalMsgs, 1, time.Now(), time.Now().Add(time.Hour*5), "", "Test", "Test", accAddr)
@@ -54,7 +56,6 @@ func (its *IntegrationTestSuite) TestProposalDeletion() {
 
 	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
 	its.Require().Len(allProposalsAfter, 0)
-
 }
 
 func (its *IntegrationTestSuite) TestBurnUsageIncentivesPool() {

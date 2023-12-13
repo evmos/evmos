@@ -6,6 +6,7 @@ package incentives
 import (
 	"errors"
 	fmt "fmt"
+
 	evmostypes "github.com/evmos/evmos/v16/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
