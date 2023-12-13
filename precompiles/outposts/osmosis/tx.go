@@ -11,6 +11,7 @@ import (
 	"cosmossdk.io/math"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v16/utils"
 
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -67,18 +68,25 @@ func (p Precompile) Swap(
 	// if err != nil {
 	//	return nil, err
 	// }
-	// outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
-	// if err != nil {
+	//outputDenom, err := p.erc20Keeper.GetTokenDenom(ctx, output)
+	//if err != nil {
 	//	return nil, err
-	// }
+	//}
 
 	// Case 1. Input has to be either Osmosis or WEVMOS
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	var inputDenom, outputDenom string
 
+	evmosChannel := NewIBCChannel(p.portID, p.channelID)
+	osmoIBCDenom := utils.ComputeIBCDenom(
+		evmosChannel.PortID,
+		evmosChannel.ChannelID,
+		OsmosisDenom,
+	)
+
 	switch input {
 	case p.OsmosisAddress:
-		inputDenom = p.OsmosisAddress.String()
+		inputDenom = osmoIBCDenom
 	case p.WEVMOSAddress:
 		inputDenom = bondDenom
 	default:
@@ -88,14 +96,13 @@ func (p Precompile) Swap(
 	// Case 2. Output has to be either Osmosis or WEVMOS
 	switch output {
 	case p.OsmosisAddress:
-		outputDenom = OsmosisDenom
+		outputDenom = osmoIBCDenom
 	case p.WEVMOSAddress:
 		outputDenom = bondDenom
 	default:
 		return nil, fmt.Errorf(ErrUnsupportedToken, output.String())
 	}
 
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
