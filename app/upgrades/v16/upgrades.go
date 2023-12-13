@@ -82,9 +82,10 @@ func CreateUpgradeHandlerRC3(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC3)
 
-		// Delete the only RegisterIncentives proposal
-		gk.DeleteProposal(ctx, 109)
+		// Delete all RegisterIncentiveProposal types from the store
+		DeleteRegisterIncentivesProposals(ctx, gk, logger)
 
+		// Add Burner role to fee collector
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
 		}
