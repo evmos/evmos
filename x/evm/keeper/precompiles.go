@@ -103,7 +103,7 @@ func AvailablePrecompiles(
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
 		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
 		strideChannelID = evmostransfertypes.StrideTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
+		xcsv1Contract = osmosisoutpost.XCSContractTestnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
