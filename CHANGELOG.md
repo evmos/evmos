@@ -56,6 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 - (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (erc20) [#2159] (https://github.com/evmos/evmos/pull/2159) Update IBC middleware for automatic coin conversion v2.
+- (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
 
 ### API Breaking
 
@@ -138,8 +139,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
 - (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
 - (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
-- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce daily inflation by 2/3s.
 - (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
+- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
+- (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
 
 ### Bug Fixes
 
