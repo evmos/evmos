@@ -36,7 +36,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## Bug Fixes
-- (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address.
+- (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address for testnet.
 
 ## [v16.0.0-rc4] - 2023-12-14
 
