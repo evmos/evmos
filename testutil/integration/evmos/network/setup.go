@@ -24,6 +24,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v16/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -205,6 +206,20 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, o
 		[]banktypes.SendEnabled{},
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	return genesisState
+}
+
+// setBankGenesisState sets the bank genesis state
+func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) types.GenesisState {
+	custGen, found := customGenesis[evmtypes.ModuleName]
+	if !found {
+		return genesisState
+	}
+	evmGenesis, ok := custGen.(*evmtypes.GenesisState)
+	if !ok {
+		return genesisState
+	}
+	genesisState[evmtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
 	return genesisState
 }
 

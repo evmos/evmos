@@ -150,6 +150,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
 
+	genesisState = setEVMGenesisState(evmosApp, genesisState, n.cfg.customGenesisState)
+
 	// Init chain
 	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
 	if err != nil {
