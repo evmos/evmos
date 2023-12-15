@@ -51,6 +51,10 @@ var (
 		"channel-31", // Cronos
 		"channel-83", // Kava
 	}
+	// DefaultXCSContractAddress is the default XCS contract address
+	DefaultXCSContractAddress = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
+	// DefaultOsmosisChannelID is the default osmosis channel id
+	DefaultOsmosisChannelID = "channel-0"
 )
 
 // NewParams creates a new Params instance
@@ -63,6 +67,8 @@ func NewParams(
 	extraEIPs []int64,
 	activePrecompiles,
 	evmChannels []string,
+	xcsContractAddress string,
+	osmosisChannelID string,
 ) Params {
 	return Params{
 		EvmDenom:            evmDenom,
@@ -73,6 +79,8 @@ func NewParams(
 		ChainConfig:         config,
 		ActivePrecompiles:   activePrecompiles,
 		EVMChannels:         evmChannels,
+		XcsContractAddress:  xcsContractAddress,
+		OsmosisChannelID:    osmosisChannelID,
 	}
 }
 
@@ -90,6 +98,8 @@ func DefaultParams() Params {
 		AllowUnprotectedTxs: DefaultAllowUnprotectedTxs,
 		ActivePrecompiles:   AvailableEVMExtensions,
 		EVMChannels:         DefaultEVMChannels,
+		XcsContractAddress:  DefaultXCSContractAddress,
+		OsmosisChannelID:    DefaultOsmosisChannelID,
 	}
 }
 

@@ -9,6 +9,7 @@ package osmosis
 import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -84,7 +85,8 @@ func (p Precompile) Swap(
 		}
 	}
 
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
+	evmParams := p.evmKeeper.GetParams(ctx)
+	evmosChannel := NewIBCChannel(transfertypes.PortID, evmParams.OsmosisChannelID)
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
@@ -112,7 +114,7 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
-		p.osmosisXCSContract,
+		evmParams.XcsContractAddress,
 		swapPacketData.SlippagePercentage,
 		swapPacketData.WindowSeconds,
 		onFailedDelivery,
@@ -131,7 +133,7 @@ func (p Precompile) Swap(
 		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		p.osmosisXCSContract,
+		evmParams.XcsContractAddress,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,

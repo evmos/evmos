@@ -6,6 +6,7 @@ package osmosis
 import (
 	"embed"
 	"fmt"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -49,15 +50,11 @@ type Precompile struct {
 	cmn.Precompile
 	wevmosAddress common.Address
 	// IBC
-	portID           string
-	channelID        string
 	timeoutHeight    clienttypes.Height
 	timeoutTimestamp uint64
 
-	// Osmosis
-	osmosisXCSContract string
-
 	// Keepers
+	evmKeeper      evmkeeper.Keeper
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
@@ -69,8 +66,7 @@ type Precompile struct {
 // PrecompiledContract interface.
 func NewPrecompile(
 	wevmosAddress common.Address,
-	portID, channelID string,
-	osmosisXCSContract string,
+	evmKeeper evmkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -83,10 +79,10 @@ func NewPrecompile(
 		return nil, err
 	}
 
-	err = ValidateOsmosisContractAddress(osmosisXCSContract)
-	if err != nil {
-		return nil, err
-	}
+	//err = ValidateOsmosisContractAddress(osmosisXCSContract)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return &Precompile{
 		Precompile: cmn.Precompile{
@@ -96,17 +92,15 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		wevmosAddress:      wevmosAddress,
-		portID:             portID,
-		channelID:          channelID,
-		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
-		osmosisXCSContract: osmosisXCSContract,
-		bankKeeper:         bankKeeper,
-		transferKeeper:     transferKeeper,
-		stakingKeeper:      stakingKeeper,
-		erc20Keeper:        erc20Keeper,
-		channelKeeper:      channelKeeper,
+		evmKeeper:        evmKeeper,
+		wevmosAddress:    wevmosAddress,
+		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
+		bankKeeper:       bankKeeper,
+		transferKeeper:   transferKeeper,
+		stakingKeeper:    stakingKeeper,
+		erc20Keeper:      erc20Keeper,
+		channelKeeper:    channelKeeper,
 	}, nil
 }
 

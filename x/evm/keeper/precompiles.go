@@ -19,7 +19,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
@@ -32,7 +31,6 @@ import (
 	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
-	evmostransfertypes "github.com/evmos/evmos/v16/x/ibc/transfer/types"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
 
@@ -51,6 +49,7 @@ func AvailablePrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
+	evmKeeper Keeper,
 	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -92,24 +91,16 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	var strideChannelID, osmosisChannelID, xcsv1Contract string
 	var WEVMOSAddress common.Address
 	if utils.IsMainnet(chainID) {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractMainnet)
-		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		strideChannelID = evmostransfertypes.StrideMainnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
-		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		strideChannelID = evmostransfertypes.StrideTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractTestnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
-		transfertypes.PortID,
-		strideChannelID,
+		evmKeeper,
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
@@ -121,9 +112,7 @@ func AvailablePrecompiles(
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
 		WEVMOSAddress,
-		transfertypes.PortID,
-		osmosisChannelID,
-		xcsv1Contract,
+		evmKeeper,
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

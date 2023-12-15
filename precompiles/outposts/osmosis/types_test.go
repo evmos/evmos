@@ -431,6 +431,8 @@ func TestValidateInputOutput(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 
+		denom := utils.ComputeIBCDenom("transfer", "channel-207", "uosmo")
+		fmt.Println(denom)
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 

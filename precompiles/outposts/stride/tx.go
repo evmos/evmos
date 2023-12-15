@@ -5,6 +5,7 @@ package stride
 
 import (
 	"fmt"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v16/utils"
@@ -68,10 +69,11 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
+	strideChannelID := p.evmKeeper.GetParams(ctx).StrideChannelID
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		strideChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		receiver,
@@ -154,7 +156,8 @@ func (p Precompile) RedeemStake(
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 	stToken := "st" + bondDenom
 
-	ibcDenom := utils.ComputeIBCDenom(p.portID, p.channelID, stToken)
+	strideChannelID := p.evmKeeper.GetParams(ctx).StrideChannelID
+	ibcDenom := utils.ComputeIBCDenom(transfertypes.PortID, strideChannelID, stToken)
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, ibcDenom)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
@@ -176,8 +179,8 @@ func (p Precompile) RedeemStake(
 
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		strideChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,

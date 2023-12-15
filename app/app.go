@@ -525,6 +525,7 @@ func NewEvmos(
 			app.DistrKeeper,
 			app.BankKeeper,
 			app.Erc20Keeper,
+			*evmKeeper,
 			app.VestingKeeper,
 			app.AuthzKeeper,
 			app.TransferKeeper,

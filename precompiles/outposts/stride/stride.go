@@ -6,6 +6,7 @@ package stride
 import (
 	"embed"
 	"fmt"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
@@ -31,8 +32,7 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	wevmosAddress  common.Address
-	portID         string
-	channelID      string
+	evmKeeper      evmkeeper.Keeper
 	timeoutHeight  clienttypes.Height
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -43,7 +43,7 @@ type Precompile struct {
 // PrecompiledContract interface.
 func NewPrecompile(
 	wevmosAddress common.Address,
-	portID, channelID string,
+	evmKeeper evmkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -63,8 +63,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		wevmosAddress:  wevmosAddress,
-		portID:         portID,
-		channelID:      channelID,
+		evmKeeper:      evmKeeper,
 		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,

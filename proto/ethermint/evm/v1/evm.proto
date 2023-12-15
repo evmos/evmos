@@ -28,6 +28,12 @@ message Params {
   repeated string active_precompiles = 7;
   // evm_channels is the list of channel identifiers from EVM compatible chains
   repeated string evm_channels = 8 [(gogoproto.customname) = "EVMChannels"];
+  // xcs_contract_address is the address of the cross chain contract
+  string xcs_contract_address = 9 [(gogoproto.moretags) = "yaml:\"xcs_contract_address\""];
+  // osmosis_channel_id is the channel identifier of the Osmosis chain
+  string osmosis_channel_id = 10 [(gogoproto.customname) = "OsmosisChannelID"];
+  // stride_channel_id is the channel identifier of the Stride chain
+  string stride_channel_id = 11 [(gogoproto.customname) = "StrideChannelID"];
 }
 
 // ChainConfig defines the Ethereum ChainConfig parameters using *sdk.Int values
