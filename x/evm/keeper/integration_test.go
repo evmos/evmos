@@ -35,6 +35,34 @@ type IntegrationTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
+// setupIntegrationTestSuite is a helper function to setup a integration test suite
+// with a network with a specified custom genesis state
+func setupIntegrationTestSuite(customEVMGenesis *evmtypes.GenesisState) *IntegrationTestSuite {
+	customGenesis := network.CustomGenesisState{
+		evmtypes.ModuleName: customEVMGenesis,
+	}
+
+	keyring := testkeyring.New(3)
+	integrationNetwork := network.New(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	suite := &IntegrationTestSuite{
+		network:     integrationNetwork,
+		factory:     txFactory,
+		grpcHandler: grpcHandler,
+		keyring:     keyring,
+	}
+
+	err := suite.network.NextBlock()
+	Expect(err).To(BeNil())
+
+	return suite
+}
+
 // This test suite is meant to test the EVM module in the context of the EVMOS.
 // It uses the integration test framework to spin up a local EVMOS network and
 // perform transactions on it.
@@ -47,21 +75,6 @@ type IntegrationTestSuite struct {
 var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func() {
 	var s *IntegrationTestSuite
 
-	BeforeAll(func() {
-		keyring := testkeyring.New(3)
-		integrationNetwork := network.New(
-			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		)
-		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-		txFactory := factory.New(integrationNetwork, grpcHandler)
-		s = &IntegrationTestSuite{
-			network:     integrationNetwork,
-			factory:     txFactory,
-			grpcHandler: grpcHandler,
-			keyring:     keyring,
-		}
-	})
-
 	AfterEach(func() {
 		// Start each test with a fresh block
 		err := s.network.NextBlock()
@@ -71,11 +84,10 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	When("the params have default values", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
+			defaultGenesis := evmtypes.DefaultGenesisState()
+			s = setupIntegrationTestSuite(defaultGenesis)
 
-			err = s.network.NextBlock()
+			err := s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
@@ -293,13 +305,12 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	When("EnableCreate param is set to false", Ordered, func() {
 		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCreate = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
+			// Set params to with EnableCreate = false
+			evmGenesis := evmtypes.DefaultGenesisState()
+			evmGenesis.Params.EnableCreate = false
+			s = setupIntegrationTestSuite(evmGenesis)
 
-			err = s.network.NextBlock()
+			err := s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
@@ -416,13 +427,11 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	When("EnableCall param is set to false", Ordered, func() {
 		BeforeAll(func() {
-			// Set params to default values
-			defaultParams := evmtypes.DefaultParams()
-			defaultParams.EnableCall = false
-			err := s.network.UpdateEvmParams(defaultParams)
-			Expect(err).To(BeNil())
+			evmGenesis := evmtypes.DefaultGenesisState()
+			evmGenesis.Params.EnableCall = false
+			s = setupIntegrationTestSuite(evmGenesis)
 
-			err = s.network.NextBlock()
+			err := s.network.NextBlock()
 			Expect(err).To(BeNil())
 		})
 
