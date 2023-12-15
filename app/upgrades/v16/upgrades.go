@@ -60,7 +60,6 @@ func CreateUpgradeHandler(
 		}
 
 		// Remove the deprecated governance proposals from store
-		
 
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")

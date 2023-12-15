@@ -20,11 +20,6 @@ var (
 	AminoCdc = codec.NewAminoCodec(amino)
 )
 
-const (
-	// Amino names
-	updateParamsName = "evmos/incentives/MsgUpdateParams"
-)
-
 // NOTE: This is required for the GetSignBytes function
 func init() {
 	amino.Seal()
@@ -40,4 +35,3 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
-

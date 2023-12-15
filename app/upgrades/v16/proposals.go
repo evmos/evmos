@@ -34,7 +34,7 @@ func DeleteRegisterIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, log
 				gk.DeleteProposal(ctx, proposal.Id)
 				return true
 			}
-			
+
 			_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.CancelIncentiveProposal)
 			if ok {
 				gk.DeleteProposal(ctx, proposal.Id)

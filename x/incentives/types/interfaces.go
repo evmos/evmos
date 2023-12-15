@@ -50,7 +50,6 @@ type GovKeeper interface {
 	SetProposal(ctx sdk.Context, proposal govv1beta1.Proposal)
 }
 
-
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 type EVMKeeper interface {
 	GetParams(ctx sdk.Context) evmtypes.Params

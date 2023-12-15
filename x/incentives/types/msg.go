@@ -4,7 +4,8 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	"errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -18,11 +19,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check of the provided data
 func (m *MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errorsmod.Wrap(err, "invalid authority address")
-	}
-
-	return m.Params.Validate()
+	return errors.New("Deprecated")
 }
 
 // GetSignBytes implements the LegacyMsg interface.
