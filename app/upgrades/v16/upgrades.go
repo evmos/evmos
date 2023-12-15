@@ -25,7 +25,7 @@ func CreateUpgradeHandler(
 	ek *evmkeeper.Keeper,
 	_ bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
-	_ authkeeper.AccountKeeper,
+	ak authkeeper.AccountKeeper,
 	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
@@ -47,12 +47,12 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-		// TODO: uncomment when ready
 		// Migrate the FeeCollector module account to include the Burner permission.
-		// if err := MigrateFeeCollector(ak, ctx); err != nil {
-		//	logger.Error("failed to migrate the fee collector", "error", err.Error())
-		// }
-		//
+		if err := MigrateFeeCollector(ak, ctx); err != nil {
+			logger.Error("failed to migrate the fee collector", "error", err.Error())
+		}
+		
+		// TODO: uncomment when ready
 		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
 		//	logger.Error("failed to burn inflation pool", "error", err.Error())
 		// }
@@ -64,7 +64,10 @@ func CreateUpgradeHandler(
 		// Remove the deprecated governance proposals from store
 		logger.Debug("deleting deprecated incentives module proposals...")
 		DeleteIncentivesProposals(ctx, gk, logger)
+		
+		// TODO: we'll need to remove the RegisterCoin proposals too
 		logger.Debug("deleting deprecated register coin proposals...")
+		// TODO: Implement this function!!
 		DeleteRegisterCoinProposals(ctx, gk, logger)
 
 		// recovery module is deprecated
