@@ -123,7 +123,7 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 
 	// Delete the corresponding proposals
 	logger := its.network.GetContext().Logger()
-	v16.DeleteRegisterIncentivesProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
+	v16.DeleteIncentivesProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
 
 	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
 	its.Require().Len(allProposalsAfter, expFinalProps)

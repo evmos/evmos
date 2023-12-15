@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
@@ -25,6 +26,7 @@ func CreateUpgradeHandler(
 	_ bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
 	_ authkeeper.AccountKeeper,
+	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -60,6 +62,10 @@ func CreateUpgradeHandler(
 		}
 
 		// Remove the deprecated governance proposals from store
+		logger.Debug("deleting deprecated incentives module proposals...")
+		DeleteIncentivesProposals(ctx, gk, logger)
+		logger.Debug("deleting deprecated register coin proposals...")
+		DeleteRegisterCoinProposals(ctx, gk, logger)
 
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
