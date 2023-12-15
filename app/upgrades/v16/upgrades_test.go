@@ -4,13 +4,20 @@
 package v16_test
 
 import (
+	"time"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	"github.com/evmos/evmos/v16/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v16/testutil"
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
+	incentives "github.com/evmos/evmos/v16/x/incentives/types"
 )
 
 func (its *IntegrationTestSuite) TestMigrateFeeCollector() {
@@ -69,4 +76,42 @@ func (its *IntegrationTestSuite) TestUpdateInflationParams() {
 	// Check incentives allocation is zero
 	finalParams := its.network.App.InflationKeeper.GetParams(its.network.GetContext())
 	its.Require().Equal(math.LegacyZeroDec(), finalParams.InflationDistribution.UsageIncentives) //nolint:staticcheck
+}
+
+func (its *IntegrationTestSuite) TestProposalDeletion() {
+	its.SetupTest()
+
+	proposal := &incentives.RegisterIncentiveProposal{
+		Title:       "Test",
+		Description: "Test Incentive Proposal",
+		Contract:    utiltx.GenerateAddress().String(),
+		Allocations: sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
+		Epochs:      100,
+	}
+	privKey, _ := ethsecp256k1.GenerateKey()
+	addrBz := privKey.PubKey().Address().Bytes()
+	accAddr := sdk.AccAddress(addrBz)
+	coins := sdk.NewCoins(sdk.NewCoin(its.network.GetDenom(), math.NewInt(5e18)))
+	err := testutil.FundAccount(its.network.GetContext(), its.network.App.BankKeeper, accAddr, coins)
+	its.Require().NoError(err)
+
+	content, err := govtypesv1.NewLegacyContent(
+		proposal,
+		sdk.MustBech32ifyAddressBytes(sdk.GetConfig().GetBech32AccountAddrPrefix(), accAddr),
+	)
+	its.Require().NoError(err)
+
+	proposalMsgs := []sdk.Msg{content}
+	newProposal, err := govtypesv1.NewProposal(proposalMsgs, 1, time.Now(), time.Now().Add(time.Hour*5), "", "Test", "Test", accAddr)
+	its.Require().NoError(err)
+	its.network.App.GovKeeper.SetProposal(its.network.GetContext(), newProposal)
+
+	allProposalsBefore := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
+	its.Require().Len(allProposalsBefore, 1)
+
+	logger := its.network.GetContext().Logger()
+	v16.DeleteRegisterIncentivesProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
+
+	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
+	its.Require().Len(allProposalsAfter, 0)
 }
