@@ -59,6 +59,9 @@ func CreateUpgradeHandler(
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
 
+		// Remove the deprecated governance proposals from store
+		
+
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
 		delete(vm, "recovery")
