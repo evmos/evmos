@@ -15,9 +15,9 @@ import (
 // DeleteIncentivesProposals deletes the RegisterIncentives & CancelIncentiveProposal proposals from the store
 // because the module was deprecated
 func DeleteIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
-	// Delete the only RegisterIncentives proposal
+	// Delete the only incentives module proposals
 	gk.IterateProposals(ctx, func(proposal govtypes.Proposal) bool {
-		// Check if proposal is a RegisterIncentives proposal
+		// Check if proposal is a RegisterIncentives or CancelIncentiveProposal proposal
 		msgs, err := proposal.GetMsgs()
 		if err != nil {
 			logger.Error("failed to get proposal messages", "error", err.Error())
