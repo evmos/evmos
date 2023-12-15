@@ -88,21 +88,21 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 	expFinalProps := 1
 	prop1 := &incentives.RegisterIncentiveProposal{
 		Title:       "Test",
-		Description: "Test Incentive Proposal",
+		Description: "Test Register Incentive Proposal",
 		Contract:    utiltx.GenerateAddress().String(),
 		Allocations: sdk.DecCoins{sdk.NewDecCoinFromDec("aevmos", sdk.NewDecWithPrec(5, 2))},
 		Epochs:      100,
 	}
 
-	prop2 := &upgrade.SoftwareUpgradeProposal{
+	prop2 := &upgrade.SoftwareUpgradeProposal{ //nolint:staticcheck
 		Title:       "Test",
-		Description: "Test Incentive Proposal",
+		Description: "Test Software Upgrade Proposal",
 		Plan:        upgrade.Plan{},
 	}
 
 	prop3 := &incentives.CancelIncentiveProposal{
 		Title:       "Test",
-		Description: "Test Incentive Proposal",
+		Description: "Test Cancel Incentive Proposal",
 		Contract:    utiltx.GenerateAddress().String(),
 	}
 
@@ -131,7 +131,7 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 
 func (its *IntegrationTestSuite) createProposal(content govtypesv1beta.Content, acc sdk.AccAddress) {
 	allProposalsBefore := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
-	propId := len(allProposalsBefore) + 1
+	propID := len(allProposalsBefore) + 1
 
 	legacyContent, err := govtypesv1.NewLegacyContent(
 		content,
@@ -140,7 +140,7 @@ func (its *IntegrationTestSuite) createProposal(content govtypesv1beta.Content, 
 	its.Require().NoError(err)
 
 	proposalMsgs := []sdk.Msg{legacyContent}
-	newProposal, err := govtypesv1.NewProposal(proposalMsgs, uint64(propId), time.Now(), time.Now().Add(time.Hour*5), "", "Test", "Test", acc)
+	newProposal, err := govtypesv1.NewProposal(proposalMsgs, uint64(propID), time.Now(), time.Now().Add(time.Hour*5), "", "Test", "Test", acc)
 	its.Require().NoError(err)
 	its.network.App.GovKeeper.SetProposal(its.network.GetContext(), newProposal)
 }

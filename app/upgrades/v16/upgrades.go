@@ -48,6 +48,7 @@ func CreateUpgradeHandler(
 		}
 
 		// Migrate the FeeCollector module account to include the Burner permission.
+		// This is required when including the postHandler to burn Cosmos Tx fees
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
 		}
