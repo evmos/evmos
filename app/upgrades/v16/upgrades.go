@@ -51,7 +51,7 @@ func CreateUpgradeHandler(
 		if err := MigrateFeeCollector(ak, ctx); err != nil {
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
 		}
-		
+
 		// TODO: uncomment when ready
 		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
 		//	logger.Error("failed to burn inflation pool", "error", err.Error())
@@ -64,7 +64,7 @@ func CreateUpgradeHandler(
 		// Remove the deprecated governance proposals from store
 		logger.Debug("deleting deprecated incentives module proposals...")
 		DeleteIncentivesProposals(ctx, gk, logger)
-		
+
 		// TODO: we'll need to remove the RegisterCoin proposals too
 		logger.Debug("deleting deprecated register coin proposals...")
 		// TODO: Implement this function!!
