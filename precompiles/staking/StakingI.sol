@@ -44,7 +44,7 @@ struct Commission {
 
 /// @dev Represents a validator in the staking module.
 struct Validator {
-    string operatorAddress;
+    address operatorAddress;
     string consensusPubkey;
     bool jailed;
     BondStatus status;
@@ -65,9 +65,9 @@ struct RedelegationResponse {
 
 /// @dev Represents a redelegation between a delegator and a validator.
 struct Redelegation {
-    string delegatorAddress;
-    string validatorSrcAddress;
-    string validatorDstAddress;
+    address delegatorAddress;
+    address validatorSrcAddress;
+    address validatorDstAddress;
     RedelegationEntry[] entries;
 }
 
@@ -87,9 +87,9 @@ struct RedelegationEntry {
 
 /// @dev Represents the output of the Redelegation query.
 struct RedelegationOutput {
-    string delegatorAddress;
-    string validatorSrcAddress;
-    string validatorDstAddress;
+    address delegatorAddress;
+    address validatorSrcAddress;
+    address validatorDstAddress;
     RedelegationEntry[] entries;
 }
 
@@ -105,8 +105,8 @@ struct UnbondingDelegationEntry {
 
 /// @dev Represents the output of the UnbondingDelegation query.
 struct UnbondingDelegationOutput {
-    string delegatorAddress;
-    string validatorAddress;
+    address delegatorAddress;
+    address validatorAddress;
     UnbondingDelegationEntry[] entries;
 }
 
@@ -173,8 +173,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @return completionTime The time when the redelegation is completed
     function redelegate(
         address delegatorAddress,
-        string memory validatorSrcAddress,
-        string memory validatorDstAddress,
+        address validatorSrcAddress,
+        address validatorDstAddress,
         uint256 amount
     ) external returns (int64 completionTime);
 
@@ -187,7 +187,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return success Whether or not the unbonding delegation was cancelled
     function cancelUnbondingDelegation(
         address delegatorAddress,
-        string memory validatorAddress,
+        address validatorAddress,
         uint256 amount,
         uint256 creationHeight
     ) external returns (bool success);
@@ -199,7 +199,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return balance The amount in Coin, that the delegator has delegated to the given validator.
     function delegation(
         address delegatorAddress,
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (uint256 shares, Coin calldata balance);
 
     /// @dev Returns the delegation shares and coins, that are currently
@@ -209,7 +209,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return unbondingDelegation The delegations that are currently unbonding.
     function unbondingDelegation(
         address delegatorAddress,
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (UnbondingDelegationOutput calldata unbondingDelegation);
 
     /// @dev Queries validator info for a given validator address.
@@ -240,8 +240,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @return redelegation The active redelegations for the given delegator, source and destination validator combination.
     function redelegation(
         address delegatorAddress,
-        string memory srcValidatorAddress,
-        string memory dstValidatorAddress
+        address srcValidatorAddress,
+        address dstValidatorAddress
     ) external view returns (RedelegationOutput calldata redelegation);
 
     /// @dev Queries all redelegations based on the specified criteria:
@@ -255,8 +255,8 @@ interface StakingI is authorization.AuthorizationI {
     /// @return response Holds the redelegations for the given delegator, source and destination validator combination.
     function redelegations(
         address delegatorAddress,
-        string memory srcValidatorAddress,
-        string memory dstValidatorAddress,
+        address srcValidatorAddress,
+        address dstValidatorAddress,
         PageRequest calldata pageRequest
     )
         external
