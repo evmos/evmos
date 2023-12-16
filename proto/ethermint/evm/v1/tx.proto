@@ -101,7 +101,7 @@ message AccessListTx {
   bytes s = 11;
 }
 
-// DynamicFeeTx is the data of EIP-1559 dinamic fee transactions.
+// DynamicFeeTx is the data of EIP-1559 dynamic fee transactions.
 message DynamicFeeTx {
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "TxData";
