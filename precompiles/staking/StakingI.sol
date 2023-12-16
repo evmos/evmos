@@ -149,7 +149,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return success Whether or not the delegate was successful
     function delegate(
         address delegatorAddress,
-        string memory validatorAddress,
+        address validatorAddress,
         uint256 amount
     ) external returns (bool success);
 
@@ -160,7 +160,7 @@ interface StakingI is authorization.AuthorizationI {
     /// @return completionTime The time when the undelegation is completed
     function undelegate(
         address delegatorAddress,
-        string memory validatorAddress,
+        address validatorAddress,
         uint256 amount
     ) external returns (int64 completionTime);
 

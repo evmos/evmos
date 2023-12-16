@@ -172,7 +172,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -192,7 +192,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -382,7 +382,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")

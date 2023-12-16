@@ -35,6 +35,7 @@ import (
 var (
 	// valAddr and valAddr2 are the two validator addresses used for testing
 	valAddr, valAddr2 sdk.ValAddress
+	valHexAddr        common.Address
 
 	// defaultCallArgs and defaultApproveArgs are the default arguments for calling the smart contract and to
 	// call the approve method specifically.
@@ -64,6 +65,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 		valAddr = s.validators[0].GetOperator()
 		valAddr2 = s.validators[1].GetOperator()
+
+		validatorAddr, err := sdk.ValAddressFromBech32(s.validators[0].GetOperator().String())
+		Expect(err).To(BeNil())
+		valHexAddr = common.BytesToAddress(validatorAddr.Bytes())
 
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: s.precompile.Address(),
@@ -95,7 +100,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			delegateArgs := defaultCallArgs.
 				WithMethodName(staking.DelegateMethod).
 				WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, valHexAddr, big.NewInt(2e18),
 				)
 
 			failCheck := defaultLogCheck.
@@ -1591,7 +1596,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should delegate when not exceeding the allowance", func() {
 				cArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := passCheck.
@@ -1627,7 +1632,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				delegateArgs := defaultDelegateArgs.
 					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+					WithArgs(s.address, valHexAddr, big.NewInt(1e18))
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
@@ -1638,7 +1643,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not delegate when validator does not exist", func() {
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
@@ -1736,7 +1741,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not undelegate if the delegation does not exist", func() {
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
@@ -1840,7 +1845,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not redelegate if the delegation does not exist", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), valAddr2.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, valAddr2.String(), big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
@@ -1870,7 +1875,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not redelegate when the validator does not exist", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), nonExistingVal.String(), big.NewInt(1e18),
+					s.address, valAddr.String(), nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
@@ -2771,12 +2776,14 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 	Describe("when batching multiple transactions", func() {
 		// validator is the validator address used for testing
 		var validator sdk.ValAddress
+		//var validatorAddr common.Address
 
 		BeforeEach(func() {
 			delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, s.address.Bytes())
 			Expect(delegations).ToNot(HaveLen(0), "expected address to have delegations")
 
 			validator = delegations[0].GetValidatorAddr()
+			//validatorAddr = common.BytesToAddress(delegations[0].GetValidatorAddr().Bytes())
 
 			_ = erc20ContractAddr
 		})
