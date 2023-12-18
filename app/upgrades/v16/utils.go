@@ -21,7 +21,9 @@ import (
 )
 
 const (
+	// WEVMOSContractMainnet is the address of the WEVMOS contract on mainnet.
 	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the address of the WEVMOS contract on testnet.
 	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
 
@@ -45,7 +47,7 @@ func ConvertERC20Coins(
 
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
-		account.GetAddress()
+		cosmosAddress := account.GetAddress()
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		ethHexAddr := ethAddress.String()
 
@@ -99,14 +101,19 @@ func ConvertERC20Coins(
 	return bankKeeper.BurnCoins(ctx, erc20types.ModuleName, balances)
 }
 
-func WithdrawWEVMOS(ctx sdk.Context, from, wevmosContract common.Address, erc20Keeper erc20keeper.Keeper) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
+// WithdrawWEVMOS withdraws all the WEVMOS tokens from the given account.
+func WithdrawWEVMOS(
+	ctx sdk.Context,
+	from, wevmosContract common.Address,
+	erc20Keeper erc20keeper.Keeper,
+) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
 	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, wevmosContract, from)
 	if balance == nil {
 		return common.Big0, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())
 	}
 
 	// only execute the withdrawal if balance is positive
-	if balance.Cmp(common.Big0) < 1 {
+	if balance.Sign() <= 0 {
 		return common.Big0, nil, nil
 	}
 
@@ -116,9 +123,19 @@ func WithdrawWEVMOS(ctx sdk.Context, from, wevmosContract common.Address, erc20K
 	return balance, res, err
 }
 
-func ConvertERC20Token(ctx sdk.Context, from, contract common.Address, receiver sdk.AccAddress, erc20Keeper erc20keeper.Keeper) error {
+// ConvertERC20Token converts the given ERC20 token to the native representation.
+func ConvertERC20Token(
+	ctx sdk.Context,
+	from, contract common.Address,
+	receiver sdk.AccAddress,
+	erc20Keeper erc20keeper.Keeper,
+) error {
 	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, contract, from)
-	if balance.Cmp(common.Big0) <= 0 {
+	if balance == nil {
+		return fmt.Errorf("failed to get ERC20 balance (contract %q) for %s", contract.String(), from.String())
+	}
+
+	if balance.Sign() <= 0 {
 		return nil
 	}
 
