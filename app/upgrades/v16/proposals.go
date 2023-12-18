@@ -23,7 +23,7 @@ var deprecatedProposals = map[string]struct{}{
 // proposals from the store because were deprecated
 func DeleteDeprecatedProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
 	gk.IterateProposals(ctx, func(proposal govtypes.Proposal) bool {
-		// Check if proposal is a RegisterIncentives or CancelIncentiveProposal proposal
+		// Check if proposal is a deprecated proposal
 		msgs, err := proposal.GetMsgs()
 		if err != nil {
 			logger.Error("failed to get proposal messages", "error", err.Error())
