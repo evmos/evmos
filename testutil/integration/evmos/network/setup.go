@@ -3,6 +3,7 @@
 package network
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/evmos/evmos/v16/app"
@@ -182,13 +183,25 @@ func setAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, g
 }
 
 // setInflationGenesisState sets the inflation genesis state
-func setInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
-	inflationParams := infltypes.DefaultParams()
-	inflationParams.EnableInflation = false
+func setInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
+	var (
+		inflGenesis *infltypes.GenesisState
+		ok          bool
+	)
+	custGen, found := customGenesis[infltypes.ModuleName]
+	if !found {
+		inflationParams := infltypes.DefaultParams()
+		inflationParams.EnableInflation = false
+		defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
+		inflGenesis = &defaultGen
+	} else {
+		if inflGenesis, ok = custGen.(*infltypes.GenesisState); !ok {
+			return nil, fmt.Errorf("invalid type %T for inflation genesis state", custGen)
+		}
+	}
 
-	inflationGenesis := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
-	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&inflationGenesis)
-	return genesisState
+	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(inflGenesis)
+	return genesisState, nil
 }
 
 type BankCustomGenesisState struct {
@@ -210,17 +223,17 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, o
 }
 
 // setBankGenesisState sets the bank genesis state
-func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) types.GenesisState {
+func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
 	custGen, found := customGenesis[evmtypes.ModuleName]
 	if !found {
-		return genesisState
+		return genesisState, nil
 	}
 	evmGenesis, ok := custGen.(*evmtypes.GenesisState)
 	if !ok {
-		return genesisState
+		return nil, fmt.Errorf("invalid type %T for evm genesis state", custGen)
 	}
 	genesisState[evmtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
-	return genesisState
+	return genesisState, nil
 }
 
 // calculateTotalSupply calculates the total supply from the given balances
