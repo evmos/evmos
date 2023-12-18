@@ -25,6 +25,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/evmos/evmos/v16/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -34,11 +35,35 @@ import (
 // genSetupFn is the type for the module genesis setup functions
 type genSetupFn func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error)
 
+// defaultGenesisParams contains the params that are needed to
+// setup the default genesis for the testing setup
+type defaultGenesisParams struct {
+	genAccounts []authtypes.GenesisAccount
+	staking     StakingCustomGenesisState
+	bank        BankCustomGenesisState
+}
+
 // genesisSetupFunctions contains the available genesis setup functions
 var genesisSetupFunctions = []genSetupFn{
 	setEVMGenesisState,
 	setInflationGenesisState,
 	setGovGenesisState,
+}
+
+// setModuleGenesisState is a generic function to set module-specific genesis state
+func setModuleGenesisState[T proto.Message](evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState, moduleName string) (types.GenesisState, error) {
+	custGen, found := customGenesis[moduleName]
+	if !found {
+		return genesisState, nil
+	}
+
+	moduleGenesis, ok := custGen.(T)
+	if !ok {
+		return nil, fmt.Errorf("invalid type %T for %s genesis state", custGen, moduleName)
+	}
+
+	genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
+	return genesisState, nil
 }
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -176,21 +201,14 @@ type StakingCustomGenesisState struct {
 	delegations []stakingtypes.Delegation
 }
 
-// setStakingGenesisState sets the staking genesis state
-func setStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams StakingCustomGenesisState) types.GenesisState {
+// defaultStakingGenesisState sets the default staking genesis state
+func defaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams StakingCustomGenesisState) types.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
 
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, overwriteParams.validators, overwriteParams.delegations)
 	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
-	return genesisState
-}
-
-// setAuthGenesisState sets the auth genesis state
-func setAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, genAccounts []authtypes.GenesisAccount) types.GenesisState {
-	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccounts)
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGenesis)
 	return genesisState
 }
 
@@ -221,8 +239,8 @@ type BankCustomGenesisState struct {
 	balances    []banktypes.Balance
 }
 
-// setBankGenesisState sets the bank genesis state
-func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams BankCustomGenesisState) types.GenesisState {
+// defaultBankGenesisState sets the default bank genesis state
+func defaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams BankCustomGenesisState) types.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
@@ -236,30 +254,12 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, o
 
 // setEVMGenesisState sets the evm module genesis state
 func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-	custGen, found := customGenesis[evmtypes.ModuleName]
-	if !found {
-		return genesisState, nil
-	}
-	evmGenesis, ok := custGen.(*evmtypes.GenesisState)
-	if !ok {
-		return nil, fmt.Errorf("invalid type %T for evm genesis state", custGen)
-	}
-	genesisState[evmtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
-	return genesisState, nil
+	return setModuleGenesisState[*evmtypes.GenesisState](evmosApp, genesisState, customGenesis, evmtypes.ModuleName)
 }
 
 // setGovGenesisState sets the gov module genesis state
 func setGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-	custGen, found := customGenesis[govtypes.ModuleName]
-	if !found {
-		return genesisState, nil
-	}
-	evmGenesis, ok := custGen.(*govtypesv1.GenesisState)
-	if !ok {
-		return nil, fmt.Errorf("invalid type %T for gov genesis state", custGen)
-	}
-	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
-	return genesisState, nil
+	return setModuleGenesisState[*govtypesv1.GenesisState](evmosApp, genesisState, customGenesis, govtypes.ModuleName)
 }
 
 // calculateTotalSupply calculates the total supply from the given balances
@@ -277,4 +277,21 @@ func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.B
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
 		Coins:   sdktypes.Coins{totalBonded},
 	})
+}
+
+// defaultAuthGenesisState sets the default auth genesis state
+func defaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, genAccs []authtypes.GenesisAccount) types.GenesisState {
+	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
+	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
+	return genesisState
+}
+
+func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) types.GenesisState {
+	genesisState := app.NewDefaultGenesisState()
+
+	genesisState = defaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
+	genesisState = defaultStakingGenesisState(evmosApp, genesisState, params.staking)
+	genesisState = defaultBankGenesisState(evmosApp, genesisState, params.bank)
+
+	return genesisState
 }
