@@ -22,6 +22,7 @@ type Config struct {
 	preFundedAccounts  []sdktypes.AccAddress
 	denom              string
 	customGenesisState CustomGenesisState
+	otherCoinDenom     []string
 }
 
 type CustomGenesisState map[string]interface{}
@@ -77,9 +78,18 @@ func WithDenom(denom string) ConfigOption {
 	}
 }
 
-// WithDenom sets the denom for the network.
+// WithCustomGenesis sets the custom genesis of the network for specific modules.
 func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 	return func(cfg *Config) {
 		cfg.customGenesisState = customGenesis
+	}
+}
+
+// WithOtherDenoms sets other possible coin denominations for the network.
+// This should be used when want to fund an account with other coins
+// that are not the 'aevmos' coin
+func WithOtherDenoms(otherDenoms []string) ConfigOption {
+	return func(cfg *Config) {
+		cfg.otherCoinDenom = otherDenoms
 	}
 }

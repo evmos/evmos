@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -18,6 +18,11 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 )
 
+type Account struct {
+	Address sdktypes.AccAddress
+	PrivKey cryptotypes.PrivKey
+}
+
 // Network is the interface that wraps the common methods to interact with integration test network.
 //
 // It was designed to avoid users to access module's keepers directly and force integration tests
@@ -26,7 +31,9 @@ type Network interface {
 	GetContext() sdktypes.Context
 	GetChainID() string
 	GetDenom() string
+	GetOtherDenoms() []string
 	GetValidators() []stakingtypes.Validator
+	GetFunder() Account
 
 	NextBlock() error
 	NextBlockAfter(duration time.Duration) error
@@ -44,10 +51,4 @@ type Network interface {
 	// NOTE: this is only used for testing IBC related functionality.
 	// The idea is to deprecate this eventually.
 	GetIBCChain(t *testing.T, coord *ibctesting.Coordinator) *ibctesting.TestChain
-
-	// FundAccount funds the given account with the given amount.
-	FundAccount(address sdktypes.AccAddress, amount sdktypes.Coins) error
-	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
-	// base denomination.
-	FundAccountWithBaseDenom(address sdktypes.AccAddress, amount sdkmath.Int) error
 }

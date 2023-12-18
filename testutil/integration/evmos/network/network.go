@@ -23,6 +23,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	commonnetwork "github.com/evmos/evmos/v16/testutil/integration/common/network"
+	testtx "github.com/evmos/evmos/v16/testutil/tx"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
@@ -63,6 +64,7 @@ type IntegrationNetwork struct {
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
 	app        *app.Evmos
+	funder     commonnetwork.Account
 
 	// This is only needed for IBC chain testing setup
 	valSet     *cmttypes.ValidatorSet
@@ -82,10 +84,12 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	}
 
 	ctx := sdktypes.Context{}
+	funderAddr, pk := testtx.NewAccAddressAndKey()
 	network := &IntegrationNetwork{
 		cfg:        cfg,
 		ctx:        ctx,
 		validators: []stakingtypes.Validator{},
+		funder:     commonnetwork.Account{Address: funderAddr, PrivKey: pk},
 	}
 
 	err := network.configureAndInitChain()
@@ -100,6 +104,8 @@ var (
 	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
 	PrefundedAccountInitialBalance = sdkmath.NewInt(int64(math.Pow10(18) * 4))
+	// FunderAccountInitialBalance is the amount of tokens the funder account has at genesis
+	FunderAccountInitialBalance, _ = sdkmath.NewIntFromString("1000000000000000000000000")
 )
 
 // configureAndInitChain initializes the network with the given configuration.
@@ -108,8 +114,13 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
 	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
+	genAccounts := createGenesisAccounts(append(n.cfg.preFundedAccounts, n.funder.Address))
 	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+
+	// append the funders initial balance
+	funderBalances := createFunderBalances(n.funder.Address, append(n.cfg.otherCoinDenom, n.cfg.denom))
+
+	fundedAccountBalances = append(fundedAccountBalances, funderBalances)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -151,10 +162,12 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules
-	for _, fn := range genesisSetupFunctions {
-		genesisState, err = fn(evmosApp, genesisState, n.cfg.customGenesisState)
-		if err != nil {
-			return err
+	for mod, modGenState := range n.cfg.customGenesisState {
+		if fn, found := genesisSetupFunctions[mod]; found {
+			genesisState, err = fn(evmosApp, genesisState, modGenState)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -232,6 +245,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		Symbol:  "EVMOS",
 		Display: n.cfg.denom,
 	}
+
+	// FIXME this will have no effect cause this ctx is not
+	// within the current app state
 	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
 
 	return nil
@@ -257,9 +273,22 @@ func (n *IntegrationNetwork) GetDenom() string {
 	return n.cfg.denom
 }
 
+// GetOtherDenoms returns network's other supported denoms
+func (n *IntegrationNetwork) GetOtherDenoms() []string {
+	return n.cfg.otherCoinDenom
+}
+
 // GetValidators returns the network's validators
 func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 	return n.validators
+}
+
+// GetFunder returns the funder's account.
+// The funder account is an account that holds a big balance
+// of all existing coins since genesis and is used to fund accounts
+// after genesis according to tests needs
+func (n *IntegrationNetwork) GetFunder() commonnetwork.Account {
+	return n.funder
 }
 
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.

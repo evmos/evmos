@@ -34,7 +34,7 @@ import (
 )
 
 // genSetupFn is the type for the module genesis setup functions
-type genSetupFn func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error)
+type genSetupFn func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis interface{}) (types.GenesisState, error)
 
 // defaultGenesisParams contains the params that are needed to
 // setup the default genesis for the testing setup
@@ -46,23 +46,18 @@ type defaultGenesisParams struct {
 
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
-var genesisSetupFunctions = []genSetupFn{
-	genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
-	genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+var genesisSetupFunctions = map[string]genSetupFn{
+	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
 func genStateSetter[T proto.Message](moduleName string) genSetupFn {
-	return func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-		custGen, found := customGenesis[moduleName]
-		if !found {
-			return genesisState, nil
-		}
-
-		moduleGenesis, ok := custGen.(T)
+	return func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis interface{}) (types.GenesisState, error) {
+		moduleGenesis, ok := customGenesis.(T)
 		if !ok {
-			return nil, fmt.Errorf("invalid type %T for %s genesis state", custGen, moduleName)
+			return nil, fmt.Errorf("invalid type %T for %s module genesis state", customGenesis, moduleName)
 		}
 
 		genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
