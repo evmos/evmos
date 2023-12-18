@@ -45,14 +45,7 @@ func ConvertERC20Coins(
 
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
-		// FIXME: the accounts created with the keyring are not EthAccounts? Is asserting for BaseAccount good enough?
-		baseAccount, ok := account.(*authtypes.BaseAccount)
-		// baseAccount, ok := account.(*evmostypes.EthAccount)
-		if !ok {
-			return false
-		}
-
-		cosmosAddress := baseAccount.GetAddress()
+		account.GetAddress()
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		ethHexAddr := ethAddress.String()
 
