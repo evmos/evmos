@@ -22,7 +22,6 @@ var deprecatedProposals = map[string]struct{}{
 // DeleteDeprecatedProposals deletes the RegisterCoin, RegisterIncentives & CancelIncentiveProposal
 // proposals from the store because were deprecated
 func DeleteDeprecatedProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
-	// Delete the only incentives module proposals
 	gk.IterateProposals(ctx, func(proposal govtypes.Proposal) bool {
 		// Check if proposal is a RegisterIncentives or CancelIncentiveProposal proposal
 		msgs, err := proposal.GetMsgs()
