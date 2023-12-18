@@ -4,6 +4,7 @@ package network
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/evmos/evmos/v16/app"
@@ -44,26 +45,29 @@ type defaultGenesisParams struct {
 }
 
 // genesisSetupFunctions contains the available genesis setup functions
+// that can be used to customize the network genesis
 var genesisSetupFunctions = []genSetupFn{
-	setEVMGenesisState,
-	setInflationGenesisState,
-	setGovGenesisState,
+	genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
 }
 
-// setModuleGenesisState is a generic function to set module-specific genesis state
-func setModuleGenesisState[T proto.Message](evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState, moduleName string) (types.GenesisState, error) {
-	custGen, found := customGenesis[moduleName]
-	if !found {
+// genStateSetter is a generic function to set module-specific genesis state
+func genStateSetter[T proto.Message](moduleName string) genSetupFn {
+	return func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
+		custGen, found := customGenesis[moduleName]
+		if !found {
+			return genesisState, nil
+		}
+
+		moduleGenesis, ok := custGen.(T)
+		if !ok {
+			return nil, fmt.Errorf("invalid type %T for %s genesis state", custGen, moduleName)
+		}
+
+		genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
 		return genesisState, nil
 	}
-
-	moduleGenesis, ok := custGen.(T)
-	if !ok {
-		return nil, fmt.Errorf("invalid type %T for %s genesis state", custGen, moduleName)
-	}
-
-	genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
-	return genesisState, nil
 }
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -109,6 +113,19 @@ func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []bankty
 		fundedAccountBalances = append(fundedAccountBalances, balance)
 	}
 	return fundedAccountBalances
+}
+
+// createFunderBalances create the balances for the funder account
+func createFunderBalances(funderAcc sdktypes.AccAddress, denoms []string) banktypes.Balance {
+	slices.Sort(denoms)
+	funderCoins := make([]sdktypes.Coin, len(denoms))
+	for i, denom := range denoms {
+		funderCoins[i] = sdktypes.NewCoin(denom, FunderAccountInitialBalance)
+	}
+	return banktypes.Balance{
+		Address: funderAcc.String(),
+		Coins:   funderCoins,
+	}
 }
 
 // createEvmosApp creates an evmos app
@@ -212,26 +229,14 @@ func defaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 	return genesisState
 }
 
-// setInflationGenesisState sets the inflation genesis state
-func setInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-	var (
-		inflGenesis *infltypes.GenesisState
-		ok          bool
-	)
-	custGen, found := customGenesis[infltypes.ModuleName]
-	if !found {
-		inflationParams := infltypes.DefaultParams()
-		inflationParams.EnableInflation = false
-		defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
-		inflGenesis = &defaultGen
-	} else {
-		if inflGenesis, ok = custGen.(*infltypes.GenesisState); !ok {
-			return nil, fmt.Errorf("invalid type %T for inflation genesis state", custGen)
-		}
-	}
+// defaultInflationGenesisState sets the default inflation genesis state
+func defaultInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
+	inflationParams := infltypes.DefaultParams()
+	inflationParams.EnableInflation = false
+	defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
 
-	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(inflGenesis)
-	return genesisState, nil
+	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&defaultGen)
+	return genesisState
 }
 
 type BankCustomGenesisState struct {
@@ -250,16 +255,6 @@ func defaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisStat
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
-}
-
-// setEVMGenesisState sets the evm module genesis state
-func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-	return setModuleGenesisState[*evmtypes.GenesisState](evmosApp, genesisState, customGenesis, evmtypes.ModuleName)
-}
-
-// setGovGenesisState sets the gov module genesis state
-func setGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
-	return setModuleGenesisState[*govtypesv1.GenesisState](evmosApp, genesisState, customGenesis, govtypes.ModuleName)
 }
 
 // calculateTotalSupply calculates the total supply from the given balances
@@ -294,6 +289,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = defaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = defaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = defaultBankGenesisState(evmosApp, genesisState, params.bank)
+	genesisState = defaultInflationGenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
