@@ -45,8 +45,3 @@ func DeleteIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.
 		return false
 	})
 }
-
-// DeleteRegisterCoinProposals deletes the RegisterCoin proposals from the store
-func DeleteRegisterCoinProposals(_ sdk.Context, _ govkeeper.Keeper, _ log.Logger) {
-	// TODO: add implementation
-}
