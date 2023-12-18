@@ -155,6 +155,7 @@ import (
 	"github.com/evmos/evmos/v16/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v16/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/incentives"
 	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -238,6 +239,7 @@ var (
 		epochs.AppModuleBasic{},
 		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		incentives.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -1257,6 +1259,11 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.EvmKeeper,
 			app.InflationKeeper,
+<<<<<<< HEAD
+=======
+			app.AccountKeeper,
+			app.GovKeeper,
+>>>>>>> 7dfc497e (chore(upgrade): remove deprecated gov proposals (incentives) (#2196))
 		),
 	)
 
