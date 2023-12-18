@@ -149,6 +149,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		},
 	)
 
+	// modify genesis state if there're any custom genesis state
+	// for specific modules
 	for _, fn := range genesisSetupFunctions {
 		genesisState, err = fn(evmosApp, genesisState, n.cfg.customGenesisState)
 		if err != nil {

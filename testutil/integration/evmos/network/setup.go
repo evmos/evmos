@@ -286,6 +286,8 @@ func defaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisStat
 	return genesisState
 }
 
+// defaultAuthGenesisState sets the default genesis state
+// for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) types.GenesisState {
 	genesisState := app.NewDefaultGenesisState()
 

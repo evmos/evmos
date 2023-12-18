@@ -8,8 +8,12 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/evmos/evmos/v16/contracts"
 	auth "github.com/evmos/evmos/v16/precompiles/authorization"
 	"github.com/evmos/evmos/v16/precompiles/erc20"
@@ -21,6 +25,7 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
+	evmosutil "github.com/evmos/evmos/v16/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
@@ -47,22 +52,23 @@ type IntegrationTestSuite struct {
 }
 
 func (is *IntegrationTestSuite) SetupTest() {
+	// Set up min deposit in Evmos
+	govGen := govv1.DefaultGenesisState()
+	updatedParams := govGen.Params
+	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmosutil.BaseDenom, math.NewInt(1e18)))
+	govGen.Params = updatedParams
+
+	customGenesis := network.CustomGenesisState{
+		govtypes.ModuleName: govGen,
+	}
+
 	keys := keyring.New(2)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
-
-	// Set up min deposit in Evmos
-	params, err := gh.GetGovParams("deposit")
-	Expect(err).ToNot(HaveOccurred(), "failed to get gov params")
-	Expect(params).ToNot(BeNil(), "returned gov params are nil")
-
-	updatedParams := params.Params
-	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(nw.GetDenom(), math.NewInt(1e18)))
-	err = nw.UpdateGovParams(*updatedParams)
-	Expect(err).ToNot(HaveOccurred(), "failed to update the min deposit")
 
 	is.network = nw
 	is.factory = tf
