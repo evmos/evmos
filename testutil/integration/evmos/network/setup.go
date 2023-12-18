@@ -222,7 +222,7 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, o
 	return genesisState
 }
 
-// setBankGenesisState sets the bank genesis state
+// setEVMGenesisState sets the evm module genesis state
 func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
 	custGen, found := customGenesis[evmtypes.ModuleName]
 	if !found {
