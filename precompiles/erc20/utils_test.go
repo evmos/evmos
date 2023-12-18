@@ -56,6 +56,10 @@ func (is *IntegrationTestSuite) setupSendAuthz(
 		amount,
 	)
 	Expect(err).ToNot(HaveOccurred(), "failed to set up send authorization")
+
+	// commit changes to chain state
+	err = is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 }
 
 func setupSendAuthz(
@@ -114,6 +118,10 @@ func (is *IntegrationTestSuite) setupSendAuthzForContract(
 	default:
 		panic("unknown contract call type")
 	}
+
+	// commit changes to the chain state
+	err := is.network.NextBlock()
+	Expect(err).ToNot(HaveOccurred(), "error while calling NextBlock")
 }
 
 // setupSendAuthzForERC20 is a helper function to set up a SendAuthorization for
@@ -480,7 +488,7 @@ func (is *IntegrationTestSuite) fundWithTokens(
 
 	switch {
 	case slices.Contains(nativeCallTypes, callType):
-		err = is.network.FundAccount(receiver.Bytes(), fundCoins)
+		err = is.factory.FundAccount(receiver.Bytes(), fundCoins)
 	case slices.Contains(erc20CallTypes, callType):
 		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
 	default:
@@ -508,7 +516,10 @@ func (is *IntegrationTestSuite) MintERC20(callType CallType, contractData Contra
 		ExpPass:   true,
 	}
 
-	_, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck)
+	if _, _, err := is.factory.CallContractAndCheckLogs(contractData.ownerPriv, txArgs, callArgs, mintCheck); err != nil {
+		return err
+	}
 
-	return err
+	// commit changes to chain state
+	return is.network.NextBlock()
 }
