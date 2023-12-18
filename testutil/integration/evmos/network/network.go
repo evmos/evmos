@@ -141,11 +141,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 	genesisState = setStakingGenesisState(evmosApp, genesisState, stakingParams)
 
-	genesisState, err = setInflationGenesisState(evmosApp, genesisState, n.cfg.customGenesisState)
-	if err != nil {
-		return err
-	}
-
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
@@ -153,11 +148,13 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
 
-	genesisState, err = setEVMGenesisState(evmosApp, genesisState, n.cfg.customGenesisState)
-	if err != nil {
-		return err
+	for _, fn := range genesisSetupFunctions {
+		genesisState, err = fn(evmosApp, genesisState, n.cfg.customGenesisState)
+		if err != nil {
+			return err
+		}
 	}
-	
+
 	// Init chain
 	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
 	if err != nil {

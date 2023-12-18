@@ -22,12 +22,24 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v16/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
+
+// genSetupFn is the type for the module genesis setup functions
+type genSetupFn func(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error)
+
+// genesisSetupFunctions contains the available genesis setup functions
+var genesisSetupFunctions = []genSetupFn{
+	setEVMGenesisState,
+	setInflationGenesisState,
+	setGovGenesisState,
+}
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
 // with the default power of 1.
@@ -233,6 +245,20 @@ func setEVMGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, cu
 		return nil, fmt.Errorf("invalid type %T for evm genesis state", custGen)
 	}
 	genesisState[evmtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
+	return genesisState, nil
+}
+
+// setGovGenesisState sets the gov module genesis state
+func setGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis CustomGenesisState) (types.GenesisState, error) {
+	custGen, found := customGenesis[govtypes.ModuleName]
+	if !found {
+		return genesisState, nil
+	}
+	evmGenesis, ok := custGen.(*govtypesv1.GenesisState)
+	if !ok {
+		return nil, fmt.Errorf("invalid type %T for gov genesis state", custGen)
+	}
+	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(evmGenesis)
 	return genesisState, nil
 }
 
