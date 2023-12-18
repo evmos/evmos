@@ -35,34 +35,6 @@ type IntegrationTestSuite struct {
 	keyring     testkeyring.Keyring
 }
 
-// setupIntegrationTestSuite is a helper function to setup a integration test suite
-// with a network with a specified custom genesis state
-func setupIntegrationTestSuite(customEVMGenesis *evmtypes.GenesisState) *IntegrationTestSuite {
-	customGenesis := network.CustomGenesisState{
-		evmtypes.ModuleName: customEVMGenesis,
-	}
-
-	keyring := testkeyring.New(3)
-	integrationNetwork := network.New(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomGenesis(customGenesis),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
-
-	suite := &IntegrationTestSuite{
-		network:     integrationNetwork,
-		factory:     txFactory,
-		grpcHandler: grpcHandler,
-		keyring:     keyring,
-	}
-
-	err := suite.network.NextBlock()
-	Expect(err).To(BeNil())
-
-	return suite
-}
-
 // This test suite is meant to test the EVM module in the context of the EVMOS.
 // It uses the integration test framework to spin up a local EVMOS network and
 // perform transactions on it.
@@ -485,3 +457,28 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 })
+
+// setupIntegrationTestSuite is a helper function to setup a integration test suite
+// with a network with a specified custom genesis state
+func setupIntegrationTestSuite(customEVMGenesis *evmtypes.GenesisState) *IntegrationTestSuite {
+	customGenesis := network.CustomGenesisState{
+		evmtypes.ModuleName: customEVMGenesis,
+	}
+
+	keyring := testkeyring.New(3)
+	integrationNetwork := network.New(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+	txFactory := factory.New(integrationNetwork, grpcHandler)
+
+	suite := &IntegrationTestSuite{
+		network:     integrationNetwork,
+		factory:     txFactory,
+		grpcHandler: grpcHandler,
+		keyring:     keyring,
+	}
+
+	return suite
+}

@@ -14,7 +14,6 @@ import (
 
 	"github.com/evmos/evmos/v16/types"
 	ethutils "github.com/evmos/evmos/v16/utils/eth"
-
 )
 
 func newAccessListTx(tx *ethtypes.Transaction) (*AccessListTx, error) {

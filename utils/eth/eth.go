@@ -32,7 +32,7 @@ func DeriveChainID(v *big.Int) *big.Int {
 	return v.Div(v, big.NewInt(2))
 }
 
-// RawSignatureValues is a helper function 
+// RawSignatureValues is a helper function
 // that parses the v,r and s fields of an Ethereum transaction
 func RawSignatureValues(vBz, rBz, sBz []byte) (v, r, s *big.Int) {
 	if len(vBz) > 0 {
