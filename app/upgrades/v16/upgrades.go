@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
@@ -25,16 +26,17 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-	bankKeeper bankkeeper.Keeper,
+	bk bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
-	accountKeeper authkeeper.AccountKeeper,
-	erc20Keeper erc20keeper.Keeper,
+	ak authkeeper.AccountKeeper,
+	gk govkeeper.Keeper,
+	erck erc20keeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		// Execute the conversion for all Cosmos native ERC20 token pairs to use the ERC20 EVM extension.
-		if err := ConvertToNativeCoinExtensions(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+		if err := ConvertToNativeCoinExtensions(ctx, logger, ak, bk, erck); err != nil {
 			logger.Error("failed to convert erc20s to native coins", "error", err.Error())
 		}
 
@@ -54,12 +56,13 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-		// TODO: uncomment when ready
 		// Migrate the FeeCollector module account to include the Burner permission.
-		// if err := MigrateFeeCollector(ak, ctx); err != nil {
-		//	logger.Error("failed to migrate the fee collector", "error", err.Error())
-		// }
-		//
+		// This is required when including the postHandler to burn Cosmos Tx fees
+		if err := MigrateFeeCollector(ak, ctx); err != nil {
+			logger.Error("failed to migrate the fee collector", "error", err.Error())
+		}
+
+		// TODO: uncomment when ready
 		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
 		//	logger.Error("failed to burn inflation pool", "error", err.Error())
 		// }
@@ -67,6 +70,10 @@ func CreateUpgradeHandler(
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
+
+		// Remove the deprecated governance proposals from store
+		logger.Debug("deleting deprecated incentives module proposals...")
+		DeleteIncentivesProposals(ctx, gk, logger)
 
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
