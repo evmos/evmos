@@ -104,10 +104,10 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	// Fetch minimun gas price to calculate fees using the configuration.
+	// Fetch minimum gas price to calculate fees using the configuration.
 	minGasPrices := b.cfg.GetMinGasPrices()
 	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		b.logger.Debug("the minimun fee is not set")
+		b.logger.Debug("the minimum fee is not set")
 		return false
 	}
 	minGasPriceValue := minGasPrices[0].Amount
