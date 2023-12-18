@@ -52,18 +52,24 @@ func ConvertERC20Coins(
 		ethHexAddr := ethAddress.String()
 
 		balance, res, err := WithdrawWEVMOS(ctx, ethAddress, wrappedContractAddr, erc20Keeper)
+
+		var bs string // NOTE: this is necessary so that there is no panic if balance is nil when logging
+		if balance != nil {
+			bs = balance.String()
+		}
+
 		if err != nil {
 			logger.Debug(
 				"failed to withdraw WEVMOS",
 				"account", ethHexAddr,
-				"balance", balance.String(),
+				"balance", bs,
 				"error", err.Error(),
 			)
 		} else if res != nil && res.VmError != "" {
 			logger.Debug(
 				"withdraw WEVMOS reverted",
 				"account", ethHexAddr,
-				"balance", balance.String(),
+				"balance", bs,
 				"vm-error", res.VmError,
 			)
 		}
