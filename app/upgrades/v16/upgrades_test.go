@@ -110,7 +110,7 @@ func (its *IntegrationTestSuite) TestDeleteDeprecatedProposals() {
 
 	prop4 := &erc20.RegisterCoinProposal{ //nolint:staticcheck
 		Title:       "Test",
-		Description: "Test Software Upgrade Proposal",
+		Description: "Test Register Coin Proposal",
 		Metadata:    []banktypes.Metadata{},
 	}
 
