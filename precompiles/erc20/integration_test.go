@@ -463,6 +463,9 @@ var _ = Describe("ERC20 Extension -", func() {
 							owner.Addr, owner.Addr, transferCoins,
 						)
 
+						err = is.network.NextBlock()
+						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
+						
 						// Transfer tokens
 						txArgs, transferArgs := is.getTxAndCallArgs(
 							callType, contractsData,
@@ -2433,9 +2436,6 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 			// Mint the supply of tokens
 			err = is.MintERC20(erc20V5Call, contractData, contractOwner.Addr, supply.Amount.BigInt())
 			Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
-
-			err = is.network.NextBlock()
-			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
 
 			// Check that the supply was minted
 			is.ExpectBalancesForERC20(erc20V5Call, contractData, []ExpectedBalance{{
