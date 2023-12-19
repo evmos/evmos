@@ -6,11 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-<<<<<<< HEAD
-=======
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
->>>>>>> 7dfc497e (chore(upgrade): remove deprecated gov proposals (incentives) (#2196))
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
@@ -27,11 +23,7 @@ func CreateUpgradeHandler(
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
-<<<<<<< HEAD
-=======
-	ak authkeeper.AccountKeeper,
 	gk govkeeper.Keeper,
->>>>>>> 7dfc497e (chore(upgrade): remove deprecated gov proposals (incentives) (#2196))
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -52,25 +44,12 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-<<<<<<< HEAD
-=======
-		// Migrate the FeeCollector module account to include the Burner permission.
-		// This is required when including the postHandler to burn Cosmos Tx fees
-		if err := MigrateFeeCollector(ak, ctx); err != nil {
-			logger.Error("failed to migrate the fee collector", "error", err.Error())
-		}
-
-		// TODO: uncomment when ready
-		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
-		//	logger.Error("failed to burn inflation pool", "error", err.Error())
-		// }
-
->>>>>>> 7dfc497e (chore(upgrade): remove deprecated gov proposals (incentives) (#2196))
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
 
 		// Remove the deprecated governance proposals from store
+		// TODO include this in rc5 testnet upgrade
 		logger.Debug("deleting deprecated incentives module proposals...")
 		DeleteIncentivesProposals(ctx, gk, logger)
 

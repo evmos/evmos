@@ -1259,11 +1259,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.mm, app.configurator,
 			app.EvmKeeper,
 			app.InflationKeeper,
-<<<<<<< HEAD
-=======
-			app.AccountKeeper,
 			app.GovKeeper,
->>>>>>> 7dfc497e (chore(upgrade): remove deprecated gov proposals (incentives) (#2196))
 		),
 	)
 
