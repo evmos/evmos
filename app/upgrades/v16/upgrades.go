@@ -63,8 +63,8 @@ func CreateUpgradeHandler(
 		}
 
 		// Remove the deprecated governance proposals from store
-		logger.Debug("deleting deprecated incentives module proposals...")
-		DeleteIncentivesProposals(ctx, gk, logger)
+		logger.Debug("deleting deprecated proposals...")
+		DeleteDeprecatedProposals(ctx, gk, logger)
 
 		// recovery module is deprecated
 		logger.Debug("deleting recovery module from version map...")
