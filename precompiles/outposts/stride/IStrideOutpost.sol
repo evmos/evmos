@@ -62,14 +62,14 @@ interface IStrideOutpost {
     /// @param sender The sender of the liquid stake transaction.
     /// @param token The hex ERC20 address of the token pair.
     /// @param amount The amount that will be liquid staked.
-    /// @param receiver The bech32 address of the receiver.
+    /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
     /// @return nextSequence The sequence number of the transfer packet sent
     /// @return success True if the ICS20 transfer was successful.
     function liquidStake(
         address sender,
         address token,
         uint256 amount,
-        string calldata receiver
+        string calldata strideForwarder
     ) external returns (uint64 nextSequence, bool success);
 
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
