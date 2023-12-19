@@ -30,7 +30,6 @@ func (s *PrecompileTestSuite) TestSwap() {
 	sender := sdktypes.AccAddress(senderAddress.Bytes())
 	randomAddress := utiltx.GenerateAddress()
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7" //nolint:goconst
-	xcsContract := "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 
 	method := s.precompile.Methods[osmosis.SwapMethod]
 	testCases := []struct {
@@ -60,7 +59,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             randomAddress,
 						Input:              randomAddress,
 						Output:             randomAddress,
@@ -85,7 +84,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              randomAddress,
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -110,7 +109,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              evmosTokenPair.GetERC20Contract(),
 						Output:             randomAddress,
@@ -135,7 +134,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              common.HexToAddress("0x1D54EcB8583Ca25895c512A8308389fFD581F9c9"),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -168,7 +167,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              wrongOsmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -194,7 +193,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              evmosTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -223,7 +222,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              wrongTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -255,7 +254,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -285,7 +284,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -316,7 +315,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -346,7 +345,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -375,7 +374,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
 						Output:             evmosTokenPair.GetERC20Contract(),
@@ -404,7 +403,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				return []interface{}{
 					osmosis.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              evmosTokenPair.GetERC20Contract(),
 						Output:             osmoTokenPair.GetERC20Contract(),

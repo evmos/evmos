@@ -95,7 +95,6 @@ func (s *PrecompileTestSuite) TestParseSwapPacketData() {
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(20)
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
-	xcsContract := "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 
 	testCases := []struct {
 		name        string
@@ -108,7 +107,7 @@ func (s *PrecompileTestSuite) TestParseSwapPacketData() {
 			args: []interface{}{
 				osmosisoutpost.SwapPacketData{
 					ChannelID:          ChannelID,
-					XcsContract:        xcsContract,
+					XcsContract:        XCSContract,
 					Sender:             sender,
 					Input:              input,
 					Output:             output,
@@ -141,7 +140,7 @@ func (s *PrecompileTestSuite) TestParseSwapPacketData() {
 				s.Equal(
 					osmosisoutpost.SwapPacketData{
 						ChannelID:          ChannelID,
-						XcsContract:        xcsContract,
+						XcsContract:        XCSContract,
 						Sender:             sender,
 						Input:              input,
 						Output:             output,
