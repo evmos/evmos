@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypesv1beta "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	upgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
@@ -19,6 +20,7 @@ import (
 	testnetwork "github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
+	erc20 "github.com/evmos/evmos/v16/x/erc20/types"
 	incentives "github.com/evmos/evmos/v16/x/incentives/types"
 )
 
@@ -80,11 +82,11 @@ func (its *IntegrationTestSuite) TestUpdateInflationParams() {
 	its.Require().Equal(math.LegacyZeroDec(), finalParams.InflationDistribution.UsageIncentives) //nolint:staticcheck
 }
 
-func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
+func (its *IntegrationTestSuite) TestDeleteDeprecatedProposals() {
 	its.SetupTest()
 
-	// Create 3 proposals. 2 will be deleted because correspond to the incentives module
-	expInitialProps := 3
+	// Create 4 proposals. 3 will be deleted which correspond to the deprecated proposals
+	expInitialProps := 4
 	expFinalProps := 1
 	prop1 := &incentives.RegisterIncentiveProposal{
 		Title:       "Test",
@@ -106,6 +108,12 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 		Contract:    utiltx.GenerateAddress().String(),
 	}
 
+	prop4 := &erc20.RegisterCoinProposal{ //nolint:staticcheck
+		Title:       "Test",
+		Description: "Test Register Coin Proposal",
+		Metadata:    []banktypes.Metadata{},
+	}
+
 	privKey, _ := ethsecp256k1.GenerateKey()
 	addrBz := privKey.PubKey().Address().Bytes()
 	accAddr := sdk.AccAddress(addrBz)
@@ -113,7 +121,7 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 	err := testutil.FundAccount(its.network.GetContext(), its.network.App.BankKeeper, accAddr, coins)
 	its.Require().NoError(err)
 
-	for _, prop := range []govtypesv1beta.Content{prop1, prop2, prop3} {
+	for _, prop := range []govtypesv1beta.Content{prop1, prop2, prop3, prop4} {
 		its.createProposal(prop, accAddr)
 	}
 
@@ -123,7 +131,7 @@ func (its *IntegrationTestSuite) TestDeleteIncentivesProposals() {
 
 	// Delete the corresponding proposals
 	logger := its.network.GetContext().Logger()
-	v16.DeleteIncentivesProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
+	v16.DeleteDeprecatedProposals(its.network.GetContext(), its.network.App.GovKeeper, logger)
 
 	allProposalsAfter := its.network.App.GovKeeper.GetProposals(its.network.GetContext())
 	its.Require().Len(allProposalsAfter, expFinalProps)
