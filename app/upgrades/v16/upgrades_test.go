@@ -85,7 +85,7 @@ func (its *IntegrationTestSuite) TestUpdateInflationParams() {
 func (its *IntegrationTestSuite) TestDeleteDeprecatedProposals() {
 	its.SetupTest()
 
-	// Create 4 proposals. 3 will be deleted because correspond to deprecated proposals
+	// Create 4 proposals. 3 will be deleted which correspond to the deprecated proposals
 	expInitialProps := 4
 	expFinalProps := 1
 	prop1 := &incentives.RegisterIncentiveProposal{

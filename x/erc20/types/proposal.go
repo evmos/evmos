@@ -131,5 +131,5 @@ func (*RegisterCoinProposal) ProposalType() string {
 // ValidateBasic performs a stateless check of the proposal fields.
 // RegisterCoinProposal is DEPRECATED remove after v16 upgrade
 func (rtbp *RegisterCoinProposal) ValidateBasic() error {
-	return errors.New("Deprecated")
+	return errors.New("deprecated")
 }
