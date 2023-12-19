@@ -56,7 +56,7 @@ func UpdateGovParams(input UpdateParamsInput) error {
 func updateModuleParams[T interface{}](input UpdateParamsInput, moduleName string) error {
 	newParams, ok := input.Params.(T)
 	if !ok {
-		return fmt.Errorf("invalid params type %T for module", input.Params)
+		return fmt.Errorf("invalid params type %T for module %s", input.Params, moduleName)
 	}
 
 	proposalMsg := createProposalMsg(newParams, moduleName)
