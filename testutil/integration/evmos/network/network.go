@@ -45,13 +45,6 @@ type Network interface {
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-
-	// Because to update the module params on a conventional manner governance
-	// would be required, we should provide an easier way to update the params
-	UpdateEvmParams(params evmtypes.Params) error
-	UpdateGovParams(params govtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
-	UpdateRevenueParams(params revtypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)

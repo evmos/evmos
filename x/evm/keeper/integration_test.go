@@ -47,6 +47,21 @@ type IntegrationTestSuite struct {
 var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func() {
 	var s *IntegrationTestSuite
 
+	BeforeAll(func() {
+		keyring := testkeyring.New(3)
+		integrationNetwork := network.New(
+			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		)
+		grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+		txFactory := factory.New(integrationNetwork, grpcHandler)
+		s = &IntegrationTestSuite{
+			network:     integrationNetwork,
+			factory:     txFactory,
+			grpcHandler: grpcHandler,
+			keyring:     keyring,
+		}
+	})
+
 	AfterEach(func() {
 		// Start each test with a fresh block
 		err := s.network.NextBlock()
@@ -54,15 +69,6 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	})
 
 	When("the params have default values", Ordered, func() {
-		BeforeAll(func() {
-			// Set params to default values
-			defaultGenesis := evmtypes.DefaultGenesisState()
-			s = setupIntegrationTestSuite(defaultGenesis)
-
-			err := s.network.NextBlock()
-			Expect(err).To(BeNil())
-		})
-
 		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
@@ -278,11 +284,17 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	When("EnableCreate param is set to false", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to with EnableCreate = false
-			evmGenesis := evmtypes.DefaultGenesisState()
-			evmGenesis.Params.EnableCreate = false
-			s = setupIntegrationTestSuite(evmGenesis)
-
-			err := s.network.NextBlock()
+			// Set params to default values
+			updatedParams := evmtypes.DefaultParams()
+			updatedParams.EnableCreate = false
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  updatedParams,
+				},
+			)
 			Expect(err).To(BeNil())
 		})
 

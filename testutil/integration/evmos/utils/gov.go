@@ -23,7 +23,31 @@ import (
 
 // SubmitProposal is a helper function to submit a governance proposal and
 // return the proposal ID.
-func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, proposal govv1beta1.Content) (uint64, error) {
+func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, title string, msgs ...sdk.Msg) (uint64, error) {
+	proposerAccAddr := sdk.AccAddress(proposerPriv.PubKey().Address()).String()
+	proposal, err := govv1.NewMsgSubmitProposal(
+		msgs,
+		sdk.NewCoins(sdk.NewCoin(network.GetDenom(), math.NewInt(1e18))),
+		proposerAccAddr,
+		"",
+		title,
+		title,
+		false,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	txArgs := commonfactory.CosmosTxArgs{
+		Msgs: []sdk.Msg{proposal},
+	}
+
+	return submitProposal(tf, network, proposerPriv, txArgs)
+}
+
+// SubmitLegacyProposal is a helper function to submit a governance proposal and
+// return the proposal ID.
+func SubmitLegacyProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, proposal govv1beta1.Content) (uint64, error) {
 	proposerAccAddr := sdk.AccAddress(proposerPriv.PubKey().Address())
 
 	msgSubmitProposal, err := govv1beta1.NewMsgSubmitProposal(
@@ -39,32 +63,7 @@ func SubmitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 		Msgs: []sdk.Msg{msgSubmitProposal},
 	}
 
-	res, err := tf.ExecuteCosmosTx(proposerPriv, txArgs)
-	if err != nil {
-		return 0, err
-	}
-
-	proposalID, err := getProposalIDFromEvents(res.Events)
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to get proposal ID from events")
-	}
-
-	err = network.NextBlock()
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to commit block after proposal")
-	}
-
-	gq := network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to query proposal")
-	}
-
-	if proposalRes.Proposal.Status != govv1.StatusVotingPeriod {
-		return 0, fmt.Errorf("expected proposal to be in voting period; got: %s", proposalRes.Proposal.Status.String())
-	}
-
-	return proposalRes.Proposal.GetId(), nil
+	return submitProposal(tf, network, proposerPriv, txArgs)
 }
 
 // VoteOnProposal is a helper function to vote on a governance proposal given the private key of the voter and
@@ -84,6 +83,46 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 	})
 
 	return err
+}
+
+// ApproveLegacyProposal is a helper function to vote 'yes'
+// for it and wait till it passes.
+func ApproveProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, proposalID uint64) error {
+
+	// Vote on proposal
+	err := VoteOnProposal(tf, proposerPriv, proposalID, govv1.OptionYes)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to vote on proposal")
+	}
+
+	gq := network.GetGovClient()
+	params, err := gq.Params(network.GetContext(), &govv1.QueryParamsRequest{ParamsType: "voting"})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to query voting params")
+	}
+
+	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
+	}
+
+	err = network.NextBlock()
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after votes")
+	}
+
+	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
+	// context.
+	gq = network.GetGovClient()
+	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to query proposal")
+	}
+
+	if proposalRes.Proposal.Status != govv1.StatusPassed {
+		return fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
+	}
+	return nil
 }
 
 // getProposalIDFromEvents returns the proposal ID from the events in
@@ -124,4 +163,33 @@ func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
 	}
 
 	return proposalID, nil
+}
+
+func submitProposal(tf factory.TxFactory, network network.Network, proposerPriv cryptotypes.PrivKey, txArgs commonfactory.CosmosTxArgs) (uint64, error) {
+	res, err := tf.ExecuteCosmosTx(proposerPriv, txArgs)
+	if err != nil {
+		return 0, err
+	}
+
+	proposalID, err := getProposalIDFromEvents(res.Events)
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to get proposal ID from events")
+	}
+
+	err = network.NextBlock()
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to commit block after proposal")
+	}
+
+	gq := network.GetGovClient()
+	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
+	if err != nil {
+		return 0, errorsmod.Wrap(err, "failed to query proposal")
+	}
+
+	if proposalRes.Proposal.Status != govv1.StatusVotingPeriod {
+		return 0, fmt.Errorf("expected proposal to be in voting period; got: %s", proposalRes.Proposal.Status.String())
+	}
+
+	return proposalRes.Proposal.GetId(), nil
 }

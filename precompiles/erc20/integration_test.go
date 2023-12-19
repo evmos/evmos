@@ -52,22 +52,11 @@ type IntegrationTestSuite struct {
 }
 
 func (is *IntegrationTestSuite) SetupTest() {
-	// Set up min deposit in Evmos
-	govGen := govv1.DefaultGenesisState()
-	updatedParams := govGen.Params
-	updatedParams.MinDeposit = sdk.NewCoins(sdk.NewCoin(evmosutil.BaseDenom, math.NewInt(1e18)))
-	govGen.Params = updatedParams
-
-	customGenesis := network.CustomGenesisState{
-		govtypes.ModuleName: govGen,
-	}
-
 	is.tokenDenom = "xmpl"
 
 	keys := keyring.New(2)
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
-		network.WithCustomGenesis(customGenesis),
 		network.WithOtherDenoms([]string{is.tokenDenom}),
 	)
 	gh := grpc.NewIntegrationHandler(nw)

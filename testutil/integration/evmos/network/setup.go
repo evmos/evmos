@@ -27,7 +27,9 @@ import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
+
 	"github.com/evmos/evmos/v16/types"
+	evmosutil "github.com/evmos/evmos/v16/utils"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -268,6 +270,17 @@ func defaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisStat
 	return genesisState
 }
 
+// defaultGovGenesisState sets the default gov genesis state
+func defaultGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
+	govGen := govtypesv1.DefaultGenesisState()
+	updatedParams := govGen.Params
+	// set 'aevmos' as deposit denom
+	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, sdkmath.NewInt(1e18)))
+	govGen.Params = updatedParams
+	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	return genesisState
+}
+
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) types.GenesisState {
@@ -277,6 +290,7 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = defaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = defaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = defaultInflationGenesisState(evmosApp, genesisState)
+	genesisState = defaultGovGenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
