@@ -6,12 +6,17 @@ package network
 import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarketypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
 )
 
 func (n *IntegrationNetwork) UpdateEvmParams(params evmtypes.Params) error {
 	return n.app.EvmKeeper.SetParams(n.ctx, params)
+}
+
+func (n *IntegrationNetwork) UpdateFeeMarketParams(params feemarketypes.Params) error {
+	return n.app.FeeMarketKeeper.SetParams(n.ctx, params)
 }
 
 func (n *IntegrationNetwork) UpdateRevenueParams(params revtypes.Params) error {

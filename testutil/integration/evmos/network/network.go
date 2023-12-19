@@ -53,6 +53,7 @@ type Network interface {
 	UpdateGovParams(params govtypes.Params) error
 	UpdateInflationParams(params infltypes.Params) error
 	UpdateRevenueParams(params revtypes.Params) error
+	UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
