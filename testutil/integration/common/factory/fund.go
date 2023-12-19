@@ -10,23 +10,23 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 )
 
 // FundAccount funds the given account with the given amount of coins.
-func (tf *IntegrationTxFactory) FundAccount(addr sdk.AccAddress, coins sdk.Coins) error {
+func (tf *IntegrationTxFactory) FundAccount(sender keyring.Key, receiver sdk.AccAddress, coins sdk.Coins) error {
 	// validate that required coins are supported in the test network
 	if err := tf.validateDenoms(coins); err != nil {
 		return err
 	}
 
-	funder := tf.network.GetFunder()
 	bankmsg := banktypes.NewMsgSend(
-		funder.Address,
-		addr,
+		sender.AccAddr,
+		receiver,
 		coins,
 	)
 	txArgs := CosmosTxArgs{Msgs: []sdk.Msg{bankmsg}}
-	txRes, err := tf.ExecuteCosmosTx(funder.PrivKey, txArgs)
+	txRes, err := tf.ExecuteCosmosTx(sender.Priv, txArgs)
 
 	if err != nil {
 		return err
@@ -42,8 +42,8 @@ func (tf *IntegrationTxFactory) FundAccount(addr sdk.AccAddress, coins sdk.Coins
 
 // FundAccountWithBaseDenom funds the given account with the given amount of the network's
 // base denomination.
-func (tf *IntegrationTxFactory) FundAccountWithBaseDenom(addr sdk.AccAddress, amount sdkmath.Int) error {
-	return tf.FundAccount(addr, sdk.NewCoins(sdk.NewCoin(tf.network.GetDenom(), amount)))
+func (tf *IntegrationTxFactory) FundAccountWithBaseDenom(sender keyring.Key, receiver sdk.AccAddress, amount sdkmath.Int) error {
+	return tf.FundAccount(sender, receiver, sdk.NewCoins(sdk.NewCoin(tf.network.GetDenom(), amount)))
 }
 
 func (tf *IntegrationTxFactory) validateDenoms(coins sdk.Coins) error {

@@ -96,31 +96,23 @@ func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAc
 }
 
 // createBalances creates balances for the given accounts and coin
-func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []banktypes.Balance {
+func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes.Balance {
+	slices.Sort(denoms)
 	numberOfAccounts := len(accounts)
+	coins := make([]sdktypes.Coin, len(denoms))
+	for i, denom := range denoms {
+		coins[i] = sdktypes.NewCoin(denom, PrefundedAccountInitialBalance)
+	}
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
 	for _, acc := range accounts {
 		balance := banktypes.Balance{
 			Address: acc.String(),
-			Coins:   sdktypes.NewCoins(coin),
+			Coins:   coins,
 		}
 
 		fundedAccountBalances = append(fundedAccountBalances, balance)
 	}
 	return fundedAccountBalances
-}
-
-// createFunderBalances create the balances for the funder account
-func createFunderBalances(funderAcc sdktypes.AccAddress, denoms []string) banktypes.Balance {
-	slices.Sort(denoms)
-	funderCoins := make([]sdktypes.Coin, len(denoms))
-	for i, denom := range denoms {
-		funderCoins[i] = sdktypes.NewCoin(denom, FunderAccountInitialBalance)
-	}
-	return banktypes.Balance{
-		Address: funderAcc.String(),
-		Coins:   funderCoins,
-	}
 }
 
 // createEvmosApp creates an evmos app
@@ -287,4 +279,19 @@ func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) ty
 	genesisState = defaultInflationGenesisState(evmosApp, genesisState)
 
 	return genesisState
+}
+
+// customizeGenesis modifies genesis state if there're any custom genesis state
+// for specific modules
+func customizeGenesis(evmosApp *app.Evmos, customGen CustomGenesisState, genesisState types.GenesisState) (types.GenesisState, error) {
+	var err error
+	for mod, modGenState := range customGen {
+		if fn, found := genesisSetupFunctions[mod]; found {
+			genesisState, err = fn(evmosApp, genesisState, modGenState)
+			if err != nil {
+				return genesisState, err
+			}
+		}
+	}
+	return genesisState, err
 }

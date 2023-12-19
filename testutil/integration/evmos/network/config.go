@@ -86,8 +86,6 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 }
 
 // WithOtherDenoms sets other possible coin denominations for the network.
-// This should be used when want to fund an account with other coins
-// that are not the 'aevmos' coin
 func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.otherCoinDenom = otherDenoms

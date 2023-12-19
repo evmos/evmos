@@ -491,7 +491,7 @@ func (is *IntegrationTestSuite) fundWithTokens(
 
 	switch {
 	case slices.Contains(nativeCallTypes, callType):
-		err = is.factory.FundAccount(receiver.Bytes(), fundCoins)
+		err = is.factory.FundAccount(is.keyring.GetKey(0), receiver.Bytes(), fundCoins)
 	case slices.Contains(erc20CallTypes, callType):
 		err = is.MintERC20(callType, contractData, receiver, fundCoins.AmountOf(is.tokenDenom).BigInt())
 	default:

@@ -9,6 +9,7 @@ import (
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 
 	errorsmod "cosmossdk.io/errors"
@@ -28,10 +29,10 @@ type TxFactory interface {
 	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 
 	// FundAccount funds the given account with the given amount.
-	FundAccount(address sdktypes.AccAddress, amount sdktypes.Coins) error
+	FundAccount(sender keyring.Key, receiver sdktypes.AccAddress, amount sdktypes.Coins) error
 	// FundAccountWithBaseDenom funds the given account with the given amount of the network's
 	// base denomination.
-	FundAccountWithBaseDenom(address sdktypes.AccAddress, amount sdkmath.Int) error
+	FundAccountWithBaseDenom(sender keyring.Key, receiver sdktypes.AccAddress, amount sdkmath.Int) error
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)

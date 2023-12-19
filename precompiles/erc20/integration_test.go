@@ -815,7 +815,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
 
 				// Fund account with some tokens
-				err := is.factory.FundAccount(sender.AccAddr, fundCoins)
+				err := is.factory.FundAccount(is.keyring.GetKey(0), sender.AccAddr, fundCoins)
 				Expect(err).ToNot(HaveOccurred(), "failed to fund account")
 
 				// Query the balance

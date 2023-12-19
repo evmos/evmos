@@ -8,7 +8,6 @@ import (
 	"time"
 
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -17,11 +16,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 )
-
-type Account struct {
-	Address sdktypes.AccAddress
-	PrivKey cryptotypes.PrivKey
-}
 
 // Network is the interface that wraps the common methods to interact with integration test network.
 //
@@ -33,7 +27,6 @@ type Network interface {
 	GetDenom() string
 	GetOtherDenoms() []string
 	GetValidators() []stakingtypes.Validator
-	GetFunder() Account
 
 	NextBlock() error
 	NextBlockAfter(duration time.Duration) error
