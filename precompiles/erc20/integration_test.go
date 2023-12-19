@@ -8,8 +8,6 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -25,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	evmosutil "github.com/evmos/evmos/v16/utils"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
@@ -255,7 +252,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 				is.network.NextBlock()
 				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
-				
+
 				is.ExpectTrueToBeReturned(ethRes, erc20.TransferMethod)
 				is.ExpectBalancesForContract(
 					callType, contractsData,
@@ -454,7 +451,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 						err = is.network.NextBlock()
 						Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
-						
+
 						// Transfer tokens
 						txArgs, transferArgs := is.getTxAndCallArgs(
 							callType, contractsData,
