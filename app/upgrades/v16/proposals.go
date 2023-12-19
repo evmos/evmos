@@ -9,15 +9,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	incentives "github.com/evmos/evmos/v16/x/incentives/types"
 )
 
-// DeleteIncentivesProposals deletes the RegisterIncentives & CancelIncentiveProposal proposals from the store
-// because the module was deprecated
-func DeleteIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
-	// Delete the only incentives module proposals
+// deprecatedProposals is a map of the TypeURL
+// of the deprecated proposal types
+var deprecatedProposals = map[string]struct{}{
+	"/evmos.incentives.v1.RegisterIncentiveProposal": {},
+	"/evmos.incentives.v1.CancelIncentiveProposal":   {},
+	"/evmos.erc20.v1.RegisterCoinProposal":           {},
+}
+
+// DeleteDeprecatedProposals deletes the RegisterCoin, RegisterIncentives & CancelIncentiveProposal
+// proposals from the store because were deprecated
+func DeleteDeprecatedProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.Logger) {
 	gk.IterateProposals(ctx, func(proposal govtypes.Proposal) bool {
-		// Check if proposal is a RegisterIncentives or CancelIncentiveProposal proposal
+		// Check if proposal is a deprecated proposal
 		msgs, err := proposal.GetMsgs()
 		if err != nil {
 			logger.Error("failed to get proposal messages", "error", err.Error())
@@ -30,17 +36,11 @@ func DeleteIncentivesProposals(ctx sdk.Context, gk govkeeper.Keeper, logger log.
 				continue
 			}
 
-			_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.RegisterIncentiveProposal)
-			if ok {
-				gk.DeleteProposal(ctx, proposal.Id)
+			if _, deprecated := deprecatedProposals[legacyContentMsg.Content.TypeUrl]; !deprecated {
 				continue
 			}
 
-			_, ok = legacyContentMsg.Content.GetCachedValue().(*incentives.CancelIncentiveProposal)
-			if ok {
-				gk.DeleteProposal(ctx, proposal.Id)
-				continue
-			}
+			gk.DeleteProposal(ctx, proposal.Id)
 		}
 		return false
 	})
