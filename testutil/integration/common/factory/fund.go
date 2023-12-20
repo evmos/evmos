@@ -27,7 +27,6 @@ func (tf *IntegrationTxFactory) FundAccount(sender keyring.Key, receiver sdk.Acc
 	)
 	txArgs := CosmosTxArgs{Msgs: []sdk.Msg{bankmsg}}
 	txRes, err := tf.ExecuteCosmosTx(sender.Priv, txArgs)
-
 	if err != nil {
 		return err
 	}

@@ -229,7 +229,6 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // setupERC20Precompile is a helper function to set up an instance of the ERC20 precompile for
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
-//
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
 	// TODO refactor this to do the proper setup
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
@@ -355,7 +354,7 @@ func (is *IntegrationTestSuite) ExpectBalancesForERC20(callType CallType, contra
 
 		is.network.NextBlock()
 		Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
-		
+
 		var balance *big.Int
 		err = contractABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)
 		Expect(err).ToNot(HaveOccurred(), "expected no error unpacking balance")

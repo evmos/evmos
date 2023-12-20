@@ -63,7 +63,6 @@ func updateModuleParams[T interface{}](input UpdateParamsInput, moduleName strin
 
 	title := fmt.Sprintf("Update %s params", moduleName)
 	proposalID, err := SubmitProposal(input.Tf, input.Network, input.Pk, title, proposalMsg)
-
 	if err != nil {
 		return err
 	}
