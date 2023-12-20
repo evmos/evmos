@@ -324,7 +324,6 @@ type SwapPayload struct {
 // ValidateBasic performs basic validation of the SwapPacketData.
 func (s SwapPacketData) ValidateBasic() error {
 	return ValidateOsmosisContractAddress(s.XcsContract)
-
 }
 
 // ParseSwapPacketData parses the packet data from the outpost precompiled contract.
