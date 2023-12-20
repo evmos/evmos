@@ -1232,6 +1232,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.BankKeeper,
 			app.InflationKeeper,
 			app.AccountKeeper,
+			app.GovKeeper,
 		),
 	)
 

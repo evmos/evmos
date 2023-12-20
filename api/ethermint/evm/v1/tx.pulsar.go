@@ -6113,7 +6113,7 @@ func (x *AccessListTx) GetS() []byte {
 	return nil
 }
 
-// DynamicFeeTx is the data of EIP-1559 dinamic fee transactions.
+// DynamicFeeTx is the data of EIP-1559 dynamic fee transactions.
 type DynamicFeeTx struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

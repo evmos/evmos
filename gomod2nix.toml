@@ -106,17 +106,17 @@ schema = 3
     version = "v1.8.0"
     hash = "sha256-ySle5MJXSGMHJa1HSf/ZMDTYXdow9ct7JXth4k5Po50="
   [mod."github.com/btcsuite/btcd"]
-    version = "v0.23.3"
-    hash = "sha256-/FimjFJye25/cpKOdNYJjPw1TUyu+7HuyfPggNcIsBY="
+    version = "v0.23.5-0.20231215221805-96c9fd8078fd"
+    hash = "sha256-qT6BFW9KhsVgRzX2HPEcArquGuhvvfXF6ayLijYaXIM="
   [mod."github.com/btcsuite/btcd/btcec/v2"]
     version = "v2.3.2"
     hash = "sha256-natWs+yIAuD1UI07iZtjPilroQLfXizFn3lNOiOT83U="
   [mod."github.com/btcsuite/btcd/btcutil"]
-    version = "v1.1.3"
-    hash = "sha256-6Y9sP1yvPBO8PhqmFVVXNV7dxsXlERDAB+TPTEfW3kI="
+    version = "v1.1.4"
+    hash = "sha256-fv7mejlBIA3ZumZ5Qa2QnP7KcqjkPX4UvEfi3fdogQY="
   [mod."github.com/btcsuite/btcd/chaincfg/chainhash"]
-    version = "v1.0.1"
-    hash = "sha256-vix0j/KGNvoKjhlKgVeSLY6un2FHeIEoZWMC4z3yvZ4="
+    version = "v1.1.0"
+    hash = "sha256-F+EqvufC+KBslZV/vL8ph6MqDoVD5ic5rVaM27reDqo="
   [mod."github.com/cenkalti/backoff/v4"]
     version = "v4.2.1"
     hash = "sha256-CKogmPe0pCcAdpztzPwr24rLTJZfq8QVZ9AUduwAcoA="
@@ -459,8 +459,8 @@ schema = 3
     version = "v0.1.0"
     hash = "sha256-wQqGTtRWsfR9n0O/SXHVgECebbnNmHddxJIbG63OJBQ="
   [mod."github.com/linxGnu/grocksdb"]
-    version = "v1.8.9"
-    hash = "sha256-5dTQFqlnm68kBqUHOQphugDR9HI195eQGspgkydGUK4="
+    version = "v1.8.10"
+    hash = "sha256-HrhAhTVHPtsBCnWeFmoZI5qZdLIbWB5wofO+iS0xgLI="
   [mod."github.com/magiconair/properties"]
     version = "v1.8.7"
     hash = "sha256-XQ2bnc2s7/IH3WxEO4GishZurMyKwEclZy1DXg+2xXc="
@@ -673,8 +673,8 @@ schema = 3
     version = "v1.11.0"
     hash = "sha256-Lb6rHHfR62Ozg2j2JZy3MKOMKdsfzd1IYTR57r3Mhp0="
   [mod."golang.org/x/crypto"]
-    version = "v0.16.0"
-    hash = "sha256-DgSVOnXRK8GF01p5rLtq4qPBcglwEoOk8qhW2EGfJfA="
+    version = "v0.17.0"
+    hash = "sha256-/vzBaeD/Ymyc7cpjBvSfJfuZ57zWa9LOaZM7b33eIx0="
   [mod."golang.org/x/exp"]
     version = "v0.0.0-20231110203233-9a3e6036ecaa"
     hash = "sha256-m1T4KePBRCJpAjnuq4BnDYXebOHiVI6h2489XD5R9BA="
@@ -721,8 +721,8 @@ schema = 3
     version = "v0.0.0-20231106174013-bbf56f31fb17"
     hash = "sha256-9TtJ3WDdTvD8gFVNX6CrBZdc2qTzXme7zxw1ee7QHx8="
   [mod."google.golang.org/grpc"]
-    version = "v1.60.0"
-    hash = "sha256-L8NmvIG8gYSWlfjnEL+Cm83kF8dNnHWh4t7gNWHO4jY="
+    version = "v1.60.1"
+    hash = "sha256-JJ3X6DTUZWYtM8i8izWTH9nDvCydzea31iZt6ULDvsw="
   [mod."google.golang.org/protobuf"]
     version = "v1.31.0"
     hash = "sha256-UdIk+xRaMfdhVICvKRk1THe3R1VU+lWD8hqoW/y8jT0="
