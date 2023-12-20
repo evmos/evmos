@@ -3,14 +3,15 @@ package typesv1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -48,17 +49,21 @@ func (x *ExtensionOptionsWeb3Tx) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ExtensionOptionsWeb3Tx_messageType fastReflection_ExtensionOptionsWeb3Tx_messageType
-var _ protoreflect.MessageType = fastReflection_ExtensionOptionsWeb3Tx_messageType{}
+var (
+	_fastReflection_ExtensionOptionsWeb3Tx_messageType fastReflection_ExtensionOptionsWeb3Tx_messageType
+	_                                                  protoreflect.MessageType = fastReflection_ExtensionOptionsWeb3Tx_messageType{}
+)
 
 type fastReflection_ExtensionOptionsWeb3Tx_messageType struct{}
 
 func (x fastReflection_ExtensionOptionsWeb3Tx_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ExtensionOptionsWeb3Tx)(nil)
 }
+
 func (x fastReflection_ExtensionOptionsWeb3Tx_messageType) New() protoreflect.Message {
 	return new(fastReflection_ExtensionOptionsWeb3Tx)
 }
+
 func (x fastReflection_ExtensionOptionsWeb3Tx_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ExtensionOptionsWeb3Tx
 }
@@ -672,10 +677,12 @@ func file_ethermint_types_v1_web3_proto_rawDescGZIP() []byte {
 	return file_ethermint_types_v1_web3_proto_rawDescData
 }
 
-var file_ethermint_types_v1_web3_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_ethermint_types_v1_web3_proto_goTypes = []interface{}{
-	(*ExtensionOptionsWeb3Tx)(nil), // 0: ethermint.types.v1.ExtensionOptionsWeb3Tx
-}
+var (
+	file_ethermint_types_v1_web3_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_ethermint_types_v1_web3_proto_goTypes  = []interface{}{
+		(*ExtensionOptionsWeb3Tx)(nil), // 0: ethermint.types.v1.ExtensionOptionsWeb3Tx
+	}
+)
 var file_ethermint_types_v1_web3_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

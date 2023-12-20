@@ -3,14 +3,15 @@ package ethsecp256k1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -44,17 +45,21 @@ func (x *PubKey) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_PubKey_messageType fastReflection_PubKey_messageType
-var _ protoreflect.MessageType = fastReflection_PubKey_messageType{}
+var (
+	_fastReflection_PubKey_messageType fastReflection_PubKey_messageType
+	_                                  protoreflect.MessageType = fastReflection_PubKey_messageType{}
+)
 
 type fastReflection_PubKey_messageType struct{}
 
 func (x fastReflection_PubKey_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_PubKey)(nil)
 }
+
 func (x fastReflection_PubKey_messageType) New() protoreflect.Message {
 	return new(fastReflection_PubKey)
 }
+
 func (x fastReflection_PubKey_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_PubKey
 }
@@ -466,17 +471,21 @@ func (x *PrivKey) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_PrivKey_messageType fastReflection_PrivKey_messageType
-var _ protoreflect.MessageType = fastReflection_PrivKey_messageType{}
+var (
+	_fastReflection_PrivKey_messageType fastReflection_PrivKey_messageType
+	_                                   protoreflect.MessageType = fastReflection_PrivKey_messageType{}
+)
 
 type fastReflection_PrivKey_messageType struct{}
 
 func (x fastReflection_PrivKey_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_PrivKey)(nil)
 }
+
 func (x fastReflection_PrivKey_messageType) New() protoreflect.Message {
 	return new(fastReflection_PrivKey)
 }
+
 func (x fastReflection_PrivKey_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_PrivKey
 }
@@ -995,11 +1004,13 @@ func file_ethermint_crypto_v1_ethsecp256k1_keys_proto_rawDescGZIP() []byte {
 	return file_ethermint_crypto_v1_ethsecp256k1_keys_proto_rawDescData
 }
 
-var file_ethermint_crypto_v1_ethsecp256k1_keys_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_ethermint_crypto_v1_ethsecp256k1_keys_proto_goTypes = []interface{}{
-	(*PubKey)(nil),  // 0: ethermint.crypto.v1.ethsecp256k1.PubKey
-	(*PrivKey)(nil), // 1: ethermint.crypto.v1.ethsecp256k1.PrivKey
-}
+var (
+	file_ethermint_crypto_v1_ethsecp256k1_keys_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_ethermint_crypto_v1_ethsecp256k1_keys_proto_goTypes  = []interface{}{
+		(*PubKey)(nil),  // 0: ethermint.crypto.v1.ethsecp256k1.PubKey
+		(*PrivKey)(nil), // 1: ethermint.crypto.v1.ethsecp256k1.PrivKey
+	}
+)
 var file_ethermint_crypto_v1_ethsecp256k1_keys_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

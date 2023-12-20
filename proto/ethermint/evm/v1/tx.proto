@@ -114,7 +114,7 @@ message AccessListTx {
   bytes s = 11;
 }
 
-// DynamicFeeTx is the data of EIP-1559 dinamic fee transactions.
+// DynamicFeeTx is the data of EIP-1559 dynamic fee transactions.
 message DynamicFeeTx {
   option (amino.name) = "ethermint/DynamicFeeTx";
 

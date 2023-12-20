@@ -283,7 +283,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
 				})
 
-				It("should send coins to the recevier account", func() {
+				It("should send coins to the receiver account", func() {
 					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
 					Expect(balanceCoin).To(Equal(coin))
 				})
@@ -307,7 +307,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					Expect(balanceERC20.Int64()).To(Equal(int64(0)))
 				})
 
-				It("should burn coins to the recevier account", func() {
+				It("should burn coins to the receiver account", func() {
 					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
 					Expect(balanceCoin.IsZero()).To(BeTrue())
 				})

@@ -2,23 +2,23 @@
 package inflationv1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
-var (
-	md_QueryPeriodRequest protoreflect.MessageDescriptor
-)
+var md_QueryPeriodRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -45,17 +45,21 @@ func (x *QueryPeriodRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryPeriodRequest_messageType fastReflection_QueryPeriodRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryPeriodRequest_messageType{}
+var (
+	_fastReflection_QueryPeriodRequest_messageType fastReflection_QueryPeriodRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryPeriodRequest_messageType{}
+)
 
 type fastReflection_QueryPeriodRequest_messageType struct{}
 
 func (x fastReflection_QueryPeriodRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryPeriodRequest)(nil)
 }
+
 func (x fastReflection_QueryPeriodRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryPeriodRequest)
 }
+
 func (x fastReflection_QueryPeriodRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryPeriodRequest
 }
@@ -403,17 +407,21 @@ func (x *QueryPeriodResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryPeriodResponse_messageType fastReflection_QueryPeriodResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryPeriodResponse_messageType{}
+var (
+	_fastReflection_QueryPeriodResponse_messageType fastReflection_QueryPeriodResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryPeriodResponse_messageType{}
+)
 
 type fastReflection_QueryPeriodResponse_messageType struct{}
 
 func (x fastReflection_QueryPeriodResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryPeriodResponse)(nil)
 }
+
 func (x fastReflection_QueryPeriodResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryPeriodResponse)
 }
+
 func (x fastReflection_QueryPeriodResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryPeriodResponse
 }
@@ -776,9 +784,7 @@ func (x *fastReflection_QueryPeriodResponse) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-var (
-	md_QueryEpochMintProvisionRequest protoreflect.MessageDescriptor
-)
+var md_QueryEpochMintProvisionRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -805,17 +811,21 @@ func (x *QueryEpochMintProvisionRequest) slowProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryEpochMintProvisionRequest_messageType fastReflection_QueryEpochMintProvisionRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryEpochMintProvisionRequest_messageType{}
+var (
+	_fastReflection_QueryEpochMintProvisionRequest_messageType fastReflection_QueryEpochMintProvisionRequest_messageType
+	_                                                          protoreflect.MessageType = fastReflection_QueryEpochMintProvisionRequest_messageType{}
+)
 
 type fastReflection_QueryEpochMintProvisionRequest_messageType struct{}
 
 func (x fastReflection_QueryEpochMintProvisionRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryEpochMintProvisionRequest)(nil)
 }
+
 func (x fastReflection_QueryEpochMintProvisionRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryEpochMintProvisionRequest)
 }
+
 func (x fastReflection_QueryEpochMintProvisionRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryEpochMintProvisionRequest
 }
@@ -1163,17 +1173,21 @@ func (x *QueryEpochMintProvisionResponse) slowProtoReflect() protoreflect.Messag
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryEpochMintProvisionResponse_messageType fastReflection_QueryEpochMintProvisionResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryEpochMintProvisionResponse_messageType{}
+var (
+	_fastReflection_QueryEpochMintProvisionResponse_messageType fastReflection_QueryEpochMintProvisionResponse_messageType
+	_                                                           protoreflect.MessageType = fastReflection_QueryEpochMintProvisionResponse_messageType{}
+)
 
 type fastReflection_QueryEpochMintProvisionResponse_messageType struct{}
 
 func (x fastReflection_QueryEpochMintProvisionResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryEpochMintProvisionResponse)(nil)
 }
+
 func (x fastReflection_QueryEpochMintProvisionResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryEpochMintProvisionResponse)
 }
+
 func (x fastReflection_QueryEpochMintProvisionResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryEpochMintProvisionResponse
 }
@@ -1567,9 +1581,7 @@ func (x *fastReflection_QueryEpochMintProvisionResponse) ProtoMethods() *protoif
 	}
 }
 
-var (
-	md_QuerySkippedEpochsRequest protoreflect.MessageDescriptor
-)
+var md_QuerySkippedEpochsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -1596,17 +1608,21 @@ func (x *QuerySkippedEpochsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QuerySkippedEpochsRequest_messageType fastReflection_QuerySkippedEpochsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QuerySkippedEpochsRequest_messageType{}
+var (
+	_fastReflection_QuerySkippedEpochsRequest_messageType fastReflection_QuerySkippedEpochsRequest_messageType
+	_                                                     protoreflect.MessageType = fastReflection_QuerySkippedEpochsRequest_messageType{}
+)
 
 type fastReflection_QuerySkippedEpochsRequest_messageType struct{}
 
 func (x fastReflection_QuerySkippedEpochsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QuerySkippedEpochsRequest)(nil)
 }
+
 func (x fastReflection_QuerySkippedEpochsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QuerySkippedEpochsRequest)
 }
+
 func (x fastReflection_QuerySkippedEpochsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QuerySkippedEpochsRequest
 }
@@ -1954,17 +1970,21 @@ func (x *QuerySkippedEpochsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QuerySkippedEpochsResponse_messageType fastReflection_QuerySkippedEpochsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QuerySkippedEpochsResponse_messageType{}
+var (
+	_fastReflection_QuerySkippedEpochsResponse_messageType fastReflection_QuerySkippedEpochsResponse_messageType
+	_                                                      protoreflect.MessageType = fastReflection_QuerySkippedEpochsResponse_messageType{}
+)
 
 type fastReflection_QuerySkippedEpochsResponse_messageType struct{}
 
 func (x fastReflection_QuerySkippedEpochsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QuerySkippedEpochsResponse)(nil)
 }
+
 func (x fastReflection_QuerySkippedEpochsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QuerySkippedEpochsResponse)
 }
+
 func (x fastReflection_QuerySkippedEpochsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QuerySkippedEpochsResponse
 }
@@ -2327,9 +2347,7 @@ func (x *fastReflection_QuerySkippedEpochsResponse) ProtoMethods() *protoiface.M
 	}
 }
 
-var (
-	md_QueryCirculatingSupplyRequest protoreflect.MessageDescriptor
-)
+var md_QueryCirculatingSupplyRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -2356,17 +2374,21 @@ func (x *QueryCirculatingSupplyRequest) slowProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCirculatingSupplyRequest_messageType fastReflection_QueryCirculatingSupplyRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCirculatingSupplyRequest_messageType{}
+var (
+	_fastReflection_QueryCirculatingSupplyRequest_messageType fastReflection_QueryCirculatingSupplyRequest_messageType
+	_                                                         protoreflect.MessageType = fastReflection_QueryCirculatingSupplyRequest_messageType{}
+)
 
 type fastReflection_QueryCirculatingSupplyRequest_messageType struct{}
 
 func (x fastReflection_QueryCirculatingSupplyRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCirculatingSupplyRequest)(nil)
 }
+
 func (x fastReflection_QueryCirculatingSupplyRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCirculatingSupplyRequest)
 }
+
 func (x fastReflection_QueryCirculatingSupplyRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCirculatingSupplyRequest
 }
@@ -2714,17 +2736,21 @@ func (x *QueryCirculatingSupplyResponse) slowProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCirculatingSupplyResponse_messageType fastReflection_QueryCirculatingSupplyResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCirculatingSupplyResponse_messageType{}
+var (
+	_fastReflection_QueryCirculatingSupplyResponse_messageType fastReflection_QueryCirculatingSupplyResponse_messageType
+	_                                                          protoreflect.MessageType = fastReflection_QueryCirculatingSupplyResponse_messageType{}
+)
 
 type fastReflection_QueryCirculatingSupplyResponse_messageType struct{}
 
 func (x fastReflection_QueryCirculatingSupplyResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCirculatingSupplyResponse)(nil)
 }
+
 func (x fastReflection_QueryCirculatingSupplyResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCirculatingSupplyResponse)
 }
+
 func (x fastReflection_QueryCirculatingSupplyResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCirculatingSupplyResponse
 }
@@ -3118,9 +3144,7 @@ func (x *fastReflection_QueryCirculatingSupplyResponse) ProtoMethods() *protoifa
 	}
 }
 
-var (
-	md_QueryInflationRateRequest protoreflect.MessageDescriptor
-)
+var md_QueryInflationRateRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -3147,17 +3171,21 @@ func (x *QueryInflationRateRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryInflationRateRequest_messageType fastReflection_QueryInflationRateRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryInflationRateRequest_messageType{}
+var (
+	_fastReflection_QueryInflationRateRequest_messageType fastReflection_QueryInflationRateRequest_messageType
+	_                                                     protoreflect.MessageType = fastReflection_QueryInflationRateRequest_messageType{}
+)
 
 type fastReflection_QueryInflationRateRequest_messageType struct{}
 
 func (x fastReflection_QueryInflationRateRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryInflationRateRequest)(nil)
 }
+
 func (x fastReflection_QueryInflationRateRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryInflationRateRequest)
 }
+
 func (x fastReflection_QueryInflationRateRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryInflationRateRequest
 }
@@ -3505,17 +3533,21 @@ func (x *QueryInflationRateResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryInflationRateResponse_messageType fastReflection_QueryInflationRateResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryInflationRateResponse_messageType{}
+var (
+	_fastReflection_QueryInflationRateResponse_messageType fastReflection_QueryInflationRateResponse_messageType
+	_                                                      protoreflect.MessageType = fastReflection_QueryInflationRateResponse_messageType{}
+)
 
 type fastReflection_QueryInflationRateResponse_messageType struct{}
 
 func (x fastReflection_QueryInflationRateResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryInflationRateResponse)(nil)
 }
+
 func (x fastReflection_QueryInflationRateResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryInflationRateResponse)
 }
+
 func (x fastReflection_QueryInflationRateResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryInflationRateResponse
 }
@@ -3894,9 +3926,7 @@ func (x *fastReflection_QueryInflationRateResponse) ProtoMethods() *protoiface.M
 	}
 }
 
-var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
+var md_QueryParamsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_inflation_v1_query_proto_init()
@@ -3923,17 +3953,21 @@ func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+var (
+	_fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+)
 
 type fastReflection_QueryParamsRequest_messageType struct{}
 
 func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsRequest)(nil)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsRequest)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsRequest
 }
@@ -4281,17 +4315,21 @@ func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+var (
+	_fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+)
 
 type fastReflection_QueryParamsResponse_messageType struct{}
 
 func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsResponse)(nil)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsResponse)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsResponse
 }
@@ -5245,23 +5283,25 @@ func file_evmos_inflation_v1_query_proto_rawDescGZIP() []byte {
 	return file_evmos_inflation_v1_query_proto_rawDescData
 }
 
-var file_evmos_inflation_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_evmos_inflation_v1_query_proto_goTypes = []interface{}{
-	(*QueryPeriodRequest)(nil),              // 0: evmos.inflation.v1.QueryPeriodRequest
-	(*QueryPeriodResponse)(nil),             // 1: evmos.inflation.v1.QueryPeriodResponse
-	(*QueryEpochMintProvisionRequest)(nil),  // 2: evmos.inflation.v1.QueryEpochMintProvisionRequest
-	(*QueryEpochMintProvisionResponse)(nil), // 3: evmos.inflation.v1.QueryEpochMintProvisionResponse
-	(*QuerySkippedEpochsRequest)(nil),       // 4: evmos.inflation.v1.QuerySkippedEpochsRequest
-	(*QuerySkippedEpochsResponse)(nil),      // 5: evmos.inflation.v1.QuerySkippedEpochsResponse
-	(*QueryCirculatingSupplyRequest)(nil),   // 6: evmos.inflation.v1.QueryCirculatingSupplyRequest
-	(*QueryCirculatingSupplyResponse)(nil),  // 7: evmos.inflation.v1.QueryCirculatingSupplyResponse
-	(*QueryInflationRateRequest)(nil),       // 8: evmos.inflation.v1.QueryInflationRateRequest
-	(*QueryInflationRateResponse)(nil),      // 9: evmos.inflation.v1.QueryInflationRateResponse
-	(*QueryParamsRequest)(nil),              // 10: evmos.inflation.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),             // 11: evmos.inflation.v1.QueryParamsResponse
-	(*v1beta1.DecCoin)(nil),                 // 12: cosmos.base.v1beta1.DecCoin
-	(*Params)(nil),                          // 13: evmos.inflation.v1.Params
-}
+var (
+	file_evmos_inflation_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+	file_evmos_inflation_v1_query_proto_goTypes  = []interface{}{
+		(*QueryPeriodRequest)(nil),              // 0: evmos.inflation.v1.QueryPeriodRequest
+		(*QueryPeriodResponse)(nil),             // 1: evmos.inflation.v1.QueryPeriodResponse
+		(*QueryEpochMintProvisionRequest)(nil),  // 2: evmos.inflation.v1.QueryEpochMintProvisionRequest
+		(*QueryEpochMintProvisionResponse)(nil), // 3: evmos.inflation.v1.QueryEpochMintProvisionResponse
+		(*QuerySkippedEpochsRequest)(nil),       // 4: evmos.inflation.v1.QuerySkippedEpochsRequest
+		(*QuerySkippedEpochsResponse)(nil),      // 5: evmos.inflation.v1.QuerySkippedEpochsResponse
+		(*QueryCirculatingSupplyRequest)(nil),   // 6: evmos.inflation.v1.QueryCirculatingSupplyRequest
+		(*QueryCirculatingSupplyResponse)(nil),  // 7: evmos.inflation.v1.QueryCirculatingSupplyResponse
+		(*QueryInflationRateRequest)(nil),       // 8: evmos.inflation.v1.QueryInflationRateRequest
+		(*QueryInflationRateResponse)(nil),      // 9: evmos.inflation.v1.QueryInflationRateResponse
+		(*QueryParamsRequest)(nil),              // 10: evmos.inflation.v1.QueryParamsRequest
+		(*QueryParamsResponse)(nil),             // 11: evmos.inflation.v1.QueryParamsResponse
+		(*v1beta1.DecCoin)(nil),                 // 12: cosmos.base.v1beta1.DecCoin
+		(*Params)(nil),                          // 13: evmos.inflation.v1.Params
+	}
+)
 var file_evmos_inflation_v1_query_proto_depIdxs = []int32{
 	12, // 0: evmos.inflation.v1.QueryEpochMintProvisionResponse.epoch_mint_provision:type_name -> cosmos.base.v1beta1.DecCoin
 	12, // 1: evmos.inflation.v1.QueryCirculatingSupplyResponse.circulating_supply:type_name -> cosmos.base.v1beta1.DecCoin

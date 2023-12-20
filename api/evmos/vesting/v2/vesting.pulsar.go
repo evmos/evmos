@@ -2,18 +2,20 @@
 package vestingv2
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/vesting/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var _ protoreflect.List = (*_ClawbackVestingAccount_4_list)(nil)
@@ -157,17 +159,21 @@ func (x *ClawbackVestingAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ClawbackVestingAccount_messageType fastReflection_ClawbackVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_ClawbackVestingAccount_messageType{}
+var (
+	_fastReflection_ClawbackVestingAccount_messageType fastReflection_ClawbackVestingAccount_messageType
+	_                                                  protoreflect.MessageType = fastReflection_ClawbackVestingAccount_messageType{}
+)
 
 type fastReflection_ClawbackVestingAccount_messageType struct{}
 
 func (x fastReflection_ClawbackVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ClawbackVestingAccount)(nil)
 }
+
 func (x fastReflection_ClawbackVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_ClawbackVestingAccount)
 }
+
 func (x fastReflection_ClawbackVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ClawbackVestingAccount
 }
@@ -907,17 +913,21 @@ func (x *ClawbackProposal) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_ClawbackProposal_messageType fastReflection_ClawbackProposal_messageType
-var _ protoreflect.MessageType = fastReflection_ClawbackProposal_messageType{}
+var (
+	_fastReflection_ClawbackProposal_messageType fastReflection_ClawbackProposal_messageType
+	_                                            protoreflect.MessageType = fastReflection_ClawbackProposal_messageType{}
+)
 
 type fastReflection_ClawbackProposal_messageType struct{}
 
 func (x fastReflection_ClawbackProposal_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_ClawbackProposal)(nil)
 }
+
 func (x fastReflection_ClawbackProposal_messageType) New() protoreflect.Message {
 	return new(fastReflection_ClawbackProposal)
 }
+
 func (x fastReflection_ClawbackProposal_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_ClawbackProposal
 }
@@ -1730,14 +1740,16 @@ func file_evmos_vesting_v2_vesting_proto_rawDescGZIP() []byte {
 	return file_evmos_vesting_v2_vesting_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_vesting_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_vesting_v2_vesting_proto_goTypes = []interface{}{
-	(*ClawbackVestingAccount)(nil),     // 0: evmos.vesting.v2.ClawbackVestingAccount
-	(*ClawbackProposal)(nil),           // 1: evmos.vesting.v2.ClawbackProposal
-	(*v1beta1.BaseVestingAccount)(nil), // 2: cosmos.vesting.v1beta1.BaseVestingAccount
-	(*timestamppb.Timestamp)(nil),      // 3: google.protobuf.Timestamp
-	(*v1beta1.Period)(nil),             // 4: cosmos.vesting.v1beta1.Period
-}
+var (
+	file_evmos_vesting_v2_vesting_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_evmos_vesting_v2_vesting_proto_goTypes  = []interface{}{
+		(*ClawbackVestingAccount)(nil),     // 0: evmos.vesting.v2.ClawbackVestingAccount
+		(*ClawbackProposal)(nil),           // 1: evmos.vesting.v2.ClawbackProposal
+		(*v1beta1.BaseVestingAccount)(nil), // 2: cosmos.vesting.v1beta1.BaseVestingAccount
+		(*timestamppb.Timestamp)(nil),      // 3: google.protobuf.Timestamp
+		(*v1beta1.Period)(nil),             // 4: cosmos.vesting.v1beta1.Period
+	}
+)
 var file_evmos_vesting_v2_vesting_proto_depIdxs = []int32{
 	2, // 0: evmos.vesting.v2.ClawbackVestingAccount.base_vesting_account:type_name -> cosmos.vesting.v1beta1.BaseVestingAccount
 	3, // 1: evmos.vesting.v2.ClawbackVestingAccount.start_time:type_name -> google.protobuf.Timestamp
