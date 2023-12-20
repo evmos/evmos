@@ -67,6 +67,8 @@ var _ = Describe("WEVMOS Extension -", func() {
 		Expect(err).ToNot(HaveOccurred(), "failed to create wevmos extension")
 		s.precompile = precompile
 
+		// FIXME need to refactor this once this can be achieved either
+		// by genesis or a transaction
 		err = s.network.App.EvmKeeper.AddEVMExtensions(s.network.GetContext(), precompile)
 		Expect(err).ToNot(HaveOccurred(), "failed to add wevmos extension")
 

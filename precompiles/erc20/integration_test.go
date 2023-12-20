@@ -66,6 +66,10 @@ func (is *IntegrationTestSuite) SetupTest() {
 
 	is.bondDenom = nw.GetDenom()
 
+	// FIXME: for now, this setup function cannot be refactored
+	// with the sdk v0.50 changes
+	// We'll need the full implementation of the erc20 precompile
+	// to achieve this
 	is.precompile = is.setupERC20Precompile(is.tokenDenom)
 }
 

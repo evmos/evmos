@@ -230,8 +230,8 @@ func (s *PrecompileTestSuite) setupERC20Precompile(denom string) *erc20.Precompi
 // a given token denomination, set the token pair in the ERC20 keeper and adds the precompile
 // to the available and active precompiles.
 //
-// TODO: refactor
 func (is *IntegrationTestSuite) setupERC20Precompile(denom string) *erc20.Precompile {
+	// TODO refactor this to do the proper setup
 	tokenPair := erc20types.NewTokenPair(utiltx.GenerateAddress(), denom, erc20types.OWNER_MODULE)
 	is.network.App.Erc20Keeper.SetTokenPair(is.network.GetContext(), tokenPair)
 
@@ -255,6 +255,8 @@ func setupERC20PrecompileForTokenPair(
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "failed to create %q erc20 precompile", tokenPair.Denom)
 	}
+
+	// TODO enable the new precompile via updateEVMParams proposal ??
 
 	err = unitNetwork.App.EvmKeeper.AddEVMExtensions(unitNetwork.GetContext(), precompile)
 	if err != nil {
