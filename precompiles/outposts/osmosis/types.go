@@ -323,11 +323,8 @@ type SwapPayload struct {
 
 // ValidateBasic performs basic validation of the SwapPacketData.
 func (s SwapPacketData) ValidateBasic() error {
-	if err := ValidateOsmosisContractAddress(s.XcsContract); err != nil {
-		return err
-	}
-	// TODO: what else can we validate here, the WEVMOS contract address maybe ?
-	return nil
+	return ValidateOsmosisContractAddress(s.XcsContract)
+
 }
 
 // ParseSwapPacketData parses the packet data from the outpost precompiled contract.
