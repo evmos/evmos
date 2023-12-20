@@ -57,7 +57,7 @@ def test_osmosis_swap(ibc):
     # 100aevmos is 98uosmo
     exp_swap_amount = 98
 
-    setup_osmos_chains(ibc)
+    xcs_contract = setup_osmos_chains(ibc)
 
     # --------- Register Evmos token (this could be wrapevmos I think)
     wevmos_addr = wrap_evmos(ibc.chains["evmos"], evmos_addr, amt)
@@ -79,7 +79,7 @@ def test_osmosis_swap(ibc):
     evmos_gas_price = w3.eth.gas_price
     swap_params = {
         'channelID': 'channel-0',
-        'xcsContract': 'your_xcs_contract',  # TODO: Where do we get this?
+        'xcsContract': xcs_contract,
         'sender': evmos_addr,
         'input': wevmos_addr,
         'output': osmo_erc20_addr,
@@ -164,6 +164,8 @@ def setup_osmos_chains(ibc):
     set_swap_route(
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
+
+    return cross_swap_contract
 
 
 def send_evmos_to_osmos(ibc):
