@@ -85,20 +85,16 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	var strideChannelID, osmosisChannelID, xcsv1Contract string
+	var osmosisChannelID, xcsv1Contract string
 	if utils.IsMainnet(chainID) {
 		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		strideChannelID = evmostransfertypes.StrideMainnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
 		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		strideChannelID = evmostransfertypes.StrideTestnetChannelID
 		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
-		transfertypes.PortID,
-		strideChannelID,
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
