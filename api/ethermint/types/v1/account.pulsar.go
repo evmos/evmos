@@ -2,18 +2,20 @@
 package typesv1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/auth/v1beta1"
-	fmt "fmt"
+
 	_ "github.com/cosmos/cosmos-proto"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -49,17 +51,21 @@ func (x *EthAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthAccount_messageType fastReflection_EthAccount_messageType
-var _ protoreflect.MessageType = fastReflection_EthAccount_messageType{}
+var (
+	_fastReflection_EthAccount_messageType fastReflection_EthAccount_messageType
+	_                                      protoreflect.MessageType = fastReflection_EthAccount_messageType{}
+)
 
 type fastReflection_EthAccount_messageType struct{}
 
 func (x fastReflection_EthAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EthAccount)(nil)
 }
+
 func (x fastReflection_EthAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_EthAccount)
 }
+
 func (x fastReflection_EthAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EthAccount
 }
@@ -635,11 +641,13 @@ func file_ethermint_types_v1_account_proto_rawDescGZIP() []byte {
 	return file_ethermint_types_v1_account_proto_rawDescData
 }
 
-var file_ethermint_types_v1_account_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_ethermint_types_v1_account_proto_goTypes = []interface{}{
-	(*EthAccount)(nil),          // 0: ethermint.types.v1.EthAccount
-	(*v1beta1.BaseAccount)(nil), // 1: cosmos.auth.v1beta1.BaseAccount
-}
+var (
+	file_ethermint_types_v1_account_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_ethermint_types_v1_account_proto_goTypes  = []interface{}{
+		(*EthAccount)(nil),          // 0: ethermint.types.v1.EthAccount
+		(*v1beta1.BaseAccount)(nil), // 1: cosmos.auth.v1beta1.BaseAccount
+	}
+)
 var file_ethermint_types_v1_account_proto_depIdxs = []int32{
 	1, // 0: ethermint.types.v1.EthAccount.base_account:type_name -> cosmos.auth.v1beta1.BaseAccount
 	1, // [1:1] is the sub-list for method output_type

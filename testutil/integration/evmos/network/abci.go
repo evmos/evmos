@@ -30,7 +30,7 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	if _, err := n.app.FinalizeBlock(req); err != nil {
 		return err
 	}
-	
+
 	header := n.ctx.BlockHeader()
 	// Update block header and BeginBlock
 	header.Height++

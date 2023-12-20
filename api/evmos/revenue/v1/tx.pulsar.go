@@ -2,9 +2,14 @@
 package revenuev1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	_ "cosmossdk.io/api/cosmos/msg/v1"
-	fmt "fmt"
+
 	_ "github.com/cosmos/cosmos-proto"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -12,9 +17,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var _ protoreflect.List = (*_MsgRegisterRevenue_4_list)(nil)
@@ -100,17 +102,21 @@ func (x *MsgRegisterRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgRegisterRevenue_messageType fastReflection_MsgRegisterRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_MsgRegisterRevenue_messageType{}
+var (
+	_fastReflection_MsgRegisterRevenue_messageType fastReflection_MsgRegisterRevenue_messageType
+	_                                              protoreflect.MessageType = fastReflection_MsgRegisterRevenue_messageType{}
+)
 
 type fastReflection_MsgRegisterRevenue_messageType struct{}
 
 func (x fastReflection_MsgRegisterRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgRegisterRevenue)(nil)
 }
+
 func (x fastReflection_MsgRegisterRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgRegisterRevenue)
 }
+
 func (x fastReflection_MsgRegisterRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgRegisterRevenue
 }
@@ -745,9 +751,7 @@ func (x *fastReflection_MsgRegisterRevenue) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgRegisterRevenueResponse protoreflect.MessageDescriptor
-)
+var md_MsgRegisterRevenueResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_revenue_v1_tx_proto_init()
@@ -774,17 +778,21 @@ func (x *MsgRegisterRevenueResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgRegisterRevenueResponse_messageType fastReflection_MsgRegisterRevenueResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgRegisterRevenueResponse_messageType{}
+var (
+	_fastReflection_MsgRegisterRevenueResponse_messageType fastReflection_MsgRegisterRevenueResponse_messageType
+	_                                                      protoreflect.MessageType = fastReflection_MsgRegisterRevenueResponse_messageType{}
+)
 
 type fastReflection_MsgRegisterRevenueResponse_messageType struct{}
 
 func (x fastReflection_MsgRegisterRevenueResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgRegisterRevenueResponse)(nil)
 }
+
 func (x fastReflection_MsgRegisterRevenueResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgRegisterRevenueResponse)
 }
+
 func (x fastReflection_MsgRegisterRevenueResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgRegisterRevenueResponse
 }
@@ -1136,17 +1144,21 @@ func (x *MsgUpdateRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateRevenue_messageType fastReflection_MsgUpdateRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateRevenue_messageType{}
+var (
+	_fastReflection_MsgUpdateRevenue_messageType fastReflection_MsgUpdateRevenue_messageType
+	_                                            protoreflect.MessageType = fastReflection_MsgUpdateRevenue_messageType{}
+)
 
 type fastReflection_MsgUpdateRevenue_messageType struct{}
 
 func (x fastReflection_MsgUpdateRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateRevenue)(nil)
 }
+
 func (x fastReflection_MsgUpdateRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateRevenue)
 }
+
 func (x fastReflection_MsgUpdateRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateRevenue
 }
@@ -1649,9 +1661,7 @@ func (x *fastReflection_MsgUpdateRevenue) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgUpdateRevenueResponse protoreflect.MessageDescriptor
-)
+var md_MsgUpdateRevenueResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_revenue_v1_tx_proto_init()
@@ -1678,17 +1688,21 @@ func (x *MsgUpdateRevenueResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateRevenueResponse_messageType fastReflection_MsgUpdateRevenueResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateRevenueResponse_messageType{}
+var (
+	_fastReflection_MsgUpdateRevenueResponse_messageType fastReflection_MsgUpdateRevenueResponse_messageType
+	_                                                    protoreflect.MessageType = fastReflection_MsgUpdateRevenueResponse_messageType{}
+)
 
 type fastReflection_MsgUpdateRevenueResponse_messageType struct{}
 
 func (x fastReflection_MsgUpdateRevenueResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateRevenueResponse)(nil)
 }
+
 func (x fastReflection_MsgUpdateRevenueResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateRevenueResponse)
 }
+
 func (x fastReflection_MsgUpdateRevenueResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateRevenueResponse
 }
@@ -2038,17 +2052,21 @@ func (x *MsgCancelRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgCancelRevenue_messageType fastReflection_MsgCancelRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_MsgCancelRevenue_messageType{}
+var (
+	_fastReflection_MsgCancelRevenue_messageType fastReflection_MsgCancelRevenue_messageType
+	_                                            protoreflect.MessageType = fastReflection_MsgCancelRevenue_messageType{}
+)
 
 type fastReflection_MsgCancelRevenue_messageType struct{}
 
 func (x fastReflection_MsgCancelRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgCancelRevenue)(nil)
 }
+
 func (x fastReflection_MsgCancelRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgCancelRevenue)
 }
+
 func (x fastReflection_MsgCancelRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgCancelRevenue
 }
@@ -2489,9 +2507,7 @@ func (x *fastReflection_MsgCancelRevenue) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgCancelRevenueResponse protoreflect.MessageDescriptor
-)
+var md_MsgCancelRevenueResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_revenue_v1_tx_proto_init()
@@ -2518,17 +2534,21 @@ func (x *MsgCancelRevenueResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgCancelRevenueResponse_messageType fastReflection_MsgCancelRevenueResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgCancelRevenueResponse_messageType{}
+var (
+	_fastReflection_MsgCancelRevenueResponse_messageType fastReflection_MsgCancelRevenueResponse_messageType
+	_                                                    protoreflect.MessageType = fastReflection_MsgCancelRevenueResponse_messageType{}
+)
 
 type fastReflection_MsgCancelRevenueResponse_messageType struct{}
 
 func (x fastReflection_MsgCancelRevenueResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgCancelRevenueResponse)(nil)
 }
+
 func (x fastReflection_MsgCancelRevenueResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgCancelRevenueResponse)
 }
+
 func (x fastReflection_MsgCancelRevenueResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgCancelRevenueResponse
 }
@@ -2878,17 +2898,21 @@ func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateParams_messageType fastReflection_MsgUpdateParams_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateParams_messageType{}
+var (
+	_fastReflection_MsgUpdateParams_messageType fastReflection_MsgUpdateParams_messageType
+	_                                           protoreflect.MessageType = fastReflection_MsgUpdateParams_messageType{}
+)
 
 type fastReflection_MsgUpdateParams_messageType struct{}
 
 func (x fastReflection_MsgUpdateParams_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateParams)(nil)
 }
+
 func (x fastReflection_MsgUpdateParams_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateParams)
 }
+
 func (x fastReflection_MsgUpdateParams_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateParams
 }
@@ -3344,9 +3368,7 @@ func (x *fastReflection_MsgUpdateParams) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_MsgUpdateParamsResponse protoreflect.MessageDescriptor
-)
+var md_MsgUpdateParamsResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_revenue_v1_tx_proto_init()
@@ -3373,17 +3395,21 @@ func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateParamsResponse_messageType fastReflection_MsgUpdateParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateParamsResponse_messageType{}
+var (
+	_fastReflection_MsgUpdateParamsResponse_messageType fastReflection_MsgUpdateParamsResponse_messageType
+	_                                                   protoreflect.MessageType = fastReflection_MsgUpdateParamsResponse_messageType{}
+)
 
 type fastReflection_MsgUpdateParamsResponse_messageType struct{}
 
 func (x fastReflection_MsgUpdateParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateParamsResponse)(nil)
 }
+
 func (x fastReflection_MsgUpdateParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateParamsResponse)
 }
+
 func (x fastReflection_MsgUpdateParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateParamsResponse
 }
@@ -4175,18 +4201,20 @@ func file_evmos_revenue_v1_tx_proto_rawDescGZIP() []byte {
 	return file_evmos_revenue_v1_tx_proto_rawDescData
 }
 
-var file_evmos_revenue_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_evmos_revenue_v1_tx_proto_goTypes = []interface{}{
-	(*MsgRegisterRevenue)(nil),         // 0: evmos.revenue.v1.MsgRegisterRevenue
-	(*MsgRegisterRevenueResponse)(nil), // 1: evmos.revenue.v1.MsgRegisterRevenueResponse
-	(*MsgUpdateRevenue)(nil),           // 2: evmos.revenue.v1.MsgUpdateRevenue
-	(*MsgUpdateRevenueResponse)(nil),   // 3: evmos.revenue.v1.MsgUpdateRevenueResponse
-	(*MsgCancelRevenue)(nil),           // 4: evmos.revenue.v1.MsgCancelRevenue
-	(*MsgCancelRevenueResponse)(nil),   // 5: evmos.revenue.v1.MsgCancelRevenueResponse
-	(*MsgUpdateParams)(nil),            // 6: evmos.revenue.v1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),    // 7: evmos.revenue.v1.MsgUpdateParamsResponse
-	(*Params)(nil),                     // 8: evmos.revenue.v1.Params
-}
+var (
+	file_evmos_revenue_v1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+	file_evmos_revenue_v1_tx_proto_goTypes  = []interface{}{
+		(*MsgRegisterRevenue)(nil),         // 0: evmos.revenue.v1.MsgRegisterRevenue
+		(*MsgRegisterRevenueResponse)(nil), // 1: evmos.revenue.v1.MsgRegisterRevenueResponse
+		(*MsgUpdateRevenue)(nil),           // 2: evmos.revenue.v1.MsgUpdateRevenue
+		(*MsgUpdateRevenueResponse)(nil),   // 3: evmos.revenue.v1.MsgUpdateRevenueResponse
+		(*MsgCancelRevenue)(nil),           // 4: evmos.revenue.v1.MsgCancelRevenue
+		(*MsgCancelRevenueResponse)(nil),   // 5: evmos.revenue.v1.MsgCancelRevenueResponse
+		(*MsgUpdateParams)(nil),            // 6: evmos.revenue.v1.MsgUpdateParams
+		(*MsgUpdateParamsResponse)(nil),    // 7: evmos.revenue.v1.MsgUpdateParamsResponse
+		(*Params)(nil),                     // 8: evmos.revenue.v1.Params
+	}
+)
 var file_evmos_revenue_v1_tx_proto_depIdxs = []int32{
 	8, // 0: evmos.revenue.v1.MsgUpdateParams.params:type_name -> evmos.revenue.v1.Params
 	0, // 1: evmos.revenue.v1.Msg.RegisterRevenue:input_type -> evmos.revenue.v1.MsgRegisterRevenue

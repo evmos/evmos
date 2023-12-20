@@ -22,8 +22,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	"github.com/evmos/evmos/v16/types"
 	evmapi "github.com/evmos/evmos/v16/api/ethermint/evm/v1"
+	"github.com/evmos/evmos/v16/types"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -208,7 +208,6 @@ func (msg *MsgEthereumTx) GetMsgs() []sdk.Msg {
 func (msg *MsgEthereumTx) GetMsgsV2() ([]protov2.Message, error) {
 	return nil, errors.New("not implemented")
 }
-
 
 // GetSignBytes returns the Amino bytes of an Ethereum transaction message used
 // for signing.

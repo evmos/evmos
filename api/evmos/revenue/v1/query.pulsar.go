@@ -2,18 +2,20 @@
 package revenuev1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/query/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +49,21 @@ func (x *QueryRevenuesRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryRevenuesRequest_messageType fastReflection_QueryRevenuesRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryRevenuesRequest_messageType{}
+var (
+	_fastReflection_QueryRevenuesRequest_messageType fastReflection_QueryRevenuesRequest_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryRevenuesRequest_messageType{}
+)
 
 type fastReflection_QueryRevenuesRequest_messageType struct{}
 
 func (x fastReflection_QueryRevenuesRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryRevenuesRequest)(nil)
 }
+
 func (x fastReflection_QueryRevenuesRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryRevenuesRequest)
 }
+
 func (x fastReflection_QueryRevenuesRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryRevenuesRequest
 }
@@ -535,17 +541,21 @@ func (x *QueryRevenuesResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryRevenuesResponse_messageType fastReflection_QueryRevenuesResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryRevenuesResponse_messageType{}
+var (
+	_fastReflection_QueryRevenuesResponse_messageType fastReflection_QueryRevenuesResponse_messageType
+	_                                                 protoreflect.MessageType = fastReflection_QueryRevenuesResponse_messageType{}
+)
 
 type fastReflection_QueryRevenuesResponse_messageType struct{}
 
 func (x fastReflection_QueryRevenuesResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryRevenuesResponse)(nil)
 }
+
 func (x fastReflection_QueryRevenuesResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryRevenuesResponse)
 }
+
 func (x fastReflection_QueryRevenuesResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryRevenuesResponse
 }
@@ -1055,17 +1065,21 @@ func (x *QueryRevenueRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryRevenueRequest_messageType fastReflection_QueryRevenueRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryRevenueRequest_messageType{}
+var (
+	_fastReflection_QueryRevenueRequest_messageType fastReflection_QueryRevenueRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryRevenueRequest_messageType{}
+)
 
 type fastReflection_QueryRevenueRequest_messageType struct{}
 
 func (x fastReflection_QueryRevenueRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryRevenueRequest)(nil)
 }
+
 func (x fastReflection_QueryRevenueRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryRevenueRequest)
 }
+
 func (x fastReflection_QueryRevenueRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryRevenueRequest
 }
@@ -1475,17 +1489,21 @@ func (x *QueryRevenueResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryRevenueResponse_messageType fastReflection_QueryRevenueResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryRevenueResponse_messageType{}
+var (
+	_fastReflection_QueryRevenueResponse_messageType fastReflection_QueryRevenueResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryRevenueResponse_messageType{}
+)
 
 type fastReflection_QueryRevenueResponse_messageType struct{}
 
 func (x fastReflection_QueryRevenueResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryRevenueResponse)(nil)
 }
+
 func (x fastReflection_QueryRevenueResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryRevenueResponse)
 }
+
 func (x fastReflection_QueryRevenueResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryRevenueResponse
 }
@@ -1879,9 +1897,7 @@ func (x *fastReflection_QueryRevenueResponse) ProtoMethods() *protoiface.Methods
 	}
 }
 
-var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
+var md_QueryParamsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_revenue_v1_query_proto_init()
@@ -1908,17 +1924,21 @@ func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+var (
+	_fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+)
 
 type fastReflection_QueryParamsRequest_messageType struct{}
 
 func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsRequest)(nil)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsRequest)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsRequest
 }
@@ -2266,17 +2286,21 @@ func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+var (
+	_fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+)
 
 type fastReflection_QueryParamsResponse_messageType struct{}
 
 func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsResponse)(nil)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsResponse)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsResponse
 }
@@ -2703,17 +2727,21 @@ func (x *QueryDeployerRevenuesRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryDeployerRevenuesRequest_messageType fastReflection_QueryDeployerRevenuesRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryDeployerRevenuesRequest_messageType{}
+var (
+	_fastReflection_QueryDeployerRevenuesRequest_messageType fastReflection_QueryDeployerRevenuesRequest_messageType
+	_                                                        protoreflect.MessageType = fastReflection_QueryDeployerRevenuesRequest_messageType{}
+)
 
 type fastReflection_QueryDeployerRevenuesRequest_messageType struct{}
 
 func (x fastReflection_QueryDeployerRevenuesRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryDeployerRevenuesRequest)(nil)
 }
+
 func (x fastReflection_QueryDeployerRevenuesRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryDeployerRevenuesRequest)
 }
+
 func (x fastReflection_QueryDeployerRevenuesRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryDeployerRevenuesRequest
 }
@@ -3248,17 +3276,21 @@ func (x *QueryDeployerRevenuesResponse) slowProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryDeployerRevenuesResponse_messageType fastReflection_QueryDeployerRevenuesResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryDeployerRevenuesResponse_messageType{}
+var (
+	_fastReflection_QueryDeployerRevenuesResponse_messageType fastReflection_QueryDeployerRevenuesResponse_messageType
+	_                                                         protoreflect.MessageType = fastReflection_QueryDeployerRevenuesResponse_messageType{}
+)
 
 type fastReflection_QueryDeployerRevenuesResponse_messageType struct{}
 
 func (x fastReflection_QueryDeployerRevenuesResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryDeployerRevenuesResponse)(nil)
 }
+
 func (x fastReflection_QueryDeployerRevenuesResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryDeployerRevenuesResponse)
 }
+
 func (x fastReflection_QueryDeployerRevenuesResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryDeployerRevenuesResponse
 }
@@ -3761,17 +3793,21 @@ func (x *QueryWithdrawerRevenuesRequest) slowProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryWithdrawerRevenuesRequest_messageType fastReflection_QueryWithdrawerRevenuesRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryWithdrawerRevenuesRequest_messageType{}
+var (
+	_fastReflection_QueryWithdrawerRevenuesRequest_messageType fastReflection_QueryWithdrawerRevenuesRequest_messageType
+	_                                                          protoreflect.MessageType = fastReflection_QueryWithdrawerRevenuesRequest_messageType{}
+)
 
 type fastReflection_QueryWithdrawerRevenuesRequest_messageType struct{}
 
 func (x fastReflection_QueryWithdrawerRevenuesRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryWithdrawerRevenuesRequest)(nil)
 }
+
 func (x fastReflection_QueryWithdrawerRevenuesRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryWithdrawerRevenuesRequest)
 }
+
 func (x fastReflection_QueryWithdrawerRevenuesRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryWithdrawerRevenuesRequest
 }
@@ -4306,17 +4342,21 @@ func (x *QueryWithdrawerRevenuesResponse) slowProtoReflect() protoreflect.Messag
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryWithdrawerRevenuesResponse_messageType fastReflection_QueryWithdrawerRevenuesResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryWithdrawerRevenuesResponse_messageType{}
+var (
+	_fastReflection_QueryWithdrawerRevenuesResponse_messageType fastReflection_QueryWithdrawerRevenuesResponse_messageType
+	_                                                           protoreflect.MessageType = fastReflection_QueryWithdrawerRevenuesResponse_messageType{}
+)
 
 type fastReflection_QueryWithdrawerRevenuesResponse_messageType struct{}
 
 func (x fastReflection_QueryWithdrawerRevenuesResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryWithdrawerRevenuesResponse)(nil)
 }
+
 func (x fastReflection_QueryWithdrawerRevenuesResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryWithdrawerRevenuesResponse)
 }
+
 func (x fastReflection_QueryWithdrawerRevenuesResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryWithdrawerRevenuesResponse
 }
@@ -5373,23 +5413,25 @@ func file_evmos_revenue_v1_query_proto_rawDescGZIP() []byte {
 	return file_evmos_revenue_v1_query_proto_rawDescData
 }
 
-var file_evmos_revenue_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_evmos_revenue_v1_query_proto_goTypes = []interface{}{
-	(*QueryRevenuesRequest)(nil),            // 0: evmos.revenue.v1.QueryRevenuesRequest
-	(*QueryRevenuesResponse)(nil),           // 1: evmos.revenue.v1.QueryRevenuesResponse
-	(*QueryRevenueRequest)(nil),             // 2: evmos.revenue.v1.QueryRevenueRequest
-	(*QueryRevenueResponse)(nil),            // 3: evmos.revenue.v1.QueryRevenueResponse
-	(*QueryParamsRequest)(nil),              // 4: evmos.revenue.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),             // 5: evmos.revenue.v1.QueryParamsResponse
-	(*QueryDeployerRevenuesRequest)(nil),    // 6: evmos.revenue.v1.QueryDeployerRevenuesRequest
-	(*QueryDeployerRevenuesResponse)(nil),   // 7: evmos.revenue.v1.QueryDeployerRevenuesResponse
-	(*QueryWithdrawerRevenuesRequest)(nil),  // 8: evmos.revenue.v1.QueryWithdrawerRevenuesRequest
-	(*QueryWithdrawerRevenuesResponse)(nil), // 9: evmos.revenue.v1.QueryWithdrawerRevenuesResponse
-	(*v1beta1.PageRequest)(nil),             // 10: cosmos.base.query.v1beta1.PageRequest
-	(*Revenue)(nil),                         // 11: evmos.revenue.v1.Revenue
-	(*v1beta1.PageResponse)(nil),            // 12: cosmos.base.query.v1beta1.PageResponse
-	(*Params)(nil),                          // 13: evmos.revenue.v1.Params
-}
+var (
+	file_evmos_revenue_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+	file_evmos_revenue_v1_query_proto_goTypes  = []interface{}{
+		(*QueryRevenuesRequest)(nil),            // 0: evmos.revenue.v1.QueryRevenuesRequest
+		(*QueryRevenuesResponse)(nil),           // 1: evmos.revenue.v1.QueryRevenuesResponse
+		(*QueryRevenueRequest)(nil),             // 2: evmos.revenue.v1.QueryRevenueRequest
+		(*QueryRevenueResponse)(nil),            // 3: evmos.revenue.v1.QueryRevenueResponse
+		(*QueryParamsRequest)(nil),              // 4: evmos.revenue.v1.QueryParamsRequest
+		(*QueryParamsResponse)(nil),             // 5: evmos.revenue.v1.QueryParamsResponse
+		(*QueryDeployerRevenuesRequest)(nil),    // 6: evmos.revenue.v1.QueryDeployerRevenuesRequest
+		(*QueryDeployerRevenuesResponse)(nil),   // 7: evmos.revenue.v1.QueryDeployerRevenuesResponse
+		(*QueryWithdrawerRevenuesRequest)(nil),  // 8: evmos.revenue.v1.QueryWithdrawerRevenuesRequest
+		(*QueryWithdrawerRevenuesResponse)(nil), // 9: evmos.revenue.v1.QueryWithdrawerRevenuesResponse
+		(*v1beta1.PageRequest)(nil),             // 10: cosmos.base.query.v1beta1.PageRequest
+		(*Revenue)(nil),                         // 11: evmos.revenue.v1.Revenue
+		(*v1beta1.PageResponse)(nil),            // 12: cosmos.base.query.v1beta1.PageResponse
+		(*Params)(nil),                          // 13: evmos.revenue.v1.Params
+	}
+)
 var file_evmos_revenue_v1_query_proto_depIdxs = []int32{
 	10, // 0: evmos.revenue.v1.QueryRevenuesRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	11, // 1: evmos.revenue.v1.QueryRevenuesResponse.revenues:type_name -> evmos.revenue.v1.Revenue

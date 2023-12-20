@@ -2,18 +2,20 @@
 package vestingv2
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +49,21 @@ func (x *QueryBalancesRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBalancesRequest_messageType fastReflection_QueryBalancesRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBalancesRequest_messageType{}
+var (
+	_fastReflection_QueryBalancesRequest_messageType fastReflection_QueryBalancesRequest_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryBalancesRequest_messageType{}
+)
 
 type fastReflection_QueryBalancesRequest_messageType struct{}
 
 func (x fastReflection_QueryBalancesRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBalancesRequest)(nil)
 }
+
 func (x fastReflection_QueryBalancesRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBalancesRequest)
 }
+
 func (x fastReflection_QueryBalancesRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBalancesRequest
 }
@@ -624,17 +630,21 @@ func (x *QueryBalancesResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBalancesResponse_messageType fastReflection_QueryBalancesResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBalancesResponse_messageType{}
+var (
+	_fastReflection_QueryBalancesResponse_messageType fastReflection_QueryBalancesResponse_messageType
+	_                                                 protoreflect.MessageType = fastReflection_QueryBalancesResponse_messageType{}
+)
 
 type fastReflection_QueryBalancesResponse_messageType struct{}
 
 func (x fastReflection_QueryBalancesResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBalancesResponse)(nil)
 }
+
 func (x fastReflection_QueryBalancesResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBalancesResponse)
 }
+
 func (x fastReflection_QueryBalancesResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBalancesResponse
 }
@@ -1388,12 +1398,14 @@ func file_evmos_vesting_v2_query_proto_rawDescGZIP() []byte {
 	return file_evmos_vesting_v2_query_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_evmos_vesting_v2_query_proto_goTypes = []interface{}{
-	(*QueryBalancesRequest)(nil),  // 0: evmos.vesting.v2.QueryBalancesRequest
-	(*QueryBalancesResponse)(nil), // 1: evmos.vesting.v2.QueryBalancesResponse
-	(*v1beta1.Coin)(nil),          // 2: cosmos.base.v1beta1.Coin
-}
+var (
+	file_evmos_vesting_v2_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_evmos_vesting_v2_query_proto_goTypes  = []interface{}{
+		(*QueryBalancesRequest)(nil),  // 0: evmos.vesting.v2.QueryBalancesRequest
+		(*QueryBalancesResponse)(nil), // 1: evmos.vesting.v2.QueryBalancesResponse
+		(*v1beta1.Coin)(nil),          // 2: cosmos.base.v1beta1.Coin
+	}
+)
 var file_evmos_vesting_v2_query_proto_depIdxs = []int32{
 	2, // 0: evmos.vesting.v2.QueryBalancesResponse.locked:type_name -> cosmos.base.v1beta1.Coin
 	2, // 1: evmos.vesting.v2.QueryBalancesResponse.unvested:type_name -> cosmos.base.v1beta1.Coin

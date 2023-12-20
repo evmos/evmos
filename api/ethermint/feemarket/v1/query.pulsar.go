@@ -2,22 +2,22 @@
 package feemarketv1
 
 import (
-	_ "cosmossdk.io/api/amino"
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
+	_ "cosmossdk.io/api/amino"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
-var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
+var md_QueryParamsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_ethermint_feemarket_v1_query_proto_init()
@@ -44,17 +44,21 @@ func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+var (
+	_fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+)
 
 type fastReflection_QueryParamsRequest_messageType struct{}
 
 func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsRequest)(nil)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsRequest)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsRequest
 }
@@ -402,17 +406,21 @@ func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+var (
+	_fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+)
 
 type fastReflection_QueryParamsResponse_messageType struct{}
 
 func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsResponse)(nil)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsResponse)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsResponse
 }
@@ -806,9 +814,7 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-var (
-	md_QueryBaseFeeRequest protoreflect.MessageDescriptor
-)
+var md_QueryBaseFeeRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_ethermint_feemarket_v1_query_proto_init()
@@ -835,17 +841,21 @@ func (x *QueryBaseFeeRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBaseFeeRequest_messageType fastReflection_QueryBaseFeeRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBaseFeeRequest_messageType{}
+var (
+	_fastReflection_QueryBaseFeeRequest_messageType fastReflection_QueryBaseFeeRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryBaseFeeRequest_messageType{}
+)
 
 type fastReflection_QueryBaseFeeRequest_messageType struct{}
 
 func (x fastReflection_QueryBaseFeeRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBaseFeeRequest)(nil)
 }
+
 func (x fastReflection_QueryBaseFeeRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBaseFeeRequest)
 }
+
 func (x fastReflection_QueryBaseFeeRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBaseFeeRequest
 }
@@ -1193,17 +1203,21 @@ func (x *QueryBaseFeeResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBaseFeeResponse_messageType fastReflection_QueryBaseFeeResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBaseFeeResponse_messageType{}
+var (
+	_fastReflection_QueryBaseFeeResponse_messageType fastReflection_QueryBaseFeeResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryBaseFeeResponse_messageType{}
+)
 
 type fastReflection_QueryBaseFeeResponse_messageType struct{}
 
 func (x fastReflection_QueryBaseFeeResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBaseFeeResponse)(nil)
 }
+
 func (x fastReflection_QueryBaseFeeResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBaseFeeResponse)
 }
+
 func (x fastReflection_QueryBaseFeeResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBaseFeeResponse
 }
@@ -1582,9 +1596,7 @@ func (x *fastReflection_QueryBaseFeeResponse) ProtoMethods() *protoiface.Methods
 	}
 }
 
-var (
-	md_QueryBlockGasRequest protoreflect.MessageDescriptor
-)
+var md_QueryBlockGasRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_ethermint_feemarket_v1_query_proto_init()
@@ -1611,17 +1623,21 @@ func (x *QueryBlockGasRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBlockGasRequest_messageType fastReflection_QueryBlockGasRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBlockGasRequest_messageType{}
+var (
+	_fastReflection_QueryBlockGasRequest_messageType fastReflection_QueryBlockGasRequest_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryBlockGasRequest_messageType{}
+)
 
 type fastReflection_QueryBlockGasRequest_messageType struct{}
 
 func (x fastReflection_QueryBlockGasRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBlockGasRequest)(nil)
 }
+
 func (x fastReflection_QueryBlockGasRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBlockGasRequest)
 }
+
 func (x fastReflection_QueryBlockGasRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBlockGasRequest
 }
@@ -1969,17 +1985,21 @@ func (x *QueryBlockGasResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBlockGasResponse_messageType fastReflection_QueryBlockGasResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBlockGasResponse_messageType{}
+var (
+	_fastReflection_QueryBlockGasResponse_messageType fastReflection_QueryBlockGasResponse_messageType
+	_                                                 protoreflect.MessageType = fastReflection_QueryBlockGasResponse_messageType{}
+)
 
 type fastReflection_QueryBlockGasResponse_messageType struct{}
 
 func (x fastReflection_QueryBlockGasResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBlockGasResponse)(nil)
 }
+
 func (x fastReflection_QueryBlockGasResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBlockGasResponse)
 }
+
 func (x fastReflection_QueryBlockGasResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBlockGasResponse
 }
@@ -2639,16 +2659,18 @@ func file_ethermint_feemarket_v1_query_proto_rawDescGZIP() []byte {
 	return file_ethermint_feemarket_v1_query_proto_rawDescData
 }
 
-var file_ethermint_feemarket_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_ethermint_feemarket_v1_query_proto_goTypes = []interface{}{
-	(*QueryParamsRequest)(nil),    // 0: ethermint.feemarket.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),   // 1: ethermint.feemarket.v1.QueryParamsResponse
-	(*QueryBaseFeeRequest)(nil),   // 2: ethermint.feemarket.v1.QueryBaseFeeRequest
-	(*QueryBaseFeeResponse)(nil),  // 3: ethermint.feemarket.v1.QueryBaseFeeResponse
-	(*QueryBlockGasRequest)(nil),  // 4: ethermint.feemarket.v1.QueryBlockGasRequest
-	(*QueryBlockGasResponse)(nil), // 5: ethermint.feemarket.v1.QueryBlockGasResponse
-	(*Params)(nil),                // 6: ethermint.feemarket.v1.Params
-}
+var (
+	file_ethermint_feemarket_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_ethermint_feemarket_v1_query_proto_goTypes  = []interface{}{
+		(*QueryParamsRequest)(nil),    // 0: ethermint.feemarket.v1.QueryParamsRequest
+		(*QueryParamsResponse)(nil),   // 1: ethermint.feemarket.v1.QueryParamsResponse
+		(*QueryBaseFeeRequest)(nil),   // 2: ethermint.feemarket.v1.QueryBaseFeeRequest
+		(*QueryBaseFeeResponse)(nil),  // 3: ethermint.feemarket.v1.QueryBaseFeeResponse
+		(*QueryBlockGasRequest)(nil),  // 4: ethermint.feemarket.v1.QueryBlockGasRequest
+		(*QueryBlockGasResponse)(nil), // 5: ethermint.feemarket.v1.QueryBlockGasResponse
+		(*Params)(nil),                // 6: ethermint.feemarket.v1.Params
+	}
+)
 var file_ethermint_feemarket_v1_query_proto_depIdxs = []int32{
 	6, // 0: ethermint.feemarket.v1.QueryParamsResponse.params:type_name -> ethermint.feemarket.v1.Params
 	0, // 1: ethermint.feemarket.v1.Query.Params:input_type -> ethermint.feemarket.v1.QueryParamsRequest

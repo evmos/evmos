@@ -3,13 +3,14 @@ package revenuev1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +48,21 @@ func (x *EventRegisterRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventRegisterRevenue_messageType fastReflection_EventRegisterRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_EventRegisterRevenue_messageType{}
+var (
+	_fastReflection_EventRegisterRevenue_messageType fastReflection_EventRegisterRevenue_messageType
+	_                                                protoreflect.MessageType = fastReflection_EventRegisterRevenue_messageType{}
+)
 
 type fastReflection_EventRegisterRevenue_messageType struct{}
 
 func (x fastReflection_EventRegisterRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventRegisterRevenue)(nil)
 }
+
 func (x fastReflection_EventRegisterRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventRegisterRevenue)
 }
+
 func (x fastReflection_EventRegisterRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventRegisterRevenue
 }
@@ -595,17 +600,21 @@ func (x *EventUpdateRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventUpdateRevenue_messageType fastReflection_EventUpdateRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_EventUpdateRevenue_messageType{}
+var (
+	_fastReflection_EventUpdateRevenue_messageType fastReflection_EventUpdateRevenue_messageType
+	_                                              protoreflect.MessageType = fastReflection_EventUpdateRevenue_messageType{}
+)
 
 type fastReflection_EventUpdateRevenue_messageType struct{}
 
 func (x fastReflection_EventUpdateRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventUpdateRevenue)(nil)
 }
+
 func (x fastReflection_EventUpdateRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventUpdateRevenue)
 }
+
 func (x fastReflection_EventUpdateRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventUpdateRevenue
 }
@@ -1141,17 +1150,21 @@ func (x *EventCancelRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventCancelRevenue_messageType fastReflection_EventCancelRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_EventCancelRevenue_messageType{}
+var (
+	_fastReflection_EventCancelRevenue_messageType fastReflection_EventCancelRevenue_messageType
+	_                                              protoreflect.MessageType = fastReflection_EventCancelRevenue_messageType{}
+)
 
 type fastReflection_EventCancelRevenue_messageType struct{}
 
 func (x fastReflection_EventCancelRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventCancelRevenue)(nil)
 }
+
 func (x fastReflection_EventCancelRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventCancelRevenue)
 }
+
 func (x fastReflection_EventCancelRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventCancelRevenue
 }
@@ -1629,17 +1642,21 @@ func (x *EventDistributeRevenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventDistributeRevenue_messageType fastReflection_EventDistributeRevenue_messageType
-var _ protoreflect.MessageType = fastReflection_EventDistributeRevenue_messageType{}
+var (
+	_fastReflection_EventDistributeRevenue_messageType fastReflection_EventDistributeRevenue_messageType
+	_                                                  protoreflect.MessageType = fastReflection_EventDistributeRevenue_messageType{}
+)
 
 type fastReflection_EventDistributeRevenue_messageType struct{}
 
 func (x fastReflection_EventDistributeRevenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventDistributeRevenue)(nil)
 }
+
 func (x fastReflection_EventDistributeRevenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventDistributeRevenue)
 }
+
 func (x fastReflection_EventDistributeRevenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventDistributeRevenue
 }
@@ -2514,13 +2531,15 @@ func file_evmos_revenue_v1_events_proto_rawDescGZIP() []byte {
 	return file_evmos_revenue_v1_events_proto_rawDescData
 }
 
-var file_evmos_revenue_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_revenue_v1_events_proto_goTypes = []interface{}{
-	(*EventRegisterRevenue)(nil),   // 0: evmos.revenue.v1.EventRegisterRevenue
-	(*EventUpdateRevenue)(nil),     // 1: evmos.revenue.v1.EventUpdateRevenue
-	(*EventCancelRevenue)(nil),     // 2: evmos.revenue.v1.EventCancelRevenue
-	(*EventDistributeRevenue)(nil), // 3: evmos.revenue.v1.EventDistributeRevenue
-}
+var (
+	file_evmos_revenue_v1_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_evmos_revenue_v1_events_proto_goTypes  = []interface{}{
+		(*EventRegisterRevenue)(nil),   // 0: evmos.revenue.v1.EventRegisterRevenue
+		(*EventUpdateRevenue)(nil),     // 1: evmos.revenue.v1.EventUpdateRevenue
+		(*EventCancelRevenue)(nil),     // 2: evmos.revenue.v1.EventCancelRevenue
+		(*EventDistributeRevenue)(nil), // 3: evmos.revenue.v1.EventDistributeRevenue
+	}
+)
 var file_evmos_revenue_v1_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

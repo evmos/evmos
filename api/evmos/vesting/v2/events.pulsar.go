@@ -3,13 +3,14 @@ package vestingv2
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -45,17 +46,21 @@ func (x *EventCreateClawbackVestingAccount) slowProtoReflect() protoreflect.Mess
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventCreateClawbackVestingAccount_messageType fastReflection_EventCreateClawbackVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_EventCreateClawbackVestingAccount_messageType{}
+var (
+	_fastReflection_EventCreateClawbackVestingAccount_messageType fastReflection_EventCreateClawbackVestingAccount_messageType
+	_                                                             protoreflect.MessageType = fastReflection_EventCreateClawbackVestingAccount_messageType{}
+)
 
 type fastReflection_EventCreateClawbackVestingAccount_messageType struct{}
 
 func (x fastReflection_EventCreateClawbackVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventCreateClawbackVestingAccount)(nil)
 }
+
 func (x fastReflection_EventCreateClawbackVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventCreateClawbackVestingAccount)
 }
+
 func (x fastReflection_EventCreateClawbackVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventCreateClawbackVestingAccount
 }
@@ -533,17 +538,21 @@ func (x *EventFundVestingAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventFundVestingAccount_messageType fastReflection_EventFundVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_EventFundVestingAccount_messageType{}
+var (
+	_fastReflection_EventFundVestingAccount_messageType fastReflection_EventFundVestingAccount_messageType
+	_                                                   protoreflect.MessageType = fastReflection_EventFundVestingAccount_messageType{}
+)
 
 type fastReflection_EventFundVestingAccount_messageType struct{}
 
 func (x fastReflection_EventFundVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventFundVestingAccount)(nil)
 }
+
 func (x fastReflection_EventFundVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventFundVestingAccount)
 }
+
 func (x fastReflection_EventFundVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventFundVestingAccount
 }
@@ -1143,17 +1152,21 @@ func (x *EventClawback) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventClawback_messageType fastReflection_EventClawback_messageType
-var _ protoreflect.MessageType = fastReflection_EventClawback_messageType{}
+var (
+	_fastReflection_EventClawback_messageType fastReflection_EventClawback_messageType
+	_                                         protoreflect.MessageType = fastReflection_EventClawback_messageType{}
+)
 
 type fastReflection_EventClawback_messageType struct{}
 
 func (x fastReflection_EventClawback_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventClawback)(nil)
 }
+
 func (x fastReflection_EventClawback_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventClawback)
 }
+
 func (x fastReflection_EventClawback_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventClawback
 }
@@ -1691,17 +1704,21 @@ func (x *EventUpdateVestingFunder) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EventUpdateVestingFunder_messageType fastReflection_EventUpdateVestingFunder_messageType
-var _ protoreflect.MessageType = fastReflection_EventUpdateVestingFunder_messageType{}
+var (
+	_fastReflection_EventUpdateVestingFunder_messageType fastReflection_EventUpdateVestingFunder_messageType
+	_                                                    protoreflect.MessageType = fastReflection_EventUpdateVestingFunder_messageType{}
+)
 
 type fastReflection_EventUpdateVestingFunder_messageType struct{}
 
 func (x fastReflection_EventUpdateVestingFunder_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EventUpdateVestingFunder)(nil)
 }
+
 func (x fastReflection_EventUpdateVestingFunder_messageType) New() protoreflect.Message {
 	return new(fastReflection_EventUpdateVestingFunder)
 }
+
 func (x fastReflection_EventUpdateVestingFunder_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EventUpdateVestingFunder
 }
@@ -2502,13 +2519,15 @@ func file_evmos_vesting_v2_events_proto_rawDescGZIP() []byte {
 	return file_evmos_vesting_v2_events_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_evmos_vesting_v2_events_proto_goTypes = []interface{}{
-	(*EventCreateClawbackVestingAccount)(nil), // 0: evmos.vesting.v2.EventCreateClawbackVestingAccount
-	(*EventFundVestingAccount)(nil),           // 1: evmos.vesting.v2.EventFundVestingAccount
-	(*EventClawback)(nil),                     // 2: evmos.vesting.v2.EventClawback
-	(*EventUpdateVestingFunder)(nil),          // 3: evmos.vesting.v2.EventUpdateVestingFunder
-}
+var (
+	file_evmos_vesting_v2_events_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_evmos_vesting_v2_events_proto_goTypes  = []interface{}{
+		(*EventCreateClawbackVestingAccount)(nil), // 0: evmos.vesting.v2.EventCreateClawbackVestingAccount
+		(*EventFundVestingAccount)(nil),           // 1: evmos.vesting.v2.EventFundVestingAccount
+		(*EventClawback)(nil),                     // 2: evmos.vesting.v2.EventClawback
+		(*EventUpdateVestingFunder)(nil),          // 3: evmos.vesting.v2.EventUpdateVestingFunder
+	}
+)
 var file_evmos_vesting_v2_events_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

@@ -3,13 +3,14 @@ package revenuev1
 
 import (
 	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -47,17 +48,21 @@ func (x *Revenue) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_Revenue_messageType fastReflection_Revenue_messageType
-var _ protoreflect.MessageType = fastReflection_Revenue_messageType{}
+var (
+	_fastReflection_Revenue_messageType fastReflection_Revenue_messageType
+	_                                   protoreflect.MessageType = fastReflection_Revenue_messageType{}
+)
 
 type fastReflection_Revenue_messageType struct{}
 
 func (x fastReflection_Revenue_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_Revenue)(nil)
 }
+
 func (x fastReflection_Revenue_messageType) New() protoreflect.Message {
 	return new(fastReflection_Revenue)
 }
+
 func (x fastReflection_Revenue_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_Revenue
 }
@@ -676,10 +681,12 @@ func file_evmos_revenue_v1_revenue_proto_rawDescGZIP() []byte {
 	return file_evmos_revenue_v1_revenue_proto_rawDescData
 }
 
-var file_evmos_revenue_v1_revenue_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_evmos_revenue_v1_revenue_proto_goTypes = []interface{}{
-	(*Revenue)(nil), // 0: evmos.revenue.v1.Revenue
-}
+var (
+	file_evmos_revenue_v1_revenue_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+	file_evmos_revenue_v1_revenue_proto_goTypes  = []interface{}{
+		(*Revenue)(nil), // 0: evmos.revenue.v1.Revenue
+	}
+)
 var file_evmos_revenue_v1_revenue_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

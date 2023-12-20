@@ -2,9 +2,14 @@
 package evmv1
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta1 "cosmossdk.io/api/cosmos/base/query/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -12,9 +17,6 @@ import (
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -48,17 +50,21 @@ func (x *QueryAccountRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryAccountRequest_messageType fastReflection_QueryAccountRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryAccountRequest_messageType{}
+var (
+	_fastReflection_QueryAccountRequest_messageType fastReflection_QueryAccountRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryAccountRequest_messageType{}
+)
 
 type fastReflection_QueryAccountRequest_messageType struct{}
 
 func (x fastReflection_QueryAccountRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryAccountRequest)(nil)
 }
+
 func (x fastReflection_QueryAccountRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryAccountRequest)
 }
+
 func (x fastReflection_QueryAccountRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryAccountRequest
 }
@@ -472,17 +478,21 @@ func (x *QueryAccountResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryAccountResponse_messageType fastReflection_QueryAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryAccountResponse_messageType{}
+var (
+	_fastReflection_QueryAccountResponse_messageType fastReflection_QueryAccountResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryAccountResponse_messageType{}
+)
 
 type fastReflection_QueryAccountResponse_messageType struct{}
 
 func (x fastReflection_QueryAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryAccountResponse)(nil)
 }
+
 func (x fastReflection_QueryAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryAccountResponse)
 }
+
 func (x fastReflection_QueryAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryAccountResponse
 }
@@ -1000,17 +1010,21 @@ func (x *QueryCosmosAccountRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCosmosAccountRequest_messageType fastReflection_QueryCosmosAccountRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCosmosAccountRequest_messageType{}
+var (
+	_fastReflection_QueryCosmosAccountRequest_messageType fastReflection_QueryCosmosAccountRequest_messageType
+	_                                                     protoreflect.MessageType = fastReflection_QueryCosmosAccountRequest_messageType{}
+)
 
 type fastReflection_QueryCosmosAccountRequest_messageType struct{}
 
 func (x fastReflection_QueryCosmosAccountRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCosmosAccountRequest)(nil)
 }
+
 func (x fastReflection_QueryCosmosAccountRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCosmosAccountRequest)
 }
+
 func (x fastReflection_QueryCosmosAccountRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCosmosAccountRequest
 }
@@ -1424,17 +1438,21 @@ func (x *QueryCosmosAccountResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCosmosAccountResponse_messageType fastReflection_QueryCosmosAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCosmosAccountResponse_messageType{}
+var (
+	_fastReflection_QueryCosmosAccountResponse_messageType fastReflection_QueryCosmosAccountResponse_messageType
+	_                                                      protoreflect.MessageType = fastReflection_QueryCosmosAccountResponse_messageType{}
+)
 
 type fastReflection_QueryCosmosAccountResponse_messageType struct{}
 
 func (x fastReflection_QueryCosmosAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCosmosAccountResponse)(nil)
 }
+
 func (x fastReflection_QueryCosmosAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCosmosAccountResponse)
 }
+
 func (x fastReflection_QueryCosmosAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCosmosAccountResponse
 }
@@ -1936,17 +1954,21 @@ func (x *QueryValidatorAccountRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryValidatorAccountRequest_messageType fastReflection_QueryValidatorAccountRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryValidatorAccountRequest_messageType{}
+var (
+	_fastReflection_QueryValidatorAccountRequest_messageType fastReflection_QueryValidatorAccountRequest_messageType
+	_                                                        protoreflect.MessageType = fastReflection_QueryValidatorAccountRequest_messageType{}
+)
 
 type fastReflection_QueryValidatorAccountRequest_messageType struct{}
 
 func (x fastReflection_QueryValidatorAccountRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryValidatorAccountRequest)(nil)
 }
+
 func (x fastReflection_QueryValidatorAccountRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryValidatorAccountRequest)
 }
+
 func (x fastReflection_QueryValidatorAccountRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryValidatorAccountRequest
 }
@@ -2360,17 +2382,21 @@ func (x *QueryValidatorAccountResponse) slowProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryValidatorAccountResponse_messageType fastReflection_QueryValidatorAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryValidatorAccountResponse_messageType{}
+var (
+	_fastReflection_QueryValidatorAccountResponse_messageType fastReflection_QueryValidatorAccountResponse_messageType
+	_                                                         protoreflect.MessageType = fastReflection_QueryValidatorAccountResponse_messageType{}
+)
 
 type fastReflection_QueryValidatorAccountResponse_messageType struct{}
 
 func (x fastReflection_QueryValidatorAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryValidatorAccountResponse)(nil)
 }
+
 func (x fastReflection_QueryValidatorAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryValidatorAccountResponse)
 }
+
 func (x fastReflection_QueryValidatorAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryValidatorAccountResponse
 }
@@ -2872,17 +2898,21 @@ func (x *QueryBalanceRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBalanceRequest_messageType fastReflection_QueryBalanceRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBalanceRequest_messageType{}
+var (
+	_fastReflection_QueryBalanceRequest_messageType fastReflection_QueryBalanceRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryBalanceRequest_messageType{}
+)
 
 type fastReflection_QueryBalanceRequest_messageType struct{}
 
 func (x fastReflection_QueryBalanceRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBalanceRequest)(nil)
 }
+
 func (x fastReflection_QueryBalanceRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBalanceRequest)
 }
+
 func (x fastReflection_QueryBalanceRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBalanceRequest
 }
@@ -3292,17 +3322,21 @@ func (x *QueryBalanceResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBalanceResponse_messageType fastReflection_QueryBalanceResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBalanceResponse_messageType{}
+var (
+	_fastReflection_QueryBalanceResponse_messageType fastReflection_QueryBalanceResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryBalanceResponse_messageType{}
+)
 
 type fastReflection_QueryBalanceResponse_messageType struct{}
 
 func (x fastReflection_QueryBalanceResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBalanceResponse)(nil)
 }
+
 func (x fastReflection_QueryBalanceResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBalanceResponse)
 }
+
 func (x fastReflection_QueryBalanceResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBalanceResponse
 }
@@ -3714,17 +3748,21 @@ func (x *QueryStorageRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryStorageRequest_messageType fastReflection_QueryStorageRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryStorageRequest_messageType{}
+var (
+	_fastReflection_QueryStorageRequest_messageType fastReflection_QueryStorageRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryStorageRequest_messageType{}
+)
 
 type fastReflection_QueryStorageRequest_messageType struct{}
 
 func (x fastReflection_QueryStorageRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryStorageRequest)(nil)
 }
+
 func (x fastReflection_QueryStorageRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryStorageRequest)
 }
+
 func (x fastReflection_QueryStorageRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryStorageRequest
 }
@@ -4196,17 +4234,21 @@ func (x *QueryStorageResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryStorageResponse_messageType fastReflection_QueryStorageResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryStorageResponse_messageType{}
+var (
+	_fastReflection_QueryStorageResponse_messageType fastReflection_QueryStorageResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryStorageResponse_messageType{}
+)
 
 type fastReflection_QueryStorageResponse_messageType struct{}
 
 func (x fastReflection_QueryStorageResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryStorageResponse)(nil)
 }
+
 func (x fastReflection_QueryStorageResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryStorageResponse)
 }
+
 func (x fastReflection_QueryStorageResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryStorageResponse
 }
@@ -4616,17 +4658,21 @@ func (x *QueryCodeRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCodeRequest_messageType fastReflection_QueryCodeRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCodeRequest_messageType{}
+var (
+	_fastReflection_QueryCodeRequest_messageType fastReflection_QueryCodeRequest_messageType
+	_                                            protoreflect.MessageType = fastReflection_QueryCodeRequest_messageType{}
+)
 
 type fastReflection_QueryCodeRequest_messageType struct{}
 
 func (x fastReflection_QueryCodeRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCodeRequest)(nil)
 }
+
 func (x fastReflection_QueryCodeRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCodeRequest)
 }
+
 func (x fastReflection_QueryCodeRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCodeRequest
 }
@@ -5036,17 +5082,21 @@ func (x *QueryCodeResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryCodeResponse_messageType fastReflection_QueryCodeResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryCodeResponse_messageType{}
+var (
+	_fastReflection_QueryCodeResponse_messageType fastReflection_QueryCodeResponse_messageType
+	_                                             protoreflect.MessageType = fastReflection_QueryCodeResponse_messageType{}
+)
 
 type fastReflection_QueryCodeResponse_messageType struct{}
 
 func (x fastReflection_QueryCodeResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryCodeResponse)(nil)
 }
+
 func (x fastReflection_QueryCodeResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryCodeResponse)
 }
+
 func (x fastReflection_QueryCodeResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryCodeResponse
 }
@@ -5460,17 +5510,21 @@ func (x *QueryTxLogsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTxLogsRequest_messageType fastReflection_QueryTxLogsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTxLogsRequest_messageType{}
+var (
+	_fastReflection_QueryTxLogsRequest_messageType fastReflection_QueryTxLogsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryTxLogsRequest_messageType{}
+)
 
 type fastReflection_QueryTxLogsRequest_messageType struct{}
 
 func (x fastReflection_QueryTxLogsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTxLogsRequest)(nil)
 }
+
 func (x fastReflection_QueryTxLogsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTxLogsRequest)
 }
+
 func (x fastReflection_QueryTxLogsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTxLogsRequest
 }
@@ -6010,17 +6064,21 @@ func (x *QueryTxLogsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTxLogsResponse_messageType fastReflection_QueryTxLogsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTxLogsResponse_messageType{}
+var (
+	_fastReflection_QueryTxLogsResponse_messageType fastReflection_QueryTxLogsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryTxLogsResponse_messageType{}
+)
 
 type fastReflection_QueryTxLogsResponse_messageType struct{}
 
 func (x fastReflection_QueryTxLogsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTxLogsResponse)(nil)
 }
+
 func (x fastReflection_QueryTxLogsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTxLogsResponse)
 }
+
 func (x fastReflection_QueryTxLogsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTxLogsResponse
 }
@@ -6499,9 +6557,7 @@ func (x *fastReflection_QueryTxLogsResponse) ProtoMethods() *protoiface.Methods 
 	}
 }
 
-var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
+var md_QueryParamsRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_ethermint_evm_v1_query_proto_init()
@@ -6528,17 +6584,21 @@ func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+var (
+	_fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+	_                                              protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+)
 
 type fastReflection_QueryParamsRequest_messageType struct{}
 
 func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsRequest)(nil)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsRequest)
 }
+
 func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsRequest
 }
@@ -6886,17 +6946,21 @@ func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+var (
+	_fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+)
 
 type fastReflection_QueryParamsResponse_messageType struct{}
 
 func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryParamsResponse)(nil)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryParamsResponse)
 }
+
 func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryParamsResponse
 }
@@ -7327,17 +7391,21 @@ func (x *EthCallRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EthCallRequest_messageType fastReflection_EthCallRequest_messageType
-var _ protoreflect.MessageType = fastReflection_EthCallRequest_messageType{}
+var (
+	_fastReflection_EthCallRequest_messageType fastReflection_EthCallRequest_messageType
+	_                                          protoreflect.MessageType = fastReflection_EthCallRequest_messageType{}
+)
 
 type fastReflection_EthCallRequest_messageType struct{}
 
 func (x fastReflection_EthCallRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EthCallRequest)(nil)
 }
+
 func (x fastReflection_EthCallRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_EthCallRequest)
 }
+
 func (x fastReflection_EthCallRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EthCallRequest
 }
@@ -7905,17 +7973,21 @@ func (x *EstimateGasResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_EstimateGasResponse_messageType fastReflection_EstimateGasResponse_messageType
-var _ protoreflect.MessageType = fastReflection_EstimateGasResponse_messageType{}
+var (
+	_fastReflection_EstimateGasResponse_messageType fastReflection_EstimateGasResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_EstimateGasResponse_messageType{}
+)
 
 type fastReflection_EstimateGasResponse_messageType struct{}
 
 func (x fastReflection_EstimateGasResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_EstimateGasResponse)(nil)
 }
+
 func (x fastReflection_EstimateGasResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_EstimateGasResponse)
 }
+
 func (x fastReflection_EstimateGasResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_EstimateGasResponse
 }
@@ -8376,17 +8448,21 @@ func (x *QueryTraceTxRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTraceTxRequest_messageType fastReflection_QueryTraceTxRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTraceTxRequest_messageType{}
+var (
+	_fastReflection_QueryTraceTxRequest_messageType fastReflection_QueryTraceTxRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryTraceTxRequest_messageType{}
+)
 
 type fastReflection_QueryTraceTxRequest_messageType struct{}
 
 func (x fastReflection_QueryTraceTxRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTraceTxRequest)(nil)
 }
+
 func (x fastReflection_QueryTraceTxRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTraceTxRequest)
 }
+
 func (x fastReflection_QueryTraceTxRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTraceTxRequest
 }
@@ -9314,17 +9390,21 @@ func (x *QueryTraceTxResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTraceTxResponse_messageType fastReflection_QueryTraceTxResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTraceTxResponse_messageType{}
+var (
+	_fastReflection_QueryTraceTxResponse_messageType fastReflection_QueryTraceTxResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryTraceTxResponse_messageType{}
+)
 
 type fastReflection_QueryTraceTxResponse_messageType struct{}
 
 func (x fastReflection_QueryTraceTxResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTraceTxResponse)(nil)
 }
+
 func (x fastReflection_QueryTraceTxResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTraceTxResponse)
 }
+
 func (x fastReflection_QueryTraceTxResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTraceTxResponse
 }
@@ -9801,17 +9881,21 @@ func (x *QueryTraceBlockRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTraceBlockRequest_messageType fastReflection_QueryTraceBlockRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTraceBlockRequest_messageType{}
+var (
+	_fastReflection_QueryTraceBlockRequest_messageType fastReflection_QueryTraceBlockRequest_messageType
+	_                                                  protoreflect.MessageType = fastReflection_QueryTraceBlockRequest_messageType{}
+)
 
 type fastReflection_QueryTraceBlockRequest_messageType struct{}
 
 func (x fastReflection_QueryTraceBlockRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTraceBlockRequest)(nil)
 }
+
 func (x fastReflection_QueryTraceBlockRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTraceBlockRequest)
 }
+
 func (x fastReflection_QueryTraceBlockRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTraceBlockRequest
 }
@@ -10662,17 +10746,21 @@ func (x *QueryTraceBlockResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryTraceBlockResponse_messageType fastReflection_QueryTraceBlockResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryTraceBlockResponse_messageType{}
+var (
+	_fastReflection_QueryTraceBlockResponse_messageType fastReflection_QueryTraceBlockResponse_messageType
+	_                                                   protoreflect.MessageType = fastReflection_QueryTraceBlockResponse_messageType{}
+)
 
 type fastReflection_QueryTraceBlockResponse_messageType struct{}
 
 func (x fastReflection_QueryTraceBlockResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryTraceBlockResponse)(nil)
 }
+
 func (x fastReflection_QueryTraceBlockResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryTraceBlockResponse)
 }
+
 func (x fastReflection_QueryTraceBlockResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryTraceBlockResponse
 }
@@ -11053,9 +11141,7 @@ func (x *fastReflection_QueryTraceBlockResponse) ProtoMethods() *protoiface.Meth
 	}
 }
 
-var (
-	md_QueryBaseFeeRequest protoreflect.MessageDescriptor
-)
+var md_QueryBaseFeeRequest protoreflect.MessageDescriptor
 
 func init() {
 	file_ethermint_evm_v1_query_proto_init()
@@ -11082,17 +11168,21 @@ func (x *QueryBaseFeeRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBaseFeeRequest_messageType fastReflection_QueryBaseFeeRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBaseFeeRequest_messageType{}
+var (
+	_fastReflection_QueryBaseFeeRequest_messageType fastReflection_QueryBaseFeeRequest_messageType
+	_                                               protoreflect.MessageType = fastReflection_QueryBaseFeeRequest_messageType{}
+)
 
 type fastReflection_QueryBaseFeeRequest_messageType struct{}
 
 func (x fastReflection_QueryBaseFeeRequest_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBaseFeeRequest)(nil)
 }
+
 func (x fastReflection_QueryBaseFeeRequest_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBaseFeeRequest)
 }
+
 func (x fastReflection_QueryBaseFeeRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBaseFeeRequest
 }
@@ -11440,17 +11530,21 @@ func (x *QueryBaseFeeResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryBaseFeeResponse_messageType fastReflection_QueryBaseFeeResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryBaseFeeResponse_messageType{}
+var (
+	_fastReflection_QueryBaseFeeResponse_messageType fastReflection_QueryBaseFeeResponse_messageType
+	_                                                protoreflect.MessageType = fastReflection_QueryBaseFeeResponse_messageType{}
+)
 
 type fastReflection_QueryBaseFeeResponse_messageType struct{}
 
 func (x fastReflection_QueryBaseFeeResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_QueryBaseFeeResponse)(nil)
 }
+
 func (x fastReflection_QueryBaseFeeResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_QueryBaseFeeResponse)
 }
+
 func (x fastReflection_QueryBaseFeeResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_QueryBaseFeeResponse
 }
@@ -13275,41 +13369,43 @@ func file_ethermint_evm_v1_query_proto_rawDescGZIP() []byte {
 	return file_ethermint_evm_v1_query_proto_rawDescData
 }
 
-var file_ethermint_evm_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
-var file_ethermint_evm_v1_query_proto_goTypes = []interface{}{
-	(*QueryAccountRequest)(nil),           // 0: ethermint.evm.v1.QueryAccountRequest
-	(*QueryAccountResponse)(nil),          // 1: ethermint.evm.v1.QueryAccountResponse
-	(*QueryCosmosAccountRequest)(nil),     // 2: ethermint.evm.v1.QueryCosmosAccountRequest
-	(*QueryCosmosAccountResponse)(nil),    // 3: ethermint.evm.v1.QueryCosmosAccountResponse
-	(*QueryValidatorAccountRequest)(nil),  // 4: ethermint.evm.v1.QueryValidatorAccountRequest
-	(*QueryValidatorAccountResponse)(nil), // 5: ethermint.evm.v1.QueryValidatorAccountResponse
-	(*QueryBalanceRequest)(nil),           // 6: ethermint.evm.v1.QueryBalanceRequest
-	(*QueryBalanceResponse)(nil),          // 7: ethermint.evm.v1.QueryBalanceResponse
-	(*QueryStorageRequest)(nil),           // 8: ethermint.evm.v1.QueryStorageRequest
-	(*QueryStorageResponse)(nil),          // 9: ethermint.evm.v1.QueryStorageResponse
-	(*QueryCodeRequest)(nil),              // 10: ethermint.evm.v1.QueryCodeRequest
-	(*QueryCodeResponse)(nil),             // 11: ethermint.evm.v1.QueryCodeResponse
-	(*QueryTxLogsRequest)(nil),            // 12: ethermint.evm.v1.QueryTxLogsRequest
-	(*QueryTxLogsResponse)(nil),           // 13: ethermint.evm.v1.QueryTxLogsResponse
-	(*QueryParamsRequest)(nil),            // 14: ethermint.evm.v1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),           // 15: ethermint.evm.v1.QueryParamsResponse
-	(*EthCallRequest)(nil),                // 16: ethermint.evm.v1.EthCallRequest
-	(*EstimateGasResponse)(nil),           // 17: ethermint.evm.v1.EstimateGasResponse
-	(*QueryTraceTxRequest)(nil),           // 18: ethermint.evm.v1.QueryTraceTxRequest
-	(*QueryTraceTxResponse)(nil),          // 19: ethermint.evm.v1.QueryTraceTxResponse
-	(*QueryTraceBlockRequest)(nil),        // 20: ethermint.evm.v1.QueryTraceBlockRequest
-	(*QueryTraceBlockResponse)(nil),       // 21: ethermint.evm.v1.QueryTraceBlockResponse
-	(*QueryBaseFeeRequest)(nil),           // 22: ethermint.evm.v1.QueryBaseFeeRequest
-	(*QueryBaseFeeResponse)(nil),          // 23: ethermint.evm.v1.QueryBaseFeeResponse
-	(*v1beta1.PageRequest)(nil),           // 24: cosmos.base.query.v1beta1.PageRequest
-	(*Log)(nil),                           // 25: ethermint.evm.v1.Log
-	(*v1beta1.PageResponse)(nil),          // 26: cosmos.base.query.v1beta1.PageResponse
-	(*Params)(nil),                        // 27: ethermint.evm.v1.Params
-	(*MsgEthereumTx)(nil),                 // 28: ethermint.evm.v1.MsgEthereumTx
-	(*TraceConfig)(nil),                   // 29: ethermint.evm.v1.TraceConfig
-	(*timestamppb.Timestamp)(nil),         // 30: google.protobuf.Timestamp
-	(*MsgEthereumTxResponse)(nil),         // 31: ethermint.evm.v1.MsgEthereumTxResponse
-}
+var (
+	file_ethermint_evm_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+	file_ethermint_evm_v1_query_proto_goTypes  = []interface{}{
+		(*QueryAccountRequest)(nil),           // 0: ethermint.evm.v1.QueryAccountRequest
+		(*QueryAccountResponse)(nil),          // 1: ethermint.evm.v1.QueryAccountResponse
+		(*QueryCosmosAccountRequest)(nil),     // 2: ethermint.evm.v1.QueryCosmosAccountRequest
+		(*QueryCosmosAccountResponse)(nil),    // 3: ethermint.evm.v1.QueryCosmosAccountResponse
+		(*QueryValidatorAccountRequest)(nil),  // 4: ethermint.evm.v1.QueryValidatorAccountRequest
+		(*QueryValidatorAccountResponse)(nil), // 5: ethermint.evm.v1.QueryValidatorAccountResponse
+		(*QueryBalanceRequest)(nil),           // 6: ethermint.evm.v1.QueryBalanceRequest
+		(*QueryBalanceResponse)(nil),          // 7: ethermint.evm.v1.QueryBalanceResponse
+		(*QueryStorageRequest)(nil),           // 8: ethermint.evm.v1.QueryStorageRequest
+		(*QueryStorageResponse)(nil),          // 9: ethermint.evm.v1.QueryStorageResponse
+		(*QueryCodeRequest)(nil),              // 10: ethermint.evm.v1.QueryCodeRequest
+		(*QueryCodeResponse)(nil),             // 11: ethermint.evm.v1.QueryCodeResponse
+		(*QueryTxLogsRequest)(nil),            // 12: ethermint.evm.v1.QueryTxLogsRequest
+		(*QueryTxLogsResponse)(nil),           // 13: ethermint.evm.v1.QueryTxLogsResponse
+		(*QueryParamsRequest)(nil),            // 14: ethermint.evm.v1.QueryParamsRequest
+		(*QueryParamsResponse)(nil),           // 15: ethermint.evm.v1.QueryParamsResponse
+		(*EthCallRequest)(nil),                // 16: ethermint.evm.v1.EthCallRequest
+		(*EstimateGasResponse)(nil),           // 17: ethermint.evm.v1.EstimateGasResponse
+		(*QueryTraceTxRequest)(nil),           // 18: ethermint.evm.v1.QueryTraceTxRequest
+		(*QueryTraceTxResponse)(nil),          // 19: ethermint.evm.v1.QueryTraceTxResponse
+		(*QueryTraceBlockRequest)(nil),        // 20: ethermint.evm.v1.QueryTraceBlockRequest
+		(*QueryTraceBlockResponse)(nil),       // 21: ethermint.evm.v1.QueryTraceBlockResponse
+		(*QueryBaseFeeRequest)(nil),           // 22: ethermint.evm.v1.QueryBaseFeeRequest
+		(*QueryBaseFeeResponse)(nil),          // 23: ethermint.evm.v1.QueryBaseFeeResponse
+		(*v1beta1.PageRequest)(nil),           // 24: cosmos.base.query.v1beta1.PageRequest
+		(*Log)(nil),                           // 25: ethermint.evm.v1.Log
+		(*v1beta1.PageResponse)(nil),          // 26: cosmos.base.query.v1beta1.PageResponse
+		(*Params)(nil),                        // 27: ethermint.evm.v1.Params
+		(*MsgEthereumTx)(nil),                 // 28: ethermint.evm.v1.MsgEthereumTx
+		(*TraceConfig)(nil),                   // 29: ethermint.evm.v1.TraceConfig
+		(*timestamppb.Timestamp)(nil),         // 30: google.protobuf.Timestamp
+		(*MsgEthereumTxResponse)(nil),         // 31: ethermint.evm.v1.MsgEthereumTxResponse
+	}
+)
 var file_ethermint_evm_v1_query_proto_depIdxs = []int32{
 	24, // 0: ethermint.evm.v1.QueryTxLogsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
 	25, // 1: ethermint.evm.v1.QueryTxLogsResponse.logs:type_name -> ethermint.evm.v1.Log

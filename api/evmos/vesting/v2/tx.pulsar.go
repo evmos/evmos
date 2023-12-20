@@ -2,11 +2,16 @@
 package vestingv2
 
 import (
+	fmt "fmt"
+	io "io"
+	reflect "reflect"
+	sync "sync"
+
 	_ "cosmossdk.io/api/amino"
 	v1beta11 "cosmossdk.io/api/cosmos/base/v1beta1"
 	_ "cosmossdk.io/api/cosmos/msg/v1"
 	v1beta1 "cosmossdk.io/api/cosmos/vesting/v1beta1"
-	fmt "fmt"
+
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -14,9 +19,6 @@ import (
 	protoiface "google.golang.org/protobuf/runtime/protoiface"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	io "io"
-	reflect "reflect"
-	sync "sync"
 )
 
 var (
@@ -54,17 +56,21 @@ func (x *MsgCreateClawbackVestingAccount) slowProtoReflect() protoreflect.Messag
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgCreateClawbackVestingAccount_messageType fastReflection_MsgCreateClawbackVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_MsgCreateClawbackVestingAccount_messageType{}
+var (
+	_fastReflection_MsgCreateClawbackVestingAccount_messageType fastReflection_MsgCreateClawbackVestingAccount_messageType
+	_                                                           protoreflect.MessageType = fastReflection_MsgCreateClawbackVestingAccount_messageType{}
+)
 
 type fastReflection_MsgCreateClawbackVestingAccount_messageType struct{}
 
 func (x fastReflection_MsgCreateClawbackVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgCreateClawbackVestingAccount)(nil)
 }
+
 func (x fastReflection_MsgCreateClawbackVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgCreateClawbackVestingAccount)
 }
+
 func (x fastReflection_MsgCreateClawbackVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgCreateClawbackVestingAccount
 }
@@ -557,9 +563,7 @@ func (x *fastReflection_MsgCreateClawbackVestingAccount) ProtoMethods() *protoif
 	}
 }
 
-var (
-	md_MsgCreateClawbackVestingAccountResponse protoreflect.MessageDescriptor
-)
+var md_MsgCreateClawbackVestingAccountResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_vesting_v2_tx_proto_init()
@@ -586,17 +590,21 @@ func (x *MsgCreateClawbackVestingAccountResponse) slowProtoReflect() protoreflec
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgCreateClawbackVestingAccountResponse_messageType fastReflection_MsgCreateClawbackVestingAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgCreateClawbackVestingAccountResponse_messageType{}
+var (
+	_fastReflection_MsgCreateClawbackVestingAccountResponse_messageType fastReflection_MsgCreateClawbackVestingAccountResponse_messageType
+	_                                                                   protoreflect.MessageType = fastReflection_MsgCreateClawbackVestingAccountResponse_messageType{}
+)
 
 type fastReflection_MsgCreateClawbackVestingAccountResponse_messageType struct{}
 
 func (x fastReflection_MsgCreateClawbackVestingAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgCreateClawbackVestingAccountResponse)(nil)
 }
+
 func (x fastReflection_MsgCreateClawbackVestingAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgCreateClawbackVestingAccountResponse)
 }
+
 func (x fastReflection_MsgCreateClawbackVestingAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgCreateClawbackVestingAccountResponse
 }
@@ -1054,17 +1062,21 @@ func (x *MsgFundVestingAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgFundVestingAccount_messageType fastReflection_MsgFundVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_MsgFundVestingAccount_messageType{}
+var (
+	_fastReflection_MsgFundVestingAccount_messageType fastReflection_MsgFundVestingAccount_messageType
+	_                                                 protoreflect.MessageType = fastReflection_MsgFundVestingAccount_messageType{}
+)
 
 type fastReflection_MsgFundVestingAccount_messageType struct{}
 
 func (x fastReflection_MsgFundVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgFundVestingAccount)(nil)
 }
+
 func (x fastReflection_MsgFundVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgFundVestingAccount)
 }
+
 func (x fastReflection_MsgFundVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgFundVestingAccount
 }
@@ -1752,9 +1764,7 @@ func (x *fastReflection_MsgFundVestingAccount) ProtoMethods() *protoiface.Method
 	}
 }
 
-var (
-	md_MsgFundVestingAccountResponse protoreflect.MessageDescriptor
-)
+var md_MsgFundVestingAccountResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_vesting_v2_tx_proto_init()
@@ -1781,17 +1791,21 @@ func (x *MsgFundVestingAccountResponse) slowProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgFundVestingAccountResponse_messageType fastReflection_MsgFundVestingAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgFundVestingAccountResponse_messageType{}
+var (
+	_fastReflection_MsgFundVestingAccountResponse_messageType fastReflection_MsgFundVestingAccountResponse_messageType
+	_                                                         protoreflect.MessageType = fastReflection_MsgFundVestingAccountResponse_messageType{}
+)
 
 type fastReflection_MsgFundVestingAccountResponse_messageType struct{}
 
 func (x fastReflection_MsgFundVestingAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgFundVestingAccountResponse)(nil)
 }
+
 func (x fastReflection_MsgFundVestingAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgFundVestingAccountResponse)
 }
+
 func (x fastReflection_MsgFundVestingAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgFundVestingAccountResponse
 }
@@ -2143,17 +2157,21 @@ func (x *MsgClawback) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgClawback_messageType fastReflection_MsgClawback_messageType
-var _ protoreflect.MessageType = fastReflection_MsgClawback_messageType{}
+var (
+	_fastReflection_MsgClawback_messageType fastReflection_MsgClawback_messageType
+	_                                       protoreflect.MessageType = fastReflection_MsgClawback_messageType{}
+)
 
 type fastReflection_MsgClawback_messageType struct{}
 
 func (x fastReflection_MsgClawback_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgClawback)(nil)
 }
+
 func (x fastReflection_MsgClawback_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgClawback)
 }
+
 func (x fastReflection_MsgClawback_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgClawback
 }
@@ -2738,17 +2756,21 @@ func (x *MsgClawbackResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgClawbackResponse_messageType fastReflection_MsgClawbackResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgClawbackResponse_messageType{}
+var (
+	_fastReflection_MsgClawbackResponse_messageType fastReflection_MsgClawbackResponse_messageType
+	_                                               protoreflect.MessageType = fastReflection_MsgClawbackResponse_messageType{}
+)
 
 type fastReflection_MsgClawbackResponse_messageType struct{}
 
 func (x fastReflection_MsgClawbackResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgClawbackResponse)(nil)
 }
+
 func (x fastReflection_MsgClawbackResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgClawbackResponse)
 }
+
 func (x fastReflection_MsgClawbackResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgClawbackResponse
 }
@@ -3185,17 +3207,21 @@ func (x *MsgUpdateVestingFunder) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateVestingFunder_messageType fastReflection_MsgUpdateVestingFunder_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateVestingFunder_messageType{}
+var (
+	_fastReflection_MsgUpdateVestingFunder_messageType fastReflection_MsgUpdateVestingFunder_messageType
+	_                                                  protoreflect.MessageType = fastReflection_MsgUpdateVestingFunder_messageType{}
+)
 
 type fastReflection_MsgUpdateVestingFunder_messageType struct{}
 
 func (x fastReflection_MsgUpdateVestingFunder_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateVestingFunder)(nil)
 }
+
 func (x fastReflection_MsgUpdateVestingFunder_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateVestingFunder)
 }
+
 func (x fastReflection_MsgUpdateVestingFunder_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateVestingFunder
 }
@@ -3698,9 +3724,7 @@ func (x *fastReflection_MsgUpdateVestingFunder) ProtoMethods() *protoiface.Metho
 	}
 }
 
-var (
-	md_MsgUpdateVestingFunderResponse protoreflect.MessageDescriptor
-)
+var md_MsgUpdateVestingFunderResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_vesting_v2_tx_proto_init()
@@ -3727,17 +3751,21 @@ func (x *MsgUpdateVestingFunderResponse) slowProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgUpdateVestingFunderResponse_messageType fastReflection_MsgUpdateVestingFunderResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgUpdateVestingFunderResponse_messageType{}
+var (
+	_fastReflection_MsgUpdateVestingFunderResponse_messageType fastReflection_MsgUpdateVestingFunderResponse_messageType
+	_                                                          protoreflect.MessageType = fastReflection_MsgUpdateVestingFunderResponse_messageType{}
+)
 
 type fastReflection_MsgUpdateVestingFunderResponse_messageType struct{}
 
 func (x fastReflection_MsgUpdateVestingFunderResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgUpdateVestingFunderResponse)(nil)
 }
+
 func (x fastReflection_MsgUpdateVestingFunderResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgUpdateVestingFunderResponse)
 }
+
 func (x fastReflection_MsgUpdateVestingFunderResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgUpdateVestingFunderResponse
 }
@@ -4085,17 +4113,21 @@ func (x *MsgConvertVestingAccount) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertVestingAccount_messageType fastReflection_MsgConvertVestingAccount_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertVestingAccount_messageType{}
+var (
+	_fastReflection_MsgConvertVestingAccount_messageType fastReflection_MsgConvertVestingAccount_messageType
+	_                                                    protoreflect.MessageType = fastReflection_MsgConvertVestingAccount_messageType{}
+)
 
 type fastReflection_MsgConvertVestingAccount_messageType struct{}
 
 func (x fastReflection_MsgConvertVestingAccount_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertVestingAccount)(nil)
 }
+
 func (x fastReflection_MsgConvertVestingAccount_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertVestingAccount)
 }
+
 func (x fastReflection_MsgConvertVestingAccount_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertVestingAccount
 }
@@ -4474,9 +4506,7 @@ func (x *fastReflection_MsgConvertVestingAccount) ProtoMethods() *protoiface.Met
 	}
 }
 
-var (
-	md_MsgConvertVestingAccountResponse protoreflect.MessageDescriptor
-)
+var md_MsgConvertVestingAccountResponse protoreflect.MessageDescriptor
 
 func init() {
 	file_evmos_vesting_v2_tx_proto_init()
@@ -4503,17 +4533,21 @@ func (x *MsgConvertVestingAccountResponse) slowProtoReflect() protoreflect.Messa
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgConvertVestingAccountResponse_messageType fastReflection_MsgConvertVestingAccountResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgConvertVestingAccountResponse_messageType{}
+var (
+	_fastReflection_MsgConvertVestingAccountResponse_messageType fastReflection_MsgConvertVestingAccountResponse_messageType
+	_                                                            protoreflect.MessageType = fastReflection_MsgConvertVestingAccountResponse_messageType{}
+)
 
 type fastReflection_MsgConvertVestingAccountResponse_messageType struct{}
 
 func (x fastReflection_MsgConvertVestingAccountResponse_messageType) Zero() protoreflect.Message {
 	return (*fastReflection_MsgConvertVestingAccountResponse)(nil)
 }
+
 func (x fastReflection_MsgConvertVestingAccountResponse_messageType) New() protoreflect.Message {
 	return new(fastReflection_MsgConvertVestingAccountResponse)
 }
+
 func (x fastReflection_MsgConvertVestingAccountResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
 	return md_MsgConvertVestingAccountResponse
 }
@@ -5466,22 +5500,24 @@ func file_evmos_vesting_v2_tx_proto_rawDescGZIP() []byte {
 	return file_evmos_vesting_v2_tx_proto_rawDescData
 }
 
-var file_evmos_vesting_v2_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_evmos_vesting_v2_tx_proto_goTypes = []interface{}{
-	(*MsgCreateClawbackVestingAccount)(nil),         // 0: evmos.vesting.v2.MsgCreateClawbackVestingAccount
-	(*MsgCreateClawbackVestingAccountResponse)(nil), // 1: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse
-	(*MsgFundVestingAccount)(nil),                   // 2: evmos.vesting.v2.MsgFundVestingAccount
-	(*MsgFundVestingAccountResponse)(nil),           // 3: evmos.vesting.v2.MsgFundVestingAccountResponse
-	(*MsgClawback)(nil),                             // 4: evmos.vesting.v2.MsgClawback
-	(*MsgClawbackResponse)(nil),                     // 5: evmos.vesting.v2.MsgClawbackResponse
-	(*MsgUpdateVestingFunder)(nil),                  // 6: evmos.vesting.v2.MsgUpdateVestingFunder
-	(*MsgUpdateVestingFunderResponse)(nil),          // 7: evmos.vesting.v2.MsgUpdateVestingFunderResponse
-	(*MsgConvertVestingAccount)(nil),                // 8: evmos.vesting.v2.MsgConvertVestingAccount
-	(*MsgConvertVestingAccountResponse)(nil),        // 9: evmos.vesting.v2.MsgConvertVestingAccountResponse
-	(*timestamppb.Timestamp)(nil),                   // 10: google.protobuf.Timestamp
-	(*v1beta1.Period)(nil),                          // 11: cosmos.vesting.v1beta1.Period
-	(*v1beta11.Coin)(nil),                           // 12: cosmos.base.v1beta1.Coin
-}
+var (
+	file_evmos_vesting_v2_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+	file_evmos_vesting_v2_tx_proto_goTypes  = []interface{}{
+		(*MsgCreateClawbackVestingAccount)(nil),         // 0: evmos.vesting.v2.MsgCreateClawbackVestingAccount
+		(*MsgCreateClawbackVestingAccountResponse)(nil), // 1: evmos.vesting.v2.MsgCreateClawbackVestingAccountResponse
+		(*MsgFundVestingAccount)(nil),                   // 2: evmos.vesting.v2.MsgFundVestingAccount
+		(*MsgFundVestingAccountResponse)(nil),           // 3: evmos.vesting.v2.MsgFundVestingAccountResponse
+		(*MsgClawback)(nil),                             // 4: evmos.vesting.v2.MsgClawback
+		(*MsgClawbackResponse)(nil),                     // 5: evmos.vesting.v2.MsgClawbackResponse
+		(*MsgUpdateVestingFunder)(nil),                  // 6: evmos.vesting.v2.MsgUpdateVestingFunder
+		(*MsgUpdateVestingFunderResponse)(nil),          // 7: evmos.vesting.v2.MsgUpdateVestingFunderResponse
+		(*MsgConvertVestingAccount)(nil),                // 8: evmos.vesting.v2.MsgConvertVestingAccount
+		(*MsgConvertVestingAccountResponse)(nil),        // 9: evmos.vesting.v2.MsgConvertVestingAccountResponse
+		(*timestamppb.Timestamp)(nil),                   // 10: google.protobuf.Timestamp
+		(*v1beta1.Period)(nil),                          // 11: cosmos.vesting.v1beta1.Period
+		(*v1beta11.Coin)(nil),                           // 12: cosmos.base.v1beta1.Coin
+	}
+)
 var file_evmos_vesting_v2_tx_proto_depIdxs = []int32{
 	10, // 0: evmos.vesting.v2.MsgFundVestingAccount.start_time:type_name -> google.protobuf.Timestamp
 	11, // 1: evmos.vesting.v2.MsgFundVestingAccount.lockup_periods:type_name -> cosmos.vesting.v1beta1.Period
