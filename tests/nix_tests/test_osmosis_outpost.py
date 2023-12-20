@@ -165,7 +165,7 @@ def setup_osmos_chains(ibc):
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
 
-    return cross_swap_contract
+    return swap_contract_addr
 
 
 def send_evmos_to_osmos(ibc):
