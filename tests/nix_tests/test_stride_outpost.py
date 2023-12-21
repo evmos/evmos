@@ -70,6 +70,7 @@ def test_liquid_stake(ibc):
         "sender": sender_addr,
         "receiver": sender_addr,
         "strideForwarder": dst_addr,
+        "token": wevmos_addr,
         "amount": amt,
     }
     tx = pc.functions.liquidStake(liquid_stake_params).build_transaction(
