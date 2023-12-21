@@ -94,34 +94,11 @@ func ApproveProposal(tf factory.TxFactory, network network.Network, proposerPriv
 		return errorsmod.Wrap(err, "failed to vote on proposal")
 	}
 
-	gq := network.GetGovClient()
-	params, err := gq.Params(network.GetContext(), &govv1.QueryParamsRequest{ParamsType: "voting"})
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to query voting params")
+	if err := waitVotingPeriod(network); err != nil {
+		return errorsmod.Wrap(err, "failed to wait for voting period to pass")
 	}
 
-	err = network.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
-	}
-
-	err = network.NextBlock()
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to commit block after votes")
-	}
-
-	// NOTE: it's necessary to instantiate a new gov client here, because the previous one has now an outdated
-	// context.
-	gq = network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
-	if err != nil {
-		return errorsmod.Wrap(err, "failed to query proposal")
-	}
-
-	if proposalRes.Proposal.Status != govv1.StatusPassed {
-		return fmt.Errorf("proposal did not pass; got status: %s", proposalRes.Proposal.Status.String())
-	}
-	return nil
+	return checkProposalStatus(network, proposalID, govv1.StatusPassed)
 }
 
 // getProposalIDFromEvents returns the proposal ID from the events in
@@ -180,15 +157,40 @@ func submitProposal(tf factory.TxFactory, network network.Network, proposerPriv 
 		return 0, errorsmod.Wrap(err, "failed to commit block after proposal")
 	}
 
-	gq := network.GetGovClient()
-	proposalRes, err := gq.Proposal(network.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
+	if err := checkProposalStatus(network, proposalID, govv1.StatusVotingPeriod); err != nil {
+		return 0, errorsmod.Wrap(err, "error while checking proposal")
+	}
+
+	return proposalID, nil
+}
+
+// waitVotingPeriod is a helper function that waits for the current voting period
+// defined in the gov module params to pass
+func waitVotingPeriod(n network.Network) error {
+	gq := n.GetGovClient()
+	params, err := gq.Params(n.GetContext(), &govv1.QueryParamsRequest{ParamsType: "voting"})
 	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to query proposal")
+		return errorsmod.Wrap(err, "failed to query voting params")
 	}
 
-	if proposalRes.Proposal.Status != govv1.StatusVotingPeriod {
-		return 0, fmt.Errorf("expected proposal to be in voting period; got: %s", proposalRes.Proposal.Status.String())
+	err = n.NextBlockAfter(*params.Params.VotingPeriod) // commit after voting period is over
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to commit block after voting period ends")
 	}
 
-	return proposalRes.Proposal.GetId(), nil
+	return n.NextBlock()
+}
+
+// checkProposalStatus is a helper function to check for a specific proposal status
+func checkProposalStatus(n network.Network, proposalID uint64, expStatus govv1.ProposalStatus) error {
+	gq := n.GetGovClient()
+	proposalRes, err := gq.Proposal(n.GetContext(), &govv1.QueryProposalRequest{ProposalId: proposalID})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to query proposal")
+	}
+
+	if proposalRes.Proposal.Status != expStatus {
+		return fmt.Errorf("proposal status different than expected. Expected %s; got: %s", expStatus.String(), proposalRes.Proposal.Status.String())
+	}
+	return nil
 }

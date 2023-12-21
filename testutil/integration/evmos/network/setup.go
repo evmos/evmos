@@ -207,8 +207,8 @@ type StakingCustomGenesisState struct {
 	delegations []stakingtypes.Delegation
 }
 
-// defaultStakingGenesisState sets the default staking genesis state
-func defaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams StakingCustomGenesisState) types.GenesisState {
+// setDefaultStakingGenesisState sets the default staking genesis state
+func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams StakingCustomGenesisState) types.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -218,8 +218,8 @@ func defaultStakingGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 	return genesisState
 }
 
-// defaultInflationGenesisState sets the default inflation genesis state
-func defaultInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
+// setDefaultInflationGenesisState sets the default inflation genesis state
+func setDefaultInflationGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
 	inflationParams := infltypes.DefaultParams()
 	inflationParams.EnableInflation = false
 	defaultGen := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
@@ -233,8 +233,8 @@ type BankCustomGenesisState struct {
 	balances    []banktypes.Balance
 }
 
-// defaultBankGenesisState sets the default bank genesis state
-func defaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams BankCustomGenesisState) types.GenesisState {
+// setDefaultBankGenesisState sets the default bank genesis state
+func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, overwriteParams BankCustomGenesisState) types.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
@@ -263,15 +263,15 @@ func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.B
 	})
 }
 
-// defaultAuthGenesisState sets the default auth genesis state
-func defaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, genAccs []authtypes.GenesisAccount) types.GenesisState {
+// setDefaultAuthGenesisState sets the default auth genesis state
+func setDefaultAuthGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, genAccs []authtypes.GenesisAccount) types.GenesisState {
 	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
 	return genesisState
 }
 
-// defaultGovGenesisState sets the default gov genesis state
-func defaultGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
+// setDefaultGovGenesisState sets the default gov genesis state
+func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState) types.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
 	// set 'aevmos' as deposit denom
@@ -286,11 +286,11 @@ func defaultGovGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState
 func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) types.GenesisState {
 	genesisState := app.NewDefaultGenesisState()
 
-	genesisState = defaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
-	genesisState = defaultStakingGenesisState(evmosApp, genesisState, params.staking)
-	genesisState = defaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = defaultInflationGenesisState(evmosApp, genesisState)
-	genesisState = defaultGovGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
+	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
+	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
+	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 
 	return genesisState
 }
