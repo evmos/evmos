@@ -110,8 +110,6 @@ func WithdrawWEVMOS(
 	}
 
 	// call withdraw method from the account
-	//
-	// TODO: implement call to the WEVMOS withdraw method (also the balance amount has to be passed)
 	data, err := testdata.WEVMOSContract.ABI.Pack("withdraw", balance)
 	if err != nil {
 		fmt.Println("error packing data for withdraw method", err.Error())
@@ -139,11 +137,7 @@ func ConvertERC20Token(
 	}
 
 	msg := erc20types.NewMsgConvertERC20(sdk.NewIntFromBigInt(balance), receiver, contract, from)
-
 	_, err := erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx), msg)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
