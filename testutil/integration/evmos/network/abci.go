@@ -24,7 +24,7 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	header.Height++
 	header.AppHash = n.app.LastCommitID().Hash
 	// Calculate new block time after duration
-	newBlockTime := header.Time.Add(duration)
+	newBlockTime := time.Time{}.Add(duration)
 	header.Time = newBlockTime
 
 	// FinalizeBlock to run endBlock, deliverTx & beginBlock logic

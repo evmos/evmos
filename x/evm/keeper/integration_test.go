@@ -69,6 +69,19 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	})
 
 	When("the params have default values", Ordered, func() {
+		BeforeAll(func() {
+			// Set params to default values
+			defaultParams := evmtypes.DefaultParams()
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  defaultParams,
+				},
+			)
+			Expect(err).To(BeNil())
+		})
 		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
@@ -411,11 +424,16 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 	When("EnableCall param is set to false", Ordered, func() {
 		BeforeAll(func() {
-			evmGenesis := evmtypes.DefaultGenesisState()
-			evmGenesis.Params.EnableCall = false
-			s = setupIntegrationTestSuite(evmGenesis)
-
-			err := s.network.NextBlock()
+			updatedParams := evmtypes.DefaultParams()
+			updatedParams.EnableCall = false
+			err := integrationutils.UpdateEvmParams(
+				integrationutils.UpdateParamsInput{
+					Tf:      s.factory,
+					Network: s.network,
+					Pk:      s.keyring.GetPrivKey(0),
+					Params:  updatedParams,
+				},
+			)
 			Expect(err).To(BeNil())
 		})
 
@@ -469,28 +487,3 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		})
 	})
 })
-
-// setupIntegrationTestSuite is a helper function to setup a integration test suite
-// with a network with a specified custom genesis state
-func setupIntegrationTestSuite(customEVMGenesis *evmtypes.GenesisState) *IntegrationTestSuite {
-	customGenesis := network.CustomGenesisState{
-		evmtypes.ModuleName: customEVMGenesis,
-	}
-
-	keyring := testkeyring.New(3)
-	integrationNetwork := network.New(
-		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
-		network.WithCustomGenesis(customGenesis),
-	)
-	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
-	txFactory := factory.New(integrationNetwork, grpcHandler)
-
-	suite := &IntegrationTestSuite{
-		network:     integrationNetwork,
-		factory:     txFactory,
-		grpcHandler: grpcHandler,
-		keyring:     keyring,
-	}
-
-	return suite
-}
