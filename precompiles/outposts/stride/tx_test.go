@@ -22,6 +22,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
+	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -36,7 +37,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			},
 			200000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 4, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
 			"fail - token not found",
@@ -44,10 +45,14 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 				err := s.network.App.StakingKeeper.SetParams(s.network.GetContext(), stakingtypes.DefaultParams())
 				s.Require().NoError(err)
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-					big.NewInt(1e18),
-					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					},
 				}
 			},
 			200000,
@@ -58,10 +63,14 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"fail - unsupported token",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-					big.NewInt(1e18),
-					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					},
 				}
 			},
 			200000,
@@ -72,24 +81,32 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"fail - invalid strideForwarder address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+					},
 				}
 			},
 			200000,
 			true,
-			"receiver is not a stride address",
+			"invalid stride bech32 address",
 		},
 		{
 			"fail - strideForwarder address is an invalid stride bech32 address",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xx",
+					},
 				}
 			},
 			200000,
@@ -100,10 +117,14 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"success",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+					},
 				}
 			},
 			200000,
@@ -141,6 +162,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
+	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -155,7 +177,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			},
 			200000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 5, 0),
+			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
 			"fail - token not found",
@@ -163,11 +185,14 @@ func (s *PrecompileTestSuite) TestRedeem() {
 				err := s.network.App.StakingKeeper.SetParams(s.network.GetContext(), stakingtypes.DefaultParams())
 				s.Require().NoError(err)
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					s.keyring.GetAddr(0),
-					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-					big.NewInt(1e18),
-					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					},
 				}
 			},
 			200000,
@@ -178,11 +203,14 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"fail - unsupported token",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					s.keyring.GetAddr(0),
-					common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
-					big.NewInt(1e18),
-					"stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
+					},
 				}
 			},
 			200000,
@@ -193,26 +221,32 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"fail - invalid receiver address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "cosmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
+					},
 				}
 			},
 			200000,
 			true,
-			"receiver is not a stride address",
+			"invalid stride bech32 address",
 		},
 		{
 			"fail - receiver address is an invalid stride bech32 address",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe",
+					},
 				}
 			},
 			200000,
@@ -223,11 +257,14 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"success",
 			func() []interface{} {
 				return []interface{}{
-					s.keyring.GetAddr(0),
-					s.keyring.GetAddr(0),
-					common.HexToAddress(tokenPair.Erc20Address),
-					big.NewInt(1e18),
-					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+					stride.AutopilotArgs{
+						ChannelID:       channelID,
+						Sender:          s.keyring.GetAddr(0),
+						Receiver:        s.keyring.GetAddr(0),
+						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Amount:          big.NewInt(1e18),
+						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
+					},
 				}
 			},
 			200000,
