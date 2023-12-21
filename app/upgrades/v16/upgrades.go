@@ -12,12 +12,14 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	"github.com/evmos/evmos/v16/utils"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 )
@@ -36,9 +38,19 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		var wrappedContractAddr common.Address
+		switch {
+		case utils.IsMainnet(ctx.ChainID()):
+			wrappedContractAddr = common.HexToAddress(erc20types.WEVMOSContractMainnet)
+		case utils.IsTestnet(ctx.ChainID()):
+			wrappedContractAddr = common.HexToAddress(erc20types.WEVMOSContractTestnet)
+		default:
+			logger.Error("unexpected chain id", "chain-id", ctx.ChainID())
+		}
+
 		// Execute the conversion for all Cosmos native ERC20 token pairs to use the ERC20 EVM extension.
 		cacheCtx, writeFn := ctx.CacheContext()
-		if err := ConvertToNativeCoinExtensions(cacheCtx, logger, ak, bk, erck); err != nil {
+		if err := ConvertToNativeCoinExtensions(cacheCtx, logger, ak, bk, erck, wrappedContractAddr); err != nil {
 			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
 		} else {
 			// Write the cache to the context
@@ -102,11 +114,12 @@ func ConvertToNativeCoinExtensions(
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	wrappedContractAddr common.Address,
 ) error {
 	// NOTE (@fedekunze): first we must convert the all the registered tokens.
 	// If we do it the other way around, the conversion will fail since there won't
 	// be any contract code due to the selfdestruct.
-	if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
+	if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper, wrappedContractAddr); err != nil {
 		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	"github.com/evmos/evmos/v16/contracts"
+	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	testfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -31,6 +32,7 @@ type ConvertERC20CoinsTestSuite struct {
 	expectedBalances   utils.ExpectedBalances
 	tokenPair          *erc20types.TokenPair
 	nonNativeTokenPair *erc20types.TokenPair
+	wevmosContract     common.Address
 }
 
 const (
@@ -51,7 +53,14 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	logger := ts.network.GetContext().Logger().With("upgrade")
 
 	// Convert the coins back using the upgrade util
-	err = v16.ConvertToNativeCoinExtensions(ts.network.GetContext(), logger, ts.network.App.AccountKeeper, ts.network.App.BankKeeper, ts.network.App.Erc20Keeper)
+	err = v16.ConvertToNativeCoinExtensions(
+		ts.network.GetContext(),
+		logger,
+		ts.network.App.AccountKeeper,
+		ts.network.App.BankKeeper,
+		ts.network.App.Erc20Keeper,
+		ts.wevmosContract,
+	)
 	require.NoError(t, err, "failed to convert coins")
 
 	err = ts.network.NextBlock()
@@ -88,6 +97,11 @@ func TestConvertToNativeCoinExtensions(t *testing.T) {
 	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
 	require.NoError(t, err, "failed to execute contract call")
 	require.Equal(t, mintAmount, balance, "expected different balance after converting ERC20")
+
+	// NOTE: We check that there all balance of the WEVMOS contract was withdrawn too.
+	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.wevmosContract)
+	require.NoError(t, err, "failed to execute contract call")
+	require.Equal(t, common.Big0.Int64(), balance.Int64(), "expected no WEVMOS left after conversion")
 }
 
 // SetupConvertERC20CoinsTest sets up a test suite to test the conversion of ERC20 coins to native coins.
@@ -226,6 +240,37 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	})
 	require.NoError(t, err, "failed to register ERC20 token")
 
+	// NOTE: We deploy another a wrapped token contract as a representation of the WEVMOS token.
+	wevmosAddr, err := txFactory.DeployContract(
+		kr.GetPrivKey(testAccount),
+		evmtypes.EvmTxArgs{},
+		testfactory.ContractDeploymentData{Contract: testdata.WEVMOSContract},
+	)
+	require.NoError(t, err, "failed to deploy WEVMOS contract")
+
+	err = nw.NextBlock()
+	require.NoError(t, err, "failed to execute block")
+
+	// send some coins to the wevmos address to deposit them.
+	_, err = txFactory.ExecuteEthTx(
+		kr.GetPrivKey(testAccount),
+		evmtypes.EvmTxArgs{
+			To:     &wevmosAddr,
+			Amount: big.NewInt(1e18),
+			// FIXME: the gas simulation is not working correctly otherwise - out of gas
+			GasLimit: 100_000,
+		},
+	)
+	require.NoError(t, err, "failed to execute eth tx")
+
+	err = nw.NextBlock()
+	require.NoError(t, err, "failed to execute block")
+
+	// check that the WEVMOS balance has been increased
+	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), wevmosAddr)
+	require.NoError(t, err, "failed to execute contract call")
+	require.Equal(t, big.NewInt(1e18), balance, "expected different balance after minting ERC20")
+
 	return ConvertERC20CoinsTestSuite{
 		keyring:            kr,
 		network:            nw,
@@ -234,6 +279,7 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 		expectedBalances:   fundedBalances,
 		tokenPair:          tokenPair,
 		nonNativeTokenPair: &nonNativeTokenPair,
+		wevmosContract:     wevmosAddr,
 	}, nil
 }
 

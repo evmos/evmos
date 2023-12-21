@@ -14,17 +14,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
-	"github.com/evmos/evmos/v16/utils"
+	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	erc20types "github.com/evmos/evmos/v16/x/erc20/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-)
-
-const (
-	// WEVMOSContractMainnet is the address of the WEVMOS contract on mainnet.
-	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-	// WEVMOSContractTestnet is the address of the WEVMOS contract on testnet.
-	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
 
 // ConvertERC20Coins converts Native IBC coins from their ERC20 representation
@@ -36,22 +29,15 @@ func ConvertERC20Coins(
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
+	wrappedAddr common.Address,
 ) error {
-	var wrappedContractAddr common.Address
-
-	if utils.IsMainnet(ctx.ChainID()) {
-		wrappedContractAddr = common.HexToAddress(WEVMOSContractMainnet)
-	} else if utils.IsTestnet(ctx.ChainID()) {
-		wrappedContractAddr = common.HexToAddress(WEVMOSContractTestnet)
-	}
-
 	// iterate over all the accounts and convert the tokens to native coins
 	accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) (stop bool) {
 		cosmosAddress := account.GetAddress()
 		ethAddress := common.BytesToAddress(cosmosAddress.Bytes())
 		ethHexAddr := ethAddress.String()
 
-		balance, res, err := WithdrawWEVMOS(ctx, ethAddress, wrappedContractAddr, erc20Keeper)
+		balance, res, err := WithdrawWEVMOS(ctx, ethAddress, wrappedAddr, erc20Keeper)
 
 		var bs string // NOTE: this is necessary so that there is no panic if balance is nil when logging
 		if balance != nil {
@@ -59,14 +45,14 @@ func ConvertERC20Coins(
 		}
 
 		if err != nil {
-			logger.Debug(
+			logger.Error(
 				"failed to withdraw WEVMOS",
 				"account", ethHexAddr,
 				"balance", bs,
 				"error", err.Error(),
 			)
 		} else if res != nil && res.VmError != "" {
-			logger.Debug(
+			logger.Error(
 				"withdraw WEVMOS reverted",
 				"account", ethHexAddr,
 				"balance", bs,
@@ -82,7 +68,7 @@ func ConvertERC20Coins(
 			contract := tokenPair.GetERC20Contract()
 
 			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper); err != nil {
-				logger.Debug(
+				logger.Error(
 					"failed to convert ERC20 to native Coin",
 					"account", ethHexAddr,
 					"erc20", contract.String(),
@@ -113,7 +99,7 @@ func WithdrawWEVMOS(
 	from, wevmosContract common.Address,
 	erc20Keeper erc20keeper.Keeper,
 ) (*big.Int, *evmtypes.MsgEthereumTxResponse, error) {
-	balance := erc20Keeper.BalanceOf(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, wevmosContract, from)
+	balance := erc20Keeper.BalanceOf(ctx, testdata.WEVMOSContract.ABI, wevmosContract, from)
 	if balance == nil {
 		return common.Big0, nil, fmt.Errorf("failed to get WEVMOS balance for %s", from.String())
 	}
@@ -124,7 +110,14 @@ func WithdrawWEVMOS(
 	}
 
 	// call withdraw method from the account
-	var data []byte
+	//
+	// TODO: implement call to the WEVMOS withdraw method (also the balance amount has to be passed)
+	data, err := testdata.WEVMOSContract.ABI.Pack("withdraw", balance)
+	if err != nil {
+		fmt.Println("error packing data for withdraw method", err.Error())
+		return balance, nil, err
+	}
+
 	res, err := erc20Keeper.CallEVMWithData(ctx, from, &wevmosContract, data, true)
 	return balance, res, err
 }
