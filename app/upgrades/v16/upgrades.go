@@ -4,6 +4,7 @@
 package v16
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -36,8 +37,12 @@ func CreateUpgradeHandler(
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
 		// Execute the conversion for all Cosmos native ERC20 token pairs to use the ERC20 EVM extension.
-		if err := ConvertToNativeCoinExtensions(ctx, logger, ak, bk, erck); err != nil {
-			logger.Error("failed to convert erc20s to native coins", "error", err.Error())
+		cacheCtx, writeFn := ctx.CacheContext()
+		if err := ConvertToNativeCoinExtensions(cacheCtx, logger, ak, bk, erck); err != nil {
+			logger.Error("failed to fully convert erc20s to native coins", "error", err.Error())
+		} else {
+			// Write the cache to the context
+			writeFn()
 		}
 
 		// enable secp256r1 and bech32 precompile on testnet
@@ -102,9 +107,7 @@ func ConvertToNativeCoinExtensions(
 	// If we do it the other way around, the conversion will fail since there won't
 	// be any contract code due to the selfdestruct.
 	if err := ConvertERC20Coins(ctx, logger, accountKeeper, bankKeeper, erc20Keeper); err != nil {
-		logger.Error("failed to convert native coins", "error", err.Error())
-		// TODO: return error here?
-		// return errorsmod.Wrap(err, "failed to convert native coins")
+		return errorsmod.Wrap(err, "failed to convert native coins")
 	}
 
 	// Instantiate the (W)ERC20 Precompile for each registered IBC Coin
@@ -112,13 +115,8 @@ func ConvertToNativeCoinExtensions(
 	// IMPORTANT (@fedekunze): This logic needs to be included on EVERY UPGRADE
 	// from now on because the AvailablePrecompiles function does not have access
 	// to the state (in this case, the registered token pairs).
-	//
-	// FIXME: Do we want to run both if the convert coins failed? I think that could be dangerous if a coin
-	// was not fully converted and we overwrite the contract address with the Extension? Or maybe not?
 	if err := erc20Keeper.RegisterERC20Extensions(ctx); err != nil {
-		logger.Error("failed to register ERC-20 Extensions", "error", err.Error())
-		// TODO: return error here?
-		// return errorsmod.Wrap(err, "failed to convert native coins")
+		return errorsmod.Wrap(err, "failed to register ERC-20 extensions")
 	}
 
 	return nil
