@@ -61,12 +61,12 @@ func ConvertERC20Coins(
 		}
 
 		erc20Keeper.IterateTokenPairs(ctx, func(tokenPair erc20types.TokenPair) bool {
+			// NOTE: here we check if the token pair contains an IBC coin. For now we only want to convert those.
 			if !tokenPair.IsNativeCoin() {
 				return false
 			}
 
 			contract := tokenPair.GetERC20Contract()
-
 			if err := ConvertERC20Token(ctx, ethAddress, contract, cosmosAddress, erc20Keeper); err != nil {
 				logger.Error(
 					"failed to convert ERC20 to native Coin",
