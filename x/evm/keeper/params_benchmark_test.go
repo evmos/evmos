@@ -8,23 +8,23 @@ import (
 
 func BenchmarkSetParams(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 	params := types.DefaultParams()
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+		_ = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
 	}
 }
 
 func BenchmarkGetParams(b *testing.B) {
 	suite := KeeperTestSuite{}
-	suite.SetupTestWithT(b)
+	suite.SetupTest()
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = suite.app.EvmKeeper.GetParams(suite.ctx)
+		_ = suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 	}
 }

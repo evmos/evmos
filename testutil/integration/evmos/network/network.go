@@ -234,6 +234,12 @@ func (n *IntegrationNetwork) GetContext() sdktypes.Context {
 	return n.ctx
 }
 
+// WithIsCheckTxCtx switches the network's checkTx property
+func (n *IntegrationNetwork) WithIsCheckTxCtx(isCheckTx bool) sdktypes.Context {
+	n.ctx = n.ctx.WithIsCheckTx(isCheckTx)
+	return n.ctx
+}
+
 // GetChainID returns the network's chainID
 func (n *IntegrationNetwork) GetChainID() string {
 	return n.cfg.chainID

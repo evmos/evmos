@@ -20,7 +20,7 @@ func (ms mockSubspace) GetParamSetIfExists(_ sdk.Context, ps types.LegacyParams)
 
 func (suite *KeeperTestSuite) TestMigrations() {
 	legacySubspace := newMockSubspace(types.DefaultParams())
-	migrator := evmkeeper.NewMigrator(*suite.app.EvmKeeper, legacySubspace)
+	migrator := evmkeeper.NewMigrator(*suite.network.App.EvmKeeper, legacySubspace)
 
 	testCases := []struct {
 		name        string
@@ -34,7 +34,7 @@ func (suite *KeeperTestSuite) TestMigrations() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			err := tc.migrateFunc(suite.ctx)
+			err := tc.migrateFunc(suite.network.GetContext())
 			suite.Require().NoError(err)
 		})
 	}
