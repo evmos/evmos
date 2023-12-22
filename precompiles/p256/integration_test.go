@@ -61,6 +61,9 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 	})
 
 	When("the precompile is enabled in the EVM params", func() {
+		BeforeAll(func() {
+			s = setupIntegrationTestSuite(nil)
+		})
 		DescribeTable("execute contract call", func(inputFn func() (input, expOutput []byte, expErr string)) {
 			senderKey := s.keyring.GetKey(0)
 
@@ -110,8 +113,9 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 	})
 
 	When("the precompile is not enabled in the EVM params", func() {
-		BeforeEach(func() {
-			params := evmtypes.DefaultParams()
+		BeforeAll(func() {
+			customGenesis := evmtypes.DefaultGenesisState()
+			params := customGenesis.Params
 			addr := s.precompileAddress.String()
 			var activePrecompiles []string
 			for _, precompile := range params.ActivePrecompiles {
@@ -120,8 +124,8 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 				}
 			}
 			params.ActivePrecompiles = activePrecompiles
-			err := s.network.UpdateEvmParams(params)
-			Expect(err).To(BeNil())
+			customGenesis.Params = params
+			s = setupIntegrationTestSuite(customGenesis)
 		})
 
 		DescribeTable("execute contract call", func(inputFn func() (input []byte)) {
@@ -167,3 +171,31 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 		)
 	})
 })
+
+// setupIntegrationTestSuite is a helper function to setup a integration test suite
+// with a network with a specified custom genesis state for the EVM module
+func setupIntegrationTestSuite(customEVMGenesis *evmtypes.GenesisState) *IntegrationTestSuite {
+	customGenesis := network.CustomGenesisState{}
+	if customEVMGenesis != nil {
+		customGenesis[evmtypes.ModuleName] = customEVMGenesis
+	}
+	keyring := testkeyring.New(1)
+	integrationNetwork := network.New(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(integrationNetwork)
+	txFactory := factory.New(integrationNetwork, grpcHandler)
+	p256Priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	Expect(err).To(BeNil())
+
+	suite := &IntegrationTestSuite{
+		network:           integrationNetwork,
+		factory:           txFactory,
+		keyring:           keyring,
+		precompileAddress: p256.Precompile{}.Address(),
+		p256Priv:          p256Priv,
+	}
+
+	return suite
+}

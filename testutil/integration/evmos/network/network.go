@@ -5,7 +5,6 @@ package network
 
 import (
 	"fmt"
-	"math"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -46,13 +45,6 @@ type Network interface {
 	GetRevenueClient() revtypes.QueryClient
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
-
-	// Because to update the module params on a conventional manner governance
-	// would be required, we should provide an easier way to update the params
-	UpdateEvmParams(params evmtypes.Params) error
-	UpdateGovParams(params govtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
-	UpdateRevenueParams(params revtypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -99,7 +91,7 @@ var (
 	// bondedAmt is the amount of tokens that each validator will have initially bonded
 	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
-	PrefundedAccountInitialBalance = sdkmath.NewInt(int64(math.Pow10(18) * 4))
+	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100000000000000000000000") // 100k
 )
 
 // configureAndInitChain initializes the network with the given configuration.
@@ -107,9 +99,8 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
 	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, append(n.cfg.otherCoinDenom, n.cfg.denom))
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -129,26 +120,32 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)
 
-	// Configure Genesis state
-	genesisState := app.NewDefaultGenesisState()
-
-	genesisState = setAuthGenesisState(evmosApp, genesisState, genAccounts)
-
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
 		validators:  validators,
 		delegations: delegations,
 	}
-	genesisState = setStakingGenesisState(evmosApp, genesisState, stakingParams)
-
-	genesisState = setInflationGenesisState(evmosApp, genesisState)
-
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
-	genesisState = setBankGenesisState(evmosApp, genesisState, bankParams)
+	// Configure Genesis state
+	genesisState := newDefaultGenesisState(
+		evmosApp,
+		defaultGenesisParams{
+			genAccounts: genAccounts,
+			staking:     stakingParams,
+			bank:        bankParams,
+		},
+	)
+
+	// modify genesis state if there're any custom genesis state
+	// for specific modules
+	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	if err != nil {
+		return err
+	}
 
 	// Init chain
 	stateBytes, err := cmtjson.MarshalIndent(genesisState, "", " ")
@@ -224,6 +221,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		Symbol:  "EVMOS",
 		Display: n.cfg.denom,
 	}
+
+	// FIXME this will have no effect cause this ctx is not
+	// within the current app state
 	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
 
 	return nil
@@ -247,6 +247,11 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 // GetDenom returns the network's denom
 func (n *IntegrationNetwork) GetDenom() string {
 	return n.cfg.denom
+}
+
+// GetOtherDenoms returns network's other supported denoms
+func (n *IntegrationNetwork) GetOtherDenoms() []string {
+	return n.cfg.otherCoinDenom
 }
 
 // GetValidators returns the network's validators

@@ -19,25 +19,27 @@ func (n *IntegrationNetwork) NextBlock() error {
 //
 //	commits the changes to have a block time after the given duration.
 func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
+	header := n.ctx.BlockHeader()
+	// Update block header and BeginBlock
+	header.Height++
+	header.AppHash = n.app.LastCommitID().Hash
+	// Calculate new block time after duration
+	newBlockTime := time.Time{}.Add(duration)
+	header.Time = newBlockTime
+
 	// FinalizeBlock to run endBlock, deliverTx & beginBlock logic
 	req := &abcitypes.RequestFinalizeBlock{
 		Height:             n.app.LastBlockHeight() + 1,
-		Hash:               n.app.LastCommitID().Hash,
+		Hash:               header.AppHash,
 		NextValidatorsHash: n.valSet.Hash(),
 		ProposerAddress:    n.valSet.Proposer.Address,
+		Time:               newBlockTime,
 	}
 
 	if _, err := n.app.FinalizeBlock(req); err != nil {
 		return err
 	}
 
-	header := n.ctx.BlockHeader()
-	// Update block header and BeginBlock
-	header.Height++
-	header.AppHash = n.app.LastCommitID().Hash
-	// Calculate new block time after duration
-	newBlockTime := header.Time.Add(duration)
-	header.Time = newBlockTime
 	newCtx := n.app.BaseApp.NewContextLegacy(false, header)
 
 	// Update context header

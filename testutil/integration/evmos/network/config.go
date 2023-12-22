@@ -21,7 +21,11 @@ type Config struct {
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	denom              string
+	customGenesisState CustomGenesisState
+	otherCoinDenom     []string
 }
+
+type CustomGenesisState map[string]interface{}
 
 // DefaultConfig returns the default configuration for a chain.
 func DefaultConfig() Config {
@@ -71,5 +75,19 @@ func WithPreFundedAccounts(accounts ...sdktypes.AccAddress) ConfigOption {
 func WithDenom(denom string) ConfigOption {
 	return func(cfg *Config) {
 		cfg.denom = denom
+	}
+}
+
+// WithCustomGenesis sets the custom genesis of the network for specific modules.
+func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
+	return func(cfg *Config) {
+		cfg.customGenesisState = customGenesis
+	}
+}
+
+// WithOtherDenoms sets other possible coin denominations for the network.
+func WithOtherDenoms(otherDenoms []string) ConfigOption {
+	return func(cfg *Config) {
+		cfg.otherCoinDenom = otherDenoms
 	}
 }

@@ -41,17 +41,23 @@ func (its *IntegrationTestSuite) SetupTest() {
 	// Set some balance to the incentives module account
 	its.incentivesAcc = authtypes.NewModuleAddress("incentives")
 	accs := append(keys.GetAllAccAddrs(), its.incentivesAcc)
+
+	// Set inflation params to have UsageIncentives > 0
+	inflGen := inflationtypes.DefaultGenesisState()
+	updatedParams := inflGen.Params
+	updatedParams.InflationDistribution = initialInflDistr
+	inflGen.Params = updatedParams
+
+	customGenesis := network.CustomGenesisState{
+		inflationtypes.ModuleName: inflGen,
+	}
+
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(accs...),
+		network.WithCustomGenesis(customGenesis),
 	)
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
-
-	// Set inflation params to have UsageIncentives > 0
-	updatedParams := inflationtypes.DefaultParams()
-	updatedParams.InflationDistribution = initialInflDistr
-	err := nw.UpdateInflationParams(updatedParams)
-	its.Require().NoError(err)
 
 	its.network = nw
 	its.factory = tf
