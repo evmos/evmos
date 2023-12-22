@@ -32,6 +32,7 @@ import (
 	evmosutil "github.com/evmos/evmos/v16/utils"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -49,10 +50,11 @@ type defaultGenesisParams struct {
 // genesisSetupFunctions contains the available genesis setup functions
 // that can be used to customize the network genesis
 var genesisSetupFunctions = map[string]genSetupFn{
-	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
-	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
-	banktypes.ModuleName: setBankGenesisState,
+	evmtypes.ModuleName:       genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	infltypes.ModuleName:      genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
+	banktypes.ModuleName:      setBankGenesisState,
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
