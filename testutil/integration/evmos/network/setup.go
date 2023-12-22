@@ -52,6 +52,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
 	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	banktypes.ModuleName: setBankGenesisState,
 }
 
 // genStateSetter is a generic function to set module-specific genesis state
@@ -244,6 +245,38 @@ func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
+}
+
+// setBankGenesisState updates the bank genesis state with custom genesis state
+func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis interface{}) (types.GenesisState, error) {
+	customGen, ok := customGenesis.(banktypes.GenesisState)
+	if !ok {
+		return nil, fmt.Errorf("invalid type %T for bank module genesis state", customGenesis)
+	}
+
+	var bankGen *banktypes.GenesisState
+	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
+
+	if len(customGen.Balances) > 0 {
+		coins := sdktypes.NewCoins()
+		bankGen.Balances = append(bankGen.Balances, customGen.Balances...)
+		for _, b := range customGen.Balances {
+			coins = append(coins, b.Coins...)
+		}
+		bankGen.Supply = bankGen.Supply.Add(coins...)
+	}
+	if len(customGen.DenomMetadata) > 0 {
+		bankGen.DenomMetadata = append(bankGen.DenomMetadata, customGen.DenomMetadata...)
+	}
+
+	if len(customGen.SendEnabled) > 0 {
+		bankGen.SendEnabled = append(bankGen.SendEnabled, customGen.SendEnabled...)
+	}
+
+	bankGen.Params = customGen.Params
+
+	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGen)
+	return genesisState, nil
 }
 
 // calculateTotalSupply calculates the total supply from the given balances
