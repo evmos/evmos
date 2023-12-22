@@ -251,12 +251,12 @@ func setDefaultBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisS
 
 // setBankGenesisState updates the bank genesis state with custom genesis state
 func setBankGenesisState(evmosApp *app.Evmos, genesisState types.GenesisState, customGenesis interface{}) (types.GenesisState, error) {
-	customGen, ok := customGenesis.(banktypes.GenesisState)
+	customGen, ok := customGenesis.(*banktypes.GenesisState)
 	if !ok {
 		return nil, fmt.Errorf("invalid type %T for bank module genesis state", customGenesis)
 	}
 
-	var bankGen *banktypes.GenesisState
+	bankGen := &banktypes.GenesisState{}
 	evmosApp.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], bankGen)
 
 	if len(customGen.Balances) > 0 {

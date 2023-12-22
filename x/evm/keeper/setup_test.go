@@ -34,7 +34,6 @@ type KeeperTestSuite struct {
 	enableFeemarket  bool
 	enableLondonHF   bool
 	mintFeeCollector bool
-	denom            string
 }
 
 var s *KeeperTestSuite
