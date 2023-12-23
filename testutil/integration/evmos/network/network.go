@@ -43,6 +43,9 @@ type Network interface {
 	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
+	// Calls
+	ExecuteEthCall(req *evmtypes.EthCallRequest) (*evmtypes.MsgEthereumTxResponse, error)
+
 	// Because to update the module params on a conventional manner governance
 	// would be required, we should provide an easier way to update the params
 	UpdateEvmParams(params evmtypes.Params) error

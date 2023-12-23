@@ -6,6 +6,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -41,4 +42,12 @@ type ContractDeploymentData struct {
 	Contract evmtypes.CompiledContract
 	// ConstructorArgs are the arguments to pass to the constructor.
 	ConstructorArgs []interface{}
+}
+
+// EthCallArgs is a struct to define all relevant data the execute EthCall on the EVM.
+type EthCallArgs struct {
+	ABI          abi.ABI
+	ContractAddr common.Address
+	MethodName   string
+	Args         []interface{}
 }

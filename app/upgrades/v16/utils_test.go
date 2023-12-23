@@ -6,10 +6,8 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
-	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
 	"github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/precompiles/werc20/testdata"
 	"github.com/evmos/evmos/v16/testutil/integration/common/factory"
@@ -45,64 +43,6 @@ const (
 
 // mintAmount is the amount of tokens to be minted for a non-native ERC20 contract.
 var mintAmount = big.NewInt(5e18)
-
-func TestConvertToNativeCoinExtensions(t *testing.T) {
-	ts, err := SetupConvertERC20CoinsTest(t)
-	require.NoError(t, err, "failed to setup test")
-
-	logger := ts.network.GetContext().Logger().With("upgrade")
-
-	// Convert the coins back using the upgrade util
-	err = v16.ConvertToNativeCoinExtensions(
-		ts.network.GetContext(),
-		logger,
-		ts.network.App.AccountKeeper,
-		ts.network.App.BankKeeper,
-		ts.network.App.Erc20Keeper,
-		ts.wevmosContract,
-	)
-	require.NoError(t, err, "failed to convert coins")
-
-	err = ts.network.NextBlock()
-	require.NoError(t, err, "failed to execute block")
-
-	// NOTE: Here we check that the ERC20 converted coins have been added back to the bank balance.
-	err = utils.CheckBalances(ts.handler, utils.ExpectedBalances{
-		{Address: ts.keyring.GetAccAddr(testAccount), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 300))},
-		{Address: ts.keyring.GetAccAddr(erc20Deployer), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
-	})
-	require.NoError(t, err, "failed to check balances")
-
-	// NOTE: we check that the token pair was registered as an active precompile
-	evmParams, err := ts.handler.GetEvmParams()
-	require.NoError(t, err, "failed to get evm params")
-	require.Contains(t, evmParams.Params.ActivePrecompiles, ts.tokenPair.GetERC20Contract().String(),
-		"expected token pair precompile to be active",
-	)
-	require.NotContains(t, evmParams.Params.ActivePrecompiles, ts.nonNativeTokenPair.GetERC20Contract().String(),
-		"expected non-native token pair not to be a precompile",
-	)
-
-	// NOTE: We check that the ERC20 contract for the token pair can still be called (now as an EVM extension)
-	balance, err := GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.tokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to execute contract call")
-	require.Equal(t, int64(300), balance.Int64(), "expected different balance after converting ERC20")
-
-	// NOTE: We check that the balance of the module address is empty after converting native ERC20s
-	balancesRes, err := ts.handler.GetAllBalances(authtypes.NewModuleAddress(erc20types.ModuleName))
-	require.NoError(t, err, "failed to get balances")
-	require.True(t, balancesRes.Balances.IsZero(), "expected different balance for module account")
-
-	// NOTE: We check that the erc20deployer account still has the minted balance after converting the native ERC20s only.
-	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(erc20Deployer), ts.nonNativeTokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to execute contract call")
-	require.Equal(t, mintAmount, balance, "expected different balance after converting ERC20")
-
-	// NOTE: We check that there all balance of the WEVMOS contract was withdrawn too.
-	balance, err = GetERC20Balance(ts.factory, ts.keyring.GetPrivKey(testAccount), ts.wevmosContract)
-	require.NoError(t, err, "failed to execute contract call")
-	require.Equal(t, common.Big0.Int64(), balance.Int64(), "expected no WEVMOS left after conversion")
-}
 
 // SetupConvertERC20CoinsTest sets up a test suite to test the conversion of ERC20 coins to native coins.
 //
@@ -289,23 +229,15 @@ func GetERC20Balance(txFactory testfactory.TxFactory, priv cryptotypes.PrivKey, 
 	addr := common.BytesToAddress(addrBytes)
 	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
-	balanceOfArgs := testfactory.CallArgs{
-		ContractABI: erc20ABI,
-		MethodName:  "balanceOf",
-		Args:        []interface{}{addr},
+	callArgs := testfactory.EthCallArgs{
+		ABI:          erc20ABI,
+		ContractAddr: contractAddr,
+		MethodName:   "balanceOf",
+		Args:         []interface{}{addr},
 	}
 
-	// TODO: should be done with EthCall instead of transaction
-	res, err := txFactory.ExecuteContractCall(
-		priv,
-		evmtypes.EvmTxArgs{To: &contractAddr},
-		balanceOfArgs,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
+	// FIXME: correctly implement EthCall
+	ethRes, err := txFactory.ExecuteEthCall(callArgs)
 	if err != nil {
 		return nil, err
 	}

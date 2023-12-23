@@ -45,6 +45,8 @@ type TxFactory interface {
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+	// ExecuteEthCall runs a query call to the EVM.
+	ExecuteEthCall(callArgs EthCallArgs) (*evmtypes.MsgEthereumTxResponse, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
 	// If the txArgs are not provided, they will be populated with default values or gas estimations.
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
@@ -180,6 +182,29 @@ func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey,
 	txArgs.Input = input
 
 	return tf.ExecuteEthTx(privKey, txArgs)
+}
+
+// ExecuteEthCall runs a query call to the EVM.
+func (tf *IntegrationTxFactory) ExecuteEthCall(eca EthCallArgs) (*evmtypes.MsgEthereumTxResponse, error) {
+	balanceOfArgs, err := eca.ABI.Pack(eca.MethodName, eca.Args...)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to pack contract arguments")
+	}
+
+	// FIXME: how to build the correct transaction args?
+	txArgs := evmtypes.TransactionArgs{
+		// Input: &balanceOfArgs,
+		To: &eca.ContractAddr,
+	}
+
+	_ = balanceOfArgs
+
+	req := &evmtypes.EthCallRequest{
+		// FIXME: GetData is not the correct thing to pass because it's trying to unpack to TransactionArgs in EthCall
+		Args: txArgs.GetData(),
+	}
+
+	return tf.network.ExecuteEthCall(req)
 }
 
 // ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
