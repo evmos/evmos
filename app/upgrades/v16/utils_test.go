@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"testing"
 
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -102,8 +101,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// Call the token pair contract to check the balance
-	balance, err := GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), tokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to execute contract call")
+	balance, err := GetERC20Balance(txFactory, kr.GetAddr(testAccount), tokenPair.GetERC20Contract())
+	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, common.Big0.Int64(), balance.Int64(), "expected different balance initially")
 
 	err = nw.NextBlock()
@@ -124,8 +123,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// We check that the ERC20 contract for the token pair shows the correct balance
-	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), tokenPair.GetERC20Contract())
-	require.NoError(t, err, "failed to execute contract call")
+	balance, err = GetERC20Balance(txFactory, kr.GetAddr(testAccount), tokenPair.GetERC20Contract())
+	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, big.NewInt(100), balance, "expected different balance after converting ERC20")
 
 	// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
@@ -165,8 +164,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// we check that the balance of the deployer address is correct
-	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(erc20Deployer), erc20Addr)
-	require.NoError(t, err, "failed to execute contract call")
+	balance, err = GetERC20Balance(txFactory, kr.GetAddr(erc20Deployer), erc20Addr)
+	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, mintAmount, balance, "expected different balance after minting ERC20")
 
 	err = nw.NextBlock()
@@ -207,8 +206,8 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	require.NoError(t, err, "failed to execute block")
 
 	// check that the WEVMOS balance has been increased
-	balance, err = GetERC20Balance(txFactory, kr.GetPrivKey(testAccount), wevmosAddr)
-	require.NoError(t, err, "failed to execute contract call")
+	balance, err = GetERC20Balance(txFactory, kr.GetAddr(testAccount), wevmosAddr)
+	require.NoError(t, err, "failed to query ERC20 balance")
 	require.Equal(t, big.NewInt(1e18), balance, "expected different balance after minting ERC20")
 
 	return ConvertERC20CoinsTestSuite{
@@ -224,14 +223,12 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 }
 
 // GetERC20Balance is a helper method to return the balance of the given ERC20 contract for the given address.
-func GetERC20Balance(txFactory testfactory.TxFactory, priv cryptotypes.PrivKey, contractAddr common.Address) (*big.Int, error) {
-	addrBytes := priv.PubKey().Address().Bytes()
-	addr := common.BytesToAddress(addrBytes)
+func GetERC20Balance(txFactory testfactory.TxFactory, addr, erc20Addr common.Address) (*big.Int, error) {
 	erc20ABI := contracts.ERC20MinterBurnerDecimalsContract.ABI
 
 	callArgs := testfactory.EthCallArgs{
 		ABI:          erc20ABI,
-		ContractAddr: contractAddr,
+		ContractAddr: erc20Addr,
 		MethodName:   "balanceOf",
 		Args:         []interface{}{addr},
 	}

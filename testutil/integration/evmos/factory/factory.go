@@ -191,13 +191,13 @@ func (tf *IntegrationTxFactory) ExecuteEthCall(eca EthCallArgs) (*evmtypes.MsgEt
 		return nil, errorsmod.Wrap(err, "failed to pack contract arguments")
 	}
 
+	balanceOfBytes := hexutil.Bytes(balanceOfArgs)
+
 	// FIXME: how to build the correct transaction args?
 	txArgs := evmtypes.TransactionArgs{
-		// Input: &balanceOfArgs,
-		To: &eca.ContractAddr,
+		Input: &balanceOfBytes,
+		To:    &eca.ContractAddr,
 	}
-
-	_ = balanceOfArgs
 
 	req := &evmtypes.EthCallRequest{
 		// FIXME: GetData is not the correct thing to pass because it's trying to unpack to TransactionArgs in EthCall
