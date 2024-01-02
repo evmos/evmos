@@ -11,6 +11,20 @@ IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(
     STRIDE_OUTPOST_ADDRESS
 );
 
+/// @dev AutopilotParams is a struct containing the parameters for a liquid stake and redeem transactions.
+/// @param receiver - The address on the Evmos chain that will redeem or receive LSD.
+/// @param strideForwarder - The bech32-formatted address on the Stride chain that will be used to execute
+/// LiquidStake or Redeem transactions.
+struct AutopilotParams {
+    string channelID;
+    address sender;
+    address receiver;
+    address token;
+    uint256 amount;
+    string strideForwarder;
+}
+
+
 /// @author Evmos Team
 /// @title StrideOutpost Precompiled Contract
 /// @dev The interface through which solidity contracts will interact with Stride Outpost that uses ICS20 under the hood
@@ -59,33 +73,11 @@ interface IStrideOutpost {
     );
 
     /// @dev Liquid stake a native Coin on the Stride chain and return it to the Evmos chain.
-    /// @param sender The sender of the liquid stake transaction.
-    /// @param token The hex ERC20 address of the token pair.
-    /// @param amount The amount that will be liquid staked.
-    /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
-    /// @return nextSequence The sequence number of the transfer packet sent
-    /// @return success True if the ICS20 transfer was successful.
-    function liquidStake(
-        address sender,
-        address token,
-        uint256 amount,
-        string calldata strideForwarder
-    ) external returns (uint64 nextSequence, bool success);
+    /// @param payload The AutopilotParams struct containing the parameters for the liquid stake transaction.
+    function liquidStake(AutopilotParams calldata payload) external returns (bool success);
 
     /// @dev This method unstakes the LSD Coin (ex. stEvmos, stAtom) and redeems
     /// the native Coin by sending an ICS20 Transfer to the specified chain.
-    /// @param sender The sender of the redeem transaction.
-    /// @param receiver the address of the receiver on Evmos.
-    /// @param token The hex address of the token to be redeemed.
-    /// @param amount The amount of tokens unstaked.
-    /// @param strideForwarder The bech32-formatted address of the receiver on Stride.
-    /// @return nextSequence The sequence number of the transfer packet sent
-    /// @return success The boolean value indicating whether the operation succeeded.
-    function redeemStake(
-        address sender,
-        address receiver,
-        address token,
-        string calldata strideForwarder,
-        uint256 amount
-    ) external returns (uint64 nextSequence, bool success);
+    /// @param payload The AutopilotParams struct containing the parameters for the redeem stake transaction.
+    function redeemStake(AutopilotParams calldata payload) external returns (bool success);
 }

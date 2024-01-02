@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"github.com/evmos/evmos/v16/utils"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -55,6 +57,21 @@ type RawPacketMetadata struct {
 	Autopilot *Autopilot `json:"autopilot"`
 }
 
+// AutopilotArgs is the arguments struct for the LiquidStake and RedeemStake methods
+type AutopilotArgs struct {
+	ChannelID       string
+	Sender          common.Address
+	Token           common.Address
+	Receiver        common.Address
+	Amount          *big.Int
+	StrideForwarder string
+}
+
+// AutopilotPayload is the payload struct for the LiquidStake and RedeemStake method
+type AutopilotPayload struct {
+	Payload AutopilotArgs
+}
+
 // ValidateBasic validates the RawPacketMetadata structure and fields
 func (r RawPacketMetadata) ValidateBasic() error {
 	if r.Autopilot.StakeIBC.Action == "" {
@@ -72,89 +89,33 @@ func (r RawPacketMetadata) ValidateBasic() error {
 	return nil
 }
 
-// parseLiquidStakeArgs parses the arguments from the Liquid Stake method call
-func parseLiquidStakeArgs(args []interface{}) (common.Address, common.Address, *big.Int, string, error) {
-	if len(args) != 4 {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 4, len(args))
-	}
-
-	sender, ok := args[0].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
-	}
-
-	token, ok := args[1].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[1])
-	}
-
-	amount, ok := args[2].(*big.Int)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[2])
-	}
-
-	receiver, ok := args[3].(string)
-	if !ok {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf(cmn.ErrInvalidType, "receiver", "", fmt.Sprintf("%T", args[3]))
-	}
-
-	// Check if the receiver address has stride before
-	if receiver[:6] != StrideBech32Prefix {
-		return common.Address{}, common.Address{}, nil, "", fmt.Errorf("receiver is not a stride address")
-	}
-
-	// Check if account is a valid bech32 address
-	_, err := utils.CreateAccAddressFromBech32(receiver, StrideBech32Prefix)
+// ValidateBasic validates the AutopilotArgs structure and fields
+func (a AutopilotArgs) ValidateBasic() error {
+	// Check if stride forwarder is a valid bech32 address
+	_, err := utils.CreateAccAddressFromBech32(a.StrideForwarder, StrideBech32Prefix)
 	if err != nil {
-		return common.Address{}, common.Address{}, nil, "", sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
 	}
-
-	return sender, token, amount, receiver, nil
+	return nil
 }
 
-// parseRedeemStakeArgs parses the arguments from the Redeem Stake method call
-func parseRedeemStakeArgs(args []interface{}) (common.Address, common.Address, common.Address, string, *big.Int, error) {
-	if len(args) != 5 {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 5, len(args))
+// parseAutopilotArgs parses the arguments from the Liquid Stake and for Redeem Stake method calls
+func parseAutopilotArgs(method *abi.Method, args []interface{}) (AutopilotArgs, error) {
+	if len(args) != 1 {
+		return AutopilotArgs{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	sender, ok := args[0].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
+	var autopilotPayload AutopilotPayload
+	if err := method.Inputs.Copy(&autopilotPayload, args); err != nil {
+		return AutopilotArgs{}, fmt.Errorf("error while unpacking args to AutopilotArgs struct: %s", err)
 	}
 
-	receiver, ok := args[1].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "receiver", common.Address{}, args[1])
+	// Validate the AutopilotArgs struct
+	if err := autopilotPayload.Payload.ValidateBasic(); err != nil {
+		return AutopilotArgs{}, err
 	}
 
-	token, ok := args[2].(common.Address)
-	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "token", common.Address{}, args[2])
-	}
-
-	amount, ok := args[3].(*big.Int)
-	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "amount", &big.Int{}, args[3])
-	}
-
-	strideForwarder, ok := args[4].(string)
-	if !ok {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf(cmn.ErrInvalidType, "strideForwardeer", "", fmt.Sprintf("%T", args[4]))
-	}
-
-	// Check if the receiver address has stride before
-	if strideForwarder[:6] != StrideBech32Prefix {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, fmt.Errorf("receiver is not a stride address")
-	}
-
-	// Check if account is a valid bech32 address
-	_, err := utils.CreateAccAddressFromBech32(strideForwarder, StrideBech32Prefix)
-	if err != nil {
-		return common.Address{}, common.Address{}, common.Address{}, "", nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
-	}
-
-	return sender, receiver, token, strideForwarder, amount, nil
+	return autopilotPayload.Payload, nil
 }
 
 // CreateMemo creates the memo for the StakeIBC actions - LiquidStake and RedeemStake.
@@ -164,14 +125,10 @@ func CreateMemo(action, strideForwarder, receiver string) (string, error) {
 		Autopilot: &Autopilot{
 			Receiver: strideForwarder,
 			StakeIBC: &StakeIBCPacketMetadata{
-				Action: action,
+				Action:      action,
+				IBCReceiver: receiver,
 			},
 		},
-	}
-
-	// Populate the IBC Receiver field if the action is RedeemStake
-	if action == RedeemStakeAction {
-		data.Autopilot.StakeIBC.IBCReceiver = receiver
 	}
 
 	if err := data.ValidateBasic(); err != nil {
