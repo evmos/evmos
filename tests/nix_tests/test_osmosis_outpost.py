@@ -26,6 +26,12 @@ from .utils import (
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
 )
+from web3 import Web3
+
+# This contract address is provided in genesis
+# as registered token pair. If need to edit this
+# do so in 'osmosis-outpost.jsonnet' file
+WOSMO_ADDRESS = Web3.toChecksumAddress("0x5db67696C3c088DfBf588d3dd849f44266ff0ffa")
 
 
 @pytest.fixture(scope="module", params=["evmos"])
@@ -60,10 +66,6 @@ def test_osmosis_swap(ibc):
     # --------- Transfer Osmo to Evmos
     transfer_osmo_to_evmos(ibc, osmosis_addr, evmos_addr)
 
-    # --------- Register Osmosis ERC20 token
-    osmo_erc20_addr = register_osmo_token(evmos)
-    print(f"osmo_erc20_addr: {osmo_erc20_addr}")
-
     # define TWAP parameters
     testSlippagePercentage = 20
     testWindowSeconds = 10
@@ -77,7 +79,7 @@ def test_osmosis_swap(ibc):
         "xcsContract": xcs_contract,
         "sender": evmos_addr,
         "input": WEVMOS_ADDRESS,
-        "output": osmo_erc20_addr,
+        "output": WOSMO_ADDRESS,
         "amount": amt,
         "slippagePercentage": testSlippagePercentage,
         "windowSeconds": testWindowSeconds,
@@ -94,18 +96,19 @@ def test_osmosis_swap(ibc):
 
     # check balance increase after swap
     new_erc20_balance = 0
+    # the account has 200 uosmo transferred in the setup
+    # function transfer_osmo_to_evmos
+    initial_erc20_balance = 200
 
     def check_erc20_balance_change():
         nonlocal new_erc20_balance
-        new_erc20_balance = erc20_balance(w3, osmo_erc20_addr, evmos_addr)
+        new_erc20_balance = erc20_balance(w3, WOSMO_ADDRESS, evmos_addr)
         print(f"uosmo erc20 balance: {new_erc20_balance}")
-        return new_erc20_balance > 0
+        return new_erc20_balance > initial_erc20_balance
 
     wait_for_fn("balance change", check_erc20_balance_change)
 
-    # the account has 200 uosmo IBC coins from the setup
-    # previous to registering the uosmo token pair
-    exp_final_balance = 200 + exp_swap_amount
+    exp_final_balance = initial_erc20_balance + exp_swap_amount
     assert new_erc20_balance == exp_final_balance
 
 
@@ -231,9 +234,12 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
 
     new_dst_balance = 0
 
+    # Osmo is registered as token pair since genesis.
+    # Check the ERC20 contract balance
     def check_balance_change():
         nonlocal new_dst_balance
-        new_dst_balance = get_balance(dst_chain, bech_dst, OSMO_IBC_DENOM)
+        new_dst_balance = erc20_balance(dst_chain.w3, WOSMO_ADDRESS, dst_addr)
+        print(f"uosmo erc20 balance: {new_dst_balance}")
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)

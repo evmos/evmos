@@ -9,6 +9,18 @@ config {
         'enable': true,
       },
     },
+    'genesis'+: {
+     'app_state'+: {
+        erc20: {
+          'token_pairs': [{
+            'erc20_address': '0x5db67696C3c088DfBf588d3dd849f44266ff0ffa',
+            'denom': 'ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518',
+            'enabled': true,
+            'contract_owner': 1,
+          }],
+        },
+      },
+    },  
   },
   'osmosis-1': {
       cmd: 'osmosisd',
