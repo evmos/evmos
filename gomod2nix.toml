@@ -87,14 +87,14 @@ schema = 3
     version = "v0.1.1-0.20220910012023-760eaf8b6816"
     hash = "sha256-Tx3sPuhsoVwrCfJdIwf4ipn7pD92OQNYvpCxl1Z9Wt0="
   [mod."github.com/btcsuite/btcd"]
-    version = "v0.23.5-0.20231215221805-96c9fd8078fd"
-    hash = "sha256-qT6BFW9KhsVgRzX2HPEcArquGuhvvfXF6ayLijYaXIM="
+    version = "v0.24.0"
+    hash = "sha256-ZZhmKXC9nqPFiWpftSnu/X3QVJlgCp3F6ElQ0Oi61cY="
   [mod."github.com/btcsuite/btcd/btcec/v2"]
     version = "v2.3.2"
     hash = "sha256-natWs+yIAuD1UI07iZtjPilroQLfXizFn3lNOiOT83U="
   [mod."github.com/btcsuite/btcd/btcutil"]
-    version = "v1.1.4"
-    hash = "sha256-fv7mejlBIA3ZumZ5Qa2QnP7KcqjkPX4UvEfi3fdogQY="
+    version = "v1.1.5"
+    hash = "sha256-eLIT+g0bkwBiy0MGU//lH+Iw4OffxVe0ZW8WoMFM+Ds="
   [mod."github.com/btcsuite/btcd/chaincfg/chainhash"]
     version = "v1.1.0"
     hash = "sha256-F+EqvufC+KBslZV/vL8ph6MqDoVD5ic5rVaM27reDqo="
@@ -229,8 +229,8 @@ schema = 3
     version = "v1.0.1"
     hash = "sha256-yuvxYYngpfVkUg9yAmG99IUVmADTQA0tMbBXe0Fq0Mc="
   [mod."github.com/dvsekhvalnov/jose2go"]
-    version = "v1.5.0"
-    hash = "sha256-dsju6Xt83pe5SRPN/pUOnDUQByZ6hrhKIXWs3sSu7t8="
+    version = "v1.6.0"
+    hash = "sha256-IXn2BuUp4fi/i2zf1tGGW1m9xoYh3VCksB6GJ5Sf06g="
   [mod."github.com/edsrzf/mmap-go"]
     version = "v1.1.0"
     hash = "sha256-LFcJue98awAFkSPRc93tVvon3kWS7AvumrluxxRzt4c="
