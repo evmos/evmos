@@ -265,7 +265,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		err = ConsumeGasAndEmitEvent(
+		err = ConsumeFeesAndEmitEvent(
 			ctx,
 			&ConsumeGasKeepers{
 				Bank:         md.bankKeeper,

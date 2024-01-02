@@ -141,8 +141,8 @@ type ConsumeGasKeepers struct {
 	Staking      anteutils.StakingKeeper
 }
 
-// ConsumeGasAndEmitEvent deduces fees from sender and emits the event
-func ConsumeGasAndEmitEvent(
+// ConsumeFeesAndEmitEvent deduces fees from sender and emits the event
+func ConsumeFeesAndEmitEvent(
 	ctx sdktypes.Context,
 	keepers *ConsumeGasKeepers,
 	fees sdktypes.Coins,

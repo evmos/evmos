@@ -3,14 +3,9 @@
 package evm_test
 
 import (
-	"fmt"
-
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmante "github.com/evmos/evmos/v16/app/ante/evm"
-	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
-	evmosfactory "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
@@ -87,13 +82,13 @@ func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
 	}
 }
 
+// NOTE: claim rewards are not tested since there is an independent suite to test just that
 func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	txFactory := evmosfactory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
 		name          string
@@ -101,40 +96,28 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		fees          sdktypes.Coins
 		getSender     func() sdktypes.AccAddress
 	}{
-		// {
-		// 	name:          "success: fees are zero and event emitted",
-		// 	expectedError: nil,
-		// 	fees:          sdktypes.Coins{},
-		// 	getSender: func() sdktypes.AccAddress {
-		// 		// Return prefunded sender
-		// 		return keyring.GetKey(0).AccAddr
-		// 	},
-		// },
-		// {
-		// 	name:          "success: there are non zero fees, user has sufficient bank balances and event emitted",
-		// 	expectedError: nil,
-		// 	fees: sdktypes.Coins{
-		// 		sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
-		// 	},
-		// 	getSender: func() sdktypes.AccAddress {
-		// 		// Return prefunded sender
-		// 		return keyring.GetKey(0).AccAddr
-		// 	},
-		// },
-		// {
-		// 	name:          "fail: insufficient user balance",
-		// 	expectedError: sdkerrors.ErrInsufficientFee,
-		// 	fees: sdktypes.Coins{
-		// 		sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
-		// 	},
-		// 	getSender: func() sdktypes.AccAddress {
-		// 		// Return unfunded account
-		// 		index := keyring.AddKey()
-		// 		return keyring.GetKey(index).AccAddr
-		// 	},
-		// },
 		{
-			name:          "success: fees are non zero, bank balance is insufficient but user has sufficient staking balance and event is emitted",
+			name:          "success: fees are zero and event emitted",
+			expectedError: nil,
+			fees:          sdktypes.Coins{},
+			getSender: func() sdktypes.AccAddress {
+				// Return prefunded sender
+				return keyring.GetKey(0).AccAddr
+			},
+		},
+		{
+			name:          "success: there are non zero fees, user has sufficient bank balances and event emitted",
+			expectedError: nil,
+			fees: sdktypes.Coins{
+				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+			},
+			getSender: func() sdktypes.AccAddress {
+				// Return prefunded sender
+				return keyring.GetKey(0).AccAddr
+			},
+		},
+		{
+			name:          "fail: insufficient user balance, event is NOT emitted",
 			expectedError: sdkerrors.ErrInsufficientFee,
 			fees: sdktypes.Coins{
 				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
@@ -142,30 +125,6 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			getSender: func() sdktypes.AccAddress {
 				// Return unfunded account
 				index := keyring.AddKey()
-				senderKey := keyring.GetKey(index)
-
-				// bank balance can't be 0
-				bankBalance := sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(10))
-				stakingBalance := sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000000000000000000))
-
-				err := unitNetwork.FundAccount(senderKey.AccAddr, sdktypes.NewCoins(bankBalance))
-				suite.Require().NoError(err)
-
-				validators := unitNetwork.GetValidators()
-				bechVal, err := sdktypes.ValAddressFromBech32(validators[0].OperatorAddress)
-				suite.Require().NoError(err)
-
-				delegateMsg := stakingtypes.NewMsgDelegate(
-					senderKey.AccAddr,
-					bechVal,
-					stakingBalance,
-				)
-
-				txArgs := commonfactory.CosmosTxArgs{Msgs: []sdktypes.Msg{delegateMsg}}
-				resp, err := txFactory.ExecuteCosmosTx(senderKey.Priv, txArgs)
-				suite.Require().NoError(err)
-				suite.Require().Equal(uint32(0), resp.Code)
-
 				return keyring.GetKey(index).AccAddr
 			},
 		},
@@ -184,10 +143,9 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				sender,
 			)
 			suite.Require().NoError(err)
-			fmt.Println("prevBalance", prevBalance)
 
 			// Function under test
-			err = evmante.ConsumeGasAndEmitEvent(
+			err = evmante.ConsumeFeesAndEmitEvent(
 				unitNetwork.GetContext(),
 				keepers,
 				tc.fees,
