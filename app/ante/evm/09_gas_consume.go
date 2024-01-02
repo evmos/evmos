@@ -114,6 +114,7 @@ import (
 // 	return fees, nil
 // }
 
+// UpdateComulativeGasWanted updates the cumulative gas wanted
 func UpdateComulativeGasWanted(
 	ctx sdktypes.Context,
 	msgGasWanted uint64,
@@ -134,21 +135,20 @@ func UpdateComulativeGasWanted(
 }
 
 type ConsumeGasKeepers struct {
-	bankKeeper         anteutils.BankKeeper
-	distributionKeeper anteutils.DistributionKeeper
-	evmKeeper          EVMKeeper
-	stakingKeeper      anteutils.StakingKeeper
+	Bank         anteutils.BankKeeper
+	Distribution anteutils.DistributionKeeper
+	Evm          EVMKeeper
+	Staking      anteutils.StakingKeeper
 }
 
 // ConsumeGasAndEmitEvent deduces fees from sender and emits the event
 func ConsumeGasAndEmitEvent(
 	ctx sdktypes.Context,
 	keepers *ConsumeGasKeepers,
-	txData evmtypes.TxData,
 	fees sdktypes.Coins,
 	from sdktypes.AccAddress,
 ) error {
-	if err := DeductFee(
+	if err := deductFees(
 		ctx,
 		keepers,
 		fees,
@@ -166,22 +166,9 @@ func ConsumeGasAndEmitEvent(
 	return nil
 }
 
-func GetMsgPriority(
-	txData evmtypes.TxData,
-	minPriority int64,
-	baseFee *big.Int,
-) int64 {
-	priority := evmtypes.GetTxPriority(txData, baseFee)
-
-	if priority < minPriority {
-		minPriority = priority
-	}
-	return minPriority
-}
-
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
 // If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
-func DeductFee(
+func deductFees(
 	ctx sdktypes.Context,
 	keepers *ConsumeGasKeepers,
 	fees sdktypes.Coins,
@@ -194,16 +181,16 @@ func DeductFee(
 	// If the account balance is not sufficient, try to withdraw enough staking rewards
 	if err := anteutils.ClaimStakingRewardsIfNecessary(
 		ctx,
-		keepers.bankKeeper,
-		keepers.distributionKeeper,
-		keepers.stakingKeeper,
+		keepers.Bank,
+		keepers.Distribution,
+		keepers.Staking,
 		feePayer,
 		fees,
 	); err != nil {
 		return err
 	}
 
-	if err := keepers.evmKeeper.DeductTxCostsFromUserBalance(
+	if err := keepers.Evm.DeductTxCostsFromUserBalance(
 		ctx,
 		fees,
 		common.BytesToAddress(feePayer),
@@ -211,6 +198,20 @@ func DeductFee(
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
 	return nil
+}
+
+// GetMsgPriority returns the priority of a Eth Tx capped by the minimum priority
+func GetMsgPriority(
+	txData evmtypes.TxData,
+	minPriority int64,
+	baseFee *big.Int,
+) int64 {
+	priority := evmtypes.GetTxPriority(txData, baseFee)
+
+	if priority < minPriority {
+		minPriority = priority
+	}
+	return minPriority
 }
 
 // TODO: (@fedekunze) Why is this necessary? This seems to be a duplicate from the CheckGasWanted function.

@@ -268,12 +268,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		err = ConsumeGasAndEmitEvent(
 			ctx,
 			&ConsumeGasKeepers{
-				bankKeeper:         md.bankKeeper,
-				distributionKeeper: md.distributionKeeper,
-				evmKeeper:          md.evmKeeper,
-				stakingKeeper:      md.stakingKeeper,
+				Bank:         md.bankKeeper,
+				Distribution: md.distributionKeeper,
+				Evm:          md.evmKeeper,
+				Staking:      md.stakingKeeper,
 			},
-			txData,
 			msgFees,
 			from,
 		)

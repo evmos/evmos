@@ -4,7 +4,9 @@ package evm_test
 
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	evmante "github.com/evmos/evmos/v16/app/ante/evm"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 )
@@ -76,6 +78,131 @@ func (suite *EvmAnteTestSuite) TestUpdateComulativeGasWanted() {
 			)
 
 			suite.Require().Equal(tc.expectedResponse, gasWanted)
+		})
+	}
+}
+
+func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+    // factory := factory.New(unitNetwork, grpcHandler)
+
+	testCases := []struct {
+		name          string
+		expectedError error
+		fees          sdktypes.Coins
+		getSender     func() sdktypes.AccAddress
+	}{
+		{
+			name:          "success: fees are zero and event emitted",
+			expectedError: nil,
+			fees:          sdktypes.Coins{},
+			getSender: func() sdktypes.AccAddress {
+				// Return prefunded sender
+				return keyring.GetKey(0).AccAddr
+			},
+		},
+		{
+			name:          "success: there are non zero fees, user has sufficient bank balances and event emitted",
+			expectedError: nil,
+			fees: sdktypes.Coins{
+				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+			},
+			getSender: func() sdktypes.AccAddress {
+				// Return prefunded sender
+				return keyring.GetKey(0).AccAddr
+			},
+		},
+		{
+			name:          "fail: insufficient user balance",
+			expectedError: sdkerrors.ErrInsufficientFee,
+			fees: sdktypes.Coins{
+				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+			},
+			getSender: func() sdktypes.AccAddress {
+				// Return unfunded account
+				index := keyring.AddKey()
+				return keyring.GetKey(index).AccAddr
+			},
+		},
+		// {
+		// 	name:          "success: fees are non zero, bank balance is insufficient but user has sufficient staking balance and event is emitted",
+		// 	expectedError: sdkerrors.ErrInsufficientFee,
+		// 	fees: sdktypes.Coins{
+		// 		sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+		// 	},
+		// 	getSender: func() sdktypes.AccAddress {
+		// 		// Return unfunded account
+		// 		index := keyring.AddKey()
+  //               factory.
+  //
+		// 		return keyring.GetKey(index).AccAddr
+		// 	},
+		// },
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			keepers := &evmante.ConsumeGasKeepers{
+				Bank:         unitNetwork.App.BankKeeper,
+				Distribution: unitNetwork.App.DistrKeeper,
+				Evm:          unitNetwork.App.EvmKeeper,
+				Staking:      unitNetwork.App.StakingKeeper,
+			}
+			sender := tc.getSender()
+			prevBalance, err := grpcHandler.GetAllBalances(
+				sender,
+			)
+			suite.Require().NoError(err)
+
+			// Function under test
+			err = evmante.ConsumeGasAndEmitEvent(
+				unitNetwork.GetContext(),
+				keepers,
+				tc.fees,
+				sender,
+			)
+
+			if tc.expectedError != nil {
+				suite.Require().Error(err)
+				suite.Contains(err.Error(), tc.expectedError.Error())
+
+				// Check events are not present
+				events := unitNetwork.GetContext().EventManager().Events()
+				suite.Require().Zero(len(events))
+			} else {
+				suite.Require().NoError(err)
+
+				// Check fees are deducted
+				afterBalance, err := grpcHandler.GetAllBalances(
+					sender,
+				)
+				suite.Require().NoError(err)
+				expectedBalance := prevBalance.Balances.Sub(tc.fees...)
+				suite.Require().True(
+					expectedBalance.IsEqual(afterBalance.Balances),
+				)
+
+				// Event to be emitted
+				expectedEvent := sdktypes.NewEvent(
+					sdktypes.EventTypeTx,
+					sdktypes.NewAttribute(sdktypes.AttributeKeyFee, tc.fees.String()),
+				)
+				// Check events are present
+				events := unitNetwork.GetContext().EventManager().Events()
+				suite.Require().NotZero(len(events))
+				suite.Require().Contains(
+					events,
+					expectedEvent,
+				)
+			}
+
+			// Reset the context
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
 		})
 	}
 }
