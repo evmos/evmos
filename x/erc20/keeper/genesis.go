@@ -18,24 +18,10 @@ import (
 func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) error {
 	for i, pair := range pairs {
 		contractAddr := pair.GetERC20Contract()
-		displayName := fmt.Sprintf("genToken%d", i)
-		coinMeta := banktypes.Metadata{
-			Description: fmt.Sprintf("Genesis token pair number %d", i),
-			DenomUnits: []*banktypes.DenomUnit{
-				{Denom: pair.Denom, Exponent: 0, Aliases: []string{fmt.Sprintf("uGenToken%d", i)}},
-				{Denom: displayName, Exponent: 6},
-			},
-			Base:    pair.Denom,
-			Display: displayName,
-			Name:    displayName,
-			Symbol:  displayName,
+		coinMeta, err := k.getGenesisTokenPairMeta(ctx, pair, i)
+		if err != nil {
+			return fmt.Errorf("error while generating metadata for genesis pair denom %s. %w", pair.Denom, err)
 		}
-		if err := k.verifyMetadata(ctx, coinMeta); err != nil {
-			return errorsmod.Wrapf(
-				types.ErrInternalTokenPair, "coin metadata is invalid for genesis pair denom %s", pair.Denom,
-			)
-		}
-
 		stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
 		cfg := k.getEVMConfig(ctx)
 
@@ -72,6 +58,28 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 	}
 
 	return nil
+}
+
+// getGenesisTokenPairMeta is a helper function to generate token pair metadata for the genesis token pairs
+func (k Keeper) getGenesisTokenPairMeta(ctx sdk.Context, pair types.TokenPair, index int) (banktypes.Metadata, error) {
+	displayName := fmt.Sprintf("genToken%d", index)
+	meta := banktypes.Metadata{
+		Description: fmt.Sprintf("Genesis token pair number %d", index),
+		DenomUnits: []*banktypes.DenomUnit{
+			{Denom: pair.Denom, Exponent: 0, Aliases: []string{fmt.Sprintf("uGenToken%d", index)}},
+			{Denom: displayName, Exponent: 6},
+		},
+		Base:    pair.Denom,
+		Display: displayName,
+		Name:    displayName,
+		Symbol:  displayName,
+	}
+	if err := k.verifyMetadata(ctx, meta); err != nil {
+		return banktypes.Metadata{}, errorsmod.Wrapf(
+			types.ErrInternalTokenPair, "coin metadata is invalid for genesis pair denom %s", pair.Denom,
+		)
+	}
+	return meta, nil
 }
 
 // getEVMConfig is a helper function to get an EVM config
