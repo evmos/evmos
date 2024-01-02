@@ -43,13 +43,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-<<<<<<< HEAD
-=======
 		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
-		PortID,
-		ChannelID,
-		osmosis.XCSContractTestnet,
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,

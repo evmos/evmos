@@ -6,6 +6,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	"github.com/evmos/evmos/v16/utils"
 	"sort"
 
 	"github.com/evmos/evmos/v16/precompiles/bech32"
@@ -43,6 +44,7 @@ const (
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
+	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -88,28 +90,15 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-<<<<<<< HEAD
-	strideOutpost, err := strideoutpost.NewPrecompile(
-=======
-	var strideChannelID, osmosisChannelID, xcsv1Contract string
 	var WEVMOSAddress common.Address
 	if utils.IsMainnet(chainID) {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractMainnet)
-		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		strideChannelID = evmostransfertypes.StrideMainnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	} else {
 		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
-		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		strideChannelID = evmostransfertypes.StrideTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
-		transfertypes.PortID,
-		strideChannelID,
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
@@ -120,13 +109,7 @@ func AvailablePrecompiles(
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
-<<<<<<< HEAD
-=======
 		WEVMOSAddress,
-		transfertypes.PortID,
-		osmosisChannelID,
-		xcsv1Contract,
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

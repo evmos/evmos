@@ -29,7 +29,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -47,7 +46,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 		{
-<<<<<<< HEAD
 			"fail - token not found",
 			func() []interface{} {
 				err := s.network.App.StakingKeeper.SetParams(s.network.GetContext(), stakingtypes.DefaultParams())
@@ -65,7 +63,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			},
 			200000,
 			true,
-			"token pair not found",
+			"unsupported token",
 		},
 		{
 			"fail - unsupported token",
@@ -83,11 +81,9 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			},
 			200000,
 			true,
-			"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
+			"unsupported token",
 		},
 		{
-=======
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 			"fail - invalid strideForwarder address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
@@ -127,21 +123,14 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			"success",
 			func() []interface{} {
 				return []interface{}{
-<<<<<<< HEAD
 					stride.AutopilotArgs{
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Token:           common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 					},
-=======
-					s.keyring.GetAddr(0),
-					common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
-					big.NewInt(1e18),
-					"stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 				}
 			},
 			200000,
@@ -179,7 +168,6 @@ func (s *PrecompileTestSuite) TestRedeem() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -217,7 +205,6 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"token pair not found",
 		},
 		{
-<<<<<<< HEAD
 			"fail - unsupported token",
 			func() []interface{} {
 				return []interface{}{
@@ -236,10 +223,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"The only supported token contract for Stride Outpost v1 is 0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75",
 		},
 		{
-			"fail - invalid stride forwarder address (not a stride address)",
-=======
 			"fail - invalid receiver address (not a stride address)",
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 			func() []interface{} {
 				return []interface{}{
 					stride.AutopilotArgs{
@@ -282,7 +266,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Token:           common.HexToAddress(tokenPair.GetErc20Address()),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 					},

@@ -10,13 +10,8 @@ package osmosis
 import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
-<<<<<<< HEAD
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-=======
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -90,12 +85,7 @@ func (p Precompile) Swap(
 		}
 	}
 
-<<<<<<< HEAD
 	evmosChannel := NewIBCChannel(transfertypes.PortID, swapPacketData.ChannelID)
-	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
-=======
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
 		return nil, err
