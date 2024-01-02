@@ -20,12 +20,7 @@ def ibc(request, tmp_path_factory):
     path = tmp_path_factory.mktemp(name)
     # specify the custom_scenario
     # to patch evmos to use channel-0 for Stride outpost
-<<<<<<< HEAD
-    # and allow to register WEVMOS token
-    network = prepare_network(path, name, [evmos_build, "stride"])
-=======
     network = prepare_network(path, name, [evmos_build, "stride"], custom_scenario=name)
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
     yield from network
 
 
@@ -62,26 +57,23 @@ def test_liquid_stake(ibc):
     pc = get_precompile_contract(ibc.chains["evmos"].w3, "IStrideOutpost")
     evmos_gas_price = ibc.chains["evmos"].w3.eth.gas_price
 
-<<<<<<< HEAD
     liquid_stake_params = {
         "channelID": "channel-0",
         "sender": sender_addr,
         "receiver": sender_addr,
         "strideForwarder": dst_addr,
-        "token": wevmos_addr,
+        "token": WEVMOS_ADDRESS,
         "amount": amt,
     }
     tx = pc.functions.liquidStake(liquid_stake_params).build_transaction(
         {"from": sender_addr, "gasPrice": evmos_gas_price}
     )
-=======
     tx = pc.functions.liquidStake(
         sender_addr,
         WEVMOS_ADDRESS,
         amt,
         dst_addr,
     ).build_transaction({"from": sender_addr, "gasPrice": evmos_gas_price})
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
     gas_estimation = ibc.chains["evmos"].w3.eth.estimate_gas(tx)
 
     receipt = send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])

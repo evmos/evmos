@@ -72,12 +72,11 @@ def test_osmosis_swap(ibc):
     w3 = evmos.w3
     pc = get_precompile_contract(w3, "IOsmosisOutpost")
     evmos_gas_price = w3.eth.gas_price
-<<<<<<< HEAD
     swap_params = {
         "channelID": "channel-0",
         "xcsContract": xcs_contract,
         "sender": evmos_addr,
-        "input": wevmos_addr,
+        "input": WEVMOS_ADDRESS,
         "output": osmo_erc20_addr,
         "amount": amt,
         "slippagePercentage": testSlippagePercentage,
@@ -85,18 +84,6 @@ def test_osmosis_swap(ibc):
         "swapReceiver": eth_to_bech32(evmos_addr),
     }
     tx = pc.functions.swap(swap_params).build_transaction(
-=======
-
-    tx = pc.functions.swap(
-        evmos_addr,
-        WEVMOS_ADDRESS,
-        osmo_erc20_addr,
-        amt,
-        testSlippagePercentage,
-        testWindowSeconds,
-        eth_to_bech32(evmos_addr),
-    ).build_transaction(
->>>>>>> 6179804a (fix(outposts): Handle cases for input and output denoms without token pair lookup (#2185))
         {"from": evmos_addr, "gasPrice": evmos_gas_price, "gas": 30000000}
     )
     gas_estimation = evmos.w3.eth.estimate_gas(tx)
