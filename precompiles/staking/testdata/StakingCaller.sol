@@ -30,14 +30,8 @@ contract StakingCaller {
     /// @dev This function calls the staking precompile's revoke method.
     /// @param _grantee The address that was approved to spend the funds.
     /// @param _methods The methods to revoke.
-    function testRevoke(
-        address _grantee,
-        string[] calldata _methods
-    ) public {
-        bool success = staking.STAKING_CONTRACT.revoke(
-            _grantee,
-            _methods
-        );
+    function testRevoke(address _grantee, string[] calldata _methods) public {
+        bool success = staking.STAKING_CONTRACT.revoke(_grantee, _methods);
         require(success, "Failed to revoke approval for staking methods");
     }
 
@@ -47,7 +41,7 @@ contract StakingCaller {
     /// @param _amount The amount to delegate.
     function testDelegate(
         address _addr,
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount
     ) public {
         staking.STAKING_CONTRACT.delegate(_addr, _validatorAddr, _amount);
@@ -59,7 +53,7 @@ contract StakingCaller {
     /// @param _amount The amount to delegate.
     function testUndelegate(
         address _addr,
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount
     ) public {
         staking.STAKING_CONTRACT.undelegate(_addr, _validatorAddr, _amount);
@@ -72,8 +66,8 @@ contract StakingCaller {
     /// @param _amount The amount to delegate.
     function testRedelegate(
         address _addr,
-        string memory _validatorSrcAddr,
-        string memory _validatorDstAddr,
+        address _validatorSrcAddr,
+        address _validatorDstAddr,
         uint256 _amount
     ) public {
         staking.STAKING_CONTRACT.redelegate(
@@ -91,7 +85,7 @@ contract StakingCaller {
     /// @param _creationHeight The creation height of the unbonding delegation.
     function testCancelUnbonding(
         address _addr,
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount,
         uint256 _creationHeight
     ) public {
@@ -149,7 +143,7 @@ contract StakingCaller {
     /// @return balance The balance of the delegation.
     function getDelegation(
         address _addr,
-        string memory _validatorAddr
+        address _validatorAddr
     ) public view returns (uint256 shares, staking.Coin memory balance) {
         return staking.STAKING_CONTRACT.delegation(_addr, _validatorAddr);
     }
@@ -161,8 +155,8 @@ contract StakingCaller {
     /// @return redelegation The redelegation output.
     function getRedelegation(
         address _addr,
-        string memory _validatorSrcAddr,
-        string memory _validatorDstAddr
+        address _validatorSrcAddr,
+        address _validatorDstAddr
     ) public view returns (staking.RedelegationOutput memory redelegation) {
         return
             staking.STAKING_CONTRACT.redelegation(
@@ -180,8 +174,8 @@ contract StakingCaller {
     /// @return response The redelegation response.
     function getRedelegations(
         address _delegatorAddr,
-        string memory _validatorSrcAddr,
-        string memory _validatorDstAddr,
+        address _validatorSrcAddr,
+        address _validatorDstAddr,
         staking.PageRequest memory _pageRequest
     )
         public
@@ -206,8 +200,12 @@ contract StakingCaller {
     /// @return unbondingDelegation The unbonding delegation output.
     function getUnbondingDelegation(
         address _addr,
-        string memory _validatorAddr
-    ) public view returns (staking.UnbondingDelegationOutput memory unbondingDelegation) {
+        address _validatorAddr
+    )
+        public
+        view
+        returns (staking.UnbondingDelegationOutput memory unbondingDelegation)
+    {
         return
             staking.STAKING_CONTRACT.unbondingDelegation(_addr, _validatorAddr);
     }
@@ -222,7 +220,7 @@ contract StakingCaller {
         address _addr,
         uint256 _approveAmount,
         uint256 _undelegateAmount,
-        string memory _validatorAddr
+        address _validatorAddr
     ) public {
         string[] memory approvedMethods = new string[](1);
         approvedMethods[0] = staking.MSG_UNDELEGATE;
@@ -406,7 +404,7 @@ contract StakingCaller {
     /// @param _validatorAddr Address of the validator to delegate to
     /// @param _amount Amount to delegate
     function testDelegateIncrementCounter(
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount
     ) public {
         bool successStk = staking.STAKING_CONTRACT.approve(
@@ -425,7 +423,7 @@ contract StakingCaller {
 
     /// @dev This function showcases the possibility to deposit into the contract
     /// and immediately delegate to a validator using the same balance in the same transaction.
-    function approveDepositAndDelegate(string memory _validatorAddr) payable public {
+    function approveDepositAndDelegate(address _validatorAddr) public payable {
         bool successTx = staking.STAKING_CONTRACT.approve(
             address(this),
             msg.value,
@@ -441,7 +439,9 @@ contract StakingCaller {
 
     /// @dev This function is suppose to fail because the amount to delegate is
     /// higher than the amount approved.
-    function approveDepositAndDelegateExceedingAllowance(string memory _validatorAddr) payable public {
+    function approveDepositAndDelegateExceedingAllowance(
+        address _validatorAddr
+    ) public payable {
         bool successTx = staking.STAKING_CONTRACT.approve(
             tx.origin,
             msg.value,
@@ -457,7 +457,9 @@ contract StakingCaller {
 
     /// @dev This function is suppose to fail because the amount to delegate is
     /// higher than the amount approved.
-    function approveDepositDelegateAndFailCustomLogic(string memory _validatorAddr) payable public {
+    function approveDepositDelegateAndFailCustomLogic(
+        address _validatorAddr
+    ) public payable {
         bool successTx = staking.STAKING_CONTRACT.approve(
             tx.origin,
             msg.value,
@@ -483,7 +485,7 @@ contract StakingCaller {
     /// @param _validatorAddr Address of the validator to delegate to
     function callERC20AndDelegate(
         address _contract,
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount
     ) public {
         bool successApprove = staking.STAKING_CONTRACT.approve(
@@ -494,14 +496,14 @@ contract StakingCaller {
         require(successApprove, "delegation approval failed");
 
         (bool success, ) = _contract.call(
-            abi.encodeWithSignature("transfer(address,uint256)", msg.sender, _amount)
+            abi.encodeWithSignature(
+                "transfer(address,uint256)",
+                msg.sender,
+                _amount
+            )
         );
         require(success, "transfer failed");
 
-        staking.STAKING_CONTRACT.delegate(
-            msg.sender,
-            _validatorAddr,
-            _amount
-        );
+        staking.STAKING_CONTRACT.delegate(msg.sender, _validatorAddr, _amount);
     }
 }
