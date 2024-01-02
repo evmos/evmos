@@ -39,7 +39,7 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 		stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
 		cfg := k.getEVMConfig(ctx)
 
-		// dummy message needed to instanciate EVM
+		// dummy message needed to instantiate EVM
 		msg := ethtypes.NewMessage(
 			types.ModuleAddress,
 			nil,
@@ -75,7 +75,7 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 }
 
 // getEVMConfig is a helper function to get an EVM config
-// needed to instanciate the EVM when token pairs are provided
+// needed to instantiate the EVM when token pairs are provided
 // at genesis
 func (k Keeper) getEVMConfig(ctx sdk.Context) *statedb.EVMConfig {
 	params := k.evmKeeper.GetParams(ctx)
@@ -97,7 +97,7 @@ func generateContractCode(evm *vm.EVM, coinMeta banktypes.Metadata, contractAddr
 	if err != nil {
 		return nil, err
 	}
-	// Initialise a new contract and set the code that is to be used by the EVM.
+	// Initialize a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.
 	sender := vm.AccountRef(types.ModuleAddress)
 	contract := vm.NewContract(sender, vm.AccountRef(contractAddr), big.NewInt(0), 1000000)
