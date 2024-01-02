@@ -101,10 +101,6 @@ func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {
 		suite.Run(fmt.Sprintf("%v_%v", suite.getTxTypeTestName(), tc.name), func() {
 			// Perform test logic
 			statedbAccount, txArgs := tc.generateAccountAndArgs()
-			if statedbAccount == nil {
-				fmt.Println("statedbAccount is nil")
-			}
-
 			txData, err := txArgs.ToTxData()
 			suite.Require().NoError(err)
 
