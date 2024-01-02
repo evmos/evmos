@@ -12,8 +12,9 @@ IStrideOutpost constant STRIDE_OUTPOST_CONTRACT = IStrideOutpost(
 );
 
 /// @dev AutopilotParams is a struct containing the parameters for a liquid stake and redeem transactions.
-/// @param receiver - The address on the Evmos chain that will receive LSD.
-/// @param strideForwarder - The bech32-formatted address on the Stride chain that will facilitate trasnactions.
+/// @param receiver - The address on the Evmos chain that will redeem or receive LSD.
+/// @param strideForwarder - The bech32-formatted address on the Stride chain that will be used to execute
+/// LiquidStake or Redeem transactions.
 struct AutopilotParams {
     string channelID;
     address sender;
