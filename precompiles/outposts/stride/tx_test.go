@@ -16,6 +16,11 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
 )
 
+const (
+	// RandomAddress is a token that is not supported by the Stride Outpost
+	RandomAddress = "0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"
+)
+
 func (s *PrecompileTestSuite) TestLiquidStake() {
 	method := s.precompile.Methods[stride.LiquidStakeMethod]
 	denomID := s.network.App.Erc20Keeper.GetDenomMap(s.network.GetContext(), utils.BaseDenom)
@@ -49,7 +54,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Token:           common.HexToAddress(RandomAddress),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
 					},
@@ -67,7 +72,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Token:           common.HexToAddress(RandomAddress),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
 					},
@@ -189,7 +194,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Token:           common.HexToAddress(RandomAddress),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
 					},
@@ -207,7 +212,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress("0x1FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687"),
+						Token:           common.HexToAddress(RandomAddress),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1mdna37zrprxl7kn0rj4e58ndp084fzzwcxhrh2",
 					},
@@ -218,7 +223,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"The only supported token contract for Stride Outpost v1 is 0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75",
 		},
 		{
-			"fail - invalid receiver address (not a stride address)",
+			"fail - invalid stride forwarder address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
 					stride.AutopilotArgs{
@@ -236,7 +241,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"invalid stride bech32 address",
 		},
 		{
-			"fail - receiver address is an invalid stride bech32 address",
+			"fail - stride forwarder address is an invalid stride bech32 address",
 			func() []interface{} {
 				return []interface{}{
 					stride.AutopilotArgs{
