@@ -861,7 +861,8 @@ func (_c *MockEVMKeeper_SetState_Call) RunAndReturn(run func(cosmos_sdktypes.Con
 func NewMockEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *EVMKeeper {
+},
+) *EVMKeeper {
 	mock := &EVMKeeper{}
 	mock.Mock.Test(t)
 
