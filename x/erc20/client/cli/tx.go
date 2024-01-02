@@ -192,10 +192,6 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 				return err
 			}
 
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
