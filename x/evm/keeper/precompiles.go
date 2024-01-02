@@ -19,7 +19,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
@@ -29,10 +28,8 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
-	evmostransfertypes "github.com/evmos/evmos/v16/x/ibc/transfer/types"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
 
@@ -83,15 +80,6 @@ func AvailablePrecompiles(
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
-	}
-
-	var osmosisChannelID, xcsv1Contract string
-	if utils.IsMainnet(chainID) {
-		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
-	} else {
-		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
