@@ -105,9 +105,6 @@ func AvailablePrecompiles(
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
-		transfertypes.PortID,
-		osmosisChannelID,
-		xcsv1Contract,
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

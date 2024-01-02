@@ -4,12 +4,14 @@
 // Osmosis package contains the logic of the Osmosis outpost on the Evmos chain.
 // This outpost uses the ics20 precompile to relay IBC packets to the Osmosis
 // chain, targeting the Cross-Chain Swap Contract V1 (XCS V1)
+
 package osmosis
 
 import (
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -39,7 +41,7 @@ func (p Precompile) Swap(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	swapPacketData, err := ParseSwapPacketData(args)
+	swapPacketData, err := ParseSwapPacketData(method, args)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	evmosChannel := NewIBCChannel(p.portID, p.channelID)
+	evmosChannel := NewIBCChannel(transfertypes.PortID, swapPacketData.ChannelID)
 	bondDenom := p.stakingKeeper.GetParams(ctx).BondDenom
 	err = ValidateInputOutput(inputDenom, outputDenom, bondDenom, evmosChannel)
 	if err != nil {
@@ -98,7 +100,7 @@ func (p Precompile) Swap(
 	packet := CreatePacketWithMemo(
 		outputOnOsmosis,
 		swapPacketData.SwapReceiver,
-		p.osmosisXCSContract,
+		swapPacketData.XcsContract,
 		swapPacketData.SlippagePercentage,
 		swapPacketData.WindowSeconds,
 		onFailedDelivery,
@@ -117,7 +119,7 @@ func (p Precompile) Swap(
 		evmosChannel.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		p.osmosisXCSContract,
+		swapPacketData.XcsContract,
 		p.timeoutHeight,
 		p.timeoutTimestamp,
 		packetString,
@@ -140,7 +142,7 @@ func (p Precompile) Swap(
 	}
 
 	// Execute the ICS20 Transfer.
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
@@ -171,5 +173,5 @@ func (p Precompile) Swap(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }

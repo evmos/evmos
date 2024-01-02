@@ -9,6 +9,8 @@ import (
 	"math/big"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
+
 	"golang.org/x/exp/slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -300,71 +302,45 @@ func ValidateOsmosisContractAddress(contractAddress string) (err error) {
 	return err
 }
 
-// SwapPacketData is an utility structure used to wrap args received by the
+// SwapPacketData is a utility structure used to wrap args received by the
 // Solidity interface of the Swap function.
 type SwapPacketData struct {
-	Sender             common.Address
-	Input              common.Address
-	Output             common.Address
-	Amount             *big.Int
-	SlippagePercentage uint8
-	WindowSeconds      uint64
-	SwapReceiver       string
+	ChannelID          string         `abi:"channelID"`
+	XcsContract        string         `abi:"xcsContract"`
+	Sender             common.Address `abi:"sender"`
+	Input              common.Address `abi:"input"`
+	Output             common.Address `abi:"output"`
+	Amount             *big.Int       `abi:"amount"`
+	SlippagePercentage uint8          `abi:"slippagePercentage"`
+	WindowSeconds      uint64         `abi:"windowSeconds"`
+	SwapReceiver       string         `abi:"swapReceiver"`
+}
+
+// SwapPayload is the same as the expected input of the Swap function in the Solidity interface.
+type SwapPayload struct {
+	SwapPacketData SwapPacketData
+}
+
+// ValidateBasic performs basic validation of the SwapPacketData.
+func (s SwapPacketData) ValidateBasic() error {
+	return ValidateOsmosisContractAddress(s.XcsContract)
 }
 
 // ParseSwapPacketData parses the packet data from the outpost precompiled contract.
-func ParseSwapPacketData(args []interface{}) (
-	swapPacketData SwapPacketData,
-	err error,
-) {
-	if len(args) != 7 {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 7, len(args))
+func ParseSwapPacketData(method *abi.Method, args []interface{}) (SwapPacketData, error) {
+	if len(args) != 1 {
+		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	sender, ok := args[0].(common.Address)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "sender", common.Address{}, args[0])
+	var swapPayload SwapPayload
+	if err := method.Inputs.Copy(&swapPayload, args); err != nil {
+		return SwapPacketData{}, fmt.Errorf("error while unpacking args to SwapPayload struct: %s", err)
 	}
 
-	input, ok := args[1].(common.Address)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "input", common.Address{}, args[1])
+	// Perform validation of the SwapPacketData.
+	if err := swapPayload.SwapPacketData.ValidateBasic(); err != nil {
+		return SwapPacketData{}, err
 	}
 
-	output, ok := args[2].(common.Address)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "output", common.Address{}, args[2])
-	}
-
-	amount, ok := args[3].(*big.Int)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "amount", big.Int{}, args[3])
-	}
-
-	slippagePercentage, ok := args[4].(uint8)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "slippagePercentage", uint8(0), args[4])
-	}
-
-	windowSeconds, ok := args[5].(uint64)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "windowSeconds", uint64(0), args[5])
-	}
-
-	receiver, ok := args[6].(string)
-	if !ok {
-		return SwapPacketData{}, fmt.Errorf(cmn.ErrInvalidType, "receiver", "", args[6])
-	}
-
-	swapPacketData = SwapPacketData{
-		Sender:             sender,
-		Input:              input,
-		Output:             output,
-		Amount:             amount,
-		SlippagePercentage: slippagePercentage,
-		WindowSeconds:      windowSeconds,
-		SwapReceiver:       receiver,
-	}
-
-	return swapPacketData, nil
+	return swapPayload.SwapPacketData, nil
 }
