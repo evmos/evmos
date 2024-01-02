@@ -19,7 +19,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
@@ -29,17 +28,14 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
-	evmostransfertypes "github.com/evmos/evmos/v16/x/ibc/transfer/types"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
-	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -85,20 +81,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	var strideChannelID, osmosisChannelID, xcsv1Contract string
-	if utils.IsMainnet(chainID) {
-		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		strideChannelID = evmostransfertypes.StrideMainnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
-	} else {
-		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		strideChannelID = evmostransfertypes.StrideTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
-	}
-
 	strideOutpost, err := strideoutpost.NewPrecompile(
-		transfertypes.PortID,
-		strideChannelID,
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
@@ -109,9 +92,6 @@ func AvailablePrecompiles(
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
-		transfertypes.PortID,
-		osmosisChannelID,
-		xcsv1Contract,
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

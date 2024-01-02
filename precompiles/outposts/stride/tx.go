@@ -6,6 +6,8 @@ package stride
 import (
 	"fmt"
 
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	"cosmossdk.io/math"
 	"github.com/evmos/evmos/v16/utils"
 
@@ -25,8 +27,6 @@ const (
 	LiquidStakeAction = "LiquidStake"
 	// RedeemStakeAction is the action name needed in the memo field
 	RedeemStakeAction = "RedeemStake"
-	// NoReceiver is the string used in the memo field when the receiver is not needed
-	NoReceiver = ""
 )
 
 // LiquidStake is a transaction that liquid stakes tokens using
@@ -39,10 +39,16 @@ func (p Precompile) LiquidStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, token, amount, receiver, err := parseLiquidStakeArgs(args)
+	autopilotArgs, err := parseAutopilotArgs(method, args)
 	if err != nil {
 		return nil, err
 	}
+
+	sender := autopilotArgs.Sender
+	receiver := autopilotArgs.Receiver
+	token := autopilotArgs.Token
+	amount := autopilotArgs.Amount
+	strideForwarder := autopilotArgs.StrideForwarder
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
@@ -72,18 +78,18 @@ func (p Precompile) LiquidStake(
 	coin := sdk.Coin{Denom: tokenPair.Denom, Amount: math.NewIntFromBigInt(amount)}
 
 	// Create the memo for the ICS20 transfer packet
-	memo, err := CreateMemo(LiquidStakeAction, receiver, NoReceiver)
+	memo, err := CreateMemo(LiquidStakeAction, strideForwarder, sdk.AccAddress(receiver.Bytes()).String())
 	if err != nil {
 		return nil, err
 	}
 
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		autopilotArgs.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
-		receiver,
+		strideForwarder,
 		p.timeoutHeight,
 		0,
 		memo,
@@ -100,7 +106,7 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +137,7 @@ func (p Precompile) LiquidStake(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }
 
 // RedeemStake is a transaction that redeems the native tokens using the liquid stake
@@ -145,10 +151,17 @@ func (p Precompile) RedeemStake(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	sender, receiver, token, strideForwarder, amount, err := parseRedeemStakeArgs(args)
+	autopilotArgs, err := parseAutopilotArgs(method, args)
 	if err != nil {
 		return nil, err
 	}
+
+	sender := autopilotArgs.Sender
+	receiver := autopilotArgs.Receiver
+	token := autopilotArgs.Token
+	amount := autopilotArgs.Amount
+	strideForwarder := autopilotArgs.StrideForwarder
+	channelID := autopilotArgs.ChannelID
 
 	// The provided sender address should always be equal to the origin address.
 	// In case the contract caller address is the same as the sender address provided,
@@ -163,7 +176,7 @@ func (p Precompile) RedeemStake(
 	bondDenom := p.stakingKeeper.BondDenom(ctx)
 	stToken := "st" + bondDenom
 
-	ibcDenom := utils.ComputeIBCDenom(p.portID, p.channelID, stToken)
+	ibcDenom := utils.ComputeIBCDenom(transfertypes.PortID, channelID, stToken)
 
 	tokenPairID := p.erc20Keeper.GetDenomMap(ctx, ibcDenom)
 	tokenPair, found := p.erc20Keeper.GetTokenPair(ctx, tokenPairID)
@@ -185,8 +198,8 @@ func (p Precompile) RedeemStake(
 
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
-		p.portID,
-		p.channelID,
+		transfertypes.PortID,
+		channelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
@@ -206,7 +219,7 @@ func (p Precompile) RedeemStake(
 	}
 
 	// Execute the ICS20 Transfer
-	res, err := p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
+	_, err = p.transferKeeper.Transfer(sdk.WrapSDKContext(ctx), msg)
 	if err != nil {
 		return nil, err
 	}
@@ -237,5 +250,5 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.Sequence, true)
+	return method.Outputs.Pack(true)
 }
