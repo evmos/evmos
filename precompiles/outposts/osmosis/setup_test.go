@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	PortID    = "transfer"
-	ChannelID = "channel-0"
+	PortID      = "transfer"
+	ChannelID   = "channel-0"
+	XCSContract = "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 )
 
 type PrecompileTestSuite struct {
@@ -39,9 +40,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
-		PortID,
-		ChannelID,
-		osmosis.XCSContractTestnet,
 		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,
