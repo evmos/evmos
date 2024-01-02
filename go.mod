@@ -9,8 +9,8 @@ require (
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/armon/go-metrics v0.4.1
-	github.com/btcsuite/btcd v0.23.5-0.20231215221805-96c9fd8078fd
-	github.com/btcsuite/btcd/btcutil v1.1.4
+	github.com/btcsuite/btcd v0.24.0
+	github.com/btcsuite/btcd/btcutil v1.1.5
 	github.com/cometbft/cometbft v0.37.3-0.20230920093934-46df7b597e3c
 	github.com/cometbft/cometbft-db v0.8.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
