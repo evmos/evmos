@@ -16,6 +16,7 @@ from .utils import (
     ADDRS,
     eth_to_bech32,
     memiavl_config,
+    setup_stride,
     update_evmos_bin,
     update_evmosd_and_setup_stride,
     wait_for_port,
@@ -72,12 +73,14 @@ def get_evmos_generator(
     tmp_path: Path,
     file: str,
     is_rocksdb: bool = False,
+    stride_included: bool = False,
     custom_scenario: str | None = None,
 ):
     """
     setup evmos with custom config
     depending on the build
     """
+    post_init_func = None
     if is_rocksdb:
         file = memiavl_config(tmp_path, file)
         gen = setup_custom_evmos(
@@ -93,7 +96,7 @@ def get_evmos_generator(
             # build the binary modified for a custom scenario
             modified_bin = build_patched_evmosd(custom_scenario)
             post_init_func = update_evmos_bin(modified_bin)
-            if "stride" in custom_scenario:
+            if stride_included:
                 post_init_func = update_evmosd_and_setup_stride(modified_bin)
             gen = setup_custom_evmos(
                 tmp_path,
@@ -103,7 +106,14 @@ def get_evmos_generator(
                 chain_binary=modified_bin,
             )
         else:
-            gen = setup_custom_evmos(tmp_path, 28700, Path(__file__).parent / file)
+            if stride_included:
+                post_init_func = setup_stride()
+            gen = setup_custom_evmos(
+                tmp_path,
+                28700,
+                Path(__file__).parent / file,
+                post_init=post_init_func,
+            )
 
     return gen
 
@@ -128,7 +138,11 @@ def prepare_network(
             # setup evmos with the custom config
             # depending on the build
             gen = get_evmos_generator(
-                tmp_path, file, "-rocksdb" in chain, custom_scenario
+                tmp_path,
+                file,
+                "-rocksdb" in chain,
+                "stride" in chain_names,
+                custom_scenario,
             )
             evmos = next(gen)
             # wait for grpc ready
