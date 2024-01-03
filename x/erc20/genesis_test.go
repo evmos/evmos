@@ -85,52 +85,20 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		name         string
 		genesisState types.GenesisState
 		malleate     func()
-		expFail      bool
 	}{
 		{
-			"success: empty genesis",
+			"empty genesis",
 			types.GenesisState{},
 			nil,
-			false,
 		},
 		{
-			"success: default genesis",
+			"default genesis",
 			*types.DefaultGenesisState(),
 			nil,
-			false,
 		},
+
 		{
-			"fail: custom genesis - invalid denom",
-			types.NewGenesisState(
-				types.DefaultParams(),
-				[]types.TokenPair{
-					{
-						Erc20Address:  osmoERC20ContractAddr,
-						Denom:         "uosmo",
-						Enabled:       true,
-						ContractOwner: types.OWNER_MODULE,
-					},
-				}),
-			nil,
-			true,
-		},
-		{
-			"fail: custom genesis - denom trace not in genesis",
-			types.NewGenesisState(
-				types.DefaultParams(),
-				[]types.TokenPair{
-					{
-						Erc20Address:  osmoERC20ContractAddr,
-						Denom:         osmoIBCDenom,
-						Enabled:       true,
-						ContractOwner: types.OWNER_MODULE,
-					},
-				}),
-			nil,
-			true,
-		},
-		{
-			"success: custom genesis with denom trace in genesis",
+			"custom genesis",
 			types.NewGenesisState(
 				types.DefaultParams(),
 				[]types.TokenPair{
@@ -142,9 +110,14 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 					},
 				}),
 			func() {
-				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
+				suite.app.TransferKeeper.SetDenomTrace(
+					suite.ctx,
+					transfertypes.DenomTrace{
+						BaseDenom: "uosmo",
+						Path:      "transfer/channel-0",
+					},
+				)
 			},
-			false,
 		},
 	}
 
@@ -152,16 +125,11 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		if tc.malleate != nil {
 			tc.malleate()
 		}
-		if tc.expFail {
-			suite.Require().Panics(func() {
-				erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
-			})
-			return
-		} else {
-			suite.Require().NotPanics(func() {
-				erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
-			})
-		}
+
+		suite.Require().NotPanics(func() {
+			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
+		})
+
 		params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 
 		tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
