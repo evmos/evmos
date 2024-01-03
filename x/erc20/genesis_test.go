@@ -32,10 +32,7 @@ type GenesisTestSuite struct {
 	genesis types.GenesisState
 }
 
-const (
-	osmoIBCDenom          = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
-	osmoERC20ContractAddr = "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ"
-)
+const osmoERC20ContractAddr = "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ"
 
 var osmoDenomTrace = transfertypes.DenomTrace{
 	BaseDenom: "uosmo",
@@ -104,7 +101,7 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 				[]types.TokenPair{
 					{
 						Erc20Address:  osmoERC20ContractAddr,
-						Denom:         osmoIBCDenom,
+						Denom:         osmoDenomTrace.IBCDenom(),
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},
@@ -168,7 +165,7 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 				[]types.TokenPair{
 					{
 						Erc20Address:  osmoERC20ContractAddr,
-						Denom:         osmoIBCDenom,
+						Denom:         osmoDenomTrace.IBCDenom(),
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},

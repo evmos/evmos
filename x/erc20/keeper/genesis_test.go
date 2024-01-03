@@ -8,14 +8,20 @@ import (
 )
 
 const (
-	osmoIBCDenom          = "ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518"
 	osmoERC20ContractAddr = "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ"
+	junoERC20ContractAddr = "0x5db67696C3c088DfBf588d3dd849f44266ff0ffa"
 )
 
-var osmoDenomTrace = transfertypes.DenomTrace{
-	BaseDenom: "uosmo",
-	Path:      "transfer/channel-0",
-}
+var (
+	osmoDenomTrace = transfertypes.DenomTrace{
+		BaseDenom: "uosmo",
+		Path:      "transfer/channel-0",
+	}
+	junoDenomTrace = transfertypes.DenomTrace{
+		BaseDenom: "ujunox",
+		Path:      "transfer/channel-1",
+	}
+)
 
 func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 	testCases := []struct {
@@ -51,7 +57,7 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			[]types.TokenPair{
 				{
 					Erc20Address:  osmoERC20ContractAddr,
-					Denom:         osmoIBCDenom,
+					Denom:         osmoDenomTrace.IBCDenom(),
 					Enabled:       true,
 					ContractOwner: types.OWNER_MODULE,
 				},
@@ -61,17 +67,24 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			"denom trace not found",
 		},
 		{
-			"success: custom genesis with denom trace in genesis",
+			"success: custom genesis with denom traces in genesis",
 			[]types.TokenPair{
 				{
+					Erc20Address:  junoERC20ContractAddr,
+					Denom:         junoDenomTrace.IBCDenom(),
+					Enabled:       true,
+					ContractOwner: types.OWNER_MODULE,
+				},
+				{
 					Erc20Address:  osmoERC20ContractAddr,
-					Denom:         osmoIBCDenom,
+					Denom:         osmoDenomTrace.IBCDenom(),
 					Enabled:       true,
 					ContractOwner: types.OWNER_MODULE,
 				},
 			},
 			func() {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, junoDenomTrace)
 			},
 			false,
 			"",
@@ -88,9 +101,9 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			suite.Require().NoError(err)
 			tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 			suite.Require().Equal(tc.pairs, tokenPairs)
-			// check ERC20 contract was created successfully
-			if len(tc.pairs) > 0 {
-				acc := suite.app.EvmKeeper.GetAccount(suite.ctx, common.HexToAddress(osmoERC20ContractAddr))
+			// check ERC20 contracts were created successfully
+			for _, p := range tc.pairs {
+				acc := suite.app.EvmKeeper.GetAccount(suite.ctx, common.HexToAddress(p.Erc20Address))
 				suite.Require().True(acc.IsContract())
 			}
 		} else {
