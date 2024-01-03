@@ -237,7 +237,8 @@ func getContractDataBz(coinMetadata banktypes.Metadata) ([]byte, error) {
 		decimalsIdx := len(coinMetadata.DenomUnits) - 1
 		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
 	}
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
+	// Get the input values for the ERC20 contract constructor method
+	constructorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",
 		coinMetadata.Name,
 		coinMetadata.Symbol,
@@ -247,9 +248,9 @@ func getContractDataBz(coinMetadata banktypes.Metadata) ([]byte, error) {
 		return nil, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
 	}
 
-	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
+	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(constructorArgs))
 	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
-	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], ctorArgs)
+	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], constructorArgs)
 
 	return data, nil
 }
