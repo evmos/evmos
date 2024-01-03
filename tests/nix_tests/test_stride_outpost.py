@@ -92,6 +92,6 @@ def test_liquid_stake(ibc):
     wait_for_fn("balance change", check_balance_change)
     assert old_dst_balance + amt == new_dst_balance
     new_src_balance = get_balance(ibc.chains["evmos"], src_addr, src_denom)
-    # NOTE the 'amt'is deducted from the 'aevmos' native coin
+    # NOTE the 'amt' is deducted from the 'aevmos' native coin
     # not from WEVMOS balance
     assert old_src_balance - amt - fee == new_src_balance
