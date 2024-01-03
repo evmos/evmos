@@ -505,17 +505,17 @@ func (do *DelegationOutput) Pack(args abi.Arguments) ([]byte, error) {
 // ValidatorInfo is a struct to represent the key information from
 // a validator response.
 type ValidatorInfo struct {
-	OperatorAddress   string   `abi:"operatorAddress"`
-	ConsensusPubkey   string   `abi:"consensusPubkey"`
-	Jailed            bool     `abi:"jailed"`
-	Status            uint8    `abi:"status"`
-	Tokens            *big.Int `abi:"tokens"`
-	DelegatorShares   *big.Int `abi:"delegatorShares"` // TODO: Decimal
-	Description       string   `abi:"description"`
-	UnbondingHeight   int64    `abi:"unbondingHeight"`
-	UnbondingTime     int64    `abi:"unbondingTime"`
-	Commission        *big.Int `abi:"commission"`
-	MinSelfDelegation *big.Int `abi:"minSelfDelegation"`
+	OperatorAddress   common.Address `abi:"operatorAddress"`
+	ConsensusPubkey   string         `abi:"consensusPubkey"`
+	Jailed            bool           `abi:"jailed"`
+	Status            uint8          `abi:"status"`
+	Tokens            *big.Int       `abi:"tokens"`
+	DelegatorShares   *big.Int       `abi:"delegatorShares"` // TODO: Decimal
+	Description       string         `abi:"description"`
+	UnbondingHeight   int64          `abi:"unbondingHeight"`
+	UnbondingTime     int64          `abi:"unbondingTime"`
+	Commission        *big.Int       `abi:"commission"`
+	MinSelfDelegation *big.Int       `abi:"minSelfDelegation"`
 }
 
 type ValidatorOutput struct {
@@ -526,7 +526,7 @@ type ValidatorOutput struct {
 func DefaultValidatorOutput() ValidatorOutput {
 	return ValidatorOutput{
 		ValidatorInfo{
-			OperatorAddress:   "",
+			OperatorAddress:   common.Address{},
 			ConsensusPubkey:   "",
 			Jailed:            false,
 			Status:            uint8(0),
@@ -550,7 +550,7 @@ func (vo *ValidatorOutput) FromResponse(res *stakingtypes.QueryValidatorResponse
 
 	return ValidatorOutput{
 		Validator: ValidatorInfo{
-			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()).String(),
+			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()),
 			ConsensusPubkey: FormatConsensusPubkey(res.Validator.ConsensusPubkey),
 			Jailed:          res.Validator.Jailed,
 			Status:          uint8(stakingtypes.BondStatus_value[res.Validator.Status.String()]),
@@ -589,7 +589,7 @@ func (vo *ValidatorsOutput) FromResponse(res *stakingtypes.QueryValidatorsRespon
 			vo.Validators[i] = DefaultValidatorOutput().Validator
 		} else {
 			vo.Validators[i] = ValidatorInfo{
-				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()).String(),
+				OperatorAddress:   common.BytesToAddress(operatorAddress.Bytes()),
 				ConsensusPubkey:   FormatConsensusPubkey(v.ConsensusPubkey),
 				Jailed:            v.Jailed,
 				Status:            uint8(stakingtypes.BondStatus_value[v.Status.String()]),
