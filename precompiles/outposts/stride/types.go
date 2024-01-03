@@ -59,12 +59,12 @@ type RawPacketMetadata struct {
 
 // AutopilotArgs is the arguments struct for the LiquidStake and RedeemStake methods
 type AutopilotArgs struct {
-	ChannelID       string
-	Sender          common.Address
-	Token           common.Address
-	Receiver        common.Address
-	Amount          *big.Int
-	StrideForwarder string
+	ChannelID       string         `abi:"channelID"`
+	Sender          common.Address `abi:"sender"`
+	Receiver        common.Address `abi:"receiver"`
+	Token           common.Address `abi:"token"`
+	Amount          *big.Int       `abi:"amount"`
+	StrideForwarder string         `abi:"strideForwarder"`
 }
 
 // AutopilotPayload is the payload struct for the LiquidStake and RedeemStake method
