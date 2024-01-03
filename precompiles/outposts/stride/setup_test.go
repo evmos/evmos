@@ -6,9 +6,9 @@ package stride_test
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/testutil/integration/common/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -39,7 +39,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := stride.NewPrecompile(
-		common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+		common.HexToAddress(erc20.WEVMOSContractTestnet),
 		network.App.TransferKeeper,
 		network.App.Erc20Keeper,
 		network.App.AuthzKeeper,

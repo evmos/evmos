@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
+	"github.com/evmos/evmos/v16/precompiles/erc20"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -106,7 +106,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: senderAddress,
 			malleate: func() []interface{} {
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
-				s.Require().NoError(err, "expected no error during ibc erc20 registration")
+				s.Require().NoError(err, "expected no error during evmos erc20 registration")
 
 				return []interface{}{
 					osmosis.SwapPacketData{
@@ -155,11 +155,11 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: senderAddress,
 			malleate: func() []interface{} {
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				_, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				_, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				wrongOsmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, "channel-1", osmosis.OsmosisDenom)
-				wrongOsmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, wrongOsmoIbcDenomTrace)
+				wrongOsmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, wrongOsmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
@@ -218,7 +218,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				s.Require().NoError(err, "expected no error during evmos erc20 registration")
 
 				wrongIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, "wrong")
-				wrongTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, wrongIbcDenomTrace)
+				wrongTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, wrongIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				return []interface{}{
@@ -247,7 +247,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: senderAddress,
 			malleate: func() []interface{} {
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
@@ -277,7 +277,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: senderAddress,
 			malleate: func() []interface{} {
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
@@ -308,7 +308,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: s.keyring.GetAddr(1),
 			malleate: func() []interface{} {
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				evmosTokenPair, err := testutils.RegisterEvmosERC20Coins(*s.unitNetwork, sender)
@@ -338,7 +338,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 			origin: senderAddress,
 			malleate: func() []interface{} {
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				return []interface{}{
@@ -347,7 +347,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmoTokenPair.GetERC20Contract(),
-						Output:             common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+						Output:             common.HexToAddress(erc20.WEVMOSContractTestnet),
 						Amount:             transferAmount,
 						SlippagePercentage: slippagePercentage,
 						WindowSeconds:      windowSeconds,
@@ -373,7 +373,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 						XcsContract:        XCSContract,
 						Sender:             senderAddress,
 						Input:              osmosisTokenPair.GetERC20Contract(),
-						Output:             common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+						Output:             common.HexToAddress(erc20.WEVMOSContractTestnet),
 						Amount:             transferAmount,
 						SlippagePercentage: slippagePercentage,
 						WindowSeconds:      windowSeconds,
@@ -393,7 +393,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 				s.Require().NoError(err, "expected no error during evmos erc20 registration")
 
 				osmoIbcDenomTrace := utils.ComputeIBCDenomTrace(PortID, ChannelID, osmosis.OsmosisDenom)
-				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(*s.unitNetwork, sender, osmoIbcDenomTrace)
+				osmoTokenPair, err := testutils.RegisterIBCERC20Coins(s.unitNetwork, sender, osmoIbcDenomTrace)
 				s.Require().NoError(err, "expected no error during ibc erc20 registration")
 
 				return []interface{}{
@@ -401,7 +401,7 @@ func (s *PrecompileTestSuite) TestSwap() {
 						ChannelID:          ChannelID,
 						XcsContract:        XCSContract,
 						Sender:             senderAddress,
-						Input:              common.HexToAddress(evmkeeper.WEVMOSContractTestnet),
+						Input:              common.HexToAddress(erc20.WEVMOSContractTestnet),
 						Output:             osmoTokenPair.GetERC20Contract(),
 						Amount:             transferAmount,
 						SlippagePercentage: slippagePercentage,
