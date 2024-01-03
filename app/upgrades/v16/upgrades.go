@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
@@ -22,6 +23,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
+	bk bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
 	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -42,6 +44,10 @@ func CreateUpgradeHandler(
 		osmosisAddress := osmosisoutpost.Precompile{}.Address()
 		if err := ek.EnablePrecompiles(ctx, strideAddress, osmosisAddress); err != nil {
 			logger.Error("failed to enable outposts", "error", err.Error())
+		}
+
+		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
+			logger.Error("failed to burn inflation pool", "error", err.Error())
 		}
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
