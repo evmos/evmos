@@ -1,3 +1,5 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package keeper
 
 import (
@@ -10,51 +12,59 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/evmos/evmos/v16/ibc"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 )
 
 // SetGenesisTokenPairs stores in state the provided token pairs in genesis
 func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) error {
-	for i, pair := range pairs {
+	if len(pairs) == 0 {
+		return nil
+	}
+	stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
+	for _, pair := range pairs {
 		contractAddr := pair.GetERC20Contract()
-		coinMeta, err := k.getGenesisTokenPairMeta(ctx, pair, i)
+		coinMeta, err := k.getGenesisTokenPairMeta(ctx, pair)
 		if err != nil {
 			return fmt.Errorf("error while generating metadata for genesis pair denom %s. %w", pair.Denom, err)
 		}
-		stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
 		code, err := k.generateContractCode(ctx, stateDB, coinMeta, contractAddr)
 		if err != nil {
 			return fmt.Errorf("error while getting contract code for genesis pair denom %s. %w", pair.Denom, err)
 		}
-		stateDB.SetCode(contractAddr, code)
 
-		if err := stateDB.Commit(); err != nil {
-			return fmt.Errorf("error while storing contract for genesis pair denom %s. %w", pair.Denom, err)
-		}
+		// Store the ERC20 contract code in the address provided in genesis
+		stateDB.SetCode(contractAddr, code)
 
 		id := pair.GetID()
 		k.SetTokenPair(ctx, pair)
 		k.SetDenomMap(ctx, pair.Denom, id)
-		k.SetERC20Map(ctx, pair.GetERC20Contract(), id)
+		k.SetERC20Map(ctx, contractAddr, id)
 	}
 
-	return nil
+	// Commit the changes to effectively seed the state DB with
+	// the genesis token pairs ERC20 contracts
+	return stateDB.Commit()
 }
 
 // getGenesisTokenPairMeta is a helper function to generate token pair metadata for the genesis token pairs
-func (k Keeper) getGenesisTokenPairMeta(ctx sdk.Context, pair types.TokenPair, index int) (banktypes.Metadata, error) {
-	displayName := fmt.Sprintf("genToken%d", index)
+func (k Keeper) getGenesisTokenPairMeta(ctx sdk.Context, pair types.TokenPair) (banktypes.Metadata, error) {
+	// The corresponding IBC denom trace should be included in genesis
+	denomTrace, err := ibc.GetDenomTrace(*k.transferKeeper, ctx, pair.Denom)
+	if err != nil {
+		return banktypes.Metadata{}, err
+	}
 	meta := banktypes.Metadata{
-		Description: fmt.Sprintf("Genesis token pair number %d", index),
+		Description: fmt.Sprintf("%s IBC coin", denomTrace.BaseDenom),
 		DenomUnits: []*banktypes.DenomUnit{
-			{Denom: pair.Denom, Exponent: 0, Aliases: []string{fmt.Sprintf("uGenToken%d", index)}},
-			{Denom: displayName, Exponent: 6},
+			{Denom: pair.Denom, Exponent: 0, Aliases: []string{denomTrace.BaseDenom}},
+			{Denom: denomTrace.BaseDenom, Exponent: 6},
 		},
 		Base:    pair.Denom,
-		Display: displayName,
-		Name:    displayName,
-		Symbol:  displayName,
+		Display: denomTrace.BaseDenom,
+		Name:    denomTrace.BaseDenom,
+		Symbol:  denomTrace.BaseDenom,
 	}
 	if err := k.verifyMetadata(ctx, meta); err != nil {
 		return banktypes.Metadata{}, errorsmod.Wrapf(
@@ -98,7 +108,7 @@ func (k Keeper) getEVMConfig(ctx sdk.Context) *statedb.EVMConfig {
 }
 
 // newEVM is a helper function used during genesis
-// to instantiate the EVM to set genesis state (token pairs)
+// to instantiate the EVM to set genesis state
 func (k Keeper) newEVM(ctx sdk.Context, db *statedb.StateDB) *vm.EVM {
 	cfg := k.getEVMConfig(ctx)
 

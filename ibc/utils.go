@@ -4,6 +4,8 @@
 package ibc
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,6 +13,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 
 	"github.com/evmos/evmos/v16/utils"
 )
@@ -123,4 +126,28 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 		Denom:  trace.IBCDenom(),
 		Amount: amount,
 	}
+}
+
+// GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
+// denomination is not an IBC voucher or the trace is not found, it returns an error.
+func GetDenomTrace(
+	transferKeeper transferkeeper.Keeper,
+	ctx sdk.Context,
+	denom string,
+) (transfertypes.DenomTrace, error) {
+	if !strings.HasPrefix(denom, "ibc/") {
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
+	}
+
+	hash, err := transfertypes.ParseHexHash(denom[4:])
+	if err != nil {
+		return transfertypes.DenomTrace{}, err
+	}
+
+	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
+	if !found {
+		return transfertypes.DenomTrace{}, ErrDenomTraceNotFound
+	}
+
+	return denomTrace, nil
 }
