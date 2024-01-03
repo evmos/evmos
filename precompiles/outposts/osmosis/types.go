@@ -314,7 +314,6 @@ type SwapPacketData struct {
 	SlippagePercentage uint8          `abi:"slippagePercentage"` // the slippage percentage for the swap
 	WindowSeconds      uint64         `abi:"windowSeconds"`      // the window seconds for the swap
 	SwapReceiver       string         `abi:"swapReceiver"`       // the receiver of the swapped amount
-
 }
 
 // SwapPayload is the same as the expected input of the Swap function in the Solidity interface.
