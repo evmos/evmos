@@ -419,7 +419,7 @@ protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --use
 # NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
 #
-proto-all: proto-format proto-lint proto-gen
+proto-all: proto-format proto-lint proto-gen proto-swagger-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
