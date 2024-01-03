@@ -96,6 +96,8 @@ func (k Keeper) generateContractCode(ctx sdk.Context, stateDB *statedb.StateDB, 
 	contract := vm.NewContract(sender, vm.AccountRef(contractAddr), big.NewInt(0), 1000000)
 	contract.Code = data
 
+	// Run the contract's constructor function to get the contract code to
+	// be stored on chain
 	return evm.Interpreter().Run(contract, nil, false)
 }
 
