@@ -85,10 +85,6 @@ func NewRegisterRevenue() *cobra.Command {
 				Nonces:            nonces,
 			}
 
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
@@ -121,10 +117,6 @@ func NewCancelRevenue() *cobra.Command {
 			msg := &types.MsgCancelRevenue{
 				ContractAddress: contract,
 				DeployerAddress: deployer.String(),
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
@@ -165,10 +157,6 @@ func NewUpdateRevenue() *cobra.Command {
 				ContractAddress:   contract,
 				DeployerAddress:   deployer.String(),
 				WithdrawerAddress: withdrawer,
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
-				return err
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
