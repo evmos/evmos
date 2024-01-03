@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/evmos/evmos/v16/precompiles/bech32"
@@ -22,10 +23,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-<<<<<<< HEAD
-=======
 	bk bankkeeper.Keeper,
->>>>>>> e69abb02 (chore(upgrade): enable burning the usage incentives pool in the v16 handler (#2221))
 	inflationKeeper inflationkeeper.Keeper,
 	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -48,19 +46,10 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
-<<<<<<< HEAD
-=======
-		// Migrate the FeeCollector module account to include the Burner permission.
-		// This is required when including the postHandler to burn Cosmos Tx fees
-		if err := MigrateFeeCollector(ak, ctx); err != nil {
-			logger.Error("failed to migrate the fee collector", "error", err.Error())
-		}
-
 		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
 			logger.Error("failed to burn inflation pool", "error", err.Error())
 		}
 
->>>>>>> e69abb02 (chore(upgrade): enable burning the usage incentives pool in the v16 handler (#2221))
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
