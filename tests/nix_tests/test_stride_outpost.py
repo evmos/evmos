@@ -68,12 +68,6 @@ def test_liquid_stake(ibc):
     tx = pc.functions.liquidStake(liquid_stake_params).build_transaction(
         {"from": sender_addr, "gasPrice": evmos_gas_price}
     )
-    tx = pc.functions.liquidStake(
-        sender_addr,
-        WEVMOS_ADDRESS,
-        amt,
-        dst_addr,
-    ).build_transaction({"from": sender_addr, "gasPrice": evmos_gas_price})
     gas_estimation = ibc.chains["evmos"].w3.eth.estimate_gas(tx)
 
     receipt = send_transaction(ibc.chains["evmos"].w3, tx, KEYS["signer2"])
