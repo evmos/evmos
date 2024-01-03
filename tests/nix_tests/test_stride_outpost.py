@@ -61,9 +61,9 @@ def test_liquid_stake(ibc):
         "channelID": "channel-0",
         "sender": sender_addr,
         "receiver": sender_addr,
-        "strideForwarder": dst_addr,
         "token": WEVMOS_ADDRESS,
         "amount": amt,
+        "strideForwarder": dst_addr,
     }
     tx = pc.functions.liquidStake(liquid_stake_params).build_transaction(
         {"from": sender_addr, "gasPrice": evmos_gas_price}
