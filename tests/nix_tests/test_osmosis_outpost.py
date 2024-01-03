@@ -110,6 +110,9 @@ def test_osmosis_swap(ibc):
 
 
 def setup_osmos_chains(ibc):
+    '''
+    Helper function to setup a cross-chain swap contract
+    '''
     # Send Evmos to Osmosis to be able to set up pools
     send_evmos_to_osmos(ibc)
 
@@ -143,7 +146,7 @@ def setup_osmos_chains(ibc):
 
     # ===== Deploy CrosschainSwap V1=====
     cross_swap_contract = WASM_CONTRACTS["CrosschainSwap"]
-    deploy_wasm_contract(
+    xcs_addr = deploy_wasm_contract(
         osmosis_cli,
         osmosis_addr,
         cross_swap_contract,
@@ -160,7 +163,7 @@ def setup_osmos_chains(ibc):
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
 
-    return swap_contract_addr
+    return xcs_addr
 
 
 def send_evmos_to_osmos(ibc):
