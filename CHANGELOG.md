@@ -146,6 +146,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
 - (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
 - (api) [#2198] (https://github.com/evmos/evmos/pull/2198) Remove deprecated `RegisterCoinProposal` from store to avoid breaking the governance proposals query.
+- (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
 
 ### Bug Fixes
 
