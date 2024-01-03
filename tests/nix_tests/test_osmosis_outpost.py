@@ -287,7 +287,9 @@ def register_osmo_token(evmos):
     # query token pairs and get contract address
     pairs = evmos_cli.get_token_pairs()
     assert len(pairs) == 1, "expected exactly one token pair to be registered"
-    assert pairs[0]["denom"] == osmos_ibc_denom, "expected the registered token pair to be the Osmosis IBC coin"
+    assert (
+        pairs[0]["denom"] == osmos_ibc_denom
+    ), "expected the registered token pair to be the Osmosis IBC coin"
     return pairs[0]["erc20_address"]
 
 
