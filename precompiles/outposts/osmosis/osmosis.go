@@ -40,6 +40,7 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
+	wevmosAddress common.Address
 	// IBC
 	timeoutHeight    clienttypes.Height
 	timeoutTimestamp uint64
@@ -55,6 +56,7 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
+	wevmosAddress common.Address,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -75,6 +77,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
+		wevmosAddress:    wevmosAddress,
 		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
 		bankKeeper:       bankKeeper,
