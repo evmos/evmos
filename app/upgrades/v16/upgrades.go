@@ -71,3 +71,27 @@ func CreateUpgradeHandlerRC4(
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }
+
+// CreateUpgradeHandlerRC5 creates an SDK upgrade handler for v16.0.0-rc5
+func CreateUpgradeHandlerRC5(
+	mm *module.Manager,
+	configurator module.Configurator,
+	bk bankkeeper.Keeper,
+	gk govkeeper.Keeper,
+) upgradetypes.UpgradeHandler {
+	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
+		logger := ctx.Logger().With("upgrade", UpgradeName)
+
+		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
+			logger.Error("failed to burn inflation pool", "error", err.Error())
+		}
+
+		// Remove the deprecated governance proposals from store
+		logger.Debug("deleting deprecated incentives module proposals...")
+		DeleteIncentivesProposals(ctx, gk, logger)
+
+		// Leave modules are as-is to avoid running InitGenesis.
+		logger.Debug("running module migrations ...")
+		return mm.RunMigrations(ctx, configurator, vm)
+	}
+}
