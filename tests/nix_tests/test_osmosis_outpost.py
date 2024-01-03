@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from web3 import Web3
 
 from .ibc_utils import (
     EVMOS_IBC_DENOM,
@@ -26,7 +27,6 @@ from .utils import (
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
 )
-from web3 import Web3
 
 # This contract address is provided in genesis
 # as registered token pair. If need to edit this
