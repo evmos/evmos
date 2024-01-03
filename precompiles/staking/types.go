@@ -218,14 +218,14 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorSrcAddress, ok := args[1].(string)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorSrcAddress", "string", args[1])
+	validatorSrcAddress, ok := args[1].(common.Address)
+	if !ok || validatorSrcAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
 	}
 
-	validatorDstAddress, ok := args[2].(string)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorDstAddress", "string", args[2])
+	validatorDstAddress, ok := args[2].(common.Address)
+	if !ok || validatorDstAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[2])
 	}
 
 	amount, ok := args[3].(*big.Int)
@@ -235,8 +235,8 @@ func NewMsgRedelegate(args []interface{}, denom string) (*stakingtypes.MsgBeginR
 
 	msg := &stakingtypes.MsgBeginRedelegate{
 		DelegatorAddress:    sdk.AccAddress(delegatorAddr.Bytes()).String(), // bech32 formatted
-		ValidatorSrcAddress: validatorSrcAddress,
-		ValidatorDstAddress: validatorDstAddress,
+		ValidatorSrcAddress: sdk.ValAddress(validatorSrcAddress.Bytes()).String(),
+		ValidatorDstAddress: sdk.ValAddress(validatorDstAddress.Bytes()).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -262,9 +262,9 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, ok := args[1].(string)
-	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[1])
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
 	}
 
 	amount, ok := args[2].(*big.Int)
@@ -279,7 +279,7 @@ func NewMsgCancelUnbondingDelegation(args []interface{}, denom string) (*staking
 
 	msg := &stakingtypes.MsgCancelUnbondingDelegation{
 		DelegatorAddress: sdk.AccAddress(delegatorAddr.Bytes()).String(), // bech32 formatted
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 		Amount: sdk.Coin{
 			Denom:  denom,
 			Amount: math.NewIntFromBigInt(amount),
@@ -642,8 +642,15 @@ type RedelegationOutput struct {
 
 // FromResponse populates the RedelegationOutput from a QueryRedelegationsResponse.
 func (ro *RedelegationOutput) FromResponse(res stakingtypes.Redelegation) *RedelegationOutput {
-	valSrcAddress, _ := sdk.ValAddressFromBech32(res.ValidatorSrcAddress)
-	valDstAddress, _ := sdk.ValAddressFromBech32(res.ValidatorSrcAddress)
+	valSrcAddress, err := sdk.ValAddressFromBech32(res.ValidatorSrcAddress)
+	if err != nil {
+		return ro
+	}
+
+	valDstAddress, err := sdk.ValAddressFromBech32(res.ValidatorSrcAddress)
+	if err != nil {
+		return ro
+	}
 
 	ro.Redelegation.Entries = make([]RedelegationEntry, len(res.Entries))
 	ro.Redelegation.DelegatorAddress = common.BytesToAddress(sdk.MustAccAddressFromBech32(res.DelegatorAddress).Bytes())

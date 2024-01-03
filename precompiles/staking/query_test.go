@@ -21,7 +21,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func(bz []byte)
 		gas         uint64
 		expErr      bool
@@ -29,7 +29,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(bz []byte) {},
@@ -39,7 +39,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					"invalid",
 					operatorAddress,
@@ -52,7 +52,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 		},
 		{
 			"fail - invalid operator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					s.address,
 					"invalid",
@@ -61,11 +61,11 @@ func (s *PrecompileTestSuite) TestDelegation() {
 			func(bz []byte) {},
 			100000,
 			true,
-			"decoding bech32 failed: invalid bech32 string",
+			"invalid validator addres",
 		},
 		{
 			"success - empty delegation",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				addr, _ := testutiltx.NewAddrKey()
 				return []interface{}{
 					addr,
@@ -84,7 +84,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 		},
 		{
 			"success",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					s.address,
 					operatorAddress,
@@ -107,7 +107,9 @@ func (s *PrecompileTestSuite) TestDelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
-			bz, err := s.precompile.Delegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))
+			operatorAddress, _ := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+
+			bz, err := s.precompile.Delegation(s.ctx, contract, &method, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -126,7 +128,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func(bz []byte)
 		gas         uint64
 		expErr      bool
@@ -134,7 +136,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(bz []byte) {},
@@ -144,7 +146,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					"invalid",
 					operatorAddress,
@@ -157,7 +159,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 		},
 		{
 			"success - no unbonding delegation found",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				addr, _ := testutiltx.NewAddrKey()
 				return []interface{}{
 					addr,
@@ -176,7 +178,7 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 		},
 		{
 			"success",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					s.address,
 					operatorAddress,
@@ -204,7 +206,10 @@ func (s *PrecompileTestSuite) TestUnbondingDelegation() {
 			_, err := s.app.StakingKeeper.Undelegate(s.ctx, s.address.Bytes(), s.validators[0].GetOperator(), math.LegacyNewDec(1))
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(s.validators[0].OperatorAddress))
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
+			bz, err := s.precompile.UnbondingDelegation(s.ctx, contract, &method, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -254,7 +259,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
 				s.Require().NoError(err)
 
-				s.Require().Equal(common.HexToAddress(valOut.Validator.OperatorAddress), common.BytesToAddress(operatorAddress.Bytes()))
+				s.Require().Equal(valOut.Validator.OperatorAddress, common.BytesToAddress(operatorAddress.Bytes()))
 			},
 			100000,
 			false,
@@ -417,7 +422,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(srcOperatorAddr, destOperatorAddr string) []interface{}
+		malleate    func(srcOperatorAddr, destOperatorAddr common.Address) []interface{}
 		postCheck   func(bz []byte)
 		gas         uint64
 		expErr      bool
@@ -425,7 +430,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 	}{
 		{
 			"fail - empty input args",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, destOperatorAddr common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(bz []byte) {},
@@ -435,7 +440,7 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, destOperatorAddr common.Address) []interface{} {
 				return []interface{}{
 					"invalid",
 					srcOperatorAddr,
@@ -449,35 +454,35 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 		},
 		{
 			"fail - empty src validator addr",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, destOperatorAddr common.Address) []interface{} {
 				return []interface{}{
 					s.address,
-					"",
+					common.Address{},
 					destOperatorAddr,
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			"empty address string is not allowed",
+			fmt.Sprintf(cmn.ErrInvalidValidator, common.Address{}),
 		},
 		{
 			"fail - empty destination addr",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, destOperatorAddr common.Address) []interface{} {
 				return []interface{}{
 					s.address,
 					srcOperatorAddr,
-					"",
+					common.Address{},
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			"empty address string is not allowed",
+			fmt.Sprintf(cmn.ErrInvalidValidator, common.Address{}),
 		},
 		{
 			"success",
-			func(srcOperatorAddr, destOperatorAddr string) []interface{} {
+			func(srcOperatorAddr, destOperatorAddr common.Address) []interface{} {
 				return []interface{}{
 					s.address,
 					srcOperatorAddr,
@@ -498,12 +503,12 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 		},
 		{
 			name: "success - no redelegation found",
-			malleate: func(srcOperatorAddr, _ string) []interface{} {
+			malleate: func(srcOperatorAddr, _ common.Address) []interface{} {
 				nonExistentOperator := sdk.ValAddress([]byte("non-existent-operator"))
 				return []interface{}{
 					s.address,
 					srcOperatorAddr,
-					nonExistentOperator.String(),
+					common.BytesToAddress(nonExistentOperator),
 				}
 			},
 			postCheck: func(data []byte) {
@@ -521,20 +526,28 @@ func (s *PrecompileTestSuite) TestRedelegation() {
 			s.SetupTest() // reset
 			contract := vm.NewContract(vm.AccountRef(s.address), s.precompile, big.NewInt(0), tc.gas)
 
+			operatorAddr0, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+			operatorAddress0 := common.BytesToAddress(operatorAddr0.Bytes())
+
+			operatorAddr1, err := sdk.ValAddressFromBech32(s.validators[1].OperatorAddress)
+			s.Require().NoError(err)
+			operatorAddress1 := common.BytesToAddress(operatorAddr1.Bytes())
+
 			delegationArgs := []interface{}{
 				s.address,
-				s.validators[0].OperatorAddress,
-				s.validators[1].OperatorAddress,
+				operatorAddress0,
+				operatorAddress1,
 				big.NewInt(1e18),
 			}
 
-			err := s.CreateAuthorization(s.address, staking.RedelegateAuthz, nil)
+			err = s.CreateAuthorization(s.address, staking.RedelegateAuthz, nil)
 			s.Require().NoError(err)
 
 			_, err = s.precompile.Redelegate(s.ctx, s.address, contract, s.stateDB, &redelegateMethod, delegationArgs)
 			s.Require().NoError(err)
 
-			bz, err := s.precompile.Redelegation(s.ctx, &method, contract, tc.malleate(s.validators[0].OperatorAddress, s.validators[1].OperatorAddress))
+			bz, err := s.precompile.Redelegation(s.ctx, &method, contract, tc.malleate(operatorAddress0, operatorAddress1))
 
 			if tc.expErr {
 				s.Require().Error(err)
@@ -576,10 +589,18 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 		{
 			"fail - invalid delegator address",
 			func() []interface{} {
+				operatorAddr0, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress0 := common.BytesToAddress(operatorAddr0.Bytes())
+
+				operatorAddr1, err := sdk.ValAddressFromBech32(s.validators[1].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress1 := common.BytesToAddress(operatorAddr1.Bytes())
+
 				return []interface{}{
 					common.BytesToAddress([]byte("invalid")),
-					s.validators[0].OperatorAddress,
-					s.validators[1].OperatorAddress,
+					operatorAddress0,
+					operatorAddress1,
 					query.PageRequest{},
 				}
 			},
@@ -593,8 +614,8 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			func() []interface{} {
 				return []interface{}{
 					common.Address{},
-					"",
-					"",
+					common.Address{},
+					common.Address{},
 					query.PageRequest{},
 				}
 			},
@@ -606,10 +627,14 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 		{
 			"fail - invalid query | only destination validator address",
 			func() []interface{} {
+				operatorAddr1, err := sdk.ValAddressFromBech32(s.validators[1].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress1 := common.BytesToAddress(operatorAddr1.Bytes())
+
 				return []interface{}{
 					common.Address{},
-					"",
-					s.validators[1].OperatorAddress,
+					common.Address{},
+					operatorAddress1,
 					query.PageRequest{},
 				}
 			},
@@ -621,10 +646,18 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 		{
 			"success - specified delegator, source & destination",
 			func() []interface{} {
+				operatorAddr0, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress0 := common.BytesToAddress(operatorAddr0.Bytes())
+
+				operatorAddr1, err := sdk.ValAddressFromBech32(s.validators[1].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress1 := common.BytesToAddress(operatorAddr1.Bytes())
+
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
-					s.validators[1].OperatorAddress,
+					operatorAddress0,
+					operatorAddress1,
 					query.PageRequest{},
 				}
 			},
@@ -638,10 +671,14 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 		{
 			"success - specifying only source w/pagination",
 			func() []interface{} {
+				operatorAddr0, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress0 := common.BytesToAddress(operatorAddr0.Bytes())
+
 				return []interface{}{
 					common.Address{},
-					s.validators[0].OperatorAddress,
-					"",
+					operatorAddress0,
+					common.Address{},
 					query.PageRequest{
 						Limit:      1,
 						CountTotal: true,
@@ -660,8 +697,8 @@ func (s *PrecompileTestSuite) TestRedelegations() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					"",
-					"",
+					common.Address{},
+					common.Address{},
 					query.PageRequest{
 						Limit:      1,
 						CountTotal: true,

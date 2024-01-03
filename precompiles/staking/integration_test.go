@@ -429,7 +429,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		Context("as the token owner", func() {
 			It("should delegate without need for authorization", func() {
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, common.BytesToAddress(valAddr.Bytes()), big.NewInt(2e18),
 				)
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)

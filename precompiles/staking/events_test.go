@@ -315,9 +315,14 @@ func (s *PrecompileTestSuite) TestDelegateEvent() {
 		{
 			"success - the correct event is emitted",
 			func() []interface{} {
+				operatorAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				operatorAddress := common.BytesToAddress(operatorAddr.Bytes())
+
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					operatorAddress,
 					delegationAmt,
 				}
 			},
@@ -446,10 +451,18 @@ func (s *PrecompileTestSuite) TestRedelegateEvent() {
 		{
 			"success - the correct event is emitted",
 			func() []interface{} {
+				operatorAddr0, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress0 := common.BytesToAddress(operatorAddr0.Bytes())
+
+				operatorAddr1, err := sdk.ValAddressFromBech32(s.validators[1].OperatorAddress)
+				s.Require().NoError(err)
+				operatorAddress1 := common.BytesToAddress(operatorAddr1.Bytes())
+
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
-					s.validators[1].OperatorAddress,
+					operatorAddress0,
+					operatorAddress1,
 					big.NewInt(1000000000000000000),
 				}
 			},
@@ -518,9 +531,15 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 			func(contract *vm.Contract) []interface{} {
 				err := s.CreateAuthorization(s.address, staking.UndelegateAuthz, nil)
 				s.Require().NoError(err)
+
+				operatorAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				operatorAddress := common.BytesToAddress(operatorAddr.Bytes())
+
 				undelegateArgs := []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					operatorAddress,
 					big.NewInt(1000000000000000000),
 				}
 				_, err = s.precompile.Undelegate(s.ctx, s.address, contract, s.stateDB, &methodUndelegate, undelegateArgs)
@@ -528,7 +547,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					operatorAddress,
 					big.NewInt(1000000000000000000),
 					big.NewInt(2),
 				}
@@ -538,21 +557,22 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegationEvent() {
 			func() {
 				log := s.stateDB.Logs()[1]
 
+				operatorAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				operatorAddress := common.BytesToAddress(operatorAddr.Bytes())
+
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[staking.EventTypeCancelUnbondingDelegation]
 				s.Require().Equal(crypto.Keccak256Hash([]byte(event.Sig)), common.HexToHash(log.Topics[0].Hex()))
 				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
-
-				optAddr, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
-				s.Require().NoError(err)
-				optHexAddr := common.BytesToAddress(optAddr)
 
 				// Check event fields match the ones emitted
 				var cancelUnbondEvent staking.EventCancelUnbonding
 				err = cmn.UnpackLog(s.precompile.ABI, &cancelUnbondEvent, staking.EventTypeCancelUnbondingDelegation, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, cancelUnbondEvent.DelegatorAddress)
-				s.Require().Equal(optHexAddr, cancelUnbondEvent.ValidatorAddress)
+				s.Require().Equal(operatorAddress, cancelUnbondEvent.ValidatorAddress)
 				s.Require().Equal(big.NewInt(1000000000000000000), cancelUnbondEvent.Amount)
 				s.Require().Equal(big.NewInt(2), cancelUnbondEvent.CreationHeight)
 			},
