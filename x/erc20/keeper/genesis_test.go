@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			tc.malleate()
 		}
 		err := suite.app.Erc20Keeper.SetGenesisTokenPairs(suite.ctx, tc.pairs)
-		
+
 		if !tc.expFail {
 			suite.Require().NoError(err)
 			tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)

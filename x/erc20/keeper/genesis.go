@@ -28,7 +28,7 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 	}
 	// We need to store the ERC20 contracts in the provided addresses at genesis.
 	// To do so, we'll need to seed the stateDB with those contracts.
-	// We cannot use EVM keeper functions for this beacuse that will create a contract address
+	// We cannot use EVM keeper functions for this because that will create a contract address
 	// dependent on the sender nonce.
 	stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
 	for _, pair := range pairs {
