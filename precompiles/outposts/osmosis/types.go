@@ -305,15 +305,15 @@ func ValidateOsmosisContractAddress(contractAddress string) (err error) {
 // SwapPacketData is a utility structure used to wrap args received by the
 // Solidity interface of the Swap function.
 type SwapPacketData struct {
-	ChannelID          string         `abi:"channelID"`
-	XcsContract        string         `abi:"xcsContract"`
-	Sender             common.Address `abi:"sender"`
-	Input              common.Address `abi:"input"`
-	Output             common.Address `abi:"output"`
-	Amount             *big.Int       `abi:"amount"`
-	SlippagePercentage uint8          `abi:"slippagePercentage"`
-	WindowSeconds      uint64         `abi:"windowSeconds"`
-	SwapReceiver       string         `abi:"swapReceiver"`
+	ChannelID          string         `abi:"channelID"`          // the channel ID for the ICS20 transfer
+	XcsContract        string         `abi:"xcsContract"`        // the address of the Osmosis CosmWasm contract
+	Sender             common.Address `abi:"sender"`             // the sender of the swap transaction
+	Input              common.Address `abi:"input"`              // the input token to be swapped
+	Output             common.Address `abi:"output"`             // the output token to be swapped
+	Amount             *big.Int       `abi:"amount"`             // the amount to be swapped
+	SlippagePercentage uint8          `abi:"slippagePercentage"` // the slippage percentage for the swap
+	WindowSeconds      uint64         `abi:"windowSeconds"`      // the window seconds for the swap
+	SwapReceiver       string         `abi:"swapReceiver"`       // the receiver of the swapped amount
 }
 
 // SwapPayload is the same as the expected input of the Swap function in the Solidity interface.

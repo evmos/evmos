@@ -150,6 +150,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) backport handle cases for input and output denoms without token pair lookup
 - (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
+- (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 
 ### Bug Fixes
 

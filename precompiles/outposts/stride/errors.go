@@ -15,4 +15,6 @@ const (
 	ErrEmptyReceiver = "receiver cannot be empty"
 	// ErrEmptyAutopilotAction is the error returned when the autopilot action is empty
 	ErrEmptyAutopilotAction = "autopilot action cannot be empty"
+	// ErrZeroOrNegativeAmount is the error returned when the amount is zero or negative
+	ErrZeroOrNegativeAmount = "amount must be greater than zero"
 )
