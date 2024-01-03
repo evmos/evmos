@@ -113,33 +113,45 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "receiver",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "channelID",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "strideForwarder",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct AutopilotParams",
+        "name": "payload",
+        "type": "tuple"
       }
     ],
     "name": "liquidStake",
     "outputs": [
-      {
-        "internalType": "uint64",
-        "name": "nextSequence",
-        "type": "uint64"
-      },
       {
         "internalType": "bool",
         "name": "success",
@@ -152,38 +164,45 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "receiver",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "strideForwarder",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "channelID",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "strideForwarder",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct AutopilotParams",
+        "name": "payload",
+        "type": "tuple"
       }
     ],
     "name": "redeemStake",
     "outputs": [
-      {
-        "internalType": "uint64",
-        "name": "nextSequence",
-        "type": "uint64"
-      },
       {
         "internalType": "bool",
         "name": "success",
