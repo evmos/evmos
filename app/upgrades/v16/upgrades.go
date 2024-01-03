@@ -22,6 +22,10 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
+<<<<<<< HEAD
+=======
+	bk bankkeeper.Keeper,
+>>>>>>> e69abb02 (chore(upgrade): enable burning the usage incentives pool in the v16 handler (#2221))
 	inflationKeeper inflationkeeper.Keeper,
 	gk govkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
@@ -44,6 +48,19 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
+<<<<<<< HEAD
+=======
+		// Migrate the FeeCollector module account to include the Burner permission.
+		// This is required when including the postHandler to burn Cosmos Tx fees
+		if err := MigrateFeeCollector(ak, ctx); err != nil {
+			logger.Error("failed to migrate the fee collector", "error", err.Error())
+		}
+
+		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
+			logger.Error("failed to burn inflation pool", "error", err.Error())
+		}
+
+>>>>>>> e69abb02 (chore(upgrade): enable burning the usage incentives pool in the v16 handler (#2221))
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())
 		}
