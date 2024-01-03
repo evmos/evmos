@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/evmos/evmos/v16/utils"
+
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -22,6 +24,7 @@ import (
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
@@ -36,6 +39,7 @@ import (
 // AvailablePrecompiles returns the list of all available precompiled contracts.
 // NOTE: this should only be used during initialization of the Keeper.
 func AvailablePrecompiles(
+	chainID string,
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
@@ -81,7 +85,15 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
+	var WEVMOSAddress common.Address
+	if utils.IsMainnet(chainID) {
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
+	} else {
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
+	}
+
 	strideOutpost, err := strideoutpost.NewPrecompile(
+		WEVMOSAddress,
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
@@ -92,6 +104,7 @@ func AvailablePrecompiles(
 	}
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
+		WEVMOSAddress,
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

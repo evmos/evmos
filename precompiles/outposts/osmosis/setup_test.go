@@ -6,6 +6,9 @@ package osmosis_test
 import (
 	"testing"
 
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -40,6 +43,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := osmosis.NewPrecompile(
+		common.HexToAddress(erc20.WEVMOSContractTestnet),
 		unitNetwork.App.AuthzKeeper,
 		unitNetwork.App.BankKeeper,
 		unitNetwork.App.TransferKeeper,

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/evmos/v16/precompiles/erc20"
+
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/evmos/v16/utils"
 
@@ -27,7 +29,6 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -62,7 +63,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			},
 			200000,
 			true,
-			"token pair not found",
+			"unsupported token",
 		},
 		{
 			"fail - unsupported token",
@@ -80,7 +81,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 			},
 			200000,
 			true,
-			"The only supported token contract for Stride Outpost v1 is 0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd",
+			"unsupported token",
 		},
 		{
 			"fail - invalid strideForwarder address (not a stride address)",
@@ -126,7 +127,7 @@ func (s *PrecompileTestSuite) TestLiquidStake() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Token:           common.HexToAddress(erc20.WEVMOSContractTestnet),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 					},
@@ -167,7 +168,6 @@ func (s *PrecompileTestSuite) TestRedeem() {
 	tokenPair, ok := s.network.App.Erc20Keeper.GetTokenPair(s.network.GetContext(), denomID)
 	s.Require().True(ok, "expected token pair to be found")
 
-	//nolint:dupl //test case
 	testCases := []struct {
 		name        string
 		malleate    func() []interface{}
@@ -223,7 +223,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 			"The only supported token contract for Stride Outpost v1 is 0xd567B3d7B8FE3C79a1AD8dA978812cfC4Fa05e75",
 		},
 		{
-			"fail - invalid stride forwarder address (not a stride address)",
+			"fail - invalid receiver address (not a stride address)",
 			func() []interface{} {
 				return []interface{}{
 					stride.AutopilotArgs{
@@ -266,7 +266,7 @@ func (s *PrecompileTestSuite) TestRedeem() {
 						ChannelID:       channelID,
 						Sender:          s.keyring.GetAddr(0),
 						Receiver:        s.keyring.GetAddr(0),
-						Token:           common.HexToAddress(tokenPair.Erc20Address),
+						Token:           common.HexToAddress(tokenPair.GetErc20Address()),
 						Amount:          big.NewInt(1e18),
 						StrideForwarder: "stride1rhe5leyt5w0mcwd9rpp93zqn99yktsxvyaqgd0",
 					},
