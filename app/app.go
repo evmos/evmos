@@ -1282,6 +1282,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v16.CreateUpgradeHandlerRC4(app.mm, app.configurator, app.AccountKeeper),
 	)
 
+	// v16-rc5 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v16.UpgradeNameTestnetRC5,
+		v16.CreateUpgradeHandlerRC5(app.mm, app.configurator, app.BankKeeper, app.GovKeeper),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
