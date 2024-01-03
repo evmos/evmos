@@ -5,6 +5,8 @@ package keeper
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -235,8 +237,13 @@ func getContractDataBz(coinMetadata banktypes.Metadata) ([]byte, error) {
 	decimals := uint8(0)
 	if len(coinMetadata.DenomUnits) > 0 {
 		decimalsIdx := len(coinMetadata.DenomUnits) - 1
-		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
+		exp := coinMetadata.DenomUnits[decimalsIdx].Exponent
+		if exp > math.MaxUint8 {
+			return nil, fmt.Errorf("coin metadata is invalid. Denom unit exponent should be less or equal than %d, got %d", math.MaxUint8, exp)
+		}
+		decimals = uint8(exp)
 	}
+
 	// Get the input values for the ERC20 contract constructor method
 	constructorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
 		"",
