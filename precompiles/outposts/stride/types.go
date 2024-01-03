@@ -59,12 +59,12 @@ type RawPacketMetadata struct {
 
 // AutopilotArgs is the arguments struct for the LiquidStake and RedeemStake methods
 type AutopilotArgs struct {
-	ChannelID       string         `abi:"channelID"`
-	Sender          common.Address `abi:"sender"`
-	Receiver        common.Address `abi:"receiver"`
-	Token           common.Address `abi:"token"`
-	Amount          *big.Int       `abi:"amount"`
-	StrideForwarder string         `abi:"strideForwarder"`
+	ChannelID       string         `abi:"channelID"`       // the channel ID for the ICS20 transfer
+	Sender          common.Address `abi:"sender"`          // the sender of the liquid stake or redeem transaction
+	Receiver        common.Address `abi:"receiver"`        // the receiver of the LSD token or the redeemed token
+	Token           common.Address `abi:"token"`           // the token to be liquid staked or redeemed
+	Amount          *big.Int       `abi:"amount"`          // the amount to be liquid staked or redeemed
+	StrideForwarder string         `abi:"strideForwarder"` // the stride forwarder address
 }
 
 // AutopilotPayload is the payload struct for the LiquidStake and RedeemStake method
@@ -96,6 +96,11 @@ func (a AutopilotArgs) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid stride bech32 address: %s", err)
 	}
+
+	if a.Amount.Sign() <= 0 {
+		return fmt.Errorf(ErrZeroOrNegativeAmount)
+	}
+
 	return nil
 }
 
