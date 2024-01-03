@@ -205,7 +205,7 @@ var (
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
-				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
@@ -538,6 +538,7 @@ func NewEvmos(
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
 			app.RevenueKeeper.Hooks(),
 		),
 	)
