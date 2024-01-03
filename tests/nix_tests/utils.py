@@ -5,7 +5,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
