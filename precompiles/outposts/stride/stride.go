@@ -31,8 +31,6 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	wevmosAddress  common.Address
-	portID         string
-	channelID      string
 	timeoutHeight  clienttypes.Height
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -43,7 +41,6 @@ type Precompile struct {
 // PrecompiledContract interface.
 func NewPrecompile(
 	wevmosAddress common.Address,
-	portID, channelID string,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -63,8 +60,6 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		wevmosAddress:  wevmosAddress,
-		portID:         portID,
-		channelID:      channelID,
 		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
