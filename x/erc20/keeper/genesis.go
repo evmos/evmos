@@ -18,6 +18,10 @@ import (
 )
 
 // SetGenesisTokenPairs stores in state the provided token pairs in genesis
+// A genesis token pair is a token pair that will be registered from genesis.
+// A current use case of this is e2e tests, 
+// where we may need to register a token pair to make it work.
+// Currently, there's no other way to do this because the RegisterCoinProposal was deprecated.
 func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) error {
 	if len(pairs) == 0 {
 		return nil
