@@ -36,8 +36,6 @@ func (s *PrecompileTestSuite) SetupTest() {
 	)
 
 	precompile, err := stride.NewPrecompile(
-		portID,
-		channelID,
 		network.App.TransferKeeper,
 		network.App.Erc20Keeper,
 		network.App.AuthzKeeper,

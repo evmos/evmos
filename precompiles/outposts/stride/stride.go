@@ -30,8 +30,6 @@ var f embed.FS
 
 type Precompile struct {
 	cmn.Precompile
-	portID         string
-	channelID      string
 	timeoutHeight  clienttypes.Height
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
@@ -41,7 +39,6 @@ type Precompile struct {
 // NewPrecompile creates a new Stride outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	portID, channelID string,
 	transferKeeper transferkeeper.Keeper,
 	erc20Keeper erc20keeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
@@ -60,8 +57,6 @@ func NewPrecompile(
 			TransientKVGasConfig: storetypes.TransientGasConfig(),
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
-		portID:         portID,
-		channelID:      channelID,
 		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,

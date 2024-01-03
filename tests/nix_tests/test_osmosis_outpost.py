@@ -37,9 +37,7 @@ def ibc(request, tmp_path_factory):
     evmos_build = request.param
     path = tmp_path_factory.mktemp(name)
     # Setup the IBC connections
-    network = prepare_network(
-        path, name, [evmos_build, "osmosis"], custom_scenario=name
-    )
+    network = prepare_network(path, name, [evmos_build, "osmosis"])
     yield from network
 
 
@@ -57,7 +55,7 @@ def test_osmosis_swap(ibc):
     # 100aevmos is 98uosmo
     exp_swap_amount = 98
 
-    setup_osmos_chains(ibc)
+    xcs_contract = setup_osmos_chains(ibc)
 
     # --------- Register Evmos token (this could be wrapevmos I think)
     wevmos_addr = wrap_evmos(ibc.chains["evmos"], evmos_addr, amt)
@@ -77,16 +75,18 @@ def test_osmosis_swap(ibc):
     w3 = evmos.w3
     pc = get_precompile_contract(w3, "IOsmosisOutpost")
     evmos_gas_price = w3.eth.gas_price
-
-    tx = pc.functions.swap(
-        evmos_addr,
-        wevmos_addr,
-        osmo_erc20_addr,
-        amt,
-        testSlippagePercentage,
-        testWindowSeconds,
-        eth_to_bech32(evmos_addr),
-    ).build_transaction(
+    swap_params = {
+        "channelID": "channel-0",
+        "xcsContract": xcs_contract,
+        "sender": evmos_addr,
+        "input": wevmos_addr,
+        "output": osmo_erc20_addr,
+        "amount": amt,
+        "slippagePercentage": testSlippagePercentage,
+        "windowSeconds": testWindowSeconds,
+        "swapReceiver": eth_to_bech32(evmos_addr),
+    }
+    tx = pc.functions.swap(swap_params).build_transaction(
         {"from": evmos_addr, "gasPrice": evmos_gas_price, "gas": 30000000}
     )
     gas_estimation = evmos.w3.eth.estimate_gas(tx)
@@ -162,6 +162,8 @@ def setup_osmos_chains(ibc):
     set_swap_route(
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
+
+    return swap_contract_addr
 
 
 def send_evmos_to_osmos(ibc):
