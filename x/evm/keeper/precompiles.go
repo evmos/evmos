@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/evmos/evmos/v16/utils"
+
 	"github.com/evmos/evmos/v16/precompiles/bech32"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,28 +21,19 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	bankprecompile "github.com/evmos/evmos/v16/precompiles/bank"
 	distprecompile "github.com/evmos/evmos/v16/precompiles/distribution"
+	erc20precompile "github.com/evmos/evmos/v16/precompiles/erc20"
 	ics20precompile "github.com/evmos/evmos/v16/precompiles/ics20"
 	osmosisoutpost "github.com/evmos/evmos/v16/precompiles/outposts/osmosis"
 	strideoutpost "github.com/evmos/evmos/v16/precompiles/outposts/stride"
 	"github.com/evmos/evmos/v16/precompiles/p256"
 	stakingprecompile "github.com/evmos/evmos/v16/precompiles/staking"
 	vestingprecompile "github.com/evmos/evmos/v16/precompiles/vesting"
-	"github.com/evmos/evmos/v16/utils"
 	erc20Keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
-	evmostransfertypes "github.com/evmos/evmos/v16/x/ibc/transfer/types"
 	vestingkeeper "github.com/evmos/evmos/v16/x/vesting/keeper"
-)
-
-const (
-	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
-	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
-	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )
 
 // AvailablePrecompiles returns the list of all available precompiled contracts.
@@ -92,24 +85,15 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
 	}
 
-	var strideChannelID, osmosisChannelID, xcsv1Contract string
 	var WEVMOSAddress common.Address
 	if utils.IsMainnet(chainID) {
-		WEVMOSAddress = common.HexToAddress(WEVMOSContractMainnet)
-		osmosisChannelID = evmostransfertypes.OsmosisMainnetChannelID
-		strideChannelID = evmostransfertypes.StrideMainnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractMainnet
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractMainnet)
 	} else {
-		WEVMOSAddress = common.HexToAddress(WEVMOSContractTestnet)
-		osmosisChannelID = evmostransfertypes.OsmosisTestnetChannelID
-		strideChannelID = evmostransfertypes.StrideTestnetChannelID
-		xcsv1Contract = osmosisoutpost.XCSContractTestnet
+		WEVMOSAddress = common.HexToAddress(erc20precompile.WEVMOSContractTestnet)
 	}
 
 	strideOutpost, err := strideoutpost.NewPrecompile(
 		WEVMOSAddress,
-		transfertypes.PortID,
-		strideChannelID,
 		transferKeeper,
 		erc20Keeper,
 		authzKeeper,
@@ -121,9 +105,6 @@ func AvailablePrecompiles(
 
 	osmosisOutpost, err := osmosisoutpost.NewPrecompile(
 		WEVMOSAddress,
-		transfertypes.PortID,
-		osmosisChannelID,
-		xcsv1Contract,
 		authzKeeper,
 		bankKeeper,
 		transferKeeper,

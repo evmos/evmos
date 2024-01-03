@@ -63,7 +63,6 @@ import (
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/consensus"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -125,18 +124,7 @@ import (
 	"github.com/evmos/evmos/v16/app/ante"
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/app/post"
-	v10 "github.com/evmos/evmos/v16/app/upgrades/v10"
-	v11 "github.com/evmos/evmos/v16/app/upgrades/v11"
-	v12 "github.com/evmos/evmos/v16/app/upgrades/v12"
-	v13 "github.com/evmos/evmos/v16/app/upgrades/v13"
-	v14 "github.com/evmos/evmos/v16/app/upgrades/v14"
-	v15 "github.com/evmos/evmos/v16/app/upgrades/v15"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
-	v8 "github.com/evmos/evmos/v16/app/upgrades/v8"
-	v81 "github.com/evmos/evmos/v16/app/upgrades/v8_1"
-	v82 "github.com/evmos/evmos/v16/app/upgrades/v8_2"
-	v9 "github.com/evmos/evmos/v16/app/upgrades/v9"
-	v91 "github.com/evmos/evmos/v16/app/upgrades/v9_1"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	"github.com/evmos/evmos/v16/precompiles/common"
@@ -217,7 +205,7 @@ var (
 				paramsclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 				ibcclientclient.UpdateClientProposalHandler, ibcclientclient.UpgradeProposalHandler,
 				// Evmos proposal types
-				erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+				erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
 				vestingclient.RegisterClawbackProposalHandler,
 			},
 		),
@@ -550,7 +538,6 @@ func NewEvmos(
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(
 		evmkeeper.NewMultiEvmHooks(
-			app.Erc20Keeper.Hooks(),
 			app.RevenueKeeper.Hooks(),
 		),
 	)
@@ -892,8 +879,6 @@ func (app *Evmos) setPostHandler() {
 // of the new block for every registered module. If there is a registered fork at the current height,
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	// Perform any scheduled forks before executing the modules logic
-	app.ScheduleForkUpgrade(ctx)
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -1144,114 +1129,6 @@ func initParamsKeeper(
 }
 
 func (app *Evmos) setupUpgradeHandlers() {
-	// v8 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v8.UpgradeName,
-		v8.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v8.1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v81.UpgradeName,
-		v81.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v8.2 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v82.UpgradeName,
-		v82.CreateUpgradeHandler(
-			app.mm, app.configurator,
-		),
-	)
-
-	// v9 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v9.UpgradeName,
-		v9.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v9.1 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v91.UpgradeName,
-		v91.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v10 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v10.UpgradeName,
-		v10.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.StakingKeeper,
-		),
-	)
-
-	// v11 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v11.UpgradeName,
-		v11.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.DistrKeeper,
-		),
-	)
-
-	// v12 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v12.UpgradeName,
-		v12.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.DistrKeeper,
-		),
-	)
-
-	// v13 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v13.UpgradeName,
-		v13.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			*app.EvmKeeper,
-		),
-	)
-
-	// !! ATTENTION !!
-	// v14 upgrade handler
-	// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
-	// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md#xconsensus
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v14.UpgradeName,
-		v14.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.EvmKeeper,
-			app.ConsensusParamsKeeper,
-			app.IBCKeeper.ClientKeeper,
-			app.ParamsKeeper,
-			app.appCodec,
-		),
-	)
-
-	// v15 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v15.UpgradeName,
-		v15.CreateUpgradeHandler(
-			app.mm, app.configurator,
-			app.BankKeeper,
-			app.EvmKeeper,
-			app.StakingKeeper,
-		),
-	)
-
 	// v16 upgrade handler
 	app.UpgradeKeeper.SetUpgradeHandler(
 		v16.UpgradeName,
@@ -1261,24 +1138,6 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.InflationKeeper,
 			app.GovKeeper,
 		),
-	)
-
-	// v16-rc2 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC2,
-		v16.CreateUpgradeHandlerRC2(app.mm, app.configurator),
-	)
-
-	// v16-rc3 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC3,
-		v16.CreateUpgradeHandlerRC3(app.mm, app.configurator),
-	)
-
-	// v16-rc4 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC4,
-		v16.CreateUpgradeHandlerRC4(app.mm, app.configurator, app.AccountKeeper),
 	)
 
 	// When a planned update height is reached, the old binary will panic
@@ -1296,55 +1155,13 @@ func (app *Evmos) setupUpgradeHandlers() {
 	var storeUpgrades *storetypes.StoreUpgrades
 
 	switch upgradeInfo.Name {
-	case v8.UpgradeName:
-		// add revenue module for testnet (v7 -> v8)
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{"feesplit"},
-		}
-	case v81.UpgradeName:
-		// NOTE: store upgrade for mainnet was not registered and was replaced by
-		// the v8.2 upgrade.
-	case v82.UpgradeName:
-		// add  missing revenue module for mainnet (v8.1 -> v8.2)
-		// IMPORTANT: this upgrade CANNOT be executed for testnet!
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added:   []string{revenuetypes.ModuleName},
-			Deleted: []string{"feesplit"},
-		}
-	case v9.UpgradeName, v91.UpgradeName:
-		// no store upgrade in v9 or v9.1
-	case v10.UpgradeName:
-		// no store upgrades in v10
-	case v11.UpgradeName:
-		// add ica host submodule in v11
-		// initialize recovery store
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{icahosttypes.SubModuleName, "recoveryv1"},
-		}
-	case v12.UpgradeName:
-		// no store upgrades
-	case v13.UpgradeName:
-		// no store upgrades
-	case v14.UpgradeName:
-		// !! ATTENTION !!
-		// !! WHEN UPGRADING TO SDK v0.47 MAKE SURE TO INCLUDE THIS
-		// source: https://github.com/cosmos/cosmos-sdk/blob/release/v0.47.x/UPGRADING.md
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Added: []string{
-				consensusparamtypes.StoreKey,
-				crisistypes.ModuleName,
-			},
-		}
-	case v15.UpgradeName:
-		// crisis module is deprecated in v15
-		storeUpgrades = &storetypes.StoreUpgrades{
-			Deleted: []string{crisistypes.ModuleName},
-		}
 	case v16.UpgradeName:
 		// recovery and incentives modules are deprecated in v16
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
+	default:
+		// no-op
 	}
 
 	if storeUpgrades != nil {
