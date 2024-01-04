@@ -474,7 +474,10 @@ type UnbondingDelegationOutput struct {
 
 // FromResponse populates the DelegationOutput from a QueryDelegationResponse.
 func (do *UnbondingDelegationOutput) FromResponse(res *stakingtypes.QueryUnbondingDelegationResponse) *UnbondingDelegationOutput {
-	valAddress, _ := sdk.ValAddressFromBech32(res.Unbond.ValidatorAddress)
+	valAddress, err := sdk.ValAddressFromBech32(res.Unbond.ValidatorAddress)
+	if err != nil {
+		valAddress = common.Address{}.Bytes()
+	}
 
 	do.UnbondingDelegation.Entries = make([]UnbondingDelegationEntry, len(res.Unbond.Entries))
 	do.UnbondingDelegation.ValidatorAddress = common.BytesToAddress(valAddress.Bytes())
@@ -750,8 +753,16 @@ func (ro *RedelegationsOutput) FromResponse(res *stakingtypes.QueryRedelegations
 			}
 		}
 
-		valSrcAddress, _ := sdk.ValAddressFromBech32(resp.Redelegation.ValidatorSrcAddress)
-		valDstAddress, _ := sdk.ValAddressFromBech32(resp.Redelegation.ValidatorDstAddress)
+		valSrcAddress, err := sdk.ValAddressFromBech32(resp.Redelegation.ValidatorSrcAddress)
+		if err != nil {
+			valSrcAddress = common.Address{}.Bytes()
+		}
+
+		valDstAddress, err := sdk.ValAddressFromBech32(resp.Redelegation.ValidatorDstAddress)
+		if err != nil {
+			valDstAddress = common.Address{}.Bytes()
+		}
+
 		ro.Response[i] = RedelegationResponse{
 			Entries: entries,
 			Redelegation: Redelegation{
