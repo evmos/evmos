@@ -12,7 +12,6 @@ import (
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/contracts"
 	"github.com/evmos/evmos/v16/precompiles/staking"
@@ -366,7 +365,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			senderKey := s.keyring.GetKey(1)
 			contractAddress := common.HexToAddress(staking.PrecompileAddress)
 			validatorAddress := s.network.GetValidators()[1].OperatorAddress
-			validatorAddr, err := sdk.ValAddressFromBech32(validatorAddress)
+			validatorAddr, err := sdktypes.ValAddressFromBech32(validatorAddress)
 			Expect(err).To(BeNil())
 			validatorHexAddr := common.BytesToAddress(validatorAddr.Bytes())
 			contractABI, err := staking.LoadABI()

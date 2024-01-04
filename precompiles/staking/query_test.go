@@ -61,7 +61,7 @@ func (s *PrecompileTestSuite) TestDelegation() {
 			func(bz []byte) {},
 			100000,
 			true,
-			"invalid validator addres",
+			"invalid validator address",
 		},
 		{
 			"success - empty delegation",
