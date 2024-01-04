@@ -402,7 +402,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			queryDelegationArgs := factory.CallArgs{
 				ContractABI: contractABI,
 				MethodName:  staking.DelegationMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress},
+				Args:        []interface{}{senderKey.Addr, validatorHexAddr},
 			}
 			queryDelegationResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, queryDelegationArgs)
 			Expect(err).To(BeNil())

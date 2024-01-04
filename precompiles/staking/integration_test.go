@@ -2774,14 +2774,12 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 	Describe("when batching multiple transactions", func() {
 		// validator is the validator address used for testing
 		var validator sdk.ValAddress
-		//var validatorAddr common.Address
 
 		BeforeEach(func() {
 			delegations := s.app.StakingKeeper.GetAllDelegatorDelegations(s.ctx, s.address.Bytes())
 			Expect(delegations).ToNot(HaveLen(0), "expected address to have delegations")
 
 			validator = delegations[0].GetValidatorAddr()
-			//validatorAddr = common.BytesToAddress(delegations[0].GetValidatorAddr().Bytes())
 
 			_ = erc20ContractAddr
 		})
