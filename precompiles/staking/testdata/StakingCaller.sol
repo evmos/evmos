@@ -349,17 +349,11 @@ contract StakingCaller {
 
             // NOTE: callcode is deprecated and now only available via inline assembly
             assembly {
-                let chunk1 := mload(add(_validatorAddr, 32)) // first 32 bytes of validator address string
-                let chunk2 := mload(add(add(_validatorAddr, 32), 32)) // remaining 19 bytes of val address string
-
                 // Load the function signature and argument data onto the stack
                 let x := mload(0x40) // Find empty storage location using "free memory pointer"
                 mstore(x, sig) // Place function signature at begining of empty storage
                 mstore(add(x, 0x04), _addr) // Place the address (input param) after the function sig
-                mstore(add(x, 0x24), 0x40) // These are needed for
-                mstore(add(x, 0x44), 0x33) // bytes unpacking
-                mstore(add(x, 0x64), chunk1) // Place the validator address in 2 chunks (input param)
-                mstore(add(x, 0x84), chunk2) // because mstore stores 32bytes
+                mstore(add(x, 0x24), _validatorAddr) // Place the validator address (input param) after the function sig
 
                 // Invoke the contract at calledContractAddress in the context of the current contract
                 // using CALLCODE opcode and the loaded function signature and argument data
