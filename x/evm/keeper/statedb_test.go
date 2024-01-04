@@ -32,7 +32,7 @@ func (suite *KeeperTestSuite) TestCreateAccount() {
 	}{
 		{
 			"reset account (keep balance)",
-			suite.keyring.GetAddr(0),
+			utiltx.GenerateAddress(),
 			func(vmdb vm.StateDB, addr common.Address) {
 				vmdb.AddBalance(addr, big.NewInt(100))
 				suite.Require().NotZero(vmdb.GetBalance(addr).Int64())
@@ -223,7 +223,8 @@ func (suite *KeeperTestSuite) TestSetNonce() {
 func (suite *KeeperTestSuite) TestGetCodeHash() {
 	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
+	newAcc := suite.network.App.AccountKeeper.NewAccount(suite.network.GetContext(), baseAcc)
+	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), newAcc)
 
 	testCases := []struct {
 		name     string
@@ -267,7 +268,8 @@ func (suite *KeeperTestSuite) TestGetCodeHash() {
 func (suite *KeeperTestSuite) TestSetCode() {
 	addr := utiltx.GenerateAddress()
 	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
+	newAcc := suite.network.App.AccountKeeper.NewAccount(suite.network.GetContext(), baseAcc)
+	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), newAcc)
 
 	testCases := []struct {
 		name    string
@@ -320,10 +322,6 @@ func (suite *KeeperTestSuite) TestSetCode() {
 }
 
 func (suite *KeeperTestSuite) TestKeeperSetCode() {
-	addr := utiltx.GenerateAddress()
-	baseAcc := &authtypes.BaseAccount{Address: sdk.AccAddress(addr.Bytes()).String()}
-	suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), baseAcc)
-
 	testCases := []struct {
 		name     string
 		codeHash []byte
@@ -526,24 +524,24 @@ func (suite *KeeperTestSuite) TestEmpty() {
 	testCases := []struct {
 		name     string
 		address  common.Address
-		malleate func(vm.StateDB)
+		malleate func(vm.StateDB, common.Address)
 		empty    bool
 	}{
-		{"empty, account exists", suite.keyring.GetAddr(0), func(vm.StateDB) {}, true},
+		{"empty, account exists", utiltx.GenerateAddress(), func(vmdb vm.StateDB, addr common.Address) { vmdb.CreateAccount(addr) }, true},
 		{
 			"not empty, positive balance",
-			suite.keyring.GetAddr(0),
-			func(vmdb vm.StateDB) { vmdb.AddBalance(suite.keyring.GetAddr(0), big.NewInt(100)) },
+			utiltx.GenerateAddress(),
+			func(vmdb vm.StateDB, addr common.Address) { vmdb.AddBalance(addr, big.NewInt(100)) },
 			false,
 		},
-		{"empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB) {}, true},
+		{"empty, account doesn't exist", utiltx.GenerateAddress(), func(vm.StateDB, common.Address) {}, true},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 			vmdb := suite.StateDB()
-			tc.malleate(vmdb)
+			tc.malleate(vmdb, tc.address)
 
 			suite.Require().Equal(tc.empty, vmdb.Empty(tc.address))
 		})
@@ -661,7 +659,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg2.From = addr.Hex()
 
 	ethTx3Params := &types.EvmTxArgs{
-		ChainID:   big.NewInt(9000),
+		ChainID:   big.NewInt(9001),
 		Nonce:     0,
 		To:        &toAddr,
 		Amount:    big.NewInt(1),
@@ -776,7 +774,7 @@ func (suite *KeeperTestSuite) TestAddAddressToAccessList() {
 		name string
 		addr common.Address
 	}{
-		{"new address", suite.keyring.GetAddr(0)},
+		{"new address", utiltx.GenerateAddress()},
 		{"existing address", suite.keyring.GetAddr(0)},
 	}
 
@@ -797,7 +795,7 @@ func (suite *KeeperTestSuite) AddSlotToAccessList() {
 		slot common.Hash
 	}{
 		{"new address and slot (1)", utiltx.GenerateAddress(), common.BytesToHash([]byte("hash"))},
-		{"new address and slot (2)", suite.keyring.GetAddr(0), common.Hash{}},
+		{"new address and slot (2)", utiltx.GenerateAddress(), common.Hash{}},
 		{"existing address and slot", suite.keyring.GetAddr(0), common.Hash{}},
 		{"existing address, new slot", suite.keyring.GetAddr(0), common.BytesToHash([]byte("hash"))},
 	}
@@ -885,6 +883,7 @@ func (suite *KeeperTestSuite) AddSlotToAccessList() {
 
 func (suite *KeeperTestSuite) TestSetBalance() {
 	amount := big.NewInt(-10)
+	addr := utiltx.GenerateAddress()
 
 	testCases := []struct {
 		name     string
@@ -894,13 +893,13 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 	}{
 		{
 			"address without funds - invalid amount",
-			suite.keyring.GetAddr(0),
+			addr,
 			func() {},
 			true,
 		},
 		{
 			"mint to address",
-			suite.keyring.GetAddr(0),
+			addr,
 			func() {
 				amount = big.NewInt(100)
 			},
@@ -908,7 +907,7 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 		},
 		{
 			"burn from address",
-			suite.keyring.GetAddr(0),
+			addr,
 			func() {
 				amount = big.NewInt(60)
 			},
@@ -916,7 +915,7 @@ func (suite *KeeperTestSuite) TestSetBalance() {
 		},
 		{
 			"address with funds - invalid amount",
-			suite.keyring.GetAddr(0),
+			addr,
 			func() {
 				amount = big.NewInt(-10)
 			},

@@ -20,7 +20,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 	fiveInt := sdkmath.NewInt(5)
 	fiftyInt := sdkmath.NewInt(50)
 	negInt := sdkmath.NewInt(-10)
-	addr, _ := utiltx.NewAddrKey()
+	addr := utiltx.GenerateAddress()
 
 	testCases := []struct {
 		name            string
