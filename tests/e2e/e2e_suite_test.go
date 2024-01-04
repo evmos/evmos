@@ -228,6 +228,9 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.T().Logf("executing all module queries")
 	s.executeQueries()
 
+	s.T().Logf("executing sample transactions")
+	s.executeTransactions()
+
 	// make sure node produce blocks after upgrade
 	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	// make sure node produces blocks after upgrade
@@ -255,7 +258,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	}
 }
 
-// executeQueries executes all the module queries
+// executeQueries executes all the module queries to check they are still working after the upgrade.
 func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -293,6 +296,17 @@ func (s *IntegrationTestSuite) executeQueries() {
 		s.Require().Empty(errBuf.String())
 	}
 	s.T().Logf("executed all queries successfully")
+}
+
+// executeTransactions executes some sample transactions to check they are still working after the upgrade.
+func (s *IntegrationTestSuite) executeTransactions() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainID := utils.TestnetChainID + "-1"
+
+	// send some tokens between accounts to check transactions are still working
+	exec, err := s.upgradeManager.Create
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
