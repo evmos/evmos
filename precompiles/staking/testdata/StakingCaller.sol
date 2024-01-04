@@ -251,7 +251,7 @@ contract StakingCaller {
     ) public {
         address calledContractAddress = staking.STAKING_PRECOMPILE_ADDRESS;
         bytes memory payload = abi.encodeWithSignature(
-            "undelegate(address,string,uint256)",
+            "undelegate(address,address,uint256)",
             _addr,
             _validatorAddr,
             _amount
@@ -308,7 +308,7 @@ contract StakingCaller {
     ) public returns (uint256 shares, staking.Coin memory coin) {
         address calledContractAddress = staking.STAKING_PRECOMPILE_ADDRESS;
         bytes memory payload = abi.encodeWithSignature(
-            "delegation(address,string)",
+            "delegation(address,address)",
             _addr,
             _validatorAddr
         );
@@ -332,7 +332,7 @@ contract StakingCaller {
             (shares, coin) = abi.decode(data, (uint256, staking.Coin));
         } else if (calltypeHash == keccak256(abi.encodePacked("callcode"))) {
             //Function signature
-            bytes4 sig = bytes4(keccak256(bytes("delegation(address,string)")));
+            bytes4 sig = bytes4(keccak256(bytes("delegation(address,address)")));
             // Length of the input data is 164 bytes on 32bytes chunks:
             //                          Memory location
             // 0 - 4 byte signature     x
