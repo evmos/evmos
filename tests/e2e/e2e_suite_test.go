@@ -306,7 +306,18 @@ func (s *IntegrationTestSuite) executeTransactions() {
 	chainID := utils.TestnetChainID + "-1"
 
 	// send some tokens between accounts to check transactions are still working
-	exec, err := s.upgradeManager.Create
+	exec, err := s.upgradeManager.CreateModuleTxExec(upgrade.E2eTxArgs{
+		ModuleName: "bank",
+		SubCommand: "send",
+		Args:       []string{"mykey", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq", "10000000000aevmos"},
+		ChainID:    chainID,
+		From:       "mykey",
+	})
+	s.Require().NoError(err, "failed to create bank send tx command")
+
+	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank send tx")
+	s.Require().Empty(errBuf.String())
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
