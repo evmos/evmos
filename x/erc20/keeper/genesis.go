@@ -5,6 +5,7 @@ package keeper
 import (
 	"fmt"
 	"math/big"
+	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,7 +34,7 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 	stateDB := statedb.New(ctx, k.evmKeeper, statedb.TxConfig{})
 	for _, pair := range pairs {
 		contractAddr := pair.GetERC20Contract()
-		coinMeta, err := k.getGenesisTokenPairMeta(ctx, pair)
+		coinMeta, err := k.getTokenPairMeta(ctx, pair)
 		if err != nil {
 			return fmt.Errorf("error while generating metadata for genesis pair denom %s. %w", pair.Denom, err)
 		}
@@ -56,23 +57,29 @@ func (k Keeper) SetGenesisTokenPairs(ctx sdk.Context, pairs []types.TokenPair) e
 	return stateDB.Commit()
 }
 
-// getGenesisTokenPairMeta is a helper function to generate token pair metadata for the genesis token pairs
-func (k Keeper) getGenesisTokenPairMeta(ctx sdk.Context, pair types.TokenPair) (banktypes.Metadata, error) {
+// getTokenPairMeta is a helper function to generate token pair metadata for the genesis token pairs
+func (k Keeper) getTokenPairMeta(ctx sdk.Context, pair types.TokenPair) (banktypes.Metadata, error) {
 	// The corresponding IBC denom trace should be included in genesis
 	denomTrace, err := ibc.GetDenomTrace(*k.transferKeeper, ctx, pair.Denom)
 	if err != nil {
 		return banktypes.Metadata{}, err
 	}
+	// check the denom prefix to define the corresponding exponent
+	exponent, err := ibc.GetDenomDecimals(denomTrace.BaseDenom)
+	if err != nil {
+		return banktypes.Metadata{}, err
+	}
+
 	meta := banktypes.Metadata{
 		Description: fmt.Sprintf("%s IBC coin", denomTrace.BaseDenom),
 		DenomUnits: []*banktypes.DenomUnit{
 			{Denom: pair.Denom, Exponent: 0, Aliases: []string{denomTrace.BaseDenom}},
-			{Denom: denomTrace.BaseDenom, Exponent: 6},
+			{Denom: denomTrace.BaseDenom[1:], Exponent: uint32(exponent)},
 		},
 		Base:    pair.Denom,
-		Display: denomTrace.BaseDenom,
-		Name:    denomTrace.BaseDenom,
-		Symbol:  denomTrace.BaseDenom,
+		Display: denomTrace.BaseDenom[1:],
+		Name:    strings.ToUpper(string(denomTrace.BaseDenom[1])) + denomTrace.BaseDenom[2:],
+		Symbol:  strings.ToUpper(denomTrace.BaseDenom[1:]),
 	}
 	if err := k.verifyMetadata(ctx, meta); err != nil {
 		return banktypes.Metadata{}, errorsmod.Wrapf(

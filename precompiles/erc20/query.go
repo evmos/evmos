@@ -107,16 +107,11 @@ func (p Precompile) Decimals(
 		}
 
 		// we assume the decimal from the first character of the denomination
-		switch string(denomTrace.BaseDenom[0]) {
-		case "u": // micro (u) -> 6 decimals
-			return method.Outputs.Pack(uint8(6))
-		case "a": // atto (a) -> 18 decimals
-			return method.Outputs.Pack(uint8(18))
+		decimals, err := ibc.GetDenomDecimals(denomTrace.BaseDenom)
+		if err != nil {
+			return nil, ConvertErrToERC20Error(err)
 		}
-		return nil, ConvertErrToERC20Error(fmt.Errorf(
-			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
-			denomTrace.BaseDenom,
-		))
+		return method.Outputs.Pack(decimals)
 	}
 
 	var (

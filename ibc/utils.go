@@ -4,6 +4,7 @@
 package ibc
 
 import (
+	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -150,4 +151,22 @@ func GetDenomTrace(
 	}
 
 	return denomTrace, nil
+}
+
+// GetDenomDecimals returns the number of decimals of an IBC coin
+// depending on the prefix of the base denomination
+func GetDenomDecimals(baseDenom string) (uint8, error) {
+	var decimals uint8
+	switch baseDenom[0] {
+	case 'u': // micro (u) -> 6 decimals
+		decimals = 6
+	case 'a': // atto (a) -> 18 decimals
+		decimals = 18
+	default:
+		return 0, fmt.Errorf(
+			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
+			baseDenom,
+		)
+	}
+	return decimals, nil
 }
