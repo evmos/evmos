@@ -15,6 +15,16 @@ string constant DEFAULT_TWAP_SLIPPAGE_PERCENTAGE = "10";
 uint64 constant DEFAULT_TWAP_WINDOW_SECONDS = 30;
 
 /// @dev The SwapParams struct contains the parameters of an Osmosis swap.
+/// @param channelID - The channel ID of the IBC channel between the Evmos and Osmosis chains.
+/// @param xcsContract - The address of the XCS contract on the Osmosis chain.
+/// @param sender - The address on the Evmos chain that will swap tokens.
+/// @param input - The address of the ERC-20 token contract that will be swapped for.
+/// @param output - The address of the ERC-20 token contract that will be swapped to (received).
+/// @param amount - The amount of input tokens to be swapped.
+/// @param slippagePercentage - The slippage percentage of the swap.
+/// @param windowSeconds - The window seconds of the swap.
+/// @param swapReceiver - The bech32-formatted address of the receiver of the newly swapped
+/// tokens. It can be only an address on the Evmos chain.
 struct SwapParams {
     string channelID;
     string xcsContract;

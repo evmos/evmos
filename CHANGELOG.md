@@ -58,6 +58,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
+- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
 
 ### API Breaking
 
@@ -149,6 +150,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) backport handle cases for input and output denoms without token pair lookup
 - (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
+- (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 
 ### Bug Fixes
 
