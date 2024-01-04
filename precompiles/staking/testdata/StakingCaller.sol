@@ -337,10 +337,7 @@ contract StakingCaller {
             //                          Memory location
             // 0 - 4 byte signature     x
             // 1 - 0x0000..address		x + 0x04
-            // 2 - 0x0000..00			x + 0x24
-            // 3 - 0x40..0000			x + 0x44
-            // 4 - val_addr_chunk1		x + 0x64
-            // 5 - val_addr_chunk2..000	x + 0x84
+            // 2 - 0x0000..val address  x + 0x24
             uint256 len = 164;
             // Coin type includes denom & amount
             // need to get these separately from the bytes response
