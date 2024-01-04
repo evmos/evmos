@@ -125,6 +125,27 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			for _, p := range tc.pairs {
 				acc := suite.app.EvmKeeper.GetAccount(suite.ctx, common.HexToAddress(p.Erc20Address))
 				suite.Require().True(acc.IsContract())
+				// check bank metadata was stored properly
+				meta, found := suite.app.BankKeeper.GetDenomMetaData(suite.ctx, p.Denom)
+				suite.Require().True(found)
+				suite.Require().Len(meta.DenomUnits, 2)
+
+				switch meta.Base {
+				case osmoDenomTrace.IBCDenom():
+					suite.Require().Equal(meta.DenomUnits[0].Aliases, []string{"uosmo"})
+					suite.Require().Equal(meta.DenomUnits[1].Denom, "osmo")
+					suite.Require().Equal(meta.DenomUnits[1].Exponent, uint32(6))
+					suite.Require().Equal(meta.Display, "osmo")
+					suite.Require().Equal(meta.Name, "Osmo")
+					suite.Require().Equal(meta.Symbol, "OSMO")
+				case junoDenomTrace.IBCDenom():
+					suite.Require().Equal(meta.DenomUnits[0].Aliases, []string{"ujunox"})
+					suite.Require().Equal(meta.DenomUnits[1].Denom, "junox")
+					suite.Require().Equal(meta.DenomUnits[1].Exponent, uint32(6))
+					suite.Require().Equal(meta.Display, "junox")
+					suite.Require().Equal(meta.Name, "Junox")
+					suite.Require().Equal(meta.Symbol, "JUNOX")
+				}
 			}
 		} else {
 			suite.Require().Error(err)
