@@ -278,7 +278,7 @@ func (s *PrecompileTestSuite) TestValidator() {
 				var valOut staking.ValidatorOutput
 				err := s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Equal(valOut.Validator.OperatorAddress, "")
+				s.Require().Equal(valOut.Validator.OperatorAddress.String(), common.Address{}.String())
 				s.Require().Equal(valOut.Validator.Status, uint8(0))
 			},
 			gas: 100000,

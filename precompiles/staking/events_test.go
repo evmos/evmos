@@ -389,7 +389,7 @@ func (s *PrecompileTestSuite) TestUnbondEvent() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1000000000000000000),
 				}
 			},

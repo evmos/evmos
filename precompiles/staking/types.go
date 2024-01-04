@@ -405,6 +405,10 @@ func NewRedelegationsRequest(method *abi.Method, args []interface{}) (*stakingty
 	var (
 		// delegatorAddr is the string representation of the delegator address
 		delegatorAddr = ""
+		// srcValidatorAddr is the string representation of the src validator address
+		srcValidatorAddr = ""
+		// dstValidatorAddr is the string representation of the dst validator address
+		dstValidatorAddr = ""
 		// emptyAddr is an empty address
 		emptyAddr = common.Address{}.Hex()
 	)
@@ -412,15 +416,23 @@ func NewRedelegationsRequest(method *abi.Method, args []interface{}) (*stakingty
 		delegatorAddr = sdk.AccAddress(input.DelegatorAddress.Bytes()).String() // bech32 formatted
 	}
 
-	if delegatorAddr == "" && input.SrcValidatorAddress == (common.Address{}) && input.DstValidatorAddress == (common.Address{}) ||
-		delegatorAddr == "" && input.SrcValidatorAddress == (common.Address{}) && input.DstValidatorAddress != (common.Address{}) {
+	if input.SrcValidatorAddress.Hex() != emptyAddr {
+		srcValidatorAddr = sdk.ValAddress(input.SrcValidatorAddress.Bytes()).String() // bech32 formatted
+	}
+
+	if input.DstValidatorAddress.Hex() != emptyAddr {
+		dstValidatorAddr = sdk.ValAddress(input.DstValidatorAddress.Bytes()).String() // bech32 formatted
+	}
+
+	if delegatorAddr == "" && srcValidatorAddr == "" && dstValidatorAddr == "" ||
+		delegatorAddr == "" && srcValidatorAddr == "" && dstValidatorAddr != "" {
 		return nil, errors.New("invalid query. Need to specify at least a source validator address or delegator address")
 	}
 
 	return &stakingtypes.QueryRedelegationsRequest{
 		DelegatorAddr:    delegatorAddr, // bech32 formatted
-		SrcValidatorAddr: sdk.ValAddress(input.SrcValidatorAddress.Bytes()).String(),
-		DstValidatorAddr: sdk.ValAddress(input.DstValidatorAddress.Bytes()).String(),
+		SrcValidatorAddr: srcValidatorAddr,
+		DstValidatorAddr: dstValidatorAddr,
 		Pagination:       &input.PageRequest,
 	}, nil
 }

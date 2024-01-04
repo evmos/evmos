@@ -96,13 +96,14 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(10000000000),
 				)
 				s.Require().NoError(err)
 				return input
 			},
-			7760,
+			// @TODO Please confirm whether using hex address consumes less gas than string address encoding.
+			4880,
 		},
 		{
 			"success - undelegate transaction with correct gas estimation",
@@ -110,13 +111,14 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				input, err := s.precompile.Pack(
 					staking.UndelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err)
 				return input
 			},
-			7760,
+			// @TODO Please confirm whether using hex address consumes less gas than string address encoding.
+			4880,
 		},
 	}
 
@@ -152,7 +154,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1000),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -212,8 +214,8 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.RedelegateMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
-					s.validators[1].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
+					common.BytesToAddress(s.validators[1].GetOperator().Bytes()),
 					big.NewInt(1),
 				)
 				s.Require().NoError(err, "failed to pack input")
@@ -250,7 +252,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.CancelUnbondingDelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 					big.NewInt(1000),
 					big.NewInt(1000),
 				)
@@ -268,7 +270,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -316,8 +318,8 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.RedelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
-					s.validators[1].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
+					common.BytesToAddress(s.validators[1].GetOperator().Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -333,7 +335,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.DelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input
@@ -366,7 +368,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					staking.UnbondingDelegationMethod,
 					s.address,
-					s.validators[0].GetOperator().String(),
+					common.BytesToAddress(s.validators[0].GetOperator().Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return input

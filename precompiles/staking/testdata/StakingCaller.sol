@@ -245,7 +245,7 @@ contract StakingCaller {
     /// @param _calltype The opcode to use.
     function testCallUndelegate(
         address _addr,
-        string memory _validatorAddr,
+        address _validatorAddr,
         uint256 _amount,
         string memory _calltype
     ) public {
@@ -303,7 +303,7 @@ contract StakingCaller {
     /// @param _calltype The opcode to use.
     function testCallDelegation(
         address _addr,
-        string memory _validatorAddr,
+        address _validatorAddr,
         string memory _calltype
     ) public returns (uint256 shares, staking.Coin memory coin) {
         address calledContractAddress = staking.STAKING_PRECOMPILE_ADDRESS;
