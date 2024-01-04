@@ -102,7 +102,6 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				s.Require().NoError(err)
 				return input
 			},
-			// @TODO Please confirm whether using hex address consumes less gas than string address encoding.
 			4880,
 		},
 		{
@@ -117,7 +116,6 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 				s.Require().NoError(err)
 				return input
 			},
-			// @TODO Please confirm whether using hex address consumes less gas than string address encoding.
 			4880,
 		},
 	}
