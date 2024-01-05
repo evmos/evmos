@@ -208,7 +208,7 @@ contract DistributionCaller {
 
     function staticCallGetWithdrawAddress(
         address _delAddr
-    ) public view returns (bytes memory) {
+    ) public view returns (address) {
         (bool success, bytes memory data) = distribution
         .DISTRIBUTION_PRECOMPILE_ADDRESS
         .staticcall(
@@ -218,6 +218,7 @@ contract DistributionCaller {
             )
         );
         require(success, "failed staticCall to precompile");
-        return data;
+
+        return abi.decode(data, (address));
     }
 }
