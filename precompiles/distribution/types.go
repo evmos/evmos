@@ -19,7 +19,7 @@ import (
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
 type EventSetWithdrawAddress struct {
 	Caller            common.Address
-	WithdrawerAddress string
+	WithdrawerAddress common.Address
 }
 
 // EventWithdrawDelegatorRewards defines the event data for the WithdrawDelegatorRewards transaction.
@@ -31,7 +31,7 @@ type EventWithdrawDelegatorRewards struct {
 
 // EventWithdrawValidatorRewards defines the event data for the WithdrawValidatorRewards transaction.
 type EventWithdrawValidatorRewards struct {
-	ValidatorAddress common.Hash
+	ValidatorAddress common.Address
 	Commission       *big.Int
 }
 
@@ -208,6 +208,10 @@ func NewValidatorSlashesRequest(method *abi.Method, args []interface{}) (*distri
 		return nil, fmt.Errorf("error while unpacking args to ValidatorSlashesInput struct: %s", err)
 	}
 
+	if input.ValidatorAddress == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
+
 	return &distributiontypes.QueryValidatorSlashesRequest{
 		ValidatorAddress: sdk.ValAddress(input.ValidatorAddress.Bytes()).String(),
 		StartingHeight:   input.StartingHeight,
@@ -305,7 +309,7 @@ type ValidatorDistributionInfoOutput struct {
 
 // FromResponse converts a response to a ValidatorDistributionInfo.
 func (o *ValidatorDistributionInfoOutput) FromResponse(res *distributiontypes.QueryValidatorDistributionInfoResponse) ValidatorDistributionInfoOutput {
-	operatorAddress, err := sdk.ValAddressFromBech32(res.OperatorAddress)
+	operatorAddress, err := sdk.AccAddressFromBech32(res.OperatorAddress)
 	if err != nil {
 		return *o
 	}

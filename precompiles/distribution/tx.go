@@ -178,7 +178,7 @@ func (p Precompile) WithdrawValidatorCommission(
 		return nil, err
 	}
 
-	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
+	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, validatorHexAddr, res.Amount); err != nil {
 		return nil, err
 	}
 

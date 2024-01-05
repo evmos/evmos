@@ -50,7 +50,7 @@ interface DistributionI {
     /// @param withdrawerAddress the newly set withdrawer address
     event SetWithdrawerAddress(
         address indexed caller,
-        address withdrawerAddress
+        address indexed withdrawerAddress
     );
 
     /// @dev WithdrawDelegatorRewards defines an Event emitted when rewards from a delegation are withdrawn

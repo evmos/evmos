@@ -46,7 +46,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 				err := cmn.UnpackLog(s.precompile.ABI, &setWithdrawerAddrEvent, distribution.EventTypeSetWithdrawAddress, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, setWithdrawerAddrEvent.Caller)
-				s.Require().Equal(sdk.MustBech32ifyAddressBytes("evmos", s.address.Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
+				s.Require().Equal(s.address, setWithdrawerAddrEvent.WithdrawerAddress)
 			},
 			20000,
 			false,

@@ -225,7 +225,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should return error if the provided gasLimit is too low", func() {
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
-				WithGasLimit(50000).
+				WithGasLimit(40000).
 				WithArgs(valHexAddr)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, outOfGasCheck)
@@ -234,8 +234,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should return error if the origin is different than the validator", func() {
-			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(s.validators[0].OperatorAddress)
 			validatorHexAddr := common.BytesToAddress(s.validators[0].GetOperator())
+			withdrawCommissionArgs := defaultWithdrawCommissionArgs.WithArgs(validatorHexAddr)
 
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), validatorHexAddr.String())
 
@@ -341,8 +341,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
 
-			expAddr := sdk.AccAddress(s.validators[0].GetOperator())
-			Expect(expAddr.String()).To(Equal(out.DistributionInfo.OperatorAddress))
+			Expect(common.BytesToAddress(s.validators[0].GetOperator().Bytes())).To(Equal(out.DistributionInfo.OperatorAddress))
 			Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
 			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
@@ -560,9 +559,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)
 			Expect(err).To(BeNil())
-			// get the bech32 encoding
-			expAddr := sdk.AccAddress(differentAddr.Bytes())
-			Expect(withdrawAddr[0]).To(Equal(expAddr.String()))
+			Expect(withdrawAddr[0].(common.Address)).To(Equal(differentAddr))
 		})
 	})
 })
@@ -669,7 +666,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should set withdraw address successfully without origin check", func() {
-			setWithdrawAddrArgs := defaultSetWithdrawAddrArgs.WithArgs(newWithdrawer.String())
+			setWithdrawAddrArgs := defaultSetWithdrawAddrArgs.WithArgs(newWithdrawer)
 
 			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
 
@@ -1439,9 +1436,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 				withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				// get the bech32 encoding
-				expAddr := sdk.AccAddress(s.address.Bytes())
-				Expect(withdrawAddr[0]).To(Equal(expAddr.String()))
+				Expect(withdrawAddr[0].(common.Address)).To(Equal(s.address))
 			})
 
 			It("should call GetWithdrawAddress using staticcall", func() {
@@ -1454,9 +1449,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 				withdrawAddr, err := s.precompile.Unpack(distribution.DelegatorWithdrawAddressMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
-				// get the bech32 encoding
-				expAddr := sdk.AccAddress(s.address.Bytes())
-				Expect(withdrawAddr[0]).To(ContainSubstring(expAddr.String()))
+				Expect(withdrawAddr[0].(common.Address)).To(Equal(s.address))
 			})
 		})
 	})

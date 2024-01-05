@@ -70,7 +70,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					pk.Address(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -157,7 +157,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					pk.Address(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -250,7 +250,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					pk.Address(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {
