@@ -28,8 +28,8 @@ const (
 	// DefaultTimeoutHeight is the default value used to not set a timeout height
 	DefaultTimeoutHeight = 0
 
-	// DefaultTimeoutHours is the default value in hours used to set a timeout timestamp
-	DefaultTimeoutHours = 48
+	// DefaultTimeoutMinutes is the default value in minutes used to set a timeout timestamp
+	DefaultTimeoutMinutes = 10
 )
 
 // EventIBCTransfer is the event type emitted when a transfer is executed.

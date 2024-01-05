@@ -128,7 +128,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
-	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutHours * time.Hour).Unix()
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).Unix()
 	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
