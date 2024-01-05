@@ -22,10 +22,11 @@ import (
 func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
-	ek *evmkeeper.Keeper,
+	ak authkeeper.AccountKeeper,
 	bk bankkeeper.Keeper,
-	inflationKeeper inflationkeeper.Keeper,
+	ek *evmkeeper.Keeper,
 	gk govkeeper.Keeper,
+	inflationKeeper inflationkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -46,6 +47,11 @@ func CreateUpgradeHandler(
 			logger.Error("failed to enable outposts", "error", err.Error())
 		}
 
+		// Add Burner role to fee collector
+		if err := MigrateFeeCollector(ak, ctx); err != nil {
+			logger.Error("failed to migrate the fee collector", "error", err.Error())
+		}
+
 		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
 			logger.Error("failed to burn inflation pool", "error", err.Error())
 		}
@@ -55,7 +61,6 @@ func CreateUpgradeHandler(
 		}
 
 		// Remove the deprecated governance proposals from store
-		// TODO include this in rc5 testnet upgrade
 		logger.Debug("deleting deprecated incentives module proposals...")
 		DeleteIncentivesProposals(ctx, gk, logger)
 
@@ -70,67 +75,6 @@ func CreateUpgradeHandler(
 		// Leave modules are as-is to avoid running InitGenesis.
 		logger.Debug("running module migrations ...")
 
-		return mm.RunMigrations(ctx, configurator, vm)
-	}
-}
-
-// CreateUpgradeHandlerRC2 creates an SDK upgrade handler for v16.0.0-rc2
-func CreateUpgradeHandlerRC2(
-	mm *module.Manager,
-	configurator module.Configurator,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return mm.RunMigrations(ctx, configurator, vm)
-	}
-}
-
-// CreateUpgradeHandlerRC3 creates an SDK upgrade handler for v16.0.0-rc3
-func CreateUpgradeHandlerRC3(
-	mm *module.Manager,
-	configurator module.Configurator,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		return mm.RunMigrations(ctx, configurator, vm)
-	}
-}
-
-// CreateUpgradeHandlerRC4 creates an SDK upgrade handler for v16.0.0-rc4
-func CreateUpgradeHandlerRC4(
-	mm *module.Manager,
-	configurator module.Configurator,
-	ak authkeeper.AccountKeeper,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeNameTestnetRC4)
-
-		// Add Burner role to fee collector
-		if err := MigrateFeeCollector(ak, ctx); err != nil {
-			logger.Error("failed to migrate the fee collector", "error", err.Error())
-		}
-		return mm.RunMigrations(ctx, configurator, vm)
-	}
-}
-
-// CreateUpgradeHandlerRC5 creates an SDK upgrade handler for v16.0.0-rc5
-func CreateUpgradeHandlerRC5(
-	mm *module.Manager,
-	configurator module.Configurator,
-	bk bankkeeper.Keeper,
-	gk govkeeper.Keeper,
-) upgradetypes.UpgradeHandler {
-	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
-		logger := ctx.Logger().With("upgrade", UpgradeName)
-
-		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
-			logger.Error("failed to burn inflation pool", "error", err.Error())
-		}
-
-		// Remove the deprecated governance proposals from store
-		logger.Debug("deleting deprecated incentives module proposals...")
-		DeleteIncentivesProposals(ctx, gk, logger)
-
-		// Leave modules are as-is to avoid running InitGenesis.
-		logger.Debug("running module migrations ...")
 		return mm.RunMigrations(ctx, configurator, vm)
 	}
 }

@@ -893,7 +893,10 @@ func (app *Evmos) setPostHandler() {
 // BeginBlocker will schedule the upgrade plan and perform the state migration (if any).
 func (app *Evmos) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	// Perform any scheduled forks before executing the modules logic
-	app.ScheduleForkUpgrade(ctx)
+	//
+	// NOTE: there are no scheduled forks currently, uncomment when needed
+	// app.ScheduleForkUpgrade(ctx)
+
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -1257,35 +1260,12 @@ func (app *Evmos) setupUpgradeHandlers() {
 		v16.UpgradeName,
 		v16.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			app.EvmKeeper,
+			app.AccountKeeper,
 			app.BankKeeper,
-			app.InflationKeeper,
+			app.EvmKeeper,
 			app.GovKeeper,
+			app.InflationKeeper,
 		),
-	)
-
-	// v16-rc2 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC2,
-		v16.CreateUpgradeHandlerRC2(app.mm, app.configurator),
-	)
-
-	// v16-rc3 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC3,
-		v16.CreateUpgradeHandlerRC3(app.mm, app.configurator),
-	)
-
-	// v16-rc4 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC4,
-		v16.CreateUpgradeHandlerRC4(app.mm, app.configurator, app.AccountKeeper),
-	)
-
-	// v16-rc5 upgrade handler
-	app.UpgradeKeeper.SetUpgradeHandler(
-		v16.UpgradeNameTestnetRC5,
-		v16.CreateUpgradeHandlerRC5(app.mm, app.configurator, app.BankKeeper, app.GovKeeper),
 	)
 
 	// When a planned update height is reached, the old binary will panic
