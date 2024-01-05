@@ -7,8 +7,6 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/evmos/v16/utils"
-
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -31,6 +29,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // General variables used for integration tests
