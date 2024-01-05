@@ -110,6 +110,7 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidAmount, args[2])
 	}
 
+<<<<<<< HEAD
 	delegatorAddress, ok := args[3].(common.Address)
 	if !ok || delegatorAddress == (common.Address{}) {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[3])
@@ -118,12 +119,17 @@ func NewMsgCreateValidator(args []interface{}, denom string) (*stakingtypes.MsgC
 	validatorAddress, ok := args[4].(string)
 	if !ok {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "validatorAddress", "string", args[4])
+=======
+	validatorAddress, ok := args[3].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[3])
+>>>>>>> aa0b9d5d (fix(staking): fix NewMsgCreateValidator return err info is wrong (#2234))
 	}
 
 	// use cli `evmosd tendermint show-validator` get pubkey
 	pubkeyBase64Str, ok := args[5].(string)
 	if !ok {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "pubkey", "string", args[5])
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidType, "pubkey", "string", args[4])
 	}
 	pubkeyBytes, err := base64.StdEncoding.DecodeString(pubkeyBase64Str)
 	if err != nil {
