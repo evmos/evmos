@@ -4,6 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"os"
 	"strings"
 	"testing"
@@ -26,7 +30,10 @@ const (
 	relatedBuildPath = "../../build/"
 
 	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
-	upgradeHeightDelta = 10
+	//
+	// TODO: this should not be hardcoded but calculated depending on the used timeout commit and voting period
+	//upgradeHeightDelta = 13
+	upgradeHeightDelta = 2
 
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
@@ -198,13 +205,16 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s.T().Log("wait for node to reach upgrade height...")
+	s.T().Logf("wait for node to reach upgrade height %d...", s.upgradeManager.UpgradeHeight)
 	// wait for proposed upgrade height
 	_, err := s.upgradeManager.WaitForHeight(ctx, int(s.upgradeManager.UpgradeHeight))
 	s.Require().NoError(err, "can't reach upgrade height")
 	dirs := strings.Split(s.upgradeParams.MountPath, ":")
 	buildDir := dirs[0]
 	rootDir := dirs[1]
+
+	// TODO: check that the proposal has passed here! To make sure this is always the case
+	s.checkProposalPassed(ctx)
 
 	s.T().Log("exporting state to local...")
 	// export node .evmosd to local build/
@@ -253,6 +263,34 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 		)
 		s.T().Logf("node version is correct: %s", version)
 	}
+}
+
+// checkProposalPassed queries the (most recent) upgrade proposal and checks that it has passed.
+//
+// NOTE: This was a problem in the past, where the upgrade height was reached before the proposal actually passed.
+// This is a safety check to make sure this doesn't happen again, as this was not obvious from the log output.
+func (s *IntegrationTestSuite) checkProposalPassed(ctx context.Context) {
+	exec, err := s.upgradeManager.CreateModuleQueryExec("gov", "proposals", s.upgradeParams.ChainID)
+	s.Require().NoError(err, "can't create query proposals exec")
+
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoErrorf(
+		err,
+		"failed to query proposals;\nstdout: %s,\nstderr: %s", outBuf.String(), errBuf.String(),
+	)
+
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	protoCodec, ok := encodingConfig.Codec.(*codec.ProtoCodec)
+	s.Require().True(ok, "encoding config codec is not a proto codec")
+
+	var proposalsRes govtypes.QueryProposalsResponse
+	err = protoCodec.UnmarshalJSON(outBuf.Bytes(), &proposalsRes)
+	s.Require().NoError(err, "can't unmarshal proposals response\n%s", outBuf.String())
+	s.Require().GreaterOrEqual(len(proposalsRes.Proposals), 1, "no proposals found")
+
+	// check that the most recent proposal has passed
+	proposal := proposalsRes.Proposals[len(proposalsRes.Proposals)-1]
+	s.Require().Equal(govtypes.ProposalStatus_PROPOSAL_STATUS_PASSED.String(), proposal.Status.String(), "expected proposal to have passed already")
 }
 
 // executeQueries executes all the module queries
