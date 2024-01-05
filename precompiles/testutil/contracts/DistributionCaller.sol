@@ -7,7 +7,7 @@ import "../../common/Types.sol" as types;
 contract DistributionCaller {
 
     function testSetWithdrawAddressFromContract(
-        string memory _withdrawAddr
+        address _withdrawAddr
     ) public returns (bool) {
         return
         distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
@@ -17,7 +17,7 @@ contract DistributionCaller {
     }
 
     function testWithdrawDelegatorRewardsFromContract(
-        string memory _valAddr
+        address _valAddr
     ) public returns (types.Coin[] memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
@@ -28,7 +28,7 @@ contract DistributionCaller {
 
     function testSetWithdrawAddress(
         address _delAddr,
-        string memory _withdrawAddr
+        address _withdrawAddr
     ) public returns (bool) {
         return
         distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
@@ -39,7 +39,7 @@ contract DistributionCaller {
 
     function testWithdrawDelegatorRewards(
         address _delAddr,
-        string memory _valAddr
+        address _valAddr
     ) public returns (types.Coin[] memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
@@ -49,7 +49,7 @@ contract DistributionCaller {
     }
 
     function testWithdrawValidatorCommission(
-        string memory _valAddr
+        address _valAddr
     ) public returns (types.Coin[] memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.withdrawValidatorCommission(
@@ -69,7 +69,7 @@ contract DistributionCaller {
     }
 
     function getValidatorDistributionInfo(
-        string memory _valAddr
+        address _valAddr
     ) public view returns (distribution.ValidatorDistributionInfo memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.validatorDistributionInfo(
@@ -78,7 +78,7 @@ contract DistributionCaller {
     }
 
     function getValidatorOutstandingRewards(
-        string memory _valAddr
+        address _valAddr
     ) public view returns (types.DecCoin[] memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.validatorOutstandingRewards(
@@ -87,13 +87,13 @@ contract DistributionCaller {
     }
 
     function getValidatorCommission(
-        string memory _valAddr
+        address _valAddr
     ) public view returns (types.DecCoin[] memory) {
         return distribution.DISTRIBUTION_CONTRACT.validatorCommission(_valAddr);
     }
 
     function getValidatorSlashes(
-        string memory _valAddr,
+        address _valAddr,
         uint64 _startingHeight,
         uint64 _endingHeight,
         types.PageRequest calldata pageRequest
@@ -116,7 +116,7 @@ contract DistributionCaller {
 
     function getDelegationRewards(
         address _delAddr,
-        string memory _valAddr
+        address _valAddr
     ) public view returns (types.DecCoin[] memory) {
         return
         distribution.DISTRIBUTION_CONTRACT.delegationRewards(
@@ -147,7 +147,7 @@ contract DistributionCaller {
 
     function getDelegatorWithdrawAddress(
         address _delAddr
-    ) public view returns (string memory) {
+    ) public view returns (address) {
         return
         distribution.DISTRIBUTION_CONTRACT.delegatorWithdrawAddress(
             _delAddr
@@ -157,9 +157,9 @@ contract DistributionCaller {
     // testRevertState allows sender to change the withdraw address
     // and then tries to withdraw other user delegation rewards
     function testRevertState(
-        string memory _withdrawAddr,
+        address _withdrawAddr,
         address _delAddr,
-        string memory _valAddr
+        address _valAddr
     ) public returns (types.Coin[] memory) {
         bool success = distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
             msg.sender,
@@ -176,7 +176,7 @@ contract DistributionCaller {
 
     function delegateCallSetWithdrawAddress(
         address _delAddr,
-        string memory _withdrawAddr
+        address _withdrawAddr
     ) public {
         (bool success, ) = distribution
         .DISTRIBUTION_PRECOMPILE_ADDRESS
@@ -192,7 +192,7 @@ contract DistributionCaller {
 
     function staticCallSetWithdrawAddress(
         address _delAddr,
-        string memory _withdrawAddr
+        address _withdrawAddr
     ) public view {
         (bool success, ) = distribution
         .DISTRIBUTION_PRECOMPILE_ADDRESS

@@ -22,13 +22,13 @@ struct ValidatorSlashEvent {
 }
 
 struct ValidatorDistributionInfo {
-    string operatorAddress;
+    address operatorAddress;
     DecCoin[] selfBondRewards;
     DecCoin[] commission;
 }
 
 struct DelegationDelegatorReward {
-    string validatorAddress;
+    address validatorAddress;
     DecCoin[] reward;
 }
 
@@ -50,7 +50,7 @@ interface DistributionI {
     /// @param withdrawerAddress the newly set withdrawer address
     event SetWithdrawerAddress(
         address indexed caller,
-        string withdrawerAddress
+        address withdrawerAddress
     );
 
     /// @dev WithdrawDelegatorRewards defines an Event emitted when rewards from a delegation are withdrawn
@@ -67,7 +67,7 @@ interface DistributionI {
     /// @param validatorAddress is the address of the validator
     /// @param commission is the total commission earned by the validator
     event WithdrawValidatorCommission(
-        string indexed validatorAddress,
+        address indexed validatorAddress,
         uint256 commission
     );
 
@@ -89,7 +89,7 @@ interface DistributionI {
     /// the given delegator address
     function setWithdrawAddress(
         address delegatorAddress,
-        string memory withdrawerAddress
+        address withdrawerAddress
     ) external returns (bool success);
 
     /// @dev Withdraw the rewards of a delegator from a validator
@@ -98,14 +98,14 @@ interface DistributionI {
     /// @return amount The amount of Coin withdrawn
     function withdrawDelegatorRewards(
         address delegatorAddress,
-        string memory validatorAddress
+        address validatorAddress
     ) external returns (Coin[] calldata amount);
 
     /// @dev Withdraws the rewards commission of a validator.
     /// @param validatorAddress The address of the validator
     /// @return amount The amount of Coin withdrawn
     function withdrawValidatorCommission(
-        string memory validatorAddress
+        address validatorAddress
     ) external returns (Coin[] calldata amount);
 
     /// QUERIES
@@ -113,7 +113,7 @@ interface DistributionI {
     /// @param validatorAddress The address of the validator
     /// @return distributionInfo The validator's distribution info
     function validatorDistributionInfo(
-        string memory validatorAddress
+        address validatorAddress
     )
     external
     view
@@ -125,14 +125,14 @@ interface DistributionI {
     /// @param validatorAddress The address of the validator
     /// @return rewards The validator's outstanding rewards
     function validatorOutstandingRewards(
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (DecCoin[] calldata rewards);
 
     /// @dev Queries the accumulated commission for a validator.
     /// @param validatorAddress The address of the validator
     /// @return commission The validator's commission
     function validatorCommission(
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (DecCoin[] calldata commission);
 
     /// @dev Queries the slashing events for a validator in a given height interval
@@ -144,7 +144,7 @@ interface DistributionI {
     /// @return slashes The validator's slash events
     /// @return pageResponse The pagination response for the query
     function validatorSlashes(
-        string memory validatorAddress,
+        address validatorAddress,
         uint64 startingHeight,
         uint64 endingHeight,
         PageRequest calldata pageRequest
@@ -162,7 +162,7 @@ interface DistributionI {
     /// @return rewards The total rewards accrued by a delegation.
     function delegationRewards(
         address delegatorAddress,
-        string memory validatorAddress
+        address validatorAddress
     ) external view returns (DecCoin[] calldata rewards);
 
     /// @dev Queries the total rewards accrued by each validator, that a given
@@ -192,6 +192,6 @@ interface DistributionI {
     /// @return withdrawAddress The address capable of withdrawing rewards for the delegator.
     function delegatorWithdrawAddress(
         address delegatorAddress
-    ) external view returns (string memory withdrawAddress);
+    ) external view returns (address withdrawAddress);
 
 }

@@ -29,9 +29,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
+        "internalType": "address",
         "name": "withdrawerAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "SetWithdrawerAddress",
@@ -67,9 +67,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "indexed": false,
@@ -113,9 +113,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "delegationRewards",
@@ -159,9 +159,9 @@
       {
         "components": [
           {
-            "internalType": "string",
+            "internalType": "address",
             "name": "validatorAddress",
-            "type": "string"
+            "type": "address"
           },
           {
             "components": [
@@ -246,9 +246,9 @@
     "name": "delegatorWithdrawAddress",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "withdrawAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -262,9 +262,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "withdrawerAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "setWithdrawAddress",
@@ -281,9 +281,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "validatorCommission",
@@ -317,9 +317,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "validatorDistributionInfo",
@@ -327,9 +327,9 @@
       {
         "components": [
           {
-            "internalType": "string",
+            "internalType": "address",
             "name": "operatorAddress",
-            "type": "string"
+            "type": "address"
           },
           {
             "components": [
@@ -387,9 +387,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "validatorOutstandingRewards",
@@ -423,9 +423,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       },
       {
         "internalType": "uint64",
@@ -530,9 +530,9 @@
         "type": "address"
       },
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "withdrawDelegatorRewards",
@@ -561,9 +561,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "address",
         "name": "validatorAddress",
-        "type": "string"
+        "type": "address"
       }
     ],
     "name": "withdrawValidatorCommission",
