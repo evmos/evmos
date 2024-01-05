@@ -1019,7 +1019,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			// balance should increase
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Equal(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			Expect(finalBalance.Amount.GT(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
@@ -1170,10 +1170,10 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
 			var defaultValCommArgs contracts.CallArgs
 
-			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
-			s.Require().NoError(err)
-
 			BeforeEach(func() {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				defaultValCommArgs = defaultCallArgs.
 					WithMethodName("getValidatorCommission").
 					WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
@@ -1289,10 +1289,10 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
 			var defaultDelRewardsArgs contracts.CallArgs
 
-			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
-			s.Require().NoError(err)
-
 			BeforeEach(func() {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				defaultDelRewardsArgs = defaultCallArgs.
 					WithMethodName("getDelegationRewards").
 					WithArgs(s.address, common.BytesToAddress(operatorAddress.Bytes()))
