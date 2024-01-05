@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 )
@@ -216,5 +217,10 @@ func (p Precompile) DelegatorWithdrawAddress(
 		return nil, err
 	}
 
-	return method.Outputs.Pack(res.WithdrawAddress)
+	withdrawAddress, err := sdk.AccAddressFromBech32(res.WithdrawAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return method.Outputs.Pack(common.BytesToAddress(withdrawAddress.Bytes()))
 }

@@ -534,7 +534,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				s.Require().NoError(err)
 				return []interface{}{
 					s.address,
-					pk.Address(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -868,10 +868,10 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 				}
 			},
 			func(bz []byte) {
-				var out string
+				var out common.Address
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegatorWithdrawAddressMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				s.Require().Equal(sdk.AccAddress(s.address.Bytes()).String(), out)
+				s.Require().Equal(common.BytesToAddress(s.address.Bytes()).String(), out.String())
 			},
 			100000,
 			false,
