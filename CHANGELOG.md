@@ -35,47 +35,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
-## Unreleased
-
-### Improvements
-
-- (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
-
-## [v16.0.0-rc5] - 2024-01-03
-
-### State Machine Breaking
-
-- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
-
-### Bug Fixes
-- (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address for testnet.
-- (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
-
-## [v16.0.0-rc4] - 2023-12-14
-
-### State Machine Breaking
-
-- (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
-- (fee_collector) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
-- (upgrade) [#2188](https://github.com/evmos/evmos/pull/2188) Prepare v16-rc4 upgrade handler.
-
-## [v16.0.0-rc3] - 2023-12-13
-
-### Bug Fixes
-- (upgrade) [#v16.0.0-rc3](https://github.com/evmos/evmos/releases/tag/v16.0.0-rc3) Included hardfork preparation for v16.0.0-rc4.
-
-## [v16.0.0-rc2] - 2023-12-11
-
-### State Machine Breaking
-
-- (evm) [#2172] (https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
-- (inflation) [#2137] (https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
-- (post-handler) [#2128] (https://github.com/evmos/evmos/pull/2128) Burn cosmos transaction fees.
-
-### Improvements
-- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
-
-## [v16.0.0-rc1] - 2023-12-04
+## [v16.0.0] - 2024-01-05
 
 ### State Machine Breaking
 
@@ -92,11 +52,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance (burning reverted in [#2131](https://github.com/evmos/evmos/pull/2131)).
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
 - (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
+- (evm) [#2172](https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
+- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
+- (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
+- (fee_collector) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
+- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
 
 ### API Breaking
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
-- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) deprecate legacy EIP712 ante handler
+- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) Deprecate legacy EIP712 ante handler.
 
 ### Improvements
 
@@ -181,6 +146,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
 - (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
+- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
+- (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
 
 ### Bug Fixes
 
@@ -188,6 +155,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
 - (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
+- (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address for testnet.
+- (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
 
 ## [v15.0.0] - 2023-10-31
 
