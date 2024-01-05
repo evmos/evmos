@@ -77,7 +77,7 @@ func NewPrecompile(
 			AuthzKeeper:          authzKeeper,
 		},
 		wevmosAddress:  wevmosAddress,
-		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultRevisionNumber, ics20.DefaultRevisionHeight),
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
 		stakingKeeper:  stakingKeeper,

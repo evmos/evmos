@@ -76,7 +76,7 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Build the MsgTransfer with the memo and coin
-	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).Unix()
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		transfertypes.PortID,
 		autopilotArgs.ChannelID,
@@ -189,7 +189,7 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
-	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).Unix()
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		transfertypes.PortID,

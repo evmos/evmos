@@ -25,8 +25,11 @@ import (
 )
 
 const (
-	// DefaultTimeoutHeight is the default value used to not set a timeout height
-	DefaultTimeoutHeight = 0
+	// DefaultRevisionNumber is the default value used to not set a timeout revision number
+	DefaultRevisionNumber = 0
+
+	// DefaultRevisionHeight is the default value used to not set a timeout revision height
+	DefaultRevisionHeight = 0
 
 	// DefaultTimeoutMinutes is the default value in minutes used to set a timeout timestamp
 	DefaultTimeoutMinutes = 10

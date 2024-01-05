@@ -60,7 +60,7 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		wevmosAddress:  wevmosAddress,
-		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultRevisionNumber, ics20.DefaultRevisionHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
 		stakingKeeper:  stakingKeeper,
