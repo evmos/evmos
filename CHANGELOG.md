@@ -152,6 +152,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
 - (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 - (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
+- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Adjust the magic number in distribution integration test to more reasonable logic.
 
 ### Bug Fixes
 
