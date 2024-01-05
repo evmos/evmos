@@ -35,6 +35,9 @@ const (
 	DefaultTimeoutMinutes = 10
 )
 
+// DefaultTimeoutHeight is the default value used to set a timeout height
+var DefaultTimeoutHeight = clienttypes.NewHeight(DefaultRevisionNumber, DefaultRevisionHeight)
+
 // EventIBCTransfer is the event type emitted when a transfer is executed.
 type EventIBCTransfer struct {
 	Sender        common.Address

@@ -136,7 +136,7 @@ func (p Precompile) Swap(
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		swapPacketData.XcsContract,
-		p.timeoutHeight,
+		ics20.DefaultTimeoutHeight,
 		uint64(timeoutTimestamp),
 		packetString,
 	)

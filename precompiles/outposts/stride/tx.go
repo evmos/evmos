@@ -83,7 +83,7 @@ func (p Precompile) LiquidStake(
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
-		p.timeoutHeight,
+		ics20.DefaultTimeoutHeight,
 		uint64(timeoutTimestamp),
 		memo,
 	)
@@ -197,7 +197,7 @@ func (p Precompile) RedeemStake(
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
-		p.timeoutHeight,
+		ics20.DefaultTimeoutHeight,
 		uint64(timeoutTimestamp),
 		memo,
 	)
