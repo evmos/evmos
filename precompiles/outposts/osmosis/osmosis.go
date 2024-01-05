@@ -42,8 +42,7 @@ type Precompile struct {
 	cmn.Precompile
 	wevmosAddress common.Address
 	// IBC
-	timeoutHeight    clienttypes.Height
-	timeoutTimestamp uint64
+	timeoutHeight clienttypes.Height
 
 	// Keepers
 	bankKeeper     bankkeeper.Keeper
@@ -77,14 +76,13 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		wevmosAddress:    wevmosAddress,
-		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
-		bankKeeper:       bankKeeper,
-		transferKeeper:   transferKeeper,
-		stakingKeeper:    stakingKeeper,
-		erc20Keeper:      erc20Keeper,
-		channelKeeper:    channelKeeper,
+		wevmosAddress:  wevmosAddress,
+		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		bankKeeper:     bankKeeper,
+		transferKeeper: transferKeeper,
+		stakingKeeper:  stakingKeeper,
+		erc20Keeper:    erc20Keeper,
+		channelKeeper:  channelKeeper,
 	}, nil
 }
 

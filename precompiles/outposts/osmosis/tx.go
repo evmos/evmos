@@ -8,6 +8,8 @@
 package osmosis
 
 import (
+	"time"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -126,6 +128,7 @@ func (p Precompile) Swap(
 	}
 	packetString := packet.String()
 
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutHours * time.Hour).Unix()
 	coin := sdk.Coin{Denom: inputDenom, Amount: math.NewIntFromBigInt(amount)}
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		evmosChannel.PortID,
@@ -134,7 +137,7 @@ func (p Precompile) Swap(
 		sdk.AccAddress(sender.Bytes()).String(),
 		swapPacketData.XcsContract,
 		p.timeoutHeight,
-		p.timeoutTimestamp,
+		uint64(timeoutTimestamp),
 		packetString,
 	)
 	if err != nil {
