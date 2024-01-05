@@ -18,7 +18,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 	method := s.precompile.Methods[distribution.SetWithdrawAddressMethod]
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func()
 		gas         uint64
 		expError    bool
@@ -26,10 +26,10 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					s.address,
-					s.address.String(),
+					s.address,
 				}
 			},
 			func() {
@@ -62,7 +62,10 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.SetWithdrawAddress(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+		operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+		s.Require().NoError(err)
+
+		_, err = s.precompile.SetWithdrawAddress(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 		if tc.expError {
 			s.Require().Error(err)
@@ -78,7 +81,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 	method := s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod]
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func()
 		gas         uint64
 		expError    bool
@@ -86,9 +89,8 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
-				s.Require().NoError(err)
+			func(operatorAddress common.Address) []interface{} {
+				valAddr := sdk.ValAddress(operatorAddress.Bytes())
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
@@ -132,7 +134,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.WithdrawDelegatorRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+		operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+		s.Require().NoError(err)
+
+		_, err = s.precompile.WithdrawDelegatorRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 		if tc.expError {
 			s.Require().Error(err)
@@ -148,7 +153,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	method := s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod]
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func()
 		gas         uint64
 		expError    bool
@@ -156,9 +161,8 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
-				s.Require().NoError(err)
+			func(operatorAddress common.Address) []interface{} {
+				valAddr := sdk.ValAddress(operatorAddress.Bytes())
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
@@ -181,7 +185,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 				var validatorRewards distribution.EventWithdrawValidatorRewards
 				err := cmn.UnpackLog(s.precompile.ABI, &validatorRewards, distribution.EventTypeWithdrawValidatorCommission, *log)
 				s.Require().NoError(err)
-				s.Require().Equal(crypto.Keccak256Hash([]byte(s.validators[0].OperatorAddress)), validatorRewards.ValidatorAddress)
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+				s.Require().Equal(common.BytesToAddress(operatorAddress.Bytes()), validatorRewards.ValidatorAddress)
 				s.Require().Equal(big.NewInt(100000000000000000), validatorRewards.Commission)
 			},
 			20000,
@@ -199,7 +205,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 		initialGas := s.ctx.GasMeter().GasConsumed()
 		s.Require().Zero(initialGas)
 
-		_, err := s.precompile.WithdrawValidatorCommission(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+		_, err := s.precompile.WithdrawValidatorCommission(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate(validatorAddress))
 
 		if tc.expError {
 			s.Require().Error(err)

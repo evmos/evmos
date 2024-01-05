@@ -88,7 +88,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should return error if the provided gasLimit is too low", func() {
 			setWithdrawArgs := defaultSetWithdrawArgs.
 				WithGasLimit(30000).
-				WithArgs(s.address, differentAddr.String())
+				WithArgs(s.address, differentAddr)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawArgs, outOfGasCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
@@ -100,7 +100,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should return error if the origin is different than the delegator", func() {
-			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(differentAddr, s.address.String())
+			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(differentAddr, s.address)
 
 			withdrawAddrSetCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
 
@@ -114,7 +114,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			withdrawAddr := s.app.DistrKeeper.GetDelegatorWithdrawAddr(s.ctx, s.address.Bytes())
 			Expect(withdrawAddr.Bytes()).To(Equal(s.address.Bytes()))
 
-			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(s.address, differentAddr.String())
+			setWithdrawArgs := defaultSetWithdrawArgs.WithArgs(s.address, differentAddr)
 
 			withdrawAddrSetCheck := passCheck.
 				WithExpEvents(distribution.EventTypeSetWithdrawAddress)
@@ -141,11 +141,14 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should return error if the origin is different than the delegator", func() {
-			withdrawRewardsArgs := defaultWithdrawRewardsArgs.WithArgs(differentAddr, s.validators[0].OperatorAddress)
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
+			withdrawRewardsArgs := defaultWithdrawRewardsArgs.WithArgs(differentAddr, common.BytesToAddress(operatorAddress.Bytes()))
 
 			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDifferentOrigin, s.address.String(), differentAddr.String())
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawRewardsArgs, withdrawalCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
 			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf(cmn.ErrDifferentOrigin, s.address, differentAddr)), "expected different origin error")
 		})
@@ -155,8 +158,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
 			Expect(initialBalance.Amount).To(Equal(initialBalance.Amount))
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			withdrawRewardsArgs := defaultWithdrawRewardsArgs.
-				WithArgs(s.address, s.validators[0].OperatorAddress).
+				WithArgs(s.address, common.BytesToAddress(operatorAddress.Bytes())).
 				WithGasPrice(gasPrice)
 
 			withdrawalCheck := passCheck.
@@ -190,9 +196,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// expCommAmt is the expected commission amount
 			expCommAmt = big.NewInt(1)
 			// commDec is the commission rate
-			commDec  = math.LegacyNewDec(1)
-			valAddr  sdk.ValAddress
-			stakeAmt math.Int
+			commDec    = math.LegacyNewDec(1)
+			valAddr    sdk.ValAddress
+			valHexAddr common.Address
+			stakeAmt   math.Int
 		)
 
 		BeforeEach(func() {
@@ -208,6 +215,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			// set some validator commission
 			valAddr = s.address.Bytes()
+			valHexAddr = s.address
 			val := s.app.StakingKeeper.Validator(s.ctx, valAddr)
 			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, commDec)}
 
@@ -218,7 +226,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should return error if the provided gasLimit is too low", func() {
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
 				WithGasLimit(50000).
-				WithArgs(valAddr.String())
+				WithArgs(valHexAddr)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawCommissionArgs, outOfGasCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the precompile")
@@ -242,7 +250,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(initialBalance.Amount).To(Equal(math.NewInt(4999999999999999900)))
 
 			withdrawCommissionArgs := defaultWithdrawCommissionArgs.
-				WithArgs(valAddr.String()).
+				WithArgs(valHexAddr).
 				WithGasPrice(gasPrice)
 
 			withdrawalCheck := passCheck.
@@ -319,9 +327,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)
 			Expect(err).To(BeNil())
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			valDistArgs := defaultCallArgs.
 				WithMethodName(distribution.ValidatorDistributionInfoMethod).
-				WithArgs(s.validators[0].OperatorAddress)
+				WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, valDistArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
@@ -341,9 +352,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// set outstanding rewards
 			s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorOutstandingRewards{Rewards: valRewards})
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			valOutRewardsArgs := defaultCallArgs.
 				WithMethodName(distribution.ValidatorOutstandingRewardsMethod).
-				WithArgs(s.validators[0].OperatorAddress)
+				WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, valOutRewardsArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
@@ -362,9 +376,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 			s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), distrtypes.ValidatorAccumulatedCommission{Commission: valCommission})
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			valCommArgs := defaultCallArgs.
 				WithMethodName(distribution.ValidatorCommissionMethod).
-				WithArgs(s.validators[0].OperatorAddress)
+				WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, valCommArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
@@ -384,10 +401,13 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				slashEvent := distrtypes.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)}
 				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, slashEvent)
 
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				valSlashArgs := defaultCallArgs.
 					WithMethodName(distribution.ValidatorSlashesMethod).
 					WithArgs(
-						s.validators[0].OperatorAddress,
+						common.BytesToAddress(operatorAddress.Bytes()),
 						uint64(1), uint64(5),
 						query.PageRequest{},
 					)
@@ -409,10 +429,13 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				// set 2 slashing events for validator[0]
 				slashEvent := s.setupValidatorSlashes(s.validators[0].GetOperator(), 2)
 
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				valSlashArgs := defaultCallArgs.
 					WithMethodName(distribution.ValidatorSlashesMethod).
 					WithArgs(
-						s.validators[0].OperatorAddress,
+						common.BytesToAddress(operatorAddress.Bytes()),
 						uint64(1), uint64(5),
 						query.PageRequest{
 							Limit:      1,
@@ -438,9 +461,12 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should get delegation rewards - delegationRewards query", func() {
 			s.prepareStakingRewards(stakingRewards{s.address.Bytes(), s.validators[0], rewards})
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			delRewardsArgs := defaultCallArgs.
 				WithMethodName(distribution.DelegationRewardsMethod).
-				WithArgs(s.address, s.validators[0].OperatorAddress)
+				WithArgs(s.address, common.BytesToAddress(operatorAddress.Bytes()))
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delRewardsArgs, passCheck)
 			Expect(err).To(BeNil(), "error while calling the precompile")
@@ -472,15 +498,18 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(err).To(BeNil())
 			Expect(2).To(Equal(len(out.Rewards)))
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			// the response order may change
-			if out.Rewards[0].ValidatorAddress == s.validators[0].OperatorAddress {
-				Expect(s.validators[0].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-				Expect(s.validators[1].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
+			if out.Rewards[0].ValidatorAddress.String() == common.BytesToAddress(operatorAddress.Bytes()).String() {
+				Expect(s.validators[0].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String()))
+				Expect(s.validators[1].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String()))
 				Expect(0).To(Equal(len(out.Rewards[1].Reward)))
 			} else {
 				i = 1
-				Expect(s.validators[0].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-				Expect(s.validators[1].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
+				Expect(s.validators[0].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String()))
+				Expect(s.validators[1].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String()))
 				Expect(0).To(Equal(len(out.Rewards[0].Reward)))
 			}
 
@@ -605,7 +634,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		It("should set withdraw address successfully", func() {
 			setWithdrawAddrArgs := defaultSetWithdrawAddrArgs.WithArgs(
-				s.address, newWithdrawer.String(),
+				s.address, newWithdrawer,
 			)
 
 			setWithdrawCheck := passCheck.WithExpEvents(distribution.EventTypeSetWithdrawAddress)
@@ -678,11 +707,14 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should not withdraw rewards when sending from a different address", func() {
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
-				differentAddr, s.validators[0].OperatorAddress,
+				differentAddr, common.BytesToAddress(operatorAddress.Bytes()),
 			)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, execRevertedCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
@@ -695,14 +727,17 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully", func() {
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
-				s.address, s.validators[0].OperatorAddress,
+				s.address, common.BytesToAddress(operatorAddress.Bytes()),
 			)
 
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, logCheckArgs)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, logCheckArgs)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should remain unchanged
@@ -716,8 +751,11 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, s.address.Bytes(), differentAddr.Bytes())
 			Expect(err).To(BeNil())
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(
-				s.address, s.validators[0].OperatorAddress,
+				s.address, common.BytesToAddress(operatorAddress.Bytes()),
 			)
 
 			logCheckArgs := passCheck.
@@ -761,11 +799,14 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully without origin check", func() {
-			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(s.validators[0].OperatorAddress)
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
+			withdrawDelRewardsArgs := defaultWithdrawDelRewardsArgs.WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 
 			logCheckArgs := passCheck.WithExpEvents(distribution.EventTypeWithdrawDelegatorRewards)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, logCheckArgs)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawDelRewardsArgs, logCheckArgs)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
 			// balance should increase
@@ -784,6 +825,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			commDec = math.LegacyNewDec(1)
 			// valAddr is the address of the validator
 			valAddr sdk.ValAddress
+			// valHexAddr is the hex address of the validator
+			valHexAddr common.Address
 			// initialBalance is the initial balance of the delegator
 			initialBalance sdk.Coin
 		)
@@ -792,6 +835,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// create a validator with s.address because is the address
 			// used for signing txs
 			valAddr = s.address.Bytes()
+			valHexAddr = s.address
 			stakeAmt := math.NewInt(100)
 			testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), s.app.StakingKeeper, stakeAmt)
 
@@ -824,11 +868,14 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should not withdraw commission from validator when sending from a different address", func() {
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			withdrawValCommArgs := defaultWithdrawValCommArgs.WithArgs(
-				s.validators[0].OperatorAddress,
+				common.BytesToAddress(operatorAddress.Bytes()),
 			)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawValCommArgs, execRevertedCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, withdrawValCommArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
@@ -842,7 +889,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 		It("should withdraw commission successfully", func() {
 			withdrawValCommArgs := defaultWithdrawValCommArgs.
-				WithArgs(valAddr.String()).
+				WithArgs(valHexAddr).
 				WithGasPrice(gasPrice)
 			logCheckArgs := passCheck.
 				WithExpEvents(distribution.EventTypeWithdrawValidatorCommission)
@@ -984,13 +1031,16 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// set rewards to another user
 			s.prepareStakingRewards(stakingRewards{differentAddr.Bytes(), s.validators[0], rewards})
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			revertArgs := defaultCallArgs.
 				WithMethodName("testRevertState").
 				WithArgs(
-					differentAddr.String(), differentAddr, s.validators[0].OperatorAddress,
+					differentAddr, differentAddr, common.BytesToAddress(operatorAddress.Bytes()),
 				)
 
-			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, revertArgs, execRevertedCheck)
+			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, revertArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
 
 			// check withdraw address didn't change
@@ -1009,7 +1059,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		It("should not allow to call SetWithdrawAddress using delegatecall", func() {
 			setWithdrawAddrArgs := defaultCallArgs.
 				WithMethodName("delegateCallSetWithdrawAddress").
-				WithArgs(s.address, differentAddr.String())
+				WithArgs(s.address, differentAddr)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
@@ -1022,7 +1072,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		It("should not allow to call txs (SetWithdrawAddress) using staticcall", func() {
 			setWithdrawAddrArgs := defaultCallArgs.
 				WithMethodName("staticCallSetWithdrawAddress").
-				WithArgs(s.address, differentAddr.String())
+				WithArgs(s.address, differentAddr)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, setWithdrawAddrArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
@@ -1051,9 +1101,12 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)
 				Expect(err).To(BeNil())
 
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				defaultValDistArgs = defaultCallArgs.
 					WithMethodName("getValidatorDistributionInfo").
-					WithArgs(s.validators[0].OperatorAddress)
+					WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 			})
 
 			It("should get validator distribution info", func() {
@@ -1064,8 +1117,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				err = s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, ethRes.Ret)
 				Expect(err).To(BeNil())
 
-				expAddr := sdk.AccAddress(s.validators[0].GetOperator())
-				Expect(expAddr.String()).To(Equal(out.DistributionInfo.OperatorAddress))
+				expAddr := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
+				Expect(expAddr.String()).To(Equal(out.DistributionInfo.OperatorAddress.String()))
 				Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
 				Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 			})
@@ -1078,9 +1131,12 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			var defaultValOutRewardsArgs contracts.CallArgs
 
 			BeforeEach(func() {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				defaultValOutRewardsArgs = defaultCallArgs.
 					WithMethodName("getValidatorOutstandingRewards").
-					WithArgs(s.validators[0].OperatorAddress)
+					WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 			})
 
 			It("should not get rewards - validator without outstanding rewards", func() {
@@ -1117,10 +1173,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
 			var defaultValCommArgs contracts.CallArgs
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			BeforeEach(func() {
 				defaultValCommArgs = defaultCallArgs.
 					WithMethodName("getValidatorCommission").
-					WithArgs(s.validators[0].OperatorAddress)
+					WithArgs(common.BytesToAddress(operatorAddress.Bytes()))
 			})
 
 			It("should not get commission - validator without commission", func() {
@@ -1158,10 +1217,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			var defaultValSlashArgs contracts.CallArgs
 
 			BeforeEach(func() {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				defaultValSlashArgs = defaultCallArgs.
 					WithMethodName("getValidatorSlashes").
 					WithArgs(
-						s.validators[0].OperatorAddress,
+						common.BytesToAddress(operatorAddress.Bytes()),
 						uint64(1), uint64(5),
 						query.PageRequest{},
 					)
@@ -1198,9 +1260,11 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				// set 2 slashing events
 				slashEvent := s.setupValidatorSlashes(s.validators[0].GetOperator(), 2)
 
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
 				// set pagination
 				defaultValSlashArgs.Args = []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					uint64(1), uint64(5),
 					query.PageRequest{
 						Limit:      1,
@@ -1228,10 +1292,13 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// NOTE: this has to be populated in BeforeEach because the test suite setup is not available prior to that.
 			var defaultDelRewardsArgs contracts.CallArgs
 
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
 			BeforeEach(func() {
 				defaultDelRewardsArgs = defaultCallArgs.
 					WithMethodName("getDelegationRewards").
-					WithArgs(s.address, s.validators[0].OperatorAddress)
+					WithArgs(s.address, common.BytesToAddress(operatorAddress.Bytes()))
 			})
 
 			It("should not get rewards - no rewards available", func() {
@@ -1297,14 +1364,17 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(err).To(BeNil())
 
 				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.validators[0].OperatorAddress {
-					Expect(s.validators[0].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
-					Expect(s.validators[1].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				if out.Rewards[0].ValidatorAddress.String() == common.BytesToAddress(operatorAddress.Bytes()).String() {
+					Expect(s.validators[0].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String()))
+					Expect(s.validators[1].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String()))
 					Expect(0).To(Equal(len(out.Rewards[1].Reward)))
 				} else {
 					i = 1
-					Expect(s.validators[0].OperatorAddress).To(Equal(out.Rewards[1].ValidatorAddress))
-					Expect(s.validators[1].OperatorAddress).To(Equal(out.Rewards[0].ValidatorAddress))
+					Expect(s.validators[0].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String()))
+					Expect(s.validators[1].OperatorAddress).To(Equal(sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String()))
 					Expect(0).To(Equal(len(out.Rewards[0].Reward)))
 				}
 

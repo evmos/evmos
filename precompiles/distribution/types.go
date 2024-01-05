@@ -71,20 +71,14 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	withdrawerAddress, _ := args[1].(string)
-
-	// If the withdrawer address is a hex address, convert it to a bech32 address.
-	if common.IsHexAddress(withdrawerAddress) {
-		var err error
-		withdrawerAddress, err = sdk.Bech32ifyAddressBytes("evmos", common.HexToAddress(withdrawerAddress).Bytes())
-		if err != nil {
-			return nil, common.Address{}, err
-		}
+	withdrawerAddress, ok := args[1].(common.Address)
+	if !ok || withdrawerAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidWithdrawer, args[1])
 	}
 
 	msg := &distributiontypes.MsgSetWithdrawAddress{
 		DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		WithdrawAddress:  withdrawerAddress,
+		WithdrawAddress:  sdk.AccAddress(withdrawerAddress.Bytes()).String(),
 	}
 
 	if err := msg.ValidateBasic(); err != nil {
@@ -105,11 +99,14 @@ func NewMsgWithdrawDelegatorReward(args []interface{}) (*distributiontypes.MsgWi
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, _ := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
+	}
 
 	msg := &distributiontypes.MsgWithdrawDelegatorReward{
 		DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}
 
 	if err := msg.ValidateBasic(); err != nil {
@@ -125,22 +122,20 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
 
 	msg := &distributiontypes.MsgWithdrawValidatorCommission{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}
 
 	if err := msg.ValidateBasic(); err != nil {
 		return nil, common.Address{}, err
 	}
 
-	validatorHexAddr, err := cmn.HexAddressFromBech32String(msg.ValidatorAddress)
-	if err != nil {
-		return nil, common.Address{}, err
-	}
-
-	return msg, validatorHexAddr, nil
+	return msg, validatorAddress, nil
 }
 
 // NewValidatorDistributionInfoRequest creates a new QueryValidatorDistributionInfoRequest  instance and does sanity
@@ -150,10 +145,13 @@ func NewValidatorDistributionInfoRequest(args []interface{}) (*distributiontypes
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
 
 	return &distributiontypes.QueryValidatorDistributionInfoRequest{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}, nil
 }
 
@@ -164,10 +162,13 @@ func NewValidatorOutstandingRewardsRequest(args []interface{}) (*distributiontyp
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
 
 	return &distributiontypes.QueryValidatorOutstandingRewardsRequest{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}, nil
 }
 
@@ -178,10 +179,13 @@ func NewValidatorCommissionRequest(args []interface{}) (*distributiontypes.Query
 		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 1, len(args))
 	}
 
-	validatorAddress, _ := args[0].(string)
+	validatorAddress, ok := args[0].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[0])
+	}
 
 	return &distributiontypes.QueryValidatorCommissionRequest{
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}, nil
 }
 
@@ -205,7 +209,7 @@ func NewValidatorSlashesRequest(method *abi.Method, args []interface{}) (*distri
 	}
 
 	return &distributiontypes.QueryValidatorSlashesRequest{
-		ValidatorAddress: input.ValidatorAddress,
+		ValidatorAddress: sdk.ValAddress(input.ValidatorAddress.Bytes()).String(),
 		StartingHeight:   input.StartingHeight,
 		EndingHeight:     input.EndingHeight,
 		Pagination:       &input.PageRequest,
@@ -224,11 +228,14 @@ func NewDelegationRewardsRequest(args []interface{}) (*distributiontypes.QueryDe
 		return nil, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
 	}
 
-	validatorAddress, _ := args[1].(string)
+	validatorAddress, ok := args[1].(common.Address)
+	if !ok || validatorAddress == (common.Address{}) {
+		return nil, fmt.Errorf(cmn.ErrInvalidValidator, args[1])
+	}
 
 	return &distributiontypes.QueryDelegationRewardsRequest{
 		DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-		ValidatorAddress: validatorAddress,
+		ValidatorAddress: sdk.ValAddress(validatorAddress.Bytes()).String(),
 	}, nil
 }
 
@@ -286,9 +293,9 @@ func NewDelegatorWithdrawAddressRequest(args []interface{}) (*distributiontypes.
 // ValidatorDistributionInfo is a struct to represent the key information from
 // a ValidatorDistributionInfoResponse.
 type ValidatorDistributionInfo struct {
-	OperatorAddress string        `abi:"operatorAddress"`
-	SelfBondRewards []cmn.DecCoin `abi:"selfBondRewards"`
-	Commission      []cmn.DecCoin `abi:"commission"`
+	OperatorAddress common.Address `abi:"operatorAddress"`
+	SelfBondRewards []cmn.DecCoin  `abi:"selfBondRewards"`
+	Commission      []cmn.DecCoin  `abi:"commission"`
 }
 
 // ValidatorDistributionInfoOutput is a wrapper for ValidatorDistributionInfo to return in the response.
@@ -298,9 +305,14 @@ type ValidatorDistributionInfoOutput struct {
 
 // FromResponse converts a response to a ValidatorDistributionInfo.
 func (o *ValidatorDistributionInfoOutput) FromResponse(res *distributiontypes.QueryValidatorDistributionInfoResponse) ValidatorDistributionInfoOutput {
+	operatorAddress, err := sdk.ValAddressFromBech32(res.OperatorAddress)
+	if err != nil {
+		return *o
+	}
+
 	return ValidatorDistributionInfoOutput{
 		DistributionInfo: ValidatorDistributionInfo{
-			OperatorAddress: res.OperatorAddress,
+			OperatorAddress: common.BytesToAddress(operatorAddress.Bytes()),
 			SelfBondRewards: cmn.NewDecCoinsResponse(res.SelfBondRewards),
 			Commission:      cmn.NewDecCoinsResponse(res.Commission),
 		},
@@ -317,7 +329,7 @@ type ValidatorSlashEvent struct {
 // ValidatorSlashesInput is a struct to represent the key information
 // to perform a ValidatorSlashes query.
 type ValidatorSlashesInput struct {
-	ValidatorAddress string
+	ValidatorAddress common.Address
 	StartingHeight   uint64
 	EndingHeight     uint64
 	PageRequest      query.PageRequest
@@ -359,7 +371,7 @@ func (vs *ValidatorSlashesOutput) Pack(args abi.Arguments) ([]byte, error) {
 // DelegationDelegatorReward is a struct to represent the key information from
 // a query for the rewards of a delegation to a given validator.
 type DelegationDelegatorReward struct {
-	ValidatorAddress string
+	ValidatorAddress common.Address
 	Reward           []cmn.DecCoin
 }
 
@@ -374,8 +386,12 @@ type DelegationTotalRewardsOutput struct {
 func (dtr *DelegationTotalRewardsOutput) FromResponse(res *distributiontypes.QueryDelegationTotalRewardsResponse) *DelegationTotalRewardsOutput {
 	dtr.Rewards = make([]DelegationDelegatorReward, len(res.Rewards))
 	for i, r := range res.Rewards {
+		validatorAddress, err := sdk.ValAddressFromBech32(r.ValidatorAddress)
+		if err != nil {
+			validatorAddress = common.Address{}.Bytes()
+		}
 		dtr.Rewards[i] = DelegationDelegatorReward{
-			ValidatorAddress: r.ValidatorAddress,
+			ValidatorAddress: common.BytesToAddress(validatorAddress.Bytes()),
 			Reward:           cmn.NewDecCoinsResponse(r.Reward),
 		}
 	}
