@@ -12,6 +12,13 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
+	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
+)
+
 // EventTransfer defines the event data for the ERC20 Transfer events.
 type EventTransfer struct {
 	From  common.Address

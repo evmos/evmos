@@ -7,14 +7,6 @@
   },
   "apis": [
     {
-      "url": "./tmp-swagger-gen/evmos/claims/v1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "ClaimsParams"
-        }
-      }
-    },
-    {
       "url": "./tmp-swagger-gen/evmos/epochs/v1/query.swagger.json"
     },
     {
@@ -22,14 +14,6 @@
       "operationIds": {
         "rename": {
           "Params": "ERC20Params"
-        }
-      }
-    },
-    {
-      "url": "./tmp-swagger-gen/evmos/incentives/v1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "IncentivesParams"
         }
       }
     },
@@ -43,23 +27,15 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/evmos/vesting/v1/query.swagger.json"
-    },
-    {
-      "url": "./tmp-swagger-gen/evmos/recovery/v1/query.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "RecoveryParams"
-        }
-      }
+      "url": "./tmp-swagger-gen/evmos/vesting/v2/query.swagger.json"
     },
     {
       "url": "./tmp-swagger-gen/evmos/revenue/v1/query.swagger.json",
-        "operationIds": {
-            "rename": {
-            "Params": "RevenueParams"
-            }
+      "operationIds": {
+        "rename": {
+          "Params": "RevenueParams"
         }
+      }
     },
     {
       "url": "./tmp-swagger-gen/ethermint/evm/v1/query.swagger.json",

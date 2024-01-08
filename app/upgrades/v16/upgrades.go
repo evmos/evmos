@@ -23,7 +23,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	ek *evmkeeper.Keeper,
-	_ bankkeeper.Keeper,
+	bk bankkeeper.Keeper,
 	inflationKeeper inflationkeeper.Keeper,
 	ak authkeeper.AccountKeeper,
 	gk govkeeper.Keeper,
@@ -53,10 +53,9 @@ func CreateUpgradeHandler(
 			logger.Error("failed to migrate the fee collector", "error", err.Error())
 		}
 
-		// TODO: uncomment when ready
-		// if err := BurnUsageIncentivesPool(ctx, bankKeeper); err != nil {
-		//	logger.Error("failed to burn inflation pool", "error", err.Error())
-		// }
+		if err := BurnUsageIncentivesPool(ctx, bk); err != nil {
+			logger.Error("failed to burn inflation pool", "error", err.Error())
+		}
 
 		if err := UpdateInflationParams(ctx, inflationKeeper); err != nil {
 			logger.Error("failed to update inflation params", "error", err.Error())

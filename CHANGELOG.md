@@ -56,6 +56,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 - (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
+- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
+- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
+- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
 
 ### API Breaking
 
@@ -144,6 +147,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
 - (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
 - (api) [#2198] (https://github.com/evmos/evmos/pull/2198) Remove deprecated `RegisterCoinProposal` from store to avoid breaking the governance proposals query.
+- (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) backport handle cases for input and output denoms without token pair lookup
+- (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
+- (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
+- (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
+- (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
+- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
 
 ### Bug Fixes
 
@@ -152,6 +161,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
 - (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
+- (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger
 
 ## [v15.0.0] - 2023-10-31
 
