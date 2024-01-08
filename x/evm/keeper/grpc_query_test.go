@@ -143,13 +143,13 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 				addr := suite.keyring.GetAddr(0)
 				acc := suite.network.App.AccountKeeper.GetAccount(suite.network.GetContext(), addr.Bytes())
 				suite.Require().NoError(acc.SetSequence(10))
-				suite.Require().NoError(acc.SetAccountNumber(1))
+				suite.Require().NoError(acc.SetAccountNumber(10))
 				suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), acc)
 
 				expAccount = &types.QueryCosmosAccountResponse{
 					CosmosAddress: sdk.AccAddress(addr.Bytes()).String(),
 					Sequence:      10,
-					AccountNumber: 1,
+					AccountNumber: 10,
 				}
 				req = &types.QueryCosmosAccountRequest{
 					Address: addr.String(),
@@ -475,13 +475,13 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 
 				acc := suite.network.App.AccountKeeper.GetAccount(suite.network.GetContext(), addr.Bytes())
 				suite.Require().NoError(acc.SetSequence(10))
-				suite.Require().NoError(acc.SetAccountNumber(1))
+				suite.Require().NoError(acc.SetAccountNumber(10))
 				suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), acc)
 
 				expAccount = &types.QueryValidatorAccountResponse{
 					AccountAddress: sdk.AccAddress(addr.Bytes()).String(),
 					Sequence:       10,
-					AccountNumber:  1,
+					AccountNumber:  10,
 				}
 				req = &types.QueryValidatorAccountRequest{
 					ConsAddress: sdk.ConsAddress(consAddr).String(),
