@@ -25,9 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 )
 
-var (
-	flagPrefix = "prefix"
-)
+var flagPrefix = "prefix"
 
 // Cmd creates a main CLI command
 func Cmd() *cobra.Command {
