@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
+- (staking-precompile) [#2200](https://github.com/evmos/evmos/pull/2200) Replace bech32 address with evm hex address for staking precompile contract.
 
 ### API Breaking
 
