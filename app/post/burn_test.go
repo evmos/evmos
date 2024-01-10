@@ -130,6 +130,24 @@ func (s *PostTestSuite) TestPostHandle() {
 				s.Require().Equal(expected, balance)
 			},
 		},
+		{
+			name: "pass - fees exceeds MaxUint64 (~18 EVMOS). Should not panic",
+			tx: func() sdk.Tx {
+				amt, ok := sdkmath.NewIntFromString("10000000000000000000000000000000000")
+				s.Require().True(ok)
+				feeAmount := sdk.Coins{sdk.Coin{Amount: amt, Denom: "evmos"}}
+				amount := sdk.Coins{sdk.Coin{Amount: amt, Denom: "evmos"}}
+				s.MintCoinsForFeeCollector(amount)
+
+				return s.BuildCosmosTxWithNSendMsg(1, feeAmount)
+			},
+			expPass: true,
+			postChecks: func() {
+				expected := sdk.Coins{}
+				balance := s.GetFeeCollectorBalance()
+				s.Require().Equal(expected, balance)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
