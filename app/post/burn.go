@@ -75,6 +75,9 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 	}
 
 	defer func() {
+		if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+			return
+		}
 		for _, c := range burnedCoins {
 			// if fee amount is higher than uint64, skip the counter
 			if !c.Amount.IsUint64() {
