@@ -81,7 +81,7 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 				continue
 			}
 			telemetry.IncrCounterWithLabels(
-				[]string{"cosmos", "tx", "burnt", "fee", "amount"},
+				[]string{"burnt", "tx", "fee", "amount"},
 				float32(c.Amount.Uint64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", c.Denom),
