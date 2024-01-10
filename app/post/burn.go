@@ -76,9 +76,13 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 
 	defer func() {
 		for _, c := range burntCoins {
+			// if fee amount is higher than uint64, skip the counter
+			if !c.Amount.IsUint64() {
+				return
+			}
 			telemetry.IncrCounterWithLabels(
-				[]string{"cosmos", "tx", "burnt", "fee", "amount", "total"},
-				float32(c.Amount.Int64()),
+				[]string{"cosmos", "tx", "burnt", "fee", "amount"},
+				float32(c.Amount.Uint64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", c.Denom),
 				},
