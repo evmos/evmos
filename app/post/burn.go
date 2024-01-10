@@ -56,7 +56,7 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 	}
 
 	// burn min(balance, fee)
-	var burnedCoins sdk.Coins
+	var burntCoins sdk.Coins
 	for _, fee := range fees {
 		balance := bd.bankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(bd.feeCollectorName), fee.Denom)
 		if !balance.IsPositive() {
@@ -65,12 +65,12 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 
 		amount := sdkmath.MinInt(fee.Amount, balance.Amount)
 
-		burnedCoins = append(burnedCoins, sdk.Coin{Denom: fee.Denom, Amount: amount})
+		burntCoins = append(burntCoins, sdk.Coin{Denom: fee.Denom, Amount: amount})
 	}
 
 	// NOTE: since all Cosmos tx fees are pooled by the fee collector module account,
 	// we burn them directly from it
-	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burnedCoins); err != nil {
+	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burntCoins); err != nil {
 		return ctx, err
 	}
 
