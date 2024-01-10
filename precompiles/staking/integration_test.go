@@ -35,7 +35,8 @@ import (
 // General variables used for integration tests
 var (
 	// valAddr and valAddr2 are the two validator addresses used for testing
-	valAddr, valAddr2 sdk.ValAddress
+	valAddr, valAddr2       sdk.ValAddress
+	valHexAddr, valHexAddr2 common.Address
 
 	// defaultCallArgs and defaultApproveArgs are the default arguments for calling the smart contract and to
 	// call the approve method specifically.
@@ -65,6 +66,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 		valAddr = s.validators[0].GetOperator()
 		valAddr2 = s.validators[1].GetOperator()
+
+		valHexAddr = common.BytesToAddress(valAddr.Bytes())
+		valHexAddr2 = common.BytesToAddress(valAddr2.Bytes())
 
 		defaultCallArgs = contracts.CallArgs{
 			ContractAddr: s.precompile.Address(),
@@ -96,7 +100,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			delegateArgs := defaultCallArgs.
 				WithMethodName(staking.DelegateMethod).
 				WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, valHexAddr, big.NewInt(2e18),
 				)
 
 			failCheck := defaultLogCheck.
@@ -425,7 +429,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		Context("as the token owner", func() {
 			It("should delegate without need for authorization", func() {
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, valHexAddr, big.NewInt(2e18),
 				)
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeDelegate)
@@ -451,7 +455,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 				// try to delegate more than left in account
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("insufficient funds")
@@ -463,10 +467,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not delegate if the validator does not exist", func() {
 				nonExistingAddr := testutiltx.GenerateAddress()
-				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
 
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, nonExistingValAddr.String(), big.NewInt(2e18),
+					s.address, nonExistingAddr, big.NewInt(2e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("validator does not exist")
@@ -511,7 +514,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(undelegations).To(HaveLen(0), "expected no unbonding delegations before test")
 
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeUnbond)
@@ -526,7 +529,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not undelegate if the amount exceeds the delegation", func() {
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, valHexAddr, big.NewInt(2e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("invalid shares amount")
@@ -538,10 +541,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not undelegate if the validator does not exist", func() {
 				nonExistingAddr := testutiltx.GenerateAddress()
-				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
 
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, nonExistingValAddr.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("validator does not exist")
@@ -557,7 +559,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				differentAddr := testutiltx.GenerateAddress()
 
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					differentAddr, valAddr.String(), big.NewInt(1e18),
+					differentAddr, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
@@ -583,7 +585,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		Context("as the token owner", func() {
 			It("should redelegate without need for authorization", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+					s.address, valHexAddr, valHexAddr2, big.NewInt(1e18),
 				)
 
 				logCheckArgs := passCheck.
@@ -602,7 +604,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not redelegate if the amount exceeds the delegation", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(2e18),
+					s.address, valHexAddr, valHexAddr2, big.NewInt(2e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("invalid shares amount")
@@ -614,10 +616,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not redelegate if the validator does not exist", func() {
 				nonExistingAddr := testutiltx.GenerateAddress()
-				nonExistingValAddr := sdk.ValAddress(nonExistingAddr.Bytes())
 
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), nonExistingValAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("redelegation destination validator not found")
@@ -633,7 +634,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				differentAddr := testutiltx.GenerateAddress()
 
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					differentAddr, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+					differentAddr, valHexAddr, valHexAddr2, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains(
@@ -663,7 +664,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// Set up an unbonding delegation
 			undelegateArgs := defaultCallArgs.
 				WithMethodName(staking.UndelegateMethod).
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+				WithArgs(s.address, valHexAddr, big.NewInt(1e18))
 
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeUnbond)
@@ -689,7 +690,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 				Expect(delegations).To(HaveLen(0))
 
 				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.address, valHexAddr, big.NewInt(1e18), big.NewInt(expCreationHeight),
 				)
 
 				logCheckArgs := passCheck.
@@ -707,7 +708,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not cancel an unbonding delegation if the amount is not correct", func() {
 				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18), big.NewInt(expCreationHeight),
+					s.address, valHexAddr, big.NewInt(2e18), big.NewInt(expCreationHeight),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("amount is greater than the unbonding delegation entry balance")
@@ -722,7 +723,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			It("should not cancel an unbonding delegation if the creation height is not correct", func() {
 				cArgs := defaultCancelUnbondingArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight+1),
+					s.address, valHexAddr, big.NewInt(1e18), big.NewInt(expCreationHeight+1),
 				)
 
 				logCheckArgs := defaultLogCheck.WithErrContains("unbonding delegation entry is not found at block height")
@@ -794,7 +795,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		})
 
 		It("should return validator", func() {
-			varHexAddr := common.BytesToAddress(valAddr.Bytes())
+			varHexAddr := valHexAddr
 			validatorArgs := defaultValidatorArgs.WithArgs(
 				varHexAddr,
 			)
@@ -805,7 +806,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress.String()).To(Equal(varHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
@@ -821,7 +822,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(""), "expected validator address to be empty")
+			Expect(valOut.Validator.OperatorAddress.String()).To(Equal(common.Address{}.String()), "expected validator address to be empty")
 			Expect(valOut.Validator.Status).To(BeZero(), "expected unspecified bonding status")
 		})
 	})
@@ -928,7 +929,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return a delegation if it is found", func() {
 			delegationArgs := defaultDelegationArgs.WithArgs(
 				s.address,
-				valAddr.String(),
+				valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
@@ -944,7 +945,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return an empty delegation if it is not found", func() {
 			newValAddr := sdk.ValAddress(testutiltx.GenerateAddress().Bytes())
 			delegationArgs := defaultDelegationArgs.WithArgs(
-				s.address, newValAddr.String(),
+				s.address, common.BytesToAddress(newValAddr.Bytes()),
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
@@ -975,7 +976,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 
 			unbondArgs := defaultCallArgs.
 				WithMethodName(staking.UndelegateMethod).
-				WithArgs(s.address, valAddr.String(), undelAmount)
+				WithArgs(s.address, valHexAddr, undelAmount)
 			unbondCheck := passCheck.WithExpEvents(staking.EventTypeUnbond)
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondArgs, unbondCheck)
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -988,7 +989,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return an unbonding delegation if it is found", func() {
 			unbondingDelegationsArgs := defaultUnbondingDelegationArgs.WithArgs(
 				s.address,
-				valAddr.String(),
+				valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, passCheck)
@@ -1006,7 +1007,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return an empty slice if the unbonding delegation is not found", func() {
 			unbondingDelegationsArgs := defaultUnbondingDelegationArgs.WithArgs(
 				s.address,
-				valAddr2.String(),
+				valHexAddr2,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, unbondingDelegationsArgs, passCheck)
@@ -1033,7 +1034,7 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// create a redelegation
 			redelegateArgs := defaultCallArgs.
 				WithMethodName(staking.RedelegateMethod).
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e17))
+				WithArgs(s.address, valHexAddr, valHexAddr2, big.NewInt(1e17))
 
 			redelegateCheck := passCheck.WithExpEvents(staking.EventTypeRedelegate)
 
@@ -1043,8 +1044,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			// query the redelegation
 			redelegationArgs := defaultRedelegationArgs.WithArgs(
 				s.address,
-				valAddr.String(),
-				valAddr2.String(),
+				valHexAddr,
+				valHexAddr2,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
@@ -1061,8 +1062,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return an empty output if the redelegation is not found", func() {
 			redelegationArgs := defaultRedelegationArgs.WithArgs(
 				s.address,
-				valAddr.String(),
-				valAddr2.String(),
+				valHexAddr,
+				valHexAddr2,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
@@ -1098,10 +1099,10 @@ var _ = Describe("Calling staking precompile directly", func() {
 			defaultRedelegateArgs := defaultCallArgs.WithMethodName(staking.RedelegateMethod)
 			redelegationsArgs := []contracts.CallArgs{
 				defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), delAmt,
+					s.address, valHexAddr, valHexAddr2, delAmt,
 				),
 				defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), delAmt,
+					s.address, valHexAddr, valHexAddr2, delAmt,
 				),
 			}
 
@@ -1117,8 +1118,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 		It("should return all redelegations for delegator (default pagination)", func() {
 			redelegationArgs := defaultRedelegationsArgs.WithArgs(
 				s.address,
-				"",
-				"",
+				common.Address{},
+				common.Address{},
 				query.PageRequest{},
 			)
 
@@ -1159,8 +1160,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 				}
 				redelegationArgs := defaultRedelegationsArgs.WithArgs(
 					s.address,
-					"",
-					"",
+					common.Address{},
+					common.Address{},
 					pagination,
 				)
 
@@ -1204,8 +1205,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 			//   --> filtering for all redelegations with the given combination of delegator, source and destination validator
 			redelegationsArgs := defaultRedelegationsArgs.WithArgs(
 				common.Address{}, // passing in an empty address to filter for all redelegations from valAddr2
-				valAddr2.String(),
-				"",
+				valHexAddr2,
+				common.Address{},
 				query.PageRequest{},
 			)
 
@@ -1274,6 +1275,9 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 		valAddr = s.validators[0].GetOperator()
 		valAddr2 = s.validators[1].GetOperator()
 
+		valHexAddr = common.BytesToAddress(valAddr.Bytes())
+		valHexAddr2 = common.BytesToAddress(valAddr2.Bytes())
+
 		s.NextBlock()
 
 		// check contract was correctly deployed
@@ -1317,7 +1321,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegateArgs := defaultCallArgs.
 				WithMethodName("testDelegate").
 				WithArgs(
-					s.address, valAddr.String(), big.NewInt(2e18),
+					s.address, valHexAddr, big.NewInt(2e18),
 				)
 
 			_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
@@ -1592,7 +1596,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should delegate when not exceeding the allowance", func() {
 				cArgs := defaultDelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := passCheck.
@@ -1628,7 +1632,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 				delegateArgs := defaultDelegateArgs.
 					WithPrivKey(newPriv).
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+					WithArgs(s.address, valHexAddr, big.NewInt(1e18))
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
 				Expect(err).To(HaveOccurred(), "error while calling the smart contract: %v", err)
@@ -1639,7 +1643,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not delegate when validator does not exist", func() {
 				delegateArgs := defaultDelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, delegateArgs, execRevertedCheck)
@@ -1708,7 +1712,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should undelegate when not exceeding the allowance", func() {
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18),
+					s.address, valHexAddr, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.
@@ -1737,7 +1741,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not undelegate if the delegation does not exist", func() {
 				undelegateArgs := defaultUndelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, undelegateArgs, execRevertedCheck)
@@ -1809,7 +1813,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should redelegate when not exceeding the allowance", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), valAddr2.String(), big.NewInt(1e18),
+					s.address, valHexAddr, valHexAddr2, big.NewInt(1e18),
 				)
 
 				logCheckArgs := defaultLogCheck.
@@ -1841,7 +1845,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not redelegate if the delegation does not exist", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, nonExistingVal.String(), valAddr2.String(), big.NewInt(1e18),
+					s.address, nonExistingAddr, valAddr2.String(), big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
@@ -1871,7 +1875,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should not redelegate when the validator does not exist", func() {
 				redelegateArgs := defaultRedelegateArgs.WithArgs(
-					s.address, valAddr.String(), nonExistingVal.String(), big.NewInt(1e18),
+					s.address, valAddr.String(), nonExistingAddr, big.NewInt(1e18),
 				)
 
 				_, _, err = contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegateArgs, execRevertedCheck)
@@ -1907,7 +1911,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			undelegateArgs := defaultCallArgs.
 				WithMethodName("testUndelegate").
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+				WithArgs(s.address, valHexAddr, big.NewInt(1e18))
 
 			logCheckArgs := defaultLogCheck.
 				WithExpEvents(staking.EventTypeUnbond).
@@ -1955,7 +1959,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			It("should cancel unbonding delegations when not exceeding allowance", func() {
 				cArgs := defaultCancelUnbondingArgs.WithGasLimit(1e9).WithArgs(
-					s.address, valAddr.String(), big.NewInt(1e18), big.NewInt(expCreationHeight),
+					s.address, valHexAddr, big.NewInt(1e18), big.NewInt(expCreationHeight),
 				)
 
 				logCheckArgs := passCheck.
@@ -2084,14 +2088,13 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(""), "expected empty validator address")
+			Expect(valOut.Validator.OperatorAddress.String()).To(Equal(common.Address{}.String()), "expected empty validator address")
 			Expect(valOut.Validator.Status).To(Equal(uint8(0)), "expected validator status to be 0 (unspecified)")
 		})
 
 		It("with existing address should return the validator", func() {
-			varHexAddr := common.BytesToAddress(valAddr.Bytes())
 			validatorArgs := defaultValidatorArgs.WithArgs(
-				varHexAddr,
+				valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, validatorArgs, passCheck)
@@ -2100,7 +2103,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			var valOut staking.ValidatorOutput
 			err = s.precompile.UnpackIntoInterface(&valOut, staking.ValidatorMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the validator output: %v", err)
-			Expect(valOut.Validator.OperatorAddress).To(Equal(varHexAddr.String()), "expected validator address to match")
+			Expect(valOut.Validator.OperatorAddress.String()).To(Equal(valHexAddr.String()), "expected validator address to match")
 			Expect(valOut.Validator.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
 		})
 
@@ -2226,7 +2229,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("which does not exist should return an empty delegation", func() {
 			delegationArgs := defaultDelegationArgs.WithArgs(
-				nonExistingAddr, valAddr.String(),
+				nonExistingAddr, valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
@@ -2241,7 +2244,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("which exists should return the delegation", func() {
 			delegationArgs := defaultDelegationArgs.WithArgs(
-				s.address, valAddr.String(),
+				s.address, valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, delegationArgs, passCheck)
@@ -2269,7 +2272,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("which does not exist should return an empty redelegation", func() {
 			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address, valAddr.String(), nonExistingVal.String(),
+				s.address, valHexAddr, nonExistingAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
@@ -2293,7 +2296,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// set up redelegation
 			redelegateArgs := defaultCallArgs.
 				WithMethodName("testRedelegate").
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1))
+				WithArgs(s.address, valHexAddr, valHexAddr2, big.NewInt(1))
 
 			redelegateCheck := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
@@ -2311,7 +2314,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			// query redelegation
 			redelegationArgs := defaultRedelegationArgs.WithArgs(
-				s.address, valAddr.String(), valAddr2.String(),
+				s.address, valHexAddr, valHexAddr2,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
@@ -2343,7 +2346,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// set up redelegation
 			redelegateArgs := defaultCallArgs.
 				WithMethodName("testRedelegate").
-				WithArgs(s.address, valAddr.String(), valAddr2.String(), big.NewInt(1))
+				WithArgs(s.address, valHexAddr, valHexAddr2, big.NewInt(1))
 
 			redelegateCheck := passCheck.
 				WithExpEvents(staking.EventTypeRedelegate)
@@ -2361,7 +2364,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			// query redelegations by delegator address
 			redelegationArgs := defaultRedelegationsArgs.
 				WithArgs(
-					s.address, "", "", query.PageRequest{Limit: 1, CountTotal: true},
+					s.address, common.Address{}, common.Address{}, query.PageRequest{Limit: 1, CountTotal: true},
 				)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, redelegationArgs, passCheck)
@@ -2396,7 +2399,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 			undelegateArgs := defaultCallArgs.
 				WithMethodName("testUndelegate").
-				WithArgs(s.address, valAddr.String(), big.NewInt(1e18))
+				WithArgs(s.address, valHexAddr, big.NewInt(1e18))
 
 			logCheckArgs := passCheck.
 				WithExpEvents(staking.EventTypeUnbond)
@@ -2416,7 +2419,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("which does not exist should return an empty unbonding delegation", func() {
 			queryUnbondingArgs := defaultQueryUnbondingArgs.WithArgs(
-				s.address, valAddr2.String(),
+				s.address, valHexAddr2,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, passCheck)
@@ -2430,7 +2433,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		It("which exists should return the unbonding delegation", func() {
 			queryUnbondingArgs := defaultQueryUnbondingArgs.WithArgs(
-				s.address, valAddr.String(),
+				s.address, valHexAddr,
 			)
 
 			_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, queryUnbondingArgs, passCheck)
@@ -2468,7 +2471,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			cArgs := defaultCallArgs.
 				WithMethodName("testApproveAndThenUndelegate").
 				WithGasLimit(1e8).
-				WithArgs(contractAddr, big.NewInt(1000), big.NewInt(500), valAddr.String())
+				WithArgs(contractAddr, big.NewInt(1000), big.NewInt(500), valHexAddr)
 
 			logCheckArgs := passCheck.
 				WithExpEvents(authorization.EventTypeApproval, staking.EventTypeUnbond)
@@ -2517,7 +2520,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			It(fmt.Sprintf("should not execute transactions for calltype %q", testcase.calltype), func() {
 				args := defaultCallArgs.
 					WithMethodName("testCallUndelegate").
-					WithArgs(s.address, valAddr.String(), big.NewInt(1e18), testcase.calltype)
+					WithArgs(s.address, valHexAddr, big.NewInt(1e18), testcase.calltype)
 
 				checkArgs := execRevertedCheck
 				if testcase.expTxPass {
@@ -2545,7 +2548,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			It(fmt.Sprintf("should execute queries for calltype %q", testcase.calltype), func() {
 				args := defaultCallArgs.
 					WithMethodName("testCallDelegation").
-					WithArgs(s.address, valAddr.String(), testcase.calltype)
+					WithArgs(s.address, valHexAddr, testcase.calltype)
 
 				_, ethRes, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, args, passCheck)
 				Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
@@ -2600,7 +2603,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegationArgs := defaultCallArgs.
 				WithGasLimit(1e9).
 				WithMethodName("testDelegateIncrementCounter").
-				WithArgs(valAddr.String(), delegationAmount)
+				WithArgs(valHexAddr, delegationAmount)
 
 			approvalAndDelegationCheck := passCheck.WithExpEvents(
 				authorization.EventTypeApproval, staking.EventTypeDelegate,
@@ -2624,7 +2627,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			delegationArgs := defaultCallArgs.
 				WithGasLimit(1e9).
 				WithMethodName("approveDepositAndDelegate").
-				WithArgs(valAddr.String()).
+				WithArgs(valHexAddr).
 				WithAmount(big.NewInt(2e18))
 
 			approvalAndDelegationCheck := passCheck.WithExpEvents(
@@ -2794,7 +2797,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			// NOTE: passing an invalid validator address here should fail AFTER the erc20 transfer was made in the smart contract.
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
 			failArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, "invalid validator", transferredAmount)
+				WithArgs(erc20ContractAddr, common.Address{}, transferredAmount)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
@@ -2830,7 +2833,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
 			moreThanMintedAmount := new(big.Int).Add(mintAmount, big.NewInt(1))
 			failArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, moreThanMintedAmount)
+				WithArgs(erc20ContractAddr, common.BytesToAddress(s.validators[0].GetOperator().Bytes()), moreThanMintedAmount)
 
 			_, _, err := contracts.CallContractAndCheckLogs(s.ctx, s.app, failArgs, execRevertedCheck)
 			Expect(err).To(HaveOccurred(), "expected error while calling the smart contract")
@@ -2865,7 +2868,7 @@ var _ = Describe("Batching cosmos and eth interactions", func() {
 			// for delegating was made in the smart contract.
 			// Therefore this can be used to check that both EVM and Cosmos states are reverted correctly.
 			successArgs := defaultCallArgs.
-				WithArgs(erc20ContractAddr, s.validators[0].OperatorAddress, transferredAmount)
+				WithArgs(erc20ContractAddr, common.BytesToAddress(s.validators[0].GetOperator().Bytes()), transferredAmount)
 
 			// Build combined map of ABI events to check for both ERC20 events as well as precompile events
 			//

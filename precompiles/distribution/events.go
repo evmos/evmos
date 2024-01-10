@@ -61,22 +61,24 @@ func (p Precompile) EmitClaimRewardsEvent(ctx sdk.Context, stateDB vm.StateDB, d
 
 // EmitSetWithdrawAddressEvent creates a new event emitted on a SetWithdrawAddressMethod transaction.
 func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.StateDB, caller common.Address, withdrawerAddress string) error {
+	withdrawerAddr, err := sdk.AccAddressFromBech32(withdrawerAddress)
+	if err != nil {
+		return err
+	}
+
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeSetWithdrawAddress]
-	topics := make([]common.Hash, 2)
+	topics := make([]common.Hash, 3)
 
 	// The first topic is always the signature of the event.
 	topics[0] = event.ID
 
-	var err error
 	topics[1], err = cmn.MakeTopic(caller)
 	if err != nil {
 		return err
 	}
 
-	// Pack the arguments to be used as the Data field
-	arguments := abi.Arguments{event.Inputs[1]}
-	packed, err := arguments.Pack(withdrawerAddress)
+	topics[2], err = cmn.MakeTopic(common.BytesToAddress(withdrawerAddr.Bytes()))
 	if err != nil {
 		return err
 	}
@@ -84,7 +86,7 @@ func (p Precompile) EmitSetWithdrawAddressEvent(ctx sdk.Context, stateDB vm.Stat
 	stateDB.AddLog(&ethtypes.Log{
 		Address:     p.Address(),
 		Topics:      topics,
-		Data:        packed,
+		Data:        nil,
 		BlockNumber: uint64(ctx.BlockHeight()),
 	})
 
@@ -130,7 +132,7 @@ func (p Precompile) EmitWithdrawDelegatorRewardsEvent(ctx sdk.Context, stateDB v
 }
 
 // EmitWithdrawValidatorCommissionEvent creates a new event emitted on a WithdrawValidatorCommission transaction.
-func (p Precompile) EmitWithdrawValidatorCommissionEvent(ctx sdk.Context, stateDB vm.StateDB, validatorAddress string, coins sdk.Coins) error {
+func (p Precompile) EmitWithdrawValidatorCommissionEvent(ctx sdk.Context, stateDB vm.StateDB, validatorAddress common.Address, coins sdk.Coins) error {
 	// Prepare the event topics
 	event := p.ABI.Events[EventTypeWithdrawValidatorCommission]
 	topics := make([]common.Hash, 2)

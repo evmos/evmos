@@ -44,8 +44,8 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 			"fail - invalid delegator address",
 			func() []interface{} {
 				return []interface{}{
-					"",
-					s.address.String(),
+					common.Address{},
+					s.address,
 				}
 			},
 			func() {},
@@ -58,20 +58,20 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					nil,
+					common.Address{},
 				}
 			},
 			func() {},
 			200000,
 			true,
-			"invalid withdraw address: empty address string is not allowed: invalid address",
+			"invalid withdrawer address",
 		},
 		{
 			"success - using the same address withdrawer address",
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					s.address.String(),
+					s.address,
 				}
 			},
 			func() {
@@ -87,7 +87,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					newWithdrawerAddr.String(),
+					newWithdrawerAddr,
 				}
 			},
 			func() {
@@ -124,7 +124,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func(data []byte)
 		gas         uint64
 		expError    bool
@@ -132,7 +132,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(data []byte) {},
@@ -142,9 +142,9 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"fail - invalid delegator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
-					"",
+					common.Address{},
 					operatorAddress,
 				}
 			},
@@ -155,10 +155,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					s.address,
-					nil,
+					common.Address{},
 				}
 			},
 			func(data []byte) {},
@@ -168,9 +168,8 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 		},
 		{
 			"success - withdraw rewards from a single validator without commission",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
-				s.Require().NoError(err)
+			func(operatorAddress common.Address) []interface{} {
+				valAddr := sdk.ValAddress(operatorAddress.Bytes())
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
 				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
@@ -206,7 +205,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
-			bz, err := s.precompile.WithdrawDelegatorRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+			operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+			s.Require().NoError(err)
+
+			bz, err := s.precompile.WithdrawDelegatorRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(common.BytesToAddress(operatorAddress.Bytes())))
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)
@@ -223,7 +225,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 
 	testCases := []struct {
 		name        string
-		malleate    func(operatorAddress string) []interface{}
+		malleate    func(operatorAddress common.Address) []interface{}
 		postCheck   func(data []byte)
 		gas         uint64
 		expError    bool
@@ -231,7 +233,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 	}{
 		{
 			"fail - empty input args",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{}
 			},
 			func(data []byte) {},
@@ -241,7 +243,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 		},
 		{
 			"fail - invalid validator address",
-			func(operatorAddress string) []interface{} {
+			func(operatorAddress common.Address) []interface{} {
 				return []interface{}{
 					nil,
 				}
@@ -253,9 +255,8 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 		},
 		{
 			"success - withdraw all commission from a single validator",
-			func(operatorAddress string) []interface{} {
-				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
-				s.Require().NoError(err)
+			func(operatorAddress common.Address) []interface{} {
+				valAddr := sdk.ValAddress(operatorAddress.Bytes())
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
@@ -295,7 +296,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			var contract *vm.Contract
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
 
-			bz, err := s.precompile.WithdrawValidatorCommission(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
+			bz, err := s.precompile.WithdrawValidatorCommission(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate(validatorAddress))
 
 			if tc.expError {
 				s.Require().ErrorContains(err, tc.errContains)

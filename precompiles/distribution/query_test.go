@@ -1,22 +1,23 @@
 package distribution_test
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/vm"
+
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-
-	"github.com/evmos/evmos/v16/testutil"
-	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	"github.com/evmos/evmos/v16/precompiles/distribution"
+	"github.com/evmos/evmos/v16/testutil"
+	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 var (
@@ -49,13 +50,13 @@ var baseTestCases = []distrTestCases{
 		"fail - invalid validator address",
 		func() []interface{} {
 			return []interface{}{
-				"invalid",
+				common.Address{},
 			}
 		},
 		func(bz []byte) {},
 		100000,
 		true,
-		"invalid bech32 string",
+		"invalid validator address",
 	},
 }
 
@@ -70,7 +71,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					sdk.ValAddress(pk.Address().Bytes()).String(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -81,8 +82,11 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 		{
 			"fail - existent validator but without self delegation",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -100,16 +104,20 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 				// make a self delegation
 				_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)
 				s.Require().NoError(err)
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
 				var out distribution.ValidatorDistributionInfoOutput
 				err := s.precompile.UnpackIntoInterface(&out, distribution.ValidatorDistributionInfoMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				expAddr := sdk.AccAddress(s.validators[0].GetOperator())
-				s.Require().Equal(expAddr.String(), out.DistributionInfo.OperatorAddress)
+				expAddr := common.BytesToAddress(s.validators[0].GetOperator())
+				s.Require().Equal(expAddr.String(), out.DistributionInfo.OperatorAddress.String())
 				s.Require().Equal(0, len(out.DistributionInfo.Commission))
 				s.Require().Equal(0, len(out.DistributionInfo.SelfBondRewards))
 			},
@@ -150,7 +158,7 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					sdk.ValAddress(pk.Address().Bytes()).String(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -166,8 +174,11 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 		{
 			"success - existent validator, no outstanding rewards",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -186,8 +197,12 @@ func (s *PrecompileTestSuite) TestValidatorOutstandingRewards() { //nolint:dupl
 				valRewards := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, s.validators[0].GetOperator(), types.ValidatorOutstandingRewards{Rewards: valRewards})
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -236,7 +251,7 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					sdk.ValAddress(pk.Address().Bytes()).String(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -252,8 +267,11 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 		{
 			"success - existent validator, no accumulated commission",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -271,8 +289,12 @@ func (s *PrecompileTestSuite) TestValidatorCommission() { //nolint:dupl
 			func() []interface{} {
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(s.bondDenom, math.LegacyNewDec(1))}
 				s.app.DistrKeeper.SetValidatorAccumulatedCommission(s.ctx, s.validators[0].GetOperator(), types.ValidatorAccumulatedCommission{Commission: valCommission})
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -318,7 +340,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 			"fail - invalid validator address",
 			func() []interface{} {
 				return []interface{}{
-					"invalid", uint64(1), uint64(5), query.PageRequest{},
+					common.Address{}, uint64(1), uint64(5), query.PageRequest{},
 				}
 			},
 			func(bz []byte) {
@@ -330,8 +352,11 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"fail - invalid starting height type",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					int64(1), uint64(5),
 					query.PageRequest{},
 				}
@@ -345,8 +370,11 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"fail - starting height greater than ending height",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					uint64(6), uint64(5),
 					query.PageRequest{},
 				}
@@ -364,7 +392,7 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 				pk, err := pv.GetPubKey()
 				s.Require().NoError(err)
 				return []interface{}{
-					sdk.ValAddress(pk.Address().Bytes()).String(),
+					pk.Address(),
 					uint64(1),
 					uint64(5),
 					query.PageRequest{},
@@ -384,8 +412,11 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 		{
 			"success - existent validator, no slashes",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					uint64(1),
 					uint64(5),
 					query.PageRequest{},
@@ -406,8 +437,12 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 			"success - with slashes",
 			func() []interface{} {
 				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					uint64(1), uint64(5),
 					query.PageRequest{},
 				}
@@ -429,8 +464,12 @@ func (s *PrecompileTestSuite) TestValidatorSlashes() {
 			"success - with slashes w/pagination",
 			func() []interface{} {
 				s.app.DistrKeeper.SetValidatorSlashEvent(s.ctx, s.validators[0].GetOperator(), 2, 1, types.ValidatorSlashEvent{ValidatorPeriod: 1, Fraction: math.LegacyNewDec(5)})
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 					uint64(1),
 					uint64(5),
 					query.PageRequest{Limit: 1, CountTotal: true},
@@ -480,13 +519,13 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 			func() []interface{} {
 				return []interface{}{
 					s.address,
-					"invalid",
+					common.Address{},
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			"invalid bech32 string",
+			"invalid validator address",
 		},
 		{
 			"fail - nonexistent validator address",
@@ -496,7 +535,7 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 				s.Require().NoError(err)
 				return []interface{}{
 					s.address,
-					sdk.ValAddress(pk.Address().Bytes()).String(),
+					common.BytesToAddress(pk.Address().Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -507,10 +546,13 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 		{
 			"fail - existent validator, no delegation",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				newAddr, _ := testutiltx.NewAddrKey()
 				return []interface{}{
 					newAddr,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {},
@@ -521,9 +563,12 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 		{
 			"success - existent validator & delegation, but no rewards",
 			func() []interface{} {
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -540,9 +585,13 @@ func (s *PrecompileTestSuite) TestDelegationRewards() {
 			"success - with rewards",
 			func() []interface{} {
 				s.prepareStakingRewards(stakingRewards{s.address.Bytes(), s.validators[0], rewards})
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				return []interface{}{
 					s.address,
-					s.validators[0].OperatorAddress,
+					common.BytesToAddress(operatorAddress.Bytes()),
 				}
 			},
 			func(bz []byte) {
@@ -588,13 +637,13 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 			"fail - invalid delegator address",
 			func() []interface{} {
 				return []interface{}{
-					"invalid",
+					common.Address{},
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
+			"invalid delegator address",
 		},
 		{
 			"success - no delegations",
@@ -628,12 +677,16 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(2, len(out.Rewards))
 				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.validators[0].OperatorAddress {
-					s.Require().Equal(s.validators[0].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.validators[1].OperatorAddress, out.Rewards[1].ValidatorAddress)
+
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
+				if out.Rewards[0].ValidatorAddress.String() == common.BytesToAddress(operatorAddress.Bytes()).String() {
+					s.Require().Equal(s.validators[0].OperatorAddress, sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String())
+					s.Require().Equal(s.validators[1].OperatorAddress, sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String())
 				} else {
-					s.Require().Equal(s.validators[1].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.validators[0].OperatorAddress, out.Rewards[1].ValidatorAddress)
+					s.Require().Equal(s.validators[1].OperatorAddress, sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String())
+					s.Require().Equal(s.validators[0].OperatorAddress, sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String())
 				}
 				// no rewards
 				s.Require().Equal(0, len(out.Rewards[0].Reward))
@@ -661,15 +714,18 @@ func (s *PrecompileTestSuite) TestDelegationTotalRewards() {
 				s.Require().NoError(err, "failed to unpack output", err)
 				s.Require().Equal(2, len(out.Rewards))
 
+				operatorAddress, err := sdk.ValAddressFromBech32(s.validators[0].OperatorAddress)
+				s.Require().NoError(err)
+
 				// the response order may change
-				if out.Rewards[0].ValidatorAddress == s.validators[0].OperatorAddress {
-					s.Require().Equal(s.validators[0].OperatorAddress, out.Rewards[0].ValidatorAddress)
-					s.Require().Equal(s.validators[1].OperatorAddress, out.Rewards[1].ValidatorAddress)
+				if out.Rewards[0].ValidatorAddress.String() == common.BytesToAddress(operatorAddress.Bytes()).String() {
+					s.Require().Equal(s.validators[0].OperatorAddress, sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String())
+					s.Require().Equal(s.validators[1].OperatorAddress, sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String())
 					s.Require().Equal(0, len(out.Rewards[1].Reward))
 				} else {
 					i = 1
-					s.Require().Equal(s.validators[0].OperatorAddress, out.Rewards[1].ValidatorAddress)
-					s.Require().Equal(s.validators[1].OperatorAddress, out.Rewards[0].ValidatorAddress)
+					s.Require().Equal(s.validators[0].OperatorAddress, sdk.ValAddress(out.Rewards[1].ValidatorAddress.Bytes()).String())
+					s.Require().Equal(s.validators[1].OperatorAddress, sdk.ValAddress(out.Rewards[0].ValidatorAddress.Bytes()).String())
 					s.Require().Equal(0, len(out.Rewards[0].Reward))
 				}
 
@@ -716,13 +772,13 @@ func (s *PrecompileTestSuite) TestDelegatorValidators() {
 			"fail - invalid delegator address",
 			func() []interface{} {
 				return []interface{}{
-					"invalid",
+					common.Address{},
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
+			"invalid delegator address",
 		},
 		{
 			"success - no delegations",
@@ -797,13 +853,13 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 			"fail - invalid delegator address",
 			func() []interface{} {
 				return []interface{}{
-					"invalid",
+					common.Address{},
 				}
 			},
 			func(bz []byte) {},
 			100000,
 			true,
-			fmt.Sprintf(cmn.ErrInvalidDelegator, "invalid"),
+			"invalid delegator address",
 		},
 		{
 			"success - withdraw address same as delegator address",
@@ -813,10 +869,10 @@ func (s *PrecompileTestSuite) TestDelegatorWithdrawAddress() {
 				}
 			},
 			func(bz []byte) {
-				var out string
+				var out common.Address
 				err := s.precompile.UnpackIntoInterface(&out, distribution.DelegatorWithdrawAddressMethod, bz)
 				s.Require().NoError(err, "failed to unpack output", err)
-				s.Require().Equal(sdk.AccAddress(s.address.Bytes()).String(), out)
+				s.Require().Equal(common.BytesToAddress(s.address.Bytes()).String(), out.String())
 			},
 			100000,
 			false,

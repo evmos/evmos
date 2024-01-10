@@ -365,6 +365,9 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			senderKey := s.keyring.GetKey(1)
 			contractAddress := common.HexToAddress(staking.PrecompileAddress)
 			validatorAddress := s.network.GetValidators()[1].OperatorAddress
+			validatorAddr, err := sdktypes.ValAddressFromBech32(validatorAddress)
+			Expect(err).To(BeNil())
+			validatorHexAddr := common.BytesToAddress(validatorAddr.Bytes())
 			contractABI, err := staking.LoadABI()
 			Expect(err).To(BeNil())
 
@@ -385,7 +388,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			delegateArgs := factory.CallArgs{
 				ContractABI: contractABI,
 				MethodName:  staking.DelegateMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress, amountToDelegate},
+				Args:        []interface{}{senderKey.Addr, validatorHexAddr, amountToDelegate},
 			}
 			delegateResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, delegateArgs)
 			Expect(err).To(BeNil())
@@ -398,7 +401,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			queryDelegationArgs := factory.CallArgs{
 				ContractABI: contractABI,
 				MethodName:  staking.DelegationMethod,
-				Args:        []interface{}{senderKey.Addr, validatorAddress},
+				Args:        []interface{}{senderKey.Addr, validatorHexAddr},
 			}
 			queryDelegationResponse, err := s.factory.ExecuteContractCall(senderKey.Priv, totalSupplyTxArgs, queryDelegationArgs)
 			Expect(err).To(BeNil())

@@ -16,6 +16,8 @@ const (
 	ErrInvalidDelegator = "invalid delegator address: %s"
 	// ErrInvalidValidator is raised when the Validator address is not valid.
 	ErrInvalidValidator = "invalid validator address: %s"
+	// ErrInvalidWithdrawer is raised when the withdrawer address is not valid.
+	ErrInvalidWithdrawer = "invalid withdrawer address: %s"
 	// ErrInvalidDenom is raised when the denom is not valid.
 	ErrInvalidDenom = "invalid denom: %s"
 	// ErrInvalidMsgType is raised when the transaction type is not valid for the given precompile.

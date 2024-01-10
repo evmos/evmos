@@ -76,7 +76,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					distribution.SetWithdrawAddressMethod,
 					s.address,
-					s.address.String(),
+					s.address,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return s.address, input
@@ -87,10 +87,9 @@ func (s *PrecompileTestSuite) TestRun() {
 		{
 			name: "pass - withdraw validator commissions transaction",
 			malleate: func() (common.Address, []byte) {
-				hexAddr := common.Bytes2Hex(s.address.Bytes())
-				valAddr, err := sdk.ValAddressFromHex(hexAddr)
-				s.Require().NoError(err)
-				caller := common.BytesToAddress(valAddr)
+				valHexAddr := s.address
+				valAddr := sdk.ValAddress(valHexAddr.Bytes())
+				caller := s.address
 
 				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
@@ -100,7 +99,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				input, err := s.precompile.Pack(
 					distribution.WithdrawValidatorCommissionMethod,
-					valAddr.String(),
+					valHexAddr,
 				)
 				s.Require().NoError(err, "failed to pack input")
 				return caller, input
@@ -120,7 +119,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				input, err := s.precompile.Pack(
 					distribution.WithdrawDelegatorRewardsMethod,
 					s.address,
-					valAddr.String(),
+					common.BytesToAddress(valAddr.Bytes()),
 				)
 				s.Require().NoError(err, "failed to pack input")
 
