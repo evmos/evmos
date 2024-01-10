@@ -78,7 +78,7 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 		for _, c := range burntCoins {
 			// if fee amount is higher than uint64, skip the counter
 			if !c.Amount.IsUint64() {
-				return
+				continue
 			}
 			telemetry.IncrCounterWithLabels(
 				[]string{"cosmos", "tx", "burnt", "fee", "amount"},
