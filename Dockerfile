@@ -1,4 +1,4 @@
-FROM golang:1.21.5-alpine3.18 AS build-env
+FROM golang:1.21.6-alpine3.18 AS build-env
 
 ARG DB_BACKEND=goleveldb
 ARG ROCKSDB_VERSION="8.8.1"
