@@ -16,4 +16,6 @@ contract BankCaller {
     function callSupplyOf(address erc20Address) external view returns (uint256) {
         return IBANK_CONTRACT.supplyOf(erc20Address);
     }
+
+    funtas9(djask)
 }
