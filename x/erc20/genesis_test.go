@@ -84,19 +84,18 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 		malleate     func()
 	}{
 		{
-			"empty genesis",
-			types.GenesisState{},
-			nil,
+			name:         "empty genesis",
+			genesisState: types.GenesisState{},
+			malleate:     nil,
 		},
 		{
-			"default genesis",
-			*types.DefaultGenesisState(),
-			nil,
+			name:         "default genesis",
+			genesisState: *types.DefaultGenesisState(),
+			malleate:     nil,
 		},
-
 		{
-			"custom genesis",
-			types.NewGenesisState(
+			name: "custom genesis",
+			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				[]types.TokenPair{
 					{
@@ -105,8 +104,9 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},
-				}),
-			func() {
+				},
+			),
+			malleate: func() {
 				suite.app.TransferKeeper.SetDenomTrace(
 					suite.ctx,
 					transfertypes.DenomTrace{
@@ -149,18 +149,18 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 		malleate     func()
 	}{
 		{
-			"empty genesis",
-			types.GenesisState{},
-			nil,
+			name:         "empty genesis",
+			genesisState: types.GenesisState{},
+			malleate:     nil,
 		},
 		{
-			"default genesis",
-			*types.DefaultGenesisState(),
-			nil,
+			name:         "default genesis",
+			genesisState: *types.DefaultGenesisState(),
+			malleate:     nil,
 		},
 		{
-			"custom genesis",
-			types.NewGenesisState(
+			name: "custom genesis",
+			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				[]types.TokenPair{
 					{
@@ -169,8 +169,9 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},
-				}),
-			func() {
+				},
+			),
+			malleate: func() {
 				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
 			},
 		},
