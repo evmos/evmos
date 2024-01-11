@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## Unreleased
 
+### Features
+
+- (rpc+test) [#2258](https://github.com/evmos/evmos/pull/2258) Add integration test suite utility and Json-RPC test skeleton
+
 ### State Machine Breaking
 
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
