@@ -18,7 +18,7 @@ var (
 		Path:      "transfer/channel-0",
 	}
 	junoDenomTrace = transfertypes.DenomTrace{
-		BaseDenom: "ujunox",
+		BaseDenom: "ujuno",
 		Path:      "transfer/channel-1",
 	}
 	invalidDenomTrace = transfertypes.DenomTrace{
@@ -159,12 +159,12 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 					suite.Require().Equal(meta.Name, "Osmo")
 					suite.Require().Equal(meta.Symbol, "OSMO")
 				case junoDenomTrace.IBCDenom():
-					suite.Require().Equal(meta.DenomUnits[0].Aliases, []string{"ujunox"})
-					suite.Require().Equal(meta.DenomUnits[1].Denom, "junox")
+					suite.Require().Equal(meta.DenomUnits[0].Aliases, []string{"ujuno"})
+					suite.Require().Equal(meta.DenomUnits[1].Denom, "juno")
 					suite.Require().Equal(meta.DenomUnits[1].Exponent, uint32(6))
-					suite.Require().Equal(meta.Display, "junox")
-					suite.Require().Equal(meta.Name, "Junox")
-					suite.Require().Equal(meta.Symbol, "JUNOX")
+					suite.Require().Equal(meta.Display, "juno")
+					suite.Require().Equal(meta.Name, "Juno")
+					suite.Require().Equal(meta.Symbol, "JUNO")
 				}
 			}
 		} else {
