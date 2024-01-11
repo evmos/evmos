@@ -15,6 +15,7 @@ import (
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the
 // existing cosmos coin
+// TODO: FIX this will change into registering ERC20 metadata
 func (k Keeper) RegisterCoin(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
