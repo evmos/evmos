@@ -143,6 +143,7 @@ import (
 	"github.com/evmos/evmos/v16/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v16/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
+	"github.com/evmos/evmos/v16/x/incentives"
 	inflation "github.com/evmos/evmos/v16/x/inflation/v1"
 	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
@@ -226,6 +227,7 @@ var (
 		epochs.AppModuleBasic{},
 		revenue.AppModuleBasic{},
 		consensus.AppModuleBasic{},
+		incentives.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -504,10 +506,11 @@ func NewEvmos(
 		app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
 		app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 	)
-
+	chainID := bApp.ChainID()
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	evmKeeper.WithPrecompiles(
 		evmkeeper.AvailablePrecompiles(
+			chainID,
 			*stakingKeeper,
 			app.DistrKeeper,
 			app.BankKeeper,
@@ -1135,6 +1138,7 @@ func (app *Evmos) setupUpgradeHandlers() {
 			app.BankKeeper,
 			app.InflationKeeper,
 			app.AccountKeeper,
+			app.GovKeeper,
 		),
 	)
 

@@ -614,7 +614,7 @@ func (s *PrecompileTestSuite) setupERC20ContractTests(amount *big.Int) common.Ad
 }
 
 // makePacket is a helper function to build the sent IBC packet
-// to perform an ICS20 tranfer.
+// to perform an ICS20 transfer.
 // This packet is then used to test the IBC callbacks (Timeout, Ack)
 func (s *PrecompileTestSuite) makePacket(
 	senderAddr,

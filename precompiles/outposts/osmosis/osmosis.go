@@ -25,14 +25,8 @@ import (
 const (
 	// OsmosisPrefix represents the human readable part for bech32 addresses on the Osmosis chain.
 	OsmosisPrefix = "osmo"
-
 	// OsmosisOutpostAddress is the address of the Osmosis outpost precompile.
 	OsmosisOutpostAddress = "0x0000000000000000000000000000000000000901"
-
-	// XCSContract address for Osmosis testnet.
-	XCSContractTestnet = "osmo18rj46qcpr57m3qncrj9cuzm0gn3km08w5jxxlnw002c9y7xex5xsu74ytz"
-	// XCSContract address for Osmosis mainnet.
-	XCSContractMainnet = ""
 )
 
 var _ vm.PrecompiledContract = &Precompile{}
@@ -46,14 +40,10 @@ var f embed.FS
 // the common Precompile type.
 type Precompile struct {
 	cmn.Precompile
+	wevmosAddress common.Address
 	// IBC
-	portID           string
-	channelID        string
 	timeoutHeight    clienttypes.Height
 	timeoutTimestamp uint64
-
-	// Osmosis
-	osmosisXCSContract string
 
 	// Keepers
 	bankKeeper     bankkeeper.Keeper
@@ -66,8 +56,7 @@ type Precompile struct {
 // NewPrecompile creates a new Osmosis outpost Precompile instance as a
 // PrecompiledContract interface.
 func NewPrecompile(
-	portID, channelID string,
-	osmosisXCSContract string,
+	wevmosAddress common.Address,
 	authzKeeper authzkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
@@ -80,11 +69,6 @@ func NewPrecompile(
 		return nil, err
 	}
 
-	err = ValidateOsmosisContractAddress(osmosisXCSContract)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Precompile{
 		Precompile: cmn.Precompile{
 			ABI:                  newAbi,
@@ -93,16 +77,14 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		portID:             portID,
-		channelID:          channelID,
-		timeoutHeight:      clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp:   ics20.DefaultTimeoutTimestamp,
-		osmosisXCSContract: osmosisXCSContract,
-		bankKeeper:         bankKeeper,
-		transferKeeper:     transferKeeper,
-		stakingKeeper:      stakingKeeper,
-		erc20Keeper:        erc20Keeper,
-		channelKeeper:      channelKeeper,
+		wevmosAddress:    wevmosAddress,
+		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
+		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
+		bankKeeper:       bankKeeper,
+		transferKeeper:   transferKeeper,
+		stakingKeeper:    stakingKeeper,
+		erc20Keeper:      erc20Keeper,
+		channelKeeper:    channelKeeper,
 	}, nil
 }
 

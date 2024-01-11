@@ -29,6 +29,7 @@ import (
 	"github.com/evmos/evmos/v16/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/evmos/v16/testutil"
 	testutiltx "github.com/evmos/evmos/v16/testutil/tx"
+	"github.com/evmos/evmos/v16/utils"
 )
 
 // General variables used for integration tests
@@ -2235,7 +2236,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance.Amount.Int64()).To(Equal(int64(0)), "expected a different delegation balance")
-			Expect(delOut.Balance.Denom).To(Equal("aevmos"), "expected a different delegation balance")
+			Expect(delOut.Balance.Denom).To(Equal(utils.BaseDenom), "expected a different delegation balance")
 		})
 
 		It("which exists should return the delegation", func() {
@@ -2250,7 +2251,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance).To(Equal(
-				cmn.Coin{Denom: "aevmos", Amount: big.NewInt(1e18)}),
+				cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
 				"expected a different delegation balance",
 			)
 		})

@@ -106,7 +106,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", fundsAmt),
+					sdk.NewCoin(utils.BaseDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 					sdk.NewCoin(metadataIbc.Base, math.NewInt(1)),
 					sdk.NewCoin(metadataCoin.Base, math.NewInt(1)),
@@ -178,7 +178,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				s.Require().NoError(err)
 
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", fundsAmt),
+					sdk.NewCoin(utils.BaseDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 				)
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
@@ -194,7 +194,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -220,7 +220,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -236,6 +236,125 @@ var _ = Describe("ERC20:", Ordered, func() {
 					tokenPairs := s.app.Erc20Keeper.GetTokenPairs(s.ctx)
 					s.Require().Equal(2, len(tokenPairs))
 					s.Require().Equal(types.OWNER_EXTERNAL, tokenPairs[0].ContractOwner)
+				})
+			})
+		})
+	})
+
+	Describe("Converting", func() {
+		Context("with a registered coin", func() {
+			BeforeEach(func() {
+				pair = s.setupRegisterCoin(metadataCoin)
+				coin = sdk.NewCoin(pair.Denom, amt)
+
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
+				s.Require().NoError(err)
+				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(coin))
+				s.Require().NoError(err)
+			})
+
+			Describe("a Cosmos coin into an ERC20 token", func() {
+				BeforeEach(func() {
+					convertCoin(s.ctx, s.app, privKey, coin)
+				})
+
+				It("should decrease coins on the sender account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
+					Expect(balanceCoin.IsZero()).To(BeTrue())
+				})
+
+				It("should escrow coins on the module account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, moduleAcc, pair.Denom)
+					Expect(balanceCoin).To(Equal(coin))
+				})
+
+				It("should mint tokens and send to receiver", func() {
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
+				})
+			})
+
+			Describe("an ERC20 token into a Cosmos coin", func() {
+				BeforeEach(func() {
+					convertCoin(s.ctx, s.app, privKey, coin)
+					s.Commit()
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
+				})
+
+				It("should increase coins on the sender account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
+					Expect(balanceCoin).To(Equal(coin))
+				})
+
+				It("should unescrow coins on the module account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, moduleAcc, pair.Denom)
+					Expect(balanceCoin.IsZero()).To(BeTrue())
+				})
+
+				It("should burn the receiver's token", func() {
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(int64(0)))
+				})
+			})
+		})
+
+		Context("with a registered ERC20", func() {
+			BeforeEach(func() {
+				contract := s.setupRegisterERC20Pair(contractMinterBurner)
+				id := s.app.Erc20Keeper.GetTokenPairID(s.ctx, contract.String())
+				*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
+				coin = sdk.NewCoin(pair.Denom, amt)
+
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
+				s.Require().NoError(err)
+
+				_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
+				s.Commit()
+			})
+
+			Describe("an ERC20 token into a Cosmos coin", func() {
+				BeforeEach(func() {
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
+				})
+
+				It("should decrease tokens on the sender account", func() {
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(int64(0)))
+				})
+
+				It("should escrow tokens on the module account", func() {
+					moduleAddr := common.BytesToAddress(moduleAcc.Bytes())
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), moduleAddr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
+				})
+
+				It("should send coins to the receiver account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
+					Expect(balanceCoin).To(Equal(coin))
+				})
+			})
+
+			Describe("a Cosmos coin into an ERC20 token", func() {
+				BeforeEach(func() {
+					convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
+					s.Commit()
+					convertCoin(s.ctx, s.app, privKey, coin)
+				})
+
+				It("should increase tokens on the sender account", func() {
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
+				})
+
+				It("should unescrow tokens on the module account", func() {
+					moduleAddr := common.BytesToAddress(moduleAcc.Bytes())
+					balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), moduleAddr).(*big.Int)
+					Expect(balanceERC20.Int64()).To(Equal(int64(0)))
+				})
+
+				It("should burn coins to the receiver account", func() {
+					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
+					Expect(balanceCoin.IsZero()).To(BeTrue())
 				})
 			})
 		})
