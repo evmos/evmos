@@ -1,0 +1,4 @@
+{
+    "abi": "[{\"inputs\": [],\"stateMutability\": \"nonpayable\",\"type\": \"constructor\"},{\"anonymous\": false,\"inputs\": [],\"name\": \"ConstructorCall\",\"type\": \"event\"}]",
+    "bin": "6080604052348015600f57600080fd5b507f8fb1589b9d067960d146a77011bc245c8ec9e10549841f3be246420a15652ede60405160405180910390a1603f8060496000396000f3fe6080604052600080fdfea2646970667358221220b4474c3106fa705a86b306575def378add858b94b1754d595b892938c3e5cb1864736f6c63430008110033"
+}
