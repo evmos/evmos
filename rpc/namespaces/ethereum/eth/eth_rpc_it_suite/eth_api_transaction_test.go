@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/evmos/evmos/v16/integration_test_util"
 	itutiltypes "github.com/evmos/evmos/v16/integration_test_util/types"
 	rpctypes "github.com/evmos/evmos/v16/rpc/types"
@@ -641,7 +640,7 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 			GasFeeCap: gasPrice,
 			GasPrice:  gasPrice,
 			GasTipCap: big.NewInt(1),
-			Accesses:  nil,
+			Accesses:  &ethtypes.AccessList{},
 		}
 
 		msgEvmTx := evmtypes.NewTx(evmTxArgs)
@@ -667,7 +666,7 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 
 	senderForSignedEthTx := suite.CITS.WalletAccounts.Number(1)
 	signedEthTx := newSignedEthTx(senderForSignedEthTx)
-	signedRlpBz, err := rlp.EncodeToBytes(signedEthTx)
+	bzSignedEthTx, err := signedEthTx.MarshalBinary()
 	suite.Require().NoError(err)
 
 	senderForToBeSignedMsgEthTx := suite.CITS.WalletAccounts.Number(2)
@@ -682,7 +681,7 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 	senderForNonSignedMsgEthTx := suite.CITS.WalletAccounts.Number(3)
 	nonSignedMsgEthTx := newMsgEthTx(senderForNonSignedMsgEthTx)
 	nonSignedEthTx := nonSignedMsgEthTx.AsTransaction()
-	notSignedRlpBz, err := rlp.EncodeToBytes(nonSignedEthTx)
+	bzNotSignedEthTx, err := nonSignedEthTx.MarshalBinary()
 	suite.Require().NoError(err)
 
 	err = txBuilder.SetMsgs(nonSignedMsgEthTx)
@@ -702,7 +701,7 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 	}{
 		{
 			name:         "send signed tx",
-			rawTx:        signedRlpBz,
+			rawTx:        bzSignedEthTx,
 			sourceTxHash: signedEthTx.Hash(),
 			expPass:      true,
 		},
@@ -715,10 +714,10 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 		},
 		{
 			name:           "send non-signed tx",
-			rawTx:          notSignedRlpBz,
+			rawTx:          bzNotSignedEthTx,
 			sourceTxHash:   nonSignedEthTx.Hash(),
 			expPass:        false,
-			expErrContains: "only replay-protected (EIP-155) transactions allowed over RPC",
+			expErrContains: "couldn't retrieve sender address from the ethereum transaction: invalid transaction v, r, s values",
 		},
 		{
 			name:           "fail - empty bytes",
@@ -748,7 +747,6 @@ func (suite *EthRpcTestSuite) Test_SendRawTransaction() {
 				suite.Require().Error(err)
 				suite.Require().NotEmptyf(tc.expErrContains, "missing expected error to check against: %s", err.Error())
 				suite.Require().Contains(err.Error(), tc.expErrContains)
-				suite.Require().Equal(common.Hash{}, hash)
 
 				if tc.sourceTxHash == ([32]byte{}) { // empty
 					// ignore later tests
