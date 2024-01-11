@@ -7,6 +7,8 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 
+	"github.com/armon/go-metrics"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -71,6 +73,25 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burnedCoins); err != nil {
 		return ctx, err
 	}
+
+	defer func() {
+		if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+			return
+		}
+		for _, c := range burnedCoins {
+			// if fee amount is higher than uint64, skip the counter
+			if !c.Amount.IsUint64() {
+				continue
+			}
+			telemetry.IncrCounterWithLabels(
+				[]string{"burned", "tx", "fee", "amount"},
+				float32(c.Amount.Uint64()),
+				[]metrics.Label{
+					telemetry.NewLabel("denom", c.Denom),
+				},
+			)
+		}
+	}()
 
 	return next(ctx, tx, simulate, success)
 }
