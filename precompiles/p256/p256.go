@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
+
 package p256
 
 import (
@@ -33,7 +34,7 @@ const (
 )
 
 // PrecompileAddress defines the hex address of the p256 precompiled contract.
-const PrecompileAddress = "0x000000000000000000000000000000000000000b"
+const PrecompileAddress = "0x0000000000000000000000000000000000000100"
 
 // Precompile secp256r1 (P256) signature verification
 // implemented as a native contract as per EIP-7212.

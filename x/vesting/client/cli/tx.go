@@ -80,9 +80,6 @@ using the fund-vesting-account subcommand. Clawback via governance is enabled th
 			}
 
 			msg := types.NewMsgCreateClawbackVestingAccount(funder, clientCtx.GetFromAddress(), enableGovClawback)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -158,9 +155,6 @@ with a start time and an array of coins strings and durations relative to the st
 			commonStart, _ := types.AlignSchedules(lockupStart, vestingStart, lockupPeriods, vestingPeriods)
 
 			msg := types.NewMsgFundVestingAccount(clientCtx.GetFromAddress(), toAddr, time.Unix(commonStart, 0), lockupPeriods, vestingPeriods)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -203,9 +197,6 @@ func NewMsgClawbackCmd() *cobra.Command {
 			}
 
 			msg := types.NewMsgClawback(clientCtx.GetFromAddress(), addr, dest)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -242,9 +233,6 @@ func NewMsgUpdateVestingFunderCmd() *cobra.Command {
 			}
 
 			msg := types.NewMsgUpdateVestingFunder(clientCtx.GetFromAddress(), newFunder, vestingAcc)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -275,9 +263,6 @@ func NewMsgConvertVestingAccountCmd() *cobra.Command {
 			}
 
 			msg := types.NewMsgConvertVestingAccount(addr)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -345,10 +330,6 @@ func NewClawbackProposalCmd() *cobra.Command {
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
-				return err
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 

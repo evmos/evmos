@@ -87,9 +87,7 @@ func TestCreatePacketWithMemo(t *testing.T) {
 // TestParseSwapPacketData is mainly to test that the returned error of the
 // parser is clear and contains the correct data type. For this reason the
 // expected error has been hardcoded as a string litera.
-func TestParseSwapPacketData(t *testing.T) {
-	t.Parallel()
-
+func (s *PrecompileTestSuite) TestParseSwapPacketData() {
 	sender := common.HexToAddress("sender")
 	input := common.HexToAddress("input")
 	output := common.HexToAddress("output")
@@ -105,116 +103,44 @@ func TestParseSwapPacketData(t *testing.T) {
 		errContains string
 	}{
 		{
-			name: "pass - valid payload",
+			name: "pass - valid payload of type SwapPayload",
 			args: []interface{}{
-				sender,
-				input,
-				output,
-				amount,
-				slippagePercentage,
-				windowSeconds,
-				receiver,
+				osmosisoutpost.SwapPacketData{
+					ChannelID:          ChannelID,
+					XcsContract:        XCSContract,
+					Sender:             sender,
+					Input:              input,
+					Output:             output,
+					Amount:             amount,
+					SlippagePercentage: slippagePercentage,
+					WindowSeconds:      windowSeconds,
+					SwapReceiver:       receiver,
+				},
 			},
 			expPass: true,
-		}, {
+		},
+		{
 			name:        "fail - invalid number of args",
 			args:        []interface{}{},
 			expPass:     false,
-			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 7, 0),
-		}, {
-			name: "fail - wrong sender type",
-			args: []interface{}{
-				"sender",
-				input,
-				output,
-				amount,
-				slippagePercentage,
-				windowSeconds,
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for sender: expected common.Address, received string",
-		}, {
-			name: "fail - wrong input type",
-			args: []interface{}{
-				sender,
-				"input",
-				output,
-				amount,
-				slippagePercentage,
-				windowSeconds,
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for input: expected common.Address, received string",
-		}, {
-			name: "fail - wrong output type",
-			args: []interface{}{
-				sender,
-				input,
-				"output",
-				amount,
-				slippagePercentage,
-				windowSeconds,
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for output: expected common.Address, received string",
-		}, {
-			name: "fail - wrong amount type",
-			args: []interface{}{
-				sender,
-				input,
-				output,
-				3,
-				slippagePercentage,
-				windowSeconds,
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for amount: expected big.Int, received int",
-		}, {
-			name: "fail - wrong slippage percentage type",
-			args: []interface{}{
-				sender,
-				input,
-				output,
-				amount,
-				10,
-				windowSeconds,
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for slippagePercentage: expected uint8, received int",
-		}, {
-			name: "fail - wrong window seconds type",
-			args: []interface{}{
-				sender,
-				input,
-				output,
-				amount,
-				slippagePercentage,
-				uint16(20),
-				receiver,
-			},
-			expPass:     false,
-			errContains: "invalid type for windowSeconds: expected uint64, received uint16",
+			errContains: fmt.Sprintf(cmn.ErrInvalidNumberOfArgs, 1, 0),
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+		s.Run(tc.name, func() {
+			method := s.precompile.Methods[osmosisoutpost.SwapMethod]
 
-			swapPacketData, err := osmosisoutpost.ParseSwapPacketData(tc.args)
+			swapPacketData, err := osmosisoutpost.ParseSwapPacketData(&method, tc.args)
 
 			if tc.expPass {
-				require.NoError(t, err, "expected no error while creating memo")
-				require.Equal(
-					t,
+				s.NoError(err, "expected no error while creating memo")
+				s.Equal(
 					osmosisoutpost.SwapPacketData{
+						ChannelID:          ChannelID,
+						XcsContract:        XCSContract,
 						Sender:             sender,
 						Input:              input,
 						Output:             output,
@@ -226,8 +152,8 @@ func TestParseSwapPacketData(t *testing.T) {
 					swapPacketData,
 				)
 			} else {
-				require.Error(t, err, "expected error while validating the memo")
-				require.Contains(t, err.Error(), tc.errContains, "expected different error")
+				s.Error(err, "expected error while validating the memo")
+				s.Contains(err.Error(), tc.errContains, "expected different error")
 			}
 		})
 	}
@@ -237,7 +163,7 @@ func TestValidateMemo(t *testing.T) {
 	t.Parallel()
 
 	receiver := "evmos1vl0x3xr0zwgrllhdzxxlkal7txnnk56q3552x7"
-	contract := osmosisoutpost.XCSContractTestnet
+	contract := "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x"
 	onFailedDelivery := "do_nothing"
 	slippagePercentage := uint8(10)
 	windowSeconds := uint64(30)
@@ -564,7 +490,7 @@ func TestValidateOsmosisContractAddress(t *testing.T) {
 		},
 		{
 			name:            "pass - valid contract address",
-			contractAddress: osmosisoutpost.XCSContractTestnet,
+			contractAddress: "osmo1a34wxsxjwvtz3ua4hnkh4lv3d4qrgry0fhkasppplphwu5k538tqcyms9x",
 			expPass:         true,
 		},
 	}
