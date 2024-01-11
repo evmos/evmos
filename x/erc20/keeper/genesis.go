@@ -71,7 +71,7 @@ func (k Keeper) getTokenPairMeta(ctx sdk.Context, pair types.TokenPair) (banktyp
 	}
 
 	// check the denom prefix to define the corresponding exponent
-	exponent, err := ibc.GetDenomDecimals(denomTrace.BaseDenom)
+	exponent, err := ibc.DeriveDecimalsFromDenom(denomTrace.BaseDenom)
 	if err != nil {
 		return banktypes.Metadata{}, err
 	}

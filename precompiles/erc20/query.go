@@ -107,7 +107,7 @@ func (p Precompile) Decimals(
 		}
 
 		// we assume the decimal from the first character of the denomination
-		decimals, err := ibc.GetDenomDecimals(denomTrace.BaseDenom)
+		decimals, err := ibc.DeriveDecimalsFromDenom(denomTrace.BaseDenom)
 		if err != nil {
 			return nil, ConvertErrToERC20Error(err)
 		}

@@ -152,9 +152,9 @@ func GetDenomTrace(
 	return denomTrace, nil
 }
 
-// GetDenomDecimals returns the number of decimals of an IBC coin
+// DeriveDecimalsFromDenom returns the number of decimals of an IBC coin
 // depending on the prefix of the base denomination
-func GetDenomDecimals(baseDenom string) (uint8, error) {
+func DeriveDecimalsFromDenom(baseDenom string) (uint8, error) {
 	var decimals uint8
 	if len(baseDenom) == 0 {
 		return decimals, errorsmod.Wrapf(ErrInvalidBaseDenom, "Base denom cannot be an empty string")
