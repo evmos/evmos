@@ -246,7 +246,7 @@ func getContractDataBz(coinMetadata banktypes.Metadata) ([]byte, error) {
 
 	// Get the input values for the ERC20 contract constructor method
 	constructorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
-		"",
+		"", // constructor
 		coinMetadata.Name,
 		coinMetadata.Symbol,
 		decimals,
