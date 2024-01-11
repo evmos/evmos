@@ -25,6 +25,10 @@ var (
 		BaseDenom: "osmo", // missing the 'u' prefix
 		Path:      "transfer/channel-0",
 	}
+	invalidDenomTrace2 = transfertypes.DenomTrace{
+		BaseDenom: "u", // denom trace is too short
+		Path:      "transfer/channel-0",
+	}
 )
 
 func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
@@ -85,6 +89,22 @@ func (suite *KeeperTestSuite) TestSetGenesisTokenPairs() {
 			},
 			true,
 			"invalid base denomination",
+		},
+		{
+			"fail: custom genesis with invalid denom traces in genesis - base denom too short",
+			[]types.TokenPair{
+				{
+					Erc20Address:  osmoERC20ContractAddr,
+					Denom:         invalidDenomTrace2.IBCDenom(),
+					Enabled:       true,
+					ContractOwner: types.OWNER_MODULE,
+				},
+			},
+			func() {
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, invalidDenomTrace2)
+			},
+			true,
+			"denom trace base denom is too short",
 		},
 		{
 			"success: custom genesis with denom traces in genesis",

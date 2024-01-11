@@ -64,6 +64,10 @@ func (k Keeper) getTokenPairMeta(ctx sdk.Context, pair types.TokenPair) (banktyp
 	if err != nil {
 		return banktypes.Metadata{}, err
 	}
+	// validate base denom length
+	if len(denomTrace.BaseDenom) < 2 {
+		return banktypes.Metadata{}, fmt.Errorf("denom trace base denom is too short. Should be at least 2 characters long, got '%s'", denomTrace.BaseDenom)
+	}
 	// check the denom prefix to define the corresponding exponent
 	exponent, err := ibc.GetDenomDecimals(denomTrace.BaseDenom)
 	if err != nil {
