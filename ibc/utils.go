@@ -4,7 +4,6 @@
 package ibc
 
 import (
-	"fmt"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
@@ -157,14 +156,19 @@ func GetDenomTrace(
 // depending on the prefix of the base denomination
 func GetDenomDecimals(baseDenom string) (uint8, error) {
 	var decimals uint8
+	if len(baseDenom) == 0 {
+		return decimals, errorsmod.Wrapf(ErrInvalidBaseDenom, "Base denom cannot be an empty string")
+	}
+
 	switch baseDenom[0] {
 	case 'u': // micro (u) -> 6 decimals
 		decimals = 6
 	case 'a': // atto (a) -> 18 decimals
 		decimals = 18
 	default:
-		return 0, fmt.Errorf(
-			"invalid base denomination; should be either micro ('u[...]') or atto ('a[...]'); got: %q",
+		return decimals, errorsmod.Wrapf(
+			ErrInvalidBaseDenom,
+			"Should be either micro ('u[...]') or atto ('a[...]'); got: %q",
 			baseDenom,
 		)
 	}

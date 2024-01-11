@@ -317,3 +317,53 @@ func TestGetSentCoin(t *testing.T) {
 		require.Equal(t, tc.expCoin, coin)
 	}
 }
+
+func TestGetDenomDecimals(t *testing.T) {
+	testCases := []struct {
+		name      string
+		baseDenom string
+		expDec    uint8
+		expFail   bool
+		expErrMsg string
+	}{
+		{
+			"fail: empty string",
+			"",
+			0,
+			true,
+			"Base denom cannot be an empty string",
+		},
+		{
+			"fail: invalid prefix",
+			"nevmos",
+			0,
+			true,
+			"Should be either micro ('u[...]') or atto ('a[...]'); got: \"nevmos\"",
+		},
+		{
+			"success: micro 'u' prefix",
+			"uevmos",
+			6,
+			false,
+			"",
+		},
+		{
+			"success: atto 'a' prefix",
+			"aevmos",
+			18,
+			false,
+			"",
+		},
+	}
+
+	for _, tc := range testCases {
+		dec, err := GetDenomDecimals(tc.baseDenom)
+		if tc.expFail {
+			require.Error(t, err, tc.expErrMsg)
+			require.Contains(t, err.Error(), tc.expErrMsg)
+		} else {
+			require.NoError(t, err)
+		}
+		require.Equal(t, tc.expDec, dec)
+	}
+}
