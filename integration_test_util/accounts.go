@@ -97,11 +97,12 @@ func newTestAccountFromMnemonic(t *testing.T, mnemonic string) *itutiltypes.Test
 
 	//goland:noinspection SpellCheckingInspection
 	algo, err = keyring.NewSigningAlgoFromString("eth_secp256k1", supportedKeyringAlgorithms)
+	require.NoError(t, err)
 
 	derivedPriv, err := algo.Derive()(mnemonic, "", hdPath)
+	require.NoError(t, err)
 
 	privKey := algo.Generate()(derivedPriv)
-	require.NoError(t, err)
 
 	priv := &ethsecp256k1.PrivKey{
 		Key: privKey.Bytes(),
