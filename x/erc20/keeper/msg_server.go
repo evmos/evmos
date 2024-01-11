@@ -7,6 +7,8 @@ import (
 	"context"
 	"math/big"
 
+	"cosmossdk.io/math"
+
 	errorsmod "cosmossdk.io/errors"
 	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -159,6 +161,83 @@ func (k Keeper) convertERC20NativeCoin(
 	)
 
 	return &types.MsgConvertERC20Response{}, nil
+}
+
+// LegacyConvertCoinNativeERC20 handles the coin conversion for a native ERC20 token
+// pair:
+//   - escrow Coins on module account
+//   - unescrow Tokens that have been previously escrowed with ConvertERC20 and send to receiver
+//   - burn escrowed Coins
+//   - check if token balance increased by amount
+//   - check for unexpected `Approval` event in logs
+func (k Keeper) LegacyConvertCoinNativeERC20(
+	ctx sdk.Context,
+	pair types.TokenPair,
+	amount math.Int,
+	receiver common.Address,
+	sender sdk.AccAddress,
+) error {
+	if amount.IsZero() || amount.IsNegative() {
+		return nil
+	}
+
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	contract := pair.GetERC20Contract()
+
+	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
+	if balanceToken == nil {
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+
+	// Escrow Coins on module account
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins); err != nil {
+		return errorsmod.Wrap(err, "failed to escrow coins")
+	}
+
+	// Unescrow Tokens and send to receiver
+	res, err := k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "transfer", receiver, amount.BigInt())
+	if err != nil {
+		return err
+	}
+
+	// Check unpackedRet execution
+	var unpackedRet types.ERC20BoolResponse
+	if err := erc20.UnpackIntoInterface(&unpackedRet, "transfer", res.Ret); err != nil {
+		return err
+	}
+
+	if !unpackedRet.Value {
+		return errorsmod.Wrap(errortypes.ErrLogic, "failed to execute unescrow tokens from user")
+	}
+
+	// Check expected Receiver balance after transfer execution
+	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
+	if balanceTokenAfter == nil {
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+
+	exp := big.NewInt(0).Add(balanceToken, amount.BigInt())
+
+	if r := balanceTokenAfter.Cmp(exp); r != 0 {
+		return errorsmod.Wrapf(
+			types.ErrBalanceInvariance,
+			"invalid token balance - expected: %v, actual: %v", exp, balanceTokenAfter,
+		)
+	}
+
+	// Burn escrowed Coins
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, coins)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to burn coins")
+	}
+
+	// Check for unexpected `Approval` event in logs
+	if err := k.monitorApprovalEvent(res); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // convertERC20NativeToken handles the erc20 conversion for a native erc20 token
