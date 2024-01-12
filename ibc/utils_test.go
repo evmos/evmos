@@ -28,32 +28,35 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 		expError     bool
 	}{
 		{
-			"empty packet",
-			channeltypes.Packet{},
-			"", "",
-			true,
+			name:         "empty packet",
+			packet:       channeltypes.Packet{},
+			expSender:    "",
+			expRecipient: "",
+			expError:     true,
 		},
 		{
-			"invalid packet data",
-			channeltypes.Packet{
+			name: "invalid packet data",
+			packet: channeltypes.Packet{
 				Data: ibctesting.MockFailPacketData,
 			},
-			"", "",
-			true,
+			expSender:    "",
+			expRecipient: "",
+			expError:     true,
 		},
 		{
-			"empty FungibleTokenPacketData",
-			channeltypes.Packet{
+			name: "empty FungibleTokenPacketData",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{},
 				),
 			},
-			"", "",
-			true,
+			expSender:    "",
+			expRecipient: "",
+			expError:     true,
 		},
 		{
-			"invalid sender",
-			channeltypes.Packet{
+			name: "invalid sender",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1",
@@ -62,12 +65,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					},
 				),
 			},
-			"", "",
-			true,
+			expSender:    "",
+			expRecipient: "",
+			expError:     true,
 		},
 		{
-			"invalid recipient",
-			channeltypes.Packet{
+			name: "invalid recipient",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
@@ -76,12 +80,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					},
 				),
 			},
-			"", "",
-			true,
+			expSender:    "",
+			expRecipient: "",
+			expError:     true,
 		},
 		{
-			"valid - cosmos sender, evmos recipient",
-			channeltypes.Packet{
+			name: "valid - cosmos sender, evmos recipient",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
@@ -90,13 +95,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					},
 				),
 			},
-			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-			false,
+			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expError:     false,
 		},
 		{
-			"valid - evmos sender, cosmos recipient",
-			channeltypes.Packet{
+			name: "valid - evmos sender, cosmos recipient",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
@@ -105,13 +110,13 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					},
 				),
 			},
-			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			false,
+			expSender:    "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expRecipient: "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expError:     false,
 		},
 		{
-			"valid - osmosis sender, evmos recipient",
-			channeltypes.Packet{
+			name: "valid - osmosis sender, evmos recipient",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "osmo1qql8ag4cluz6r4dz28p3w00dnc9w8ueuhnecd2",
@@ -120,9 +125,9 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 					},
 				),
 			},
-			"evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
-			"evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
-			false,
+			expSender:    "evmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueuafmxps",
+			expRecipient: "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v",
+			expError:     false,
 		},
 	}
 
@@ -146,22 +151,20 @@ func TestGetTransferAmount(t *testing.T) {
 		expError  bool
 	}{
 		{
-			"empty packet",
-			channeltypes.Packet{},
-			"",
-			true,
+			name:      "empty packet",
+			packet:    channeltypes.Packet{},
+			expAmount: "",
+			expError:  true,
 		},
 		{
-			"invalid packet data",
-			channeltypes.Packet{
-				Data: ibctesting.MockFailPacketData,
-			},
-			"",
-			true,
+			name:      "invalid packet data",
+			packet:    channeltypes.Packet{Data: ibctesting.MockFailPacketData},
+			expAmount: "",
+			expError:  true,
 		},
 		{
-			"invalid amount - empty",
-			channeltypes.Packet{
+			name: "invalid amount - empty",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
@@ -170,12 +173,12 @@ func TestGetTransferAmount(t *testing.T) {
 					},
 				),
 			},
-			"",
-			true,
+			expAmount: "",
+			expError:  true,
 		},
 		{
-			"invalid amount - non-int",
-			channeltypes.Packet{
+			name: "invalid amount - non-int",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
@@ -184,12 +187,12 @@ func TestGetTransferAmount(t *testing.T) {
 					},
 				),
 			},
-			"test",
-			true,
+			expAmount: "test",
+			expError:  true,
 		},
 		{
-			"valid",
-			channeltypes.Packet{
+			name: "valid",
+			packet: channeltypes.Packet{
 				Data: transfertypes.ModuleCdc.MustMarshalJSON(
 					&transfertypes.FungibleTokenPacketData{
 						Sender:   "cosmos1qql8ag4cluz6r4dz28p3w00dnc9w8ueulg2gmc",
@@ -198,8 +201,8 @@ func TestGetTransferAmount(t *testing.T) {
 					},
 				),
 			},
-			"10000",
-			false,
+			expAmount: "10000",
+			expError:  false,
 		},
 	}
 
@@ -315,5 +318,55 @@ func TestGetSentCoin(t *testing.T) {
 	for _, tc := range testCases {
 		coin := GetSentCoin(tc.rawDenom, tc.rawAmount)
 		require.Equal(t, tc.expCoin, coin)
+	}
+}
+
+func TestDeriveDecimalsFromDenom(t *testing.T) {
+	testCases := []struct {
+		name      string
+		baseDenom string
+		expDec    uint8
+		expFail   bool
+		expErrMsg string
+	}{
+		{
+			name:      "fail: empty string",
+			baseDenom: "",
+			expDec:    0,
+			expFail:   true,
+			expErrMsg: "Base denom cannot be an empty string",
+		},
+		{
+			name:      "fail: invalid prefix",
+			baseDenom: "nevmos",
+			expDec:    0,
+			expFail:   true,
+			expErrMsg: "Should be either micro ('u[...]') or atto ('a[...]'); got: \"nevmos\"",
+		},
+		{
+			name:      "success: micro 'u' prefix",
+			baseDenom: "uevmos",
+			expDec:    6,
+			expFail:   false,
+			expErrMsg: "",
+		},
+		{
+			name:      "success: atto 'a' prefix",
+			baseDenom: "aevmos",
+			expDec:    18,
+			expFail:   false,
+			expErrMsg: "",
+		},
+	}
+
+	for _, tc := range testCases {
+		dec, err := DeriveDecimalsFromDenom(tc.baseDenom)
+		if tc.expFail {
+			require.Error(t, err, tc.expErrMsg)
+			require.Contains(t, err.Error(), tc.expErrMsg)
+		} else {
+			require.NoError(t, err)
+		}
+		require.Equal(t, tc.expDec, dec)
 	}
 }
