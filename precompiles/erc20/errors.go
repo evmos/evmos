@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/evmos/evmos/v16/ibc"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
@@ -28,10 +29,8 @@ var (
 
 	// Precompile errors
 	ErrDecreaseNonPositiveValue = errors.New("cannot decrease allowance with non-positive values")
-	ErrDenomTraceNotFound       = errors.New("denom trace not found")
 	ErrIncreaseNonPositiveValue = errors.New("cannot increase allowance with non-positive values")
 	ErrNegativeAmount           = errors.New("cannot approve negative values")
-	ErrNoIBCVoucherDenom        = errors.New("denom is not an IBC voucher")
 	ErrSpenderIsOwner           = errors.New("spender cannot be the owner")
 
 	// ERC20 errors
@@ -81,8 +80,8 @@ func ConvertErrToERC20Error(err error) error {
 		return ErrDecreasedAllowanceBelowZero
 	case strings.Contains(err.Error(), cmn.ErrIntegerOverflow):
 		return vm.ErrExecutionReverted
-	case errors.Is(err, ErrNoIBCVoucherDenom) ||
-		errors.Is(err, ErrDenomTraceNotFound) ||
+	case errors.Is(err, ibc.ErrNoIBCVoucherDenom) ||
+		errors.Is(err, ibc.ErrDenomTraceNotFound) ||
 		strings.Contains(err.Error(), "invalid base denomination") ||
 		strings.Contains(err.Error(), "display denomination not found") ||
 		strings.Contains(err.Error(), "invalid decimals"):

@@ -4,6 +4,8 @@
 package ibc
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,6 +13,7 @@ import (
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 
 	"github.com/evmos/evmos/v16/utils"
 )
@@ -123,4 +126,51 @@ func GetSentCoin(rawDenom, rawAmt string) sdk.Coin {
 		Denom:  trace.IBCDenom(),
 		Amount: amount,
 	}
+}
+
+// GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the
+// denomination is not an IBC voucher or the trace is not found, it returns an error.
+func GetDenomTrace(
+	transferKeeper transferkeeper.Keeper,
+	ctx sdk.Context,
+	denom string,
+) (transfertypes.DenomTrace, error) {
+	if !strings.HasPrefix(denom, "ibc/") {
+		return transfertypes.DenomTrace{}, errorsmod.Wrapf(ErrNoIBCVoucherDenom, denom)
+	}
+
+	hash, err := transfertypes.ParseHexHash(denom[4:])
+	if err != nil {
+		return transfertypes.DenomTrace{}, err
+	}
+
+	denomTrace, found := transferKeeper.GetDenomTrace(ctx, hash)
+	if !found {
+		return transfertypes.DenomTrace{}, ErrDenomTraceNotFound
+	}
+
+	return denomTrace, nil
+}
+
+// DeriveDecimalsFromDenom returns the number of decimals of an IBC coin
+// depending on the prefix of the base denomination
+func DeriveDecimalsFromDenom(baseDenom string) (uint8, error) {
+	var decimals uint8
+	if len(baseDenom) == 0 {
+		return decimals, errorsmod.Wrapf(ErrInvalidBaseDenom, "Base denom cannot be an empty string")
+	}
+
+	switch baseDenom[0] {
+	case 'u': // micro (u) -> 6 decimals
+		decimals = 6
+	case 'a': // atto (a) -> 18 decimals
+		decimals = 18
+	default:
+		return decimals, errorsmod.Wrapf(
+			ErrInvalidBaseDenom,
+			"Should be either micro ('u[...]') or atto ('a[...]'); got: %q",
+			baseDenom,
+		)
+	}
+	return decimals, nil
 }
