@@ -25,10 +25,9 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 
 func (s *PrecompileTestSuite) TestRun() {
 	testCases := []struct {
-		name     string
-		sign     func() []byte
-		expError bool
-		expPass  bool
+		name    string
+		sign    func() []byte
+		expPass bool
 	}{
 		{
 			"pass - Sign",
@@ -48,7 +47,6 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				return input
 			},
-			false,
 			true,
 		},
 		{
@@ -72,8 +70,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				return input
 			},
-			false,
-			false,
+			true,
 		},
 		{
 			"fail - invalid signature",
@@ -99,7 +96,6 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				return input
 			},
-			true,
 			false,
 		},
 		{
@@ -113,7 +109,6 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				return input
 			},
-			true,
 			false,
 		},
 	}
@@ -121,11 +116,9 @@ func (s *PrecompileTestSuite) TestRun() {
 	for _, tc := range testCases {
 		input := tc.sign()
 		bz, err := s.precompile.Run(nil, &vm.Contract{Input: input}, false)
-		if !tc.expError {
+		if tc.expPass {
 			s.Require().NoError(err)
-			if tc.expPass {
-				s.Require().Equal(trueValue, bz, tc.name)
-			}
+			s.Require().Equal(trueValue, bz, tc.name)
 		} else {
 			s.Require().NoError(err)
 			s.Require().Empty(bz, tc.name)
