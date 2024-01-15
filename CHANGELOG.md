@@ -56,6 +56,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 - (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
 - (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
+- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
+- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
+- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
+- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 
 ### API Breaking
 
@@ -138,8 +142,23 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
 - (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
 - (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
-- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce daily inflation by 2/3s.
 - (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
+- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
+- (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
+- (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
+- (api) [#2198] (https://github.com/evmos/evmos/pull/2198) Remove deprecated `RegisterCoinProposal` from store to avoid breaking the governance proposals query.
+- (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) backport handle cases for input and output denoms without token pair lookup
+- (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
+- (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
+- (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
+- (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
+- (outposts) [#2217](https://github.com/evmos/evmos/pull/2217) Add default timeout timestamp for outpost transactions.
+- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
+- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
+- (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
+- (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
+- (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
 
 ### Bug Fixes
 
@@ -147,6 +166,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
 - (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
+- (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
+- (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger
 
 ## [v15.0.0] - 2023-10-31
 

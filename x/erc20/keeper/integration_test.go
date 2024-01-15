@@ -112,7 +112,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", fundsAmt),
+					sdk.NewCoin(utils.BaseDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 					sdk.NewCoin(metadataIbc.Base, math.NewInt(1)),
 					sdk.NewCoin(metadataCoin.Base, math.NewInt(1)),
@@ -132,7 +132,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				s.Require().NoError(err)
 
 				coins := sdk.NewCoins(
-					sdk.NewCoin("aevmos", fundsAmt),
+					sdk.NewCoin(utils.BaseDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 				)
 				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
@@ -148,7 +148,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -174,7 +174,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin("aevmos", math.NewInt(500000000000000000)), s.validator)
+					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
 					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
@@ -282,7 +282,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
 				})
 
-				It("should send coins to the recevier account", func() {
+				It("should send coins to the receiver account", func() {
 					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
 					Expect(balanceCoin).To(Equal(coin))
 				})
@@ -306,7 +306,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 					Expect(balanceERC20.Int64()).To(Equal(int64(0)))
 				})
 
-				It("should burn coins to the recevier account", func() {
+				It("should burn coins to the receiver account", func() {
 					balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
 					Expect(balanceCoin.IsZero()).To(BeTrue())
 				})

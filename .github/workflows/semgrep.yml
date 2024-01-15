@@ -1,14 +1,8 @@
 name: Semgrep
 on:
   # Scan changed files in PRs, block on new issues only (existing issues ignored)
-  pull_request: {}
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/semgrep.yml
-  schedule:
-    - cron: '0 0 * * 0'
+  pull_request:
+
 jobs:
   # Update from: https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#github-actions [removing GH Security Dashboard]
   semgrep:

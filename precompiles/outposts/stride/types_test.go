@@ -23,9 +23,9 @@ func TestCreateMemo(t *testing.T) {
 			name:          "success - liquid stake",
 			action:        strideoutpost.LiquidStakeAction,
 			receiver:      "stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
-			evmosReceiver: strideoutpost.NoReceiver,
+			evmosReceiver: "evmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5",
 			expPass:       true,
-			expMemo:       "{\"autopilot\":{\"receiver\":\"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\",\"stakeibc\":{\"action\":\"LiquidStake\"}}}",
+			expMemo:       "{\"autopilot\":{\"receiver\":\"stride1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\",\"stakeibc\":{\"action\":\"LiquidStake\",\"ibcreceiver\":\"evmos1xv9tklw7d82sezh9haa573wufgy59vmwe6xxe5\"}}}",
 		},
 		{
 			name:          "success - redeem stake",

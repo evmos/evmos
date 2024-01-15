@@ -591,7 +591,7 @@ class CosmosCLI:
                 amount=amount,
                 pubkey=pubkey,
                 min_self_delegation=min_self_delegation,
-                # commision
+                # commission
                 commission_rate=commission_rate,
                 commission_max_rate=commission_max_rate,
                 commission_max_change_rate=commission_max_change_rate,

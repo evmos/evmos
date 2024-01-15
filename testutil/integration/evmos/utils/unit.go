@@ -76,7 +76,7 @@ func RegisterEvmosERC20Coins(
 // like registering the denom trace in the transfer keeper and minting the token
 // with the bank. Returns the TokenPair or an error.
 func RegisterIBCERC20Coins(
-	network network.UnitTestNetwork,
+	network *network.UnitTestNetwork,
 	tokenReceiver sdk.AccAddress,
 	denomTrace transfertypes.DenomTrace,
 ) (erc20types.TokenPair, error) {

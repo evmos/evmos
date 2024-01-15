@@ -4,6 +4,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -16,12 +17,16 @@ import (
 
 // constants
 const (
+	// ProposalTypeRegisterCoin is DEPRECATED, remove after v16 upgrade
+	ProposalTypeRegisterCoin          string = "RegisterCoin"
 	ProposalTypeRegisterERC20         string = "RegisterERC20"
 	ProposalTypeToggleTokenConversion string = "ToggleTokenConversion" // #nosec
 )
 
 // Implements Proposal Interface
 var (
+	// RegisterCoinProposal is DEPRECATED, remove after v16 upgrade
+	_ v1beta1.Content = &RegisterCoinProposal{}
 	_ v1beta1.Content = &RegisterERC20Proposal{}
 	_ v1beta1.Content = &ToggleTokenConversionProposal{}
 )
@@ -111,4 +116,20 @@ func (ttcp *ToggleTokenConversionProposal) ValidateBasic() error {
 	}
 
 	return v1beta1.ValidateAbstract(ttcp)
+}
+
+// ProposalRoute returns router key for this proposal.
+// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
+func (*RegisterCoinProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for this proposal.
+// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
+func (*RegisterCoinProposal) ProposalType() string {
+	return ProposalTypeRegisterCoin
+}
+
+// ValidateBasic performs a stateless check of the proposal fields.
+// RegisterCoinProposal is DEPRECATED remove after v16 upgrade
+func (rtbp *RegisterCoinProposal) ValidateBasic() error {
+	return errors.New("deprecated")
 }

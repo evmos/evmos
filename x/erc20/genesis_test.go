@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +13,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
+
+	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/utils"
@@ -27,6 +30,13 @@ type GenesisTestSuite struct {
 	ctx     sdk.Context
 	app     *app.Evmos
 	genesis types.GenesisState
+}
+
+const osmoERC20ContractAddr = "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ"
+
+var osmoDenomTrace = transfertypes.DenomTrace{
+	BaseDenom: "uosmo",
+	Path:      "transfer/channel-0",
 }
 
 func TestGenesisTestSuite(t *testing.T) {
@@ -71,41 +81,61 @@ func (suite *GenesisTestSuite) TestERC20InitGenesis() {
 	testCases := []struct {
 		name         string
 		genesisState types.GenesisState
+		malleate     func()
 	}{
 		{
-			"empty genesis",
-			types.GenesisState{},
+			name:         "empty genesis",
+			genesisState: types.GenesisState{},
+			malleate:     nil,
 		},
 		{
-			"default genesis",
-			*types.DefaultGenesisState(),
+			name:         "default genesis",
+			genesisState: *types.DefaultGenesisState(),
+			malleate:     nil,
 		},
 		{
-			"custom genesis",
-			types.NewGenesisState(
+			name: "custom genesis",
+			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				[]types.TokenPair{
 					{
-						Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-						Denom:         "coin",
+						Erc20Address:  osmoERC20ContractAddr,
+						Denom:         osmoDenomTrace.IBCDenom(),
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},
-				}),
+				},
+			),
+			malleate: func() {
+				suite.app.TransferKeeper.SetDenomTrace(
+					suite.ctx,
+					transfertypes.DenomTrace{
+						BaseDenom: "uosmo",
+						Path:      "transfer/channel-0",
+					},
+				)
+			},
 		},
 	}
 
 	for _, tc := range testCases {
+		if tc.malleate != nil {
+			tc.malleate()
+		}
 
 		suite.Require().NotPanics(func() {
 			erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		})
+
 		params := suite.app.Erc20Keeper.GetParams(suite.ctx)
 
 		tokenPairs := suite.app.Erc20Keeper.GetTokenPairs(suite.ctx)
 		suite.Require().Equal(tc.genesisState.Params, params)
 		if len(tokenPairs) > 0 {
 			suite.Require().Equal(tc.genesisState.TokenPairs, tokenPairs)
+			// check ERC20 contract was created successfully
+			acc := suite.app.EvmKeeper.GetAccount(suite.ctx, common.HexToAddress(osmoERC20ContractAddr))
+			suite.Require().True(acc.IsContract())
 		} else {
 			suite.Require().Len(tc.genesisState.TokenPairs, 0)
 		}
@@ -116,31 +146,41 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	testGenCases := []struct {
 		name         string
 		genesisState types.GenesisState
+		malleate     func()
 	}{
 		{
-			"empty genesis",
-			types.GenesisState{},
+			name:         "empty genesis",
+			genesisState: types.GenesisState{},
+			malleate:     nil,
 		},
 		{
-			"default genesis",
-			*types.DefaultGenesisState(),
+			name:         "default genesis",
+			genesisState: *types.DefaultGenesisState(),
+			malleate:     nil,
 		},
 		{
-			"custom genesis",
-			types.NewGenesisState(
+			name: "custom genesis",
+			genesisState: types.NewGenesisState(
 				types.DefaultParams(),
 				[]types.TokenPair{
 					{
-						Erc20Address:  "0x5dCA2483280D9727c80b5518faC4556617fb19ZZ",
-						Denom:         "coin",
+						Erc20Address:  osmoERC20ContractAddr,
+						Denom:         osmoDenomTrace.IBCDenom(),
 						Enabled:       true,
 						ContractOwner: types.OWNER_MODULE,
 					},
-				}),
+				},
+			),
+			malleate: func() {
+				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
+			},
 		},
 	}
 
 	for _, tc := range testGenCases {
+		if tc.malleate != nil {
+			tc.malleate()
+		}
 		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		suite.Require().NotPanics(func() {
 			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)

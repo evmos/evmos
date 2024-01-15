@@ -79,10 +79,6 @@ func NewConvertERC20Cmd() *cobra.Command {
 				Sender:          from.Hex(),
 			}
 
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-
 			return tx.GenerateOrBroadcastTxCLI(cliCtx, cmd.Flags(), msg)
 		},
 	}
@@ -131,10 +127,6 @@ func NewRegisterERC20ProposalCmd() *cobra.Command {
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
-				return err
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 
@@ -197,10 +189,6 @@ func NewToggleTokenConversionProposalCmd() *cobra.Command {
 
 			msg, err := govv1beta1.NewMsgSubmitProposal(content, deposit, from)
 			if err != nil {
-				return err
-			}
-
-			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 
