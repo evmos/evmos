@@ -11,13 +11,11 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
@@ -41,9 +39,6 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	wevmosAddress common.Address
-	// IBC
-	timeoutHeight    clienttypes.Height
-	timeoutTimestamp uint64
 
 	// Keepers
 	bankKeeper     bankkeeper.Keeper
@@ -77,14 +72,12 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration,
 			AuthzKeeper:          authzKeeper,
 		},
-		wevmosAddress:    wevmosAddress,
-		timeoutHeight:    clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
-		timeoutTimestamp: ics20.DefaultTimeoutTimestamp,
-		bankKeeper:       bankKeeper,
-		transferKeeper:   transferKeeper,
-		stakingKeeper:    stakingKeeper,
-		erc20Keeper:      erc20Keeper,
-		channelKeeper:    channelKeeper,
+		wevmosAddress:  wevmosAddress,
+		bankKeeper:     bankKeeper,
+		transferKeeper: transferKeeper,
+		stakingKeeper:  stakingKeeper,
+		erc20Keeper:    erc20Keeper,
+		channelKeeper:  channelKeeper,
 	}, nil
 }
 

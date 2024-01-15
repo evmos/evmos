@@ -5,6 +5,8 @@ package keeper
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -29,24 +31,10 @@ func (k Keeper) DeployERC20Contract(
 	ctx sdk.Context,
 	coinMetadata banktypes.Metadata,
 ) (common.Address, error) {
-	decimals := uint8(0)
-	if len(coinMetadata.DenomUnits) > 0 {
-		decimalsIdx := len(coinMetadata.DenomUnits) - 1
-		decimals = uint8(coinMetadata.DenomUnits[decimalsIdx].Exponent)
-	}
-	ctorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
-		"",
-		coinMetadata.Name,
-		coinMetadata.Symbol,
-		decimals,
-	)
+	data, err := getContractDataBz(coinMetadata)
 	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+		return common.Address{}, err
 	}
-
-	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(ctorArgs))
-	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
-	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], ctorArgs)
 
 	nonce, err := k.accountKeeper.GetSequence(ctx, types.ModuleAddress.Bytes())
 	if err != nil {
@@ -241,4 +229,35 @@ func (k Keeper) monitorApprovalEvent(res *evmtypes.MsgEthereumTxResponse) error 
 	}
 
 	return nil
+}
+
+// getContractDataBz is a helper function to get the contract bytecode
+// needed to deploy an ERC20 contract based on the input coin metadata
+func getContractDataBz(coinMetadata banktypes.Metadata) ([]byte, error) {
+	decimals := uint8(0)
+	if len(coinMetadata.DenomUnits) > 0 {
+		decimalsIdx := len(coinMetadata.DenomUnits) - 1
+		exp := coinMetadata.DenomUnits[decimalsIdx].Exponent
+		if exp > math.MaxUint8 {
+			return nil, fmt.Errorf("coin metadata is invalid. Denom unit exponent should be less or equal than %d, got %d", math.MaxUint8, exp)
+		}
+		decimals = uint8(exp)
+	}
+
+	// Get the input values for the ERC20 contract constructor method
+	constructorArgs, err := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack(
+		"", // constructor
+		coinMetadata.Name,
+		coinMetadata.Symbol,
+		decimals,
+	)
+	if err != nil {
+		return nil, errorsmod.Wrapf(types.ErrABIPack, "coin metadata is invalid %s: %s", coinMetadata.Name, err.Error())
+	}
+
+	data := make([]byte, len(contracts.ERC20MinterBurnerDecimalsContract.Bin)+len(constructorArgs))
+	copy(data[:len(contracts.ERC20MinterBurnerDecimalsContract.Bin)], contracts.ERC20MinterBurnerDecimalsContract.Bin)
+	copy(data[len(contracts.ERC20MinterBurnerDecimalsContract.Bin):], constructorArgs)
+
+	return data, nil
 }

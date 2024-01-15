@@ -17,12 +17,10 @@ from .utils import (
     OSMOSIS_POOLS,
     WASM_CONTRACTS,
     WEVMOS_ADDRESS,
-    approve_proposal,
     erc20_balance,
     eth_to_bech32,
     get_event_attribute_value,
     get_precompile_contract,
-    register_ibc_coin,
     send_transaction,
     wait_for_cosmos_tx_receipt,
     wait_for_fn,
@@ -146,7 +144,7 @@ def setup_osmos_chains(ibc):
 
     # ===== Deploy CrosschainSwap V1=====
     cross_swap_contract = WASM_CONTRACTS["CrosschainSwap"]
-    deploy_wasm_contract(
+    xcs_contract = deploy_wasm_contract(
         osmosis_cli,
         osmosis_addr,
         cross_swap_contract,
@@ -163,7 +161,7 @@ def setup_osmos_chains(ibc):
         osmosis_cli, osmosis_addr, swap_contract_addr, pool_id, EVMOS_IBC_DENOM, "uosmo"
     )
 
-    return swap_contract_addr
+    return xcs_contract
 
 
 def send_evmos_to_osmos(ibc):
@@ -243,54 +241,6 @@ def transfer_osmo_to_evmos(ibc, src_addr, dst_addr):
         return old_dst_balance != new_dst_balance
 
     wait_for_fn("balance change", check_balance_change)
-
-
-def register_osmo_token(evmos):
-    """
-    Register Osmo token as ERC20 token pair.
-    Helper function that creates the corresponding
-    gov proposal, votes for it, and waits till it passes
-    """
-    evmos_cli = evmos.cosmos_cli()
-
-    # TODO - generate the osmos ibc denom
-    osmos_ibc_denom = OSMO_IBC_DENOM
-    ERC_OSMO_META = {
-        "description": "Generic IBC token description",
-        "denom_units": [
-            # TODO - generate the osmos ibc denom
-            {
-                "denom": osmos_ibc_denom,
-                "exponent": 0,
-            },
-        ],
-        # TODO - generate the osmos ibc denom
-        "base": osmos_ibc_denom,
-        "display": osmos_ibc_denom,
-        "name": "Generic IBC name",
-        "symbol": "IBC",
-    }
-
-    proposal = {
-        "title": "Register Osmosis ERC20 token",
-        "description": "The IBC representation of OSMO on Evmos chain",
-        "metadata": [ERC_OSMO_META],
-        "deposit": "1aevmos",
-    }
-    proposal_id = register_ibc_coin(evmos_cli, proposal)
-    assert (
-        int(proposal_id) > 0
-    ), "expected a non-zero proposal ID for the registration of the OSMO token."
-    print("proposal id: ", proposal_id)
-    # vote 'yes' on proposal and wait it to pass
-    approve_proposal(evmos, proposal_id)
-    # query token pairs and get contract address
-    pairs = evmos_cli.get_token_pairs()
-    assert len(pairs) == 1, "expected exactly one token pair to be registered"
-    assert (
-        pairs[0]["denom"] == osmos_ibc_denom
-    ), "expected the registered token pair to be the Osmosis IBC coin"
-    return pairs[0]["erc20_address"]
 
 
 def deploy_wasm_contract(osmosis_cli, deployer_addr, contract_file, init_args, label):
