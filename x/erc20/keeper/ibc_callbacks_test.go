@@ -457,6 +457,33 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 			expERC20: big.NewInt(0),
 		},
 		{
+			name: "conversion - convert ibc tokens to erc20 on ack error",
+			malleate: func() {
+				// Register Token Pair for testing
+				pair = suite.setupRegisterCoin(metadataCoin)
+				suite.Require().NotNil(pair)
+
+				sender = sdk.AccAddress(senderPk.PubKey().Address())
+
+				// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
+				// We do this since we are interested in the conversion portion w/ OnRecvPacket
+				err := testutil.FundAccount(
+					suite.ctx,
+					suite.app.BankKeeper,
+					sender,
+					sdk.NewCoins(
+						sdk.NewCoin(pair.Denom, math.NewInt(100)),
+					),
+				)
+				suite.Require().NoError(err)
+
+				ack = channeltypes.NewErrorAcknowledgement(errors.New(""))
+				data = transfertypes.NewFungibleTokenPacketData(pair.Denom, "100", sender.String(), receiver.String(), "")
+			},
+			expERC20: big.NewInt(100),
+			expPass:  true,
+		},
+		{
 			name: "no-op - positive ack",
 			malleate: func() {
 				// Register Token Pair for testing

@@ -240,6 +240,60 @@ func (k Keeper) LegacyConvertCoinNativeERC20(
 	return nil
 }
 
+// LegacyConvertCoinNativeCoin handles the coin conversion for a native Cosmos coin
+// token pair:
+//   - escrow coins on module account
+//   - mint tokens and send to receiver
+//   - check if token balance increased by amount
+func (k Keeper) LegacyConvertCoinNativeCoin(
+	ctx sdk.Context,
+	pair types.TokenPair,
+	amount math.Int,
+	receiver common.Address,
+	sender sdk.AccAddress,
+) error {
+	if amount.IsZero() || amount.IsNegative() {
+		return nil
+	}
+	// NOTE: ignore validation from NewCoin constructor
+	coins := sdk.Coins{{Denom: pair.Denom, Amount: amount}}
+	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
+	contract := pair.GetERC20Contract()
+	balanceToken := k.BalanceOf(ctx, erc20, contract, receiver)
+	if balanceToken == nil {
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+
+	// Escrow coins on module account
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, coins)
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to escrow coins")
+	}
+
+	// Mint tokens and send to receiver
+	_, err = k.CallEVM(ctx, erc20, types.ModuleAddress, contract, true, "mint", receiver, amount.BigInt())
+	if err != nil {
+		return err
+	}
+
+	// Check expected receiver balance after transfer
+	tokens := amount.BigInt()
+	balanceTokenAfter := k.BalanceOf(ctx, erc20, contract, receiver)
+	if balanceTokenAfter == nil {
+		return errorsmod.Wrap(types.ErrEVMCall, "failed to retrieve balance")
+	}
+	expToken := big.NewInt(0).Add(balanceToken, tokens)
+
+	if r := balanceTokenAfter.Cmp(expToken); r != 0 {
+		return errorsmod.Wrapf(
+			types.ErrBalanceInvariance,
+			"invalid token balance - expected: %v, actual: %v", expToken, balanceTokenAfter,
+		)
+	}
+
+	return nil
+}
+
 // convertERC20NativeToken handles the erc20 conversion for a native erc20 token
 // pair:
 //   - escrow tokens on module account

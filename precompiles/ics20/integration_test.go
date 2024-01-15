@@ -775,12 +775,13 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					Expect(err).To(BeNil())
 
 					// check escrowed funds are refunded to sender
-					balanceAfter := s.app.BankKeeper.GetBalance(
+					finalERC20balance := s.app.Erc20Keeper.BalanceOf(
 						s.chainA.GetContext(),
-						s.address.Bytes(),
-						tokenPair.Denom,
+						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+						erc20Addr,
+						s.address,
 					)
-					Expect(balanceAfter.Amount.Int64()).To(Equal(sentAmount.Int64()), "address does not have the expected amount of tokens")
+					Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
 				})
 
 				It("should succeed in transfer transaction but should timeout", func() {
@@ -857,12 +858,13 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					Expect(err).To(BeNil())
 
 					// check escrowed funds are refunded to sender
-					finalBalance = s.app.BankKeeper.GetBalance(
+					finalERC20balance := s.app.Erc20Keeper.BalanceOf(
 						s.chainA.GetContext(),
-						s.address.Bytes(),
-						tokenPair.Denom,
+						evmoscontracts.ERC20MinterBurnerDecimalsContract.ABI,
+						erc20Addr,
+						s.address,
 					)
-					Expect(finalBalance.Amount.Int64()).To(Equal(sentAmount.Int64()), "address does not have the expected amount of tokens")
+					Expect(finalERC20balance).To(Equal(sentAmount), "address does not have the expected amount of tokens")
 				})
 			})
 		})

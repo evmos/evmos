@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -100,7 +101,17 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// TODO: More logic will be added here in a follow up PR
+	if pair.IsNativeERC20() {
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+	}
+
+	if pair.IsNativeCoin() {
+		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+	}
 
 	defer func() {
 		telemetry.IncrCounterWithLabels(
@@ -177,7 +188,22 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		return nil
 	}
 
-	// TODO: More logic will be added here in a follow up PR
+	pair, err := k.MintingEnabled(ctx, sender, sender.Bytes(), coin.Denom)
+	if err != nil {
+		return err
+	}
+
+	if pair.IsNativeERC20() {
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return err
+		}
+	}
+
+	if pair.IsNativeCoin() {
+		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return err
+		}
+	}
 
 	defer func() {
 		telemetry.IncrCounter(1, types.ModuleName, "ibc", "error", "total")
