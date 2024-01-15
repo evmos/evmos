@@ -1,29 +1,57 @@
-"C:Proto":
-  - proto/**/*
-  - third_party/**/*
-  - /**/*.pb.go
-  - /**/*.pb.gw.go
-"C:Types":
-  - types/**/*
-"Type: Build":
-  - Makefile
-  - Dockerfile
-  - docker-compose.yml
-  - scripts/*
-  - config.yml
-"Type: CI":
-  - .github/**/*.yml
-  - buf.yaml
-  - .mergify.yml
-  - .golangci.yml
-"C:CLI":
-  - client/**/*
-  - x/*/client/**/*
-"Type: Tests":
-  - tests/**/*
-  - /**/*/*_test.go
-"Type: Docs":
-  - docs/**/*
-  - x/*/spec/**/*
-"Type: ADR":
-    - docs/architecture/**/*
+proto:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "proto/**/*",
+        "**/*.pb.go",
+        "**/*.pb.gw.go"
+      ]
+types:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "types/**/*",
+      ]
+build:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "Makefile",
+        "Dockerfile",
+        "docker-compose.yml",
+        "scripts/*",
+        "config.yml",
+      ]
+CI:
+  - changed-files:
+      - any-glob-to-any-file: [
+        ".github/**/*",
+        ".mergify.yml",
+        ".golangci.yml",
+        "buf.yaml",
+      ]
+CLI:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "client/**/*",
+        "x/*/client/**/*",
+      ]
+tests:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "tests/**/*",
+        "testutil/**/*",
+        "**/*_test.go",
+      ]
+contracts:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "contracts/**/*",
+        "*.sol",
+      ]
+precompile:
+  - changed-files:
+      - any-glob-to-any-file: [
+        "precompile/**/*",
+      ]
+release:
+  - base-branch: "^release/"
+feature:
+  - head-branch: "^feat/"
