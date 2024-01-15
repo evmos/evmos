@@ -13,21 +13,7 @@ coverage:
     project:
       default:
         threshold: 1% # allow this much decrease on project
-      app:
-        target: 70%
-        flags:
-          - app
-      modules:
         target: 90%
-        flags:
-          - modules
-      core:
-        target: 90%
-        flags:
-          - core
-      client:
-        flags:
-          - client
     changes: false
 
 comment:
@@ -35,26 +21,7 @@ comment:
   behavior: default # update if exists else create new
   require_changes: true
 
-flags:
-  app:
-    paths:
-      - "app"
-  modules:
-    paths:
-      - "x"
-      - "!x/**/client" # ignore client package
-  core:
-    paths:
-      - "core"
-      - "crypto"
-      - "types"
-  clients:
-    paths:
-      - "x/**/client"
-      - "x/**/keeper/grpc_query.go"
-
 ignore:
-  - "docs"
   - "**/*.md"
   - "cmd"
   - "client"
