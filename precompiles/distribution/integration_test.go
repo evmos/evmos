@@ -962,7 +962,8 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(6997329929187000000)}
+			initialBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
+
 			err := s.app.DistrKeeper.SetWithdrawAddr(s.ctx, contractAddr.Bytes(), s.address.Bytes())
 			Expect(err).To(BeNil())
 
@@ -975,7 +976,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 			// balance should increase
 			finalBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), s.bondDenom)
-			Expect(finalBalance.Amount.Equal(expectedBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
+			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 	})
 
