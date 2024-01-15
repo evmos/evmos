@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"math/big"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -79,13 +81,18 @@ var _ = Describe("Performing EVM transactions", Ordered, func() {
 })
 
 var _ = Describe("ERC20:", Ordered, func() {
+	amt := math.NewInt(100)
 	fundsAmt, _ := math.NewIntFromString("100000000000000000000000")
 
 	privKey, _ := ethsecp256k1.GenerateKey()
 	addrBz := privKey.PubKey().Address().Bytes()
 	accAddr := sdk.AccAddress(addrBz)
+	addr := common.BytesToAddress(addrBz)
+	moduleAcc := s.app.AccountKeeper.GetModuleAccount(s.ctx, types.ModuleName).GetAddress()
 
 	var (
+		pair      *types.TokenPair
+		coin      sdk.Coin
 		contract  common.Address
 		contract2 common.Address
 	)
@@ -186,9 +193,68 @@ var _ = Describe("ERC20:", Ordered, func() {
 			})
 		})
 	})
+
+	Describe("Converting", func() {
+		Context("with a registered coin", func() {
+			BeforeEach(func() {
+				pair = s.setupRegisterCoin(metadataCoin)
+				coin = sdk.NewCoin(pair.Denom, amt)
+
+				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
+				s.Require().NoError(err)
+				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(coin))
+				s.Require().NoError(err)
+			})
+			Context("with a registered ERC20", func() {
+				BeforeEach(func() {
+					contract := s.setupRegisterERC20Pair(contractMinterBurner)
+					id := s.app.Erc20Keeper.GetTokenPairID(s.ctx, contract.String())
+					*pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
+					coin = sdk.NewCoin(pair.Denom, amt)
+
+					err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
+					s.Require().NoError(err)
+
+					_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
+					s.Commit()
+				})
+
+				Describe("an ERC20 token into a Cosmos coin", func() {
+					BeforeEach(func() {
+						convertERC20(s.ctx, s.app, privKey, amt, pair.GetERC20Contract())
+					})
+
+					It("should decrease tokens on the sender account", func() {
+						balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), addr).(*big.Int)
+						Expect(balanceERC20.Int64()).To(Equal(int64(0)))
+					})
+
+					It("should escrow tokens on the module account", func() {
+						moduleAddr := common.BytesToAddress(moduleAcc.Bytes())
+						balanceERC20 := s.BalanceOf(pair.GetERC20Contract(), moduleAddr).(*big.Int)
+						Expect(balanceERC20.Int64()).To(Equal(amt.Int64()))
+					})
+
+					It("should send coins to the receiver account", func() {
+						balanceCoin := s.app.BankKeeper.GetBalance(s.ctx, accAddr, pair.Denom)
+						Expect(balanceCoin).To(Equal(coin))
+					})
+				})
+			})
+		})
+	})
 })
 
 func submitRegisterERC20Proposal(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, addrs []string) (id uint64, err error) {
 	content := types.NewRegisterERC20Proposal("test token", "foo", addrs...)
 	return testutil.SubmitProposal(ctx, appEvmos, pk, content, 8)
+}
+
+func convertERC20(ctx sdk.Context, appEvmos *app.Evmos, pk *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
+	addrBz := pk.PubKey().Address().Bytes()
+
+	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
+	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
+	s.Require().NoError(err)
+	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }
