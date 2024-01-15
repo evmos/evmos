@@ -5,7 +5,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -234,28 +233,6 @@ def deploy_contract(w3, jsonfile, args=(), key=KEYS["validator"]):
     assert txreceipt.status == 1
     address = txreceipt.contractAddress
     return w3.eth.contract(address=address, abi=info["abi"]), txreceipt
-
-
-def register_ibc_coin(cli, proposal, proposer_addr=ADDRS["validator"]):
-    """
-    submits a register_coin proposal for the provided coin metadata
-    """
-    proposer = eth_to_bech32(proposer_addr)
-    # save the coin metadata in a json file
-    with tempfile.NamedTemporaryFile("w") as meta_file:
-        json.dump({"metadata": proposal.get("metadata")}, meta_file)
-        meta_file.flush()
-        proposal["metadata"] = meta_file.name
-        rsp = cli.gov_legacy_proposal(proposer, "register-coin", proposal, gas=10000000)
-        assert rsp["code"] == 0, rsp["raw_log"]
-        txhash = rsp["txhash"]
-        wait_for_new_blocks(cli, 2)
-        receipt = cli.tx_search_rpc(f"tx.hash='{txhash}'")[0]
-        return get_event_attribute_value(
-            receipt["tx_result"]["events"],
-            "submit_proposal",
-            "proposal_id",
-        )
 
 
 def wait_for_cosmos_tx_receipt(cli, tx_hash):
