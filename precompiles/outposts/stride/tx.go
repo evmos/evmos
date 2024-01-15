@@ -5,6 +5,7 @@ package stride
 
 import (
 	"fmt"
+	"time"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
@@ -75,14 +76,15 @@ func (p Precompile) LiquidStake(
 	}
 
 	// Build the MsgTransfer with the memo and coin
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		transfertypes.PortID,
 		autopilotArgs.ChannelID,
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
-		p.timeoutHeight,
-		0,
+		ics20.DefaultTimeoutHeight,
+		uint64(timeoutTimestamp),
 		memo,
 	)
 	if err != nil {
@@ -187,6 +189,7 @@ func (p Precompile) RedeemStake(
 		return nil, err
 	}
 
+	timeoutTimestamp := ctx.BlockTime().Add(ics20.DefaultTimeoutMinutes * time.Minute).UnixNano()
 	// Build the MsgTransfer with the memo and coin
 	msg, err := ics20.CreateAndValidateMsgTransfer(
 		transfertypes.PortID,
@@ -194,8 +197,8 @@ func (p Precompile) RedeemStake(
 		coin,
 		sdk.AccAddress(sender.Bytes()).String(),
 		strideForwarder,
-		p.timeoutHeight,
-		0,
+		ics20.DefaultTimeoutHeight,
+		uint64(timeoutTimestamp),
 		memo,
 	)
 	if err != nil {
