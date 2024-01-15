@@ -32,6 +32,8 @@ import (
 	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
+// TODO: Refactor tests with new test suite.
+
 var erc20Denom = "erc20/0xdac17f958d2ee523a2206206994597c13d831ec7"
 
 func (suite *KeeperTestSuite) TestOnRecvPacket() {
