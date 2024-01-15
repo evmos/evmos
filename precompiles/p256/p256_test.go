@@ -119,10 +119,10 @@ func (s *PrecompileTestSuite) TestRun() {
 			bz, err := s.precompile.Run(nil, &vm.Contract{Input: input}, false)
 			if tc.expPass {
 				s.Require().NoError(err)
-				s.Require().Equal(trueValue, bz, tc.name)
+				s.Require().Equal(trueValue, bz)
 			} else {
 				s.Require().NoError(err)
-				s.Require().Empty(bz, tc.name)
+				s.Require().Empty(bz)
 			}
 		})
 	}
