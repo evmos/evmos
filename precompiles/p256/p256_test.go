@@ -114,14 +114,16 @@ func (s *PrecompileTestSuite) TestRun() {
 	}
 
 	for _, tc := range testCases {
-		input := tc.sign()
-		bz, err := s.precompile.Run(nil, &vm.Contract{Input: input}, false)
-		if tc.expPass {
-			s.Require().NoError(err)
-			s.Require().Equal(trueValue, bz, tc.name)
-		} else {
-			s.Require().NoError(err)
-			s.Require().Empty(bz, tc.name)
-		}
+		s.Run(tc.name, func() {
+			input := tc.sign()
+			bz, err := s.precompile.Run(nil, &vm.Contract{Input: input}, false)
+			if tc.expPass {
+				s.Require().NoError(err)
+				s.Require().Equal(trueValue, bz, tc.name)
+			} else {
+				s.Require().NoError(err)
+				s.Require().Empty(bz, tc.name)
+			}
+		})
 	}
 }
