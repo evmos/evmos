@@ -46,6 +46,11 @@ contracts:
         "contracts/**/*",
         "*.sol",
       ]
+precompile:
+  - changed-files:
+      - any-glob-to-any-file: [
+          "precompile/**/*",
+      ]
 release:
   - base-branch: "^release/"
 feature:
