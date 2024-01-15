@@ -1,51 +1,51 @@
 proto:
   - changed-files:
-    - any-glob-to-any-file: [
-      "proto/**/*",
-      "**/*.pb.go",
-      "**/*.pb.gw.go"
-    ]
+      - any-glob-to-any-file: [
+        "proto/**/*",
+        "**/*.pb.go",
+        "**/*.pb.gw.go"
+      ]
 types:
   - changed-files:
-    - any-glob-to-any-file: [
-      "types/**/*",
-    ]
+      - any-glob-to-any-file: [
+        "types/**/*",
+      ]
 build:
   - changed-files:
-    - any-glob-to-any-file: [
-      "Makefile",
-      "Dockerfile",
-      "docker-compose.yml",
-      "scripts/*",
-      "config.yml",
-    ]
+      - any-glob-to-any-file: [
+        "Makefile",
+        "Dockerfile",
+        "docker-compose.yml",
+        "scripts/*",
+        "config.yml",
+      ]
 CI:
   - changed-files:
-    - any-glob-to-any-file: [
-      ".github/**/*",
-      ".mergify.yml",
-      ".golangci.yml",
-      "buf.yaml",
-    ]
+      - any-glob-to-any-file: [
+        ".github/**/*",
+        ".mergify.yml",
+        ".golangci.yml",
+        "buf.yaml",
+      ]
 CLI:
   - changed-files:
-    - any-glob-to-any-file: [
-      "client/**/*",
-      "x/*/client/**/*",
-    ]
+      - any-glob-to-any-file: [
+        "client/**/*",
+        "x/*/client/**/*",
+      ]
 tests:
   - changed-files:
-    - any-glob-to-any-file: [
-      "tests/**/*",
-      "testutil/**/*",
-      "**/*_test.go",
-    ]
+      - any-glob-to-any-file: [
+        "tests/**/*",
+        "testutil/**/*",
+        "**/*_test.go",
+      ]
 contracts:
   - changed-files:
-    - any-glob-to-any-file: [
-      "contracts/**/*",
-      "*.sol",
-    ]
+      - any-glob-to-any-file: [
+        "contracts/**/*",
+        "*.sol",
+      ]
 release:
   - base-branch: "^release/"
 feature:
