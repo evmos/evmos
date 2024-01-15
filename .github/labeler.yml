@@ -49,7 +49,7 @@ contracts:
 precompile:
   - changed-files:
       - any-glob-to-any-file: [
-        "precompile/**/*",
+        "precompiles/**/*",
       ]
 release:
   - base-branch: "^release/"
