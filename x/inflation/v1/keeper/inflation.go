@@ -13,6 +13,12 @@ import (
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
+const (
+	// ReductionFactor is the value used as denominator to divide the provision amount computed
+	// with the CalculateEpochMintProvision function.
+	ReductionFactor = 3
+)
+
 // 200M token at year 4 allocated to the team
 var teamAlloc = math.NewInt(200_000_000).Mul(evmostypes.PowerReduction)
 
@@ -168,5 +174,5 @@ func (k Keeper) GetEpochMintProvision(ctx sdk.Context) math.LegacyDec {
 		k.GetPeriod(ctx),
 		k.GetEpochsPerPeriod(ctx),
 		k.BondedRatio(ctx),
-	)
+	).Quo(math.LegacyNewDec(ReductionFactor))
 }
