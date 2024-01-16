@@ -163,11 +163,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
 - (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address for testnet.
 - (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
-<<<<<<< HEAD
-=======
 - (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger.
 - (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
->>>>>>> eab8194a (fix(inflation): update query to return correct inflation value (#2269))
 
 ## [v15.0.0] - 2023-10-31
 
