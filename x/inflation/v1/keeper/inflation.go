@@ -14,6 +14,8 @@ import (
 )
 
 const (
+	// ReductionFactor is the value used as denominator to divide the provision amount computed
+	// with the CalculateEpochMintProvision function.
 	ReductionFactor = 3
 )
 
