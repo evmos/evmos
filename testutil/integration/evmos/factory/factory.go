@@ -31,7 +31,7 @@ type TxFactory interface {
 	commonfactory.TxFactory
 
 	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
-	GenerateDefaultTxTypeArgs(sender common.Address, txType uint8) (evmtypes.EvmTxArgs, error)
+	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.

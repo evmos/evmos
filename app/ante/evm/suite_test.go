@@ -14,7 +14,7 @@ type EvmAnteTestSuite struct {
 	suite.Suite
 
 	// To make sure that every tests is run with all the tx types
-	ethTxType uint8
+	ethTxType int
 }
 
 func TestEvmAnteTestSuite(t *testing.T) {
@@ -27,17 +27,4 @@ func TestEvmAnteTestSuite(t *testing.T) {
 	suite.Run(t, &EvmAnteTestSuite{
 		ethTxType: gethtypes.AccessListTxType,
 	})
-}
-
-func (suite *EvmAnteTestSuite) getTxTypeTestName() string {
-	switch suite.ethTxType {
-	case gethtypes.DynamicFeeTxType:
-		return "DynamicFeeTxType"
-	case gethtypes.LegacyTxType:
-		return "LegacyTxType"
-	case gethtypes.AccessListTxType:
-		return "AccessListTxType"
-	default:
-		panic("unknown tx type")
-	}
 }

@@ -17,7 +17,7 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
-func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address, txType uint8) (evmtypes.EvmTxArgs, error) {
+func (tf *IntegrationTxFactory) GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error) {
 	defaultArgs := evmtypes.EvmTxArgs{}
 	switch txType {
 	case gethtypes.DynamicFeeTxType:
