@@ -369,6 +369,9 @@ test-rpc:
 test-rpc-pending:
 	./scripts/integration-test-all.sh -t "pending" -q 1 -z 1 -s 2 -m "pending" -r "true"
 
+test-scripts:
+	pytest ./scripts
+
 test-solidity:
 	@echo "Beginning solidity tests..."
 	./scripts/run-solidity-tests.sh
@@ -640,8 +643,8 @@ create-contracts-json:
 
 check-licenses:
 	@echo "Checking licenses..."
-	@python3 scripts/check_licenses.py .
+	@python3 scripts/license_checker/check_licenses.py .
 
 check-changelog:
 	@echo "Checking changelog..."
-	@python3 scripts/check_changelog.py ./CHANGELOG.md
+	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md
