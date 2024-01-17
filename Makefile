@@ -370,7 +370,8 @@ test-rpc-pending:
 	./scripts/integration-test-all.sh -t "pending" -q 1 -z 1 -s 2 -m "pending" -r "true"
 
 test-scripts:
-	pytest ./scripts
+	@echo "Running scripts tests"
+	@pytest -s -vv ./scripts
 
 test-solidity:
 	@echo "Beginning solidity tests..."
