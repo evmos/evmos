@@ -53,9 +53,14 @@ class Changelog:
             # Check for Header 3 (###) to identify change types
             if stripped_line[:4] == '### ':
                 change_type = ChangeType(line)
-                current_category = change_type.type
                 change_type.parse()
+                current_category = change_type.type
+                if current_category in self.releases[current_release]:
+                    self.failed_entries.append(f'Change type "{current_category}" already exists in {current_release}')
+                else:
+                    self.releases[current_release][current_category] = {}
                 self.failed_entries.extend(change_type.problems)
+                continue
 
             # Check for individual entries
             if stripped_line[:2] != '- ':

@@ -13,16 +13,16 @@ Some comments at head of file...
 ### API Breaking
 
 - (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
-- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) Deprecate legacy EIP712 ante handler.
+- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) Deprecate legacy EIP-712 ante handler.
 
 ### Improvements
 
 - (testnet) [\#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags.
-- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABI.
+- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride outpost interface and ABI.
 
 ### Bug Fixes
 
-- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0.
+- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem `gas_used` is 0.
 
 ## [v15.0.0] - 2023-10-31
 

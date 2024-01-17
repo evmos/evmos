@@ -10,13 +10,19 @@ from typing import Dict, List, Tuple
 
 # List of allowed categories for an individual changelog entry.
 ALLOWED_CATEGORIES = [
+    "ante",
     "api",
     "ci",
     "distribution-precompile",
     "erc20-precompile",
     "evm",
     "ibc-precompile",
+    "inflation",
+    "osmosis-outpost",
+    "p256-precompile",
     "staking-precompile",
+    "stride-outpost",
+    "testnet",
     "tests",
     "vesting",
 ]
@@ -31,7 +37,7 @@ ALLOWED_SPELLINGS = {
     "EVM": re.compile("evm", re.IGNORECASE),
     "IBC": re.compile("ibc", re.IGNORECASE),
     "outpost": re.compile("outpost", re.IGNORECASE),
-    "PR": re.compile("pr", re.IGNORECASE),
+    "PR": re.compile("(pr)(\s|$)", re.IGNORECASE),
     "precompile": re.compile("precompile", re.IGNORECASE),
     "SDK": re.compile("sdk", re.IGNORECASE),
     "WERC-20": re.compile("werc-*20", re.IGNORECASE),

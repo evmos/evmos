@@ -21,17 +21,17 @@ class TestParseChangelog:
                 },
                 'API Breaking': {
                     2015: {'description': 'Rename `inflation` module to `inflation/v1`.'},
-                    2078: {'description': 'Deprecate legacy EIP712 ante handler.'},
+                    2078: {'description': 'Deprecate legacy EIP-712 ante handler.'},
                 },
                 'Improvements': {
                     1864: {
                         'description':
                             'Add `--base-fee` and `--min-gas-price` flags.',
                     },
-                    1912: {'description': 'Add Stride Outpost interface and ABI.'},
+                    1912: {'description': 'Add Stride outpost interface and ABI.'},
                 },
                 'Bug Fixes': {
-                    1801: {'description': 'Fixed the problem gas_used is 0.'},
+                    1801: {'description': 'Fixed the problem `gas_used` is 0.'},
                 },
             },
             'v15.0.0': {

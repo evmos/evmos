@@ -97,14 +97,16 @@ class TestCheckWhitespace:
 
 class TestCheckSpelling:
     def test_pass(self):
-        assert check_spelling("Fix API.", ALLOWED_SPELLINGS) == []
+        found, problems = check_spelling("Fix API.", ALLOWED_SPELLINGS)
+        assert found is True
+        assert problems == []
 
     def test_spelling(self):
-        assert check_spelling("Fix APi.", ALLOWED_SPELLINGS) == [
-            '"API" should be used instead of "APi"'
-        ]
+        found, problems = check_spelling("Fix APi.", ALLOWED_SPELLINGS)
+        assert found is True
+        assert problems == ['"API" should be used instead of "APi"']
 
     def test_erc_20(self):
-        assert check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS) == [
-            '"ERC-20" should be used instead of "ERC20"'
-        ]
+        found, problems = check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS)
+        assert found is True
+        assert problems == ['"ERC-20" should be used instead of "ERC20"']

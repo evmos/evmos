@@ -8,6 +8,12 @@ class TestChangeType:
         assert change_type.type == "Bug Fixes"
         assert change_type.problems == []
 
+    def test_malformed(self):
+        change_type = ChangeType("###Bug Fixes")
+        assert change_type.parse() is False
+        assert change_type.type == ""
+        assert change_type.problems == ['Malformed change type: "###Bug Fixes"']
+
     def test_spelling(self):
         change_type = ChangeType("### BugFixes")
         assert change_type.parse() is False
