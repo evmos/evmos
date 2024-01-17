@@ -42,8 +42,7 @@ class TestParseChangelog:
         }
 
         changelog = Changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_ok.md"))
-        ok = changelog.parse()
-        assert ok
+        assert changelog.parse() is True
         assert changelog.failed_entries == [], "expected no failed entries"
         assert changelog.releases == expected_result, "expected different parsed result"
 
@@ -118,18 +117,18 @@ class TestEntry:
 
     def test_entry_ok(self):
         entry = Entry(
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949)" +
+            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) " +
             "Add `ClaimRewards` custom transaction."
         )
-        ok, reason = entry.parse()
-        assert ok
-        assert reason == ""
+        assert entry.parse() is True
+        assert entry.problems == []
 
     def test_entry_wrong_pr_link(self):
         entry = Entry(
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948)" +
+            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948) " +
             "Add `ClaimRewards` custom transaction."
         )
-        ok, reason = entry.parse()
-        assert not ok
-        assert reason == "PR link is not matching PR number"
+        assert entry.parse() is False
+        assert entry.problems == [
+            'PR link is not matching PR number 1949: "https://github.com/evmos/evmos/pull/1948"'
+        ]

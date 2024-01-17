@@ -1,13 +1,14 @@
 """
 This file contains the definition for the Entry class. It is used to parse the individual entries, that
 relate to the changes in a specific pull request.
+
+The expected structure of an entry is: `- (category) [#PR](link) description`
 """
 
 import re
-from typing import List
+from typing import Dict, List, Tuple
 
-
-# List of allowed categories.
+# List of allowed categories for an individual changelog entry.
 ALLOWED_CATEGORIES = [
     "api",
     "ci",
@@ -17,25 +18,26 @@ ALLOWED_CATEGORIES = [
     "ibc-precompile",
     "staking-precompile",
     "tests",
+    "vesting",
 ]
 
-# List of common patterns and the expected spelling.
-SPELLINGS = [
-    {"expected": "ABI", "pattern": re.compile("abi", re.IGNORECASE)},
-    {"expected": "API", "pattern": re.compile("api", re.IGNORECASE)},
-    {"expected": "CI", "pattern": re.compile("ci", re.IGNORECASE)},
-    {"expected": "CLI", "pattern": re.compile("cli", re.IGNORECASE)},
-    {"expected": "ERC-20", "pattern": re.compile("erc-*20", re.IGNORECASE)},
-    {"expected": "EVM", "pattern": re.compile("evm", re.IGNORECASE)},
-    {"expected": "IBC", "pattern": re.compile("ibc", re.IGNORECASE)},
-    {"expected": "outpost", "pattern": re.compile("outpost", re.IGNORECASE)},
-    {"expected": "PR", "pattern": re.compile("pr", re.IGNORECASE)},
-    {"expected": "precompile", "pattern": re.compile("precompile", re.IGNORECASE)},
-    {"expected": "SDK", "pattern": re.compile("sdk", re.IGNORECASE)},
-    {"expected": "WERC-20", "pattern": re.compile("werc-*20", re.IGNORECASE)},
-]
+# A dictionary of allowed spellings for some common patterns in changelog entries.
+ALLOWED_SPELLINGS = {
+    "ABI": re.compile("abi", re.IGNORECASE),
+    "API": re.compile("api", re.IGNORECASE),
+    "CI": re.compile("ci", re.IGNORECASE),
+    "CLI": re.compile("cli", re.IGNORECASE),
+    "ERC-20": re.compile("erc-*20", re.IGNORECASE),
+    "EVM": re.compile("evm", re.IGNORECASE),
+    "IBC": re.compile("ibc", re.IGNORECASE),
+    "outpost": re.compile("outpost", re.IGNORECASE),
+    "PR": re.compile("pr", re.IGNORECASE),
+    "precompile": re.compile("precompile", re.IGNORECASE),
+    "SDK": re.compile("sdk", re.IGNORECASE),
+    "WERC-20": re.compile("werc-*20", re.IGNORECASE),
+}
 
-# Allowed entry pattern: `- (module) [#PR](link) - description`
+# Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
     r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +
     r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)]\((?P<link>.+)\)' +
@@ -182,31 +184,36 @@ def check_description(description: str) -> List[str]:
             f'PR description should end with a dot: "{description}"'
         )
 
-    abbreviation_problems = check_spelling(description)
+    _, abbreviation_problems = check_spelling(description, ALLOWED_SPELLINGS)
     if abbreviation_problems:
         problems.extend(abbreviation_problems)
 
     return problems
 
 
-def check_spelling(description: str) -> List[str]:
+def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) -> Tuple[bool, List[str]]:
     """
     Checks some common spelling requirements.
 
+    :param expected_spellings: a dictionary of expected spellings and the matching patterns
     :param description: the description to check
-    :return: a list of problems, empty if there are none
+    :return: a tuple indicating whether a matching pattern was found and a list of problems with the match
     """
 
     problems: List[str] = []
+    found: bool = False
 
-    for spelling in SPELLINGS:
-        spelling_match = spelling["pattern"].search(description)
-        if spelling_match and spelling_match.group(0) != spelling["expected"]:
-            problems.append(
-                f'"{spelling["expected"]}" should be used instead of "{spelling_match.group(0)}"'
-            )
+    for spelling, pattern in expected_spellings.items():
+        match = pattern.search(description)
+        if match:
+            if match.group(0) != spelling:
+                problems.append(
+                    f'"{spelling}" should be used instead of "{match.group(0)}"'
+                )
+            found = True
+            break
 
-    return problems
+    return found, problems
 
 
 if __name__ == "__main__":

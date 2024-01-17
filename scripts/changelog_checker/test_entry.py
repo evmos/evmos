@@ -1,4 +1,5 @@
 from entry import (
+    ALLOWED_SPELLINGS,
     check_category,
     check_description,
     check_link,
@@ -96,14 +97,14 @@ class TestCheckWhitespace:
 
 class TestCheckSpelling:
     def test_pass(self):
-        assert check_spelling("Fix API.") == []
+        assert check_spelling("Fix API.", ALLOWED_SPELLINGS) == []
 
     def test_spelling(self):
-        assert check_spelling("Fix APi.") == [
+        assert check_spelling("Fix APi.", ALLOWED_SPELLINGS) == [
             '"API" should be used instead of "APi"'
         ]
 
     def test_erc_20(self):
-        assert check_spelling("Add ERC20 contract.") == [
+        assert check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS) == [
             '"ERC-20" should be used instead of "ERC20"'
         ]
