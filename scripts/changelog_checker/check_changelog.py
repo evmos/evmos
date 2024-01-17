@@ -32,9 +32,11 @@ class Changelog:
         with open(self.filename, 'r') as file:
             self.contents = file.read()
 
-    def parse(self) -> bool:
+    def parse(self, fix: bool = False) -> bool:
         """
         This function parses the changelog and checks if the structure is as expected.
+
+        :param fix: An optional parameter specifying if the changelog should be fixed automatically.
         """
 
         current_release = None

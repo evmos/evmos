@@ -1,9 +1,22 @@
 import os
 import pytest
+from shutil import copyfile
+
 from check_changelog import Changelog, Entry
 
 # Get the directory of this script
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+@pytest.fixture
+def create_tmp_copy():
+    tmp_file = os.path.join(SCRIPT_DIR, "testdata", "changelog_tmp.md")
+    copyfile(
+        os.path.join(SCRIPT_DIR, "testdata", "changelog_fail.md"),
+        tmp_file,
+    )
+    yield tmp_file
+    os.remove(tmp_file)
 
 
 class TestParseChangelog:
@@ -51,6 +64,9 @@ class TestParseChangelog:
         assert changelog.parse() is False
         assert changelog.problems == [
             'PR link is not matching PR number 1948: "https://github.com/evmos/evmos/pull/1949"',
+            '"ABI" should be used instead of "ABi"',
+            '"outpost" should be used instead of "Outpost"',
+            'PR description should end with a dot: "Fixed the problem `gas_used` is 0"',
             '"Invalid Category" is not a valid change type',
             'Change type "Bug Fixes" is duplicated in Unreleased',
             'Release "v15.0.0" is duplicated in the changelog',

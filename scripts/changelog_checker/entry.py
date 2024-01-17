@@ -217,7 +217,6 @@ def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) 
                     f'"{spelling}" should be used instead of "{match.group(0)}"'
                 )
             found = True
-            break
 
     return found, problems
 

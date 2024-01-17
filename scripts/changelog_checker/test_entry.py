@@ -106,6 +106,15 @@ class TestCheckSpelling:
         assert found is True
         assert problems == ['"API" should be used instead of "APi"']
 
+    def test_multiple_problems(self):
+        found, problems = check_spelling("Fix Stride Outpost and AbI.", ALLOWED_SPELLINGS)
+        assert found is True
+        print(problems)
+        assert problems == [
+            '"ABI" should be used instead of "AbI"',
+            '"outpost" should be used instead of "Outpost"',
+        ]
+
     def test_erc_20(self):
         found, problems = check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS)
         assert found is True

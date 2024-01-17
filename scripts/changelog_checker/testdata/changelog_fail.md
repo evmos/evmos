@@ -18,11 +18,11 @@ Some comments at head of file...
 ### Improvements
 
 - (testnet) [\#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags.
-- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride outpost interface and ABI.
+- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride Outpost interface and ABi.
 
 ### Bug Fixes
 
-- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem `gas_used` is 0.
+- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem `gas_used` is 0
 
 ### Invalid Category
 
