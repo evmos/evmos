@@ -9,19 +9,30 @@ import re
 from typing import Dict, List, Tuple
 
 # List of allowed categories for an individual changelog entry.
+#
+# TODO: auto-generate this from folder structure
 ALLOWED_CATEGORIES = [
+    "all",
     "ante",
     "api",
+    "app",
+    "bech32-precompile"
     "ci",
     "distribution-precompile",
+    "erc20",
     "erc20-precompile",
     "evm",
     "ibc-precompile",
     "inflation",
+    "incentives",
     "osmosis-outpost",
     "p256-precompile",
+    "recovery",
+    "release",
+    "rpc",
     "staking-precompile",
     "stride-outpost",
+    "swagger",
     "testnet",
     "tests",
     "vesting",
@@ -32,15 +43,21 @@ ALLOWED_SPELLINGS = {
     "ABI": re.compile("abi", re.IGNORECASE),
     "API": re.compile("api", re.IGNORECASE),
     "CI": re.compile("ci", re.IGNORECASE),
+    "Cosmos-SDK": re.compile(r"cosmos[\s-]*sdk", re.IGNORECASE),
     "CLI": re.compile("cli", re.IGNORECASE),
-    "ERC-20": re.compile("erc-*20", re.IGNORECASE),
+    "EIP-712": re.compile(r"eip[\s-]*712", re.IGNORECASE),
+    "ERC-20": re.compile(r"erc[\s-]*20", re.IGNORECASE),
     "EVM": re.compile("evm", re.IGNORECASE),
     "IBC": re.compile("ibc", re.IGNORECASE),
+    "ICS": re.compile("ics", re.IGNORECASE),
+    "ICS-20": re.compile(r"ics[\s-]*20", re.IGNORECASE),
     "outpost": re.compile("outpost", re.IGNORECASE),
+    "Osmosis": re.compile("osmosis", re.IGNORECASE),
     "PR": re.compile(r"(pr)(\s|$)", re.IGNORECASE),
     "precompile": re.compile("precompile", re.IGNORECASE),
     "SDK": re.compile("sdk", re.IGNORECASE),
-    "WERC-20": re.compile("werc-*20", re.IGNORECASE),
+    "Stride": re.compile("stride", re.IGNORECASE),
+    "WERC-20": re.compile(r"werc[\s-]*20", re.IGNORECASE),
 }
 
 # Allowed entry pattern: `- (category) [#PR](link) - description`
