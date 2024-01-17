@@ -2,8 +2,6 @@ name: Solhint
 # This workflow is only run when a .sol file has been changed
 on:
   pull_request:
-    paths:
-      - "contracts/**"
 
 jobs:
   solhint:
@@ -11,7 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: technote-space/get-diff-action@v6.1.2
+        id: git_diff
+        with:
+          PATTERNS: |
+            **/**.sol
       - uses: actions/setup-node@v4
+        if: env.GIT_DIFF
       - run: npm install -g solhint
+        if: env.GIT_DIFF
       - run: solhint --version
-      - run: solhint 'contracts/**/*.sol'
+        if: env.GIT_DIFF
+      - run: solhint '**/*.sol'
+        if: env.GIT_DIFF
