@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from entry import Entry
 from change_type import ChangeType
+from release import Release
 
 # Allowed release pattern: vX.Y.Z(-rcN) (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
@@ -40,14 +41,14 @@ class Changelog:
             # Check for Header 2 (##) to identify releases
             stripped_line = line.strip()
             if stripped_line[:3] == '## ':
-                # TODO: extract release type
-                release_match = RELEASE_PATTERN.match(line)
-                if not release_match:
-                    raise ValueError("Header 2 should be used for releases - invalid release pattern: " + line)
-
-                version_match = release_match.group("version")
-                current_release = version_match if version_match is not None else "Unreleased"
-                self.releases[current_release] = {}
+                release = Release(line)
+                release.parse()
+                current_release = release.version
+                if current_release in self.releases:
+                    self.failed_entries.append(f'Release "{current_release}" is duplicated in the changelog')
+                else:
+                    self.releases[current_release] = {}
+                self.failed_entries.extend(release.problems)
                 continue
 
             # Check for Header 3 (###) to identify change types
@@ -56,7 +57,7 @@ class Changelog:
                 change_type.parse()
                 current_category = change_type.type
                 if current_category in self.releases[current_release]:
-                    self.failed_entries.append(f'Change type "{current_category}" already exists in {current_release}')
+                    self.failed_entries.append(f'Change type "{current_category}" is duplicated in {current_release}')
                 else:
                     self.releases[current_release][current_category] = {}
                 self.failed_entries.extend(change_type.problems)
@@ -76,18 +77,6 @@ class Changelog:
             }
 
         return self.failed_entries == []
-
-
-class Release:
-    """
-    This class represents a release in the changelog.
-    """
-
-    def __init__(self, contents: List[str]):
-        self.contents = contents
-        self.version = None
-        self.date = None
-        self.entries: List[Entry] = []
 
 
 if __name__ == "__main__":

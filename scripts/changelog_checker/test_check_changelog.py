@@ -42,7 +42,7 @@ class TestParseChangelog:
         }
 
         changelog = Changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_ok.md"))
-        assert changelog.parse() is True
+        changelog.parse()
         assert changelog.failed_entries == [], "expected no failed entries"
         assert changelog.releases == expected_result, "expected different parsed result"
 

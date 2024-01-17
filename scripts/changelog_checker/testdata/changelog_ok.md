@@ -24,7 +24,7 @@ Some comments at head of file...
 
 - (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem `gas_used` is 0.
 
-## [v15.0.0] - 2023-10-31
+## [v15.0.0](https://github.com/evmos/evmos/releases/tag/v15.0.0) - 2023-10-31
 
 ### API Breaking
 
