@@ -70,6 +70,7 @@ class Changelog:
 
             # TODO: order by extending the types by entries and then process afterwards within each release to have sorted output.
             entry = Entry(line)
+            entry.parse()
             self.failed_entries.extend(entry.problems)
 
             self.releases[current_release][current_category][entry.pr_number] = {
