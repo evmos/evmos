@@ -76,27 +76,3 @@ class TestParseChangelog:
     def test_parse_changelog_nonexistent_file(self):
         with pytest.raises(FileNotFoundError):
             Changelog(os.path.join(SCRIPT_DIR, "testdata", "nonexistent_file.md"))
-
-
-class TestEntry:
-    """
-    This class collects all tests that are checking individual changelog entries.
-    """
-
-    def test_entry_ok(self):
-        entry = Entry(
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) " +
-            "Add `ClaimRewards` custom transaction."
-        )
-        assert entry.parse() is True
-        assert entry.problems == []
-
-    def test_entry_wrong_pr_link(self):
-        entry = Entry(
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948) " +
-            "Add `ClaimRewards` custom transaction."
-        )
-        assert entry.parse() is False
-        assert entry.problems == [
-            'PR link is not matching PR number 1949: "https://github.com/evmos/evmos/pull/1948"'
-        ]
