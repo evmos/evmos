@@ -4,18 +4,12 @@ import sys
 from typing import Dict, List
 
 from entry import Entry
+from change_type import ChangeType
 
 # Allowed release pattern: vX.Y.Z(-rcN) (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
     r'^## (Unreleased|\[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)] - \d{4}-\d{2}-\d{2})$',
 )
-
-ALLOWED_CATEGORIES = [
-    'API Breaking',
-    'Bug Fixes',
-    'Improvements',
-    'State Machine Breaking',
-]
 
 
 class Changelog:
@@ -46,6 +40,7 @@ class Changelog:
             # Check for Header 2 (##) to identify releases
             stripped_line = line.strip()
             if stripped_line[:3] == '## ':
+                # TODO: extract release type
                 release_match = RELEASE_PATTERN.match(line)
                 if not release_match:
                     raise ValueError("Header 2 should be used for releases - invalid release pattern: " + line)
@@ -55,14 +50,12 @@ class Changelog:
                 self.releases[current_release] = {}
                 continue
 
-            # Check for Header 3 (###) to identify categories
-            category_match = re.match(r'^###\s+(.+)$', line)
-            if category_match:
-                current_category = category_match.group(1)
-                if current_category not in ALLOWED_CATEGORIES:
-                    self.failed_entries.append(f'Invalid change category in {current_release}: "{current_category}"')
-                self.releases[current_release][current_category] = {}
-                continue
+            # Check for Header 3 (###) to identify change types
+            if stripped_line[:4] == '### ':
+                change_type = ChangeType(line)
+                current_category = change_type.type
+                change_type.parse()
+                self.failed_entries.extend(change_type.problems)
 
             # Check for individual entries
             if stripped_line[:2] != '- ':
