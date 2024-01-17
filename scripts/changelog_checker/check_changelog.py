@@ -41,52 +41,78 @@ class Changelog:
 
         current_release = None
         current_category = None
+        f = None
 
-        for line in self.contents.split('\n'):
-            # Check for Header 2 (##) to identify releases
-            stripped_line = line.strip()
-            if stripped_line[:3] == '## ':
-                release = Release(line)
-                release.parse()
-                current_release = release.version
-                if current_release in self.releases:
-                    self.problems.append(f'Release "{current_release}" is duplicated in the changelog')
-                else:
-                    self.releases[current_release] = {}
-                self.problems.extend(release.problems)
-                continue
+        if fix:
+            f = open(self.filename, 'w')
 
-            # Check for Header 3 (###) to identify change types
-            if stripped_line[:4] == '### ':
-                change_type = ChangeType(line)
-                change_type.parse()
-                current_category = change_type.type
-                if current_category in self.releases[current_release]:
-                    self.problems.append(f'Change type "{current_category}" is duplicated in {current_release}')
-                else:
-                    self.releases[current_release][current_category] = {}
-                self.problems.extend(change_type.problems)
-                continue
+        try:
+            for line in self.contents.split('\n'):
+                # Check for Header 2 (##) to identify releases
+                stripped_line = line.strip()
+                if stripped_line[:3] == '## ':
+                    release = Release(line)
+                    release.parse()
+                    current_release = release.version
+                    if current_release in self.releases:
+                        self.problems.append(f'Release "{current_release}" is duplicated in the changelog')
+                    else:
+                        self.releases[current_release] = {}
+                    self.problems.extend(release.problems)
 
-            # Check for individual entries
-            if stripped_line[:2] != '- ':
-                continue
+                    if fix:
+                        f.write(release.fixed + '\n')
+                    continue
 
-            # TODO: order by extending the types by entries and then process afterwards within each release to have sorted output.
-            entry = Entry(line)
-            entry.parse()
-            self.problems.extend(entry.problems)
+                # Check for Header 3 (###) to identify change types
+                if stripped_line[:4] == '### ':
+                    change_type = ChangeType(line)
+                    change_type.parse()
+                    current_category = change_type.type
+                    if current_category in self.releases[current_release]:
+                        self.problems.append(f'Change type "{current_category}" is duplicated in {current_release}')
+                    else:
+                        self.releases[current_release][current_category] = {}
+                    self.problems.extend(change_type.problems)
 
-            self.releases[current_release][current_category][entry.pr_number] = {
-                "description": entry.description
-            }
+                    if fix:
+                        f.write(change_type.fixed + '\n')
+                    continue
+
+                # Check for individual entries
+                if stripped_line[:2] != '- ':
+                    if fix:
+                        f.write(line + '\n')
+                    continue
+
+                # TODO: order by extending the types by entries and then process afterwards within each release to have sorted output.
+                entry = Entry(line)
+                entry.parse()
+                self.problems.extend(entry.problems)
+                if fix:
+                    f.write(entry.fixed + '\n')
+
+                if not current_category:
+                    raise ValueError(f'Entry "{line}" is missing a category')
+
+                self.releases[current_release][current_category][entry.pr_number] = {
+                    "description": entry.description
+                }
+        finally:
+            if fix:
+                f.close()
 
         return self.problems == []
 
 
 if __name__ == "__main__":
     changelog = Changelog(sys.argv[1])
-    passed = changelog.parse()
+
+    fix = False
+    if len(sys.argv) > 2 and sys.argv[2] == '--fix':
+        fix = True
+
+    passed = changelog.parse(fix=fix)
     if not passed:
         print(f'Changelog file is not valid - check the following {len(changelog.problems)} problems:\n')
         print('\n'.join(changelog.problems))

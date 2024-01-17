@@ -29,6 +29,7 @@ class ChangeType:
 
     def __init__(self, line):
         self.line: str = line
+        self.fixed: str = line
         self.type: str = ""
         self.problems: List[str] = []
 
@@ -48,11 +49,13 @@ class ChangeType:
 
         self.type = match.group("type")
 
-        type_found, spelling_problems = check_spelling(self.type, ALLOWED_SPELLING)
+        type_found, fixed_type, spelling_problems = check_spelling(self.type, ALLOWED_SPELLING)
         if not type_found:
             problems.append(f'"{self.type}" is not a valid change type')
         if spelling_problems:
             problems.extend(spelling_problems)
+
+        self.fixed = f"### {fixed_type}"
         self.problems = problems
 
         return problems == []

@@ -649,3 +649,7 @@ check-licenses:
 check-changelog:
 	@echo "Checking changelog..."
 	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md
+
+fix-changelog:
+	@echo "Fixing changelog..."
+	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md --fix

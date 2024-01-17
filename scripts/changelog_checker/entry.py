@@ -37,7 +37,7 @@ ALLOWED_SPELLINGS = {
     "EVM": re.compile("evm", re.IGNORECASE),
     "IBC": re.compile("ibc", re.IGNORECASE),
     "outpost": re.compile("outpost", re.IGNORECASE),
-    "PR": re.compile("(pr)(\s|$)", re.IGNORECASE),
+    "PR": re.compile(r"(pr)(\s|$)", re.IGNORECASE),
     "precompile": re.compile("precompile", re.IGNORECASE),
     "SDK": re.compile("sdk", re.IGNORECASE),
     "WERC-20": re.compile("werc-*20", re.IGNORECASE),
@@ -58,6 +58,7 @@ class Entry:
 
     def __init__(self, line: str):
         self.line: str = line
+        self.fixed: str = line
         self.category: str = ""
         self.description: str = ""
         self.link: str = ""
@@ -93,19 +94,22 @@ class Entry:
         if ws_problems:
             problems.extend(ws_problems)
 
-        cat_problems = check_category(self.category)
+        fixed_cat, cat_problems = check_category(self.category)
         if cat_problems:
             problems.extend(cat_problems)
 
-        link_problems = check_link(self.link, self.pr_number)
+
+        fixed_link, link_problems = check_link(self.link, self.pr_number)
         if link_problems:
             problems.extend(link_problems)
 
-        description_problems = check_description(self.description)
+        fixed_desc, description_problems = check_description(self.description)
         if description_problems:
             problems.extend(description_problems)
 
+        self.fixed = f'- ({fixed_cat}) [#{self.pr_number}]({fixed_link}) {fixed_desc}'
         self.problems = problems
+
         return problems == []
 
 
@@ -131,56 +135,63 @@ def check_whitespace(whitespaces: List[str]) -> List[str]:
     return problems
 
 
-def check_category(category: str) -> List[str]:
+def check_category(category: str) -> Tuple[str, List[str]]:
     """
     Check if the category is valid.
 
     :param category: the category to check
-    :return: a list of problems, empty if there are none
+    :return: a tuple containing the fixed category and a list of problems, which is empty if there are none
     """
 
     problems: List[str] = []
+    fixed: str = category
 
     if not category.islower():
         problems.append(f'Category should be lowercase: "({category})"')
+        fixed = category.lower()
 
     if category.lower() not in ALLOWED_CATEGORIES:
         problems.append(f'Invalid change category: "({category})"')
 
-    return problems
+    return fixed, problems
 
 
-def check_link(link: str, pr_number: int) -> List[str]:
+def check_link(link: str, pr_number: int) -> Tuple[str, List[str]]:
     """
     Check if the link is valid.
 
     :param link: the link to check
     :param pr_number: the PR number to match in the link
-    :return: a list of problems, empty if there are none
+    :return: a tuple containing the fixed link and a list of problems, which is empty if there are none
     """
 
     problems: List[str] = []
+    fixed = link
 
     if not link.startswith("https://github.com/evmos/evmos/pull/"):
+        fixed = f"https://github.com/evmos/evmos/pull/{pr_number}"
         problems.append(f'PR link should point to evmos repository: "{link}"')
 
     if str(pr_number) not in link:
+        fixed = f"https://github.com/evmos/evmos/pull/{pr_number}"
         problems.append(f'PR link is not matching PR number {pr_number}: "{link}"')
 
-    return problems
+    return fixed, problems
 
 
-def check_description(description: str) -> List[str]:
+def check_description(description: str) -> Tuple[str, List[str]]:
     """
     Check if the description is valid.
 
     :param description: the description to check
-    :return: a list of problems, empty if there are none
+    :return: a tuple containing the fixed description and a list of problems, which is empty if there are none
     """
 
     problems: List[str] = []
+    fixed: str = description
 
     if not description[0].isupper():
+        fixed = description[0].upper() + description[1:]
         problems.append(
             f'PR description should start with capital letter: "{description}"'
         )
@@ -189,25 +200,27 @@ def check_description(description: str) -> List[str]:
         problems.append(
             f'PR description should end with a dot: "{description}"'
         )
+        fixed += '.'
 
-    _, abbreviation_problems = check_spelling(description, ALLOWED_SPELLINGS)
+    _, fixed, abbreviation_problems = check_spelling(fixed, ALLOWED_SPELLINGS)
     if abbreviation_problems:
         problems.extend(abbreviation_problems)
 
-    return problems
+    return fixed, problems
 
 
-def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) -> Tuple[bool, List[str]]:
+def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) -> Tuple[bool, str, List[str]]:
     """
     Checks some common spelling requirements.
 
     :param expected_spellings: a dictionary of expected spellings and the matching patterns
     :param description: the description to check
-    :return: a tuple indicating whether a matching pattern was found and a list of problems with the match
+    :return: a tuple containing a boolean value indicating whether a matching pattern was found and a list of problems with the match
     """
 
     problems: List[str] = []
     found: bool = False
+    fixed: str = description
 
     for spelling, pattern in expected_spellings.items():
         match = pattern.search(description)
@@ -216,9 +229,10 @@ def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) 
                 problems.append(
                     f'"{spelling}" should be used instead of "{match.group(0)}"'
                 )
+                fixed = pattern.sub(spelling, fixed)
             found = True
 
-    return found, problems
+    return found, fixed, problems
 
 
 if __name__ == "__main__":

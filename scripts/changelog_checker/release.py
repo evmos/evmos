@@ -4,14 +4,14 @@ changelog.
 """
 
 import re
-from typing import List
+from typing import List, Tuple
 
 # Allowed unreleased pattern
 UNRELEASED_PATTERN = re.compile(r'^## Unreleased$')
 
 # Allowed release pattern: [vX.Y.Z(-rcN)](LINK) - (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
-    r'^## \[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)](?P<link>\(.*\))? - \d{4}-\d{2}-\d{2}$',
+    r'^## \[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)](?P<link>\(.*\))? - (?P<date>\d{4}-\d{2}-\d{2})$',
 )
 
 
@@ -22,6 +22,7 @@ class Release:
 
     def __init__(self, line: str):
         self.line: str = line
+        self.fixed: str = line
         self.link: str = ""
         self.version: str = ""
         self.problems = []
@@ -34,6 +35,7 @@ class Release:
         """
 
         problems: List[str] = []
+        self.fixed: str = self.line
 
         if UNRELEASED_PATTERN.match(self.line):
             self.version = "Unreleased"
@@ -45,37 +47,43 @@ class Release:
             self.problems = problems
             return False
 
+        date = release_match.group("date")
         self.link = release_match.group("link")
         self.version = release_match.group("version")
 
-        link_problems = check_link(self.link, self.version)
+        fixed_link, link_problems = check_link(self.link, self.version)
         if link_problems:
             problems.extend(link_problems)
 
+        self.fixed = f'## [{self.version}]{fixed_link} - {date}'
         self.problems = problems
+
         return problems == []
 
 
-def check_link(link: str, version: str) -> List[str]:
+def check_link(link: str, version: str) -> Tuple[str, List[str]]:
     """
     This function checks if the link in the release header is correct.
 
     :param link: the link in the release header.
     :param version: the version in the release header.
-    :return: a list of problems found in the link.
+    :return: a tuple containing the fixed link and a list of problems, which is empty if there are none.
     """
 
+    base_url: str = "https://github.com/evmos/evmos/releases/tag/"
     problems: List[str] = []
+    # NOTE: the fixed link is the same for all problems
+    fixed: str = f'({base_url}{version})'
 
     if link == "" or link is None:
         problems.append(f'Release link is missing for "{version}"')
-        return problems
+        return fixed, problems
 
     link = link[1:-1]
-    if not link.startswith("https://github.com/evmos/evmos/releases/tag/"):
+    if not link.startswith(base_url):
         problems.append(f'Release link should point to an Evmos release: "{link}"')
 
     if version not in link:
         problems.append(f'Release header version "{version}" does not match version in link "{link}"')
 
-    return problems
+    return fixed, problems
