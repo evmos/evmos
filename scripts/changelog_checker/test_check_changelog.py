@@ -75,8 +75,10 @@ class TestParseChangelog:
             'PR description should end with a dot: "Fixed the problem `gas_used` is 0"',
             '"Invalid Category" is not a valid change type',
             'Change type "Bug Fixes" is duplicated in Unreleased',
+            'PR #1801 is duplicated in the changelog',
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
+            'PR #1862 is duplicated in the changelog',
         ]
 
     def test_fix(self, create_tmp_copy):
@@ -89,8 +91,10 @@ class TestParseChangelog:
             'PR description should end with a dot: "Fixed the problem `gas_used` is 0"',
             '"Invalid Category" is not a valid change type',
             'Change type "Bug Fixes" is duplicated in Unreleased',
+            'PR #1801 is duplicated in the changelog',
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
+            'PR #1862 is duplicated in the changelog',
         ]
 
         # Here we parse the fixed changelog again and check that the automatic fixes were applied.
@@ -99,8 +103,10 @@ class TestParseChangelog:
         assert fixed_changelog.problems == [
             '"Invalid Category" is not a valid change type',
             'Change type "Bug Fixes" is duplicated in Unreleased',
+            'PR #1801 is duplicated in the changelog',
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
+            'PR #1862 is duplicated in the changelog',
         ]
 
     def test_parse_changelog_nonexistent_file(self):

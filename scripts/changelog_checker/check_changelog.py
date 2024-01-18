@@ -10,7 +10,6 @@ Usage:
 """
 
 import os
-import re
 import sys
 from typing import Dict, List
 
@@ -29,7 +28,6 @@ class Changelog:
         self.filename: str = filename
 
         self.problems: List[str] = []
-        # TODO: extract releases type
         self.releases: Dict[str, Dict[str, Dict[int, Dict[str, str]]]] = {}
 
         if not os.path.exists(self.filename):
@@ -48,6 +46,7 @@ class Changelog:
         current_release = None
         current_category = None
         f = None
+        seen_prs: List[int] = []
 
         if fix:
             f = open(self.filename, 'w')
@@ -100,6 +99,11 @@ class Changelog:
 
                 if not current_category:
                     raise ValueError(f'Entry "{line}" is missing a category')
+
+                if entry.pr_number in seen_prs:
+                    self.problems.append(f'PR #{entry.pr_number} is duplicated in the changelog')
+                else:
+                    seen_prs.append(entry.pr_number)
 
                 self.releases[current_release][current_category][entry.pr_number] = {
                     "description": entry.description

@@ -5,38 +5,61 @@ relate to the changes in a specific pull request.
 The expected structure of an entry is: `- (category) [#PR](link) description`
 """
 
+import os
 import re
 from typing import Dict, List, Tuple
 
+def get_allowed_categories() -> List[str]:
+    """
+    Returns a list of allowed categories for an individual changelog entry. 
+
+    It is using a set of predefined categories, that are extended by the entries in
+     - the `x/...` modules
+     - the `precompiles/...` subdirectories
+     - the `precompiles/outposts/...` subdirectories
+    
+    :return: a list of allowed categories for an individual changelog entry
+    """
+
+    allowed_categories = [
+        "all",
+        "ante",
+        "api",
+        "app",
+        "ci",
+        "proto",
+        "release",
+        "rpc",
+        "swagger",
+        "testnet",
+        "tests",
+        "types",
+        "utils",
+        "upgrade",
+    ]
+
+    base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    module_path = os.path.join(base_path, "x")
+    for module in os.listdir(module_path):
+        if os.path.isdir(os.path.join(module_path, module)):
+            allowed_categories.append(module)
+
+    precompile_path = os.path.join(base_path, "precompiles")
+    for precompile in os.listdir(precompile_path):
+        if os.path.isdir(os.path.join(precompile_path, precompile)):
+            allowed_categories.append(precompile + "-precompile")
+
+    outpost_path = os.path.join(base_path, "precompiles", "outposts")
+    for outpost in os.listdir(outpost_path):
+        if os.path.isdir(os.path.join(outpost_path, outpost)):
+            allowed_categories.append(outpost + "-outpost")
+
+    return allowed_categories
+
+
 # List of allowed categories for an individual changelog entry.
-#
-# TODO: auto-generate this from folder structure
-ALLOWED_CATEGORIES = [
-    "all",
-    "ante",
-    "api",
-    "app",
-    "bech32-precompile"
-    "ci",
-    "distribution-precompile",
-    "erc20",
-    "erc20-precompile",
-    "evm",
-    "ibc-precompile",
-    "inflation",
-    "incentives",
-    "osmosis-outpost",
-    "p256-precompile",
-    "recovery",
-    "release",
-    "rpc",
-    "staking-precompile",
-    "stride-outpost",
-    "swagger",
-    "testnet",
-    "tests",
-    "vesting",
-]
+ALLOWED_CATEGORIES = get_allowed_categories()
 
 # A dictionary of allowed spellings for some common patterns in changelog entries.
 ALLOWED_SPELLINGS = {
