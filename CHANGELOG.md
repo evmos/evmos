@@ -55,6 +55,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (fee-collector) [#2129] (https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
 - (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 - (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
+- (erc20) [#2158] (https://github.com/evmos/evmos/pull/2158) Remove `MsgConvertCoin` and related protos, types and tests.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.

@@ -10,12 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/evmos/v16/ibc"
 	"github.com/evmos/evmos/v16/x/erc20/types"
 )
@@ -102,19 +101,17 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
-	// Instead of converting just the received coins, convert the whole user balance
-	// which includes the received coins.
 	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
 
-	// Build MsgConvertCoin, from recipient to recipient since IBC transfer already occurred
-	msg := types.NewMsgConvertCoin(balance, common.BytesToAddress(recipient.Bytes()), recipient)
-
-	// NOTE: we don't use ValidateBasic the msg since we've already validated
-	// the ICS20 packet data
-
-	// Use MsgConvertCoin to convert the Cosmos Coin to an ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
-		return channeltypes.NewErrorAcknowledgement(err)
+	switch {
+	case pair.IsNativeERC20():
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
+	case pair.IsNativeCoin():
+		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
+			return channeltypes.NewErrorAcknowledgement(err)
+		}
 	}
 
 	defer func() {
@@ -192,14 +189,21 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		return nil
 	}
 
-	msg := types.NewMsgConvertCoin(coin, common.BytesToAddress(sender), sender)
-
-	// NOTE: we don't use ValidateBasic the msg since we've already validated the
-	// fields from the packet data
-
-	// convert Coin to ERC20
-	if _, err = k.ConvertCoin(sdk.WrapSDKContext(ctx), msg); err != nil {
+	pair, err := k.MintingEnabled(ctx, sender, sender.Bytes(), coin.Denom)
+	if err != nil {
 		return err
+	}
+
+	if pair.IsNativeERC20() {
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return err
+		}
+	}
+
+	if pair.IsNativeCoin() {
+		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, coin.Amount, common.BytesToAddress(sender.Bytes()), sender); err != nil {
+			return err
+		}
 	}
 
 	defer func() {
