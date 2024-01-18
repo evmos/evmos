@@ -27,7 +27,14 @@ def get_allowed_categories() -> List[str]:
         "api",
         "app",
         "ci",
+        "cli",
+        "db",
+        "deps",
+        "docs",
+        "docker",
+        "make",
         "proto",
+        "outposts",
         "release",
         "rpc",
         "swagger",
@@ -36,6 +43,18 @@ def get_allowed_categories() -> List[str]:
         "types",
         "utils",
         "upgrade",
+
+        # third party modules
+        "distribution",
+        "staking",
+        "ics20",
+        "bank",
+
+        # outdated modules (we have to keep them since they're in the changelog)
+        "claims",
+        "consensus",
+        "recovery",
+        "incentives",
     ]
 
     base_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -86,8 +105,8 @@ ALLOWED_SPELLINGS = {
 # Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
     r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +
-    r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)]\((?P<link>[^)]*)\)' +
-    r'(?P<ws3>\s*)(?P<desc>.+)$',
+    r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)](?P<ws3>\s*)\((?P<link>[^)]*)\)' +
+    r'(?P<ws4>\s*)(?P<desc>.+)$',
 )
 
 
@@ -128,6 +147,7 @@ class Entry:
             match.group("ws1"),
             match.group("ws2"),
             match.group("ws3"),
+            match.group("ws4"),
         ]
 
         ws_problems = check_whitespace(self.whitespaces)
@@ -169,7 +189,10 @@ def check_whitespace(whitespaces: List[str]) -> List[str]:
     if whitespaces[1] != " ":
         problems.append(f'There should be exactly one space between the category and PR link')
 
-    if whitespaces[2] != " ":
+    if whitespaces[2] != "":
+        problems.append(f'There should be no whitespace inside of the markdown link')
+
+    if whitespaces[3] != " ":
         problems.append(f'There should be exactly one space between the PR link and the description')
 
     return problems

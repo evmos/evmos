@@ -126,13 +126,18 @@ class TestCheckDescription:
 
 class TestCheckWhitespace:
     def test_missing_whitespace(self):
-        assert check_whitespace(["", " ", " "]) == [
+        assert check_whitespace(["", " ", "", " "]) == [
             'There should be exactly one space between the leading dash and the category'
         ]
 
     def test_multiple_spaces(self):
-        assert check_whitespace([" ", " ", "  "]) == [
+        assert check_whitespace([" ", " ", "", "  "]) == [
             'There should be exactly one space between the PR link and the description'
+        ]
+
+    def test_space_in_link(self):
+        assert check_whitespace([" ", " ", " ", " "]) == [
+            'There should be no whitespace inside of the markdown link'
         ]
 
 
