@@ -195,7 +195,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 			s.SendAndReceiveMessage(s.pathOsmosisEvmos, s.IBCOsmosisChain, erc20Denomtrace.IBCDenom(), amount/2, receiver, sender, 1, erc20Denomtrace.GetFullDenomPath())
 			// Check Balance
 			balanceToken = s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
-			fmt.Println(balanceToken.Int64())
 			s.Require().Equal(amount, balanceToken.Int64())
 
 			// IBC coin balance should be zero
