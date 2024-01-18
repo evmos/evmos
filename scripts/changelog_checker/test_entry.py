@@ -22,11 +22,23 @@ class TestEntry:
             "Add `ClaimRewards` custom transaction."
     )
 
-    def test_entry_ok(self):
+    def test_pass(self):
         entry = Entry(self.example)
-        assert entry.fixed == self.example
-        assert entry.parse() is True
+        ok = entry.parse()
         assert entry.problems == []
+        assert ok is True
+        assert entry.fixed == self.example
+
+    def test_pass_includes_link(self):
+        example = "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        entry = Entry(example)
+        ok = entry.parse()
+        assert entry.link == "https://github.com/evmos/evmos/pull/1851"
+        assert entry.description == "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        assert entry.problems == []
+        assert ok is True
+        assert entry.fixed == example
+
 
     def test_entry_wrong_pr_link_and_missing_dot(self):
         entry = Entry(

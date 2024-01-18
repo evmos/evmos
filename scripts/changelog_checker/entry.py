@@ -63,7 +63,7 @@ ALLOWED_SPELLINGS = {
 # Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
     r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +
-    r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)]\((?P<link>.+)\)' +
+    r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)]\((?P<link>[^)]*)\)' +
     r'(?P<ws3>\s*)(?P<desc>.+)$',
 )
 
