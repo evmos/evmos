@@ -61,7 +61,7 @@ func RetrieveUpgradesList(upgradesPath string) ([]string, error) {
 	}
 
 	// preallocate slice to store versions
-	var versions []string
+	versions := make([]string, 0, len(dirs))
 
 	// pattern to find quoted string(upgrade version) in a file e.g. "v10.0.0"
 	pattern := regexp.MustCompile(`"(.*?)"`)
@@ -83,7 +83,6 @@ func RetrieveUpgradesList(upgradesPath string) ([]string, error) {
 		}
 
 		v := pattern.FindString(string(f))
-		fmt.Printf("found v: %q\n", v)
 		// v[1 : len(v)-1] subslice used to remove quotes from version string
 		versions = append(versions, v[1:len(v)-1])
 	}
