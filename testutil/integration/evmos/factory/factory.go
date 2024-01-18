@@ -4,10 +4,8 @@
 package factory
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/big"
-	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
@@ -17,11 +15,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
-	"github.com/evmos/evmos/v16/server/config"
 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
@@ -29,27 +24,36 @@ import (
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
+// TxFactory defines a struct that can build and broadcast transactions for the Evmos
+// network.
+// Methods are organized by build sign and broadcast type methods.
 type TxFactory interface {
 	commonfactory.TxFactory
 
+	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
+	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
+	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
+	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
+	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+
+	// SignMsgEthereumTx signs a MsgEthereumTx with the provided private key.
+	SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error)
+
+	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
+	// If the txArgs are not provided, they will be populated with default values or gas estimations.
+	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
+	// ExecuteContractCall executes a contract call with the provided private key
+	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
+	// DeployContract deploys a contract with the provided private key,
+	// compiled contract data and constructor arguments
+	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// CallContractAndCheckLogs is a helper function to call a contract and check the logs using
 	// the integration test utilities.
 	//
 	// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
 	// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
 	CallContractAndCheckLogs(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs, logCheckArgs testutil.LogCheckArgs) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error)
-	// DeployContract deploys a contract with the provided private key,
-	// compiled contract data and constructor arguments
-	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
-	// ExecuteContractCall executes a contract call with the provided private key
-	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error)
-	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
-	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
-	// If the txArgs are not provided, they will be populated with default values or gas estimations.
-	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ResponseDeliverTx, error)
-	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
-	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -75,158 +79,6 @@ func New(
 		network:              network,
 		ec:                   &ec,
 	}
-}
-
-// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
-func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
-	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
-	}
-
-	signedMsg, err := signMsgEthereumTx(msgEthereumTx, privKey, tf.network.GetChainID())
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
-	}
-
-	return tf.buildSignedTx(signedMsg)
-}
-
-// CallContractAndCheckLogs is a helper function to call a contract and check the logs using
-// the integration test utilities.
-//
-// It returns the Cosmos Tx response, the decoded Ethereum Tx response and an error. This error value
-// is nil, if the expected logs are found and the VM error is the expected one, should one be expected.
-func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
-	priv cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-	callArgs CallArgs,
-	logCheckArgs testutil.LogCheckArgs,
-) (abcitypes.ResponseDeliverTx, *evmtypes.MsgEthereumTxResponse, error) {
-	res, err := tf.ExecuteContractCall(priv, txArgs, callArgs)
-	logCheckArgs.Res = res
-	if err != nil {
-		// NOTE: here we are still passing the response to the log check function,
-		// because we want to check the logs and expected error in case of a VM error.
-		return abcitypes.ResponseDeliverTx{}, nil, CheckError(err, logCheckArgs)
-	}
-
-	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, nil, err
-	}
-
-	return res, ethRes, testutil.CheckLogs(logCheckArgs)
-}
-
-// CheckError is a helper function to check if the error is the expected one.
-func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
-	switch {
-	case logCheckArgs.ExpPass && err == nil:
-		return nil
-	case !logCheckArgs.ExpPass && err == nil:
-		return errorsmod.Wrap(err, "expected error but got none")
-	case logCheckArgs.ExpPass && err != nil:
-		return errorsmod.Wrap(err, "expected no error but got one")
-	case logCheckArgs.ErrContains == "":
-		// NOTE: if err contains is empty, we return the error as it is
-		return errorsmod.Wrap(err, "ErrContains needs to be filled")
-	case !strings.Contains(err.Error(), logCheckArgs.ErrContains):
-		return errorsmod.Wrapf(err, "expected different error; wanted %q", logCheckArgs.ErrContains)
-	}
-
-	return nil
-}
-
-// DeployContract deploys a contract with the provided private key,
-// compiled contract data and constructor arguments.
-// TxArgs Input and Nonce fields are overwritten.
-func (tf *IntegrationTxFactory) DeployContract(
-	priv cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-	deploymentData ContractDeploymentData,
-) (common.Address, error) {
-	// Get account's nonce to create contract hash
-	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	account, err := tf.grpcHandler.GetEvmAccount(from)
-	if err != nil {
-		return common.Address{}, errorsmod.Wrapf(err, "failed to get evm account: %s", from.String())
-	}
-	nonce := account.GetNonce()
-
-	ctorArgs, err := deploymentData.Contract.ABI.Pack("", deploymentData.ConstructorArgs...)
-	if err != nil {
-		return common.Address{}, errorsmod.Wrap(err, "failed to pack constructor arguments")
-	}
-	data := deploymentData.Contract.Bin
-	data = append(data, ctorArgs...)
-
-	txArgs.Input = data
-	txArgs.Nonce = nonce
-	res, err := tf.ExecuteEthTx(priv, txArgs)
-	if err != nil || !res.IsOK() {
-		return common.Address{}, errorsmod.Wrap(err, "failed to execute eth tx")
-	}
-	return crypto.CreateAddress(from, nonce), nil
-}
-
-// ExecuteContractCall executes a contract call with the provided private key
-func (tf *IntegrationTxFactory) ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ResponseDeliverTx, error) {
-	// Create MsgEthereumTx that calls the contract
-	input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to pack contract arguments")
-	}
-	txArgs.Input = input
-
-	return tf.ExecuteEthTx(privKey, txArgs)
-}
-
-// ExecuteEthTx executes an Ethereum transaction - contract call with the provided private key and txArgs
-// It first builds a MsgEthereumTx and then broadcasts it to the network.
-func (tf *IntegrationTxFactory) ExecuteEthTx(
-	priv cryptotypes.PrivKey,
-	txArgs evmtypes.EvmTxArgs,
-) (abcitypes.ResponseDeliverTx, error) {
-	signedMsg, err := tf.GenerateSignedEthTx(priv, txArgs)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate signed ethereum tx")
-	}
-
-	txBytes, err := tf.encodeTx(signedMsg)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode ethereum tx")
-	}
-
-	res, err := tf.network.BroadcastTxSync(txBytes)
-	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to broadcast ethereum tx")
-	}
-
-	if err := tf.checkEthTxResponse(&res); err != nil {
-		return res, errorsmod.Wrap(err, "failed ETH tx")
-	}
-	return res, nil
-}
-
-// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
-func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error) {
-	args, err := json.Marshal(evmtypes.TransactionArgs{
-		Data:       (*hexutil.Bytes)(&txArgs.Input),
-		From:       from,
-		To:         txArgs.To,
-		AccessList: txArgs.Accesses,
-	})
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to marshal tx args")
-	}
-
-	res, err := tf.grpcHandler.EstimateGas(args, config.DefaultGasCap)
-	if err != nil {
-		return 0, errorsmod.Wrap(err, "failed to estimate gas")
-	}
-	gas := res.Gas
-	return gas, nil
 }
 
 // createMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.

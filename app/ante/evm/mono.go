@@ -1,6 +1,5 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package evm
 
 import (
@@ -16,6 +15,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
+	evmkeeper "github.com/evmos/evmos/v16/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -157,28 +157,40 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		// 4. validate basic
-		txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
-			txData.GetTo(),
+		// 4. validate basic and updates gas
+		// txFee, txGasLimit, err := CheckDisabledCreateCallAndUpdateTxFee(
+		// 	txData.GetTo(),
+		// 	from,
+		// 	decUtils.TxGasLimit,
+		// 	gas,
+		// 	decUtils.EvmParams.EnableCreate,
+		// 	decUtils.EvmParams.EnableCall,
+		// 	decUtils.BaseFee,
+		// 	txData.Fee(),
+		// 	txData.TxType(),
+		// 	decUtils.EvmDenom,
+		// 	decUtils.TxFee,
+		// )
+		// if err != nil {
+		// 	return ctx, err
+		// }
+
+		// 4. validate basic and updates gas
+		err = ValidateMsg(
+			decUtils.EvmParams,
+			txData,
 			from,
-			decUtils.TxGasLimit,
-			gas,
-			decUtils.EvmParams.EnableCreate,
-			decUtils.EvmParams.EnableCall,
-			decUtils.BaseFee,
-			txData.Fee(),
-			txData.TxType(),
-			decUtils.EvmDenom,
-			decUtils.TxFee,
 		)
 		if err != nil {
 			return ctx, err
 		}
-		decUtils.TxFee = txFee
-		decUtils.TxGasLimit = txGasLimit
 
 		// 5. signature verification
-		if err := SignatureVerification(ethMsg, decUtils.Signer, decUtils.EvmParams.AllowUnprotectedTxs); err != nil {
+		if err := SignatureVerification(
+			ethMsg,
+			decUtils.Signer,
+			decUtils.EvmParams.AllowUnprotectedTxs,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -187,9 +199,15 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 6. account balance verification
 		fromAddr := common.HexToAddress(ethMsg.From)
-		// // TODO: Use account from AccountKeeper instead
+		// TODO: Use account from AccountKeeper instead
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
-		if err := VerifyAccountBalance(ctx, md.accountKeeper, account, fromAddr, txData); err != nil {
+		if err := VerifyAccountBalance(
+			ctx,
+			md.accountKeeper,
+			account,
+			fromAddr,
+			txData,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -202,7 +220,15 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
-		if err := CanTransfer(ctx, md.evmKeeper, coreMsg, decUtils.BaseFee, decUtils.EthConfig, decUtils.EvmParams, decUtils.Rules.IsLondon); err != nil {
+		if err := CanTransfer(
+			ctx,
+			md.evmKeeper,
+			coreMsg,
+			decUtils.BaseFee,
+			decUtils.EthConfig,
+			decUtils.EvmParams,
+			decUtils.Rules.IsLondon,
+		); err != nil {
 			return ctx, err
 		}
 
@@ -215,33 +241,67 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 				"account %s does not exist", acc)
 		}
 
-		if err := CheckVesting(ctx, md.bankKeeper, acc, accountExpenses, value, decUtils.EvmDenom); err != nil {
+		if err := CheckVesting(
+			ctx,
+			md.bankKeeper,
+			acc,
+			accountExpenses,
+			value,
+			decUtils.EvmDenom,
+		); err != nil {
 			return ctx, err
 		}
 
 		// 9. gas consumption
-		gasWanted, minPriority, err := ConsumeGas(
-			ctx,
-			md.bankKeeper,
-			md.distributionKeeper,
-			md.evmKeeper,
-			md.stakingKeeper,
-			from,
+		msgFees, err := evmkeeper.VerifyFee(
 			txData,
-			decUtils.MinPriority,
-			decUtils.GasWanted,
-			md.maxGasWanted,
 			decUtils.EvmDenom,
 			decUtils.BaseFee,
 			decUtils.Rules.IsHomestead,
 			decUtils.Rules.IsIstanbul,
+			ctx.IsCheckTx(),
 		)
 		if err != nil {
 			return ctx, err
 		}
 
+		err = ConsumeFeesAndEmitEvent(
+			ctx,
+			&ConsumeGasKeepers{
+				Bank:         md.bankKeeper,
+				Distribution: md.distributionKeeper,
+				Evm:          md.evmKeeper,
+				Staking:      md.stakingKeeper,
+			},
+			msgFees,
+			from,
+		)
+		if err != nil {
+			return ctx, err
+		}
+
+		gasWanted := UpdateComulativeGasWanted(
+			ctx,
+			txData.GetGas(),
+			md.maxGasWanted,
+			decUtils.GasWanted,
+		)
 		decUtils.GasWanted = gasWanted
+
+		minPriority := GetMsgPriority(
+			txData,
+			decUtils.MinPriority,
+			decUtils.BaseFee,
+		)
 		decUtils.MinPriority = minPriority
+
+		txFee := UpdateCumulativeTxFee(
+			decUtils.TxFee,
+			txData.Fee(),
+			decUtils.EvmDenom,
+		)
+		decUtils.TxFee = txFee
+		decUtils.TxGasLimit += gas
 
 		// 10. increment sequence
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
