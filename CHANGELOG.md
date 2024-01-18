@@ -160,6 +160,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
 - (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
 - (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
+- (ci) [#2277](https://github.com/evmos/evmos/pull/2277) Add Github action to check if PR description is empty.
 
 ### Bug Fixes
 
