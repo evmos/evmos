@@ -1,9 +1,12 @@
 ## Description
 
-<!-- Add a description of the changes that this PR introduces and the files that
-are the most critical to review.
--->
+<!-- Please, add a description of the changes that this PR introduces.-->
 
+## Additional Info
+<!-- Please, add additional information that can help reviewers to navigate through changes like
+a suggested order to review files.-->
+
+<!-- Please, add the number of the associated issue if any or left #XXX.-->
 ----
 
 Closes #XXX
