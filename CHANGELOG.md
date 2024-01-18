@@ -55,11 +55,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (fee-collector) [#2129] (https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
 - (erc20) [#2154] (https://github.com/evmos/evmos/pull/2154) Remove evm hooks from `erc20` module.
 - (erc20) [#2155] (https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
-- (erc20) [#2157] (https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+- (erc20) [#2276] (https://github.com/evmos/evmos/pull/2276) Remove `RegisterCoinProposal` from the proposal handler.
+
 
 ### API Breaking
 
