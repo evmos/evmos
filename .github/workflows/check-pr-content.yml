@@ -21,4 +21,4 @@ jobs:
     - name: Take action based on template
       if: steps.check.outputs.section_filled == 'false'
       run: |
-        echo "Do something because the 'Description' section is not filled."
+        echo "DO something because the 'Description' section is not filled."
