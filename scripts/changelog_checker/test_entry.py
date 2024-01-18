@@ -1,3 +1,5 @@
+import re
+
 from entry import (
     ALLOWED_SPELLINGS,
     check_category,
@@ -5,6 +7,7 @@ from entry import (
     check_link,
     check_spelling,
     check_whitespace,
+    get_match,
     Entry,
 )
 
@@ -142,8 +145,34 @@ class TestCheckSpelling:
             '"outpost" should be used instead of "Outpost"',
         ]
 
+    def test_pass_codeblocks(self):
+        found, fixed, problems = check_spelling("Fix `in evm code`.", ALLOWED_SPELLINGS)
+        assert found is False
+        assert fixed == "Fix `in evm code`."
+        assert problems == []
+
+    def test_fail_in_word(self):
+        found, fixed, problems = check_spelling("FixAbI in word.", ALLOWED_SPELLINGS)
+        assert found is False
+        assert fixed == "FixAbI in word."
+        assert problems == []
+
     def test_erc_20(self):
         found, fixed, problems = check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS)
         assert found is True
         assert fixed == "Add ERC-20 contract."
         assert problems == ['"ERC-20" should be used instead of "ERC20"']
+
+
+class TestGetMatch:
+    def test_pass(self):
+        assert get_match(re.compile("abi", re.IGNORECASE), "Fix ABI.") == "ABI"
+
+    def test_fail_codeblocks(self):
+        assert get_match(re.compile("abi", re.IGNORECASE), "Fix `in AbI code`.") == ""
+
+    def test_fail_in_word(self):
+        assert get_match(re.compile("abi", re.IGNORECASE), "FixAbI in word.") == ""
+
+    def test_fail_in_link(self):
+        assert get_match(re.compile("abi", re.IGNORECASE), "Fix [abcdef](https://example/aBi.com).") == ""

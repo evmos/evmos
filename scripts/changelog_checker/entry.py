@@ -229,6 +229,7 @@ def check_description(description: str) -> Tuple[str, List[str]]:
 def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) -> Tuple[bool, str, List[str]]:
     """
     Checks some common spelling requirements.
+    Any matches that occur inside of code blocks, are part of a link or inside a word are ignored.
 
     :param expected_spellings: a dictionary of expected spellings and the matching patterns
     :param description: the description to check
@@ -240,16 +241,39 @@ def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) 
     fixed: str = description
 
     for spelling, pattern in expected_spellings.items():
-        match = pattern.search(description)
+        match = get_match(pattern, description)
         if match:
-            if match.group(0) != spelling:
+            if match != spelling:
                 problems.append(
-                    f'"{spelling}" should be used instead of "{match.group(0)}"'
+                    f'"{spelling}" should be used instead of "{match}"'
                 )
                 fixed = pattern.sub(spelling, fixed)
             found = True
 
     return found, fixed, problems
+
+
+def get_match(pattern: re.Pattern, text: str) -> str:
+    """
+    Returns the first match of the pattern in the text.
+    Matching patterns inside of code blocks, inside of links or inside of words are ignored.
+
+    :param pattern: the pattern to match
+    :param text: the text to match against
+    :return: the first match of the pattern in the text
+    """
+
+    codeblocks_pattern = re.compile(r'`[^`]*(' + pattern.pattern + r')[^`]*`', pattern.flags)
+    match = codeblocks_pattern.search(text)
+    if match:
+        return ''
+
+    isolated_word_pattern = re.compile(r'(^|\s)(' + pattern.pattern + r')(?=$|[\s.])', pattern.flags)
+    match = isolated_word_pattern.search(text)
+    if match:
+        return match.group(2)
+
+    return ""
 
 
 if __name__ == "__main__":
