@@ -37,7 +37,6 @@ func (n *IntegrationNetwork) NextBlockAfter(duration time.Duration) error {
 	// Update context header
 	newCtx := n.app.BaseApp.NewContext(false, header)
 	newCtx = newCtx.WithMinGasPrices(n.ctx.MinGasPrices())
-	newCtx = newCtx.WithEventManager(n.ctx.EventManager())
 	newCtx = newCtx.WithKVGasConfig(n.ctx.KVGasConfig())
 	newCtx = newCtx.WithTransientKVGasConfig(n.ctx.TransientKVGasConfig())
 	newCtx = newCtx.WithConsensusParams(n.ctx.ConsensusParams())
