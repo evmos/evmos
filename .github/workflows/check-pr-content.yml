@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Check PR Description Content
         run: |
-          if echo jq -r .pull_request.body < "$GITHUB_EVENT_PATH" | grep -qP "(?<=## Description\n)(.|\n)*(?=\n##)" ; then
+          if jq -r .pull_request.body < "$GITHUB_EVENT_PATH" | grep -qP "(?<=## Description\n)(.|\n)*(?=\n##)" ; then
             echo "The 'Description' section is filled."
           else
             echo "The 'Description' section is not filled."
