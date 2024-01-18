@@ -1,3 +1,14 @@
+"""
+This file contains the logic to check the changelog contents.
+
+It is possible to run this script with the `--fix` flag to automatically
+fix a selection of common problems in the changelog.
+
+Usage:
+    python3 check_changelog.py <changelog_file> [--fix]
+
+"""
+
 import os
 import re
 import sys
@@ -6,11 +17,6 @@ from typing import Dict, List
 from entry import Entry
 from change_type import ChangeType
 from release import Release
-
-# Allowed release pattern: vX.Y.Z(-rcN) (YYYY-MM-DD)
-RELEASE_PATTERN = re.compile(
-    r'^## (Unreleased|\[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)] - \d{4}-\d{2}-\d{2})$',
-)
 
 
 class Changelog:
