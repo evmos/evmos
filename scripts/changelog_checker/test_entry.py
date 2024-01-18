@@ -31,25 +31,30 @@ class TestEntry:
         assert entry.fixed == self.example
 
     def test_pass_includes_link(self):
-        example = "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        example = (
+            "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) " +
+            "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        )
         entry = Entry(example)
         ok = entry.parse()
         assert entry.link == "https://github.com/evmos/evmos/pull/1851"
-        assert entry.description == "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        assert entry.description == (
+            "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+        )
         assert entry.problems == []
         assert ok is True
         assert entry.fixed == example
 
     
     def test_fail_has_backslash_in_link(self):
-        example = "- (evm) [\#1851](https://github.com/evmos/evmos/pull/1851) Test."
+        example = r"- (evm) [\#1851](https://github.com/evmos/evmos/pull/1851) Test."
         entry = Entry(example)
         ok = entry.parse()
         assert entry.problems == [
             'There should be no backslash in front of the # in the PR link'
         ]
         assert ok is False
-        assert entry.fixed == example.replace('\#', "#")
+        assert entry.fixed == example.replace(r'\#', "#")
 
 
     def test_entry_wrong_pr_link_and_missing_dot(self):
@@ -133,6 +138,11 @@ class TestCheckDescription:
         assert problems == [
             'PR description should end with a dot: "Add `ClaimRewards` custom transaction"'
         ]
+
+    def test_start_with_codeblock(self):
+        fixed, problems = check_description("```\nAdd `ClaimRewards` custom transaction.")
+        assert fixed == "```\nAdd `ClaimRewards` custom transaction."
+        assert problems == []
 
 
 class TestCheckWhitespace:

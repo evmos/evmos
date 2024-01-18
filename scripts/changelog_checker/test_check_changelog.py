@@ -2,7 +2,7 @@ import os
 import pytest
 from shutil import copyfile
 
-from check_changelog import Changelog, Entry
+from check_changelog import Changelog
 
 # Get the directory of this script
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -55,6 +55,7 @@ class TestParseChangelog:
             'v15.0.0': {
                 'API Breaking': {
                     1862: {'description': 'Add Authorization Grants to the Vesting extension.'},
+                    555: {'description': '`v4.0.0` upgrade logic.'},
                 },
             },
         }

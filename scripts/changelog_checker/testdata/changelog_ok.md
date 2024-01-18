@@ -34,3 +34,4 @@ Some comments at head of file...
 ### API Breaking
 
 - (vesting) [#1862](https://github.com/evmos/evmos/pull/1862) Add Authorization Grants to the Vesting extension.
+- (app) [#555](https://github.com/evmos/evmos/pull/555) `v4.0.0` upgrade logic.

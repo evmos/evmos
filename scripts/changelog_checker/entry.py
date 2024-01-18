@@ -33,9 +33,12 @@ def get_allowed_categories() -> List[str]:
         "deps",
         "docs",
         "docker",
+        "fees",
         "make",
+        "metrics",
         "outposts",
         "post",
+        "precompiles",
         "proto",
         "release",
         "rpc",
@@ -166,7 +169,6 @@ class Entry:
         if cat_problems:
             problems.extend(cat_problems)
 
-
         fixed_link, link_problems = check_link(self.link, self.pr_number)
         if link_problems:
             problems.extend(link_problems)
@@ -261,7 +263,7 @@ def check_description(description: str) -> Tuple[str, List[str]]:
     problems: List[str] = []
     fixed: str = description
 
-    if not description[0].isupper():
+    if re.search(r"\w", description[0]) and not description[0].isupper():
         fixed = description[0].upper() + description[1:]
         problems.append(
             f'PR description should start with capital letter: "{description}"'
