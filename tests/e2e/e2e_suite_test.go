@@ -318,6 +318,18 @@ func (s *IntegrationTestSuite) executeTransactions() {
 	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
 	s.Require().NoError(err, "failed to execute bank send tx")
 	s.Require().Empty(errBuf.String())
+
+	// query the balances of the sending and receiving accounts to check the transaction was successful
+	exec, err = s.upgradeManager.CreateExec(
+		[]string{"evmosd", "q", "bank", "balances", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"},
+		s.upgradeManager.ContainerID(),
+	)
+	s.Require().NoError(err, "failed to create bank balances query command")
+
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank balances query")
+	s.Require().Empty(errBuf.String())
+	s.Require().Contains(outBuf.String(), "10000000000aevmos")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
