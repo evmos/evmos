@@ -12,13 +12,7 @@ jobs:
         PR_TEMPLATE=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.body)
         if echo "$PR_TEMPLATE" | grep -q "## Description" && echo "$PR_TEMPLATE" | grep -qP "(?<=## Description\n)(.|\n)*(?=\n##)" ; then
           echo "The 'Description' section is filled."
-          echo "::set-output name=section_filled::true"
         else
           echo "The 'Description' section is not filled."
-          echo "::set-output name=section_filled::false"
+          exit 1
         fi
-
-    - name: Take action based on template
-      if: steps.check.outputs.section_filled == 'false'
-      run: |
-        echo "Do something because the 'Description' section is not filled."
