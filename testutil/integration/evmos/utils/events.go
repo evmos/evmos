@@ -11,4 +11,3 @@ func ContainsEventType(events sdktypes.Events, eventType string) bool {
 	}
 	return false
 }
-
