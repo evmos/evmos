@@ -4,6 +4,8 @@
 package network_test
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	grpchandler "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -11,7 +13,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/utils"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestWithBalances(t *testing.T) {
