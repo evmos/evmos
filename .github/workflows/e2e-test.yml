@@ -23,6 +23,7 @@ jobs:
             *.toml
             tests/e2e/*
             Dockerfile
+            .github/workflows/e2e-test*
       - name: Test E2E
         run: |
           make test-e2e
