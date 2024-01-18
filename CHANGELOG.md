@@ -59,6 +59,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride Outpost to include additional arguments.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
+- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 
 ### API Breaking
 
@@ -152,7 +153,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
 - (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 - (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
+- (outposts) [#2217](https://github.com/evmos/evmos/pull/2217) Add default timeout timestamp for outpost transactions.
 - (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
+- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
+- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
+- (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
+- (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
+- (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
+- (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
 
 ### Bug Fixes
 
@@ -161,7 +169,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
 - (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
-- (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger
+- (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger.
+- (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
 
 ## [v15.0.0] - 2023-10-31
 

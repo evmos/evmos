@@ -10,6 +10,7 @@ import (
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	gethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/types"
 
@@ -36,6 +37,7 @@ type Network interface {
 	commonnetwork.Network
 
 	GetEIP155ChainID() *big.Int
+	GetEVMChainConfig() *gethparams.ChainConfig
 
 	// Clients
 	GetERC20Client() erc20types.QueryClient
@@ -51,6 +53,7 @@ type Network interface {
 	UpdateGovParams(params govtypes.Params) error
 	UpdateInflationParams(params infltypes.Params) error
 	UpdateRevenueParams(params revtypes.Params) error
+	UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
 var _ Network = (*IntegrationNetwork)(nil)
@@ -225,6 +228,12 @@ func (n *IntegrationNetwork) GetChainID() string {
 // GetEIP155ChainID returns the network EIp-155 chainID number
 func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 	return n.cfg.eip155ChainID
+}
+
+// GetChainConfig returns the network's chain config
+func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
+	params := n.app.EvmKeeper.GetParams(n.ctx)
+	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 
 // GetDenom returns the network's denom

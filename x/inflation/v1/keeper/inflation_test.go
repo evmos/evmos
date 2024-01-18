@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	evmostypes "github.com/evmos/evmos/v16/types"
+	inflationkeeper "github.com/evmos/evmos/v16/x/inflation/v1/keeper"
 	"github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
@@ -95,13 +96,13 @@ func (suite *KeeperTestSuite) TestGetCirculatingSupplyAndInflationRate() {
 			"high supply",
 			sdk.TokensFromConsensusPower(800_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
-			math.LegacyMustNewDecFromStr("51.562500000000000000"),
+			math.LegacyMustNewDecFromStr("51.562500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
 		},
 		{
 			"low supply",
 			sdk.TokensFromConsensusPower(400_000_000, evmostypes.PowerReduction).Sub(bondedAmt),
 			func() {},
-			math.LegacyMustNewDecFromStr("154.687500000000000000"),
+			math.LegacyMustNewDecFromStr("154.687500000000000000").Quo(math.LegacyNewDec(inflationkeeper.ReductionFactor)),
 		},
 		{
 			"zero circulating supply",

@@ -19,6 +19,9 @@ config {
             'contract_owner': 1,
           }],
         },
+        transfer: {
+          'denom_traces': [{"path":"transfer/channel-0","base_denom":"uosmo"}],
+        },
       },
     },  
   },

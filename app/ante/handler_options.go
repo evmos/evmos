@@ -17,8 +17,6 @@ import (
 	evmante "github.com/evmos/evmos/v16/app/ante/evm"
 	anteutils "github.com/evmos/evmos/v16/app/ante/utils"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
-
-	vestingtypes "github.com/evmos/evmos/v16/x/vesting/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
@@ -29,7 +27,7 @@ type HandlerOptions struct {
 	BankKeeper             evmtypes.BankKeeper
 	DistributionKeeper     anteutils.DistributionKeeper
 	IBCKeeper              *ibckeeper.Keeper
-	StakingKeeper          vestingtypes.StakingKeeper
+	StakingKeeper          anteutils.StakingKeeper
 	FeeMarketKeeper        evmante.FeeMarketKeeper
 	EvmKeeper              evmante.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper

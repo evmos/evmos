@@ -3,9 +3,11 @@
 package network
 
 import (
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
+	inflationtypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 )
 
 // UnitTestNetwork is the implementation of the Network interface for unit tests.
@@ -40,4 +42,15 @@ func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
 		n.App.EvmKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
 	)
+}
+
+// FundAccount funds the given account with the given amount of coins.
+func (n *UnitTestNetwork) FundAccount(addr sdktypes.AccAddress, coins sdktypes.Coins) error {
+	ctx := n.GetContext()
+
+	if err := n.app.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins); err != nil {
+		return err
+	}
+
+	return n.app.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, coins)
 }

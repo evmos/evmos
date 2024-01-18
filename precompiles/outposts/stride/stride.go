@@ -10,13 +10,10 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v16/precompiles/common"
-	"github.com/evmos/evmos/v16/precompiles/ics20"
 	erc20keeper "github.com/evmos/evmos/v16/x/erc20/keeper"
 	transferkeeper "github.com/evmos/evmos/v16/x/ibc/transfer/keeper"
 )
@@ -31,7 +28,6 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	wevmosAddress  common.Address
-	timeoutHeight  clienttypes.Height
 	transferKeeper transferkeeper.Keeper
 	erc20Keeper    erc20keeper.Keeper
 	stakingKeeper  stakingkeeper.Keeper
@@ -60,7 +56,6 @@ func NewPrecompile(
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		wevmosAddress:  wevmosAddress,
-		timeoutHeight:  clienttypes.NewHeight(ics20.DefaultTimeoutHeight, ics20.DefaultTimeoutHeight),
 		transferKeeper: transferKeeper,
 		erc20Keeper:    erc20Keeper,
 		stakingKeeper:  stakingKeeper,
