@@ -81,7 +81,7 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 	})
 
 	Describe("registered erc20", func() {
-		BeforeEach(func() { //nolint:dupl
+		BeforeEach(func() {
 			erc20params := types.DefaultParams()
 			erc20params.EnableErc20 = true
 			err := s.app.Erc20Keeper.SetParams(s.EvmosChain.GetContext(), erc20params)
