@@ -27,6 +27,12 @@ type EvmTxArgs struct {
 	Accesses  *ethtypes.AccessList
 }
 
+// ToTxData converts the EvmTxArgs to TxData
+func (args *EvmTxArgs) ToTxData() (TxData, error) {
+	ethTx := NewTx(args).AsTransaction()
+	return NewTxDataFromTx(ethTx)
+}
+
 // GetTxPriority returns the priority of a given Ethereum tx. It relies of the
 // priority reduction global variable to calculate the tx priority given the tx
 // tip price:
