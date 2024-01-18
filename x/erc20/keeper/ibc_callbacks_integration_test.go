@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -105,7 +104,6 @@ var _ = Describe("Convert receiving IBC to Erc20", Ordered, func() {
 
 			s.EvmosChain.SenderAccount.SetSequence(s.EvmosChain.SenderAccount.GetSequence() + 1) //nolint:errcheck
 		})
-		// TODO: Tests are panicking here, need to fix
 		It("should convert erc20 ibc voucher to original erc20", func() {
 			// Mint tokens and send to receiver
 			_, err := s.app.Erc20Keeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))

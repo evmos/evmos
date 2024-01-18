@@ -103,13 +103,12 @@ func (k Keeper) OnRecvPacket(
 
 	balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
 
-	if pair.IsNativeERC20() {
+	switch {
+	case pair.IsNativeERC20():
 		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
-	}
-
-	if pair.IsNativeCoin() {
+	case pair.IsNativeCoin():
 		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
