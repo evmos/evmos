@@ -87,7 +87,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (erc20-precompile) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 precompile queries.
 - (erc20-precompile) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC-20 precompile events.
 - (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
-- (erc20-precompile) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 precompile queries.
 - (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
 - (werc20-precompile) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 precompile events.
 - (werc20-precompile) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 precompile transactions.
@@ -153,7 +152,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
 - (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 - (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
-- (outposts) [#2217](https://github.com/evmos/evmos/pull/2217) Add default timeout timestamp for outpost transactions.
+- (outposts) [#2236](https://github.com/evmos/evmos/pull/2236) Add default timeout timestamp for outpost transactions.
 - (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
 - (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
 - (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
@@ -465,7 +464,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (upgrade) [#1252](https://github.com/evmos/evmos/pull/1252) Add account number and sequence to migrated IBC transfer escrow accounts.
 - (upgrade) [#1242](https://github.com/evmos/evmos/pull/1242) Fix Ethermint params upgrade.
 - (ibc) [#1156](https://github.com/evmos/evmos/pull/1156) Migrate IBC transfer escrow accounts to `ModuleAccount` type.
-- (upgrade) [#1252](https://github.com/evmos/evmos/pull/1252) Add account number and sequence to migrated IBC transfer escrow accounts.
 
 ## [v10.0.1](https://github.com/evmos/evmos/releases/tag/v10.0.1) - 2023-01-03
 
@@ -478,7 +476,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (deps) [#1184](https://github.com/evmos/evmos/pull/1184) Bump Ethermint version to [`v0.20.0-rc5`](https://github.com/evmos/ethermint/releases/tag/v0.20.0-rc5).
-- (deps) [#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0).
+- (deps) [#1176](https://github.com/evmos/evmos/pull/1176) Bump `ibc-go` to [`v5.2.0`](https://github.com/cosmos/ibc-go/releases/tag/v5.2.0) and Cosmos-SDK to [`v0.46.7`](https://github.com/cosmos/Cosmos-SDK/releases/tag/v0.46.7).
 - (vesting) [#1070](https://github.com/evmos/evmos/pull/1070) Add Amino encoding support to the vesting module for EIP-712 signing.
 - (ante) [#1054](https://github.com/evmos/evmos/pull/1054) Remove validator commission `AnteHandler` decorator and replace it with the new `MinCommissionRate` staking parameter.
 - (deps) [#1041](https://github.com/evmos/evmos/pull/1041) Add ICS-23 dragon-berry replace in `go.mod` as mentioned in the [Cosmos SDK release](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.46.4).
@@ -491,7 +489,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Improvements
 
 - (tests) [#1194](https://github.com/evmos/evmos/pull/1194) Lint tests so they are consistent with non-test code.
-- (deps) [#1176](https://github.com/evmos/evmos/pull/1176) Bump Cosmos-SDK to [`v0.46.7`](https://github.com/cosmos/Cosmos-SDK/releases/tag/v0.46.7).
 - (ci) [#1138](https://github.com/evmos/evmos/pull/1138) Add Golang dependency vulnerability checker.
 - (app) [#1114](https://github.com/evmos/evmos/pull/1114) Add default File store listener for application from [ADR38](https://docs.cosmos.network/v0.47/architecture/adr-038-state-listening).
 - (docs) [#1090](https://github.com/evmos/evmos/pull/1090) Add audits page to documentation.
@@ -635,13 +632,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (deps) [#684](https://github.com/evmos/evmos/pull/684) Bump ibc-go version to [`v3.1.0`](https://github.com/cosmos/ibc-go/releases/tag/v3.1.0).
 - (vesting) [#666](https://github.com/evmos/evmos/pull/666) Remove support of Cosmos-SDK `VestingAccount` types.
 - (deps) [#663](https://github.com/evmos/evmos/pull/663) Bump Ethermint version to [`v0.16.1`](https://github.com/evmos/ethermint/releases/tag/v0.16.1).
-- (claims) [#605](https://github.com/evmos/evmos/pull/605) Remove duplicated `SetClaimsRecord`.
+- (claims) [#605](https://github.com/evmos/evmos/pull/605) Remove duplicated `SetClaimsRecord` and `claims-` prefix from CLI query commands.
 - (erc20) [#602](https://github.com/evmos/evmos/pull/602) Modified `RegisterERC20` proposals.
   Fix erc20 name sanitization to allow spaces on token name.
 
 ### API Breaking
 
-- (claims) [#605](https://github.com/evmos/evmos/pull/605) Remove `claims-` prefix in CLI query commands.
 - (erc20) [#592](https://github.com/evmos/evmos/pull/592) Finish module completeness audit.
 - (metrics) [#637](https://github.com/evmos/evmos/pull/637) Add telemetry to Evmos modules.
 - (vesting) [#643](https://github.com/evmos/evmos/pull/643) Remove the `create-vesting-account` CLI command from Cosmos-SDK in favor of the clawback vesting accounts.
@@ -672,7 +668,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 - (app) [#537](https://github.com/evmos/evmos/pull/537) Fix router key for IBC client proposals.
-- (erc20) [#530](https://github.com/evmos/evmos/pull/530) Use the highest denom unit when deploying an ERC-20 contract.
+- (erc20) [#530](https://github.com/evmos/evmos/pull/530) Use the highest denom unit when deploying an ERC-20 contract and fix `Metadata` equality check for denom units.
 
 ### API Breaking
 
@@ -691,7 +687,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### Bug Fixes
 
-- (erc20) [#530](https://github.com/evmos/evmos/pull/530) Fix `Metadata` equal check for denom units.
 - (app) [#523](https://github.com/evmos/evmos/pull/523) Fix testnet upgrade store loader.
 
 ## [v3.0.1](https://github.com/evmos/evmos/releases/tag/v3.0.1) - 2022-05-09
@@ -707,11 +702,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
-- (ibc) [#342](https://github.com/evmos/evmos/pull/342) Implement IBC middleware to recover stuck funds
+- (ibc) [#342](https://github.com/evmos/evmos/pull/342) Implement IBC middleware to recover stuck funds.
 
 ### API Breaking
 
-- [\#415](https://github.com/evmos/evmos/pull/415) Bump Evmos go version to v3
+- (go) [#415](https://github.com/evmos/evmos/pull/415) Bump Evmos go version to v3.
 
 ### Bug Fixes
 
@@ -910,5 +905,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
+
 
 

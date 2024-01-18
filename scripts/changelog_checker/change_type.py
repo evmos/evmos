@@ -12,6 +12,7 @@ from entry import check_spelling
 ALLOWED_SPELLING = {
     "API Breaking": re.compile(r"api\s*breaking", re.IGNORECASE),
     "Bug Fixes": re.compile(r"bug\s*fixes", re.IGNORECASE),
+    "Features": re.compile("features", re.IGNORECASE),
     "Improvements": re.compile("improvements", re.IGNORECASE),
     "State Machine Breaking": re.compile(r"state\s*machine\s*breaking", re.IGNORECASE),
 }
