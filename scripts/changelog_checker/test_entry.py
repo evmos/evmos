@@ -40,6 +40,17 @@ class TestEntry:
         assert ok is True
         assert entry.fixed == example
 
+    
+    def test_fail_has_backslash_in_link(self):
+        example = "- (evm) [\#1851](https://github.com/evmos/evmos/pull/1851) Test."
+        entry = Entry(example)
+        ok = entry.parse()
+        assert entry.problems == [
+            'There should be no backslash in front of the # in the PR link'
+        ]
+        assert ok is False
+        assert entry.fixed == example.replace('\#', "#")
+
 
     def test_entry_wrong_pr_link_and_missing_dot(self):
         entry = Entry(

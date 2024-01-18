@@ -70,6 +70,7 @@ class TestParseChangelog:
         assert changelog.parse() is False
         assert changelog.problems == [
             'PR link is not matching PR number 1948: "https://github.com/evmos/evmos/pull/1949"',
+            'There should be no backslash in front of the # in the PR link',
             '"ABI" should be used instead of "ABi"',
             '"outpost" should be used instead of "Outpost"',
             'PR description should end with a dot: "Fixed the problem `gas_used` is 0"',
@@ -86,6 +87,7 @@ class TestParseChangelog:
         assert changelog.parse(fix=True) is False
         assert changelog.problems == [
             'PR link is not matching PR number 1948: "https://github.com/evmos/evmos/pull/1949"',
+            'There should be no backslash in front of the # in the PR link',
             '"ABI" should be used instead of "ABi"',
             '"outpost" should be used instead of "Outpost"',
             'PR description should end with a dot: "Fixed the problem `gas_used` is 0"',

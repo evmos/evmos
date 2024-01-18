@@ -19,7 +19,7 @@ Some comments at head of file...
 
 ### Improvements
 
-- (testnet) [\#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags.
+- (testnet) [#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags.
 - (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride outpost interface and ABI.
 - (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types.
 - (all) [#701](https://github.com/evmos/evmos/pull/701) Rename Go module to `evmos/evmos`.

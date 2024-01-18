@@ -101,7 +101,8 @@ class Changelog:
                     raise ValueError(f'Entry "{line}" is missing a category')
 
                 if entry.pr_number in seen_prs:
-                    self.problems.append(f'PR #{entry.pr_number} is duplicated in the changelog')
+                    if entry.pr_number != 0:
+                        self.problems.append(f'PR #{entry.pr_number} is duplicated in the changelog')
                 else:
                     seen_prs.append(entry.pr_number)
 

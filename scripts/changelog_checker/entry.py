@@ -26,6 +26,7 @@ def get_allowed_categories() -> List[str]:
         "ante",
         "api",
         "app",
+        "build",
         "ci",
         "cli",
         "db",
@@ -33,8 +34,9 @@ def get_allowed_categories() -> List[str]:
         "docs",
         "docker",
         "make",
-        "proto",
         "outposts",
+        "post",
+        "proto",
         "release",
         "rpc",
         "swagger",
@@ -45,10 +47,11 @@ def get_allowed_categories() -> List[str]:
         "upgrade",
 
         # third party modules
-        "distribution",
-        "staking",
-        "ics20",
         "bank",
+        "distribution",
+        "gov",
+        "ics20",
+        "staking",
 
         # outdated modules (we have to keep them since they're in the changelog)
         "claims",
@@ -105,7 +108,7 @@ ALLOWED_SPELLINGS = {
 # Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
     r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +
-    r'(?P<ws2>\s*)\[\\?#(?P<pr>\d+)](?P<ws3>\s*)\((?P<link>[^)]*)\)' +
+    r'(?P<ws2>\s*)\[(?P<bs>\\)?#(?P<pr>\d+)](?P<ws3>\s*)\((?P<link>[^)]*)\)' +
     r'(?P<ws4>\s*)(?P<desc>.+)$',
 )
 
@@ -118,6 +121,7 @@ class Entry:
     def __init__(self, line: str):
         self.line: str = line
         self.fixed: str = line
+        self.backslash: bool = False
         self.category: str = ""
         self.description: str = ""
         self.link: str = ""
@@ -141,6 +145,7 @@ class Entry:
 
         self.pr_number = int(match.group("pr"))
         self.category = match.group("category")
+        self.backslash = True if match.group("bs") else False
         self.link = match.group("link")
         self.description = match.group("desc")
         self.whitespaces = [
@@ -149,6 +154,9 @@ class Entry:
             match.group("ws3"),
             match.group("ws4"),
         ]
+
+        if self.backslash:
+            problems.append("There should be no backslash in front of the # in the PR link")
 
         ws_problems = check_whitespace(self.whitespaces)
         if ws_problems:
