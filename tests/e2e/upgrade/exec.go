@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-// E2eTxArgs contains the arguments to build a CLI transaction command from.
-type E2eTxArgs struct {
+// E2ETxArgs contains the arguments to build a CLI transaction command from.
+type E2ETxArgs struct {
 	ModuleName string
 	SubCommand string
 	Args       []string
@@ -17,7 +17,7 @@ type E2eTxArgs struct {
 }
 
 // CreateModuleTxExec creates the execution command for an Evmos transaction.
-func (m *Manager) CreateModuleTxExec(txArgs E2eTxArgs) (string, error) {
+func (m *Manager) CreateModuleTxExec(txArgs E2ETxArgs) (string, error) {
 	cmd := []string{
 		"evmosd",
 		"tx",

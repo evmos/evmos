@@ -306,7 +306,7 @@ func (s *IntegrationTestSuite) executeTransactions() {
 	chainID := utils.TestnetChainID + "-1"
 
 	// send some tokens between accounts to check transactions are still working
-	exec, err := s.upgradeManager.CreateModuleTxExec(upgrade.E2eTxArgs{
+	exec, err := s.upgradeManager.CreateModuleTxExec(upgrade.E2ETxArgs{
 		ModuleName: "bank",
 		SubCommand: "send",
 		Args:       []string{"mykey", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq", "10000000000aevmos"},
