@@ -59,8 +59,8 @@ class TestParseChangelog:
                 "Bug Fixes": {
                     1801: {"description": "Fixed the problem `gas_used` is 0."},
                     109: {
-                        "description": "Fix hardcoded ERC-20 nonce and `UpdateTokenPairERC20` proposal ` + "
-                        "to support ERC-20s with 0 decimals."
+                        "description": "Fix hardcoded ERC-20 nonce and `UpdateTokenPairERC20` proposal "
+                        + "to support ERC-20s with 0 decimals."
                     },
                 },
             },
