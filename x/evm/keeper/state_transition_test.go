@@ -11,6 +11,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -373,9 +375,29 @@ func (suite *EvmKeeperTestSuite) TestGasToRefund() {
 }
 
 func (suite *EvmKeeperTestSuite) TestRefundGas() {
+	// FeeCollector account is pre-funded with enough tokens
+	// for refund to work
+    // NOTE: everything should happen within the same block for
+    // feecollector account to remain funded
+	coins := sdk.NewCoins(sdk.NewCoin(
+		types.DefaultEVMDenom,
+		sdkmath.NewInt(6e18),
+	))
+	balances := []banktypes.Balance{
+		{
+			Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+			Coins:   coins,
+		},
+	}
+	bankGenesis := banktypes.DefaultGenesisState()
+	bankGenesis.Balances = balances
+	customGenesis := network.CustomGenesisState{}
+	customGenesis[banktypes.ModuleName] = bankGenesis
+
 	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomGenesis(customGenesis),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
@@ -443,7 +465,6 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
-			fmt.Println("refund", refund)
 			err = unitNetwork.App.EvmKeeper.RefundGas(
 				unitNetwork.GetContext(),
 				coreMsg,
@@ -455,9 +476,6 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			} else {
 				suite.Require().Error(err)
 			}
-
-			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
 		})
 	}
 }
