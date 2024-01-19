@@ -25,10 +25,10 @@ class Release:
 
     def __init__(self, line: str):
         self.line: str = line
-        self.fixed: str = line
+        self.fixed: str = ""
         self.link: str = ""
         self.version: str = ""
-        self.problems = []
+        self.problems: List[str] = []
 
     def parse(self) -> bool:
         """
@@ -38,9 +38,9 @@ class Release:
         """
 
         problems: List[str] = []
-        self.fixed: str = self.line
 
         if UNRELEASED_PATTERN.match(self.line):
+            self.fixed = self.line
             self.version = UNRELEASED_VERSION
             return True
 
@@ -58,7 +58,8 @@ class Release:
         if link_problems:
             problems.extend(link_problems)
 
-        self.fixed = f'## [{self.version}]{fixed_link} - {date}'
+        fixed = f'## [{self.version}]{fixed_link} - {date}'
+        self.fixed = fixed
         self.problems = problems
 
         return problems == []

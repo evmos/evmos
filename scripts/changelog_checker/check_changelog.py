@@ -9,14 +9,27 @@ Usage:
 
 """
 
+import io
 import os
 import sys
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from change_type import ChangeType
 from config import ALLOWED_DUPLICATES, LEGACY_VERSION
 from entry import Entry
 from release import Release
+
+
+def write(file: Union[None, io.TextIOWrapper], line: str):
+    """
+    This function writes a line to a file.
+
+    :param file: The file to write to.
+    :param line: The line to write.
+    """
+
+    if file is not None:
+        file.write(line)
 
 
 class Changelog:
@@ -35,7 +48,7 @@ class Changelog:
             raise FileNotFoundError(f'Changelog file "{self.filename}" not found')
 
         with open(self.filename, 'r') as file:
-            self.contents = file.read()
+            self.contents = file.read().split('\n')
 
     def parse(self, fix: bool = False) -> bool:
         """
@@ -44,8 +57,8 @@ class Changelog:
         :param fix: An optional parameter specifying if the changelog should be fixed automatically.
         """
 
-        current_release = None
-        current_category = None
+        current_release: str = ""
+        current_category: str = ""
         f = None
         is_legacy: bool = False
         seen_prs: List[int] = []
@@ -54,10 +67,10 @@ class Changelog:
             f = open(self.filename, 'w')
 
         try:
-            for line in self.contents.split('\n'):
+            for line in self.contents:
                 if is_legacy:
                     if fix:
-                        f.write(line + '\n')
+                        write(f, line + '\n')
                     continue
 
                 # Check for Header 2 (##) to identify releases
@@ -76,7 +89,8 @@ class Changelog:
                         is_legacy = True
 
                     if fix:
-                        f.write(release.fixed + '\n')
+                        write(f, release.fixed + '\n')
+
                     continue
 
                 # Check for Header 3 (###) to identify change types
@@ -91,20 +105,22 @@ class Changelog:
                     self.problems.extend(change_type.problems)
 
                     if fix:
-                        f.write(change_type.fixed + '\n')
+                        write(f, change_type.fixed + '\n')
+
                     continue
 
                 # Check for individual entries
                 if stripped_line[:2] != '- ':
                     if fix:
-                        f.write(line + '\n')
+                        write(f, line + '\n')
+
                     continue
 
                 entry = Entry(line)
                 entry.parse()
                 self.problems.extend(entry.problems)
                 if fix:
-                    f.write(entry.fixed + '\n')
+                    write(f, entry.fixed + '\n')
 
                 if not current_category:
                     raise ValueError(f'Entry "{line}" is missing a category')
@@ -119,7 +135,7 @@ class Changelog:
                     "description": entry.description
                 }
         finally:
-            if fix:
+            if f is not None:
                 f.close()
 
         return self.problems == []

@@ -1,8 +1,8 @@
 import os
-import pytest
+import pytest # type: ignore
 from shutil import copyfile
 
-from check_changelog import Changelog
+from check_changelog import Changelog # type: ignore
 
 # Get the directory of this script
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
