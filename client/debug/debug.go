@@ -9,12 +9,11 @@ import (
 	"strconv"
 	"strings"
 
-	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	cfg "github.com/evmos/evmos/v16/cmd/config"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	evmos "github.com/evmos/evmos/v16/types"
-	"github.com/pkg/errors"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -23,6 +22,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
+	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 )
 
 var flagPrefix = "prefix"
@@ -91,10 +91,16 @@ $ %s debug addr 0x00000Be6819f41400225702D32d3dd23663Dd690 --prefix evmos`, vers
 			case common.IsHexAddress(addrString):
 				hexAddr := common.HexToAddress(addrString).Bytes()
 				prefix, _ := cmd.Flags().GetString(flagPrefix)
-				bech32Address, _ := sdk.Bech32ifyAddressBytes(prefix, hexAddr)
-
 				cmd.Println("Address bytes:", hexAddr)
-				cmd.Printf("Bech32 %s\n", bech32Address)
+				if prefix == "" {
+					bech32AccAddress, _ := sdk.Bech32ifyAddressBytes(cfg.Bech32Prefix, hexAddr)
+					bech32ValAddress, _ := sdk.Bech32ifyAddressBytes(cfg.Bech32PrefixValAddr, hexAddr)
+					cmd.Printf("Bech32 Acc %s\n", bech32AccAddress)
+					cmd.Printf("Bech32 Val %s\n", bech32ValAddress)
+				} else {
+					bech32Address, _ := sdk.Bech32ifyAddressBytes(prefix, hexAddr)
+					cmd.Printf("Bech32 %s\n", bech32Address)
+				}
 			default:
 				prefix := strings.SplitN(addrString, "1", 2)[0]
 				hexAddr, _ := sdk.GetFromBech32(addrString, prefix)
@@ -107,7 +113,7 @@ $ %s debug addr 0x00000Be6819f41400225702D32d3dd23663Dd690 --prefix evmos`, vers
 		},
 	}
 
-	cmd.Flags().String(flagPrefix, cfg.Bech32Prefix, "Bech32 encoded account prefix, for example evmos, evmosvaloper")
+	cmd.Flags().String(flagPrefix, "", "Bech32 encoded account prefix, for example evmos, evmosvaloper")
 	return cmd
 }
 

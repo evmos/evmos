@@ -56,7 +56,7 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 	}
 
 	// burn min(balance, fee)
-	var burntCoins sdk.Coins
+	var burnedCoins sdk.Coins
 	for _, fee := range fees {
 		balance := bd.bankKeeper.GetBalance(ctx, authtypes.NewModuleAddress(bd.feeCollectorName), fee.Denom)
 		if !balance.IsPositive() {
@@ -65,23 +65,26 @@ func (bd BurnDecorator) PostHandle(ctx sdk.Context, tx sdk.Tx, simulate, success
 
 		amount := sdkmath.MinInt(fee.Amount, balance.Amount)
 
-		burntCoins = append(burntCoins, sdk.Coin{Denom: fee.Denom, Amount: amount})
+		burnedCoins = append(burnedCoins, sdk.Coin{Denom: fee.Denom, Amount: amount})
 	}
 
 	// NOTE: since all Cosmos tx fees are pooled by the fee collector module account,
 	// we burn them directly from it
-	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burntCoins); err != nil {
+	if err := bd.bankKeeper.BurnCoins(ctx, bd.feeCollectorName, burnedCoins); err != nil {
 		return ctx, err
 	}
 
 	defer func() {
-		for _, c := range burntCoins {
+		if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+			return
+		}
+		for _, c := range burnedCoins {
 			// if fee amount is higher than uint64, skip the counter
 			if !c.Amount.IsUint64() {
 				continue
 			}
 			telemetry.IncrCounterWithLabels(
-				[]string{"burnt", "tx", "fee", "amount"},
+				[]string{"burned", "tx", "fee", "amount"},
 				float32(c.Amount.Uint64()),
 				[]metrics.Label{
 					telemetry.NewLabel("denom", c.Denom),
