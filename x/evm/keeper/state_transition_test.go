@@ -110,6 +110,7 @@ func (suite *EvmKeeperTestSuite) TestGetHashFn() {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			ctx := tc.malleate()
 
+			// Function being tested
 			hash := unitNetwork.App.EvmKeeper.GetHashFn(ctx)(tc.height)
 			suite.Require().Equal(tc.expHash, hash)
 
@@ -157,6 +158,8 @@ func (suite *EvmKeeperTestSuite) TestGetCoinbaseAddress() {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			ctx := tc.malleate()
 			proposerAddress := ctx.BlockHeader().ProposerAddress
+
+			// Function being tested
 			coinbase, err := unitNetwork.App.EvmKeeper.GetCoinbaseAddress(
 				ctx,
 				sdk.ConsAddress(proposerAddress),
@@ -172,7 +175,12 @@ func (suite *EvmKeeperTestSuite) TestGetCoinbaseAddress() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
+func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
 	testCases := []struct {
 		name               string
 		data               []byte
@@ -253,19 +261,21 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest() // reset
-
-			params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-			ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EvmKeeper.ChainID())
+			params := unitNetwork.App.EvmKeeper.GetParams(
+				unitNetwork.GetContext(),
+			)
+			ethCfg := params.ChainConfig.EthereumConfig(
+				unitNetwork.App.EvmKeeper.ChainID(),
+			)
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
-			signer := ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
+			signer := ethtypes.LatestSignerForChainID(unitNetwork.App.EvmKeeper.ChainID())
 
-			ctx := suite.network.GetContext().WithBlockHeight(tc.height)
+			ctx := unitNetwork.GetContext().WithBlockHeight(tc.height)
 
-			addr := suite.keyring.GetAddr(0)
-			krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-			nonce := suite.network.App.EvmKeeper.GetNonce(ctx, addr)
+			addr := keyring.GetAddr(0)
+			krSigner := utiltx.NewSigner(keyring.GetPrivKey(0))
+			nonce := unitNetwork.App.EvmKeeper.GetNonce(ctx, addr)
 			m, err := newNativeMessage(
 				nonce,
 				ctx.BlockHeight(),
@@ -279,7 +289,14 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 			)
 			suite.Require().NoError(err)
 
-			gas, err := suite.network.App.EvmKeeper.GetEthIntrinsicGas(ctx, m, ethCfg, tc.isContractCreation)
+			// Function being tested
+			gas, err := unitNetwork.App.EvmKeeper.GetEthIntrinsicGas(
+				ctx,
+				m,
+				ethCfg,
+				tc.isContractCreation,
+			)
+
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {
@@ -291,7 +308,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestGasToRefund() {
+func (suite *EvmKeeperTestSuite) TestGasToRefund() {
 	testCases := []struct {
 		name           string
 		gasconsumed    uint64
