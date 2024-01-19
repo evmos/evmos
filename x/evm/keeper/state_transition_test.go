@@ -373,12 +373,15 @@ func (suite *EvmKeeperTestSuite) TestGasToRefund() {
 }
 
 func (suite *EvmKeeperTestSuite) TestRefundGas() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grpcHandler)
+
+	sender := keyring.GetKey(0)
+	recipient := keyring.GetAddr(1)
 
 	testCases := []struct {
 		name           string
@@ -419,13 +422,15 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			signedTx, err := txFactory.GenerateSignedEthTx(
-				keyring.GetPrivKey(0),
-				types.EvmTxArgs{},
+			coreMsg, err := txFactory.GenerateGethCoreMsg(
+				sender.Priv,
+				types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(100),
+				},
 			)
 			suite.Require().NoError(err)
-			msg := signedTx.GetMsgs()[0].(*types.MsgEthereumTx)
-			transactionGas := msg.GetGas()
+			transactionGas := coreMsg.Gas()
 
 			vmdb := unitNetwork.GetStateDB()
 			vmdb.AddRefund(params.TxGas)
@@ -438,15 +443,7 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
-			baseFeeResp, err := grpcHandler.GetBaseFee()
-			suite.Require().NoError(err)
-			signer := gethtypes.LatestSignerForChainID(
-				unitNetwork.GetEIP155ChainID(),
-			)
-
-			coreMsg, err := msg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
-			suite.Require().NoError(err)
-
+			fmt.Println("refund", refund)
 			err = unitNetwork.App.EvmKeeper.RefundGas(
 				unitNetwork.GetContext(),
 				coreMsg,
@@ -458,6 +455,9 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			} else {
 				suite.Require().Error(err)
 			}
+
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
 		})
 	}
 }
