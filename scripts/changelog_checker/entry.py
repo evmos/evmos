@@ -10,7 +10,6 @@ from typing import Dict, List, Tuple
 
 from config import ALLOWED_CATEGORIES, ALLOWED_SPELLINGS, KNOWN_EXCEPTIONS
 
-
 # Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
     r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +

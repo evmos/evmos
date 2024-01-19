@@ -1,6 +1,6 @@
 import re
 
-from entry import (
+from entry import (  # type: ignore
     ALLOWED_SPELLINGS,
     Entry,
     check_category,
@@ -9,7 +9,7 @@ from entry import (
     check_spelling,
     check_whitespace,
     get_match,
-)  # type: ignore
+)
 
 
 class TestEntry:

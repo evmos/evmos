@@ -20,7 +20,7 @@ class ChangeType:
     This class represents a section header in the changelog.
     """
 
-    def __init__(self, line):
+    def __init__(self, line: str):
         self.line: str = line
         self.fixed: str = line
         self.type: str = ""
