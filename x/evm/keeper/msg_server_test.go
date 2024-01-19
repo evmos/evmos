@@ -5,6 +5,7 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
@@ -111,4 +112,21 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			}
 		})
 	}
+}
+
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer gethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
+	contractCreateTx := &gethtypes.AccessListTx{
+		GasPrice: gasPrice,
+		Gas:      params.TxGasContractCreation,
+		To:       nil,
+		Data:     []byte("contract_data"),
+		Nonce:    nonce,
+	}
+	ethTx := gethtypes.NewTx(contractCreateTx)
+	ethMsg := &types.MsgEthereumTx{}
+	err := ethMsg.FromEthereumTx(ethTx)
+	suite.Require().NoError(err)
+	ethMsg.From = suite.keyring.GetAddr(0).Hex()
+	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
+	return ethMsg, ethMsg.Sign(signer, krSigner)
 }

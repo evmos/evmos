@@ -25,8 +25,8 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/keeper"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 )
 
 func (suite *EvmKeeperTestSuite) TestGetHashFn() {
@@ -615,164 +615,179 @@ func (suite *EvmKeeperTestSuite) TestApplyMessage() {
 	suite.Require().Equal(expectedGasUsed, res.GasUsed)
 }
 
-func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
-	var (
-		msg             core.Message
-		err             error
-		expectedGasUsed uint64
-		config          *statedb.EVMConfig
-		keeperParams    types.Params
-		signer          gethtypes.Signer
-		vmdb            *statedb.StateDB
-		txConfig        statedb.TxConfig
-		chainCfg        *params.ChainConfig
+func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expErr   bool
+		name               string
+		getMessage         func() core.Message
+		getEVMParams       func() types.Params
+		getFeeMarketParams func() feemarkettypes.Params
+		expErr             bool
+		expectedGasUsed    uint64
 	}{
 		{
-			"messsage applied ok",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-				msg, err = newNativeMessage(
-					vmdb.GetNonce(addr),
-					suite.network.GetContext().BlockHeight(),
-					addr,
-					chainCfg,
-					krSigner,
-					signer,
-					gethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
+			"success - messsage applied ok with default params",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				recipient := keyring.GetAddr(1)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(100),
+				})
 				suite.Require().NoError(err)
+				return msg
+			},
+			func() types.Params {
+				return types.DefaultParams()
+			},
+			func() feemarkettypes.Params {
+				return feemarkettypes.DefaultParams()
 			},
 			false,
+			params.TxGas,
 		},
 		{
-			"call contract tx with config param EnableCall = false",
-			func() {
-				config.Params.EnableCall = false
-				addr := suite.keyring.GetAddr(0)
-				krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-				msg, err = newNativeMessage(
-					vmdb.GetNonce(addr),
-					suite.network.GetContext().BlockHeight(),
-					addr,
-					chainCfg,
-					krSigner,
-					signer,
-					gethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
+			"fail - call contract tx with config param EnableCall = false",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				recipient := keyring.GetAddr(1)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(100),
+					Input:  []byte("contract_data"),
+				})
 				suite.Require().NoError(err)
+				return msg
+			},
+			func() types.Params {
+				defaultParams := types.DefaultParams()
+				defaultParams.EnableCall = false
+				return defaultParams
+			},
+			func() feemarkettypes.Params {
+				return feemarkettypes.DefaultParams()
 			},
 			true,
+			0,
 		},
 		{
-			"create contract tx with config param EnableCreate = false",
-			func() {
-				msg, err = suite.createContractGethMsg(vmdb.GetNonce(suite.keyring.GetAddr(0)), signer, chainCfg, big.NewInt(1))
+			"fail - create contract tx with config param EnableCreate = false",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					Amount: big.NewInt(100),
+					Input:  []byte("contract_data"),
+				})
 				suite.Require().NoError(err)
-				config.Params.EnableCreate = false
+				return msg
+			},
+			func() types.Params {
+				defaultParams := types.DefaultParams()
+				defaultParams.EnableCreate = false
+				return defaultParams
+			},
+			func() feemarkettypes.Params {
+				return feemarkettypes.DefaultParams()
 			},
 			true,
+			0,
 		},
 		{
-			"fix panic when minimumGasUsed is not uint64",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-				msg, err = newNativeMessage(
-					vmdb.GetNonce(addr),
-					suite.network.GetContext().BlockHeight(),
-					addr,
-					chainCfg,
-					krSigner,
-					signer,
-					gethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
+			"fail - fix panic when minimumGasUsed is not uint64",
+			func() core.Message {
+				sender := keyring.GetKey(0)
+				recipient := keyring.GetAddr(1)
+				msg, err := txFactory.GenerateGethCoreMsg(sender.Priv, types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(100),
+				})
 				suite.Require().NoError(err)
-				params := suite.network.App.FeeMarketKeeper.GetParams(suite.network.GetContext())
+				return msg
+			},
+			func() types.Params {
+				return types.DefaultParams()
+			},
+			func() feemarkettypes.Params {
+				paramsRes, err := grpcHandler.GetFeeMarketParams()
+				suite.Require().NoError(err)
+				params := paramsRes.GetParams()
 				params.MinGasMultiplier = sdkmath.LegacyNewDec(math.MaxInt64).MulInt64(100)
-				err = suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), params)
-				suite.Require().NoError(err)
+				return params
 			},
 			true,
+			0,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest()
-			expectedGasUsed = params.TxGas
-
-			proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
-			config, err = suite.network.App.EvmKeeper.EVMConfig(suite.network.GetContext(), proposerAddress, big.NewInt(9000))
+			msg := tc.getMessage()
+			evmParams := tc.getEVMParams()
+			err := unitNetwork.App.EvmKeeper.SetParams(
+				unitNetwork.GetContext(),
+				evmParams,
+			)
+			suite.Require().NoError(err)
+			feeMarketparams := tc.getFeeMarketParams()
+			err = unitNetwork.App.FeeMarketKeeper.SetParams(
+				unitNetwork.GetContext(),
+				feeMarketparams,
+			)
 			suite.Require().NoError(err)
 
-			keeperParams = suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-			chainCfg = keeperParams.ChainConfig.EthereumConfig(suite.network.App.EvmKeeper.ChainID())
-			signer = gethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
-			vmdb = suite.StateDB()
-			txConfig = suite.network.App.EvmKeeper.TxConfig(suite.network.GetContext(), common.Hash{})
+			txConfig := unitNetwork.App.EvmKeeper.TxConfig(
+				unitNetwork.GetContext(),
+				common.Hash{},
+			)
+			proposerAddress := unitNetwork.GetContext().BlockHeader().ProposerAddress
+			config, err := unitNetwork.App.EvmKeeper.EVMConfig(
+				unitNetwork.GetContext(),
+				proposerAddress,
+				unitNetwork.GetEIP155ChainID(),
+			)
+			suite.Require().NoError(err)
 
-			tc.malleate()
-			res, err := suite.network.App.EvmKeeper.ApplyMessageWithConfig(suite.network.GetContext(), msg, nil, true, config, txConfig)
+			// Function being tested
+			res, err := unitNetwork.App.EvmKeeper.ApplyMessageWithConfig(
+				unitNetwork.GetContext(),
+				msg,
+				nil,
+				true,
+				config,
+				txConfig,
+			)
 
 			if tc.expErr {
 				suite.Require().Error(err)
-				return
+			} else {
+				suite.Require().NoError(err)
+				suite.Require().False(res.Failed())
+				suite.Require().Equal(tc.expectedGasUsed, res.GasUsed)
 			}
 
+			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
-			suite.Require().False(res.Failed())
-			suite.Require().Equal(expectedGasUsed, res.GasUsed)
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer gethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
-	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
-	if err != nil {
-		return nil, err
-	}
+func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
 
-	msgSigner := gethtypes.MakeSigner(cfg, big.NewInt(suite.network.GetContext().BlockHeight()))
-	return ethMsg.AsMessage(msgSigner, nil)
-}
-
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer gethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
-	contractCreateTx := &gethtypes.AccessListTx{
-		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation,
-		To:       nil,
-		Data:     []byte("contract_data"),
-		Nonce:    nonce,
-	}
-	ethTx := gethtypes.NewTx(contractCreateTx)
-	ethMsg := &types.MsgEthereumTx{}
-	err := ethMsg.FromEthereumTx(ethTx)
-	suite.Require().NoError(err)
-	ethMsg.From = suite.keyring.GetAddr(0).Hex()
-	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-	return ethMsg, ethMsg.Sign(signer, krSigner)
-}
-
-func (suite *KeeperTestSuite) TestGetProposerAddress() {
-	var a sdk.ConsAddress
-	address := sdk.ConsAddress(suite.keyring.GetAddr(0).Bytes())
-	proposerAddress := sdk.ConsAddress(suite.network.GetContext().BlockHeader().ProposerAddress)
+	address := sdk.ConsAddress(keyring.GetAddr(0).Bytes())
+	proposerAddress := sdk.ConsAddress(unitNetwork.GetContext().BlockHeader().ProposerAddress)
 	testCases := []struct {
 		msg    string
-		adr    sdk.ConsAddress
+		addr   sdk.ConsAddress
 		expAdr sdk.ConsAddress
 	}{
 		{
@@ -787,13 +802,17 @@ func (suite *KeeperTestSuite) TestGetProposerAddress() {
 		},
 		{
 			"typed nil proposer address provided",
-			a,
+			sdk.ConsAddress{},
 			proposerAddress,
 		},
 	}
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.Require().Equal(tc.expAdr, keeper.GetProposerAddress(suite.network.GetContext(), tc.adr))
+
+			suite.Require().Equal(
+				tc.expAdr,
+				keeper.GetProposerAddress(unitNetwork.GetContext(), tc.addr),
+			)
 		})
 	}
 }
