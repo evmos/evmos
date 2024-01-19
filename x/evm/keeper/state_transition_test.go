@@ -377,8 +377,8 @@ func (suite *EvmKeeperTestSuite) TestGasToRefund() {
 func (suite *EvmKeeperTestSuite) TestRefundGas() {
 	// FeeCollector account is pre-funded with enough tokens
 	// for refund to work
-    // NOTE: everything should happen within the same block for
-    // feecollector account to remain funded
+	// NOTE: everything should happen within the same block for
+	// feecollector account to remain funded
 	coins := sdk.NewCoins(sdk.NewCoin(
 		types.DefaultEVMDenom,
 		sdkmath.NewInt(6e18),
