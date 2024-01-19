@@ -133,7 +133,9 @@ if __name__ == "__main__":
         fix_mode = True
 
     passed = changelog.parse(fix=fix_mode)
-    if not passed:
+    if passed:
+        print(" -> Changelog is valid.")
+    else:
         print(f'Changelog file is not valid - check the following {len(changelog.problems)} problems:\n')
         print('\n'.join(changelog.problems))
         sys.exit(1)
