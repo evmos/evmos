@@ -103,16 +103,16 @@ def check_whitespace(whitespaces: List[str]) -> List[str]:
     problems: List[str] = []
 
     if whitespaces[0] != " ":
-        problems.append(f'There should be exactly one space between the leading dash and the category')
+        problems.append('There should be exactly one space between the leading dash and the category')
 
     if whitespaces[1] != " ":
-        problems.append(f'There should be exactly one space between the category and PR link')
+        problems.append('There should be exactly one space between the category and PR link')
 
     if whitespaces[2] != "":
-        problems.append(f'There should be no whitespace inside of the markdown link')
+        problems.append('There should be no whitespace inside of the markdown link')
 
     if whitespaces[3] != " ":
-        problems.append(f'There should be exactly one space between the PR link and the description')
+        problems.append('There should be exactly one space between the PR link and the description')
 
     return problems
 
@@ -198,7 +198,8 @@ def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) 
 
     :param expected_spellings: a dictionary of expected spellings and the matching patterns
     :param description: the description to check
-    :return: a tuple containing a boolean value indicating whether a matching pattern was found and a list of problems with the match
+    :return: a tuple containing a boolean value indicating whether a matching pattern was found and
+             a list of problems with the match
     """
 
     problems: List[str] = []

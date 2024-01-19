@@ -2,14 +2,14 @@ import re
 
 from entry import (
     ALLOWED_SPELLINGS,
+    Entry,
     check_category,
     check_description,
     check_link,
     check_spelling,
     check_whitespace,
     get_match,
-    Entry,
-)
+)  # type: ignore
 
 
 class TestEntry:
@@ -95,6 +95,7 @@ class TestCheckCategory:
 
 class TestCheckLink:
     example = "https://github.com/evmos/evmos/pull/1949"
+
     def test_pass(self):
         fixed, problems = check_link(self.example, 1949)
         assert fixed == self.example
@@ -212,4 +213,3 @@ class TestGetMatch:
 
     def test_fail_in_link(self):
         assert get_match(re.compile("abi", re.IGNORECASE), "Fix [abcdef](https://example/aBi.com).") == ""
-
