@@ -10,7 +10,6 @@ import (
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -19,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/keeper"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
@@ -119,8 +119,16 @@ func (suite *EvmKeeperTestSuite) TestGetHashFn() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
-	valOpAddr := utiltx.GenerateAddress()
+func (suite *EvmKeeperTestSuite) TestGetCoinbaseAddress() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	validators := unitNetwork.GetValidators()
+	proposerAddressHex := utils.ConvertValAddressToHex(
+		validators[0].OperatorAddress,
+	)
 
 	testCases := []struct {
 		msg      string
@@ -130,38 +138,16 @@ func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
 		{
 			"validator not found",
 			func() sdk.Context {
-				header := suite.network.GetContext().BlockHeader()
+				header := unitNetwork.GetContext().BlockHeader()
 				header.ProposerAddress = []byte{}
-				return suite.network.GetContext().WithBlockHeader(header)
+				return unitNetwork.GetContext().WithBlockHeader(header)
 			},
 			false,
 		},
 		{
 			"success",
 			func() sdk.Context {
-				valConsAddr, privkey := utiltx.NewAddrKey()
-
-				pkAny, err := codectypes.NewAnyWithValue(privkey.PubKey())
-				suite.Require().NoError(err)
-
-				validator := stakingtypes.Validator{
-					OperatorAddress: sdk.ValAddress(valOpAddr.Bytes()).String(),
-					ConsensusPubkey: pkAny,
-				}
-
-				suite.network.App.StakingKeeper.SetValidator(suite.network.GetContext(), validator)
-				err = suite.network.App.StakingKeeper.SetValidatorByConsAddr(suite.network.GetContext(), validator)
-				suite.Require().NoError(err)
-
-				header := suite.network.GetContext().BlockHeader()
-				header.ProposerAddress = valConsAddr.Bytes()
-				ctx := suite.network.GetContext().WithBlockHeader(header)
-
-				_, err = suite.network.App.StakingKeeper.GetValidatorByConsAddr(ctx, valConsAddr.Bytes())
-				suite.Require().NoError(err)
-
-				suite.Require().NotEmpty(ctx.BlockHeader().ProposerAddress)
-				return ctx
+				return unitNetwork.GetContext()
 			},
 			true,
 		},
@@ -169,14 +155,16 @@ func (suite *KeeperTestSuite) TestGetCoinbaseAddress() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
-
 			ctx := tc.malleate()
 			proposerAddress := ctx.BlockHeader().ProposerAddress
-			coinbase, err := suite.network.App.EvmKeeper.GetCoinbaseAddress(ctx, sdk.ConsAddress(proposerAddress))
+			coinbase, err := unitNetwork.App.EvmKeeper.GetCoinbaseAddress(
+				ctx,
+				sdk.ConsAddress(proposerAddress),
+			)
+
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(valOpAddr, coinbase)
+				suite.Require().Equal(proposerAddressHex, coinbase)
 			} else {
 				suite.Require().Error(err)
 			}
