@@ -52,7 +52,8 @@ class TestParseChangelog:
                     },
                     1912: {"description": "Add Stride outpost interface and ABI."},
                     2104: {
-                        "description": "Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types."
+                        "description":
+                            "Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types."
                     },
                     701: {"description": "Rename Go module to `evmos/evmos`."},
                 },

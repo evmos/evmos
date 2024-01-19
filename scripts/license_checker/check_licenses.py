@@ -13,8 +13,7 @@ import sys
 from typing import Dict, List
 
 # Check all Go or Protobuf files, that are neither generated nor test files.
-FILTER: re.Pattern = re.compile(
-    r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
+FILTER: re.Pattern = re.compile(r"^((?!(_test|\.pb|\.pb\.gw)\.go$).)*\.(go|proto)$")
 
 # List of files with a LGPL3 license.
 EXEMPT_FILES: List[str] = [
@@ -33,12 +32,12 @@ IGNORED_FOLDERS: List[str] = [
 
 LGPL3_LICENSE = [
     "// Copyright Tharsis Labs Ltd.(Evmos)\n",
-    "// SPDX-License-Identifier:LGPL-3.0-only\n"
+    "// SPDX-License-Identifier:LGPL-3.0-only\n",
 ]
 
 ENCL_LICENSE = [
     "// Copyright Tharsis Labs Ltd.(Evmos)\n",
-    "// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)\n"
+    "// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)\n",
 ]
 
 
@@ -73,8 +72,7 @@ def check_licenses_in_path(
             lgpl3 = check_if_in_exempt_files(full_path)
             checked_license = LGPL3_LICENSE if lgpl3 else ENCL_LICENSE
 
-            found = check_license_in_file(
-                os.path.join(root, file), checked_license)
+            found = check_license_in_file(os.path.join(root, file), checked_license)
             if found is True:
                 n_files_with += 1
                 if lgpl3:
