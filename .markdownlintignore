@@ -1,3 +1,4 @@
 CHANGELOG.md
 docs/protocol/proto-docs.md
 docs/node_modules
+scripts/changelog_checker/testdata
