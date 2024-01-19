@@ -14,7 +14,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
@@ -186,7 +186,7 @@ func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
 	testCases := []struct {
 		name               string
 		data               []byte
-		accessList         ethtypes.AccessList
+		accessList         gethtypes.AccessList
 		height             int64
 		isContractCreation bool
 		noError            bool
@@ -222,7 +222,7 @@ func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
 		{
 			"no data, one accesslist, not contract creation, not homestead, not istanbul",
 			nil,
-			[]ethtypes.AccessTuple{
+			[]gethtypes.AccessTuple{
 				{},
 			},
 			1,
@@ -233,7 +233,7 @@ func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
 		{
 			"no data, one accesslist with one storageKey, not contract creation, not homestead, not istanbul",
 			nil,
-			[]ethtypes.AccessTuple{
+			[]gethtypes.AccessTuple{
 				{StorageKeys: make([]common.Hash, 1)},
 			},
 			1,
@@ -271,7 +271,7 @@ func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
 			)
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
-			signer := ethtypes.LatestSignerForChainID(unitNetwork.App.EvmKeeper.ChainID())
+			signer := gethtypes.LatestSignerForChainID(unitNetwork.App.EvmKeeper.ChainID())
 
 			ctx := unitNetwork.GetContext().WithBlockHeight(tc.height)
 
@@ -285,7 +285,7 @@ func (suite *EvmKeeperTestSuite) TestGetEthIntrinsicGas() {
 				ethCfg,
 				krSigner,
 				signer,
-				ethtypes.AccessListTxType,
+				gethtypes.AccessListTxType,
 				tc.data,
 				tc.accessList,
 			)
@@ -440,7 +440,7 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 
 			baseFeeResp, err := grpcHandler.GetBaseFee()
 			suite.Require().NoError(err)
-			signer := ethtypes.LatestSignerForChainID(
+			signer := gethtypes.LatestSignerForChainID(
 				unitNetwork.GetEIP155ChainID(),
 			)
 
@@ -566,24 +566,16 @@ func (suite *EvmKeeperTestSuite) TestApplyMessage() {
 	suite.Require().NoError(err)
 
 	// Generate a transfer tx message
+	sender := keyring.GetKey(0)
 	recipient := keyring.GetAddr(1)
 	transferArgs := types.EvmTxArgs{
 		To:     &recipient,
 		Amount: big.NewInt(100),
 	}
-	signedTx, err := txFactory.GenerateSignedEthTx(
-		keyring.GetPrivKey(0),
+	coreMsg, err := txFactory.GenerateGethCoreMsg(
+		sender.Priv,
 		transferArgs,
 	)
-	suite.Require().NoError(err)
-	msg := signedTx.GetMsgs()[0].(*types.MsgEthereumTx)
-
-	baseFeeResp, err := grpcHandler.GetBaseFee()
-	suite.Require().NoError(err)
-	signer := ethtypes.LatestSignerForChainID(
-		unitNetwork.App.EvmKeeper.ChainID(),
-	)
-	coreMsg, err := msg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
 	suite.Require().NoError(err)
 
 	tracer := unitNetwork.App.EvmKeeper.Tracer(
@@ -612,7 +604,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 		expectedGasUsed uint64
 		config          *statedb.EVMConfig
 		keeperParams    types.Params
-		signer          ethtypes.Signer
+		signer          gethtypes.Signer
 		vmdb            *statedb.StateDB
 		txConfig        statedb.TxConfig
 		chainCfg        *params.ChainConfig
@@ -635,7 +627,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 					chainCfg,
 					krSigner,
 					signer,
-					ethtypes.AccessListTxType,
+					gethtypes.AccessListTxType,
 					nil,
 					nil,
 				)
@@ -656,7 +648,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 					chainCfg,
 					krSigner,
 					signer,
-					ethtypes.AccessListTxType,
+					gethtypes.AccessListTxType,
 					nil,
 					nil,
 				)
@@ -685,7 +677,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 					chainCfg,
 					krSigner,
 					signer,
-					ethtypes.AccessListTxType,
+					gethtypes.AccessListTxType,
 					nil,
 					nil,
 				)
@@ -710,7 +702,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 
 			keeperParams = suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
 			chainCfg = keeperParams.ChainConfig.EthereumConfig(suite.network.App.EvmKeeper.ChainID())
-			signer = ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
+			signer = gethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
 			vmdb = suite.StateDB()
 			txConfig = suite.network.App.EvmKeeper.TxConfig(suite.network.GetContext(), common.Hash{})
 
@@ -729,25 +721,25 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 	}
 }
 
-func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer ethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
+func (suite *KeeperTestSuite) createContractGethMsg(nonce uint64, signer gethtypes.Signer, cfg *params.ChainConfig, gasPrice *big.Int) (core.Message, error) {
 	ethMsg, err := suite.createContractMsgTx(nonce, signer, gasPrice)
 	if err != nil {
 		return nil, err
 	}
 
-	msgSigner := ethtypes.MakeSigner(cfg, big.NewInt(suite.network.GetContext().BlockHeight()))
+	msgSigner := gethtypes.MakeSigner(cfg, big.NewInt(suite.network.GetContext().BlockHeight()))
 	return ethMsg.AsMessage(msgSigner, nil)
 }
 
-func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer ethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
-	contractCreateTx := &ethtypes.AccessListTx{
+func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer gethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
+	contractCreateTx := &gethtypes.AccessListTx{
 		GasPrice: gasPrice,
 		Gas:      params.TxGasContractCreation,
 		To:       nil,
 		Data:     []byte("contract_data"),
 		Nonce:    nonce,
 	}
-	ethTx := ethtypes.NewTx(contractCreateTx)
+	ethTx := gethtypes.NewTx(contractCreateTx)
 	ethMsg := &types.MsgEthereumTx{}
 	err := ethMsg.FromEthereumTx(ethTx)
 	suite.Require().NoError(err)

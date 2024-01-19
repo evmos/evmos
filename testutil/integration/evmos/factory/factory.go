@@ -18,6 +18,8 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core"
+	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v16/app"
 	"github.com/evmos/evmos/v16/precompiles/testutil"
@@ -25,7 +27,6 @@ import (
 	commonfactory "github.com/evmos/evmos/v16/testutil/integration/common/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v16/types"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
@@ -43,6 +44,10 @@ type TxFactory interface {
 	DeployContract(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, deploymentData ContractDeploymentData) (common.Address, error)
 	// ExecuteContractCall executes a contract call with the provided private key
 	ExecuteContractCall(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs, callArgs CallArgs) (abcitypes.ExecTxResult, error)
+	// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
+	GenerateMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
+	// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
+	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
 	// ExecuteEthTx builds, signs and broadcasts an Ethereum tx with the provided private key and txArgs.
@@ -79,7 +84,7 @@ func New(
 
 // GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error) {
-	msgEthereumTx, err := tf.createMsgEthereumTx(privKey, txArgs)
+	msgEthereumTx, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
@@ -229,9 +234,9 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 	return gas, nil
 }
 
-// createMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
+// GenerateMsgEthereumTx creates a new MsgEthereumTx with the provided arguments.
 // If any of the arguments are not provided, they will be populated with default values.
-func (tf *IntegrationTxFactory) createMsgEthereumTx(
+func (tf *IntegrationTxFactory) GenerateMsgEthereumTx(
 	privKey cryptotypes.PrivKey,
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.MsgEthereumTx, error) {
@@ -246,6 +251,31 @@ func (tf *IntegrationTxFactory) createMsgEthereumTx(
 	return msg, nil
 }
 
+// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
+func (tf *IntegrationTxFactory) GenerateGethCoreMsg(
+	privKey cryptotypes.PrivKey,
+	txArgs evmtypes.EvmTxArgs,
+) (core.Message, error) {
+	msg, err := tf.GenerateMsgEthereumTx(privKey, txArgs)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to generate ethereum tx")
+	}
+
+	signedMsg, err := signMsgEthereumTx(msg, privKey, tf.network.GetChainID())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
+	}
+
+	baseFeeResp, err := tf.grpcHandler.GetBaseFee()
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to get base fee")
+	}
+	signer := gethtypes.LatestSignerForChainID(
+		tf.network.GetEIP155ChainID(),
+	)
+	return signedMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
+}
+
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.
 // If no GasLimit is present it will estimate the gas needed for the transaction.
 func (tf *IntegrationTxFactory) populateEvmTxArgs(
@@ -253,11 +283,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
 	if txArgs.ChainID == nil {
-		ethChainID, err := types.ParseChainID(tf.network.GetChainID())
-		if err != nil {
-			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to parse chain id: %v", tf.network.GetChainID())
-		}
-		txArgs.ChainID = ethChainID
+		txArgs.ChainID = tf.network.GetEIP155ChainID()
 	}
 
 	if txArgs.Nonce == 0 {
