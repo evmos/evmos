@@ -60,14 +60,12 @@ def get_allowed_categories() -> List[str]:
         "types",
         "utils",
         "upgrade",
-
         # third party modules
         "bank",
         "distribution",
         "gov",
         "ics20",
         "staking",
-
         # outdated modules (we have to keep them since they're in the changelog)
         "claims",
         "consensus",
@@ -141,9 +139,9 @@ ALLOWED_DUPLICATES = [
 KNOWN_EXCEPTIONS = [
     "- (vesting) Refactor vesting flow.",
     "- (vesting) Fix vesting bug.",
-    "- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456" +
-    ") Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13",
-    ]
+    "- (vesting) [GHSA-2q3r-p2m3-898g](https://github.com/evmos/evmos/commit/39b750cdaf1d69158ab93da85bd43ae4a7da1456"
+    + ") Apply ClawbackVestingAccount Barberry patch & Bump SDK to v0.46.13",
+]
 
 # The legacy major version at which to stop the checking.
 LEGACY_VERSION: int = 2

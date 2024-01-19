@@ -18,8 +18,8 @@ class TestEntry:
     """
 
     example = (
-            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) " +
-            "Add `ClaimRewards` custom transaction."
+        "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) "
+        + "Add `ClaimRewards` custom transaction."
     )
 
     def test_pass(self):
@@ -31,8 +31,8 @@ class TestEntry:
 
     def test_pass_includes_link(self):
         example = (
-            "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) " +
-            "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
+            "- (evm) [#1851](https://github.com/evmos/evmos/pull/1851) "
+            + "Enable [EIP 3855](https://eips.ethereum.org/EIPS/eip-3855) (`PUSH0` opcode) during upgrade."
         )
         entry = Entry(example)
         ok = entry.parse()
@@ -49,25 +49,27 @@ class TestEntry:
         entry = Entry(example)
         ok = entry.parse()
         assert entry.problems == [
-            'There should be no backslash in front of the # in the PR link'
+            "There should be no backslash in front of the # in the PR link"
         ]
         assert ok is False
-        assert entry.fixed == example.replace(r'\#', "#")
+        assert entry.fixed == example.replace(r"\#", "#")
 
     def test_entry_wrong_pr_link_and_missing_dot(self):
         entry = Entry(
-            '- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948) ' +
-            'Add `ClaimRewards` custom transaction'
+            "- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1948) "
+            + "Add `ClaimRewards` custom transaction"
         )
         assert entry.parse() is False
         assert entry.fixed == self.example
         assert entry.problems == [
             'PR link is not matching PR number 1949: "https://github.com/evmos/evmos/pull/1948"',
-            'PR description should end with a dot: "Add `ClaimRewards` custom transaction"'
+            'PR description should end with a dot: "Add `ClaimRewards` custom transaction"',
         ]
 
     def test_malformed_entry(self):
-        malformed_example = "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"
+        malformed_example = (
+            "- (distribution-precompile) [#194tps://github.com/evmos/evmos/pull/1"
+        )
         entry = Entry(malformed_example)
         assert entry.parse() is False
         assert entry.fixed == malformed_example
@@ -138,7 +140,9 @@ class TestCheckDescription:
         ]
 
     def test_start_with_codeblock(self):
-        fixed, problems = check_description("```\nAdd `ClaimRewards` custom transaction.")
+        fixed, problems = check_description(
+            "```\nAdd `ClaimRewards` custom transaction."
+        )
         assert fixed == "```\nAdd `ClaimRewards` custom transaction."
         assert problems == []
 
@@ -146,17 +150,17 @@ class TestCheckDescription:
 class TestCheckWhitespace:
     def test_missing_whitespace(self):
         assert check_whitespace(["", " ", "", " "]) == [
-            'There should be exactly one space between the leading dash and the category'
+            "There should be exactly one space between the leading dash and the category"
         ]
 
     def test_multiple_spaces(self):
         assert check_whitespace([" ", " ", "", "  "]) == [
-            'There should be exactly one space between the PR link and the description'
+            "There should be exactly one space between the PR link and the description"
         ]
 
     def test_space_in_link(self):
         assert check_whitespace([" ", " ", " ", " "]) == [
-            'There should be no whitespace inside of the markdown link'
+            "There should be no whitespace inside of the markdown link"
         ]
 
 
@@ -174,7 +178,9 @@ class TestCheckSpelling:
         assert problems == ['"API" should be used instead of "APi"']
 
     def test_multiple_problems(self):
-        found, fixed, problems = check_spelling("Fix Stride Outpost and AbI.", ALLOWED_SPELLINGS)
+        found, fixed, problems = check_spelling(
+            "Fix Stride Outpost and AbI.", ALLOWED_SPELLINGS
+        )
         assert found is True
         assert fixed == "Fix Stride outpost and ABI."
         assert problems == [
@@ -195,7 +201,9 @@ class TestCheckSpelling:
         assert problems == []
 
     def test_erc_20(self):
-        found, fixed, problems = check_spelling("Add ERC20 contract.", ALLOWED_SPELLINGS)
+        found, fixed, problems = check_spelling(
+            "Add ERC20 contract.", ALLOWED_SPELLINGS
+        )
         assert found is True
         assert fixed == "Add ERC-20 contract."
         assert problems == ['"ERC-20" should be used instead of "ERC20"']
@@ -212,4 +220,10 @@ class TestGetMatch:
         assert get_match(re.compile("abi", re.IGNORECASE), "FixAbI in word.") == ""
 
     def test_fail_in_link(self):
-        assert get_match(re.compile("abi", re.IGNORECASE), "Fix [abcdef](https://example/aBi.com).") == ""
+        assert (
+            get_match(
+                re.compile("abi", re.IGNORECASE),
+                "Fix [abcdef](https://example/aBi.com).",
+            )
+            == ""
+        )

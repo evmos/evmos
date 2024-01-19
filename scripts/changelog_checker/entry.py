@@ -12,9 +12,9 @@ from config import ALLOWED_CATEGORIES, ALLOWED_SPELLINGS, KNOWN_EXCEPTIONS
 
 # Allowed entry pattern: `- (category) [#PR](link) - description`
 ENTRY_PATTERN = re.compile(
-    r'^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)' +
-    r'(?P<ws2>\s*)\[(?P<bs>\\)?#(?P<pr>\d+)](?P<ws3>\s*)\((?P<link>[^)]*)\)' +
-    r'(?P<ws4>\s*)(?P<desc>.+)$',
+    r"^-(?P<ws1>\s*)\((?P<category>[a-zA-Z0-9\-]+)\)"
+    + r"(?P<ws2>\s*)\[(?P<bs>\\)?#(?P<pr>\d+)](?P<ws3>\s*)\((?P<link>[^)]*)\)"
+    + r"(?P<ws4>\s*)(?P<desc>.+)$",
 )
 
 
@@ -67,7 +67,9 @@ class Entry:
         ]
 
         if self.backslash:
-            problems.append("There should be no backslash in front of the # in the PR link")
+            problems.append(
+                "There should be no backslash in front of the # in the PR link"
+            )
 
         ws_problems = check_whitespace(self.whitespaces)
         if ws_problems:
@@ -85,7 +87,7 @@ class Entry:
         if description_problems:
             problems.extend(description_problems)
 
-        self.fixed = f'- ({fixed_cat}) [#{self.pr_number}]({fixed_link}) {fixed_desc}'
+        self.fixed = f"- ({fixed_cat}) [#{self.pr_number}]({fixed_link}) {fixed_desc}"
         self.problems = problems
 
         return problems == []
@@ -102,16 +104,22 @@ def check_whitespace(whitespaces: List[str]) -> List[str]:
     problems: List[str] = []
 
     if whitespaces[0] != " ":
-        problems.append('There should be exactly one space between the leading dash and the category')
+        problems.append(
+            "There should be exactly one space between the leading dash and the category"
+        )
 
     if whitespaces[1] != " ":
-        problems.append('There should be exactly one space between the category and PR link')
+        problems.append(
+            "There should be exactly one space between the category and PR link"
+        )
 
     if whitespaces[2] != "":
-        problems.append('There should be no whitespace inside of the markdown link')
+        problems.append("There should be no whitespace inside of the markdown link")
 
     if whitespaces[3] != " ":
-        problems.append('There should be exactly one space between the PR link and the description')
+        problems.append(
+            "There should be exactly one space between the PR link and the description"
+        )
 
     return problems
 
@@ -177,11 +185,9 @@ def check_description(description: str) -> Tuple[str, List[str]]:
             f'PR description should start with capital letter: "{description}"'
         )
 
-    if description[-1] != '.':
-        problems.append(
-            f'PR description should end with a dot: "{description}"'
-        )
-        fixed += '.'
+    if description[-1] != ".":
+        problems.append(f'PR description should end with a dot: "{description}"')
+        fixed += "."
 
     _, fixed, abbreviation_problems = check_spelling(fixed, ALLOWED_SPELLINGS)
     if abbreviation_problems:
@@ -190,7 +196,9 @@ def check_description(description: str) -> Tuple[str, List[str]]:
     return fixed, problems
 
 
-def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) -> Tuple[bool, str, List[str]]:
+def check_spelling(
+    description: str, expected_spellings: Dict[str, re.Pattern]
+) -> Tuple[bool, str, List[str]]:
     """
     Checks some common spelling requirements.
     Any matches that occur inside of code blocks, are part of a link or inside a word are ignored.
@@ -209,9 +217,7 @@ def check_spelling(description: str, expected_spellings: Dict[str, re.Pattern]) 
         match = get_match(pattern, description)
         if match:
             if match != spelling:
-                problems.append(
-                    f'"{spelling}" should be used instead of "{match}"'
-                )
+                problems.append(f'"{spelling}" should be used instead of "{match}"')
                 fixed = pattern.sub(spelling, fixed)
             found = True
 
@@ -228,12 +234,16 @@ def get_match(pattern: re.Pattern, text: str) -> str:
     :return: the first match of the pattern in the text
     """
 
-    codeblocks_pattern = re.compile(r'`[^`]*(' + pattern.pattern + r')[^`]*`', pattern.flags)
+    codeblocks_pattern = re.compile(
+        r"`[^`]*(" + pattern.pattern + r")[^`]*`", pattern.flags
+    )
     match = codeblocks_pattern.search(text)
     if match:
-        return ''
+        return ""
 
-    isolated_word_pattern = re.compile(r'(^|\s)(' + pattern.pattern + r')(?=$|[\s.])', pattern.flags)
+    isolated_word_pattern = re.compile(
+        r"(^|\s)(" + pattern.pattern + r")(?=$|[\s.])", pattern.flags
+    )
     match = isolated_word_pattern.search(text)
     if match:
         return match.group(2)

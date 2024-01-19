@@ -11,7 +11,7 @@ from entry import check_spelling
 
 # Allowed change type pattern, e.g. `### Bug Fixes`
 CHANGE_TYPE_PATTERN = re.compile(
-    r'^### (?P<type>[a-zA-Z0-9\- ]+)\s*$',
+    r"^### (?P<type>[a-zA-Z0-9\- ]+)\s*$",
 )
 
 
@@ -42,7 +42,9 @@ class ChangeType:
 
         self.type = match.group("type")
 
-        type_found, fixed_type, spelling_problems = check_spelling(self.type, ALLOWED_CHANGE_TYPES)
+        type_found, fixed_type, spelling_problems = check_spelling(
+            self.type, ALLOWED_CHANGE_TYPES
+        )
         if not type_found:
             problems.append(f'"{self.type}" is not a valid change type')
         if spelling_problems:

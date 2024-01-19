@@ -47,8 +47,8 @@ class Changelog:
         if not os.path.exists(self.filename):
             raise FileNotFoundError(f'Changelog file "{self.filename}" not found')
 
-        with open(self.filename, 'r') as file:
-            self.contents = file.read().split('\n')
+        with open(self.filename, "r") as file:
+            self.contents = file.read().split("\n")
 
     def parse(self, fix: bool = False) -> bool:
         """
@@ -64,23 +64,25 @@ class Changelog:
         seen_prs: List[int] = []
 
         if fix:
-            f = open(self.filename, 'w')
+            f = open(self.filename, "w")
 
         try:
             for line in self.contents:
                 if is_legacy:
                     if fix:
-                        write(f, line + '\n')
+                        write(f, line + "\n")
                     continue
 
                 # Check for Header 2 (##) to identify releases
                 stripped_line = line.strip()
-                if stripped_line[:3] == '## ':
+                if stripped_line[:3] == "## ":
                     release = Release(line)
                     release.parse()
                     current_release = release.version
                     if current_release in self.releases:
-                        self.problems.append(f'Release "{current_release}" is duplicated in the changelog')
+                        self.problems.append(
+                            f'Release "{current_release}" is duplicated in the changelog'
+                        )
                     else:
                         self.releases[current_release] = {}
                     self.problems.extend(release.problems)
@@ -89,30 +91,32 @@ class Changelog:
                         is_legacy = True
 
                     if fix:
-                        write(f, release.fixed + '\n')
+                        write(f, release.fixed + "\n")
 
                     continue
 
                 # Check for Header 3 (###) to identify change types
-                if stripped_line[:4] == '### ':
+                if stripped_line[:4] == "### ":
                     change_type = ChangeType(line)
                     change_type.parse()
                     current_category = change_type.type
                     if current_category in self.releases[current_release]:
-                        self.problems.append(f'Change type "{current_category}" is duplicated in {current_release}')
+                        self.problems.append(
+                            f'Change type "{current_category}" is duplicated in {current_release}'
+                        )
                     else:
                         self.releases[current_release][current_category] = {}
                     self.problems.extend(change_type.problems)
 
                     if fix:
-                        write(f, change_type.fixed + '\n')
+                        write(f, change_type.fixed + "\n")
 
                     continue
 
                 # Check for individual entries
-                if stripped_line[:2] != '- ':
+                if stripped_line[:2] != "- ":
                     if fix:
-                        write(f, line + '\n')
+                        write(f, line + "\n")
 
                     continue
 
@@ -120,14 +124,19 @@ class Changelog:
                 entry.parse()
                 self.problems.extend(entry.problems)
                 if fix:
-                    write(f, entry.fixed + '\n')
+                    write(f, entry.fixed + "\n")
 
                 if not current_category:
                     raise ValueError(f'Entry "{line}" is missing a category')
 
                 if entry.pr_number in seen_prs:
-                    if not entry.is_exception and entry.pr_number not in ALLOWED_DUPLICATES:
-                        self.problems.append(f'PR #{entry.pr_number} is duplicated in the changelog')
+                    if (
+                        not entry.is_exception
+                        and entry.pr_number not in ALLOWED_DUPLICATES
+                    ):
+                        self.problems.append(
+                            f"PR #{entry.pr_number} is duplicated in the changelog"
+                        )
                 else:
                     seen_prs.append(entry.pr_number)
 
@@ -145,13 +154,15 @@ if __name__ == "__main__":
     changelog = Changelog(sys.argv[1])
 
     fix_mode = False
-    if len(sys.argv) > 2 and sys.argv[2] == '--fix':
+    if len(sys.argv) > 2 and sys.argv[2] == "--fix":
         fix_mode = True
 
     passed = changelog.parse(fix=fix_mode)
     if passed:
         print(" -> Changelog is valid.")
     else:
-        print(f'Changelog file is not valid - check the following {len(changelog.problems)} problems:\n')
-        print('\n'.join(changelog.problems))
+        print(
+            f"Changelog file is not valid - check the following {len(changelog.problems)} problems:\n"
+        )
+        print("\n".join(changelog.problems))
         sys.exit(1)

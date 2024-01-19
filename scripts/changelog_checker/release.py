@@ -7,14 +7,14 @@ import re
 from typing import List, Tuple
 
 # Allowed unreleased pattern
-UNRELEASED_PATTERN = re.compile(r'^## Unreleased$')
+UNRELEASED_PATTERN = re.compile(r"^## Unreleased$")
 
 # Unreleased version
 UNRELEASED_VERSION = "Unreleased"
 
 # Allowed release pattern: [vX.Y.Z(-rcN)](LINK) - (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
-    r'^## \[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)](?P<link>\(.*\))? - (?P<date>\d{4}-\d{2}-\d{2})$',
+    r"^## \[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)](?P<link>\(.*\))? - (?P<date>\d{4}-\d{2}-\d{2})$",
 )
 
 
@@ -58,7 +58,7 @@ class Release:
         if link_problems:
             problems.extend(link_problems)
 
-        fixed = f'## [{self.version}]{fixed_link} - {date}'
+        fixed = f"## [{self.version}]{fixed_link} - {date}"
         self.fixed = fixed
         self.problems = problems
 
@@ -68,7 +68,9 @@ class Release:
         if self.version == UNRELEASED_VERSION:
             return False
 
-        version_match = re.match(r'^v(?P<major>\d+)\.(\d+)\.(\d+)(-rc\d+)?$', self.version)
+        version_match = re.match(
+            r"^v(?P<major>\d+)\.(\d+)\.(\d+)(-rc\d+)?$", self.version
+        )
         if not version_match:
             raise ValueError(f'Invalid version "{self.version}"')
 
@@ -88,7 +90,7 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
     base_url: str = "https://github.com/evmos/evmos/releases/tag/"
     problems: List[str] = []
     # NOTE: the fixed link is the same for all problems
-    fixed: str = f'({base_url}{version})'
+    fixed: str = f"({base_url}{version})"
 
     if link == "" or link is None:
         problems.append(f'Release link is missing for "{version}"')
@@ -99,6 +101,8 @@ def check_link(link: str, version: str) -> Tuple[str, List[str]]:
         problems.append(f'Release link should point to an Evmos release: "{link}"')
 
     if version not in link:
-        problems.append(f'Release header version "{version}" does not match version in link "{link}"')
+        problems.append(
+            f'Release header version "{version}" does not match version in link "{link}"'
+        )
 
     return fixed, problems
