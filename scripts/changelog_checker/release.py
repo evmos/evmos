@@ -9,6 +9,9 @@ from typing import List, Tuple
 # Allowed unreleased pattern
 UNRELEASED_PATTERN = re.compile(r'^## Unreleased$')
 
+# Unreleased version
+UNRELEASED_VERSION = "Unreleased"
+
 # Allowed release pattern: [vX.Y.Z(-rcN)](LINK) - (YYYY-MM-DD)
 RELEASE_PATTERN = re.compile(
     r'^## \[(?P<version>v\d+\.\d+\.\d+(-rc\d+)?)](?P<link>\(.*\))? - (?P<date>\d{4}-\d{2}-\d{2})$',
@@ -38,7 +41,7 @@ class Release:
         self.fixed: str = self.line
 
         if UNRELEASED_PATTERN.match(self.line):
-            self.version = "Unreleased"
+            self.version = UNRELEASED_VERSION
             return True
 
         release_match = RELEASE_PATTERN.match(self.line)
@@ -59,6 +62,17 @@ class Release:
         self.problems = problems
 
         return problems == []
+
+    def __le__(self, other: int):
+        if self.version == UNRELEASED_VERSION:
+            return False
+
+        version_match = re.match(r'^v(?P<major>\d+)\.(\d+)\.(\d+)(-rc\d+)?$', self.version)
+        if not version_match:
+            raise ValueError(f'Invalid version "{self.version}"')
+
+        major = int(version_match.group("major"))
+        return major <= other
 
 
 def check_link(link: str, version: str) -> Tuple[str, List[str]]:

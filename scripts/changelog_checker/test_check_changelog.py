@@ -32,6 +32,7 @@ class TestParseChangelog:
                     1922: {'description': 'Add `secp256r1` curve precompile.'},
                     1949: {'description': 'Add `ClaimRewards` custom transaction.'},
                     2218: {'description': 'Use correct version of proto dependencies to generate swagger.'},
+                    1687: {'description': 'Bump Evmos version to v14.'},
                 },
                 'API Breaking': {
                     2015: {'description': 'Rename `inflation` module to `inflation/v1`.'},
@@ -58,6 +59,7 @@ class TestParseChangelog:
                     555: {'description': '`v4.0.0` upgrade logic.'},
                 },
             },
+            'v2.0.0': {},
         }
 
         changelog = Changelog(os.path.join(SCRIPT_DIR, "testdata", "changelog_ok.md"))
@@ -81,6 +83,7 @@ class TestParseChangelog:
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
             'PR #1862 is duplicated in the changelog',
+            'Malformed entry: "- malformed entry in changelog"',
         ]
 
     def test_fix(self, create_tmp_copy):
@@ -98,6 +101,7 @@ class TestParseChangelog:
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
             'PR #1862 is duplicated in the changelog',
+            'Malformed entry: "- malformed entry in changelog"',
         ]
 
         # Here we parse the fixed changelog again and check that the automatic fixes were applied.
@@ -110,6 +114,7 @@ class TestParseChangelog:
             'Release "v15.0.0" is duplicated in the changelog',
             'Change type "API Breaking" is duplicated in v15.0.0',
             'PR #1862 is duplicated in the changelog',
+            'Malformed entry: "- malformed entry in changelog"',
         ]
 
     def test_parse_changelog_nonexistent_file(self):

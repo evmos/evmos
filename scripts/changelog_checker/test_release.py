@@ -8,6 +8,10 @@ class TestRelease:
         assert release.version == "v15.0.2"
         assert release.problems == []
 
+        # Check version comparisons
+        assert (release <= 15) is True
+        assert (release <= 14) is False
+
     def test_pass_unreleased(self):
         release = Release("## Unreleased")
         assert release.parse() is True

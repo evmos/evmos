@@ -13,8 +13,9 @@ import os
 import sys
 from typing import Dict, List
 
-from entry import Entry
 from change_type import ChangeType
+from config import ALLOWED_DUPLICATES, LEGACY_VERSION
+from entry import Entry
 from release import Release
 
 
@@ -46,6 +47,7 @@ class Changelog:
         current_release = None
         current_category = None
         f = None
+        is_legacy: bool = False
         seen_prs: List[int] = []
 
         if fix:
@@ -53,6 +55,11 @@ class Changelog:
 
         try:
             for line in self.contents.split('\n'):
+                if is_legacy:
+                    if fix:
+                        f.write(line + '\n')
+                    continue
+
                 # Check for Header 2 (##) to identify releases
                 stripped_line = line.strip()
                 if stripped_line[:3] == '## ':
@@ -64,6 +71,9 @@ class Changelog:
                     else:
                         self.releases[current_release] = {}
                     self.problems.extend(release.problems)
+
+                    if release <= LEGACY_VERSION:
+                        is_legacy = True
 
                     if fix:
                         f.write(release.fixed + '\n')
@@ -90,7 +100,6 @@ class Changelog:
                         f.write(line + '\n')
                     continue
 
-                # TODO: order by extending the types by entries and then process afterwards within each release to have sorted output.
                 entry = Entry(line)
                 entry.parse()
                 self.problems.extend(entry.problems)
@@ -101,7 +110,7 @@ class Changelog:
                     raise ValueError(f'Entry "{line}" is missing a category')
 
                 if entry.pr_number in seen_prs:
-                    if entry.pr_number != 0:
+                    if not entry.is_exception and entry.pr_number not in ALLOWED_DUPLICATES:
                         self.problems.append(f'PR #{entry.pr_number} is duplicated in the changelog')
                 else:
                     seen_prs.append(entry.pr_number)
@@ -119,11 +128,11 @@ class Changelog:
 if __name__ == "__main__":
     changelog = Changelog(sys.argv[1])
 
-    fix = False
+    fix_mode = False
     if len(sys.argv) > 2 and sys.argv[2] == '--fix':
-        fix = True
+        fix_mode = True
 
-    passed = changelog.parse(fix=fix)
+    passed = changelog.parse(fix=fix_mode)
     if not passed:
         print(f'Changelog file is not valid - check the following {len(changelog.problems)} problems:\n')
         print('\n'.join(changelog.problems))

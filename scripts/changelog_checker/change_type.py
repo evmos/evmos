@@ -6,16 +6,8 @@ given type of changes like improvements or bug fixes.
 import re
 from typing import List
 
+from config import ALLOWED_CHANGE_TYPES
 from entry import check_spelling
-
-# Collection of allowed change types and the matching patterns.
-ALLOWED_SPELLING = {
-    "API Breaking": re.compile(r"api\s*breaking", re.IGNORECASE),
-    "Bug Fixes": re.compile(r"bug\s*fixes", re.IGNORECASE),
-    "Features": re.compile("features", re.IGNORECASE),
-    "Improvements": re.compile("improvements", re.IGNORECASE),
-    "State Machine Breaking": re.compile(r"state\s*machine\s*breaking", re.IGNORECASE),
-}
 
 # Allowed change type pattern, e.g. `### Bug Fixes`
 CHANGE_TYPE_PATTERN = re.compile(
@@ -50,7 +42,7 @@ class ChangeType:
 
         self.type = match.group("type")
 
-        type_found, fixed_type, spelling_problems = check_spelling(self.type, ALLOWED_SPELLING)
+        type_found, fixed_type, spelling_problems = check_spelling(self.type, ALLOWED_CHANGE_TYPES)
         if not type_found:
             problems.append(f'"{self.type}" is not a valid change type')
         if spelling_problems:
