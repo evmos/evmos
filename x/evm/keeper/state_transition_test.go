@@ -17,14 +17,21 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/keeper"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
-func (suite *KeeperTestSuite) TestGetHashFn() {
-	header := suite.network.GetContext().BlockHeader()
+func (suite *EvmKeeperTestSuite) TestGetHashFn() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	header := unitNetwork.GetContext().BlockHeader()
 	h, _ := cmttypes.HeaderFromProto(&header)
 	hash := h.Hash()
 
@@ -36,27 +43,29 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 	}{
 		{
 			"case 1.1: context hash cached",
-			uint64(suite.network.GetContext().BlockHeight()),
+			uint64(unitNetwork.GetContext().BlockHeight()),
 			func() sdk.Context {
-				return suite.network.GetContext().WithHeaderHash(tmhash.Sum([]byte("header")))
+				return unitNetwork.GetContext().WithHeaderHash(
+					tmhash.Sum([]byte("header")),
+				)
 			},
 			common.BytesToHash(tmhash.Sum([]byte("header"))),
 		},
 		{
 			"case 1.2: failed to cast Tendermint header",
-			uint64(suite.network.GetContext().BlockHeight()),
+			uint64(unitNetwork.GetContext().BlockHeight()),
 			func() sdk.Context {
 				header := tmproto.Header{}
-				header.Height = suite.network.GetContext().BlockHeight()
-				return suite.network.GetContext().WithBlockHeader(header)
+				header.Height = unitNetwork.GetContext().BlockHeight()
+				return unitNetwork.GetContext().WithBlockHeader(header)
 			},
 			common.Hash{},
 		},
 		{
 			"case 1.3: hash calculated from Tendermint header",
-			uint64(suite.network.GetContext().BlockHeight()),
+			uint64(unitNetwork.GetContext().BlockHeight()),
 			func() sdk.Context {
-				return suite.network.GetContext().WithBlockHeader(header)
+				return unitNetwork.GetContext().WithBlockHeader(header)
 			},
 			common.BytesToHash(hash),
 		},
@@ -64,7 +73,7 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 			"case 2.1: height lower than current one, hist info not found",
 			1,
 			func() sdk.Context {
-				return suite.network.GetContext().WithBlockHeight(10)
+				return unitNetwork.GetContext().WithBlockHeight(10)
 			},
 			common.Hash{},
 		},
@@ -72,8 +81,8 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 			"case 2.2: height lower than current one, invalid hist info header",
 			1,
 			func() sdk.Context {
-				suite.network.App.StakingKeeper.SetHistoricalInfo(suite.network.GetContext(), 1, &stakingtypes.HistoricalInfo{})
-				return suite.network.GetContext().WithBlockHeight(10)
+				unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, &stakingtypes.HistoricalInfo{})
+				return unitNetwork.GetContext().WithBlockHeight(10)
 			},
 			common.Hash{},
 		},
@@ -84,27 +93,28 @@ func (suite *KeeperTestSuite) TestGetHashFn() {
 				histInfo := &stakingtypes.HistoricalInfo{
 					Header: header,
 				}
-				suite.network.App.StakingKeeper.SetHistoricalInfo(suite.network.GetContext(), 1, histInfo)
-				return suite.network.GetContext().WithBlockHeight(10)
+				unitNetwork.App.StakingKeeper.SetHistoricalInfo(unitNetwork.GetContext(), 1, histInfo)
+				return unitNetwork.GetContext().WithBlockHeight(10)
 			},
 			common.BytesToHash(hash),
 		},
 		{
 			"case 3: height greater than current one",
 			200,
-			func() sdk.Context { return suite.network.GetContext() },
+			func() sdk.Context { return unitNetwork.GetContext() },
 			common.Hash{},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
-
 			ctx := tc.malleate()
 
-			hash := suite.network.App.EvmKeeper.GetHashFn(ctx)(tc.height)
+			hash := unitNetwork.App.EvmKeeper.GetHashFn(ctx)(tc.height)
 			suite.Require().Equal(tc.expHash, hash)
+
+			err := unitNetwork.NextBlock()
+			suite.Require().NoError(err)
 		})
 	}
 }
@@ -525,13 +535,25 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 
 func (suite *KeeperTestSuite) TestEVMConfig() {
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
-	cfg, err := suite.network.App.EvmKeeper.EVMConfig(suite.network.GetContext(), proposerAddress, big.NewInt(9000))
+	eip155ChainID := suite.network.GetEIP155ChainID()
+	cfg, err := suite.network.App.EvmKeeper.EVMConfig(
+		suite.network.GetContext(),
+		proposerAddress,
+		eip155ChainID,
+	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(suite.keyring.GetAddr(0), cfg.CoinBase)
-	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
+
+	validators := suite.network.GetValidators()
+	coinbaseAddressBytes := sdk.ConsAddress(validators[0].OperatorAddress).Bytes()
+	coinbaseAddressHex := common.BytesToAddress(coinbaseAddressBytes)
+	suite.Require().Equal(coinbaseAddressHex, cfg.CoinBase)
+
+	networkChainID := suite.network.GetEIP155ChainID()
+	networkConfig := types.DefaultParams().ChainConfig.EthereumConfig(networkChainID)
+	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 
 func (suite *KeeperTestSuite) TestContractDeployment() {

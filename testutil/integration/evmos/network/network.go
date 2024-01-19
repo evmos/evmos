@@ -27,6 +27,8 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
 	revtypes "github.com/evmos/evmos/v16/x/revenue/v1/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/version"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -183,6 +185,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		ValidatorsHash:     req.NextValidatorsHash,
 		NextValidatorsHash: req.NextValidatorsHash,
 		ProposerAddress:    req.ProposerAddress,
+		Version: tmversion.Consensus{
+			Block: version.BlockProtocol,
+		},
 	}
 	// TODO - this might not be the best way to initilize the context
 	n.ctx = evmosApp.BaseApp.NewContextLegacy(false, header)
