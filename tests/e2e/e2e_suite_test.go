@@ -30,9 +30,8 @@ const (
 
 	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
 	//
-	// TODO: this should not be hardcoded but calculated depending on the used timeout commit and voting period
-	//upgradeHeightDelta = 13
-	upgradeHeightDelta = 2
+	//TODO: this should not be hardcoded but calculated depending on the used timeout commit and voting period
+	upgradeHeightDelta = 15
 
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
@@ -135,9 +134,9 @@ func (s *IntegrationTestSuite) proposeUpgrade(name, target string) {
 	defer cancel()
 
 	// calculate upgrade height for the proposal
-	nodeHeight, err := s.upgradeManager.GetNodeHeight(ctx)
-	s.Require().NoError(err, "can't get block height from running node")
-	s.upgradeManager.UpgradeHeight = uint(nodeHeight + upgradeHeightDelta)
+	upgradeHeight, err := s.upgradeManager.GetUpgradeHeight(ctx, s.upgradeParams.ChainID)
+	s.Require().NoError(err, "can't get upgrade height")
+	s.upgradeManager.UpgradeHeight = upgradeHeight
 
 	// if Evmos is lower than v10.x.x no need to use the legacy proposal
 	currentVersion, err := s.upgradeManager.GetNodeVersion(ctx)
