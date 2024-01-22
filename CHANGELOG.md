@@ -155,6 +155,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (outposts) [#2236](https://github.com/evmos/evmos/pull/2236) Add default timeout timestamp for outpost transactions.
 - (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
 - (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
+- (tests) [#2235](https://github.com/evmos/evmos/pull/2235) Ensure voting has concluded in automated upgrade tests.
 - (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
 - (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
 - (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
