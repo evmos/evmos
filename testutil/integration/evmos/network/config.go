@@ -35,7 +35,9 @@ func DefaultConfig() Config {
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
 		preFundedAccounts: []sdktypes.AccAddress{account},
-		denom:             utils.BaseDenom,
+		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
+		balances: nil,
+		denom:    utils.BaseDenom,
 	}
 }
 
@@ -45,11 +47,8 @@ func DefaultConfig() Config {
 // NOTE: If the balances are set, the pre-funded accounts are ignored.
 func getGenAccountsAndBalances(cfg Config) (genAccounts []authtypes.GenesisAccount, balances []banktypes.Balance) {
 	if len(cfg.balances) > 0 {
-		accounts := make([]sdktypes.AccAddress, 0, len(cfg.balances))
-		for _, balance := range cfg.balances {
-			accounts = append(accounts, balance.GetAddress())
-			balances = append(balances, balance)
-		}
+		balances = cfg.balances
+		accounts := getAccAddrsFromBalances(balances)
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
 		coin := sdktypes.NewCoin(cfg.denom, PrefundedAccountInitialBalance)
