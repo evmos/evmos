@@ -4,18 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/evmos/evmos/v16/app"
-	"github.com/evmos/evmos/v16/encoding"
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
+	"github.com/cosmos/cosmos-sdk/codec"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/evmos/evmos/v16/app"
+	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/tests/e2e/upgrade"
 	"github.com/evmos/evmos/v16/utils"
+	"github.com/stretchr/testify/suite"
 )
 
 const (
