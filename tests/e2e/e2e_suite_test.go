@@ -28,11 +28,6 @@ const (
 	// relatedBuildPath defines the path where the build data is stored
 	relatedBuildPath = "../../build/"
 
-	// upgradeHeightDelta defines the number of blocks after the proposal and the scheduled upgrade
-	//
-	//TODO: this should not be hardcoded but calculated depending on the used timeout commit and voting period
-	upgradeHeightDelta = 15
-
 	// upgradePath defines the relative path from this folder to the upgrade folder
 	upgradePath = "../../app/upgrades"
 
