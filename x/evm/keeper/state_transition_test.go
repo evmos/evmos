@@ -778,7 +778,7 @@ func (suite *EvmKeeperTestSuite) TestApplyMessageWithConfig() {
 }
 
 func (suite *EvmKeeperTestSuite) TestGetProposerAddress() {
-	keyring := testkeyring.New(2)
+	keyring := testkeyring.New(1)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)

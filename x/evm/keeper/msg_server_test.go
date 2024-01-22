@@ -14,6 +14,8 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v16/x/evm/types"
+	gethparams "github.com/ethereum/go-ethereum/params"
+	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 )
 
 func (suite *EvmKeeperTestSuite) TestEthereumTx() {
@@ -139,7 +141,7 @@ func (suite *EvmKeeperTestSuite) TestUpdateParams() {
 func (suite *KeeperTestSuite) createContractMsgTx(nonce uint64, signer gethtypes.Signer, gasPrice *big.Int) (*types.MsgEthereumTx, error) {
 	contractCreateTx := &gethtypes.AccessListTx{
 		GasPrice: gasPrice,
-		Gas:      params.TxGasContractCreation,
+		Gas:      gethparams.TxGasContractCreation,
 		To:       nil,
 		Data:     []byte("contract_data"),
 		Nonce:    nonce,
