@@ -231,6 +231,9 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	s.T().Logf("executing all module queries")
 	s.executeQueries()
 
+	s.T().Logf("executing sample transactions")
+	s.executeTransactions()
+
 	// make sure node produce blocks after upgrade
 	s.T().Logf("height to wait for is %d", int(s.upgradeManager.UpgradeHeight)+blocksAfterUpgrade)
 	// make sure node produces blocks after upgrade
@@ -286,7 +289,7 @@ func (s *IntegrationTestSuite) checkProposalPassed(ctx context.Context) {
 	s.Require().Equal(govtypes.ProposalStatus_PROPOSAL_STATUS_PASSED.String(), proposal.Status.String(), "expected proposal to have passed already")
 }
 
-// executeQueries executes all the module queries
+// executeQueries executes all the module queries to check they are still working after the upgrade.
 func (s *IntegrationTestSuite) executeQueries() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -324,6 +327,40 @@ func (s *IntegrationTestSuite) executeQueries() {
 		s.Require().Empty(errBuf.String())
 	}
 	s.T().Logf("executed all queries successfully")
+}
+
+// executeTransactions executes some sample transactions to check they are still working after the upgrade.
+func (s *IntegrationTestSuite) executeTransactions() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	chainID := utils.TestnetChainID + "-1"
+
+	// send some tokens between accounts to check transactions are still working
+	exec, err := s.upgradeManager.CreateModuleTxExec(upgrade.E2ETxArgs{
+		ModuleName: "bank",
+		SubCommand: "send",
+		Args:       []string{"mykey", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq", "10000000000aevmos"},
+		ChainID:    chainID,
+		From:       "mykey",
+	})
+	s.Require().NoError(err, "failed to create bank send tx command")
+
+	_, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank send tx")
+	s.Require().Empty(errBuf.String())
+
+	// query the balances of the sending and receiving accounts to check the transaction was successful
+	exec, err = s.upgradeManager.CreateExec(
+		[]string{"evmosd", "q", "bank", "balances", "evmos1jcltmuhplrdcwp7stlr4hlhlhgd4htqh3a79sq"},
+		s.upgradeManager.ContainerID(),
+	)
+	s.Require().NoError(err, "failed to create bank balances query command")
+
+	outBuf, errBuf, err := s.upgradeManager.RunExec(ctx, exec)
+	s.Require().NoError(err, "failed to execute bank balances query")
+	s.Require().Empty(errBuf.String())
+	s.Require().Contains(outBuf.String(), "10000000000aevmos")
 }
 
 // TearDownSuite kills the running container, removes the network and mount path
