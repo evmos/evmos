@@ -6,9 +6,7 @@ package upgrade
 import (
 	"bytes"
 	"context"
-	errorsmod "cosmossdk.io/errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"io"
 	"math/big"
 	"net/http"
@@ -18,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	errorsmod "cosmossdk.io/errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 )
