@@ -4,7 +4,10 @@
 package keeper
 
 import (
+	"fmt"
+
 	errorsmod "cosmossdk.io/errors"
+
 	"github.com/armon/go-metrics"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -102,19 +105,23 @@ func (k Keeper) OnRecvPacket(
 		if err := k.RegisterPrecompileForCoin(ctx, coin.Denom, contractAddr); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
+		fmt.Println("case 1")
 		return ack
 
-	// Case 2. native ERC20 token
+	// TODO: Will this ever happen ?
+	// Case 2. token pair is registered but does not have a precompile registered
+	// NOTE: This should never happen as the precompile is registered on the token pair creation
+	// case found && pair.IsNativeCoin() && !evmParams.IsPrecompileRegistered(pair.GetERC20Contract().String()):
+
+	// Case 3. native ERC20 token
 	case pair.IsNativeERC20():
 		// ERC20 module or token pair is disabled -> return
 		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
 			return ack
 		}
 
-		msgConvert := types.NewMsgConvertERC20(coin.Amount, recipient, pair.GetERC20Contract(), common.BytesToAddress(sender))
-		// Convert from Coin to ERC20
-		_, err := k.ConvertERC20(ctx, msgConvert)
-		if err != nil {
+		balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 
@@ -166,6 +173,11 @@ func (k Keeper) OnTimeoutPacket(ctx sdk.Context, _ channeltypes.Packet, data tra
 
 // ConvertCoinToERC20FromPacket converts the IBC coin to ERC20 after refunding the sender
 func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes.FungibleTokenPacketData) error {
+	sender, err := sdk.AccAddressFromBech32(data.Sender)
+	if err != nil {
+		return err
+	}
+
 	pairID := k.GetTokenPairID(ctx, data.Denom)
 	pair, found := k.GetTokenPair(ctx, pairID)
 	if !found {
@@ -184,7 +196,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		return nil
 	// Case 2. if pair is native coin -> no-op
 	case pair.IsNativeCoin():
-		// no-op, received coin is the native denomination
+		// no-op, received coin is a  native coin
 		return nil
 
 	// Case 3. if pair is native ERC20 -> unescrow
@@ -205,11 +217,6 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return err
 		}
 
-		sender, err := sdk.AccAddressFromBech32(data.Sender)
-		if err != nil {
-			return err
-		}
-
 		// assume that all module accounts on Evmos need to have their tokens in the
 		// IBC representation as opposed to ERC20
 		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
@@ -217,7 +224,8 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return nil
 		}
 
-		if err := k.convertCoinNativeERC20(ctx, pair, coin, common.BytesToAddress(receiver), sender); err != nil {
+		// Convert from Coin to ERC20
+		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, coin.Amount, common.BytesToAddress(receiver), sender); err != nil {
 			return err
 		}
 	}
