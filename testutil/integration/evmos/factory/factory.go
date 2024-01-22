@@ -94,6 +94,11 @@ func (tf *IntegrationTxFactory) GenerateSignedEthTx(privKey cryptotypes.PrivKey,
 		return nil, errorsmod.Wrap(err, "failed to sign ethereum tx")
 	}
 
+	// Validate the transaction to avoid unrealistic behavior
+	if err = signedMsg.ValidateBasic(); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to validate transaction")
+	}
+
 	return tf.buildSignedTx(signedMsg)
 }
 

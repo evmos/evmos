@@ -411,6 +411,7 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 		refundQuotient uint64
 		noError        bool
 		expGasRefund   uint64
+		gasPrice       *big.Int
 	}{
 		{
 			name:           "leftoverGas more than tx gas limit",
@@ -440,6 +441,14 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			noError:        true,
 			expGasRefund:   params.TxGas / params.RefundQuotient,
 		},
+		{
+			name:           "invalid GasPrice in message",
+			leftoverGas:    0,
+			refundQuotient: params.RefundQuotient,
+			noError:        false,
+			expGasRefund:   params.TxGas / params.RefundQuotient,
+			gasPrice:       big.NewInt(-100),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -447,8 +456,9 @@ func (suite *EvmKeeperTestSuite) TestRefundGas() {
 			coreMsg, err := txFactory.GenerateGethCoreMsg(
 				sender.Priv,
 				types.EvmTxArgs{
-					To:     &recipient,
-					Amount: big.NewInt(100),
+					To:       &recipient,
+					Amount:   big.NewInt(100),
+					GasPrice: tc.gasPrice,
 				},
 			)
 			suite.Require().NoError(err)
