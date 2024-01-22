@@ -375,6 +375,7 @@ func TestValidateInputOutput(t *testing.T) {
 
 func TestCreateOnFailedDeliveryField(t *testing.T) {
 	t.Parallel()
+
 	address := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
 	testCases := []struct {
 		name    string
