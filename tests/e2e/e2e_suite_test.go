@@ -206,7 +206,7 @@ func (s *IntegrationTestSuite) upgrade(targetRepo, targetVersion string) {
 	buildDir := dirs[0]
 	rootDir := dirs[1]
 
-	// TODO: check that the proposal has passed here! To make sure this is always the case
+	// check that the proposal has passed before stopping the node
 	s.checkProposalPassed(ctx)
 
 	s.T().Log("exporting state to local...")
