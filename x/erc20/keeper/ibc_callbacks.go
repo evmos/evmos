@@ -4,8 +4,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	errorsmod "cosmossdk.io/errors"
 
 	"github.com/armon/go-metrics"
@@ -105,7 +103,6 @@ func (k Keeper) OnRecvPacket(
 		if err := k.RegisterPrecompileForCoin(ctx, coin.Denom, contractAddr); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
-		fmt.Println("case 1")
 		return ack
 
 	// TODO: Will this ever happen ?
