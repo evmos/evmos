@@ -16,7 +16,7 @@ func (m *Manager) CreateModuleQueryExec(moduleName, subCommand, chainID string) 
 		subCommand,
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--keyring-backend=test",
-		"--log_format=json",
+		"--output=json",
 	}
 	return m.CreateExec(cmd, m.ContainerID())
 }
