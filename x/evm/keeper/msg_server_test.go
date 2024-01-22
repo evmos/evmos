@@ -1,116 +1,138 @@
 package keeper_test
 
 import (
-	"math/big"
-
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
-	"github.com/evmos/evmos/v16/x/evm/statedb"
+	"math/big"
+
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/utils"
 	"github.com/evmos/evmos/v16/x/evm/types"
 )
 
-func (suite *KeeperTestSuite) TestEthereumTx() {
-	var (
-		err             error
-		msg             *types.MsgEthereumTx
-		signer          ethtypes.Signer
-		vmdb            *statedb.StateDB
-		expectedGasUsed uint64
+func (suite *EvmKeeperTestSuite) TestEthereumTx() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
+	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expErr   bool
+		name        string
+		getMsg      func() *types.MsgEthereumTx
+		expectedErr error
 	}{
 		{
-			"Deploy contract tx - insufficient gas",
-			func() {
-				msg, err = suite.createContractMsgTx(
-					vmdb.GetNonce(suite.keyring.GetAddr(0)),
-					signer,
-					big.NewInt(1),
-				)
+			"fail - insufficient gas",
+			func() *types.MsgEthereumTx {
+				args := types.EvmTxArgs{
+					// Have insufficient gas
+					GasLimit: 10,
+				}
+				tx, err := txFactory.GenerateSignedEthTx(keyring.GetPrivKey(0), args)
 				suite.Require().NoError(err)
+				return tx.GetMsgs()[0].(*types.MsgEthereumTx)
 			},
-			true,
+			types.ErrInvalidGasCap,
 		},
 		{
-			"Transfer funds tx",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
-				msg, _, err = newEthMsgTx(
-					vmdb.GetNonce(addr),
-					addr,
-					krSigner,
-					signer,
-					ethtypes.AccessListTxType,
-					nil,
-					nil,
-				)
+			"success - transfer funds tx",
+			func() *types.MsgEthereumTx {
+				recipient := keyring.GetAddr(1)
+				args := types.EvmTxArgs{
+					To:     &recipient,
+					Amount: big.NewInt(1e18),
+				}
+				tx, err := txFactory.GenerateSignedEthTx(keyring.GetPrivKey(0), args)
 				suite.Require().NoError(err)
-				expectedGasUsed = params.TxGas
+				return tx.GetMsgs()[0].(*types.MsgEthereumTx)
 			},
-			false,
+			nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.SetupTest()
-			signer = ethtypes.LatestSignerForChainID(suite.network.App.EvmKeeper.ChainID())
-			vmdb = suite.StateDB()
+			msg := tc.getMsg()
 
-			tc.malleate()
-			res, err := suite.network.App.EvmKeeper.EthereumTx(suite.network.GetContext(), msg)
-			if tc.expErr {
+			// Function to be tested
+			res, err := unitNetwork.App.EvmKeeper.EthereumTx(unitNetwork.GetContext(), msg)
+
+			events := unitNetwork.GetContext().EventManager().Events()
+			if tc.expectedErr != nil {
 				suite.Require().Error(err)
-				return
+				// no events should have been emitted
+				suite.Require().Empty(events)
+			} else {
+				suite.Require().NoError(err)
+				suite.Require().False(res.Failed())
+
+				// check expected events were emitted
+				suite.Require().NotEmpty(events)
+				suite.Require().True(utils.ContainsEventType(events, types.EventTypeEthereumTx))
+				suite.Require().True(utils.ContainsEventType(events, types.EventTypeTxLog))
+				suite.Require().True(utils.ContainsEventType(events, sdktypes.EventTypeMessage))
 			}
+
+			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
-			suite.Require().Equal(expectedGasUsed, res.GasUsed)
-			suite.Require().False(res.Failed())
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestUpdateParams() {
+func (suite *EvmKeeperTestSuite) TestUpdateParams() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
 	testCases := []struct {
-		name      string
-		request   *types.MsgUpdateParams
-		expectErr bool
+		name        string
+		getMsg      func() *types.MsgUpdateParams
+		expectedErr error
 	}{
 		{
-			name:      "fail - invalid authority",
-			request:   &types.MsgUpdateParams{Authority: "foobar"},
-			expectErr: true,
+			name: "fail - invalid authority",
+			getMsg: func() *types.MsgUpdateParams {
+				return &types.MsgUpdateParams{Authority: "foobar"}
+			},
+			expectedErr: govtypes.ErrInvalidSigner,
 		},
 		{
 			name: "pass - valid Update msg",
-			request: &types.MsgUpdateParams{
-				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.DefaultParams(),
+			getMsg: func() *types.MsgUpdateParams {
+				return &types.MsgUpdateParams{
+					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+					Params:    types.DefaultParams(),
+				}
 			},
-			expectErr: false,
+			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run("MsgUpdateParams", func() {
-			_, err := suite.network.App.EvmKeeper.UpdateParams(suite.network.GetContext(), tc.request)
-			if tc.expectErr {
+			// Function to be tested
+			msg := tc.getMsg()
+			_, err := unitNetwork.App.EvmKeeper.UpdateParams(unitNetwork.GetContext(), msg)
+			if tc.expectedErr != nil {
 				suite.Require().Error(err)
+				suite.Contains(err.Error(), tc.expectedErr.Error())
 			} else {
 				suite.Require().NoError(err)
 			}
 		})
+
+		err := unitNetwork.NextBlock()
+		suite.Require().NoError(err)
 	}
 }
 

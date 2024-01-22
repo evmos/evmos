@@ -35,8 +35,10 @@ func DefaultConfig() Config {
 		eip155ChainID:      big.NewInt(9001),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
-		preFundedAccounts: []sdktypes.AccAddress{account},
-		denom:             utils.BaseDenom,
+		preFundedAccounts:  []sdktypes.AccAddress{account},
+		denom:              utils.BaseDenom,
+		otherCoinDenom:     nil,
+		customGenesisState: nil,
 	}
 }
 
