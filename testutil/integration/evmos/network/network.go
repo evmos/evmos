@@ -108,9 +108,7 @@ var (
 func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create funded accounts based on the config and
 	// create genesis accounts
-	coin := sdktypes.NewCoin(n.cfg.denom, PrefundedAccountInitialBalance)
-	genAccounts := createGenesisAccounts(n.cfg.preFundedAccounts)
-	fundedAccountBalances := createBalances(n.cfg.preFundedAccounts, coin)
+	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
@@ -157,7 +155,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	consnsusParams := app.DefaultConsensusParams
+	consensusParams := app.DefaultConsensusParams
 	evmosApp.InitChain(
 		abcitypes.RequestInitChain{
 			ChainId:         n.cfg.chainID,
@@ -181,9 +179,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Set networks global parameters
 	n.app = evmosApp
-	// TODO - this might not be the best way to initilize the context
+	// TODO - this might not be the best way to initialize the context
 	n.ctx = evmosApp.BaseApp.NewContext(false, header)
-	n.ctx = n.ctx.WithConsensusParams(consnsusParams)
+	n.ctx = n.ctx.WithConsensusParams(consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
 
 	n.validators = validators
