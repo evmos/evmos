@@ -66,7 +66,7 @@ func (m *Manager) CreateSubmitProposalExec(targetVersion, chainID string, upgrad
 		"--from=mykey",
 		"--yes",
 		"--keyring-backend=test",
-		"--log_format=json",
+		"--output=text",
 	}
 	cmd = append(cmd, flags...)
 	// increment proposal counter to use proposal number for deposit && voting
@@ -87,7 +87,7 @@ func (m *Manager) CreateDepositProposalExec(chainID string, id int) (string, err
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--yes",
 		"--keyring-backend=test",
-		"--log_format=json",
+		"--output=text",
 		"--fees=500aevmos",
 		"--gas=500000",
 	}
@@ -108,7 +108,7 @@ func (m *Manager) CreateVoteProposalExec(chainID string, id int, flags ...string
 		fmt.Sprintf("--chain-id=%s", chainID),
 		"--yes",
 		"--keyring-backend=test",
-		"--log_format=json",
+		"--output=text",
 	}
 	cmd = append(cmd, flags...)
 	return m.CreateExec(cmd, m.ContainerID())
