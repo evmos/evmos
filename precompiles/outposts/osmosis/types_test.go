@@ -5,9 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
 
@@ -378,19 +375,6 @@ func TestValidateInputOutput(t *testing.T) {
 
 func TestCreateOnFailedDeliveryField(t *testing.T) {
 	t.Parallel()
-
-	hex := common.HexToAddress("0x21310D53E6d828bA8e9570c7dcCfC0C28795b182")
-	acc := sdk.AccAddress(hex.Bytes()).String()
-	fmt.Println(acc)
-	onFailedDelivery := osmosisoutpost.CreateOnFailedDeliveryField(acc)
-
-	_, bz, _ := bech32.DecodeAndConvert(acc)
-
-	bech32Addr, _ := bech32.ConvertAndEncode("osmo", bz)
-
-	fmt.Println(bech32Addr)
-	fmt.Println(onFailedDelivery)
-
 	address := "osmo1c2m73hdt6f37w9jqpqps5t3ha3st99dcc6d0lx"
 	testCases := []struct {
 		name    string
