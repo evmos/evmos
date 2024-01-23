@@ -397,6 +397,7 @@ func (suite *EvmKeeperTestSuite) TestQueryCode() {
 	}
 }
 
+// TODO: Fix this one
 func (suite *KeeperTestSuite) TestQueryTxLogs() {
 	var expLogs []*types.Log
 	txHash := common.BytesToHash([]byte("tx_hash"))
@@ -452,11 +453,16 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryParams() {
-	ctx := suite.network.GetContext()
+func (suite *EvmKeeperTestSuite) TestQueryParams() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	ctx := unitNetwork.GetContext()
 	expParams := types.DefaultParams()
 
-	res, err := suite.network.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
+	res, err := unitNetwork.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(expParams, res.Params)
 }
