@@ -53,7 +53,7 @@ func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 					Address: invalidAddress,
 				}
 			},
-            nil,
+			nil,
 			false,
 		},
 		{
@@ -201,40 +201,46 @@ func (suite *EvmKeeperTestSuite) TestQueryCosmosAccount() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryBalance() {
-	var (
-		req        *types.QueryBalanceRequest
-		expBalance string
+func (suite *EvmKeeperTestSuite) TestQueryBalance() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
 	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
+		msg           string
+		getReqAndResp func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse)
+		expPass       bool
 	}{
 		{
 			"invalid address",
-			func() {
-				expBalance = "0"
-				req = &types.QueryBalanceRequest{
+			func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse) {
+				req := &types.QueryBalanceRequest{
 					Address: invalidAddress,
 				}
+				return req, nil
 			},
 			false,
 		},
 		{
 			"success",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
-				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
+			func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse) {
+				newIndex := keyring.AddKey()
+				addr := keyring.GetAddr(newIndex)
+
+				balance := int64(100)
+				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, balance)}
+
+				err := unitNetwork.App.BankKeeper.MintCoins(unitNetwork.GetContext(), types.ModuleName, amt)
 				suite.Require().NoError(err)
-				err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, addr.Bytes(), amt)
+				err = unitNetwork.App.BankKeeper.SendCoinsFromModuleToAccount(unitNetwork.GetContext(), types.ModuleName, addr.Bytes(), amt)
 				suite.Require().NoError(err)
 
-				expBalance = "100"
-				req = &types.QueryBalanceRequest{
+				req := &types.QueryBalanceRequest{
 					Address: addr.String(),
+				}
+				return req, &types.QueryBalanceResponse{
+					Balance: fmt.Sprint(balance),
 				}
 			},
 			true,
@@ -243,17 +249,14 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			req, resp := tc.getReqAndResp()
 
-			tc.malleate()
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().Balance(ctx, req)
+			ctx := unitNetwork.GetContext()
+			res, err := unitNetwork.GetEvmClient().Balance(ctx, req)
 
+			suite.Require().Equal(resp, res)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
-				suite.Require().Equal(expBalance, res.Balance)
 			} else {
 				suite.Require().Error(err)
 			}
