@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func ConvertValAddressToHex(valAddress string) common.Address {
+func ValidatorConsAddressToHex(valAddress string) common.Address {
 	coinbaseAddressBytes := sdk.ConsAddress(valAddress).Bytes()
 	return common.BytesToAddress(coinbaseAddressBytes)
 }

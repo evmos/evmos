@@ -133,7 +133,7 @@ func (suite *EvmKeeperTestSuite) TestGetCoinbaseAddress() {
 	)
 
 	validators := unitNetwork.GetValidators()
-	proposerAddressHex := utils.ConvertValAddressToHex(
+	proposerAddressHex := utils.ValidatorConsAddressToHex(
 		validators[0].OperatorAddress,
 	)
 
@@ -571,7 +571,7 @@ func (suite *EvmKeeperTestSuite) TestEVMConfig() {
 	suite.Require().Equal(types.DefaultParams(), cfg.Params)
 
 	validators := unitNetwork.GetValidators()
-	proposerHextAddress := utils.ConvertValAddressToHex(validators[0].OperatorAddress)
+	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
 	networkChainID := unitNetwork.GetEIP155ChainID()
