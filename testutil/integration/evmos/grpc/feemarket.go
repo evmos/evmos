@@ -13,3 +13,9 @@ func (gqh *IntegrationHandler) GetBaseFee() (*feemarkettypes.QueryBaseFeeRespons
 	feeMarketClient := gqh.network.GetFeeMarketClient()
 	return feeMarketClient.BaseFee(context.Background(), &feemarkettypes.QueryBaseFeeRequest{})
 }
+
+// GetFeeMarketParams returns the FeeMarket module params.
+func (gqh *IntegrationHandler) GetFeeMarketParams() (*feemarkettypes.QueryParamsResponse, error) {
+	feeMarketClient := gqh.network.GetFeeMarketClient()
+	return feeMarketClient.Params(context.Background(), &feemarkettypes.QueryParamsRequest{})
+}
