@@ -18,6 +18,8 @@ import (
 	"github.com/evmos/evmos/v16/server/config"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
@@ -467,7 +469,13 @@ func (suite *EvmKeeperTestSuite) TestQueryParams() {
 	suite.Require().Equal(expParams, res.Params)
 }
 
-func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
+// TODO: fix this issue
+func (suite *EvmKeeperTestSuite) TestQueryValidatorAccount() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
 	var (
 		req        *types.QueryValidatorAccountRequest
 		expAccount *types.QueryValidatorAccountResponse
@@ -493,13 +501,12 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 		{
 			"success",
 			func() {
-				addr := suite.keyring.GetAddr(0)
-				val := suite.network.GetValidators()[0]
+				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
 
 				expAccount = &types.QueryValidatorAccountResponse{
-					AccountAddress: sdk.AccAddress(addr.Bytes()).String(),
+					AccountAddress: val.OperatorAddress,
 					Sequence:       0,
 					AccountNumber:  0,
 				}
@@ -512,20 +519,27 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 		{
 			"success with seq and account number",
 			func() {
-				addr := suite.keyring.GetAddr(0)
-				val := suite.network.GetValidators()[0]
+				accNumber := uint64(100)
+				accSeq := uint64(10)
+
+				val := unitNetwork.GetValidators()[0]
 				consAddr, err := val.GetConsAddr()
 				suite.Require().NoError(err)
 
-				acc := suite.network.App.AccountKeeper.GetAccount(suite.network.GetContext(), addr.Bytes())
-				suite.Require().NoError(acc.SetSequence(10))
-				suite.Require().NoError(acc.SetAccountNumber(1))
-				suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), acc)
+				acc := unitNetwork.App.AccountKeeper.GetAccount(
+					unitNetwork.GetContext(),
+					sdk.AccAddress(val.OperatorAddress).Bytes(),
+				)
+				suite.Require().NoError(acc.SetSequence(accSeq))
+				suite.Require().NoError(acc.SetAccountNumber(accNumber))
+
+				// Function under test
+				unitNetwork.App.AccountKeeper.SetAccount(unitNetwork.GetContext(), acc)
 
 				expAccount = &types.QueryValidatorAccountResponse{
-					AccountAddress: sdk.AccAddress(addr.Bytes()).String(),
-					Sequence:       10,
-					AccountNumber:  1,
+					AccountAddress: val.OperatorAddress,
+					Sequence:       accSeq,
+					AccountNumber:  accNumber,
 				}
 				req = &types.QueryValidatorAccountRequest{
 					ConsAddress: sdk.ConsAddress(consAddr).String(),
@@ -537,17 +551,13 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
-
 			tc.malleate()
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().ValidatorAccount(ctx, req)
+			ctx := unitNetwork.GetContext()
+			res, err := unitNetwork.GetEvmClient().ValidatorAccount(ctx, req)
 
+			suite.Require().Equal(expAccount, res)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
-				suite.Require().Equal(expAccount, res)
 			} else {
 				suite.Require().Error(err)
 			}
@@ -555,92 +565,115 @@ func (suite *KeeperTestSuite) TestQueryValidatorAccount() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestEstimateGas() {
+func (suite *EvmKeeperTestSuite) TestEstimateGas() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grcpHandler)
+
 	gasHelper := hexutil.Uint64(20000)
 	higherGas := hexutil.Uint64(25000)
 	hexBigInt := hexutil.Big(*big.NewInt(1))
 
-	var (
-		args   interface{}
-		gasCap uint64
-	)
 	testCases := []struct {
 		msg             string
-		malleate        func()
+		getArgs         func() types.TransactionArgs
 		expPass         bool
 		expGas          uint64
 		enableFeemarket bool
+		gasCap          uint64
 	}{
 		// should success, because transfer value is zero
 		{
-			"default args - special case for ErrIntrinsicGas on contract creation, raise gas limit",
-			func() {
-				args = types.TransactionArgs{}
+			"success - default args - special case for ErrIntrinsicGas on contract creation, raise gas limit",
+			func() types.TransactionArgs {
+				return types.TransactionArgs{}
 			},
 			true,
 			ethparams.TxGasContractCreation,
 			false,
+			config.DefaultGasCap,
 		},
 		// should success, because transfer value is zero
 		{
-			"default args with 'to' address",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}}
+			"success - default args with 'to' address",
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}}
 			},
 			true,
 			ethparams.TxGas,
 			false,
+			config.DefaultGasCap,
 		},
 		// should fail, because the default From address(zero address) don't have fund
 		{
-			"not enough balance",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}, Value: (*hexutil.Big)(big.NewInt(100))}
+			"fail - not enough balance",
+			func() types.TransactionArgs {
+				return types.TransactionArgs{
+					To:    &common.Address{},
+					Value: (*hexutil.Big)(big.NewInt(100)),
+				}
 			},
 			false,
 			0,
 			false,
+			config.DefaultGasCap,
 		},
 		// should success, enough balance now
 		{
-			"enough balance",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				args = types.TransactionArgs{To: &common.Address{}, From: &addr, Value: (*hexutil.Big)(big.NewInt(100))}
-			}, false, 0, false,
+			"success - enough balance",
+			func() types.TransactionArgs {
+				addr := keyring.GetAddr(0)
+				return types.TransactionArgs{
+					To:    &common.Address{},
+					From:  &addr,
+					Value: (*hexutil.Big)(big.NewInt(100)),
+				}
+			},
+			true,
+			ethparams.TxGas,
+			false,
+			config.DefaultGasCap,
 		},
 		// should success, because gas limit lower than 21000 is ignored
 		{
 			"gas exceed allowance",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}, Gas: &gasHelper}
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}, Gas: &gasHelper}
 			},
 			true,
 			ethparams.TxGas,
 			false,
+			config.DefaultGasCap,
 		},
 		// should fail, invalid gas cap
 		{
 			"gas exceed global allowance",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}}
-				gasCap = 20000
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}}
 			},
 			false,
 			0,
 			false,
+			20000,
 		},
 		// estimate gas of an erc20 contract deployment, the exact gas number is checked with geth
 		{
 			"contract deployment",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+			func() types.TransactionArgs {
+				addr := keyring.GetAddr(0)
+				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+					"",
+					&addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				)
 				suite.Require().NoError(err)
 
 				data := types.ERC20Contract.Bin
 				data = append(data, ctorArgs...)
-				args = types.TransactionArgs{
+				return types.TransactionArgs{
 					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
 				}
@@ -648,80 +681,119 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			true,
 			1186778,
 			false,
+			config.DefaultGasCap,
 		},
 		// estimate gas of an erc20 transfer, the exact gas number is checked with geth
 		{
 			"erc20 transfer",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				err := suite.network.NextBlock()
+			func() types.TransactionArgs {
+				key := keyring.GetKey(0)
+				constructorArgs := []interface{}{
+					key.Addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				}
+				compiledContract := types.ERC20Contract
+
+				contractAddr, err := txFactory.DeployContract(
+					key.Priv,
+					types.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
 				suite.Require().NoError(err)
-				transferData, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+
+				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
-				args = types.TransactionArgs{To: &contractAddr, From: &addr, Data: (*hexutil.Bytes)(&transferData)}
+
+				newIndex := keyring.AddKey()
+				recipient := keyring.GetAddr(newIndex)
+				transferData, err := types.ERC20Contract.ABI.Pack(
+					"transfer",
+					recipient,
+					big.NewInt(1000),
+				)
+				suite.Require().NoError(err)
+				return types.TransactionArgs{
+					To:   &contractAddr,
+					From: &key.Addr,
+					Data: (*hexutil.Bytes)(&transferData),
+				}
 			},
 			true,
 			51880,
 			false,
+			config.DefaultGasCap,
 		},
 		// repeated tests with enableFeemarket
 		{
 			"default args w/ enableFeemarket",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}}
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}}
 			},
 			true,
 			ethparams.TxGas,
 			true,
+			config.DefaultGasCap,
 		},
 		{
 			"not enough balance w/ enableFeemarket",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}, Value: (*hexutil.Big)(big.NewInt(100))}
+			func() types.TransactionArgs {
+				return types.TransactionArgs{
+					To:    &common.Address{},
+					Value: (*hexutil.Big)(big.NewInt(100)),
+				}
 			},
 			false,
 			0,
 			true,
+			config.DefaultGasCap,
 		},
 		{
 			"enough balance w/ enableFeemarket",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				args = types.TransactionArgs{To: &common.Address{}, From: &addr, Value: (*hexutil.Big)(big.NewInt(100))}
-			},
-			false,
-			0,
-			true,
-		},
-		{
-			"gas exceed allowance w/ enableFeemarket",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}, Gas: &gasHelper}
+			func() types.TransactionArgs {
+				addr := keyring.GetAddr(0)
+				return types.TransactionArgs{
+					To:    &common.Address{},
+					From:  &addr,
+					Value: (*hexutil.Big)(big.NewInt(100)),
+				}
 			},
 			true,
 			ethparams.TxGas,
 			true,
+			config.DefaultGasCap,
+		},
+		{
+			"gas exceed allowance w/ enableFeemarket",
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}, Gas: &gasHelper}
+			},
+			true,
+			ethparams.TxGas,
+			true,
+			config.DefaultGasCap,
 		},
 		{
 			"gas exceed global allowance w/ enableFeemarket",
-			func() {
-				args = types.TransactionArgs{To: &common.Address{}}
-				gasCap = 20000
+			func() types.TransactionArgs {
+				return types.TransactionArgs{To: &common.Address{}}
 			},
 			false,
 			0,
 			true,
+			20000,
 		},
 		{
 			"contract deployment w/ enableFeemarket",
-			func() {
-				addr := suite.keyring.GetAddr(0)
+			func() types.TransactionArgs {
+				addr := keyring.GetAddr(0)
 				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
 				suite.Require().NoError(err)
 				data := types.ERC20Contract.Bin
 				data = append(data, ctorArgs...)
-				args = types.TransactionArgs{
+				return types.TransactionArgs{
 					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
 				}
@@ -729,47 +801,88 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			true,
 			1186778,
 			true,
+			config.DefaultGasCap,
 		},
 		{
 			"erc20 transfer w/ enableFeemarket",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				err := suite.network.NextBlock()
+			func() types.TransactionArgs {
+				key := keyring.GetKey(0)
+				constructorArgs := []interface{}{
+					key.Addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				}
+				compiledContract := types.ERC20Contract
+
+				contractAddr, err := txFactory.DeployContract(
+					key.Priv,
+					types.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
 				suite.Require().NoError(err)
-				transferData, err := types.ERC20Contract.ABI.Pack("transfer", common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), big.NewInt(1000))
+
+				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
-				args = types.TransactionArgs{To: &contractAddr, From: &addr, Data: (*hexutil.Bytes)(&transferData)}
+
+				newIndex := keyring.AddKey()
+				recipient := keyring.GetAddr(newIndex)
+				transferData, err := types.ERC20Contract.ABI.Pack(
+					"transfer",
+					recipient,
+					big.NewInt(1000),
+				)
+				suite.Require().NoError(err)
+
+				return types.TransactionArgs{
+					To:   &contractAddr,
+					From: &key.Addr,
+					Data: (*hexutil.Bytes)(&transferData),
+				}
 			},
 			true,
 			51880,
 			true,
+			config.DefaultGasCap,
 		},
 		{
 			"contract creation but 'create' param disabled",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				ctorArgs, err := types.ERC20Contract.ABI.Pack("", &addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+			func() types.TransactionArgs {
+				addr := keyring.GetAddr(0)
+				ctorArgs, err := types.ERC20Contract.ABI.Pack(
+					"",
+					&addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				)
 				suite.Require().NoError(err)
+
 				data := types.ERC20Contract.Bin
 				data = append(data, ctorArgs...)
-				args = types.TransactionArgs{
+
+				args := types.TransactionArgs{
 					From: &addr,
 					Data: (*hexutil.Bytes)(&data),
 				}
-				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+				params := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext())
 				params.EnableCreate = false
-				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				err = unitNetwork.App.EvmKeeper.SetParams(
+					unitNetwork.GetContext(),
+					params,
+				)
 				suite.Require().NoError(err)
+
+				return args
 			},
 			false,
 			0,
 			false,
+			config.DefaultGasCap,
 		},
 		{
 			"specified gas in args higher than ethparams.TxGas (21,000)",
-			func() {
-				args = types.TransactionArgs{
+			func() types.TransactionArgs {
+				return types.TransactionArgs{
 					To:  &common.Address{},
 					Gas: &higherGas,
 				}
@@ -777,12 +890,12 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			true,
 			ethparams.TxGas,
 			false,
+			config.DefaultGasCap,
 		},
 		{
 			"specified gas in args higher than request gasCap",
-			func() {
-				gasCap = 22_000
-				args = types.TransactionArgs{
+			func() types.TransactionArgs {
+				return types.TransactionArgs{
 					To:  &common.Address{},
 					Gas: &higherGas,
 				}
@@ -790,11 +903,12 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			true,
 			ethparams.TxGas,
 			false,
+			22_000,
 		},
 		{
 			"invalid args - specified both gasPrice and maxFeePerGas",
-			func() {
-				args = types.TransactionArgs{
+			func() types.TransactionArgs {
+				return types.TransactionArgs{
 					To:           &common.Address{},
 					GasPrice:     &hexBigInt,
 					MaxFeePerGas: &hexBigInt,
@@ -803,25 +917,39 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			false,
 			0,
 			false,
+			config.DefaultGasCap,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.enableFeemarket = tc.enableFeemarket
-			suite.SetupTest()
-			gasCap = 25_000_000
-			tc.malleate()
+			if tc.enableFeemarket {
+				evmParams := unitNetwork.App.FeeMarketKeeper.GetParams(
+					unitNetwork.GetContext(),
+				)
+				evmParams.NoBaseFee = false
 
-			args, err := json.Marshal(&args)
-			suite.Require().NoError(err)
-			req := types.EthCallRequest{
-				Args:            args,
-				GasCap:          gasCap,
-				ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
+				err := unitNetwork.App.FeeMarketKeeper.SetParams(
+					unitNetwork.GetContext(),
+					evmParams,
+				)
+				suite.Require().NoError(err)
 			}
 
-			rsp, err := suite.network.GetEvmClient().EstimateGas(suite.network.GetContext(), &req)
+			args := tc.getArgs()
+
+			marshalArgs, err := json.Marshal(args)
+			suite.Require().NoError(err)
+			req := types.EthCallRequest{
+				Args:            marshalArgs,
+				GasCap:          tc.gasCap,
+				ProposerAddress: unitNetwork.GetContext().BlockHeader().ProposerAddress,
+			}
+
+			rsp, err := unitNetwork.GetEvmClient().EstimateGas(
+				unitNetwork.GetContext(),
+				&req,
+			)
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(int64(tc.expGas), int64(rsp.Gas))
@@ -830,7 +958,6 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			}
 		})
 	}
-	suite.enableFeemarket = false // reset flag
 }
 
 func (suite *KeeperTestSuite) TestTraceTx() {
