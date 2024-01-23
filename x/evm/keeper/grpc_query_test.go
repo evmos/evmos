@@ -16,6 +16,10 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/evmos/evmos/v16/server/config"
+	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
+	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
+	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
 	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
@@ -30,50 +34,66 @@ const expGasConsumed = 7700
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
 const expGasConsumedWithFeeMkt = 7694
 
-func (suite *KeeperTestSuite) TestQueryAccount() {
-	var (
-		req        *types.QueryAccountRequest
-		expAccount *types.QueryAccountResponse
+func (suite *EvmKeeperTestSuite) TestQueryAccount() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
+	// grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	// txFactory := factory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
+		msg               string
+		getReq            func() *types.QueryAccountRequest
+		exptectedResponse *types.QueryAccountResponse
+		expPass           bool
 	}{
 		{
 			"invalid address",
-			func() {
-				expAccount = &types.QueryAccountResponse{
-					Balance:  "0",
-					CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
-					Nonce:    0,
-				}
-				req = &types.QueryAccountRequest{
+			func() *types.QueryAccountRequest {
+				return &types.QueryAccountRequest{
 					Address: invalidAddress,
 				}
+			},
+			&types.QueryAccountResponse{
+				Balance:  "0",
+				CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
+				Nonce:    0,
 			},
 			false,
 		},
 		{
 			"success",
-			func() {
+			func() *types.QueryAccountRequest {
 				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
-				addr := suite.keyring.GetAddr(0)
 
-				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
-				suite.Require().NoError(err)
-				err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, addr.Bytes(), amt)
+				// Add new unfunded key
+				index := keyring.AddKey()
+				addr := keyring.GetAddr(index)
+
+				err := unitNetwork.App.BankKeeper.MintCoins(
+					unitNetwork.GetContext(),
+					types.ModuleName,
+					amt,
+				)
 				suite.Require().NoError(err)
 
-				expAccount = &types.QueryAccountResponse{
-					Balance:  "100",
-					CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
-					Nonce:    0,
-				}
-				req = &types.QueryAccountRequest{
+				err = unitNetwork.App.BankKeeper.SendCoinsFromModuleToAccount(
+					unitNetwork.GetContext(),
+					types.ModuleName,
+					addr.Bytes(),
+					amt,
+				)
+				suite.Require().NoError(err)
+
+				return &types.QueryAccountRequest{
 					Address: addr.String(),
 				}
+			},
+			&types.QueryAccountResponse{
+				Balance:  "100",
+				CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
+				Nonce:    0,
 			},
 			true,
 		},
@@ -81,17 +101,18 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			req := tc.getReq()
+			expectedResponse := tc.exptectedResponse
 
-			tc.malleate()
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().Account(ctx, req)
+			ctx := unitNetwork.GetContext()
+			// Function under test
+			res, err := unitNetwork.GetEvmClient().Account(ctx, req)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
 
-				suite.Require().Equal(expAccount, res)
+				suite.Require().Equal(expectedResponse, res)
 			} else {
 				suite.Require().Error(err)
 			}
