@@ -209,11 +209,6 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 			return nil
 		}
 
-		receiver, err := sdk.AccAddressFromBech32(data.Receiver)
-		if err != nil {
-			return err
-		}
-
 		// assume that all module accounts on Evmos need to have their tokens in the
 		// IBC representation as opposed to ERC20
 		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
@@ -222,7 +217,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		}
 
 		// Convert from Coin to ERC20
-		if err := k.LegacyConvertCoinNativeCoin(ctx, pair, coin.Amount, common.BytesToAddress(receiver), sender); err != nil {
+		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender), sender); err != nil {
 			return err
 		}
 	}
