@@ -121,10 +121,6 @@ func (k Keeper) OnRecvPacket(
 		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
-
-	// TODO: Is the default just an ack or an error ?
-	default:
-		return ack
 	}
 
 	defer func() {
