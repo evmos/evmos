@@ -264,37 +264,50 @@ func (suite *EvmKeeperTestSuite) TestQueryBalance() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryStorage() {
-	var (
-		req      *types.QueryStorageRequest
-		expValue string
+func (suite *EvmKeeperTestSuite) TestQueryStorage() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
 	testCases := []struct {
-		msg      string
-		malleate func(vm.StateDB)
-		expPass  bool
+		msg           string
+		getReqAndResp func() (*types.QueryStorageRequest, *types.QueryStorageResponse)
+		expPass       bool
 	}{
 		{
 			"invalid address",
-			func(vm.StateDB) {
-				req = &types.QueryStorageRequest{
+			func() (*types.QueryStorageRequest, *types.QueryStorageResponse) {
+				req := &types.QueryStorageRequest{
 					Address: invalidAddress,
 				}
+				return req, nil
 			},
 			false,
 		},
 		{
 			"success",
-			func(vmdb vm.StateDB) {
+			func() (*types.QueryStorageRequest, *types.QueryStorageResponse) {
 				key := common.BytesToHash([]byte("key"))
-				value := common.BytesToHash([]byte("value"))
-				expValue = value.String()
-				addr := suite.keyring.GetAddr(0)
-				vmdb.SetState(addr, key, value)
-				req = &types.QueryStorageRequest{
+				value := []byte("value")
+				expValue := common.BytesToHash(value)
+
+				newIndex := keyring.AddKey()
+				addr := keyring.GetAddr(newIndex)
+
+				unitNetwork.App.EvmKeeper.SetState(
+					unitNetwork.GetContext(),
+					addr,
+					key,
+					value,
+				)
+
+				req := &types.QueryStorageRequest{
 					Address: addr.String(),
 					Key:     key.String(),
+				}
+				return req, &types.QueryStorageResponse{
+					Value: expValue.String(),
 				}
 			},
 			true,
@@ -303,20 +316,17 @@ func (suite *KeeperTestSuite) TestQueryStorage() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			req, expectedResp := tc.getReqAndResp()
 
-			vmdb := suite.StateDB()
-			tc.malleate(vmdb)
-			suite.Require().NoError(vmdb.Commit())
+			ctx := unitNetwork.GetContext()
+			res, err := unitNetwork.GetEvmClient().Storage(ctx, req)
 
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().Storage(ctx, req)
+			suite.Require().Equal(expectedResp, res)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
 				suite.Require().NotNil(res)
 
-				suite.Require().Equal(expValue, res.Value)
 			} else {
 				suite.Require().Error(err)
 			}
