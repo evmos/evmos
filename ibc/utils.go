@@ -177,6 +177,8 @@ func DeriveDecimalsFromDenom(baseDenom string) (uint8, error) {
 	switch baseDenom[0] {
 	case 'u': // micro (u) -> 6 decimals
 		decimals = 6
+	case 'n': // nano (n) -> 9 decimals
+		decimals = 9
 	case 'a': // atto (a) -> 18 decimals
 		decimals = 18
 	default:
