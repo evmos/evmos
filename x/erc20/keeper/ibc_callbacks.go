@@ -100,7 +100,7 @@ func (k Keeper) OnRecvPacket(
 			return ack
 		}
 
-		if err := k.RegisterPrecompileForCoin(ctx, coin.Denom, contractAddr); err != nil {
+		if err := k.RegisterERC20Extension(ctx, coin.Denom, contractAddr); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 		return ack

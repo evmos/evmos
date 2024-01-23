@@ -67,9 +67,9 @@ func (k Keeper) RegisterERC20Extensions(ctx sdk.Context) error {
 	return k.evmKeeper.AddEVMExtensions(ctx, precompiles...)
 }
 
-// RegisterPrecompileForCoin Creates and adds an ERC20 precompile interface for an IBC Coin.
+// RegisterERC20Extension Creates and adds an ERC20 precompile interface for an IBC Coin.
 // It truncates the denom address to 20 bytes and registers the precompile if it is not already registered
-func (k Keeper) RegisterPrecompileForCoin(ctx sdk.Context, denom string, contractAddr common.Address) error {
+func (k Keeper) RegisterERC20Extension(ctx sdk.Context, denom string, contractAddr common.Address) error {
 	pair := k.newTokenPair(ctx, denom, contractAddr)
 
 	// Register a new precompile address
@@ -89,7 +89,7 @@ func (k Keeper) newTokenPair(ctx sdk.Context, denom string, contractAddr common.
 
 	k.SetTokenPair(ctx, pair)
 	k.SetDenomMap(ctx, pair.Denom, pair.GetID())
-	k.SetERC20Map(ctx, common.HexToAddress(pair.Erc20Address), pair.GetID())
+	k.SetERC20Map(ctx, contractAddr, pair.GetID())
 
 	return pair
 }
