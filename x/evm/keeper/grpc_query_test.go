@@ -325,8 +325,6 @@ func (suite *EvmKeeperTestSuite) TestQueryStorage() {
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
 			} else {
 				suite.Require().Error(err)
 			}
@@ -334,37 +332,48 @@ func (suite *EvmKeeperTestSuite) TestQueryStorage() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryCode() {
+func (suite *EvmKeeperTestSuite) TestQueryCode() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
 	var (
 		req     *types.QueryCodeRequest
 		expCode []byte
 	)
 
 	testCases := []struct {
-		msg      string
-		malleate func(vm.StateDB)
-		expPass  bool
+		msg           string
+		getReqAndResp func() (*types.QueryCodeRequest, *types.QueryCodeResponse)
+		expPass       bool
 	}{
 		{
 			"invalid address",
-			func(vm.StateDB) {
+			func() (*types.QueryCodeRequest, *types.QueryCodeResponse) {
 				req = &types.QueryCodeRequest{
 					Address: invalidAddress,
 				}
-				exp := &types.QueryCodeResponse{}
-				expCode = exp.Code
+				return req, nil
 			},
 			false,
 		},
 		{
 			"success",
-			func(vmdb vm.StateDB) {
-				addr := suite.keyring.GetAddr(0)
+			func() (*types.QueryCodeRequest, *types.QueryCodeResponse) {
+				newIndex := keyring.AddKey()
+				addr := keyring.GetAddr(newIndex)
+
 				expCode = []byte("code")
-				vmdb.SetCode(addr, expCode)
+				stateDbB := unitNetwork.GetStateDB()
+				stateDbB.SetCode(addr, expCode)
+				suite.Require().NoError(stateDbB.Commit())
 
 				req = &types.QueryCodeRequest{
 					Address: addr.String(),
+				}
+				return req, &types.QueryCodeResponse{
+					Code: hexutil.Bytes(expCode),
 				}
 			},
 			true,
@@ -373,20 +382,14 @@ func (suite *KeeperTestSuite) TestQueryCode() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			req, expectedResponse := tc.getReqAndResp()
 
-			vmdb := suite.StateDB()
-			tc.malleate(vmdb)
-			suite.Require().NoError(vmdb.Commit())
+			ctx := unitNetwork.GetContext()
+			res, err := unitNetwork.GetEvmClient().Code(ctx, req)
 
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().Code(ctx, req)
-
+			suite.Require().Equal(expectedResponse, res)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
-				suite.Require().Equal(expCode, res.Code)
 			} else {
 				suite.Require().Error(err)
 			}
