@@ -39,8 +39,6 @@ func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	// grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
-	// txFactory := factory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
 		msg               string
@@ -55,11 +53,7 @@ func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 					Address: invalidAddress,
 				}
 			},
-			&types.QueryAccountResponse{
-				Balance:  "0",
-				CodeHash: common.BytesToHash(crypto.Keccak256(nil)).Hex(),
-				Nonce:    0,
-			},
+            nil,
 			false,
 		},
 		{
@@ -108,11 +102,10 @@ func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 			// Function under test
 			res, err := unitNetwork.GetEvmClient().Account(ctx, req)
 
+			suite.Require().Equal(expectedResponse, res)
+
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
-				suite.Require().Equal(expectedResponse, res)
 			} else {
 				suite.Require().Error(err)
 			}
@@ -120,61 +113,69 @@ func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
-	var (
-		req        *types.QueryCosmosAccountRequest
-		expAccount *types.QueryCosmosAccountResponse
+func (suite *EvmKeeperTestSuite) TestQueryCosmosAccount() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 
 	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
+		msg           string
+		getReqAndResp func() (*types.QueryCosmosAccountRequest, *types.QueryCosmosAccountResponse)
+		expPass       bool
 	}{
 		{
 			"invalid address",
-			func() {
-				expAccount = &types.QueryCosmosAccountResponse{
-					CosmosAddress: sdk.AccAddress(common.Address{}.Bytes()).String(),
-				}
-				req = &types.QueryCosmosAccountRequest{
+			func() (*types.QueryCosmosAccountRequest, *types.QueryCosmosAccountResponse) {
+				req := &types.QueryCosmosAccountRequest{
 					Address: invalidAddress,
 				}
+				return req, nil
 			},
 			false,
 		},
 		{
 			"success",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				expAccount = &types.QueryCosmosAccountResponse{
-					CosmosAddress: sdk.AccAddress(addr.Bytes()).String(),
+			func() (*types.QueryCosmosAccountRequest, *types.QueryCosmosAccountResponse) {
+				key := keyring.GetKey(0)
+				expAccount := &types.QueryCosmosAccountResponse{
+					CosmosAddress: key.AccAddr.String(),
 					Sequence:      0,
 					AccountNumber: 0,
 				}
-				req = &types.QueryCosmosAccountRequest{
-					Address: addr.String(),
+				req := &types.QueryCosmosAccountRequest{
+					Address: key.Addr.String(),
 				}
+
+				return req, expAccount
 			},
 			true,
 		},
 		{
 			"success with seq and account number",
-			func() {
-				addr := suite.keyring.GetAddr(0)
-				acc := suite.network.App.AccountKeeper.GetAccount(suite.network.GetContext(), addr.Bytes())
-				suite.Require().NoError(acc.SetSequence(10))
-				suite.Require().NoError(acc.SetAccountNumber(1))
-				suite.network.App.AccountKeeper.SetAccount(suite.network.GetContext(), acc)
+			func() (*types.QueryCosmosAccountRequest, *types.QueryCosmosAccountResponse) {
+				index := keyring.AddKey()
+				newKey := keyring.GetKey(index)
+				accountNumber := uint64(100)
+				acc := unitNetwork.App.AccountKeeper.NewAccountWithAddress(
+					unitNetwork.GetContext(),
+					newKey.AccAddr,
+				)
 
-				expAccount = &types.QueryCosmosAccountResponse{
-					CosmosAddress: sdk.AccAddress(addr.Bytes()).String(),
+				suite.Require().NoError(acc.SetSequence(10))
+				suite.Require().NoError(acc.SetAccountNumber(accountNumber))
+				unitNetwork.App.AccountKeeper.SetAccount(unitNetwork.GetContext(), acc)
+
+				expAccount := &types.QueryCosmosAccountResponse{
+					CosmosAddress: newKey.AccAddr.String(),
 					Sequence:      10,
-					AccountNumber: 1,
+					AccountNumber: accountNumber,
 				}
-				req = &types.QueryCosmosAccountRequest{
-					Address: addr.String(),
+
+				req := &types.QueryCosmosAccountRequest{
+					Address: newKey.Addr.String(),
 				}
+				return req, expAccount
 			},
 			true,
 		},
@@ -182,17 +183,17 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			req, expectedResponse := tc.getReqAndResp()
 
-			tc.malleate()
-			ctx := suite.network.GetContext()
-			res, err := suite.network.GetEvmClient().CosmosAccount(ctx, req)
+			ctx := unitNetwork.GetContext()
+
+			// Function under test
+			res, err := unitNetwork.GetEvmClient().CosmosAccount(ctx, req)
+
+			suite.Require().Equal(expectedResponse, res)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().NotNil(res)
-
-				suite.Require().Equal(expAccount, res)
 			} else {
 				suite.Require().Error(err)
 			}
