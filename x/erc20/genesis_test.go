@@ -126,17 +126,14 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 	testGenCases := []struct {
 		name         string
 		genesisState types.GenesisState
-		malleate     func()
 	}{
 		{
 			name:         "empty genesis",
 			genesisState: types.GenesisState{},
-			malleate:     nil,
 		},
 		{
 			name:         "default genesis",
 			genesisState: *types.DefaultGenesisState(),
-			malleate:     nil,
 		},
 		{
 			name: "custom genesis",
@@ -151,16 +148,10 @@ func (suite *GenesisTestSuite) TestErc20ExportGenesis() {
 					},
 				},
 			),
-			malleate: func() {
-				suite.app.TransferKeeper.SetDenomTrace(suite.ctx, osmoDenomTrace)
-			},
 		},
 	}
 
 	for _, tc := range testGenCases {
-		if tc.malleate != nil {
-			tc.malleate()
-		}
 		erc20.InitGenesis(suite.ctx, suite.app.Erc20Keeper, suite.app.AccountKeeper, tc.genesisState)
 		suite.Require().NotPanics(func() {
 			genesisExported := erc20.ExportGenesis(suite.ctx, suite.app.Erc20Keeper)
