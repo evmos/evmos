@@ -118,7 +118,7 @@ func (k Keeper) OnRecvPacket(
 		}
 
 		balance := k.bankKeeper.GetBalance(ctx, recipient, coin.Denom)
-		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
+		if err := k.ConvertCoinNativeERC20(ctx, pair, balance.Amount, common.BytesToAddress(recipient.Bytes()), recipient); err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
 		}
 	}
@@ -213,7 +213,7 @@ func (k Keeper) ConvertCoinToERC20FromPacket(ctx sdk.Context, data transfertypes
 		}
 
 		// Convert from Coin to ERC20
-		if err := k.LegacyConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender), sender); err != nil {
+		if err := k.ConvertCoinNativeERC20(ctx, pair, coin.Amount, common.BytesToAddress(sender), sender); err != nil {
 			return err
 		}
 	}

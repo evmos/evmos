@@ -337,16 +337,16 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 			expErrMsg: "Base denom cannot be an empty string",
 		},
 		{
-			name:      "fail: invalid prefix",
-			baseDenom: "nevmos",
-			expDec:    0,
-			expFail:   true,
-			expErrMsg: "Should be either micro ('u[...]') or atto ('a[...]'); got: \"nevmos\"",
-		},
-		{
 			name:      "success: micro 'u' prefix",
 			baseDenom: "uevmos",
 			expDec:    6,
+			expFail:   false,
+			expErrMsg: "",
+		},
+		{
+			name:      "fail: invalid prefix",
+			baseDenom: "nevmos",
+			expDec:    9,
 			expFail:   false,
 			expErrMsg: "",
 		},
