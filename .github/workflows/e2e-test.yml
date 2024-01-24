@@ -61,10 +61,11 @@ jobs:
         run: make run-nix-tests
         if: env.GIT_DIFF
       # Commit gomod2nix changes files back to the repository if necessary
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: update gomod2nix.toml file
-          file_pattern: '*.toml'
+      # TODO: uncomment this once added the new PAT to commit the changes (when needed)
+      # - uses: stefanzweifel/git-auto-commit-action@v5
+      #   with:
+      #     commit_message: update gomod2nix.toml file
+      #     file_pattern: '*.toml'
 
   upload-cache:
     if: github.event_name == 'push'
