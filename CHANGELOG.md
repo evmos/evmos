@@ -162,6 +162,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
 - (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
 - (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
+- (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
 
 ### Bug Fixes
 
