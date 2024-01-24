@@ -125,6 +125,7 @@ import (
 	ethante "github.com/evmos/evmos/v16/app/ante/evm"
 	"github.com/evmos/evmos/v16/app/post"
 	v16 "github.com/evmos/evmos/v16/app/upgrades/v16"
+	v17 "github.com/evmos/evmos/v16/app/upgrades/v17"
 	"github.com/evmos/evmos/v16/encoding"
 	"github.com/evmos/evmos/v16/ethereum/eip712"
 	"github.com/evmos/evmos/v16/precompiles/common"
@@ -1142,6 +1143,14 @@ func (app *Evmos) setupUpgradeHandlers() {
 		),
 	)
 
+	// v17 upgrade handler
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v17.UpgradeName,
+		v17.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1162,6 +1171,8 @@ func (app *Evmos) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Deleted: []string{"recoveryv1", "incentives", "claims"},
 		}
+	case v17.UpgradeName:
+		// no store upgrades
 	default:
 		// no-op
 	}
