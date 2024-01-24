@@ -5,7 +5,6 @@ package types
 
 import (
 	context "context"
-	"math/big"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
-	gethparams "github.com/ethereum/go-ethereum/params"
 
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
@@ -42,24 +40,6 @@ type EVMKeeper interface {
 	AddEVMExtensions(ctx sdk.Context, precompiles ...vm.PrecompiledContract) error
 	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailablePrecompile(addr common.Address) bool
-
-	// Needed for genesis
-	NewEVM(ctx sdk.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB) *vm.EVM
-
-	// Read methods
-	GetAccount(ctx sdk.Context, addr common.Address) *statedb.Account
-	GetState(ctx sdk.Context, addr common.Address, key common.Hash) common.Hash
-	GetCode(ctx sdk.Context, codeHash common.Hash) []byte
-	// the callback returns false to break early
-	ForEachStorage(ctx sdk.Context, addr common.Address, cb func(key, value common.Hash) bool)
-	ChainID() *big.Int
-	GetBaseFee(ctx sdk.Context, ethCfg *gethparams.ChainConfig) *big.Int
-	EVMConfig(ctx sdk.Context, proposerAddress sdk.ConsAddress, chainID *big.Int) (*statedb.EVMConfig, error)
-
-	// Write methods, only called by `StateDB.Commit()`
-	SetAccount(ctx sdk.Context, addr common.Address, account statedb.Account) error
-	SetState(ctx sdk.Context, addr common.Address, key common.Hash, value []byte)
-	SetCode(ctx sdk.Context, codeHash []byte, code []byte)
 }
 
 type (
