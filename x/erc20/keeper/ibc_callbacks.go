@@ -67,7 +67,7 @@ func (k Keeper) OnRecvPacket(
 
 	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
-	// return acknoledgement without conversion if sender is a module account
+	// return acknowledgement without conversion if sender is a module account
 	if types.IsModuleAccount(senderAcc) {
 		return ack
 	}
@@ -105,12 +105,7 @@ func (k Keeper) OnRecvPacket(
 		}
 		return ack
 
-	// TODO: Will this ever happen ?
-	// Case 2. token pair is registered but does not have a precompile registered
-	// NOTE: This should never happen as the precompile is registered on the token pair creation
-	// case found && pair.IsNativeCoin() && !evmParams.IsPrecompileRegistered(pair.GetERC20Contract().String()):
-
-	// Case 3. native ERC20 token
+	// Case 2. native ERC20 token
 	case pair.IsNativeERC20():
 		// ERC20 module or token pair is disabled -> return
 		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
@@ -138,7 +133,7 @@ func (k Keeper) OnRecvPacket(
 	return ack
 }
 
-// OnAcknowledgementPacket responds to the the success or failure of a packet
+// OnAcknowledgementPacket responds to the success or failure of a packet
 // acknowledgement written on the receiving chain. If the acknowledgement was a
 // success then nothing occurs. If the acknowledgement failed, then the sender
 // is refunded and then the IBC Coins are converted to ERC20.
