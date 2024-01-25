@@ -131,29 +131,20 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Create a new EvmosApp with the following params
 	evmosApp := createEvmosApp(n.cfg.chainID)
 
-	// Configure Genesis state
-	genesisState := app.NewDefaultGenesisState()
-
-	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, genAccounts)
-
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
 		validators:  validators,
 		delegations: delegations,
 	}
-	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, stakingParams)
-
-	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
 		balances:    fundedAccountBalances,
 	}
-	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, bankParams)
 
 	// Configure Genesis state
-	genesisState = newDefaultGenesisState(
+	genesisState := newDefaultGenesisState(
 		evmosApp,
 		defaultGenesisParams{
 			genAccounts: genAccounts,
