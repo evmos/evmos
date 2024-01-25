@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -53,6 +54,17 @@ func createGenesisAccounts(accounts []sdktypes.AccAddress) []authtypes.GenesisAc
 	for _, acc := range accounts {
 		baseAcc := authtypes.NewBaseAccount(acc, nil, 0, 0)
 		genAccounts = append(genAccounts, baseAcc)
+	}
+	return genAccounts
+}
+
+// getAccAddrsFromBalances returns a slice of genesis accounts from the
+// given balances.
+func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress {
+	numberOfBalances := len(balances)
+	genAccounts := make([]sdktypes.AccAddress, 0, numberOfBalances)
+	for _, balance := range balances {
+		genAccounts = append(genAccounts, balance.GetAddress())
 	}
 	return genAccounts
 }
