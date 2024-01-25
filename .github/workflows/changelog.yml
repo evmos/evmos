@@ -1,14 +1,24 @@
-name: Changelog Diff
+name: Changelog Checks
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - release/**
 
 jobs:
-  check_changelog:
+  check_diff:
     runs-on: ubuntu-latest
     steps:
       - name: Check Changelog for changes
         uses: tarides/changelog-check-action@v2
         with:
           changelog: CHANGELOG.md
+
+  check_changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Changelog Integrity
+        run: |
+          make check-changelog

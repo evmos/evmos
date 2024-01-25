@@ -90,20 +90,40 @@ $ %s debug addr 0x00000Be6819f41400225702D32d3dd23663Dd690 --prefix evmos`, vers
 			switch {
 			case common.IsHexAddress(addrString):
 				hexAddr := common.HexToAddress(addrString).Bytes()
-				prefix, _ := cmd.Flags().GetString(flagPrefix)
 				cmd.Println("Address bytes:", hexAddr)
+
+				prefix, err := cmd.Flags().GetString(flagPrefix)
+				if err != nil {
+					return err
+				}
 				if prefix == "" {
-					bech32AccAddress, _ := sdk.Bech32ifyAddressBytes(cfg.Bech32Prefix, hexAddr)
-					bech32ValAddress, _ := sdk.Bech32ifyAddressBytes(cfg.Bech32PrefixValAddr, hexAddr)
+					bech32AccAddress, err := sdk.Bech32ifyAddressBytes(cfg.Bech32Prefix, hexAddr)
+					if err != nil {
+						return err
+					}
+
+					bech32ValAddress, err := sdk.Bech32ifyAddressBytes(cfg.Bech32PrefixValAddr, hexAddr)
+					if err != nil {
+						return err
+					}
+
 					cmd.Printf("Bech32 Acc %s\n", bech32AccAddress)
 					cmd.Printf("Bech32 Val %s\n", bech32ValAddress)
 				} else {
-					bech32Address, _ := sdk.Bech32ifyAddressBytes(prefix, hexAddr)
+					bech32Address, err := sdk.Bech32ifyAddressBytes(prefix, hexAddr)
+					if err != nil {
+						return err
+					}
+
 					cmd.Printf("Bech32 %s\n", bech32Address)
 				}
 			default:
 				prefix := strings.SplitN(addrString, "1", 2)[0]
-				hexAddr, _ := sdk.GetFromBech32(addrString, prefix)
+				hexAddr, err := sdk.GetFromBech32(addrString, prefix)
+				if err != nil {
+					return err
+				}
+
 				hexAddrString := common.BytesToAddress(hexAddr).String()
 
 				cmd.Println("Address bytes:", hexAddr)

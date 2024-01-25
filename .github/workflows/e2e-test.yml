@@ -23,6 +23,7 @@ jobs:
             *.toml
             tests/e2e/*
             Dockerfile
+            .github/workflows/e2e-test*
       - name: Test E2E
         run: |
           make test-e2e
@@ -42,7 +43,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v13
+      - uses: cachix/cachix-action@v14
         with:
           name: evmosd
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"                    
@@ -55,6 +56,7 @@ jobs:
             go.sum
             *.toml
             tests/nix_tests/**
+            .github/workflows/e2e-test*
       - name: Run nix tests
         run: make run-nix-tests
         if: env.GIT_DIFF
@@ -82,7 +84,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-22.11
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v13
+      - uses: cachix/cachix-action@v14
         with:
           name: evmosd
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
