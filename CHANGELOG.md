@@ -92,7 +92,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (werc20-precompile) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 precompile events.
 - (werc20-precompile) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 precompile transactions.
 - (distribution-precompile) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
-- (erc20-precompile) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 precompile transactions. (erc20-precompile) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC-20 precompile type utilities.
+- (erc20-precompile) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 precompile transactions.
+- (erc20-precompile) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC-20 precompile type utilities.
 - (erc20-precompile) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
 - (erc20-precompile) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
 - (erc20-precompile) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC-20 precompile approvals.
