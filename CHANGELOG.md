@@ -45,6 +45,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
 - (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
 - (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+- (erc20) [#2292](https://github.com/evmos/evmos/pull/2292) Revert unnecessary logic on genesis (reverts #2217).
 
 ### Improvements
 
