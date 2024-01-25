@@ -39,6 +39,45 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ### State Machine Breaking
 
+- (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
+- (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
+- (erc20) [#2157](https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
+- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
+- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
+- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
+
+### Improvements
+
+- (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
+- (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
+- (api) [#2198](https://github.com/evmos/evmos/pull/2198) Remove deprecated `RegisterCoinProposal` from store to avoid breaking the governance proposals query.
+- (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
+- (outposts) [#2236](https://github.com/evmos/evmos/pull/2236) Add default timeout timestamp for outpost transactions.
+- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
+- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
+- (tests) [#2235](https://github.com/evmos/evmos/pull/2235) Ensure voting has concluded in automated upgrade tests.
+- (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
+- (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
+- (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
+- (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
+- (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
+
+## [v16.0.2](https://github.com/evmos/evmos/releases/tag/v16.0.2) - 2024-01-16
+
+### Bug Fixes
+
+- (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
+
+## [v16.0.1](https://github.com/evmos/evmos/releases/tag/v16.0.1) - 2024-01-11
+
+### Improvements
+
+- (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
+
+## [v16.0.0](https://github.com/evmos/evmos/releases/tag/v16.0.0) - 2024-01-05
+
+### State Machine Breaking
+
 - (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
 - (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
 - (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
@@ -49,17 +88,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
 - (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
 - (bank-precompile) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance.
+- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance (burning reverted in [#2131](https://github.com/evmos/evmos/pull/2131)).
 - (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
 - (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
-- (upgrade) [#2129](https://github.com/evmos/evmos/pull/2129) Add `Burner` role to `FeeCollector` module.
-- (erc20) [#2154](https://github.com/evmos/evmos/pull/2154) Remove EVM hooks from `erc20` module.
-- (erc20) [#2155](https://github.com/evmos/evmos/pull/2155) Remove CLI commands for register and convert Coin.
-- (erc20) [#2157](https://github.com/evmos/evmos/pull/2157) Remove `RegisterCoinProposal` logic, protos and related tests.
-- (osmosis-outpost) [#2206](https://github.com/evmos/evmos/pull/2206) Update swap function input to custom struct.
-- (stride-outpost) [#2207](https://github.com/evmos/evmos/pull/2207) Update Stride outpost to include additional arguments.
+- (evm) [#2172](https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
+- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
+- (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
+- (upgrade) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
 - (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
-- (erc20) [#2217](https://github.com/evmos/evmos/pull/2217) Add logic to deploy token pairs contracts on genesis.
 
 ### API Breaking
 
@@ -104,7 +140,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
 - (erc20-precompile) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC-20 precompile queries.
 - (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
-- (ante) [#2028](https://github.com/evmos/evmos/pull/2028) MonoAnteHandler for EVM transaction.
 - (erc20-precompile) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC-20 extension.
 - (bank-precompile) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
 - (bank-precompile) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
@@ -134,35 +169,21 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (bank-precompile) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
 - (osmosis-outpost) [#2077](https://github.com/evmos/evmos/pull/2077) Update Osmosis outpost to use cross-chain swap contract V1.
 - (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types.
-- (staking-precompile) [#2105](https://github.com/evmos/evmos/pull/2105) Detect the length of the ed25519 pubkey in precompile `CreateValidator` to prevent panic.
 - (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
 - (upgrade) [#2117](https://github.com/evmos/evmos/pull/2117) Enable Stride and Osmosis outposts in v16 upgrade handler.
 - (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
 - (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
 - (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
 - (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
-- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce daily inflation by 2/3s.
 - (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. .
 - (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
 - (outposts) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
 - (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
-- (api) [#2198](https://github.com/evmos/evmos/pull/2198) Remove deprecated `RegisterCoinProposal` from store to avoid breaking the governance proposals query.
 - (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) Backport handle cases for input and output denoms without token pair lookup.
 - (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in CLI.
 - (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
 - (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
 - (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
-- (tests) [#2230](https://github.com/evmos/evmos/pull/2230) Send bank transfer during automated upgrade tests.
-- (outposts) [#2236](https://github.com/evmos/evmos/pull/2236) Add default timeout timestamp for outpost transactions.
-- (distribution-precompile) [#2240](https://github.com/evmos/evmos/pull/2240) Replace hardcoded expected balance in distribution precompile tests with queried balance.
-- (staking-precompile) [#2234](https://github.com/evmos/evmos/pull/2234) Fix wrong error messages in `NewMsgCreateValidator`.
-- (tests) [#2235](https://github.com/evmos/evmos/pull/2235) Ensure voting has concluded in automated upgrade tests.
-- (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
-- (ci) [#2259](https://github.com/evmos/evmos/pull/2259) Adjust CI configuration to have required items always return a status.
-- (ci) [#2267](https://github.com/evmos/evmos/pull/2267) Minor clean-up in EIP-7212 tests.
-- (ci) [#2268](https://github.com/evmos/evmos/pull/2268) Fix and update the Pull Request Labeler workflow.
-- (tests) [#2280](https://github.com/evmos/evmos/pull/2280) Enable specifying the prefunded balances for the integration test setup.
-- (tests) [#2289](https://github.com/evmos/evmos/pull/2289) Add utility to check balances during tests.
 
 ### Bug Fixes
 
@@ -170,142 +191,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
 - (tests) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go.
 - (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general).
-- (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
-- (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger.
-- (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-
-## [v16.0.2] - 2024-01-16
-
-### Bug Fixes
-
-- (inflation) [#2269](https://github.com/evmos/evmos/pull/2269) Fix inflation info returned by epoch mint provision getter.
-
-## [v16.0.1] - 2024-01-11
-
-### Improvements
-
-- (metrics) [#2246](https://github.com/evmos/evmos/pull/2246) Add burned cosmos transactions fees metric.
-
-## [v16.0.0] - 2024-01-05
-
-### State Machine Breaking
-
-- (p256-precompile) [#1922](https://github.com/evmos/evmos/pull/1922) [EIP-7212](https://eips.ethereum.org/EIPS/eip-7212) `secp256r1` curve precompile.
-- (distribution-precompile) [#1949](https://github.com/evmos/evmos/pull/1949) Add `ClaimRewards` custom transaction.
-- (bech32-precompile) [#2038](https://github.com/evmos/evmos/pull/2038) Add `bech32` conversion precompile.
-- (bech32-precompile) [#2124](https://github.com/evmos/evmos/pull/2124) Activate `bech32` precompile.
-- (staking-precompile) [#2030](https://github.com/evmos/evmos/pull/2030) Implement the `CreateValidator` function for staking precompiled contract.
-- (fees) [#1998](https://github.com/evmos/evmos/pull/1998) Restrict transaction fee tokens.
-- (staking-precompile) [#2053](https://github.com/evmos/evmos/pull/2053) Change the validator address in the events from string type to address type.
-- (distribution-precompile) [#2055](https://github.com/evmos/evmos/pull/2055) Change the validator address in the events from string type to address type.
-- (recovery) [#2087](https://github.com/evmos/evmos/pull/2087) Remove `x/recovery` module.
-- (bank-precompile) [#2095](https://github.com/evmos/evmos/pull/2095) Add `bank` precompile.
-- (incentives) [#2070](https://github.com/evmos/evmos/pull/2070) Remove `x/incentives` module and burn incentives pool balance (burning reverted in [#2131](https://github.com/evmos/evmos/pull/2131)).
-- (evm) [#2084](https://github.com/evmos/evmos/pull/2084) Remove `x/claims` params and migrate the `EVMChannels` param to the `x/evm` module params.
-- (post) [#2128](https://github.com/evmos/evmos/pull/2128) Add `BurnDecorator` to `PostHandler` to burn cosmos transaction fees.
-- (evm) [#2172](https://github.com/evmos/evmos/pull/2172) Add channel selector from chain id.
-- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce inflation by 2/3.
-- (outposts) [#2185](https://github.com/evmos/evmos/pull/2185) Refactor `Stride` and `Osmosis` outposts to hardcode WEVMOS address.
-- (fee_collector) [#2186](https://github.com/evmos/evmos/pull/2186) Add `feecollector` Burner role in upgrade handler.
-- (incentives) [#2221](https://github.com/evmos/evmos/pull/2221) Burn the usage incentives pool balance during v16 upgrade.
-
-### API Breaking
-
-- (inflation) [#2015](https://github.com/evmos/evmos/pull/2015) Rename `inflation` module to `inflation/v1`.
-- (ante) [#2078](https://github.com/evmos/evmos/pull/2078) Deprecate legacy EIP712 ante handler.
-
-### Improvements
-
-- (testnet) [#1864](https://github.com/evmos/evmos/pull/1864) Add `--base-fee` and `--min-gas-price` flags to the command `evmosd testnet init-files`.
-- (stride-outpost) [#1912](https://github.com/evmos/evmos/pull/1912) Add Stride outpost interface and ABI.
-- (stride-outpost) [#1913](https://github.com/evmos/evmos/pull/1913) Add Run function, precompile struct and tx definitions.
-- (stride-outpost) [#1914](https://github.com/evmos/evmos/pull/1914) Add types, events and common util function.
-- (osmosis-outpost) [#1915](https://github.com/evmos/evmos/pull/1915) Add Osmosis Outpost interface and ABI.
-- (ics20-precompile) [#1916](https://github.com/evmos/evmos/pull/1916) Make ICS20 Transfer event a common function.
-- (ics20-precompile) [#1917](https://github.com/evmos/evmos/pull/1917) Make timeout height a const in the ics20 precompile.
-- (stride-outpost) [#1926](https://github.com/evmos/evmos/pull/1926) Refactor event names and definitions.
-- (stride-outpost) [#1931](https://github.com/evmos/evmos/pull/1931) Add Stride unit testing setup.
-- (stride-outpost) [#1932](https://github.com/evmos/evmos/pull/1932) Add transaction implementation and events unit tests.
-- (stride-outpost) [#1935](https://github.com/evmos/evmos/pull/1935) Refactor RedeemStake method.
-- (osmosis-outpost) [#1921](https://github.com/evmos/evmos/pull/1921) Add Osmosis outpost types and errors.
-- (rpc) [#1952](https://github.com/evmos/evmos/pull/1952) Add tests for EVM extensions transactions gas estimation (related to changes in [#1943](https://github.com/evmos/evmos/pull/1943)).
-- (distribution-precompile) [#1954](https://github.com/evmos/evmos/pull/1954) Add `ClaimRewards` unit and event tests.
-- (osmosis-outpost) [#1944](https://github.com/evmos/evmos/pull/1944) Add more validation to Osmosis outpost.
-- (precompiles) [#1973](https://github.com/evmos/evmos/pull/1973) Use `LoadABI` from precompiles common package in outposts.
-- (erc20-precompile) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
-- (erc20-precompile) [#1984](https://github.com/evmos/evmos/pull/1984) Add tests for ERC20 precompile events.
-- (ci) [#1985](https://github.com/evmos/evmos/pull/1985) Add CI action to check for a Changelog entry on PRs to `main`.
-- (erc20-precompile) [#1983](https://github.com/evmos/evmos/pull/1983) Add ERC-20 Precompile queries.
-- (osmosis-outpost) [#1986](https://github.com/evmos/evmos/pull/1986) Add Osmosis outpost transaction.
-- (werc20-precompile) [#1990](https://github.com/evmos/evmos/pull/1990) Add WERC-20 Precompile events.
-- (werc20-precompile) [#1991](https://github.com/evmos/evmos/pull/1991) Add WERC-20 Precompile transactions.
-- (distribution-precompile) [#1992](https://github.com/evmos/evmos/pull/1992) Remove outdated check utility for distribution approval.
-- (erc20-precompile) [#1993](https://github.com/evmos/evmos/pull/1993) Add ERC-20 Precompile transactions.
-- (erc20-precompile) [#1994](https://github.com/evmos/evmos/pull/1994) Add tests for ERC20 precompile type utilities.
-- (erc20-precompile) [#1995](https://github.com/evmos/evmos/pull/1995) Add ERC-20 precompile approvals and authorizations.
-- (erc20-precompile) [#1997](https://github.com/evmos/evmos/pull/1997) Add logic for ERC-20 precompile registration.
-- (erc20-precompile) [#2005](https://github.com/evmos/evmos/pull/2005) Add tests for ERC20 precompile approvals.
-- (bin) [#2007](https://github.com/evmos/evmos/pull/2007) Add commands in Makefile for building binary with rocksDB and pebbleDB
-- (erc20-precompile) [#2009](https://github.com/evmos/evmos/pull/2009) Add ERC20 precompile transaction unit tests.
-- (osmosis-outpost) [#2011](https://github.com/evmos/evmos/pull/2011) Update outpost swap ABI to return IBC next sequence.
-- (utils) [#2010](https://github.com/evmos/evmos/pull/2010) Add utils function to create ibc denom trace.
-- (erc20-precompile) [#2012](https://github.com/evmos/evmos/pull/2012) Adjust ERC20 extension approvals to handle multiple denominations.
-- (osmosis-outpost) [#2017](https://github.com/evmos/evmos/pull/2017) Refactor types, errors and precompile struct.
-- (erc20-precompile) [#2023](https://github.com/evmos/evmos/pull/2023) Add tests for ERC20 precompile queries.
-- (osmosis-outpost) [#2025](https://github.com/evmos/evmos/pull/2025) Use a struct to wrap parsed parameters from Solidity.
-- (erc20-precompile) [#2037](https://github.com/evmos/evmos/pull/2037) Add IsTransactions and RequiredGas tests for the ERC20 extension.
-- (bank-precompile) [#2040](https://github.com/evmos/evmos/pull/2040) Add bank extension unit tests for queries.
-- (bank-precompile) [#2041](https://github.com/evmos/evmos/pull/2041) Add `supplyOf` query to bank extension.
-- (staking-precompile) [#2046](https://github.com/evmos/evmos/pull/2046) Format any type ConsensusPubkey into a base64 string.
-- (bank-precompile) [#2045](https://github.com/evmos/evmos/pull/2045) Add unit tests for `supplyOf` query.
-- (osmosis-outpost) [#2042](https://github.com/evmos/evmos/pull/2042) Add Osmosis's wasm hook validation functions to test
-- (staking-precompile) [#2050](https://github.com/evmos/evmos/pull/2050) Add CreateValidator unit test for precompiled contract staking.
-- (make) [#2052](https://github.com/evmos/evmos/pull/2052) Fix Makefile targets to compile ERC20 contracts.
-- (werc20-precompile) [#2057](https://github.com/evmos/evmos/pull/2057) WERC20 refactors and handling of fallback and receive functions.
-- (werc20-precompile) [#2059](https://github.com/evmos/evmos/pull/2059) Add WERC20 base integration tests.
-- (werc20-precompile) [#2062](https://github.com/evmos/evmos/pull/2062) Remove name checking for `fallback` and `receive` functions.
-- (osmosis-outpost) [#2063](https://github.com/evmos/evmos/pull/2063) Check that receiver address is bech32 with "evmos" as human readable part.
-- (cmn-precompile) [#2064](https://github.com/evmos/evmos/pull/2064) Handle all `fallback` and `receive` function cases
-- (erc20-precompile) [#2066](https://github.com/evmos/evmos/pull/2066) Adjust ERC20 EVM extension allowance behavior to align with standard ERC20 smart contracts.
-- (erc20-precompile) [#2067](https://github.com/evmos/evmos/pull/2067) Further alignments between ERC20 smart contracts and EVM extension.
-- (stride-outpost) [#2069](https://github.com/evmos/evmos/pull/2069) Refactor `osmosis` and `stride` testing.
-- (erc20-precompile) [#2073](https://github.com/evmos/evmos/pull/2073) Align metadata query errors with ERC20 contracts.
-- (werc20-precompile) [#2074](https://github.com/evmos/evmos/pull/2074) Add `werc20` EVM Extension acceptance tests with `WEVMOS` contract.
-- (erc20-precompile) [#2075](https://github.com/evmos/evmos/pull/2075) Align allowance adjustment errors with ERC20 contracts.
-- (erc20-precompile) [#2080](https://github.com/evmos/evmos/pull/2080) Add ERC20 integration test setup.
-- (erc20-precompile) [#2081](https://github.com/evmos/evmos/pull/2081) Add ERC20 query integration tests.
-- (erc20-precompile) [#2083](https://github.com/evmos/evmos/pull/2083) Add integration tests for ERC20 allowance transactions.
-- (erc20-precompile) [#2085](https://github.com/evmos/evmos/pull/2085) Add ERC20 transfer integration tests.
-- (erc20-precompile) [#2086](https://github.com/evmos/evmos/pull/2086) Add ERC20 metadata query integration tests.
-- (erc20-precompile) [#2088](https://github.com/evmos/evmos/pull/2088) Emit additional approval event in case of `transferFrom`.
-- (erc20-precompile) [#2097](https://github.com/evmos/evmos/pull/2097) Adjust ERC20 allowance behavior for same spender.
-- (bank-precompile) [#2096](https://github.com/evmos/evmos/pull/2096) Add `bank` precompile integration tests.
-- (osmosis-outpost) [#2077](https://github.com/evmos/evmos/pull/2077) Update Osmosis outpost to use cross-chain swap contract V1.
-- (app) [#2104](https://github.com/evmos/evmos/pull/2104) Refactor code to use `sdkmath.Int` and `sdkmath.LegacyDec` instead of the SDK types
-- (p256-precompile) [#2110](https://github.com/evmos/evmos/pull/2110) Adjust `p256` precompile address.
-- (upgrade) [#2117](https://github.com/evmos/evmos/pull/2117) Enable Stride and Osmosis outposts in v16 upgrade handler.
-- (osmosis-outpost) [#2109](https://github.com/evmos/evmos/pull/2109) Add Osmosis outpost to available EVM extensions.
-- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Add Osmosis outpost end-to-end tests.
-- (upgrade) [#2131](https://github.com/evmos/evmos/pull/2131) Remove incentives pool burning logic from upgrade handler.
-- (staking-precompile) [#2122](https://github.com/evmos/evmos/pull/2122) Replace bech32 address with EVM hex address for `CreateValidator` function and remove delegator address argument.
-- (inflation) [#2137](https://github.com/evmos/evmos/pull/2137) Reduce daily inflation by 2/3s.
-- (app) [#2138](https://github.com/evmos/evmos/pull/2138) Replace imports of store related types and functions to use Cosmos-SDK `store/types` package. 
-- (app) [#2139](https://github.com/evmos/evmos/pull/2139) Remove old upgrade handlers logic.
-- (outpost) [#2171](https://github.com/evmos/evmos/pull/2171) Add channelID selector based on the ChainID.
-- (db) [#2182](https://github.com/evmos/evmos/pull/2182) Bump RocksDB version to `v8.8.1`.
-- (outposts) [#2215](https://github.com/evmos/evmos/pull/2215) backport handle cases for input and output denoms without token pair lookup
-- (cli) [#2212](https://github.com/evmos/evmos/pull/2212) Remove ValidateBasic in cli.
-- (swagger) [#2219](https://github.com/evmos/evmos/pull/2219) Update Swagger configuration to remove outdated entries and update vesting module version.
-- (outposts) [#2223](https://github.com/evmos/evmos/pull/2223) Update Outposts struct documentation and `ValidateBasic`.
-- (osmosis-outpost) [#2029](https://github.com/evmos/evmos/pull/2029) Osmosis Outpost e2e tests.
-- (p256-precompile) [#2228](https://github.com/evmos/evmos/pull/2228) Adjust p256 precompile address from `0x0b` to `0x100`.
-
-### Bug Fixes
-
-- (evm) [#1801](https://github.com/evmos/evmos/pull/1801) Fixed the problem gas_used is 0 when using EVM type tx to transfer token to module account.
-- (evm) [#1943](https://github.com/evmos/evmos/pull/1943) Fix gas estimation (`eth_estimateGas`) to be consistent with gas used in EVM extensions transactions.
-- (test) [#1989](https://github.com/evmos/evmos/pull/1989) Fix the problem about deliverTxSimulate in test app/ante/cosmos/min_price_test.go
-- (db) [#2072](https://github.com/evmos/evmos/pull/2072) Change VersionDb directory permission from 777 (insecure) to 750 (general)
 - (osmosis-outpost) [#2192](https://github.com/evmos/evmos/pull/2192) Fix Osmosis XCS contract address for testnet.
 - (api) [#2196](https://github.com/evmos/evmos/pull/2196) Remove governance proposals related to the deprecated `x/incentives` module to fix the governance proposals query.
 - (swagger) [#2218](https://github.com/evmos/evmos/pull/2218) Use correct version of proto dependencies to generate swagger.
@@ -1047,3 +932,4 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (cli) [#26](https://github.com/evmos/evmos/pull/26) Use config on genesis accounts.
 - (deps) [#28](https://github.com/evmos/evmos/pull/28) Bump Ethermint version to `v0.7.0`.
+
