@@ -36,6 +36,7 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	ethCfg := chainCfg.EthereumConfig(chainID)
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum)
+	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
 
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
@@ -43,26 +44,40 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
 		}
 
-		allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
-		ethTx := msgEthTx.AsTransaction()
-		if !allowUnprotectedTxs && !ethTx.Protected() {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrNotSupported,
-				"rejected unprotected Ethereum transaction. Please EIP155 sign your transaction to protect it against replay-attacks")
-		}
-
-		sender, err := signer.Sender(ethTx)
+		err := SignatureVerification(msgEthTx, signer, allowUnprotectedTxs)
 		if err != nil {
-			return ctx, errorsmod.Wrapf(
-				errortypes.ErrorInvalidSigner,
-				"couldn't retrieve sender address from the ethereum transaction: %s",
-				err.Error(),
-			)
+			return ctx, err
 		}
-
-		// set up the sender to the transaction field if not already
-		msgEthTx.From = sender.Hex()
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// SignatureVerification checks that the registered chain id is the same as the one on the message, and
+// that the signer address matches the one defined on the message.
+func SignatureVerification(
+	msg *evmtypes.MsgEthereumTx,
+	signer ethtypes.Signer,
+	allowUnprotectedTxs bool,
+) error {
+	ethTx := msg.AsTransaction()
+
+	if !allowUnprotectedTxs && !ethTx.Protected() {
+		return errorsmod.Wrapf(
+			errortypes.ErrNotSupported,
+			"rejected unprotected Ethereum transaction. Please EIP155 sign your transaction to protect it against replay-attacks")
+	}
+
+	sender, err := signer.Sender(ethTx)
+	if err != nil {
+		return errorsmod.Wrapf(
+			errortypes.ErrorInvalidSigner,
+			"couldn't retrieve sender address from the ethereum transaction: %s",
+			err.Error(),
+		)
+	}
+
+	// set up the sender to the transaction field if not already
+	msg.From = sender.Hex()
+	return nil
 }
