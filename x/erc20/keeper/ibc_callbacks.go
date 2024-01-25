@@ -89,6 +89,7 @@ func (k Keeper) OnRecvPacket(
 	pair, found := k.GetTokenPair(ctx, pairID)
 	switch {
 	// Case 1. token pair is not registered and is a single hop IBC Coin
+	// TODO: Should we check coin.Denom since its always `IBC/` or data.Denom?
 	case !found && ibc.IsSingleHop(coin.Denom):
 		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
 		if err != nil {
@@ -108,6 +109,7 @@ func (k Keeper) OnRecvPacket(
 	// Case 2. native ERC20 token
 	case pair.IsNativeERC20():
 		// ERC20 module or token pair is disabled -> return
+		// TODO: Add check before
 		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
 			return ack
 		}
@@ -118,6 +120,7 @@ func (k Keeper) OnRecvPacket(
 		}
 	}
 
+	// TODO: move to top
 	defer func() {
 		telemetry.IncrCounterWithLabels(
 			[]string{types.ModuleName, "ibc", "on_recv", "total"},
