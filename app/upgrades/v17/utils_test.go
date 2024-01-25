@@ -132,8 +132,6 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 
 	// NOTE: We check that the balances have been adjusted to remove 100 XMPL from the bank balance after
 	// converting to ERC20s.
-	//
-	// TODO: add util method to check balances
 	err = utils.CheckBalances(handler, []banktypes.Balance{
 		{Address: kr.GetAccAddr(testAccount).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
 		{Address: kr.GetAccAddr(erc20Deployer).String(), Coins: sdk.NewCoins(sdk.NewInt64Coin(XMPL, 200))},
