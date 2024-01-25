@@ -55,6 +55,8 @@ type TxFactory interface {
 	ExecuteEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (abcitypes.ExecTxResult, error)
 	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
+	// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+	GetEvmTransactionResponseFromTxResult(txResult abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -279,6 +281,26 @@ func (tf *IntegrationTxFactory) GenerateGethCoreMsg(
 		tf.network.GetEIP155ChainID(),
 	)
 	return signedMsg.AsMessage(signer, baseFeeResp.BaseFee.BigInt())
+}
+
+func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
+	txResult abcitypes.ExecTxResult,
+) (*evmtypes.MsgEthereumTxResponse, error) {
+	var txData sdktypes.TxMsgData
+	if err := tf.ec.Codec.Unmarshal(txResult.Data, &txData); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal tx data")
+	}
+
+	if len(txData.MsgResponses) != 1 {
+		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal evm tx response")
+	}
+
+	return &evmRes, nil
 }
 
 // populateEvmTxArgs populates the missing fields in the provided EvmTxArgs with default values.

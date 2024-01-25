@@ -960,8 +960,52 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestTraceTx() {
-	// TODO deploy contract that triggers internal transactions
+func (suite *EvmKeeperTestSuite) TestTraceTx() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grcpHandler)
+
+	key := keyring.GetKey(0)
+
+	constructorArgs := []interface{}{
+		key.Addr,
+		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+	}
+	compiledContract := types.ERC20Contract
+	contractAddr, err := txFactory.DeployContract(
+		key.Priv,
+		types.EvmTxArgs{}, // Default values
+		factory.ContractDeploymentData{
+			Contract:        compiledContract,
+			ConstructorArgs: constructorArgs,
+		},
+	)
+	suite.Require().NoError(err)
+
+	err = unitNetwork.NextBlock()
+	suite.Require().NoError(err)
+
+	newIndex := keyring.AddKey()
+	recipient := keyring.GetAddr(newIndex)
+
+	transferArgs := types.EvmTxArgs{
+		To: &contractAddr,
+	}
+	callArgs := factory.CallArgs{
+		ContractABI: compiledContract.ABI,
+		MethodName:  "transfer",
+		Args:        []interface{}{recipient, big.NewInt(1000)},
+	}
+	res, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
+	suite.Require().NoError(err)
+
+	txToTrace, err := txFactory.GetEvmTransactionResponseFromTxResult(res)
+    suite.Require().NoError(err)
+
+
 	var (
 		txMsg        *types.MsgEthereumTx
 		traceConfig  *types.TraceConfig
@@ -1047,18 +1091,18 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				traceConfig = nil
 
 				// increase nonce to avoid address collision
-				vmdb := suite.StateDB()
-				addr := suite.keyring.GetAddr(0)
+				vmdb := unitNetwork.GetStateDB()
+				addr := keyring.GetAddr(0)
 				vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
 				suite.Require().NoError(vmdb.Commit())
 
 				contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				err := suite.network.NextBlock()
+				err := unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 				// Generate token transfer transaction
 				firstTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
 				txMsg = suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-				err = suite.network.NextBlock()
+				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
 				predecessors = append(predecessors, firstTx)
@@ -1113,13 +1157,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				traceConfig = nil
 
 				// increase nonce to avoid address collision
-				vmdb := suite.StateDB()
-				addr := suite.keyring.GetAddr(0)
+				vmdb := unitNetwork.GetStateDB()
+				addr := keyring.GetAddr(0)
 				vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
 				suite.Require().NoError(vmdb.Commit())
 
-				chainID := suite.network.App.EvmKeeper.ChainID()
-				nonce := suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), addr)
+				chainID := unitNetwork.App.EvmKeeper.ChainID()
+				nonce := unitNetwork.App.EvmKeeper.GetNonce(unitNetwork.GetContext(), addr)
 				data := types.ERC20Contract.Bin
 				ethTxParams := &types.EvmTxArgs{
 					ChainID:  chainID,
@@ -1130,12 +1174,12 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				contractTx := types.NewTx(ethTxParams)
 
 				predecessors = append(predecessors, contractTx)
-				err := suite.network.NextBlock()
+				err := unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
+				params := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext())
 				params.EnableCreate = false
-				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
+				err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), params)
 				suite.Require().NoError(err)
 			},
 			expPass:       true,
@@ -1157,19 +1201,19 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.enableFeemarket = tc.enableFeemarket
-			suite.SetupTest()
-			// Deploy contract
-			addr := suite.keyring.GetAddr(0)
-			contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-			err := suite.network.NextBlock()
-			suite.Require().NoError(err)
-			// Generate token transfer transaction
-			txMsg = suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-			err = suite.network.NextBlock()
-			suite.Require().NoError(err)
+
+			// // Deploy contract
+			// contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+			// err := unitNetwork.NextBlock()
+			// suite.Require().NoError(err)
+			//
+			// // Generate token transfer transaction
+			// txMsg = suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
+			// err = unitNetwork.NextBlock()
+			// suite.Require().NoError(err)
 
 			tc.malleate()
+
 			traceReq := types.QueryTraceTxRequest{
 				Msg:          txMsg,
 				TraceConfig:  traceConfig,
@@ -1179,7 +1223,9 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			if chainID != nil {
 				traceReq.ChainId = chainID.Int64()
 			}
-			res, err := suite.network.GetEvmClient().TraceTx(suite.network.GetContext(), &traceReq)
+
+			// Function under test
+			res, err := unitNetwork.GetEvmClient().TraceTx(unitNetwork.GetContext(), &traceReq)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -1197,13 +1243,11 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int(tc.expFinalGas), int(suite.network.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
+			suite.Require().Equal(int(tc.expFinalGas), int(unitNetwork.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
 			// Reset for next test case
 			chainID = nil
 		})
 	}
-
-	suite.enableFeemarket = false // reset flag
 }
 
 func (suite *KeeperTestSuite) TestTraceBlock() {
