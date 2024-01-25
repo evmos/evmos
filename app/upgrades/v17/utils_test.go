@@ -69,7 +69,6 @@ func SetupConvertERC20CoinsTest(t *testing.T) (ConvertERC20CoinsTestSuite, error
 	}
 
 	nw := network.NewUnitTestNetwork(
-		// TODO: we'll need to merge main into the feature branch to update this
 		network.WithBalances(fundedBalances...),
 	)
 	handler := grpc.NewIntegrationHandler(nw)
