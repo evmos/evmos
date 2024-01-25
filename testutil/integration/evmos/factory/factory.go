@@ -12,7 +12,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/evmos/v16/app"
@@ -148,19 +147,19 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 	return txArgs, nil
 }
 
-func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
+func (tf *IntegrationTxFactory) buildAndEncodeEthTx(msg evmtypes.MsgEthereumTx) ([]byte, error) {
 	txConfig := tf.ec.TxConfig
-	txBytes, err := txConfig.TxEncoder()(tx)
+	txBuilder := txConfig.NewTxBuilder()
+	signingTx, err := msg.BuildTx(txBuilder, tf.network.GetDenom())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to build tx")
+	}
+
+	txBytes, err := txConfig.TxEncoder()(signingTx)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "failed to encode tx")
 	}
 	return txBytes, nil
-}
-
-func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signing.Tx, error) {
-	txConfig := tf.ec.TxConfig
-	txBuilder := txConfig.NewTxBuilder()
-	return msg.BuildTx(txBuilder, tf.network.GetDenom())
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse

@@ -257,6 +257,28 @@ def wait_for_ack(cli, chain):
         return wait_for_ack(cli, chain)
 
 
+def wait_for_cosmos_tx_receipt(cli, tx_hash):
+    print(f"waiting receipt for tx_hash: {tx_hash}...")
+    wait_for_new_blocks(cli, 1)
+    res = cli.tx_search_rpc(f"tx.hash='{tx_hash}'")
+    if len(res) == 0:
+        return wait_for_cosmos_tx_receipt(cli, tx_hash)
+    return res[0]
+
+
+def wait_for_ack(cli, chain):
+    """
+    Helper function to wait for acknoledgment
+    of an IBC transfer
+    """
+    print(f"{chain} waiting ack...")
+    block_results = cli.block_results_rpc()
+    txs_res = block_results["txs_results"]
+    if txs_res is None:
+        wait_for_new_blocks(cli, 1)
+        return wait_for_ack(cli, chain)
+
+
 def register_host_zone(
     stride,
     proposer,
