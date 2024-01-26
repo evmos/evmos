@@ -31,8 +31,11 @@ func InitGenesis(
 		panic("the erc20 module account has not been set")
 	}
 
-	if err := k.SetGenesisTokenPairs(ctx, data.TokenPairs); err != nil {
-		panic(err)
+	for _, pair := range data.TokenPairs {
+		id := pair.GetID()
+		k.SetTokenPair(ctx, pair)
+		k.SetDenomMap(ctx, pair.Denom, id)
+		k.SetERC20Map(ctx, pair.GetERC20Contract(), id)
 	}
 }
 

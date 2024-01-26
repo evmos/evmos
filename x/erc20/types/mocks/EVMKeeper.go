@@ -4,21 +4,18 @@ package mocks
 
 import (
 	context "context"
-	big "math/big"
 
 	common "github.com/ethereum/go-ethereum/common"
 
 	core "github.com/ethereum/go-ethereum/core"
 
-	cosmos_sdktypes "github.com/cosmos/cosmos-sdk/types"
-
 	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 
 	mock "github.com/stretchr/testify/mock"
 
-	params "github.com/ethereum/go-ethereum/params"
-
 	statedb "github.com/evmos/evmos/v16/x/evm/statedb"
+
+	types "github.com/cosmos/cosmos-sdk/types"
 
 	vm "github.com/ethereum/go-ethereum/core/vm"
 )
@@ -28,16 +25,8 @@ type EVMKeeper struct {
 	mock.Mock
 }
 
-type EVMKeeper_Expecter struct {
-	mock *mock.Mock
-}
-
-func (_m *EVMKeeper) EXPECT() *EVMKeeper_Expecter {
-	return &EVMKeeper_Expecter{mock: &_m.Mock}
-}
-
 // AddEVMExtensions provides a mock function with given fields: ctx, precompiles
-func (_m *EVMKeeper) AddEVMExtensions(ctx cosmos_sdktypes.Context, precompiles ...vm.PrecompiledContract) error {
+func (_m *EVMKeeper) AddEVMExtensions(ctx types.Context, precompiles ...vm.PrecompiledContract) error {
 	_va := make([]interface{}, len(precompiles))
 	for _i := range precompiles {
 		_va[_i] = precompiles[_i]
@@ -48,7 +37,7 @@ func (_m *EVMKeeper) AddEVMExtensions(ctx cosmos_sdktypes.Context, precompiles .
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, ...vm.PrecompiledContract) error); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, ...vm.PrecompiledContract) error); ok {
 		r0 = rf(ctx, precompiles...)
 	} else {
 		r0 = ret.Error(0)
@@ -57,52 +46,16 @@ func (_m *EVMKeeper) AddEVMExtensions(ctx cosmos_sdktypes.Context, precompiles .
 	return r0
 }
 
-// MockEVMKeeper_AddEVMExtensions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddEVMExtensions'
-type MockEVMKeeper_AddEVMExtensions_Call struct {
-	*mock.Call
-}
-
-// AddEVMExtensions is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - precompiles ...vm.PrecompiledContract
-func (_e *EVMKeeper_Expecter) AddEVMExtensions(ctx interface{}, precompiles ...interface{}) *MockEVMKeeper_AddEVMExtensions_Call {
-	return &MockEVMKeeper_AddEVMExtensions_Call{Call: _e.mock.On("AddEVMExtensions",
-		append([]interface{}{ctx}, precompiles...)...)}
-}
-
-func (_c *MockEVMKeeper_AddEVMExtensions_Call) Run(run func(ctx cosmos_sdktypes.Context, precompiles ...vm.PrecompiledContract)) *MockEVMKeeper_AddEVMExtensions_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]vm.PrecompiledContract, len(args)-1)
-		for i, a := range args[1:] {
-			if a != nil {
-				variadicArgs[i] = a.(vm.PrecompiledContract)
-			}
-		}
-		run(args[0].(cosmos_sdktypes.Context), variadicArgs...)
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_AddEVMExtensions_Call) Return(_a0 error) *MockEVMKeeper_AddEVMExtensions_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_AddEVMExtensions_Call) RunAndReturn(run func(cosmos_sdktypes.Context, ...vm.PrecompiledContract) error) *MockEVMKeeper_AddEVMExtensions_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // ApplyMessage provides a mock function with given fields: ctx, msg, tracer, commit
-func (_m *EVMKeeper) ApplyMessage(ctx cosmos_sdktypes.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error) {
+func (_m *EVMKeeper) ApplyMessage(ctx types.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error) {
 	ret := _m.Called(ctx, msg, tracer, commit)
 
 	var r0 *evmtypes.MsgEthereumTxResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, core.Message, vm.EVMLogger, bool) (*evmtypes.MsgEthereumTxResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, core.Message, vm.EVMLogger, bool) (*evmtypes.MsgEthereumTxResponse, error)); ok {
 		return rf(ctx, msg, tracer, commit)
 	}
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, core.Message, vm.EVMLogger, bool) *evmtypes.MsgEthereumTxResponse); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, core.Message, vm.EVMLogger, bool) *evmtypes.MsgEthereumTxResponse); ok {
 		r0 = rf(ctx, msg, tracer, commit)
 	} else {
 		if ret.Get(0) != nil {
@@ -110,7 +63,7 @@ func (_m *EVMKeeper) ApplyMessage(ctx cosmos_sdktypes.Context, msg core.Message,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(cosmos_sdktypes.Context, core.Message, vm.EVMLogger, bool) error); ok {
+	if rf, ok := ret.Get(1).(func(types.Context, core.Message, vm.EVMLogger, bool) error); ok {
 		r1 = rf(ctx, msg, tracer, commit)
 	} else {
 		r1 = ret.Error(1)
@@ -119,177 +72,18 @@ func (_m *EVMKeeper) ApplyMessage(ctx cosmos_sdktypes.Context, msg core.Message,
 	return r0, r1
 }
 
-// MockEVMKeeper_ApplyMessage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ApplyMessage'
-type MockEVMKeeper_ApplyMessage_Call struct {
-	*mock.Call
-}
-
-// ApplyMessage is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - msg core.Message
-//   - tracer vm.EVMLogger
-//   - commit bool
-func (_e *EVMKeeper_Expecter) ApplyMessage(ctx interface{}, msg interface{}, tracer interface{}, commit interface{}) *MockEVMKeeper_ApplyMessage_Call {
-	return &MockEVMKeeper_ApplyMessage_Call{Call: _e.mock.On("ApplyMessage", ctx, msg, tracer, commit)}
-}
-
-func (_c *MockEVMKeeper_ApplyMessage_Call) Run(run func(ctx cosmos_sdktypes.Context, msg core.Message, tracer vm.EVMLogger, commit bool)) *MockEVMKeeper_ApplyMessage_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(core.Message), args[2].(vm.EVMLogger), args[3].(bool))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_ApplyMessage_Call) Return(_a0 *evmtypes.MsgEthereumTxResponse, _a1 error) *MockEVMKeeper_ApplyMessage_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockEVMKeeper_ApplyMessage_Call) RunAndReturn(run func(cosmos_sdktypes.Context, core.Message, vm.EVMLogger, bool) (*evmtypes.MsgEthereumTxResponse, error)) *MockEVMKeeper_ApplyMessage_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ChainID provides a mock function with given fields:
-func (_m *EVMKeeper) ChainID() *big.Int {
-	ret := _m.Called()
-
-	var r0 *big.Int
-	if rf, ok := ret.Get(0).(func() *big.Int); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*big.Int)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_ChainID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChainID'
-type MockEVMKeeper_ChainID_Call struct {
-	*mock.Call
-}
-
-// ChainID is a helper method to define mock.On call
-func (_e *EVMKeeper_Expecter) ChainID() *MockEVMKeeper_ChainID_Call {
-	return &MockEVMKeeper_ChainID_Call{Call: _e.mock.On("ChainID")}
-}
-
-func (_c *MockEVMKeeper_ChainID_Call) Run(run func()) *MockEVMKeeper_ChainID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_ChainID_Call) Return(_a0 *big.Int) *MockEVMKeeper_ChainID_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_ChainID_Call) RunAndReturn(run func() *big.Int) *MockEVMKeeper_ChainID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteAccount provides a mock function with given fields: ctx, addr
-func (_m *EVMKeeper) DeleteAccount(ctx cosmos_sdktypes.Context, addr common.Address) error {
+func (_m *EVMKeeper) DeleteAccount(ctx types.Context, addr common.Address) error {
 	ret := _m.Called(ctx, addr)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Address) error); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, common.Address) error); ok {
 		r0 = rf(ctx, addr)
 	} else {
 		r0 = ret.Error(0)
 	}
 
 	return r0
-}
-
-// MockEVMKeeper_DeleteAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAccount'
-type MockEVMKeeper_DeleteAccount_Call struct {
-	*mock.Call
-}
-
-// DeleteAccount is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-func (_e *EVMKeeper_Expecter) DeleteAccount(ctx interface{}, addr interface{}) *MockEVMKeeper_DeleteAccount_Call {
-	return &MockEVMKeeper_DeleteAccount_Call{Call: _e.mock.On("DeleteAccount", ctx, addr)}
-}
-
-func (_c *MockEVMKeeper_DeleteAccount_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address)) *MockEVMKeeper_DeleteAccount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_DeleteAccount_Call) Return(_a0 error) *MockEVMKeeper_DeleteAccount_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_DeleteAccount_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address) error) *MockEVMKeeper_DeleteAccount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// EVMConfig provides a mock function with given fields: ctx, proposerAddress, chainID
-func (_m *EVMKeeper) EVMConfig(ctx cosmos_sdktypes.Context, proposerAddress cosmos_sdktypes.ConsAddress, chainID *big.Int) (*statedb.EVMConfig, error) {
-	ret := _m.Called(ctx, proposerAddress, chainID)
-
-	var r0 *statedb.EVMConfig
-	var r1 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, cosmos_sdktypes.ConsAddress, *big.Int) (*statedb.EVMConfig, error)); ok {
-		return rf(ctx, proposerAddress, chainID)
-	}
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, cosmos_sdktypes.ConsAddress, *big.Int) *statedb.EVMConfig); ok {
-		r0 = rf(ctx, proposerAddress, chainID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*statedb.EVMConfig)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(cosmos_sdktypes.Context, cosmos_sdktypes.ConsAddress, *big.Int) error); ok {
-		r1 = rf(ctx, proposerAddress, chainID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockEVMKeeper_EVMConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EVMConfig'
-type MockEVMKeeper_EVMConfig_Call struct {
-	*mock.Call
-}
-
-// EVMConfig is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - proposerAddress cosmos_sdktypes.ConsAddress
-//   - chainID *big.Int
-func (_e *EVMKeeper_Expecter) EVMConfig(ctx interface{}, proposerAddress interface{}, chainID interface{}) *MockEVMKeeper_EVMConfig_Call {
-	return &MockEVMKeeper_EVMConfig_Call{Call: _e.mock.On("EVMConfig", ctx, proposerAddress, chainID)}
-}
-
-func (_c *MockEVMKeeper_EVMConfig_Call) Run(run func(ctx cosmos_sdktypes.Context, proposerAddress cosmos_sdktypes.ConsAddress, chainID *big.Int)) *MockEVMKeeper_EVMConfig_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(cosmos_sdktypes.ConsAddress), args[2].(*big.Int))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_EVMConfig_Call) Return(_a0 *statedb.EVMConfig, _a1 error) *MockEVMKeeper_EVMConfig_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockEVMKeeper_EVMConfig_Call) RunAndReturn(run func(cosmos_sdktypes.Context, cosmos_sdktypes.ConsAddress, *big.Int) (*statedb.EVMConfig, error)) *MockEVMKeeper_EVMConfig_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // EstimateGasInternal provides a mock function with given fields: c, req, fromType
@@ -318,122 +112,12 @@ func (_m *EVMKeeper) EstimateGasInternal(c context.Context, req *evmtypes.EthCal
 	return r0, r1
 }
 
-// MockEVMKeeper_EstimateGasInternal_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EstimateGasInternal'
-type MockEVMKeeper_EstimateGasInternal_Call struct {
-	*mock.Call
-}
-
-// EstimateGasInternal is a helper method to define mock.On call
-//   - c context.Context
-//   - req *evmtypes.EthCallRequest
-//   - fromType evmtypes.CallType
-func (_e *EVMKeeper_Expecter) EstimateGasInternal(c interface{}, req interface{}, fromType interface{}) *MockEVMKeeper_EstimateGasInternal_Call {
-	return &MockEVMKeeper_EstimateGasInternal_Call{Call: _e.mock.On("EstimateGasInternal", c, req, fromType)}
-}
-
-func (_c *MockEVMKeeper_EstimateGasInternal_Call) Run(run func(c context.Context, req *evmtypes.EthCallRequest, fromType evmtypes.CallType)) *MockEVMKeeper_EstimateGasInternal_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*evmtypes.EthCallRequest), args[2].(evmtypes.CallType))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_EstimateGasInternal_Call) Return(_a0 *evmtypes.EstimateGasResponse, _a1 error) *MockEVMKeeper_EstimateGasInternal_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockEVMKeeper_EstimateGasInternal_Call) RunAndReturn(run func(context.Context, *evmtypes.EthCallRequest, evmtypes.CallType) (*evmtypes.EstimateGasResponse, error)) *MockEVMKeeper_EstimateGasInternal_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ForEachStorage provides a mock function with given fields: ctx, addr, cb
-func (_m *EVMKeeper) ForEachStorage(ctx cosmos_sdktypes.Context, addr common.Address, cb func(common.Hash, common.Hash) bool) {
-	_m.Called(ctx, addr, cb)
-}
-
-// MockEVMKeeper_ForEachStorage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ForEachStorage'
-type MockEVMKeeper_ForEachStorage_Call struct {
-	*mock.Call
-}
-
-// ForEachStorage is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-//   - cb func(common.Hash , common.Hash) bool
-func (_e *EVMKeeper_Expecter) ForEachStorage(ctx interface{}, addr interface{}, cb interface{}) *MockEVMKeeper_ForEachStorage_Call {
-	return &MockEVMKeeper_ForEachStorage_Call{Call: _e.mock.On("ForEachStorage", ctx, addr, cb)}
-}
-
-func (_c *MockEVMKeeper_ForEachStorage_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address, cb func(common.Hash, common.Hash) bool)) *MockEVMKeeper_ForEachStorage_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address), args[2].(func(common.Hash, common.Hash) bool))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_ForEachStorage_Call) Return() *MockEVMKeeper_ForEachStorage_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockEVMKeeper_ForEachStorage_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address, func(common.Hash, common.Hash) bool)) *MockEVMKeeper_ForEachStorage_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetAccount provides a mock function with given fields: ctx, addr
-func (_m *EVMKeeper) GetAccount(ctx cosmos_sdktypes.Context, addr common.Address) *statedb.Account {
-	ret := _m.Called(ctx, addr)
-
-	var r0 *statedb.Account
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Address) *statedb.Account); ok {
-		r0 = rf(ctx, addr)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*statedb.Account)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_GetAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccount'
-type MockEVMKeeper_GetAccount_Call struct {
-	*mock.Call
-}
-
-// GetAccount is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-func (_e *EVMKeeper_Expecter) GetAccount(ctx interface{}, addr interface{}) *MockEVMKeeper_GetAccount_Call {
-	return &MockEVMKeeper_GetAccount_Call{Call: _e.mock.On("GetAccount", ctx, addr)}
-}
-
-func (_c *MockEVMKeeper_GetAccount_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address)) *MockEVMKeeper_GetAccount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetAccount_Call) Return(_a0 *statedb.Account) *MockEVMKeeper_GetAccount_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetAccount_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address) *statedb.Account) *MockEVMKeeper_GetAccount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAccountWithoutBalance provides a mock function with given fields: ctx, addr
-func (_m *EVMKeeper) GetAccountWithoutBalance(ctx cosmos_sdktypes.Context, addr common.Address) *statedb.Account {
+func (_m *EVMKeeper) GetAccountWithoutBalance(ctx types.Context, addr common.Address) *statedb.Account {
 	ret := _m.Called(ctx, addr)
 
 	var r0 *statedb.Account
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Address) *statedb.Account); ok {
+	if rf, ok := ret.Get(0).(func(types.Context, common.Address) *statedb.Account); ok {
 		r0 = rf(ctx, addr)
 	} else {
 		if ret.Get(0) != nil {
@@ -442,213 +126,20 @@ func (_m *EVMKeeper) GetAccountWithoutBalance(ctx cosmos_sdktypes.Context, addr 
 	}
 
 	return r0
-}
-
-// MockEVMKeeper_GetAccountWithoutBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountWithoutBalance'
-type MockEVMKeeper_GetAccountWithoutBalance_Call struct {
-	*mock.Call
-}
-
-// GetAccountWithoutBalance is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-func (_e *EVMKeeper_Expecter) GetAccountWithoutBalance(ctx interface{}, addr interface{}) *MockEVMKeeper_GetAccountWithoutBalance_Call {
-	return &MockEVMKeeper_GetAccountWithoutBalance_Call{Call: _e.mock.On("GetAccountWithoutBalance", ctx, addr)}
-}
-
-func (_c *MockEVMKeeper_GetAccountWithoutBalance_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address)) *MockEVMKeeper_GetAccountWithoutBalance_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetAccountWithoutBalance_Call) Return(_a0 *statedb.Account) *MockEVMKeeper_GetAccountWithoutBalance_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetAccountWithoutBalance_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address) *statedb.Account) *MockEVMKeeper_GetAccountWithoutBalance_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetBaseFee provides a mock function with given fields: ctx, ethCfg
-func (_m *EVMKeeper) GetBaseFee(ctx cosmos_sdktypes.Context, ethCfg *params.ChainConfig) *big.Int {
-	ret := _m.Called(ctx, ethCfg)
-
-	var r0 *big.Int
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, *params.ChainConfig) *big.Int); ok {
-		r0 = rf(ctx, ethCfg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*big.Int)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_GetBaseFee_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBaseFee'
-type MockEVMKeeper_GetBaseFee_Call struct {
-	*mock.Call
-}
-
-// GetBaseFee is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - ethCfg *params.ChainConfig
-func (_e *EVMKeeper_Expecter) GetBaseFee(ctx interface{}, ethCfg interface{}) *MockEVMKeeper_GetBaseFee_Call {
-	return &MockEVMKeeper_GetBaseFee_Call{Call: _e.mock.On("GetBaseFee", ctx, ethCfg)}
-}
-
-func (_c *MockEVMKeeper_GetBaseFee_Call) Run(run func(ctx cosmos_sdktypes.Context, ethCfg *params.ChainConfig)) *MockEVMKeeper_GetBaseFee_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(*params.ChainConfig))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetBaseFee_Call) Return(_a0 *big.Int) *MockEVMKeeper_GetBaseFee_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetBaseFee_Call) RunAndReturn(run func(cosmos_sdktypes.Context, *params.ChainConfig) *big.Int) *MockEVMKeeper_GetBaseFee_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetCode provides a mock function with given fields: ctx, codeHash
-func (_m *EVMKeeper) GetCode(ctx cosmos_sdktypes.Context, codeHash common.Hash) []byte {
-	ret := _m.Called(ctx, codeHash)
-
-	var r0 []byte
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Hash) []byte); ok {
-		r0 = rf(ctx, codeHash)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_GetCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCode'
-type MockEVMKeeper_GetCode_Call struct {
-	*mock.Call
-}
-
-// GetCode is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - codeHash common.Hash
-func (_e *EVMKeeper_Expecter) GetCode(ctx interface{}, codeHash interface{}) *MockEVMKeeper_GetCode_Call {
-	return &MockEVMKeeper_GetCode_Call{Call: _e.mock.On("GetCode", ctx, codeHash)}
-}
-
-func (_c *MockEVMKeeper_GetCode_Call) Run(run func(ctx cosmos_sdktypes.Context, codeHash common.Hash)) *MockEVMKeeper_GetCode_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Hash))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetCode_Call) Return(_a0 []byte) *MockEVMKeeper_GetCode_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetCode_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Hash) []byte) *MockEVMKeeper_GetCode_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // GetParams provides a mock function with given fields: ctx
-func (_m *EVMKeeper) GetParams(ctx cosmos_sdktypes.Context) evmtypes.Params {
+func (_m *EVMKeeper) GetParams(ctx types.Context) evmtypes.Params {
 	ret := _m.Called(ctx)
 
 	var r0 evmtypes.Params
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context) evmtypes.Params); ok {
+	if rf, ok := ret.Get(0).(func(types.Context) evmtypes.Params); ok {
 		r0 = rf(ctx)
 	} else {
 		r0 = ret.Get(0).(evmtypes.Params)
 	}
 
 	return r0
-}
-
-// MockEVMKeeper_GetParams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetParams'
-type MockEVMKeeper_GetParams_Call struct {
-	*mock.Call
-}
-
-// GetParams is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-func (_e *EVMKeeper_Expecter) GetParams(ctx interface{}) *MockEVMKeeper_GetParams_Call {
-	return &MockEVMKeeper_GetParams_Call{Call: _e.mock.On("GetParams", ctx)}
-}
-
-func (_c *MockEVMKeeper_GetParams_Call) Run(run func(ctx cosmos_sdktypes.Context)) *MockEVMKeeper_GetParams_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetParams_Call) Return(_a0 evmtypes.Params) *MockEVMKeeper_GetParams_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetParams_Call) RunAndReturn(run func(cosmos_sdktypes.Context) evmtypes.Params) *MockEVMKeeper_GetParams_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetState provides a mock function with given fields: ctx, addr, key
-func (_m *EVMKeeper) GetState(ctx cosmos_sdktypes.Context, addr common.Address, key common.Hash) common.Hash {
-	ret := _m.Called(ctx, addr, key)
-
-	var r0 common.Hash
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Address, common.Hash) common.Hash); ok {
-		r0 = rf(ctx, addr, key)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(common.Hash)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_GetState_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetState'
-type MockEVMKeeper_GetState_Call struct {
-	*mock.Call
-}
-
-// GetState is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-//   - key common.Hash
-func (_e *EVMKeeper_Expecter) GetState(ctx interface{}, addr interface{}, key interface{}) *MockEVMKeeper_GetState_Call {
-	return &MockEVMKeeper_GetState_Call{Call: _e.mock.On("GetState", ctx, addr, key)}
-}
-
-func (_c *MockEVMKeeper_GetState_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address, key common.Hash)) *MockEVMKeeper_GetState_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address), args[2].(common.Hash))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetState_Call) Return(_a0 common.Hash) *MockEVMKeeper_GetState_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_GetState_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address, common.Hash) common.Hash) *MockEVMKeeper_GetState_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // IsAvailablePrecompile provides a mock function with given fields: addr
@@ -665,200 +156,9 @@ func (_m *EVMKeeper) IsAvailablePrecompile(addr common.Address) bool {
 	return r0
 }
 
-// MockEVMKeeper_IsAvailablePrecompile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsAvailablePrecompile'
-type MockEVMKeeper_IsAvailablePrecompile_Call struct {
-	*mock.Call
-}
-
-// IsAvailablePrecompile is a helper method to define mock.On call
-//   - addr common.Address
-func (_e *EVMKeeper_Expecter) IsAvailablePrecompile(addr interface{}) *MockEVMKeeper_IsAvailablePrecompile_Call {
-	return &MockEVMKeeper_IsAvailablePrecompile_Call{Call: _e.mock.On("IsAvailablePrecompile", addr)}
-}
-
-func (_c *MockEVMKeeper_IsAvailablePrecompile_Call) Run(run func(addr common.Address)) *MockEVMKeeper_IsAvailablePrecompile_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(common.Address))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_IsAvailablePrecompile_Call) Return(_a0 bool) *MockEVMKeeper_IsAvailablePrecompile_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_IsAvailablePrecompile_Call) RunAndReturn(run func(common.Address) bool) *MockEVMKeeper_IsAvailablePrecompile_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// NewEVM provides a mock function with given fields: ctx, msg, cfg, tracer, stateDB
-func (_m *EVMKeeper) NewEVM(ctx cosmos_sdktypes.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB) *vm.EVM {
-	ret := _m.Called(ctx, msg, cfg, tracer, stateDB)
-
-	var r0 *vm.EVM
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, core.Message, *statedb.EVMConfig, vm.EVMLogger, vm.StateDB) *vm.EVM); ok {
-		r0 = rf(ctx, msg, cfg, tracer, stateDB)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*vm.EVM)
-		}
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_NewEVM_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewEVM'
-type MockEVMKeeper_NewEVM_Call struct {
-	*mock.Call
-}
-
-// NewEVM is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - msg core.Message
-//   - cfg *statedb.EVMConfig
-//   - tracer vm.EVMLogger
-//   - stateDB vm.StateDB
-func (_e *EVMKeeper_Expecter) NewEVM(ctx interface{}, msg interface{}, cfg interface{}, tracer interface{}, stateDB interface{}) *MockEVMKeeper_NewEVM_Call {
-	return &MockEVMKeeper_NewEVM_Call{Call: _e.mock.On("NewEVM", ctx, msg, cfg, tracer, stateDB)}
-}
-
-func (_c *MockEVMKeeper_NewEVM_Call) Run(run func(ctx cosmos_sdktypes.Context, msg core.Message, cfg *statedb.EVMConfig, tracer vm.EVMLogger, stateDB vm.StateDB)) *MockEVMKeeper_NewEVM_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(core.Message), args[2].(*statedb.EVMConfig), args[3].(vm.EVMLogger), args[4].(vm.StateDB))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_NewEVM_Call) Return(_a0 *vm.EVM) *MockEVMKeeper_NewEVM_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_NewEVM_Call) RunAndReturn(run func(cosmos_sdktypes.Context, core.Message, *statedb.EVMConfig, vm.EVMLogger, vm.StateDB) *vm.EVM) *MockEVMKeeper_NewEVM_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SetAccount provides a mock function with given fields: ctx, addr, account
-func (_m *EVMKeeper) SetAccount(ctx cosmos_sdktypes.Context, addr common.Address, account statedb.Account) error {
-	ret := _m.Called(ctx, addr, account)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(cosmos_sdktypes.Context, common.Address, statedb.Account) error); ok {
-		r0 = rf(ctx, addr, account)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockEVMKeeper_SetAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetAccount'
-type MockEVMKeeper_SetAccount_Call struct {
-	*mock.Call
-}
-
-// SetAccount is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-//   - account statedb.Account
-func (_e *EVMKeeper_Expecter) SetAccount(ctx interface{}, addr interface{}, account interface{}) *MockEVMKeeper_SetAccount_Call {
-	return &MockEVMKeeper_SetAccount_Call{Call: _e.mock.On("SetAccount", ctx, addr, account)}
-}
-
-func (_c *MockEVMKeeper_SetAccount_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address, account statedb.Account)) *MockEVMKeeper_SetAccount_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address), args[2].(statedb.Account))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetAccount_Call) Return(_a0 error) *MockEVMKeeper_SetAccount_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetAccount_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address, statedb.Account) error) *MockEVMKeeper_SetAccount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SetCode provides a mock function with given fields: ctx, codeHash, code
-func (_m *EVMKeeper) SetCode(ctx cosmos_sdktypes.Context, codeHash []byte, code []byte) {
-	_m.Called(ctx, codeHash, code)
-}
-
-// MockEVMKeeper_SetCode_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetCode'
-type MockEVMKeeper_SetCode_Call struct {
-	*mock.Call
-}
-
-// SetCode is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - codeHash []byte
-//   - code []byte
-func (_e *EVMKeeper_Expecter) SetCode(ctx interface{}, codeHash interface{}, code interface{}) *MockEVMKeeper_SetCode_Call {
-	return &MockEVMKeeper_SetCode_Call{Call: _e.mock.On("SetCode", ctx, codeHash, code)}
-}
-
-func (_c *MockEVMKeeper_SetCode_Call) Run(run func(ctx cosmos_sdktypes.Context, codeHash []byte, code []byte)) *MockEVMKeeper_SetCode_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].([]byte), args[2].([]byte))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetCode_Call) Return() *MockEVMKeeper_SetCode_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetCode_Call) RunAndReturn(run func(cosmos_sdktypes.Context, []byte, []byte)) *MockEVMKeeper_SetCode_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SetState provides a mock function with given fields: ctx, addr, key, value
-func (_m *EVMKeeper) SetState(ctx cosmos_sdktypes.Context, addr common.Address, key common.Hash, value []byte) {
-	_m.Called(ctx, addr, key, value)
-}
-
-// MockEVMKeeper_SetState_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetState'
-type MockEVMKeeper_SetState_Call struct {
-	*mock.Call
-}
-
-// SetState is a helper method to define mock.On call
-//   - ctx cosmos_sdktypes.Context
-//   - addr common.Address
-//   - key common.Hash
-//   - value []byte
-func (_e *EVMKeeper_Expecter) SetState(ctx interface{}, addr interface{}, key interface{}, value interface{}) *MockEVMKeeper_SetState_Call {
-	return &MockEVMKeeper_SetState_Call{Call: _e.mock.On("SetState", ctx, addr, key, value)}
-}
-
-func (_c *MockEVMKeeper_SetState_Call) Run(run func(ctx cosmos_sdktypes.Context, addr common.Address, key common.Hash, value []byte)) *MockEVMKeeper_SetState_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(cosmos_sdktypes.Context), args[1].(common.Address), args[2].(common.Hash), args[3].([]byte))
-	})
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetState_Call) Return() *MockEVMKeeper_SetState_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MockEVMKeeper_SetState_Call) RunAndReturn(run func(cosmos_sdktypes.Context, common.Address, common.Hash, []byte)) *MockEVMKeeper_SetState_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// NewMockEVMKeeper creates a new instance of MockEVMKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// NewEVMKeeper creates a new instance of EVMKeeper. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
-func NewMockEVMKeeper(t interface {
+func NewEVMKeeper(t interface {
 	mock.TestingT
 	Cleanup(func())
 },
