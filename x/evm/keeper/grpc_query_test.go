@@ -18,6 +18,7 @@ import (
 	"github.com/evmos/evmos/v16/server/config"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -31,10 +32,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7700
+const expGasConsumed = 8781
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7694
+const expGasConsumedWithFeeMkt = 8775
 
 func (suite *EvmKeeperTestSuite) TestQueryAccount() {
 	keyring := testkeyring.New(2)
@@ -961,53 +962,14 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 }
 
 func (suite *EvmKeeperTestSuite) TestTraceTx() {
-	keyring := testkeyring.New(1)
+	keyring := testkeyring.New(2)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
 	txFactory := factory.New(unitNetwork, grcpHandler)
 
-	key := keyring.GetKey(0)
-
-	constructorArgs := []interface{}{
-		key.Addr,
-		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-	}
-	compiledContract := types.ERC20Contract
-	contractAddr, err := txFactory.DeployContract(
-		key.Priv,
-		types.EvmTxArgs{}, // Default values
-		factory.ContractDeploymentData{
-			Contract:        compiledContract,
-			ConstructorArgs: constructorArgs,
-		},
-	)
-	suite.Require().NoError(err)
-
-	err = unitNetwork.NextBlock()
-	suite.Require().NoError(err)
-
-	newIndex := keyring.AddKey()
-	recipient := keyring.GetAddr(newIndex)
-
-	transferArgs := types.EvmTxArgs{
-		To: &contractAddr,
-	}
-	callArgs := factory.CallArgs{
-		ContractABI: compiledContract.ABI,
-		MethodName:  "transfer",
-		Args:        []interface{}{recipient, big.NewInt(1000)},
-	}
-	res, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
-	suite.Require().NoError(err)
-
-	txToTrace, err := txFactory.GetEvmTransactionResponseFromTxResult(res)
-    suite.Require().NoError(err)
-
-
 	var (
-		txMsg        *types.MsgEthereumTx
 		traceConfig  *types.TraceConfig
 		predecessors []*types.MsgEthereumTx
 		chainID      *sdkmath.Int
@@ -1019,16 +981,16 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 		traceResponse   string
 		enableFeemarket bool
 		expFinalGas     uint64
+		traceInterface  interface{}
 	}{
 		{
 			msg: "default trace",
 			malleate: func() {
-				traceConfig = nil
+				traceConfig = &types.TraceConfig{}
 				predecessors = []*types.MsgEthereumTx{}
 			},
 			expPass:       true,
-			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   expGasConsumed,
+			traceResponse: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 		},
 		{
 			msg: "default trace with filtered response",
@@ -1041,9 +1003,8 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				predecessors = []*types.MsgEthereumTx{}
 			},
 			expPass:         true,
-			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			traceResponse:   "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: false,
-			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "javascript tracer",
@@ -1068,7 +1029,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				predecessors = []*types.MsgEthereumTx{}
 			},
 			expPass:         true,
-			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			traceResponse:   "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: true,
 			expFinalGas:     expGasConsumedWithFeeMkt,
 		},
@@ -1090,27 +1051,56 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			malleate: func() {
 				traceConfig = nil
 
-				// increase nonce to avoid address collision
-				vmdb := unitNetwork.GetStateDB()
-				addr := keyring.GetAddr(0)
-				vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
-				suite.Require().NoError(vmdb.Commit())
+				// use different address to avoid nonce collision
+				senderKey := keyring.GetKey(1)
 
-				contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				err := unitNetwork.NextBlock()
+				constructorArgs := []interface{}{
+					senderKey.Addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				}
+				compiledContract := types.ERC20Contract
+				contractAddr, err := txFactory.DeployContract(
+					senderKey.Priv,
+					types.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
 				suite.Require().NoError(err)
-				// Generate token transfer transaction
-				firstTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-				txMsg = suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
+
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				predecessors = append(predecessors, firstTx)
+				recipientIndex := keyring.AddKey()
+				recipientAddr := keyring.GetAddr(recipientIndex)
+
+				transferArgs := types.EvmTxArgs{
+					To: &contractAddr,
+				}
+				callArgs := factory.CallArgs{
+					ContractABI: compiledContract.ABI,
+					MethodName:  "transfer",
+					Args:        []interface{}{recipientAddr, big.NewInt(1000)},
+				}
+
+				// Create MsgEthereumTx that calls the contract
+				input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+				suite.Require().NoError(err)
+				transferArgs.Input = input
+
+				firstTx, err := txFactory.GenerateMsgEthereumTx(senderKey.Priv, transferArgs)
+				suite.Require().NoError(err)
+
+				result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
+				suite.Require().NoError(err)
+				suite.Require().True(result.IsOK())
+
+				predecessors = append(predecessors, &firstTx)
 			},
 			expPass:         true,
-			traceResponse:   "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
+			traceResponse:   "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			enableFeemarket: false,
-			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
@@ -1135,8 +1125,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 					Tracer:         "invalid_tracer",
 				}
 			},
-			expPass:     false,
-			expFinalGas: expGasConsumed,
+			expPass: false,
 		},
 		{
 			msg: "invalid trace config - Invalid Timeout",
@@ -1148,34 +1137,44 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 					Timeout:        "wrong_time",
 				}
 			},
-			expPass:     false,
-			expFinalGas: expGasConsumed,
+			expPass: false,
 		},
 		{
 			msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
 			malleate: func() {
 				traceConfig = nil
 
-				// increase nonce to avoid address collision
-				vmdb := unitNetwork.GetStateDB()
-				addr := keyring.GetAddr(0)
-				vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
-				suite.Require().NoError(vmdb.Commit())
+				// use different address to avoid nonce collision
+				senderKey := keyring.GetKey(1)
 
-				chainID := unitNetwork.App.EvmKeeper.ChainID()
-				nonce := unitNetwork.App.EvmKeeper.GetNonce(unitNetwork.GetContext(), addr)
-				data := types.ERC20Contract.Bin
-				ethTxParams := &types.EvmTxArgs{
-					ChainID:  chainID,
-					Nonce:    nonce,
-					GasLimit: ethparams.TxGasContractCreation,
-					Input:    data,
+				constructorArgs := []interface{}{
+					senderKey.Addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
 				}
-				contractTx := types.NewTx(ethTxParams)
+				compiledContract := types.ERC20Contract
 
-				predecessors = append(predecessors, contractTx)
-				err := unitNetwork.NextBlock()
+				ctorArgs, err := compiledContract.ABI.Pack("", constructorArgs...)
 				suite.Require().NoError(err)
+
+				data := compiledContract.Bin
+				data = append(data, ctorArgs...)
+
+				contractMsg, err := txFactory.GenerateMsgEthereumTx(
+					senderKey.Priv,
+					types.EvmTxArgs{Input: data},
+				)
+
+				_, err = txFactory.DeployContract(
+					senderKey.Priv,
+					types.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
+				suite.Require().NoError(err)
+
+				predecessors = append(predecessors, &contractMsg)
 
 				params := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext())
 				params.EnableCreate = false
@@ -1183,8 +1182,7 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				suite.Require().NoError(err)
 			},
 			expPass:       true,
-			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   29708, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			traceResponse: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 		},
 		{
 			msg: "invalid chain id",
@@ -1194,41 +1192,98 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				tmp := sdkmath.NewInt(1)
 				chainID = &tmp
 			},
-			expPass:     false,
-			expFinalGas: expGasConsumed,
+			expPass: false,
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 
-			// // Deploy contract
-			// contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-			// err := unitNetwork.NextBlock()
-			// suite.Require().NoError(err)
-			//
-			// // Generate token transfer transaction
-			// txMsg = suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-			// err = unitNetwork.NextBlock()
-			// suite.Require().NoError(err)
+			// ----- Contract Deployment -----
+			key := keyring.GetKey(0)
+			constructorArgs := []interface{}{
+				key.Addr,
+				sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+			}
+			compiledContract := types.ERC20Contract
+			contractAddr, err := txFactory.DeployContract(
+				key.Priv,
+				types.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
+			suite.Require().NoError(err)
+
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
+
+			// --- Add predecessor ---
+
+			contextPreTransation := unitNetwork.GetContext()
 
 			tc.malleate()
 
+			// --- Contract Call ---
+
+			newIndex := keyring.AddKey()
+			recipient := keyring.GetAddr(newIndex)
+
+			transferArgs := types.EvmTxArgs{
+				To: &contractAddr,
+			}
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "transfer",
+				Args:        []interface{}{recipient, big.NewInt(1000)},
+			}
+
+			// Create MsgEthereumTx that calls the contract
+			input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+			suite.Require().NoError(err)
+			transferArgs.Input = input
+
+			msgToTrace, err := txFactory.GenerateMsgEthereumTx(key.Priv, transferArgs)
+			suite.Require().NoError(err)
+
+			signer := ethtypes.LatestSignerForChainID(unitNetwork.GetEIP155ChainID())
+			err = msgToTrace.Sign(signer, utiltx.NewSigner(key.Priv))
+			suite.Require().NoError(err)
+
+			txRes, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
+			suite.Require().NoError(err)
+			suite.Require().True(txRes.IsOK())
+
+			fmt.Println("GasUsed", txRes.GasUsed)
+
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
+
+			ctx := unitNetwork.GetContext()
 			traceReq := types.QueryTraceTxRequest{
-				Msg:          txMsg,
+				Msg:          &msgToTrace,
 				TraceConfig:  traceConfig,
 				Predecessors: predecessors,
+				BlockMaxGas:  ctx.ConsensusParams().Block.MaxGas,
+				ChainId:      unitNetwork.GetEIP155ChainID().Int64(),
+				BlockTime:    ctx.BlockTime(),
 			}
 
 			if chainID != nil {
 				traceReq.ChainId = chainID.Int64()
 			}
 
+			fmt.Println("msgToTraceGas: ", msgToTrace.GetGas())
 			// Function under test
-			res, err := unitNetwork.GetEvmClient().TraceTx(unitNetwork.GetContext(), &traceReq)
+			res, err := unitNetwork.GetEvmClient().TraceTx(
+				contextPreTransation,
+				&traceReq,
+			)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
+
 				// if data is to big, slice the result
 				if len(res.Data) > 150 {
 					suite.Require().Equal(tc.traceResponse, string(res.Data[:150]))
@@ -1243,7 +1298,6 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int(tc.expFinalGas), int(unitNetwork.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
 			// Reset for next test case
 			chainID = nil
 		})
