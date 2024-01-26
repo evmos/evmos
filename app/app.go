@@ -815,8 +815,9 @@ func NewEvmos(
 		if queryMultiStore != nil {
 			v1 := queryMultiStore.LatestVersion()
 			v2 := app.LastBlockHeight()
-			if v1 > 0 && v1 != v2 {
-				tmos.Exit(fmt.Sprintf("versiondb lastest version %d don't match iavl latest version %d", v1, v2))
+			// prevent creating gaps in versiondb
+			if v1 > 0 && v1 < v2 {
+				tmos.Exit(fmt.Sprintf("versiondb lastest version %d lag behind iavl latest version %d", v1, v2))
 			}
 		}
 	}
