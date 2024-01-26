@@ -139,7 +139,7 @@ func IsSingleHop(rawDenom string) bool {
 
 	// Each hop in the path is represented by a pair of port and channel ids
 	// If the number of components in the path is more than 2, it has hopped multiple chains
-	return len(pathComponents) <= 2
+	return len(pathComponents) < 2
 }
 
 // GetDenomTrace returns the denomination trace from the corresponding IBC denomination. If the

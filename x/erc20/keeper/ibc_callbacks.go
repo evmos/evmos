@@ -60,6 +60,9 @@ func (k Keeper) OnRecvPacket(
 	evmParams := k.evmKeeper.GetParams(ctx)
 
 	// if sender == recipient, and is not from an EVM Channel recovery was executed
+	// If we received an IBC from non EVM channel the account should be different
+	// If its the same, users can have their funds stuck since they dont have access
+	// to the same priv key
 	if sender.Equals(recipient) && !evmParams.IsEVMChannel(packet.DestinationChannel) {
 		// Continue to the next IBC middleware by returning the original ACK.
 		return ack
@@ -85,20 +88,19 @@ func (k Keeper) OnRecvPacket(
 		return ack
 	}
 
+	// If ERC20 module is disabled, dont deploy new precompiles
+	if !k.IsERC20Enabled(ctx) {
+		return ack
+	}
+
 	pairID := k.GetTokenPairID(ctx, coin.Denom)
 	pair, found := k.GetTokenPair(ctx, pairID)
 	switch {
 	// Case 1. token pair is not registered and is a single hop IBC Coin
-	// TODO: Should we check coin.Denom since its always `IBC/` or data.Denom?
-	case !found && ibc.IsSingleHop(coin.Denom):
+	case !found && ibc.IsSingleHop(data.Denom):
 		contractAddr, err := utils.GetIBCDenomAddress(coin.Denom)
 		if err != nil {
 			return channeltypes.NewErrorAcknowledgement(err)
-		}
-
-		found := evmParams.IsPrecompileRegistered(contractAddr.String())
-		if found {
-			return ack
 		}
 
 		if err := k.RegisterERC20Extension(ctx, coin.Denom, contractAddr); err != nil {
@@ -108,9 +110,8 @@ func (k Keeper) OnRecvPacket(
 
 	// Case 2. native ERC20 token
 	case pair.IsNativeERC20():
-		// ERC20 module or token pair is disabled -> return
-		// TODO: Add check before
-		if !k.IsERC20Enabled(ctx) || !pair.Enabled {
+		// Token pair is disabled -> return
+		if !pair.Enabled {
 			return ack
 		}
 
