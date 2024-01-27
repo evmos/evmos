@@ -668,8 +668,7 @@ func (k *Keeper) traceTx(
 	if err != nil {
 		return nil, 0, status.Error(codes.Internal, err.Error())
 	}
-
-    fmt.Println("GasUsed", res.GasUsed)
+	fmt.Println("Internal GasUsed", res.GasUsed)
 
 	var result interface{}
 	result, err = tracer.GetResult()
