@@ -340,6 +340,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgs(
 		if err != nil {
 			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to get evm account: %s", fromAddr.String())
 		}
+		fmt.Println("populateEvmTxArgs none", accountResp.GetNonce())
 		txArgs.Nonce = accountResp.GetNonce()
 	}
 

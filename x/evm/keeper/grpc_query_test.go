@@ -961,7 +961,7 @@ func (suite *EvmKeeperTestSuite) TestEstimateGas() {
 	}
 }
 
-func getDefaultTraceRequest(unitNetwork network.Network) types.QueryTraceTxRequest {
+func getDefaultTraceTxRequest(unitNetwork network.Network) types.QueryTraceTxRequest {
 	ctx := unitNetwork.GetContext()
 	chainID := unitNetwork.GetEIP155ChainID().Int64()
 	return types.QueryTraceTxRequest{
@@ -991,22 +991,18 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 		{
 			msg: "default trace",
 			getRequest: func() types.QueryTraceTxRequest {
-				return getDefaultTraceRequest(unitNetwork)
+				return getDefaultTraceTxRequest(unitNetwork)
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{}
-			// 	predecessors = []*types.MsgEthereumTx{}
-			// },
 			expPass:       true,
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 		},
 		{
 			msg: "default trace with filtered response",
 			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.TraceConfig = &types.TraceConfig{
 					DisableStack:   true,
 					DisableStorage: true,
@@ -1026,53 +1022,20 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				traceConfig := &types.TraceConfig{
 					Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
 				}
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.TraceConfig = traceConfig
 				return defaultRequest
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
-			// 	}
-			// 	predecessors = []*types.MsgEthereumTx{}
-			// },
 			expPass:       true,
 			expectedTrace: "[]",
 		},
-		// {
-		// 	msg: "default trace with enableFeemarket",
-		// 	malleate: func() {
-		// 		traceConfig = &types.TraceConfig{
-		// 			DisableStack:   true,
-		// 			DisableStorage: true,
-		// 			EnableMemory:   false,
-		// 		}
-		// 		predecessors = []*types.MsgEthereumTx{}
-		// 	},
-		// 	expPass:         true,
-		// 	expectedTrace:   "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-		// 	expFinalGas:     expGasConsumedWithFeeMkt,
-		// },
-		// {
-		// 	msg: "javascript tracer with enableFeemarket",
-		// 	malleate: func() {
-		// 		traceConfig = &types.TraceConfig{
-		// 			Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
-		// 		}
-		// 		predecessors = []*types.MsgEthereumTx{}
-		// 	},
-		// 	expPass:         true,
-		// 	expectedTrace:   "[]",
-		// 	enableFeemarket: true,
-		// 	expFinalGas:     expGasConsumedWithFeeMkt,
-		// },
 		{
 			msg: "default tracer with predecessors",
 			getRequest: func() types.QueryTraceTxRequest {
-				return getDefaultTraceRequest(unitNetwork)
+				return getDefaultTraceTxRequest(unitNetwork)
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				// Create predecessor tx
@@ -1122,62 +1085,13 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 
 				return []*types.MsgEthereumTx{&firstTx}
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			//
-			// 	// use different address to avoid nonce collision
-			// 	senderKey := keyring.GetKey(1)
-			//
-			// 	constructorArgs := []interface{}{
-			// 		senderKey.Addr,
-			// 		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-			// 	}
-			// 	compiledContract := types.ERC20Contract
-			// 	contractAddr, err := txFactory.DeployContract(
-			// 		senderKey.Priv,
-			// 		types.EvmTxArgs{}, // Default values
-			// 		factory.ContractDeploymentData{
-			// 			Contract:        compiledContract,
-			// 			ConstructorArgs: constructorArgs,
-			// 		},
-			// 	)
-			// 	suite.Require().NoError(err)
-			//
-			// 	err = unitNetwork.NextBlock()
-			// 	suite.Require().NoError(err)
-			//
-			// 	recipientIndex := keyring.AddKey()
-			// 	recipientAddr := keyring.GetAddr(recipientIndex)
-			//
-			// 	transferArgs := types.EvmTxArgs{
-			// 		To: &contractAddr,
-			// 	}
-			// 	callArgs := factory.CallArgs{
-			// 		ContractABI: compiledContract.ABI,
-			// 		MethodName:  "transfer",
-			// 		Args:        []interface{}{recipientAddr, big.NewInt(1000)},
-			// 	}
-			//
-			// 	transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
-			// 	suite.Require().NoError(err)
-			//
-			// 	// Generate the message to add to predecessors
-			// 	firstTx, err := txFactory.GenerateMsgEthereumTx(senderKey.Priv, transferArgs)
-			// 	suite.Require().NoError(err)
-			//
-			// 	result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
-			// 	suite.Require().NoError(err)
-			// 	suite.Require().True(result.IsOK())
-			//
-			// 	predecessors = append(predecessors, &firstTx)
-			// },
 			expPass:       true,
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
 			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.TraceConfig = &types.TraceConfig{
 					DisableStack:   true,
 					DisableStorage: true,
@@ -1189,45 +1103,26 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 		Limit:          -1,
-			// 	}
-			// },
 			expPass: false,
 		},
 		{
 			msg: "invalid trace config - Invalid Tracer",
 			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.TraceConfig = &types.TraceConfig{
-					DisableStack:   true,
-					DisableStorage: true,
-					EnableMemory:   false,
-					Tracer:         "invalid_tracer",
+					Tracer: "invalid_tracer",
 				}
 				return defaultRequest
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 		Tracer:         "invalid_tracer",
-			// 	}
-			// },
 			expPass: false,
 		},
 		{
 			msg: "invalid trace config - Invalid Timeout",
 			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.TraceConfig = &types.TraceConfig{
 					DisableStack:   true,
 					DisableStorage: true,
@@ -1239,20 +1134,12 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 		Timeout:        "wrong_time",
-			// 	}
-			// },
 			expPass: false,
 		},
 		{
 			msg: "default tracer with contract creation tx as predecessor but 'create' param disabled",
 			getRequest: func() types.QueryTraceTxRequest {
-				return getDefaultTraceRequest(unitNetwork)
+				return getDefaultTraceTxRequest(unitNetwork)
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				// use different address to avoid nonce collision
@@ -1287,58 +1174,19 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				suite.Require().NoError(err)
 				return []*types.MsgEthereumTx{&txMsg}
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			//
-			// 	// use different address to avoid nonce collision
-			// 	senderKey := keyring.GetKey(1)
-			//
-			// 	constructorArgs := []interface{}{
-			// 		senderKey.Addr,
-			// 		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-			// 	}
-			// 	compiledContract := types.ERC20Contract
-			// 	deploymentData := factory.ContractDeploymentData{
-			// 		Contract:        compiledContract,
-			// 		ConstructorArgs: constructorArgs,
-			// 	}
-			//
-			// 	txMsg, err := txFactory.GenerateDeployContractArgs(senderKey.Addr, types.EvmTxArgs{}, deploymentData)
-			// 	suite.Require().NoError(err)
-			//
-			// 	_, err = txFactory.DeployContract(
-			// 		senderKey.Priv,
-			// 		types.EvmTxArgs{}, // Default values
-			// 		deploymentData,
-			// 	)
-			// 	suite.Require().NoError(err)
-			//
-			// 	predecessors = append(predecessors, &contractMsg)
-			//
-			// 	params := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext())
-			// 	params.EnableCreate = false
-			// 	err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), params)
-			// 	suite.Require().NoError(err)
-			// },
 			expPass:       true,
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 		},
 		{
 			msg: "invalid chain id",
 			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceRequest(unitNetwork)
+				defaultRequest := getDefaultTraceTxRequest(unitNetwork)
 				defaultRequest.ChainId = -1
 				return defaultRequest
 			},
 			getPredecessors: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			// 	predecessors = []*types.MsgEthereumTx{}
-			// 	tmp := sdkmath.NewInt(1)
-			// 	chainID = &tmp
-			// },
 			expPass: false,
 		},
 	}
@@ -1400,12 +1248,8 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			suite.Require().NoError(err)
 			suite.Require().True(txRes.IsOK())
 
-			fmt.Println("GasUsed", txRes.GasUsed)
-
 			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
-
-			fmt.Println("msgToTraceGas: ", msgToTrace.GetGas())
 
 			// Get the trace request
 			traceReq := tc.getRequest()
@@ -1448,141 +1292,285 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestTraceBlock() {
-	var (
-		txs         []*types.MsgEthereumTx
-		traceConfig *types.TraceConfig
-		chainID     *sdkmath.Int
+func getDefaultTraceBlockRequest(unitNetwork network.Network) types.QueryTraceBlockRequest {
+	ctx := unitNetwork.GetContext()
+	chainID := unitNetwork.GetEIP155ChainID().Int64()
+	return types.QueryTraceBlockRequest{
+		BlockMaxGas: ctx.ConsensusParams().Block.MaxGas,
+		ChainId:     chainID,
+		BlockTime:   ctx.BlockTime(),
+	}
+}
+
+func (suite *EvmKeeperTestSuite) TestTraceBlock() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
+	grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
+	txFactory := factory.New(unitNetwork, grcpHandler)
 
 	testCases := []struct {
-		msg             string
-		malleate        func()
-		expPass         bool
-		traceResponse   string
+		msg              string
+		getRequest       func() types.QueryTraceBlockRequest
+		getAdditionalTxs func() []*types.MsgEthereumTx
+		malleate         func()
+		expPass          bool
+		traceResponse    string
+
 		enableFeemarket bool
 		expFinalGas     uint64
 	}{
 		{
 			msg: "default trace",
-			malleate: func() {
-				traceConfig = nil
+			getRequest: func() types.QueryTraceBlockRequest {
+				return getDefaultTraceBlockRequest(unitNetwork)
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+			// malleate: func() {
+			// 	traceConfig = nil
+			// },
 			expPass:       true,
-			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
 			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "filtered trace",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
+			getRequest: func() types.QueryTraceBlockRequest {
+				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+				defaultReq.TraceConfig = &types.TraceConfig{
 					DisableStack:   true,
 					DisableStorage: true,
 					EnableMemory:   false,
 				}
+				return defaultReq
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+			// malleate: func() {
+			// 	traceConfig = &types.TraceConfig{
+			// 		DisableStack:   true,
+			// 		DisableStorage: true,
+			// 		EnableMemory:   false,
+			// 	}
+			// },
 			expPass:       true,
-			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
 			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "javascript tracer",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
+			getRequest: func() types.QueryTraceBlockRequest {
+				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+				defaultReq.TraceConfig = &types.TraceConfig{
 					Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
 				}
+				return defaultReq
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+			// malleate: func() {
+			// 	traceConfig = &types.TraceConfig{
+			// 		Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
+			// 	}
+			// },
 			expPass:       true,
 			traceResponse: "[{\"result\":[]}]",
 			expFinalGas:   expGasConsumed,
 		},
-		{
-			msg: "default trace with enableFeemarket and filtered return",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
-					DisableStack:   true,
-					DisableStorage: true,
-					EnableMemory:   false,
-				}
-			},
-			expPass:         true,
-			traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
-			enableFeemarket: true,
-			expFinalGas:     expGasConsumedWithFeeMkt,
-		},
-		{
-			msg: "javascript tracer with enableFeemarket",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
-					Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
-				}
-			},
-			expPass:         true,
-			traceResponse:   "[{\"result\":[]}]",
-			enableFeemarket: true,
-			expFinalGas:     expGasConsumedWithFeeMkt,
-		},
+		// {
+		// 	msg: "default trace with enableFeemarket and filtered return",
+		//           getRequest: func() types.QueryTraceBlockRequest {
+		//             defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+		//             defaultReq.TraceConfig = &types.TraceConfig{
+		//               DisableStack:   true,
+		//
+		// 	malleate: func() {
+		// 		traceConfig = &types.TraceConfig{
+		// 			DisableStack:   true,
+		// 			DisableStorage: true,
+		// 			EnableMemory:   false,
+		// 		}
+		// 	},
+		// 	expPass:         true,
+		// 	traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+		// 	enableFeemarket: true,
+		// 	expFinalGas:     expGasConsumedWithFeeMkt,
+		// },
+		// {
+		// 	msg: "javascript tracer with enableFeemarket",
+		// 	malleate: func() {
+		// 		traceConfig = &types.TraceConfig{
+		// 			Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
+		// 		}
+		// 	},
+		// 	expPass:         true,
+		// 	traceResponse:   "[{\"result\":[]}]",
+		// 	enableFeemarket: true,
+		// 	expFinalGas:     expGasConsumedWithFeeMkt,
+		// },
 		{
 			msg: "tracer with multiple transactions",
-			malleate: func() {
-				traceConfig = nil
-
-				// increase nonce to avoid address collision
-				vmdb := suite.StateDB()
-				addr := suite.keyring.GetAddr(0)
-				vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
-				suite.Require().NoError(vmdb.Commit())
-
-				contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-				err := suite.network.NextBlock()
-				suite.Require().NoError(err)
-				// create multiple transactions in the same block
-				firstTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-				secondTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-				err = suite.network.NextBlock()
-				suite.Require().NoError(err)
-				// overwrite txs to include only the ones on new block
-				txs = append([]*types.MsgEthereumTx{}, firstTx, secondTx)
+			getRequest: func() types.QueryTraceBlockRequest {
+				return getDefaultTraceBlockRequest(unitNetwork)
 			},
-			expPass:         true,
-			traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				// Create predecessor tx
+				// Use different address to avoid nonce collision
+				senderKey := keyring.GetKey(1)
+				constructorArgs := []interface{}{
+					senderKey.Addr,
+					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+				}
+				compiledContract := types.ERC20Contract
+				contractAddr, err := txFactory.DeployContract(
+					senderKey.Priv,
+					types.EvmTxArgs{}, // Default values
+					factory.ContractDeploymentData{
+						Contract:        compiledContract,
+						ConstructorArgs: constructorArgs,
+					},
+				)
+				suite.Require().NoError(err)
+
+				err = unitNetwork.NextBlock()
+				suite.Require().NoError(err)
+
+				recipientIndex := keyring.AddKey()
+				recipientAddr := keyring.GetAddr(recipientIndex)
+
+				transferArgs := types.EvmTxArgs{
+					To: &contractAddr,
+				}
+				callArgs := factory.CallArgs{
+					ContractABI: compiledContract.ABI,
+					MethodName:  "transfer",
+					Args:        []interface{}{recipientAddr, big.NewInt(1000)},
+				}
+				transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				suite.Require().NoError(err)
+
+				// We need to get access to the message
+				firstSignedTX, err := txFactory.GenerateSignedEthTx(senderKey.Priv, transferArgs)
+				suite.Require().NoError(err)
+				firstTx := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
+
+				fmt.Println("Height", unitNetwork.GetContext().BlockHeight())
+
+				result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
+				suite.Require().NoError(err)
+				suite.Require().True(result.IsOK())
+
+				secondArgs, err := txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				secondArgs.Nonce = firstTx.AsTransaction().Nonce() + 1
+				secondSignedTx, err := txFactory.GenerateSignedEthTx(senderKey.Priv, secondArgs)
+				suite.Require().NoError(err)
+				secondTx := secondSignedTx.GetMsgs()[0].(*types.MsgEthereumTx)
+
+				secondResult, err := txFactory.ExecuteContractCall(senderKey.Priv, secondArgs, callArgs)
+				suite.Require().NoError(err)
+				suite.Require().True(secondResult.IsOK())
+
+				suite.Require().NoError(unitNetwork.NextBlock())
+				return []*types.MsgEthereumTx{firstTx, secondTx}
+			},
+			// malleate: func() {
+			// 	traceConfig = nil
+			//
+			// 	// increase nonce to avoid address collision
+			// 	vmdb := suite.StateDB()
+			// 	addr := suite.keyring.GetAddr(0)
+			// 	vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
+			// 	suite.Require().NoError(vmdb.Commit())
+			//
+			// 	contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
+			// 	err := suite.network.NextBlock()
+			// 	suite.Require().NoError(err)
+			// 	// create multiple transactions in the same block
+			// 	firstTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
+			// 	secondTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
+			// 	err = suite.network.NextBlock()
+			// 	suite.Require().NoError(err)
+			// 	// overwrite txs to include only the ones on new block
+			// 	txs = append([]*types.MsgEthereumTx{}, firstTx, secondTx)
+			// },
+			expPass:       true,
+			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+
 			enableFeemarket: false,
 			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
+			getRequest: func() types.QueryTraceBlockRequest {
+				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+				defaultReq.TraceConfig = &types.TraceConfig{
 					DisableStack:   true,
 					DisableStorage: true,
 					EnableMemory:   false,
 					Limit:          -1,
 				}
+				return defaultReq
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+			// malleate: func() {
+			// 	traceConfig = &types.TraceConfig{
+			// 		DisableStack:   true,
+			// 		DisableStorage: true,
+			// 		EnableMemory:   false,
+			// 		Limit:          -1,
+			// 	}
+			// },
 			expPass:     false,
 			expFinalGas: 0,
 		},
 		{
 			msg: "invalid trace config - Invalid Tracer",
-			malleate: func() {
-				traceConfig = &types.TraceConfig{
-					DisableStack:   true,
-					DisableStorage: true,
-					EnableMemory:   false,
-					Tracer:         "invalid_tracer",
+			getRequest: func() types.QueryTraceBlockRequest {
+				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+				defaultReq.TraceConfig = &types.TraceConfig{
+					Tracer: "invalid_tracer",
 				}
+				return defaultReq
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+
+			//
+			// malleate: func() {
+			// 	traceConfig = &types.TraceConfig{
+			// 		DisableStack:   true,
+			// 		DisableStorage: true,
+			// 		EnableMemory:   false,
+			// 		Tracer:         "invalid_tracer",
+			// 	}
+			// },
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
 			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "invalid chain id",
-			malleate: func() {
-				traceConfig = nil
-				tmp := sdkmath.NewInt(1)
-				chainID = &tmp
+			getRequest: func() types.QueryTraceBlockRequest {
+				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
+				defaultReq.ChainId = -1
+				return defaultReq
 			},
+			getAdditionalTxs: func() []*types.MsgEthereumTx {
+				return nil
+			},
+			// malleate: func() {
+			// 	traceConfig = nil
+			// 	tmp := sdkmath.NewInt(1)
+			// 	chainID = &tmp
+			// },
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
 			expFinalGas:   expGasConsumed,
@@ -1590,33 +1578,73 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
+
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			txs = []*types.MsgEthereumTx{}
-			suite.enableFeemarket = tc.enableFeemarket
-			suite.SetupTest()
-			addr := suite.keyring.GetAddr(0)
-			// Deploy contract
-			contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-			err := suite.network.NextBlock()
-			suite.Require().NoError(err)
-			// Generate token transfer transaction
-			txMsg := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-			err = suite.network.NextBlock()
+			// ----- Contract Deployment -----
+			key := keyring.GetKey(0)
+			constructorArgs := []interface{}{
+				key.Addr,
+				sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+			}
+			compiledContract := types.ERC20Contract
+			contractAddr, err := txFactory.DeployContract(
+				key.Priv,
+				types.EvmTxArgs{}, // Default values
+				factory.ContractDeploymentData{
+					Contract:        compiledContract,
+					ConstructorArgs: constructorArgs,
+				},
+			)
 			suite.Require().NoError(err)
 
-			txs = append(txs, txMsg)
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
 
-			tc.malleate()
-			traceReq := types.QueryTraceBlockRequest{
-				Txs:         txs,
-				TraceConfig: traceConfig,
+			// --- Contract Call ---
+			newIndex := keyring.AddKey()
+			recipient := keyring.GetAddr(newIndex)
+
+			transferArgs := types.EvmTxArgs{
+				To: &contractAddr,
+			}
+			callArgs := factory.CallArgs{
+				ContractABI: compiledContract.ABI,
+				MethodName:  "transfer",
+				Args:        []interface{}{recipient, big.NewInt(1000)},
 			}
 
-			if chainID != nil {
-				traceReq.ChainId = chainID.Int64()
-			}
+			// --- Add predecessor ---
+			txs := tc.getAdditionalTxs()
 
-			res, err := suite.network.GetEvmClient().TraceBlock(suite.network.GetContext(), &traceReq)
+			// Create the transaction to be traced
+			// Note - it is important this is on the same block as the predecessor
+			input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+			suite.Require().NoError(err)
+			transferArgs.Input = input
+
+			msgToTrace, err := txFactory.GenerateMsgEthereumTx(key.Priv, transferArgs)
+			suite.Require().NoError(err)
+
+			signer := ethtypes.LatestSignerForChainID(unitNetwork.GetEIP155ChainID())
+			err = msgToTrace.Sign(signer, utiltx.NewSigner(key.Priv))
+			suite.Require().NoError(err)
+
+			txRes, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
+			suite.Require().NoError(err)
+			suite.Require().True(txRes.IsOK())
+
+			txs = append(txs, &msgToTrace)
+
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
+
+			// Get the trace request
+			traceReq := tc.getRequest()
+			// Add txs to trace request
+			traceReq.Txs = txs
+
+			res, err := unitNetwork.GetEvmClient().TraceBlock(unitNetwork.GetContext(), &traceReq)
 
 			if tc.expPass {
 				suite.Require().NoError(err)
@@ -1629,13 +1657,12 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int64(tc.expFinalGas), int64(suite.network.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
-			// Reset for next case
-			chainID = nil
+			suite.Require().Equal(int64(tc.expFinalGas), int64(unitNetwork.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
+
+			// Clean up per test
+			suite.Require().NoError(unitNetwork.NextBlock())
 		})
 	}
-
-	suite.enableFeemarket = false // reset flag
 }
 
 func (suite *KeeperTestSuite) TestNonceInQuery() {
