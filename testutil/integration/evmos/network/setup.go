@@ -4,6 +4,7 @@
 package network
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/evmos/evmos/v16/app"
@@ -12,6 +13,7 @@ import (
 	"cosmossdk.io/simapp"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
+	"github.com/cosmos/gogoproto/proto"
 
 	sdkmath "cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
@@ -23,9 +25,14 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	epochstypes "github.com/evmos/evmos/v16/x/epochs/types"
 	infltypes "github.com/evmos/evmos/v16/x/inflation/v1/types"
+
+	evmosutil "github.com/evmos/evmos/v16/utils"
+	evmtypes "github.com/evmos/evmos/v16/x/evm/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -174,26 +181,23 @@ type StakingCustomGenesisState struct {
 	delegations []stakingtypes.Delegation
 }
 
-// setStakingGenesisState sets the staking genesis state
-func setStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
+// setDefaultStakingGenesisState sets the staking genesis state
+func setDefaultStakingGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
 
-	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, overwriteParams.validators, overwriteParams.delegations)
+	stakingGenesis := stakingtypes.NewGenesisState(
+		stakingParams,
+		overwriteParams.validators,
+		overwriteParams.delegations,
+	)
 	genesisState[stakingtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(stakingGenesis)
 	return genesisState
 }
 
-// setAuthGenesisState sets the auth genesis state
-func setAuthGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, genAccounts []authtypes.GenesisAccount) simapp.GenesisState {
-	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccounts)
-	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(authGenesis)
-	return genesisState
-}
-
-// setInflationGenesisState sets the inflation genesis state
-func setInflationGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+// setDefaultInflationGenesisState sets the inflation genesis state
+func setDefaultInflationGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
 	inflationParams := infltypes.DefaultParams()
 	inflationParams.EnableInflation = false
 
@@ -207,8 +211,12 @@ type BankCustomGenesisState struct {
 	balances    []banktypes.Balance
 }
 
-// setBankGenesisState sets the bank genesis state
-func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, overwriteParams BankCustomGenesisState) simapp.GenesisState {
+// setDefaultBankGenesisState sets the bank genesis state
+func setDefaultBankGenesisState(
+	evmosApp *app.Evmos,
+	genesisState simapp.GenesisState,
+	overwriteParams BankCustomGenesisState,
+) simapp.GenesisState {
 	bankGenesis := banktypes.NewGenesisState(
 		banktypes.DefaultGenesisState().Params,
 		overwriteParams.balances,
@@ -218,6 +226,101 @@ func setBankGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState, 
 	)
 	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
 	return genesisState
+}
+
+// genSetupFn is the type for the module genesis setup functions
+type genSetupFn func(
+	evmosApp *app.Evmos,
+	genesisState simapp.GenesisState,
+	customGenesis interface{},
+) (simapp.GenesisState, error)
+
+// defaultGenesisParams contains the params that are needed to
+// setup the default genesis for the testing setup
+type defaultGenesisParams struct {
+	genAccounts []authtypes.GenesisAccount
+	staking     StakingCustomGenesisState
+	bank        BankCustomGenesisState
+}
+
+// genStateSetter is a generic function to set module-specific genesis state
+func genStateSetter[T proto.Message](moduleName string) genSetupFn {
+	return func(
+		evmosApp *app.Evmos,
+		genesisState simapp.GenesisState,
+		customGenesis interface{},
+	) (simapp.GenesisState, error) {
+		moduleGenesis, ok := customGenesis.(T)
+		if !ok {
+			return nil, fmt.Errorf("invalid type %T for %s module genesis state", customGenesis, moduleName)
+		}
+
+		genesisState[moduleName] = evmosApp.AppCodec().MustMarshalJSON(moduleGenesis)
+		return genesisState, nil
+	}
+}
+
+// genesisSetupFunctions contains the available genesis setup functions
+// that can be used to customize the network genesis
+var genesisSetupFunctions = map[string]genSetupFn{
+	evmtypes.ModuleName:  genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
+	govtypes.ModuleName:  genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
+	infltypes.ModuleName: genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+}
+
+// setDefaultAuthGenesisState sets the default auth genesis state
+func setDefaultAuthGenesisState(
+	evmosApp *app.Evmos,
+	genesisState simapp.GenesisState,
+	genAccs []authtypes.GenesisAccount,
+) simapp.GenesisState {
+	defaultAuthGen := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
+	genesisState[authtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(defaultAuthGen)
+	return genesisState
+}
+
+// setDefaultGovGenesisState sets the default gov genesis state
+func setDefaultGovGenesisState(evmosApp *app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+	govGen := govtypesv1.DefaultGenesisState()
+	updatedParams := govGen.Params
+	// set 'aevmos' as deposit denom
+	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, sdkmath.NewInt(1e18)))
+	govGen.Params = updatedParams
+	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
+	return genesisState
+}
+
+// defaultAuthGenesisState sets the default genesis state
+// for the testing setup
+func newDefaultGenesisState(evmosApp *app.Evmos, params defaultGenesisParams) simapp.GenesisState {
+	genesisState := app.NewDefaultGenesisState()
+
+	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
+	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
+	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
+	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
+	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
+
+	return genesisState
+}
+
+// customizeGenesis modifies genesis state if there're any custom genesis state
+// for specific modules
+func customizeGenesis(
+	evmosApp *app.Evmos,
+	customGen CustomGenesisState,
+	genesisState simapp.GenesisState,
+) (simapp.GenesisState, error) {
+	var err error
+	for mod, modGenState := range customGen {
+		if fn, found := genesisSetupFunctions[mod]; found {
+			genesisState, err = fn(evmosApp, genesisState, modGenState)
+			if err != nil {
+				return genesisState, err
+			}
+		}
+	}
+	return genesisState, err
 }
 
 // calculateTotalSupply calculates the total supply from the given balances
@@ -230,7 +333,10 @@ func calculateTotalSupply(fundedAccountsBalances []banktypes.Balance) sdktypes.C
 }
 
 // addBondedModuleAccountToFundedBalances adds bonded amount to bonded pool module account and include it on funded accounts
-func addBondedModuleAccountToFundedBalances(fundedAccountsBalances []banktypes.Balance, totalBonded sdktypes.Coin) []banktypes.Balance {
+func addBondedModuleAccountToFundedBalances(
+	fundedAccountsBalances []banktypes.Balance,
+	totalBonded sdktypes.Coin,
+) []banktypes.Balance {
 	return append(fundedAccountsBalances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
 		Coins:   sdktypes.Coins{totalBonded},
