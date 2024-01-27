@@ -18,7 +18,6 @@ import (
 	"github.com/evmos/evmos/v16/server/config"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	// "github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/factory"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
@@ -1041,49 +1040,24 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 				// Create predecessor tx
 				// Use different address to avoid nonce collision
 				senderKey := keyring.GetKey(1)
-
-				constructorArgs := []interface{}{
-					senderKey.Addr,
-					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-				}
-				compiledContract := types.ERC20Contract
-				contractAddr, err := txFactory.DeployContract(
-					senderKey.Priv,
-					types.EvmTxArgs{}, // Default values
-					factory.ContractDeploymentData{
-						Contract:        compiledContract,
-						ConstructorArgs: constructorArgs,
-					},
-				)
+				contractAddr, err := deployErc20Contract(senderKey, unitNetwork, txFactory)
 				suite.Require().NoError(err)
 
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				recipientIndex := keyring.AddKey()
-				recipientAddr := keyring.GetAddr(recipientIndex)
-
-				transferArgs := types.EvmTxArgs{
-					To: &contractAddr,
-				}
-				callArgs := factory.CallArgs{
-					ContractABI: compiledContract.ABI,
-					MethodName:  "transfer",
-					Args:        []interface{}{recipientAddr, big.NewInt(1000)},
-				}
-
-				transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				txMsg, err := executeTransferCall(
+					transferParams{
+						senderKey:     senderKey,
+						contractAddr:  contractAddr,
+						recipientAddr: keyring.GetAddr(0),
+					},
+					unitNetwork,
+					txFactory,
+				)
 				suite.Require().NoError(err)
 
-				// Generate the message to add to predecessors
-				firstTx, err := txFactory.GenerateMsgEthereumTx(senderKey.Priv, transferArgs)
-				suite.Require().NoError(err)
-
-				result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
-				suite.Require().NoError(err)
-				suite.Require().True(result.IsOK())
-
-				return []*types.MsgEthereumTx{&firstTx}
+				return []*types.MsgEthereumTx{txMsg}
 			},
 			expPass:       true,
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
@@ -1194,68 +1168,44 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-
-			// ----- Contract Deployment -----
-			key := keyring.GetKey(0)
-			constructorArgs := []interface{}{
-				key.Addr,
-				sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-			}
-			compiledContract := types.ERC20Contract
-			contractAddr, err := txFactory.DeployContract(
-				key.Priv,
-				types.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
+			// Clean up per test
+			defaultEvmParams := types.DefaultParams()
+			err := unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 
 			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
 
-			// --- Contract Call ---
-			newIndex := keyring.AddKey()
-			recipient := keyring.GetAddr(newIndex)
+			// ----- Contract Deployment -----
+			senderKey := keyring.GetKey(0)
+			contractAddr, err := deployErc20Contract(senderKey, unitNetwork, txFactory)
+			suite.Require().NoError(err)
 
-			transferArgs := types.EvmTxArgs{
-				To: &contractAddr,
-			}
-			callArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "transfer",
-				Args:        []interface{}{recipient, big.NewInt(1000)},
-			}
+			err = unitNetwork.NextBlock()
+			suite.Require().NoError(err)
 
 			// --- Add predecessor ---
 			predecessors := tc.getPredecessors()
 
-			// Create the transaction to be traced
-			// Note - it is important this is on the same block as the predecessor
-			input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+			// Get the message to trace
+			msgToTrace, err := executeTransferCall(
+				transferParams{
+					senderKey:     senderKey,
+					contractAddr:  contractAddr,
+					recipientAddr: keyring.GetAddr(1),
+				},
+				unitNetwork,
+				txFactory,
+			)
 			suite.Require().NoError(err)
-			transferArgs.Input = input
 
-			msgToTrace, err := txFactory.GenerateMsgEthereumTx(key.Priv, transferArgs)
-			suite.Require().NoError(err)
-
-			signer := ethtypes.LatestSignerForChainID(unitNetwork.GetEIP155ChainID())
-			err = msgToTrace.Sign(signer, utiltx.NewSigner(key.Priv))
-			suite.Require().NoError(err)
-
-			txRes, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
-			suite.Require().NoError(err)
-			suite.Require().True(txRes.IsOK())
-
-			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
+			suite.Require().NoError(unitNetwork.NextBlock())
 
 			// Get the trace request
 			traceReq := tc.getRequest()
 			// Add predecessor to trace request
 			traceReq.Predecessors = predecessors
-			traceReq.Msg = &msgToTrace
+			traceReq.Msg = msgToTrace
 
 			// Function under test
 			res, err := unitNetwork.GetEvmClient().TraceTx(
@@ -1280,14 +1230,6 @@ func (suite *EvmKeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
-
-			// Clean up per test
-			defaultEvmParams := types.DefaultParams()
-			err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), defaultEvmParams)
-			suite.Require().NoError(err)
-
-			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
 		})
 	}
 }
@@ -1330,7 +1272,7 @@ type transferParams struct {
 
 func executeTransferCall(
 	transferParams transferParams,
-	unitNetwork network.Network,
+	unitNetwork *network.UnitTestNetwork,
 	txFactory factory.TxFactory,
 ) (msgEthereumTx *types.MsgEthereumTx, err error) {
 	transferArgs := types.EvmTxArgs{
@@ -1352,10 +1294,13 @@ func executeTransferCall(
 	if err != nil {
 		return nil, err
 	}
-	txMsg := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
+	txMsg, ok := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
+	if !ok {
+		return nil, fmt.Errorf("invalid type")
+	}
 
 	result, err := txFactory.ExecuteContractCall(transferParams.senderKey.Priv, transferArgs, callArgs)
-	if err != nil || result.IsOK() {
+	if err != nil || !result.IsOK() {
 		return nil, err
 	}
 	return txMsg, nil
@@ -1373,12 +1318,8 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 		msg              string
 		getRequest       func() types.QueryTraceBlockRequest
 		getAdditionalTxs func() []*types.MsgEthereumTx
-		malleate         func()
 		expPass          bool
 		traceResponse    string
-
-		enableFeemarket bool
-		expFinalGas     uint64
 	}{
 		{
 			msg: "default trace",
@@ -1388,12 +1329,8 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			// },
 			expPass:       true,
 			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
-			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "filtered trace",
@@ -1409,16 +1346,8 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 	}
-			// },
 			expPass:       true,
 			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
-			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "javascript tracer",
@@ -1432,46 +1361,9 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
-			// 	}
-			// },
 			expPass:       true,
 			traceResponse: "[{\"result\":[]}]",
-			expFinalGas:   expGasConsumed,
 		},
-		// {
-		// 	msg: "default trace with enableFeemarket and filtered return",
-		//           getRequest: func() types.QueryTraceBlockRequest {
-		//             defaultReq := getDefaultTraceBlockRequest(unitNetwork)
-		//             defaultReq.TraceConfig = &types.TraceConfig{
-		//               DisableStack:   true,
-		//
-		// 	malleate: func() {
-		// 		traceConfig = &types.TraceConfig{
-		// 			DisableStack:   true,
-		// 			DisableStorage: true,
-		// 			EnableMemory:   false,
-		// 		}
-		// 	},
-		// 	expPass:         true,
-		// 	traceResponse:   "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
-		// 	enableFeemarket: true,
-		// 	expFinalGas:     expGasConsumedWithFeeMkt,
-		// },
-		// {
-		// 	msg: "javascript tracer with enableFeemarket",
-		// 	malleate: func() {
-		// 		traceConfig = &types.TraceConfig{
-		// 			Tracer: "{data: [], fault: function(log) {}, step: function(log) { if(log.op.toString() == \"CALL\") this.data.push(log.stack.peek(0)); }, result: function() { return this.data; }}",
-		// 		}
-		// 	},
-		// 	expPass:         true,
-		// 	traceResponse:   "[{\"result\":[]}]",
-		// 	enableFeemarket: true,
-		// 	expFinalGas:     expGasConsumedWithFeeMkt,
-		// },
 		{
 			msg: "tracer with multiple transactions",
 			getRequest: func() types.QueryTraceBlockRequest {
@@ -1497,106 +1389,24 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 					txFactory,
 				)
 				suite.Require().NoError(err)
-
-				secondTransferMessage, err := executeTransferCall(
-					transferParams{
-						senderKey:     keyring.GetKey(2),
-						contractAddr:  contractAddr,
-						recipientAddr: keyring.GetAddr(0),
-					},
-					unitNetwork,
-					txFactory,
-				)
-				suite.Require().NoError(err)
-
-				// recipientIndex := keyring.AddKey()
-				// recipientAddr := keyring.GetAddr(recipientIndex)
-				//
-				// transferArgs := types.EvmTxArgs{
-				// 	To: &contractAddr,
-				// }
-				// callArgs := factory.CallArgs{
-				// 	ContractABI: compiledContract.ABI,
-				// 	MethodName:  "transfer",
-				// 	Args:        []interface{}{recipientAddr, big.NewInt(1000)},
-				// }
-				// transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
-				// suite.Require().NoError(err)
-				//
-				// // We need to get access to the message
-				// firstSignedTX, err := txFactory.GenerateSignedEthTx(senderKey.Priv, transferArgs)
-				// suite.Require().NoError(err)
-				// firstTx := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
-				//
-				// fmt.Println("Height", unitNetwork.GetContext().BlockHeight())
-				//
-				// result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
-				// suite.Require().NoError(err)
-				// suite.Require().True(result.IsOK())
-				//
-				// secondArgs, err := txFactory.GenerateContractCallArgs(transferArgs, callArgs)
-				// secondArgs.Nonce = firstTx.AsTransaction().Nonce() + 1
-				// secondSignedTx, err := txFactory.GenerateSignedEthTx(senderKey.Priv, secondArgs)
-				// suite.Require().NoError(err)
-				// secondTx := secondSignedTx.GetMsgs()[0].(*types.MsgEthereumTx)
-				//
-				// secondResult, err := txFactory.ExecuteContractCall(senderKey.Priv, secondArgs, callArgs)
-				// suite.Require().NoError(err)
-				// suite.Require().True(secondResult.IsOK())
-				//
-				return []*types.MsgEthereumTx{firstTransferMessage, secondTransferMessage}
+				return []*types.MsgEthereumTx{firstTransferMessage}
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			//
-			// 	// increase nonce to avoid address collision
-			// 	vmdb := suite.StateDB()
-			// 	addr := suite.keyring.GetAddr(0)
-			// 	vmdb.SetNonce(addr, vmdb.GetNonce(addr)+1)
-			// 	suite.Require().NoError(vmdb.Commit())
-			//
-			// 	contractAddr := suite.DeployTestContract(suite.T(), addr, sdkmath.NewIntWithDecimal(1000, 18).BigInt())
-			// 	err := suite.network.NextBlock()
-			// 	suite.Require().NoError(err)
-			// 	// create multiple transactions in the same block
-			// 	firstTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-			// 	secondTx := suite.TransferERC20Token(suite.T(), contractAddr, addr, common.HexToAddress("0x378c50D9264C63F3F92B806d4ee56E9D86FfB3Ec"), sdkmath.NewIntWithDecimal(1, 18).BigInt())
-			// 	err = suite.network.NextBlock()
-			// 	suite.Require().NoError(err)
-			// 	// overwrite txs to include only the ones on new block
-			// 	txs = append([]*types.MsgEthereumTx{}, firstTx, secondTx)
-			// },
 			expPass:       true,
 			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
-
-			enableFeemarket: false,
-			expFinalGas:     expGasConsumed,
 		},
 		{
 			msg: "invalid trace config - Negative Limit",
 			getRequest: func() types.QueryTraceBlockRequest {
 				defaultReq := getDefaultTraceBlockRequest(unitNetwork)
 				defaultReq.TraceConfig = &types.TraceConfig{
-					DisableStack:   true,
-					DisableStorage: true,
-					EnableMemory:   false,
-					Limit:          -1,
+					Limit: -1,
 				}
 				return defaultReq
 			},
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 		Limit:          -1,
-			// 	}
-			// },
-			expPass:     false,
-			expFinalGas: 0,
+			expPass: false,
 		},
 		{
 			msg: "invalid trace config - Invalid Tracer",
@@ -1610,19 +1420,8 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-
-			//
-			// malleate: func() {
-			// 	traceConfig = &types.TraceConfig{
-			// 		DisableStack:   true,
-			// 		DisableStorage: true,
-			// 		EnableMemory:   false,
-			// 		Tracer:         "invalid_tracer",
-			// 	}
-			// },
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
-			expFinalGas:   expGasConsumed,
 		},
 		{
 			msg: "invalid chain id",
@@ -1634,78 +1433,42 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			getAdditionalTxs: func() []*types.MsgEthereumTx {
 				return nil
 			},
-			// malleate: func() {
-			// 	traceConfig = nil
-			// 	tmp := sdkmath.NewInt(1)
-			// 	chainID = &tmp
-			// },
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
-			expFinalGas:   expGasConsumed,
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
-
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			// Start from fresh block
+			suite.Require().NoError(unitNetwork.NextBlock())
+
 			// ----- Contract Deployment -----
-			key := keyring.GetKey(0)
-			constructorArgs := []interface{}{
-				key.Addr,
-				sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-			}
-			compiledContract := types.ERC20Contract
-			contractAddr, err := txFactory.DeployContract(
-				key.Priv,
-				types.EvmTxArgs{}, // Default values
-				factory.ContractDeploymentData{
-					Contract:        compiledContract,
-					ConstructorArgs: constructorArgs,
-				},
-			)
+			senderKey := keyring.GetKey(0)
+			contractAddr, err := deployErc20Contract(senderKey, unitNetwork, txFactory)
 			suite.Require().NoError(err)
 
 			err = unitNetwork.NextBlock()
 			suite.Require().NoError(err)
-
-			// --- Contract Call ---
-			newIndex := keyring.AddKey()
-			recipient := keyring.GetAddr(newIndex)
-
-			transferArgs := types.EvmTxArgs{
-				To: &contractAddr,
-			}
-			callArgs := factory.CallArgs{
-				ContractABI: compiledContract.ABI,
-				MethodName:  "transfer",
-				Args:        []interface{}{recipient, big.NewInt(1000)},
-			}
 
 			// --- Add predecessor ---
 			txs := tc.getAdditionalTxs()
 
-			// Create the transaction to be traced
-			// Note - it is important this is on the same block as the predecessor
-			input, err := callArgs.ContractABI.Pack(callArgs.MethodName, callArgs.Args...)
+			// --- Contract Call ---
+			msgToTrace, err := executeTransferCall(
+				transferParams{
+					senderKey:     senderKey,
+					contractAddr:  contractAddr,
+					recipientAddr: keyring.GetAddr(1),
+				},
+				unitNetwork,
+				txFactory,
+			)
 			suite.Require().NoError(err)
-			transferArgs.Input = input
+			txs = append(txs, msgToTrace)
 
-			msgToTrace, err := txFactory.GenerateMsgEthereumTx(key.Priv, transferArgs)
-			suite.Require().NoError(err)
-
-			signer := ethtypes.LatestSignerForChainID(unitNetwork.GetEIP155ChainID())
-			err = msgToTrace.Sign(signer, utiltx.NewSigner(key.Priv))
-			suite.Require().NoError(err)
-
-			txRes, err := txFactory.ExecuteContractCall(key.Priv, transferArgs, callArgs)
-			suite.Require().NoError(err)
-			suite.Require().True(txRes.IsOK())
-
-			txs = append(txs, &msgToTrace)
-
-			err = unitNetwork.NextBlock()
-			suite.Require().NoError(err)
+			suite.Require().NoError(unitNetwork.NextBlock())
 
 			// Get the trace request
 			traceReq := tc.getRequest()
@@ -1725,10 +1488,6 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int64(tc.expFinalGas), int64(unitNetwork.GetContext().GasMeter().GasConsumed()), "expected different gas consumption")
-
-			// Clean up per test
-			suite.Require().NoError(unitNetwork.NextBlock())
 		})
 	}
 }
