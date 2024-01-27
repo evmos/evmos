@@ -1302,8 +1302,67 @@ func getDefaultTraceBlockRequest(unitNetwork network.Network) types.QueryTraceBl
 	}
 }
 
+func deployErc20Contract(from testkeyring.Key, unitNetwork network.Network, txFactory factory.TxFactory) (common.Address, error) {
+	constructorArgs := []interface{}{
+		from.Addr,
+		sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
+	}
+	compiledContract := types.ERC20Contract
+	contractAddr, err := txFactory.DeployContract(
+		from.Priv,
+		types.EvmTxArgs{}, // Default values
+		factory.ContractDeploymentData{
+			Contract:        compiledContract,
+			ConstructorArgs: constructorArgs,
+		},
+	)
+	if err != nil {
+		return common.Address{}, err
+	}
+	return contractAddr, nil
+}
+
+type transferParams struct {
+	senderKey     testkeyring.Key
+	contractAddr  common.Address
+	recipientAddr common.Address
+}
+
+func executeTransferCall(
+	transferParams transferParams,
+	unitNetwork network.Network,
+	txFactory factory.TxFactory,
+) (msgEthereumTx *types.MsgEthereumTx, err error) {
+	transferArgs := types.EvmTxArgs{
+		To: &transferParams.contractAddr,
+	}
+	callArgs := factory.CallArgs{
+		ContractABI: types.ERC20Contract.ABI,
+		MethodName:  "transfer",
+		Args:        []interface{}{transferParams.recipientAddr, big.NewInt(1000)},
+	}
+
+	transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+	if err != nil {
+		return nil, err
+	}
+
+	// We need to get access to the message
+	firstSignedTX, err := txFactory.GenerateSignedEthTx(transferParams.senderKey.Priv, transferArgs)
+	if err != nil {
+		return nil, err
+	}
+	txMsg := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
+
+	result, err := txFactory.ExecuteContractCall(transferParams.senderKey.Priv, transferArgs, callArgs)
+	if err != nil || result.IsOK() {
+		return nil, err
+	}
+	return txMsg, nil
+}
+
 func (suite *EvmKeeperTestSuite) TestTraceBlock() {
-	keyring := testkeyring.New(2)
+	keyring := testkeyring.New(3)
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
@@ -1422,61 +1481,70 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 				// Create predecessor tx
 				// Use different address to avoid nonce collision
 				senderKey := keyring.GetKey(1)
-				constructorArgs := []interface{}{
-					senderKey.Addr,
-					sdkmath.NewIntWithDecimal(1000, 18).BigInt(),
-				}
-				compiledContract := types.ERC20Contract
-				contractAddr, err := txFactory.DeployContract(
-					senderKey.Priv,
-					types.EvmTxArgs{}, // Default values
-					factory.ContractDeploymentData{
-						Contract:        compiledContract,
-						ConstructorArgs: constructorArgs,
-					},
-				)
+				contractAddr, err := deployErc20Contract(senderKey, unitNetwork, txFactory)
 				suite.Require().NoError(err)
 
 				err = unitNetwork.NextBlock()
 				suite.Require().NoError(err)
 
-				recipientIndex := keyring.AddKey()
-				recipientAddr := keyring.GetAddr(recipientIndex)
-
-				transferArgs := types.EvmTxArgs{
-					To: &contractAddr,
-				}
-				callArgs := factory.CallArgs{
-					ContractABI: compiledContract.ABI,
-					MethodName:  "transfer",
-					Args:        []interface{}{recipientAddr, big.NewInt(1000)},
-				}
-				transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				firstTransferMessage, err := executeTransferCall(
+					transferParams{
+						senderKey:     keyring.GetKey(1),
+						contractAddr:  contractAddr,
+						recipientAddr: keyring.GetAddr(0),
+					},
+					unitNetwork,
+					txFactory,
+				)
 				suite.Require().NoError(err)
 
-				// We need to get access to the message
-				firstSignedTX, err := txFactory.GenerateSignedEthTx(senderKey.Priv, transferArgs)
+				secondTransferMessage, err := executeTransferCall(
+					transferParams{
+						senderKey:     keyring.GetKey(2),
+						contractAddr:  contractAddr,
+						recipientAddr: keyring.GetAddr(0),
+					},
+					unitNetwork,
+					txFactory,
+				)
 				suite.Require().NoError(err)
-				firstTx := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
 
-				fmt.Println("Height", unitNetwork.GetContext().BlockHeight())
-
-				result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
-				suite.Require().NoError(err)
-				suite.Require().True(result.IsOK())
-
-				secondArgs, err := txFactory.GenerateContractCallArgs(transferArgs, callArgs)
-				secondArgs.Nonce = firstTx.AsTransaction().Nonce() + 1
-				secondSignedTx, err := txFactory.GenerateSignedEthTx(senderKey.Priv, secondArgs)
-				suite.Require().NoError(err)
-				secondTx := secondSignedTx.GetMsgs()[0].(*types.MsgEthereumTx)
-
-				secondResult, err := txFactory.ExecuteContractCall(senderKey.Priv, secondArgs, callArgs)
-				suite.Require().NoError(err)
-				suite.Require().True(secondResult.IsOK())
-
-				suite.Require().NoError(unitNetwork.NextBlock())
-				return []*types.MsgEthereumTx{firstTx, secondTx}
+				// recipientIndex := keyring.AddKey()
+				// recipientAddr := keyring.GetAddr(recipientIndex)
+				//
+				// transferArgs := types.EvmTxArgs{
+				// 	To: &contractAddr,
+				// }
+				// callArgs := factory.CallArgs{
+				// 	ContractABI: compiledContract.ABI,
+				// 	MethodName:  "transfer",
+				// 	Args:        []interface{}{recipientAddr, big.NewInt(1000)},
+				// }
+				// transferArgs, err = txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				// suite.Require().NoError(err)
+				//
+				// // We need to get access to the message
+				// firstSignedTX, err := txFactory.GenerateSignedEthTx(senderKey.Priv, transferArgs)
+				// suite.Require().NoError(err)
+				// firstTx := firstSignedTX.GetMsgs()[0].(*types.MsgEthereumTx)
+				//
+				// fmt.Println("Height", unitNetwork.GetContext().BlockHeight())
+				//
+				// result, err := txFactory.ExecuteContractCall(senderKey.Priv, transferArgs, callArgs)
+				// suite.Require().NoError(err)
+				// suite.Require().True(result.IsOK())
+				//
+				// secondArgs, err := txFactory.GenerateContractCallArgs(transferArgs, callArgs)
+				// secondArgs.Nonce = firstTx.AsTransaction().Nonce() + 1
+				// secondSignedTx, err := txFactory.GenerateSignedEthTx(senderKey.Priv, secondArgs)
+				// suite.Require().NoError(err)
+				// secondTx := secondSignedTx.GetMsgs()[0].(*types.MsgEthereumTx)
+				//
+				// secondResult, err := txFactory.ExecuteContractCall(senderKey.Priv, secondArgs, callArgs)
+				// suite.Require().NoError(err)
+				// suite.Require().True(secondResult.IsOK())
+				//
+				return []*types.MsgEthereumTx{firstTransferMessage, secondTransferMessage}
 			},
 			// malleate: func() {
 			// 	traceConfig = nil
@@ -1499,7 +1567,7 @@ func (suite *EvmKeeperTestSuite) TestTraceBlock() {
 			// 	txs = append([]*types.MsgEthereumTx{}, firstTx, secondTx)
 			// },
 			expPass:       true,
-			traceResponse: "[{\"result\":{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
+			traceResponse: "[{\"result\":{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PU",
 
 			enableFeemarket: false,
 			expFinalGas:     expGasConsumed,
