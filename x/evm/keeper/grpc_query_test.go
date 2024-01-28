@@ -402,8 +402,13 @@ func (suite *EvmKeeperTestSuite) TestQueryCode() {
 }
 
 // TODO: Fix this one
-func (suite *KeeperTestSuite) TestQueryTxLogs() {
-	var expLogs []*types.Log
+func (suite *EvmKeeperTestSuite) TestQueryTxLogs() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	expLogs := []*types.Log{}
 	txHash := common.BytesToHash([]byte("tx_hash"))
 	txIndex := uint(1)
 	logIndex := uint(1)
@@ -421,7 +426,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 		{
 			"success",
 			func(vmdb vm.StateDB) {
-				addr := suite.keyring.GetAddr(0)
+				addr := keyring.GetAddr(0)
 				expLogs = []*types.Log{
 					{
 						Address:     addr.String(),
@@ -430,7 +435,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 						BlockNumber: 1,
 						TxHash:      txHash.String(),
 						TxIndex:     uint64(txIndex),
-						BlockHash:   common.BytesToHash(suite.network.GetContext().HeaderHash()).Hex(),
+						BlockHash:   common.BytesToHash(unitNetwork.GetContext().HeaderHash()).Hex(),
 						Index:       uint64(logIndex),
 						Removed:     false,
 					},
@@ -445,9 +450,18 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			suite.SetupTest() // reset
+			txCfg := statedb.NewTxConfig(
+				common.BytesToHash(unitNetwork.GetContext().HeaderHash()),
+				txHash,
+				txIndex,
+				logIndex,
+			)
+			vmdb := statedb.New(
+				unitNetwork.GetContext(),
+				unitNetwork.App.EvmKeeper,
+				txCfg,
+			)
 
-			vmdb := statedb.New(suite.network.GetContext(), suite.network.App.EvmKeeper, statedb.NewTxConfig(common.BytesToHash(suite.network.GetContext().HeaderHash()), txHash, txIndex, logIndex))
 			tc.malleate(vmdb)
 			suite.Require().NoError(vmdb.Commit())
 
