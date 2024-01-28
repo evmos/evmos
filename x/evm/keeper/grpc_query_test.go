@@ -1642,11 +1642,16 @@ func (suite *EvmKeeperTestSuite) TestQueryBaseFee() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestEthCall() {
-	var req *types.EthCallRequest
+func (suite *EvmKeeperTestSuite) TestEthCall() {
+	keyring := testkeyring.New(2)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+	// grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
+	// txFactory := factory.New(unitNetwork, grcpHandler)
 
 	address := utiltx.GenerateAddress()
-	suite.Require().Equal(uint64(0), suite.network.App.EvmKeeper.GetNonce(suite.network.GetContext(), address))
+	suite.Require().Equal(uint64(0), unitNetwork.App.EvmKeeper.GetNonce(unitNetwork.GetContext(), address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
 	hexBigInt := hexutil.Big(*big.NewInt(1))
@@ -1657,63 +1662,68 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	data = append(data, ctorArgs...)
 
 	testCases := []struct {
-		name     string
-		malleate func()
-		expPass  bool
+		name    string
+		getReq  func() *types.EthCallRequest
+		expPass bool
 	}{
 		{
 			"invalid args",
-			func() {
-				req = &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
+			func() *types.EthCallRequest {
+				return &types.EthCallRequest{Args: []byte("invalid args"), GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
 		{
 			"invalid args - specified both gasPrice and maxFeePerGas",
-			func() {
+			func() *types.EthCallRequest {
 				args, err := json.Marshal(&types.TransactionArgs{
 					From:         &address,
 					Data:         (*hexutil.Bytes)(&data),
 					GasPrice:     &hexBigInt,
 					MaxFeePerGas: &hexBigInt,
 				})
-
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
+
+				return &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
 		{
 			"set param EnableCreate = false",
-			func() {
+			func() *types.EthCallRequest {
+				params := unitNetwork.App.EvmKeeper.GetParams(unitNetwork.GetContext())
+				params.EnableCreate = false
+				err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), params)
+				suite.Require().NoError(err)
+
 				args, err := json.Marshal(&types.TransactionArgs{
 					From: &address,
 					Data: (*hexutil.Bytes)(&data),
 				})
-
 				suite.Require().NoError(err)
-				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-				params := suite.network.App.EvmKeeper.GetParams(suite.network.GetContext())
-				params.EnableCreate = false
-				err = suite.network.App.EvmKeeper.SetParams(suite.network.GetContext(), params)
-				suite.Require().NoError(err)
+				return &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 			},
 			false,
 		},
 	}
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.SetupTest()
-			tc.malleate()
+			req := tc.getReq()
 
-			res, err := suite.network.GetEvmClient().EthCall(suite.network.GetContext(), req)
+			// Function under test
+			res, err := unitNetwork.GetEvmClient().EthCall(unitNetwork.GetContext(), req)
 			if tc.expPass {
 				suite.Require().NotNil(res)
 				suite.Require().NoError(err)
 			} else {
 				suite.Require().Error(err)
 			}
+
+			// Reset params
+			defaultEvmParams := types.DefaultParams()
+			err = unitNetwork.App.EvmKeeper.SetParams(unitNetwork.GetContext(), defaultEvmParams)
+			suite.Require().NoError(err)
 		})
 	}
 }
