@@ -23,7 +23,6 @@ import (
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/grpc"
 	testkeyring "github.com/evmos/evmos/v16/testutil/integration/evmos/keyring"
 	"github.com/evmos/evmos/v16/testutil/integration/evmos/network"
-	utiltx "github.com/evmos/evmos/v16/testutil/tx"
 	"github.com/evmos/evmos/v16/x/evm/statedb"
 	"github.com/evmos/evmos/v16/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v16/x/feemarket/types"
@@ -1647,17 +1646,12 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 	unitNetwork := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
-	// grcpHandler := grpc.NewIntegrationHandler(unitNetwork)
-	// txFactory := factory.New(unitNetwork, grcpHandler)
 
-	address := utiltx.GenerateAddress()
-	suite.Require().Equal(uint64(0), unitNetwork.App.EvmKeeper.GetNonce(unitNetwork.GetContext(), address))
+	// Generate common data for requests
+	sender := keyring.GetAddr(0)
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
-
-	hexBigInt := hexutil.Big(*big.NewInt(1))
-	ctorArgs, err := types.ERC20Contract.ABI.Pack("", address, supply)
+	ctorArgs, err := types.ERC20Contract.ABI.Pack("", sender, supply)
 	suite.Require().NoError(err)
-
 	data := types.ERC20Contract.Bin
 	data = append(data, ctorArgs...)
 
@@ -1676,8 +1670,9 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 		{
 			"invalid args - specified both gasPrice and maxFeePerGas",
 			func() *types.EthCallRequest {
+				hexBigInt := hexutil.Big(*big.NewInt(1))
 				args, err := json.Marshal(&types.TransactionArgs{
-					From:         &address,
+					From:         &sender,
 					Data:         (*hexutil.Bytes)(&data),
 					GasPrice:     &hexBigInt,
 					MaxFeePerGas: &hexBigInt,
@@ -1697,7 +1692,7 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 				suite.Require().NoError(err)
 
 				args, err := json.Marshal(&types.TransactionArgs{
-					From: &address,
+					From: &sender,
 					Data: (*hexutil.Bytes)(&data),
 				})
 				suite.Require().NoError(err)
@@ -1728,8 +1723,13 @@ func (suite *EvmKeeperTestSuite) TestEthCall() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestEmptyRequest() {
-	k := suite.network.App.EvmKeeper
+func (suite *EvmKeeperTestSuite) TestEmptyRequest() {
+	keyring := testkeyring.New(1)
+	unitNetwork := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+	)
+
+	k := unitNetwork.App.EvmKeeper
 
 	testCases := []struct {
 		name      string
@@ -1738,68 +1738,67 @@ func (suite *KeeperTestSuite) TestEmptyRequest() {
 		{
 			"Account method",
 			func() (interface{}, error) {
-				return k.Account(suite.network.GetContext(), nil)
+				return k.Account(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"CosmosAccount method",
 			func() (interface{}, error) {
-				return k.CosmosAccount(suite.network.GetContext(), nil)
+				return k.CosmosAccount(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"ValidatorAccount method",
 			func() (interface{}, error) {
-				return k.ValidatorAccount(suite.network.GetContext(), nil)
+				return k.ValidatorAccount(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"Balance method",
 			func() (interface{}, error) {
-				return k.Balance(suite.network.GetContext(), nil)
+				return k.Balance(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"Storage method",
 			func() (interface{}, error) {
-				return k.Storage(suite.network.GetContext(), nil)
+				return k.Storage(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"Code method",
 			func() (interface{}, error) {
-				return k.Code(suite.network.GetContext(), nil)
+				return k.Code(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"EthCall method",
 			func() (interface{}, error) {
-				return k.EthCall(suite.network.GetContext(), nil)
+				return k.EthCall(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"EstimateGas method",
 			func() (interface{}, error) {
-				return k.EstimateGas(suite.network.GetContext(), nil)
+				return k.EstimateGas(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"TraceTx method",
 			func() (interface{}, error) {
-				return k.TraceTx(suite.network.GetContext(), nil)
+				return k.TraceTx(unitNetwork.GetContext(), nil)
 			},
 		},
 		{
 			"TraceBlock method",
 			func() (interface{}, error) {
-				return k.TraceBlock(suite.network.GetContext(), nil)
+				return k.TraceBlock(unitNetwork.GetContext(), nil)
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			suite.SetupTest()
 			_, err := tc.queryFunc()
 			suite.Require().Error(err)
 		})
